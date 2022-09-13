@@ -1,25 +1,30 @@
-import numpy as np
 import pandas as pd
-from pathlib import Path, WindowsPath
-from dataclasses import dataclass, field
+from pathlib import WindowsPath
+from dataclasses import dataclass
 from typing import List, Union
 
 
 class Base(object):
+    """
+    Base class to intercept __post_init__ call when using super() in child classes
+    This is because builtin 'object' is always last in the MRO, but doesn't have a __post_init__
+    All classes must therefore inherit from Base, such that the MRO becomes: child > parent(s) > Base > object
+    """
+
     def __post_init__(self):
-        # Intercept __post_init__ call when using super() in child classes
-        # This is because builtin 'object' is always last in the MRO, but doesn't have a __post_init__
-        # All classes must therefore inherit from Base, such that the MRO becomes: child > parent(s) > Base > object
         pass
 
 
 @dataclass
 class PointDataCollection(Base):
     """
-    Base class for a collection of boreholes and/or CPTs
+    Dataclass for collections of pointdata, such as boreholes and CPTs
+
+    Args:
+        __table (pd.DataFrame): Dataframe containing borehole/CPT data
+
     """
 
-    __source: Union[str, WindowsPath]
     __table: pd.DataFrame
 
     def __post_init__(self):
@@ -42,11 +47,7 @@ class PointDataCollection(Base):
             return object.__new__(cls)
 
     def __repr__(self):
-        return f"{self.__class__.__name__}:\nsource = {self.source.name}"
-
-    @property
-    def source(self):
-        return self.__source
+        return f"{self.__class__.__name__}:\n# entries = {self.length}"
 
     @property
     def entries(self):
@@ -64,16 +65,56 @@ class PointDataCollection(Base):
     def selected(self):
         return self.__selected
 
-    def sel(self, index: str or List[str]):
+    def sel(self, index: Union[str, List[str]]):
+        """
+        Make a selection of the table based on borehole ids
+
+        Parameters
+        ----------
+        index : Union[str, List[str]]
+            Borehole id
+        """
         self.__selected = self.table.loc[index]
 
     def append(self, other):
+        """
+        Append data of other object of the same type (e.g BoreholeCollection to BoreholeCollection)
+
+        Parameters
+        ----------
+        other : Instance of the same type as self
+            Another object of the same type, from which the data is appended to self
+        """
         if self.__class__ == other.__class__:
             self.__table = pd.concat([self.table, other.table])
             self.__entries = pd.concat([self.entries, other.entries])
 
     def to_parquet(self, out_file: Union[str, WindowsPath], selected=False, **kwargs):
+        """
+        Write table to parquet file
+
+        Parameters
+        ----------
+        out_file : Union[str, WindowsPath]
+            Path to parquet file to be written
+        selected : bool, optional
+            Use only selected data (True) or all data (False). Default False
+        **kwargs
+            pd.DataFrame.to_parquet kwargs
+        """
         self.__table.to_parquet(out_file, **kwargs)
 
     def to_csv(self, out_file: Union[str, WindowsPath], selected=False, **kwargs):
+        """
+        Write table to csv file
+
+        Parameters
+        ----------
+        out_file : Union[str, WindowsPath]
+            Path to csv file to be written
+        selected : bool, optional
+            Use only selected data (True) or all data (False). Default False
+        **kwargs
+            pd.DataFrame.to_csv kwargs
+        """
         self.__table.to_csv(out_file, **kwargs)

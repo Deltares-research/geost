@@ -8,6 +8,23 @@ from typing import Union
 
 
 def __read_parquet(file: WindowsPath) -> pd.DataFrame:
+    """Read parquet file
+
+    Parameters
+    ----------
+    file : WindowsPath
+        Path to file to be read
+
+    Returns
+    -------
+    pd.DataFrame
+        Dataframe with contents of 'file'
+
+    Raises
+    ------
+    TypeError
+        if 'file' has no '.parquet' or '.pq' suffix
+    """
     suffix = file.suffix
     if suffix in [".parquet", ".pq"]:
         return pd.read_parquet(file)
@@ -20,12 +37,21 @@ def __read_parquet(file: WindowsPath) -> pd.DataFrame:
 def read_sst_cores(file: Union[str, WindowsPath]) -> BoreholeCollection:
     """
     Read Subsurface Toolbox native parquet file with core information
+
+    Parameters
+    ----------
+    file : Union[str, WindowsPath]
+        Path to file to be read
+
+    Returns
+    -------
+    BoreholeCollection
+        Instance of BoreholeCollection
     """
-    filepath = Path(file)
-    sst_cores = __read_parquet(filepath)
+    sst_cores = __read_parquet(Path(file))
     # validate here
     sst_cores.set_index(["nr", "x", "y", "mv", "end", "top"], inplace=True)
-    return BoreholeCollection(filepath, sst_cores)
+    return BoreholeCollection(sst_cores)
 
 
 def read_sst_cpts(file: Union[str, WindowsPath]):

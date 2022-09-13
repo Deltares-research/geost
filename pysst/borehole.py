@@ -7,6 +7,10 @@ from pysst.base import PointDataCollection
 
 @dataclass(repr=False)
 class BoreholeCollection(PointDataCollection):
+    """
+    BoreholeCollection class
+    """
+
     def __post_init__(self):
         super().__post_init__()
         self.__classification_system: str = "5104"

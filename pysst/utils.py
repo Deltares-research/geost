@@ -14,7 +14,19 @@ def csv_to_parquet(
     """
     Convert csv table to parquet
 
-    Takes pandas.read_csv keyword arguments
+    Parameters
+    ----------
+    file : Union[str, WindowsPath]
+        Path to csv file to convert
+    out_file : Union[str, WindowsPath], optional
+        Path to parquet file to be written. If not provided it will use the path of 'file'
+    **kwargs
+        pandas.read_csv kwargs. See pandas.read_csv documentation
+
+    Raises
+    ------
+    TypeError
+        If 'file' is not a csv file
     """
     file = Path(file)
     if file.suffix != ".csv":
@@ -31,9 +43,21 @@ def excel_to_parquet(
     file: Union[str, WindowsPath], out_file: Union[str, WindowsPath] = None, **kwargs
 ) -> None:
     """
-    Convert Excel table to parquet
+    Convert excel table to parquet
 
-    Takes pandas.read_excel keyword arguments
+    Parameters
+    ----------
+    file : Union[str, WindowsPath]
+        Path to excel file to convert
+    out_file : Union[str, WindowsPath], optional
+        Path to parquet file to be written. If not provided it will use the path of 'file'
+    **kwargs
+        pandas.read_excel kwargs. See pandas.read_excel documentation
+
+    Raises
+    ------
+    TypeError
+        If 'file' is not an xlsx or xls file
     """
     file = Path(file)
     if not file.suffix in [".xlsx", ".xls"]:
