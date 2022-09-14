@@ -17,5 +17,3 @@ collection.append(collection2)
 # read_sst_cores(
 #     r"c:\Users\onselen\OneDrive - Stichting Deltares\Development\DinoCore\DINO_Extractie_bovennaaronder_d20220405.parquet"
 # )
-
-import pyarrow as pa

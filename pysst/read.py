@@ -1,9 +1,9 @@
 import pandas as pd
 import numpy as np
-import dask.dataframe as dd
 from pathlib import Path, WindowsPath
-from tqdm import tqdm
 from pysst.borehole import BoreholeCollection
+from pysst.readers import BroBoreholeReaders, CptXmlReaders
+from pysst.validate import BoreholeSchema
 from typing import Union
 
 
@@ -49,7 +49,7 @@ def read_sst_cores(file: Union[str, WindowsPath]) -> BoreholeCollection:
         Instance of BoreholeCollection
     """
     sst_cores = __read_parquet(Path(file))
-    # validate here
+    BoreholeSchema.validate(sst_cores, inplace=True)
     sst_cores.set_index(["nr", "x", "y", "mv", "end", "top"], inplace=True)
     return BoreholeCollection(sst_cores)
 
@@ -66,6 +66,7 @@ def read_xml_geotechnical(file_or_folder: Union[str, WindowsPath]):
     """
     Read xml files of BRO geotechnical boreholes (IMBRO or IMBRO/A quality)
     """
+    BroBoreholeReaders.xsboringen
     pass
 
 

@@ -2,6 +2,7 @@ import pandas as pd
 from pathlib import WindowsPath
 from dataclasses import dataclass
 from typing import List, Union
+from pysst.validate import EntriesSchema
 
 
 class Base(object):
@@ -37,6 +38,7 @@ class PointDataCollection(Base):
             ],
             columns=self.table.index.names[:-1],
         )
+        EntriesSchema.validate(self.entries, inplace=True)
 
     def __new__(cls, *args, **kwargs):
         if cls is PointDataCollection:
@@ -51,6 +53,10 @@ class PointDataCollection(Base):
 
     @property
     def entries(self):
+        """
+        This attribute is a dataframe of entries (1 row per borehole/cpt) and includes:
+        point id, x-coordinate, y-coordinate, surface level and end depth
+        """
         return self.__entries
 
     @property
