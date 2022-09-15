@@ -2,7 +2,6 @@ import pandas as pd
 from pathlib import WindowsPath
 from dataclasses import dataclass
 from typing import List, Union
-from pysst.validate import EntriesSchema, BoreholeSchema
 
 
 class Base(object):
@@ -27,18 +26,10 @@ class PointDataCollection(Base):
     """
 
     __table: pd.DataFrame
+    __entries: pd.DataFrame
 
     def __post_init__(self):
-        BoreholeSchema.validate(self.table, inplace=True)
         self.__selected: pd.DataFrame = None
-        self.__entries = pd.DataFrame(
-            [
-                [ind.nr, ind.x, ind.y, ind.mv, ind.end]
-                for ind in self.table[["nr", "x", "y", "mv", "end", "top"]].itertuples()
-                if ind.top == 0 or ind.mv == ind.top
-            ],
-            columns=[["nr", "x", "y", "mv", "end"]],
-        )
 
     def __new__(cls, *args, **kwargs):
         if cls is PointDataCollection:

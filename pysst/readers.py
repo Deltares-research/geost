@@ -5,8 +5,10 @@ from enum import Enum
 
 class CptXmlReaders(Enum):
     geolib = "geolib"
+    pygef = "pygef"
 
 
 class BroBoreholeReaders(Enum):
     geolib = "geolib"
+    pygef = "pygef"
     xsboringen = "xsboringen"

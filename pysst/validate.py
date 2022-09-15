@@ -4,6 +4,10 @@ from pandera.typing import Series
 from typing import Union, Optional
 
 
+class EntriesdataSchema(pa.SchemaModel):
+    pass
+
+
 class PointdataSchema(pa.SchemaModel):
     """
     Check dataframe for correct datatypes and coerce if required before creating PointdataCollection instance.

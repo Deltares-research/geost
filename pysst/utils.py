@@ -69,3 +69,12 @@ def excel_to_parquet(
         df.to_parquet(file.parent / (file.stem + ".parquet"))
     else:
         df.to_parquet(out_file)
+
+
+def get_path_iterable(path: WindowsPath, wildcard: str = "*"):
+    if path.is_file():
+        return [path]
+    elif path.is_dir():
+        return path.glob(wildcard)
+    else:
+        raise TypeError("Given path is not a file or a folder")
