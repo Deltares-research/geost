@@ -3,7 +3,6 @@ import numpy as np
 from pathlib import Path, WindowsPath
 from pysst.borehole import BoreholeCollection
 from pysst.readers import BroBoreholeReaders, CptXmlReaders
-from pysst.validate import BoreholeSchema
 from typing import Union
 
 
@@ -13,17 +12,17 @@ def __read_parquet(file: WindowsPath) -> pd.DataFrame:
     Parameters
     ----------
     file : WindowsPath
-        Path to file to be read
+        Path to file to be read.
 
     Returns
     -------
     pd.DataFrame
-        Dataframe with contents of 'file'
+        Dataframe with contents of 'file'.
 
     Raises
     ------
     TypeError
-        if 'file' has no '.parquet' or '.pq' suffix
+        if 'file' has no '.parquet' or '.pq' suffix.
     """
     suffix = file.suffix
     if suffix in [".parquet", ".pq"]:
@@ -41,22 +40,21 @@ def read_sst_cores(file: Union[str, WindowsPath]) -> BoreholeCollection:
     Parameters
     ----------
     file : Union[str, WindowsPath]
-        Path to file to be read
+        Path to file to be read.
 
     Returns
     -------
     BoreholeCollection
-        Instance of BoreholeCollection
+        Instance of BoreholeCollection.
     """
     sst_cores = __read_parquet(Path(file))
-    BoreholeSchema.validate(sst_cores, inplace=True)
-    sst_cores.set_index(["nr", "x", "y", "mv", "end", "top"], inplace=True)
+    # sst_cores.set_index(["nr", "x", "y", "mv", "end", "top"], inplace=True)
     return BoreholeCollection(sst_cores)
 
 
 def read_sst_cpts(file: Union[str, WindowsPath]):
     """
-    Read Subsurface Toolbox native parquet file with cpt information
+    Read Subsurface Toolbox native parquet file with cpt information.
     """
     filepath = Path(file)
     sst_cpts = __read_parquet(filepath)
@@ -64,7 +62,7 @@ def read_sst_cpts(file: Union[str, WindowsPath]):
 
 def read_xml_geotechnical(file_or_folder: Union[str, WindowsPath]):
     """
-    Read xml files of BRO geotechnical boreholes (IMBRO or IMBRO/A quality)
+    Read xml files of BRO geotechnical boreholes (IMBRO or IMBRO/A quality).
     """
     BroBoreholeReaders.xsboringen
     pass
@@ -72,27 +70,27 @@ def read_xml_geotechnical(file_or_folder: Union[str, WindowsPath]):
 
 def read_xml_soil(file_or_folder: Union[str, WindowsPath]):
     """
-    Read xml files of BRO soil boreholes (IMBRO or IMBRO/A quality)
+    Read xml files of BRO soil boreholes (IMBRO or IMBRO/A quality).
     """
     pass
 
 
 def read_xml_geological(file_or_folder: Union[str, WindowsPath]):
     """
-    Read xml files of DINO geological boreholes
+    Read xml files of DINO geological boreholes.
     """
     pass
 
 
 def read_xml_cpt(file_or_folder: Union[str, WindowsPath]):
     """
-    Read xml files of cpts
+    Read xml files of cpts.
     """
     pass
 
 
 def read_gef_cpt(file_or_folder: Union[str, WindowsPath]):
     """
-    Read gef files of cpts
+    Read gef files of cpts.
     """
     pass

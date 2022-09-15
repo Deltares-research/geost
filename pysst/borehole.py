@@ -8,7 +8,7 @@ from pysst.base import PointDataCollection
 @dataclass(repr=False)
 class BoreholeCollection(PointDataCollection):
     """
-    BoreholeCollection class
+    BoreholeCollection class.
     """
 
     def __post_init__(self):

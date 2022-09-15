@@ -11,16 +11,16 @@ def csv_to_parquet(
     file: Union[str, WindowsPath], out_file: Union[str, WindowsPath] = None, **kwargs
 ) -> None:
     """
-    Convert csv table to parquet
+    Convert csv table to parquet.
 
     Parameters
     ----------
     file : Union[str, WindowsPath]
-        Path to csv file to convert
+        Path to csv file to convert.
     out_file : Union[str, WindowsPath], optional
-        Path to parquet file to be written. If not provided it will use the path of 'file'
+        Path to parquet file to be written. If not provided it will use the path of 'file'.
     **kwargs
-        pandas.read_csv kwargs. See pandas.read_csv documentation
+        pandas.read_csv kwargs. See pandas.read_csv documentation.
 
     Raises
     ------
@@ -42,21 +42,21 @@ def excel_to_parquet(
     file: Union[str, WindowsPath], out_file: Union[str, WindowsPath] = None, **kwargs
 ) -> None:
     """
-    Convert excel table to parquet
+    Convert excel table to parquet.
 
     Parameters
     ----------
     file : Union[str, WindowsPath]
-        Path to excel file to convert
+        Path to excel file to convert.
     out_file : Union[str, WindowsPath], optional
-        Path to parquet file to be written. If not provided it will use the path of 'file'
+        Path to parquet file to be written. If not provided it will use the path of 'file'.
     **kwargs
-        pandas.read_excel kwargs. See pandas.read_excel documentation
+        pandas.read_excel kwargs. See pandas.read_excel documentation.
 
     Raises
     ------
     TypeError
-        If 'file' is not an xlsx or xls file
+        If 'file' is not an xlsx or xls file.
     """
     file = Path(file)
     if not file.suffix in [".xlsx", ".xls"]:

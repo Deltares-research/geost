@@ -4,25 +4,10 @@ from pandera.typing import Series
 from typing import Union, Optional
 
 
-class EntriesSchema(pa.SchemaModel):
-    """
-    Check PointdataCollection.entries attribute for correct datatypes
-    """
-
-    nr: Series[str]
-    x: Series[float]
-    y: Series[float]
-    mv: Series[float]
-    end: Series[float]
-
-    @pa.dataframe_check
-    def check_mv(cls, df: pd.DataFrame) -> Series[bool]:
-        return all(df["mv"] > df["end"])
-
-
 class PointdataSchema(pa.SchemaModel):
     """
-    Check dataframe for correct datatypes and coerce if required before creating PointdataCollection instance
+    Check dataframe for correct datatypes and coerce if required before creating PointdataCollection instance.
+    The columns in this schema are required for both boreholes and CPTs.
     """
 
     nr: Series[str] = pa.Field(coerce=True)
@@ -30,11 +15,21 @@ class PointdataSchema(pa.SchemaModel):
     y: Series[float] = pa.Field(coerce=True)
     mv: Series[float] = pa.Field(coerce=True)
     end: Series[float] = pa.Field(coerce=True)
+    top: Series[float] = pa.Field(coerce=True)
+    bottom: Series[float] = pa.Field(coerce=True)
+
+    @pa.dataframe_check
+    def check_borehole_maaiveld_higher_than_end(cls, df: pd.DataFrame) -> Series[bool]:
+        return all(df["mv"] > df["end"])
+
+    @pa.dataframe_check
+    def check_layer_top_higher_than_bottom(cls, df: pd.DataFrame) -> Series[bool]:
+        return all(df["top"] > df["bottom"])
 
 
 class BoreholeSchema(PointdataSchema):
     """
-    Check dataframe for correct datatypes and coerce if required before creating BoreholeCollection instance
+    Check dataframe for correct datatypes and coerce if required before creating BoreholeCollection instance.
     """
 
     lith: Series[str] = pa.Field(coerce=True)
