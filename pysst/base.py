@@ -26,10 +26,12 @@ class PointDataCollection(Base):
     """
 
     __table: pd.DataFrame
-    __entries: pd.DataFrame
 
     def __post_init__(self):
         self.__selected: pd.DataFrame = None
+        self.__entries = self.table.drop_duplicates(
+            subset=("nr"), keep="first"
+        )
 
     def __new__(cls, *args, **kwargs):
         if cls is PointDataCollection:

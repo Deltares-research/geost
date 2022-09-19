@@ -5,7 +5,7 @@ from pathlib import Path, WindowsPath
 from pysst.borehole import BoreholeCollection
 from pysst.readers import BroBoreholeReaders, CptXmlReaders
 from pysst.utils import get_path_iterable
-from pysst.validate import BoreholeSchema, EntriesdataSchema
+from pysst.validate import BoreholeSchema
 from typing import Union
 from pygef import Cpt
 
@@ -39,26 +39,6 @@ def __read_parquet(file: WindowsPath) -> pd.DataFrame:
         )
 
 
-def __get_sst_entries(df: pd.DataFrame) -> pd.DataFrame:
-    """
-    Get entries from a table of borehole layers
-
-    Returns
-    -------
-    pd.DataFrame
-        Dataframe containing entries (one line with metadata per borehole/CPT)
-    """
-    entries = pd.DataFrame(
-        [
-            [ind.nr, ind.x, ind.y, ind.mv, ind.end]
-            for ind in df[["nr", "x", "y", "mv", "end", "top"]].itertuples()
-            if ind.top == 0 or ind.mv == ind.top
-        ],
-        columns=[["nr", "x", "y", "mv", "end"]],
-    )
-    return entries
-
-
 def read_sst_cores(file: Union[str, WindowsPath]) -> BoreholeCollection:
     """
     Read Subsurface Toolbox native parquet file with core information
@@ -74,10 +54,8 @@ def read_sst_cores(file: Union[str, WindowsPath]) -> BoreholeCollection:
         Instance of BoreholeCollection.
     """
     sst_cores = __read_parquet(Path(file))
-    BoreholeSchema.validate(sst_cores, inplace=True)
-    entries = __get_sst_entries(sst_cores)
-    EntriesdataSchema.validate(entries, inplace=True)
-    return BoreholeCollection(sst_cores, entries)
+    # BoreholeSchema.validate(sst_cores, inplace=True)
+    return BoreholeCollection(sst_cores)
 
 
 def read_sst_cpts(file: Union[str, WindowsPath]):
