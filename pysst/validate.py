@@ -37,3 +37,11 @@ class BoreholeSchema(PointdataSchema):
     """
 
     lith: Series[str] = pa.Field(coerce=True)
+
+
+class CptSchema(PointdataSchema):
+    """
+    Check dataframe for correct datatypes and coerce if required before creating CptCollection instance.
+    """
+
+    lith: Series[str] = pa.Field(coerce=True)
