@@ -15,7 +15,7 @@ class BoreholeCollection(PointDataCollection):
     def __post_init__(self):
         super().__post_init__()
         self.__classification_system: str = "5104"
-        BoreholeSchema.validate(self.table, inplace=True)
+        # BoreholeSchema.validate(self.table, inplace=True)
 
     @property
     def classification_system(self):

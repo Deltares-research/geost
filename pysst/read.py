@@ -53,6 +53,7 @@ def read_sst_cores(file: Union[str, WindowsPath]) -> BoreholeCollection:
     BoreholeCollection
         Instance of BoreholeCollection.
     """
+    print("Reading data table")
     sst_cores = __read_parquet(Path(file))
     return BoreholeCollection(sst_cores)
 

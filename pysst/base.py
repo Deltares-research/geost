@@ -3,6 +3,9 @@ from pathlib import WindowsPath
 from dataclasses import dataclass
 from typing import List, Union
 
+from pysst import spatial
+from pysst.write import borehole_to_vtk
+
 
 class Base(object):
     """
@@ -21,17 +24,20 @@ class PointDataCollection(Base):
     Dataclass for collections of pointdata, such as boreholes and CPTs.
 
     Args:
-        __table (pd.DataFrame): Dataframe containing borehole/CPT data.
+        __data (pd.DataFrame): Dataframe containing borehole/CPT data.
 
     """
 
-    __table: pd.DataFrame
+    __data: pd.DataFrame
 
     def __post_init__(self):
-        self.__selected: pd.DataFrame = None
-        self.__entries = self.table.drop_duplicates(subset=("nr"))[
-            ["nr", "x", "y", "mv", "end"]
-        ]
+        print("Producing header table")
+        self.__header = spatial.header_to_geopandas(
+            self.data.drop_duplicates(subset=("nr"))[["nr", "x", "y", "mv", "end"]]
+        ).set_index("nr")
+        print("Indexing tables")
+        self.__data = self.data.set_index("nr", drop=False)
+        print("Done!")
 
     def __new__(cls, *args, **kwargs):
         if cls is PointDataCollection:
@@ -42,38 +48,72 @@ class PointDataCollection(Base):
             return object.__new__(cls)
 
     def __repr__(self):
-        return f"{self.__class__.__name__}:\n# entries = {self.n_entries}"
+        return f"{self.__class__.__name__}:\n# header = {self.n_points}"
 
     @property
-    def entries(self):
+    def header(self):
         """
-        This attribute is a dataframe of entries (1 row per borehole/cpt) and includes:
+        This attribute is a dataframe of header (1 row per borehole/cpt) and includes:
         point id, x-coordinate, y-coordinate, surface level and end depth.
         """
-        return self.__entries
+        return self.__header
 
     @property
-    def table(self):
-        return self.__table
+    def data(self):
+        return self.__data
 
     @property
-    def n_entries(self):
-        return len(self.entries)
+    def n_points(self):
+        return len(self.header)
 
-    @property
-    def selected(self):
-        return self.__selected
-
-    def sel(self, index: Union[str, List[str]]):
+    def select_from_polygon(
+        self,
+        polygon_file: Union[str, WindowsPath],
+        invert: bool = False,
+    ):
         """
-        Make a selection of the table based on borehole ids.
+        Make a selection of the data based on a polygon vector
 
         Parameters
         ----------
-        index : Union[str, List[str]]
-            Borehole id.
+        polygon_file : Union[str, WindowsPath]
+            Shapefile or geopackage containing linestring data
+        invert: bool, default False
+            Invert the selection
+
+        Returns
+        -------
+        Child of PointDataCollection
+            Instance of either BoreholeCollection or CptCollection.
         """
-        self.__selected = self.table.loc[index]
+        selected_header = spatial.header_from_polygon(self.header, polygon_file)
+        return self.__class__(self.data.loc[selected_header.index])
+
+    def select_from_line(
+        self,
+        line_file: Union[str, WindowsPath],
+        buffer: float = 100,
+        invert: bool = False,
+    ):
+        """
+        Make a selection of the data based on a line vector
+
+        Parameters
+        ----------
+        line_file : Union[str, WindowsPath]
+            Shapefile or geopackage containing linestring data
+        buffer: float, default 100
+            Buffer around the lines to select points. Default 100
+        invert: bool, default False
+            Invert the selection
+
+        Returns
+        -------
+        Child of PointDataCollection
+            Instance of either BoreholeCollection or CptCollection.
+        """
+        selected_header = spatial.header_from_line(self.header, line_file)
+        return self.__class__(self.data.loc[selected_header.index])
 
     def append(self, other):
         """
@@ -85,12 +125,12 @@ class PointDataCollection(Base):
             Another object of the same type, from which the data is appended to self.
         """
         if self.__class__ == other.__class__:
-            self.__table = pd.concat([self.table, other.table])
-            self.__entries = pd.concat([self.entries, other.entries])
+            self.__data = pd.concat([self.data, other.data])
+            self.__header = pd.concat([self.header, other.header])
 
-    def to_parquet(self, out_file: Union[str, WindowsPath], selected=False, **kwargs):
+    def to_parquet(self, out_file: Union[str, WindowsPath], **kwargs):
         """
-        Write table to parquet file.
+        Write data to parquet file.
 
         Parameters
         ----------
@@ -101,11 +141,11 @@ class PointDataCollection(Base):
         **kwargs
             pd.DataFrame.to_parquet kwargs.
         """
-        self.__table.to_parquet(out_file, **kwargs)
+        self.__data.to_parquet(out_file, **kwargs)
 
-    def to_csv(self, out_file: Union[str, WindowsPath], selected=False, **kwargs):
+    def to_csv(self, out_file: Union[str, WindowsPath], **kwargs):
         """
-        Write table to csv file.
+        Write data to csv file.
 
         Parameters
         ----------
@@ -116,4 +156,31 @@ class PointDataCollection(Base):
         **kwargs
             pd.DataFrame.to_csv kwargs.
         """
-        self.__table.to_csv(out_file, **kwargs)
+        self.__data.to_csv(out_file, **kwargs)
+
+    def to_shape(self, out_file: Union[str, WindowsPath], **kwargs):
+        """
+        Write header data to shapefile or geopackage. You can use the resulting file to display borehole locations in GIS for instance.
+
+        Parameters
+        ----------
+        out_file : Union[str, WindowsPath]
+            Path to shapefile to be written.
+        selected : bool, optional
+            Use only selected data (True) or all data (False). Default False.
+        **kwargs
+            gpd.GeoDataFrame.to_file kwargs.
+        """
+        self.header.to_file(out_file, **kwargs)
+
+    def to_ipf(self, out_file: Union[str, WindowsPath], **kwargs):
+        # TODO write the pandas dataframes to IPF
+        pass
+
+    def to_vtk(self, out_file: Union[str, WindowsPath], **kwargs):
+        # TODO write the pandas dataframes to vtk
+        vtk_object = borehole_to_vtk(self.data, self.header, **kwargs)
+
+    def to_geodataclass(self, out_file: Union[str, WindowsPath], **kwargs):
+        # TODO write the pandas dataframes to geodataclass
+        pass
