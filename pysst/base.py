@@ -1,4 +1,5 @@
 import pandas as pd
+import geopandas as gpd
 from pathlib import WindowsPath
 from dataclasses import dataclass
 from typing import List, Union
@@ -21,7 +22,8 @@ class Base(object):
 @dataclass
 class PointDataCollection(Base):
     """
-    Dataclass for collections of pointdata, such as boreholes and CPTs.
+    Dataclass for collections of pointdata, such as boreholes and CPTs. The pysst module revolves around this class
+    and includes all methods that apply generically to both borehole and CPT data, such as selection and export methods.
 
     Args:
         __data (pd.DataFrame): Dataframe containing borehole/CPT data.
@@ -66,18 +68,21 @@ class PointDataCollection(Base):
     def n_points(self):
         return len(self.header)
 
-    def select_from_polygon(
+    def select_from_points(
         self,
-        polygon_file: Union[str, WindowsPath],
+        point_gdf: gpd.GeoDataFrame,
+        buffer: float = 100,
         invert: bool = False,
     ):
         """
-        Make a selection of the data based on a polygon vector
+        Make a selection of the data based on points
 
         Parameters
         ----------
-        polygon_file : Union[str, WindowsPath]
-            Shapefile or geopackage containing linestring data
+        line_file : Union[str, WindowsPath]
+            Shapefile or geopackage containing point data
+        buffer: float, default 100
+            Buffer around the lines to select points. Default 100
         invert: bool, default False
             Invert the selection
 
@@ -86,17 +91,19 @@ class PointDataCollection(Base):
         Child of PointDataCollection
             Instance of either BoreholeCollection or CptCollection.
         """
-        selected_header = spatial.header_from_polygon(self.header, polygon_file)
+        selected_header = spatial.header_from_points(
+            self.header, point_gdf, buffer, invert
+        )
         return self.__class__(self.data.loc[selected_header.index])
 
-    def select_from_line(
+    def select_from_lines(
         self,
-        line_file: Union[str, WindowsPath],
+        line__gdf: gpd.GeoDataFrame,
         buffer: float = 100,
         invert: bool = False,
     ):
         """
-        Make a selection of the data based on a line vector
+        Make a selection of the data based on lines
 
         Parameters
         ----------
@@ -112,7 +119,36 @@ class PointDataCollection(Base):
         Child of PointDataCollection
             Instance of either BoreholeCollection or CptCollection.
         """
-        selected_header = spatial.header_from_line(self.header, line_file)
+        raise NotImplementedError
+        selected_header = spatial.header_from_lines(
+            self.header, line_gdf, buffer, invert
+        )
+        return self.__class__(self.data.loc[selected_header.index])
+
+    def select_from_polygons(
+        self,
+        polygon_gdf: gpd.GeoDataFrame,
+        buffer: float = 0,
+        invert: bool = False,
+    ):
+        """
+        Make a selection of the data based on polygons
+
+        Parameters
+        ----------
+        polygon_file : Union[str, WindowsPath]
+            Shapefile or geopackage containing (multi)polygon data
+        invert: bool, default False
+            Invert the selection
+
+        Returns
+        -------
+        Child of PointDataCollection
+            Instance of either BoreholeCollection or CptCollection.
+        """
+        selected_header = spatial.header_from_polygons(
+            self.header, polygon_gdf, buffer, invert
+        )
         return self.__class__(self.data.loc[selected_header.index])
 
     def append(self, other):

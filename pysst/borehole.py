@@ -21,6 +21,9 @@ class BoreholeCollection(PointDataCollection):
     def classification_system(self):
         return self.__classification_system
 
+    def cover_layer_thickness(self):
+        raise NotImplementedError
+
 
 @dataclass(repr=False)
 class CptCollection(PointDataCollection):
