@@ -1,5 +1,4 @@
 import pandas as pd
-import polars as pl
 import numpy as np
 from pathlib import Path, WindowsPath
 from pysst.borehole import BoreholeCollection

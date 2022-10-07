@@ -120,3 +120,6 @@ ENV/
 #*.jpg
 #*.kml
 #*.zip
+
+# VS-Code
+*.code-workspace

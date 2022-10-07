@@ -38,7 +38,7 @@ class PointDataCollection(Base):
             self.data.drop_duplicates(subset=("nr"))[["nr", "x", "y", "mv", "end"]]
         ).set_index("nr")
         print("Indexing tables")
-        self.__data = self.data.set_index("nr", drop=False)
+        # self.__data = self.data.set_index("nr", drop=False)
         print("Done!")
 
     def __new__(cls, *args, **kwargs):

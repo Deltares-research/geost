@@ -1,0 +1,37 @@
+name: pysst
+channels:
+- conda-forge
+- defaults
+dependencies:
+- python>=3.9
+- numpy
+- pandas
+- geopandas
+- xarray
+- rasterio
+- shapely
+- gdal
+- matplotlib
+- seaborn
+- scikit-learn
+- tqdm
+- more-itertools
+- openpyxl
+- pyodbc
+- pyarrow
+- numba
+- dask
+- scipy
+- imod
+- pytest
+- sphinx
+- black
+- pylint
+- pydantic
+- netcdf4
+- h5netcdf
+- pandera
+- pyvista
+- spyder
+- pip:
+    - pygef
