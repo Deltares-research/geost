@@ -1,3 +1,4 @@
+import numpy as np
 import pandas as pd
 from pathlib import Path, WindowsPath
 from dataclasses import dataclass
@@ -23,7 +24,24 @@ class BoreholeCollection(PointDataCollection):
         return self.__classification_system
 
     def cover_layer_thickness(self):
-        raise NotImplementedError
+        """
+        Return a DataFrame containing the borehole ids and corresponding cover
+        layer thickness.
+
+        """
+        top_sand = pd.DataFrame(
+            top_of_sand(self.data),
+            columns=['nr', 'top_sand']
+            )
+        
+        cover_layer = top_sand.merge(self.header, on='nr', how='left')
+        cover_layer['cover_thickness'] = cover_layer['mv'] - cover_layer['top_sand']
+        
+        cover_layer['cover_thickness'] = cover_layer['cover_thickness'].fillna(
+            np.abs(cover_layer['end'])
+            )
+        
+        return cover_layer[['nr', 'cover_thickness']]
 
 
 @dataclass(repr=False)
@@ -43,6 +61,8 @@ if __name__ == "__main__":
     )
     df = df.drop(columns=['Unnamed: 0'])
     
-    test = BoreholeCollection(df)
-    top = pd.DataFrame(top_of_sand(test.data))
-    print(top)
+    data = BoreholeCollection(df)
+    
+    cover = data.cover_layer_thickness()
+    
+    print(cover)

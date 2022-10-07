@@ -36,9 +36,7 @@ class PointDataCollection(Base):
         print("Producing header table")
         self.__header = spatial.header_to_geopandas(
             self.data.drop_duplicates(subset=("nr"))[["nr", "x", "y", "mv", "end"]]
-        ).set_index("nr")
-        print("Indexing tables")
-        # self.__data = self.data.set_index("nr", drop=False)
+        ).reset_index(drop=True)
         print("Done!")
 
     def __new__(cls, *args, **kwargs):
