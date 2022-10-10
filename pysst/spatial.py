@@ -30,8 +30,8 @@ def header_from_points(entries_df, point_gdf, buffer, invert) -> gpd.GeoDataFram
 
 
 def header_from_lines(entries_df, line_gdf, buffer, invert) -> gpd.GeoDataFrame:
-    return gpd.sjoin(entries_df, line_gdf)[["x", "y", "mv", "end", "geometry"]]
+    return gpd.sjoin(entries_df, line_gdf)[["nr", "x", "y", "mv", "end", "geometry"]]
 
 
 def header_from_polygons(entries_df, polygon_gdf, buffer, invert) -> gpd.GeoDataFrame:
-    return gpd.sjoin(entries_df, polygon_gdf)[["x", "y", "mv", "end", "geometry"]]
+    return gpd.sjoin(entries_df, polygon_gdf)[["nr", "x", "y", "mv", "end", "geometry"]]

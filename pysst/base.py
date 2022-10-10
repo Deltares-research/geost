@@ -33,11 +33,9 @@ class PointDataCollection(Base):
     __data: pd.DataFrame
 
     def __post_init__(self):
-        print("Producing header table")
         self.__header = spatial.header_to_geopandas(
             self.data.drop_duplicates(subset=("nr"))[["nr", "x", "y", "mv", "end"]]
         ).reset_index(drop=True)
-        print("Done!")
 
     def __new__(cls, *args, **kwargs):
         if cls is PointDataCollection:
@@ -92,7 +90,9 @@ class PointDataCollection(Base):
         selected_header = spatial.header_from_points(
             self.header, point_gdf, buffer, invert
         )
-        return self.__class__(self.data.loc[selected_header.index])
+        return self.__class__(
+            self.data.loc[self.data["nr"].isin(selected_header["nr"])]
+        )
 
     def select_from_lines(
         self,
@@ -121,7 +121,9 @@ class PointDataCollection(Base):
         selected_header = spatial.header_from_lines(
             self.header, line_gdf, buffer, invert
         )
-        return self.__class__(self.data.loc[selected_header.index])
+        return self.__class__(
+            self.data.loc[self.data["nr"].isin(selected_header["nr"])]
+        )
 
     def select_from_polygons(
         self,
@@ -147,7 +149,9 @@ class PointDataCollection(Base):
         selected_header = spatial.header_from_polygons(
             self.header, polygon_gdf, buffer, invert
         )
-        return self.__class__(self.data.loc[selected_header.index])
+        return self.__class__(
+            self.data.loc[self.data["nr"].isin(selected_header["nr"])]
+        )
 
     def append(self, other):
         """
