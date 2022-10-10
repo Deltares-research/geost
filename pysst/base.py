@@ -96,7 +96,7 @@ class PointDataCollection(Base):
 
     def select_from_lines(
         self,
-        line__gdf: gpd.GeoDataFrame,
+        line_gdf: gpd.GeoDataFrame,
         buffer: float = 100,
         invert: bool = False,
     ):

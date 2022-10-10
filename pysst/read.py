@@ -1,12 +1,10 @@
 import pandas as pd
 import numpy as np
 from pathlib import Path, WindowsPath
-from pysst.borehole import BoreholeCollection
-from pysst.readers import BroBoreholeReaders, CptXmlReaders
-from pysst.utils import get_path_iterable
+from pysst.borehole import BoreholeCollection, CptCollection
+from pysst.readers import pygef_gef_cpt
 from pysst.validate import BoreholeSchema
 from typing import Union
-from pygef import Cpt
 
 from time import perf_counter
 
@@ -56,7 +54,7 @@ def read_sst_cores(file: Union[str, WindowsPath]) -> BoreholeCollection:
     return BoreholeCollection(sst_cores)
 
 
-def read_sst_cpts(file: Union[str, WindowsPath]):
+def read_sst_cpts(file: Union[str, WindowsPath]) -> CptCollection:
     """
     Read Subsurface Toolbox native parquet file with cpt information.
     """
@@ -64,38 +62,49 @@ def read_sst_cpts(file: Union[str, WindowsPath]):
     sst_cpts = __read_parquet(filepath)
 
 
-def read_xml_geotechnical(file_or_folder: Union[str, WindowsPath]):
+def read_xml_geotechnical_cores(
+    file_or_folder: Union[str, WindowsPath]
+) -> BoreholeCollection:
     """
     Read xml files of BRO geotechnical boreholes (IMBRO or IMBRO/A quality).
+    Decribed in NEN14688 standards
     """
-    BroBoreholeReaders.xsboringen
     pass
 
 
-def read_xml_soil(file_or_folder: Union[str, WindowsPath]):
+def read_xml_soil(file_or_folder: Union[str, WindowsPath]) -> BoreholeCollection:
     """
     Read xml files of BRO soil boreholes (IMBRO or IMBRO/A quality).
     """
     pass
 
 
-def read_xml_geological(file_or_folder: Union[str, WindowsPath]):
+def read_xml_geological_cores(
+    file_or_folder: Union[str, WindowsPath]
+) -> BoreholeCollection:
     """
     Read xml files of DINO geological boreholes.
     """
     pass
 
 
-def read_gef_cpt(file_or_folder: Union[str, WindowsPath]):
+def read_gef_cores(file_or_folder: Union[str, WindowsPath]) -> BoreholeCollection:
     """
-    Read gef files of cpts.
+    Read gef files of boreholes.
     """
-    for gef_file in get_path_iterable(Path(file_or_folder), wildcard="*.gef"):
-        gef_cpt = Cpt(str(gef_file))
     pass
 
 
-def read_xml_cpt(file_or_folder: Union[str, WindowsPath]):
+def read_gef_cpt(file_or_folder: Union[str, WindowsPath]) -> CptCollection:
+    """
+    Read gef files of cpts.
+    """
+    return CptCollection(pd.concat(pygef_gef_cpt(Path(file_or_folder))))
+
+    pass
+
+
+def read_xml_cpt(file_or_folder: Union[str, WindowsPath]) -> CptCollection:
     """
     Read xml files of cpts.
     """

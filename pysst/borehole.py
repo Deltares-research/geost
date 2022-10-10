@@ -29,19 +29,16 @@ class BoreholeCollection(PointDataCollection):
         layer thickness.
 
         """
-        top_sand = pd.DataFrame(
-            top_of_sand(self.data),
-            columns=['nr', 'top_sand']
-            )
-        
-        cover_layer = top_sand.merge(self.header, on='nr', how='left')
-        cover_layer['cover_thickness'] = cover_layer['mv'] - cover_layer['top_sand']
-        
-        cover_layer['cover_thickness'] = cover_layer['cover_thickness'].fillna(
-            np.abs(cover_layer['end'])
-            )
-        
-        return cover_layer[['nr', 'cover_thickness']]
+        top_sand = pd.DataFrame(top_of_sand(self.data), columns=["nr", "top_sand"])
+
+        cover_layer = top_sand.merge(self.header, on="nr", how="left")
+        cover_layer["cover_thickness"] = cover_layer["mv"] - cover_layer["top_sand"]
+
+        cover_layer["cover_thickness"] = cover_layer["cover_thickness"].fillna(
+            np.abs(cover_layer["end"])
+        )
+
+        return cover_layer[["nr", "cover_thickness"]]
 
 
 @dataclass(repr=False)
@@ -52,17 +49,4 @@ class CptCollection(PointDataCollection):
 
     def __post_init__(self):
         super().__post_init__()
-        CptSchema.validate(self.table, inplace=True)
-
-
-if __name__ == "__main__":
-    df = pd.read_csv(
-        r'c:\Users\knaake\OneDrive - Stichting Deltares\Documents\deklaagdikte\dino_boringen_data.csv'
-    )
-    df = df.drop(columns=['Unnamed: 0'])
-    
-    data = BoreholeCollection(df)
-    
-    cover = data.cover_layer_thickness()
-    
-    print(cover)
+        # CptSchema.validate(self.table, inplace=True)

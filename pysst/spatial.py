@@ -29,9 +29,13 @@ def header_from_points(entries_df, point_gdf, buffer, invert) -> gpd.GeoDataFram
     return entries_df[bool_array]
 
 
-def header_from_lines(entries_df, line_gdf, buffer, invert) -> gpd.GeoDataFrame:
-    return gpd.sjoin(entries_df, line_gdf)[["nr", "x", "y", "mv", "end", "geometry"]]
+def header_from_lines(header_df, line_gdf, buffer, invert) -> gpd.GeoDataFrame:
+    return gpd.sjoin(header_df, line_gdf)[["nr", "x", "y", "mv", "end", "geometry"]]
 
 
-def header_from_polygons(entries_df, polygon_gdf, buffer, invert) -> gpd.GeoDataFrame:
-    return gpd.sjoin(entries_df, polygon_gdf)[["nr", "x", "y", "mv", "end", "geometry"]]
+def header_from_polygons(header_df, polygon_gdf, buffer, invert) -> gpd.GeoDataFrame:
+    return gpd.sjoin(header_df, polygon_gdf)[["nr", "x", "y", "mv", "end", "geometry"]]
+
+
+def find_area_label(header_df, polygon_gdf, column_name):
+    pass
