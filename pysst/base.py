@@ -153,7 +153,7 @@ class PointDataCollection(Base):
             self.data.loc[self.data["nr"].isin(selected_header["nr"])]
         )
 
-    def add_area_labels(
+    def get_area_labels(
         self, polygon_gdf: gpd.GeoDataFrame, column_name: str
     ) -> pd.DataFrame:
         """
