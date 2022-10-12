@@ -6,6 +6,7 @@ from dataclasses import dataclass
 from pysst.base import PointDataCollection
 from pysst.validate import BoreholeSchema, CptSchema
 from pysst.analysis import top_of_sand
+from pysst.analysis.interpret_cpt import calc_ic, calc_lithology
 
 
 @dataclass(repr=False)
@@ -50,3 +51,19 @@ class CptCollection(PointDataCollection):
     def __post_init__(self):
         super().__post_init__()
         # CptSchema.validate(self.table, inplace=True)
+
+    def add_ic(self):
+        """
+        Calculate soil behaviour type index (Ic) for all CPT's in the collection
+        """
+        self.data["ic"] = calc_ic(self.data["qc"], self.data["friction_number"])
+
+    def add_lithology(self):
+        """
+        Interpret lithoclass for all CPT's in the collection
+        """
+        if not "ic" in self.data.columns:
+            self.add_ic()
+        self.data["lith"] = calc_lithology(
+            self.data["ic"], self.data["qc"], self.data["friction_number"]
+        )

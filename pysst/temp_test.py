@@ -10,6 +10,7 @@ gefs = read_gef_cpt(
     r"n:\Projects\11207000\11207357\B. Measurements and calculations\Grondonderzoek Wiertsema\rapportage wiertsema_81175-1-r84010-geotechnisch-onderzoek-pdf_2022-06-14_1151\81175_Veldwerk_data\Sonderingen\GEF\Alleen sonderingen"
 )
 
+gefs.add_lithology()
 gefs.header
 
 
