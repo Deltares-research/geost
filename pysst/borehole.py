@@ -24,7 +24,7 @@ class BoreholeCollection(PointDataCollection):
     def classification_system(self):
         return self.__classification_system
 
-    def cover_layer_thickness(self):
+    def cover_layer_thickness(self, allow_partial_cover_layers=False):
         """
         Return a DataFrame containing the borehole ids and corresponding cover
         layer thickness.
@@ -34,10 +34,12 @@ class BoreholeCollection(PointDataCollection):
 
         cover_layer = top_sand.merge(self.header, on="nr", how="left")
         cover_layer["cover_thickness"] = cover_layer["mv"] - cover_layer["top_sand"]
-
-        cover_layer["cover_thickness"] = cover_layer["cover_thickness"].fillna(
-            np.abs(cover_layer["end"])
-        )
+        if allow_partial_cover_layers:
+            cover_layer["cover_thickness"] = cover_layer["cover_thickness"].fillna(
+                cover_layer["mv"] - cover_layer["end"]
+            )
+        else:
+            cover_layer["cover_thickness"] = cover_layer["cover_thickness"]
 
         return cover_layer[["nr", "cover_thickness"]]
 
