@@ -153,6 +153,27 @@ class PointDataCollection(Base):
             self.data.loc[self.data["nr"].isin(selected_header["nr"])]
         )
 
+    def add_area_labels(
+        self, polygon_gdf: gpd.GeoDataFrame, column_name: str
+    ) -> pd.DataFrame:
+        """
+        Find in which area (polygons) the point data locations fall. e.g. to determine in which
+        geomorphological unit points are located
+
+        Parameters
+        ----------
+        polygon_gdf : gpd.GeoDataFrame
+            GeoDataFrame with polygons
+        column_name : str
+            The column name to find the labels in
+
+        Returns
+        -------
+        pd.DataFrame
+            Borehole ids and the polygon label they are in
+        """
+        return spatial.find_area_labels(self.header, polygon_gdf, column_name)
+
     def append(self, other):
         """
         Append data of other object of the same type (e.g BoreholeCollection to BoreholeCollection).

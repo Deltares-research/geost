@@ -1,4 +1,5 @@
 import geopandas as gpd
+import pandas as pd
 import numpy as np
 from pathlib import Path
 from shapely.geometry import Point
@@ -37,5 +38,9 @@ def header_from_polygons(header_df, polygon_gdf, buffer, invert) -> gpd.GeoDataF
     return gpd.sjoin(header_df, polygon_gdf)[["nr", "x", "y", "mv", "end", "geometry"]]
 
 
-def find_area_label(header_df, polygon_gdf, column_name):
-    pass
+def find_area_labels(header_df, polygon_gdf, column_name):
+    all_nrs = header_df["nr"]
+    joined = gpd.sjoin(header_df, polygon_gdf)[column_name]
+    # Remove any duplicated indices, which may sometimes happen
+    joined = joined[~joined.index.duplicated()]
+    return pd.concat([all_nrs, joined], axis=1)
