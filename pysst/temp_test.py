@@ -11,6 +11,9 @@ gefs = read_gef_cpt(
 )
 
 gefs.add_lithology()
+gefs.to_parquet(
+    r"n:\Projects\11207000\11207357\B. Measurements and calculations\Ondergrond\Profielen\csv\cpts.parquet"
+)
 gefs.header
 
 

@@ -7,7 +7,13 @@ Created on Fri Oct  7 13:28:57 2022
 import numpy as np
 
 
-def find_top_sand(lith, top, bottom, min_sand_frac, min_sand_thickness):
+def find_top_sand(
+    lith: np.ndarray,
+    top: np.ndarray,
+    bottom: np.ndarray,
+    min_sand_frac: float,
+    min_sand_thickness: float,
+) -> float:
     """
     Find the top of sand depth in a borehole. The top of sand is defined by the
     first layer of a specified thickness that contains a minimum percentage of
