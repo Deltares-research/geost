@@ -3,9 +3,13 @@ import geopandas as gpd
 
 gef_collection = read_gef_cpt(r"c:path\to\folderwithgefs")
 
+
 # Import polygon file
 gdf = gpd.read_file(r"c:\path\to\shapefileorgeopackage")
-labels = gef_collection.get_area_labels(gdf, "column_name_to_get_labels_from")
+# Select only GEFs in area if required
+gdf_in_area = gef_collection.select_from_polygons(gdf)
+# Find which labels of the polygons correspond to the CPT's
+labels = gef_collection.get_area_labels(gdf_in_area, "column_name_to_get_labels_from")
 
 # Write locations to multipoint shapefile/geopackage
 gef_collection.to_shape(r"c:\newfileloc.gpkg")
