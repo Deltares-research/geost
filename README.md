@@ -1,5 +1,5 @@
 # pysst
-The Python Subsurface Toolbox (pysst) package is designed to handle all common formats of subsurface point data (Boreholes and CPT's). It provides analysis and export methods that can be applied generically to the loaded data. 
+The Python Subsurface Toolbox (pysst) package is designed to handle all common formats of subsurface point data (Boreholes and CPT's). It provides selection, analysis and export methods that can be applied generically to the loaded data. It is designed to connect with other Deltares developments such as iMod Suite and DataFusionTools.
 
 
 ## Supported borehole and CPT formats
@@ -37,8 +37,7 @@ boreholes_selected.to_shape(r'c:\path\to_output.shp)   # Write to shapefile or g
 boreholes_selected.to_vtk(r'c:\path\to_output.vtk)   # Write to vtk file
 ```
 
-
-## Collaboration
+## Contributing
 
 You can contribute by testing, raising issues and making pull requests. Some general guidelines:
 
