@@ -1,7 +1,7 @@
 # pysst
 The Python Subsurface Toolbox (pysst) package is designed to handle all common formats of subsurface point data (Boreholes and CPT's). It provides selection, analysis and export methods that can be applied generically to the loaded data. It is designed to connect with other Deltares developments such as iMod Suite and DataFusionTools.
 
-The internal BoreholeCollection and CptCollection dataclasses use [Pandas](https://pandas.pydata.org/) for storing data and header information. [Pandera](https://pandera.readthedocs.io/en/stable/) is used for input data validation. For spatial functions [Geopandas](https://geopandas.org/en/stable/) is used. A [Polars](https://www.pola.rs/) version was experimented with, but for now will have to wait as Pandas is sufficiently fast and has better opportunities for data validation.
+The internal BoreholeCollection and CptCollection dataclasses use [Pandas](https://pandas.pydata.org/) for storing data and header information. [Pandera](https://pandera.readthedocs.io/en/stable/) is used for input data validation. For spatial functions [Geopandas](https://geopandas.org/en/stable/) is used. The package also supports reading/writing parquet and geoparquet files through Pandas and Geopandas respectively. A [Polars](https://www.pola.rs/) version was experimented with, but for now will have to wait as Pandas is sufficiently fast and has better opportunities for data validation.
 
 
 ## Supported borehole and CPT formats

@@ -6,25 +6,25 @@ import numpy as np
 
 from time import perf_counter
 
-gefs = read_gef_cpt(
-    r"n:\Projects\11207000\11207357\B. Measurements and calculations\Grondonderzoek Wiertsema\rapportage wiertsema_81175-1-r84010-geotechnisch-onderzoek-pdf_2022-06-14_1151\81175_Veldwerk_data\Sonderingen\GEF\Alleen sonderingen"
-)
+# gefs = read_gef_cpt(
+#     r"n:\Projects\11207000\11207357\B. Measurements and calculations\Grondonderzoek Wiertsema\rapportage wiertsema_81175-1-r84010-geotechnisch-onderzoek-pdf_2022-06-14_1151\81175_Veldwerk_data\Sonderingen\GEF\Alleen sonderingen"
+# )
 
-gefs.add_lithology()
-gefs.to_parquet(
-    r"n:\Projects\11207000\11207357\B. Measurements and calculations\Ondergrond\Profielen\csv\cpts.parquet"
-)
-gefs.header
+# gefs.add_lithology()
+# gefs.to_parquet(
+#     r"n:\Projects\11207000\11207357\B. Measurements and calculations\Ondergrond\Profielen\csv\cpts.parquet"
+# )
+# gefs.header
 
 
 # excel_to_parquet(
 #     r"n:\Projects\11206500\11206761\B. Measurements and calculations\3D-SSM Purmerend Casus\Veldwerk\Resultaten\Boringen\boreholes_Eva.xlsx"
 # )
 
-# collection = read_sst_cores(
-#     r"n:\Projects\11206500\11206761\B. Measurements and calculations\3D-SSM Purmerend Casus\Veldwerk\Resultaten\Boringen\boreholes_Eva.parquet"
-# )
-# collection.to_vtk("", vertical_factor=0.01)
+collection = read_sst_cores(
+    r"n:\Projects\11206500\11206761\B. Measurements and calculations\3D-SSM Purmerend Casus\Veldwerk\Resultaten\Boringen\boreholes_Eva.parquet"
+)
+collection.to_vtk("", vertical_factor=0.01)
 
 
 # tic = perf_counter()

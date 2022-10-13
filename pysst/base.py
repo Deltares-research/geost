@@ -232,6 +232,22 @@ class PointDataCollection(Base):
         """
         self.header.to_file(out_file, **kwargs)
 
+    def to_geoparquet(self, out_file: Union[str, WindowsPath], **kwargs):
+        """
+        Write header data to geoparquet. You can use the resulting file to display borehole locations in GIS for instance.
+        Please not that Geoparquet is supported by GDAL >= 3.5. For Qgis this means QGis >= 3.26
+
+        Parameters
+        ----------
+        out_file : Union[str, WindowsPath]
+            Path to shapefile to be written.
+        selected : bool, optional
+            Use only selected data (True) or all data (False). Default False.
+        **kwargs
+            gpd.GeoDataFrame.to_parquet kwargs.
+        """
+        self.header.to_parquet(out_file, **kwargs)
+
     def to_ipf(self, out_file: Union[str, WindowsPath], **kwargs):
         # TODO write the pandas dataframes to IPF
         pass
