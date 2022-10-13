@@ -1,5 +1,5 @@
 # pysst
-
+[![License: MIT](https://img.shields.io/pypi/l/imod)](https://choosealicense.com/licenses/mit)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/ambv/black)
 
 The Python Subsurface Toolbox (pysst) package is designed to handle all common formats of subsurface point data (Boreholes and CPT's). It provides selection, analysis and export methods that can be applied generically to the loaded data. It is designed to connect with other Deltares developments such as iMod Suite and DataFusionTools.
