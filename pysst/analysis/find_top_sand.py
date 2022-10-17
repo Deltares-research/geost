@@ -41,9 +41,10 @@ def find_top_sand(
         Top depth of the sand layer that meets the requirements.
 
     """
-    is_sand = lith == "Z"
+    is_sand = ("Z" == lith) + ("G" == lith)
+    is_unknown = ("GM" == lith) + ("NBE" == lith)
 
-    if np.any(is_sand):
+    if np.any(is_sand) and not np.any(is_unknown):
         idx_sand = np.where(is_sand)[0]
         for idx in idx_sand:
             top_sand = top[idx]
