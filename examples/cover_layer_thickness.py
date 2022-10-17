@@ -21,6 +21,13 @@ deklaag_cores = read_sst_cores(
     r"c:\Users\onselen\OneDrive - Stichting Deltares\Projects\Deklaagdikte Marc\boringen\boringen_binnendijk.parquet"
 )
 
+# thickness = deklaag_cores.cover_layer_thickness()
+# header = deklaag_cores.header.copy()
+# header["dl_dik"] = thickness["cover_thickness"]
+# header.to_file(
+#     r"c:\Users\onselen\OneDrive - Stichting Deltares\Projects\Deklaagdikte Marc\resultaten\boringen_met_dl.gpkg"
+# )
+
 points = gpd.read_file(
     r"c:\Users\onselen\OneDrive - Stichting Deltares\Projects\Deklaagdikte Marc\wellen\wellen_nl_RD.gpkg"
 )
@@ -33,6 +40,20 @@ gmm = gpd.read_file(
 thicknesses_mean_800 = []
 thicknesses_mean_3_closest = []
 landforms = []
+
+
+def get_thicknesses(boreholes, points):
+    distances = boreholes.header.geometry.apply(
+        lambda d: points.distance(d)
+    ).sort_values(by=0)
+
+    local_cover_thicknesses = boreholes.cover_layer_thickness()
+    # [local_cover_thicknesses["cover_thickness"].loc[idx] if np.isfinite(local_cover_thicknesses["cover_thickness"].loc[idx]) else np.nan for idx in distances.index]
+    cover_thicknesses_3_closest = local_cover_thicknesses.loc[distances[0:3].index]
+    thickness_3_closest = cover_thicknesses_3_closest["cover_thickness"].mean()
+    thickness_mean_800 = local_cover_thicknesses["cover_thickness"].mean()
+    return (thickness_3_closest, thickness_mean_800)
+
 
 for i, point in points.iterrows():
     print(i)
@@ -47,24 +68,27 @@ for i, point in points.iterrows():
             cores.data.loc[cores.data["nr"].isin(cores.header.loc[cores_indices]["nr"])]
         )
         if ok_boreholes.n_points > 0:
-            distances = ok_boreholes.header.geometry.apply(
-                lambda d: point_simple.distance(d)
-            ).sort_values(by=0)
-            local_cover_thicknesses = ok_boreholes.cover_layer_thickness(
-                allow_partial_cover_layers=True
+            thickness_3_closest, thickness_mean_800 = get_thicknesses(
+                ok_boreholes, point_simple
             )
-            cover_thicknesses_3_closest = local_cover_thicknesses.loc[
-                distances[0:3].index
-            ]
-            thickness_3_closest = cover_thicknesses_3_closest["cover_thickness"].mean()
-            thickness_mean_800 = local_cover_thicknesses["cover_thickness"].mean()
 
             thicknesses_mean_3_closest.append(thickness_3_closest)
             thicknesses_mean_800.append(thickness_mean_800)
 
+        elif cores.n_points > 0:
+            thickness_3_closest, thickness_mean_800 = get_thicknesses(
+                cores, point_simple
+            )
+            thicknesses_mean_3_closest.append(thickness_3_closest)
+            thicknesses_mean_800.append(thickness_mean_800)
         else:
             thicknesses_mean_3_closest.append(np.nan)
             thicknesses_mean_800.append(np.nan)
+    elif cores.n_points > 0:
+        thickness_3_closest, thickness_mean_800 = get_thicknesses(cores, point_simple)
+        thicknesses_mean_3_closest.append(thickness_3_closest)
+        thicknesses_mean_800.append(thickness_mean_800)
+        landforms.append("")
     else:
         thicknesses_mean_3_closest.append(np.nan)
         thicknesses_mean_800.append(np.nan)
@@ -75,7 +99,7 @@ points["thick_800"] = thicknesses_mean_800
 points["landform"] = [lf.values[0] if type(lf) != str else lf for lf in landforms]
 
 points["thick"] = [
-    t3 if t3 != 0 else t800
+    t3 if t3 != 0 and np.isfinite(t3) else t800
     for t3, t800 in zip(thicknesses_mean_3_closest, thicknesses_mean_800)
 ]
 points.to_file(
