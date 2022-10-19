@@ -11,8 +11,8 @@ def header_to_geopandas(entries_df) -> gpd.GeoDataFrame:
     return gpd.GeoDataFrame(entries_df, geometry=points)
 
 
-def header_from_points(entries_df, point_gdf, buffer, invert) -> gpd.GeoDataFrame:
-    data_points = entries_df[["x", "y"]].values
+def header_from_points(header_df, point_gdf, buffer, invert) -> gpd.GeoDataFrame:
+    data_points = header_df[["x", "y"]].values
     if isinstance(point_gdf, gpd.GeoDataFrame):
         query_points = np.array([list(pnt.coords)[0] for pnt in point_gdf.geometry])
     else:
@@ -27,10 +27,11 @@ def header_from_points(entries_df, point_gdf, buffer, invert) -> gpd.GeoDataFram
         bool_array += distance < buffer
     if invert:
         bool_array = np.invert(bool_array)
-    return entries_df[bool_array]
+    return header_df[bool_array]
 
 
 def header_from_lines(header_df, line_gdf, buffer, invert) -> gpd.GeoDataFrame:
+    line_gdf["geometry"] = line_gdf.buffer(distance=buffer)
     return gpd.sjoin(header_df, line_gdf)[["nr", "x", "y", "mv", "end", "geometry"]]
 
 

@@ -117,7 +117,6 @@ class PointDataCollection(Base):
         Child of PointDataCollection
             Instance of either BoreholeCollection or CptCollection.
         """
-        raise NotImplementedError
         selected_header = spatial.header_from_lines(
             self.header, line_gdf, buffer, invert
         )
