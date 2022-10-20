@@ -38,16 +38,18 @@ features = pd.concat(
 )
 
 # Target
-cover_layer = deklaag_cores.cover_layer_thickness(allow_partial_cover_layers=True)
-
+cover_layer = deklaag_cores.cover_layer_thickness()
+mask = np.isfinite(cover_layer["cover_thickness"])
+cover_layer = cover_layer[mask]
+features = features[mask]
 
 features.to_csv(
     r"c:\Users\onselen\OneDrive - Stichting Deltares\Projects\Deklaagdikte Marc\Experiment datafusion\features.csv",
     index=False,
-    header=False,
+    header=True,
 )
 cover_layer.to_csv(
     r"c:\Users\onselen\OneDrive - Stichting Deltares\Projects\Deklaagdikte Marc\Experiment datafusion\target.csv",
     index=False,
-    header=False,
+    header=True,
 )

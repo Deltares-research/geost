@@ -56,7 +56,6 @@ def get_thicknesses(boreholes, points):
 
 
 for i, point in points.iterrows():
-    print(i)
     cores = deklaag_cores.select_from_points(point, buffer=800)
     point_simple = gpd.GeoDataFrame(geometry=[point.geometry])
     landform = gpd.sjoin(point_simple, gmm)["landformsubgroup_code"]
