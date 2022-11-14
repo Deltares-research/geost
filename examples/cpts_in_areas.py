@@ -1,7 +1,13 @@
 from pysst import read_gef_cpt
 import geopandas as gpd
 
-gef_collection = read_gef_cpt(r"c:path\to\folderwithgefs")
+gef_collection = read_gef_cpt(
+    r"n:\Projects\11206500\11206761\B. Measurements and calculations\3D-SSM Purmerend Casus\xsb\data\BRO sonderingen - GEF\duplicate"
+)
+gef_collection.add_ic()
+gef_collection.add_lithology()
+
+gef_collection.to_parquet("...")
 
 
 # Import polygon file
