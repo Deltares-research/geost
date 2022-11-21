@@ -72,7 +72,7 @@ def read_xml_geotechnical_cores(
     pass
 
 
-def read_xml_soil(file_or_folder: Union[str, WindowsPath]) -> BoreholeCollection:
+def read_xml_soil_cores(file_or_folder: Union[str, WindowsPath]) -> BoreholeCollection:
     """
     Read xml files of BRO soil boreholes (IMBRO or IMBRO/A quality).
     """
@@ -95,7 +95,7 @@ def read_gef_cores(file_or_folder: Union[str, WindowsPath]) -> BoreholeCollectio
     pass
 
 
-def read_gef_cpt(file_or_folder: Union[str, WindowsPath]) -> CptCollection:
+def read_gef_cpts(file_or_folder: Union[str, WindowsPath]) -> CptCollection:
     """
     Read gef files of cpts.
     """
@@ -104,7 +104,7 @@ def read_gef_cpt(file_or_folder: Union[str, WindowsPath]) -> CptCollection:
     pass
 
 
-def read_xml_cpt(file_or_folder: Union[str, WindowsPath]) -> CptCollection:
+def read_xml_cpts(file_or_folder: Union[str, WindowsPath]) -> CptCollection:
     """
     Read xml files of cpts.
     """
