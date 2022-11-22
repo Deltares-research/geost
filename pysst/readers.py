@@ -1,6 +1,7 @@
 from enum import Enum
 import pandas as pd
 from pygef import Cpt
+import numpy as np
 
 from pysst.utils import get_path_iterable
 
@@ -30,14 +31,13 @@ def pygef_gef_cpt(file_or_folder):
         gef_id = gef_cpt.test_id
         gef_x = gef_cpt.x
         gef_y = gef_cpt.y
-        gef_mv = gef_cpt.df["elevation_with_respect_to_nap"][0]
-        gef_end = (
-            gef_cpt.df["elevation_with_respect_to_nap"][0] - gef_cpt.df[depth_label][-1]
+        gef_mv = (
+            gef_cpt.df["elevation_with_respect_to_nap"][0] + gef_cpt_df[depth_label][0]
         )
         gef_top = gef_cpt_df["elevation_with_respect_to_nap"]
-        gef_bottom = (
-            gef_cpt_df["elevation_with_respect_to_nap"][0] - gef_cpt_df[depth_label]
-        )
+        gef_bottom = gef_top - gef_cpt_df[depth_label].diff()
+        gef_bottom[0] = gef_top[1]
+        gef_end = gef_bottom.iloc[-1]
         extra_cols = pd.DataFrame(
             {
                 "nr": [gef_id for i in range(len(gef_cpt_df))],
