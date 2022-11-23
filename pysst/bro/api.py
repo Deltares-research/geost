@@ -1,5 +1,6 @@
 import requests
-import xml.etree.ElementTree as ET
+from lxml import etree
+from typing import Union, Iterable
 
 
 class BroApi:
@@ -10,18 +11,11 @@ class BroApi:
         self.objects_url = "/objects"
         self.search_url = "/characteristics/searches"
 
-    def get_CPT_objects(self, bro_ids):
+    def get_cpt_objects(self, bro_ids: Union[str, Iterable]):
         if isinstance(bro_ids, str):
             bro_ids = [bro_ids]
         for bro_id in bro_ids:
             response = self.session.get(
-                self.server_url + self.cpt_api + self.objects_url + f"/{bro_ids}"
+                self.server_url + self.cpt_api + self.objects_url + f"/{bro_id}"
             )
-            yield ET.fromstring(response.text)
-
-
-# testing
-# bro_api = BroApi()
-# cpt = bro_api.get_CPT_objects("CPT000000038771")
-# for cp in cpt:
-#     cp
+            yield etree.fromstring(response.text.encode("utf-8"))
