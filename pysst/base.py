@@ -256,5 +256,5 @@ class PointDataCollection(Base):
         vtk_object = borehole_to_vtk(self.data, self.header, **kwargs)
 
     def to_geodataclass(self, out_file: Union[str, WindowsPath], **kwargs):
-        # TODO write the pandas dataframes to geodataclass
+        # TODO write the pandas dataframes to geodataclass (used for Deltares GEO DataFusionTools)
         pass

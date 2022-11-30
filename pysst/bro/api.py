@@ -1,8 +1,10 @@
 import requests
 from lxml import etree
-from typing import Union, Iterable, List
+from typing import Union, Iterable, Iterator, List, TypeVar
 from pysst.projections import xy_to_ll
 from pysst.bro.bro_utils import get_bbox_criteria
+
+Coordinate = TypeVar("Coordinate", int, float)
 
 
 class BroApi:
@@ -26,9 +28,11 @@ class BroApi:
         self.objects_url = "/objects"
         self.search_url = "/characteristics/searches"
 
-    def get_objects(self, bro_ids: Union[str, Iterable], object_type: str = "CPT"):
+    def get_objects(
+        self, bro_ids: Union[str, Iterable], object_type: str = "CPT"
+    ) -> Iterator:
         """
-        Get BRO objects as a generator object containing element trees that can be parsed to a reader.
+        Return BRO objects as a generator containing element trees that can be parsed to a reader.
 
         Parameters
         ----------
@@ -71,15 +75,15 @@ class BroApi:
 
     def search_objects_in_bbox(
         self,
-        xmin: Union[float, int],
-        xmax: Union[float, int],
-        ymin: Union[float, int],
-        ymax: Union[float, int],
+        xmin: Coordinate,
+        xmax: Coordinate,
+        ymin: Coordinate,
+        ymax: Coordinate,
         epsg: str = "28992",
         object_type: str = "CPT",
     ) -> List[str]:
         """
-        Search for BRO objects of the given object type wihin the given bounding box.
+        Search for BRO objects of the given object type within the given bounding box.
         Returns a list of BRO objects that can be used to retrieve their data using the get_objects method
 
         Parameters
