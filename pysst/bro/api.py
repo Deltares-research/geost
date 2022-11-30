@@ -1,26 +1,34 @@
 import requests
 from lxml import etree
-from typing import Union, Iterable
+from typing import Union, Iterable, List
 from pysst.projections import xy_to_ll
 from pysst.bro.bro_utils import get_bbox_criteria
 
 
 class BroApi:
+
+    apis = {
+        "CPT": "/sr/cpt/v1",
+        "BHR-P": "/sr/bhrp/v2",
+        "BHR-GT": "/sr/bhrgt/v2",
+        "BHR-G": "/sr/bhrg/v2",
+    }
+    document_types = {
+        "CPT": "CPT_C",
+        "BHR-P": "",
+        "BHR-GT": "",
+        "BHR-G": "",
+    }
+
     def __init__(self, server_url=r"https://publiek.broservices.nl"):
         self.session = requests.Session()
         self.server_url = server_url
-        self.apis = {
-            "CPT": "/sr/cpt/v1",
-            "BHR-P": "/sr/bhrp/v2",
-            "BHR-GT": "/sr/bhrgt/v2",
-            "BHR-G": "/sr/bhrg/v2",
-        }
         self.objects_url = "/objects"
         self.search_url = "/characteristics/searches"
 
     def get_objects(self, bro_ids: Union[str, Iterable], object_type: str = "CPT"):
         """
-        Get BRO objects
+        Get BRO objects as a generator object containing element trees that can be parsed to a reader.
 
         Parameters
         ----------
@@ -39,7 +47,7 @@ class BroApi:
         Warning
             When a non-existing BRO ID was given
         Warning
-            When the server does noet respond (40x error)
+            When the server does not respond to the request (40x error)
         """
         if isinstance(bro_ids, str):
             bro_ids = [bro_ids]
@@ -63,13 +71,42 @@ class BroApi:
 
     def search_objects_in_bbox(
         self,
-        xmin: Union[float, int] = 140500,
-        xmax: Union[float, int] = 141000,
-        ymin: Union[float, int] = 455000,
-        ymax: Union[float, int] = 455500,
+        xmin: Union[float, int],
+        xmax: Union[float, int],
+        ymin: Union[float, int],
+        ymax: Union[float, int],
         epsg: str = "28992",
         object_type: str = "CPT",
-    ):
+    ) -> List[str]:
+        """
+        Search for BRO objects of the given object type wihin the given bounding box.
+        Returns a list of BRO objects that can be used to retrieve their data using the get_objects method
+
+        Parameters
+        ----------
+        xmin : Union[float, int]
+            x-coordinate of the bbox lower left corner
+        xmax : Union[float, int]
+            x-coordinate of the bbox upper right corner
+        ymin : Union[float, int]
+            y-coordinate of the bbox lower left corner
+        ymax : Union[float, int]
+            y-coordinate of the bbox upper right corner
+        epsg : str, optional
+            Coordinate reference system of the given bbox coordinates, by default "28992" (= Rijksdriehoek New CRS)
+        object_type : str, optional
+            BRO object type. Can be CPT (Cone penetration tests), BHR-P (Soil cores), BHR-GT (Geotechnical cores), or BHR-G (Geological cores). By default "CPT"
+
+        Returns
+        -------
+        List[str]
+            List containing BRO ID's of objects found within the bbox
+
+        Raises
+        ------
+        Warning
+            If the server does not respond or the search query was rejected
+        """
         xmin_ll, ymin_ll = xy_to_ll(xmin, ymin, epsg)
         xmax_ll, ymax_ll = xy_to_ll(xmax, ymax, epsg)
         criteria = get_bbox_criteria(xmin_ll, xmax_ll, ymin_ll, ymax_ll)
@@ -83,10 +120,10 @@ class BroApi:
             )
 
         namespaces = etree_root.nsmap
-        selected_bro_elements = etree_root.findall("dispatchDocument", namespaces)
-        bro_ids = []
-        for selected_bro_element in selected_bro_elements:
-            bro_el = selected_bro_element.getchildren()[0]
-            bro_ids.append(bro_el.find("brocom:broId", namespaces).text)
-
-        return bro_ids
+        bro_elements = etree_root.findall(
+            "dispatchDocument/" + self.document_types[object_type], namespaces
+        )
+        return [
+            bro_element.find("brocom:broId", namespaces).text
+            for bro_element in bro_elements
+        ]
