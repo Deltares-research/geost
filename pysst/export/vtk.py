@@ -31,7 +31,9 @@ def __create_tubes(
         poly.lines = line_segments
 
         for data_column in data_columns:
-            poly[data_column] = np.hstack([0, borehole[data_column].values])
+            poly[data_column] = np.hstack(
+                [borehole[data_column].values[0], borehole[data_column].values]
+            )
         yield poly.tube(radius=radius)
 
 
