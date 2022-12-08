@@ -5,7 +5,7 @@ from dataclasses import dataclass
 from typing import List, Union
 
 from pysst import spatial
-from pysst.write import borehole_to_vtk
+from pysst.export import borehole_to_vtk
 
 
 class Base(object):
@@ -253,7 +253,8 @@ class PointDataCollection(Base):
 
     def to_vtk(self, out_file: Union[str, WindowsPath], **kwargs):
         # TODO write the pandas dataframes to vtk
-        vtk_object = borehole_to_vtk(self.data, self.header, **kwargs)
+        vtk_object = borehole_to_vtk(self.data, **kwargs)
+        vtk_object.save(out_file)
 
     def to_geodataclass(self, out_file: Union[str, WindowsPath], **kwargs):
         # TODO write the pandas dataframes to geodataclass (used for Deltares GEO DataFusionTools)
