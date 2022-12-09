@@ -37,11 +37,11 @@ def __create_tubes(
         yield poly.tube(radius=radius)
 
 
-def borehole_to_vtk(
+def borehole_to_multiblock(
     table: pd.DataFrame,
     data_columns: List[str],
-    radius: float = 1,
-    vertical_factor: float = 1.0,
+    radius,
+    vertical_factor,
 ) -> pv.MultiBlock:
     """
     Create a PyVista MultiBlock object from the parsed boreholes/cpt's.
@@ -52,10 +52,10 @@ def borehole_to_vtk(
         Table of borehole/CPT objects. This is CptCollection.data or BoreholeCollection.data
     data_columns : List[str]
         Column names of data arrays to write in the vtk file
-    radius : float, optional
-        Radius of borehole tubes, by default 1
-    vertical_factor : float, optional
-        Vertical adjustment factor to convert e.g. heights in cm to m, by default 1.0
+    radius : float
+        Radius of borehole tubes
+    vertical_factor : float
+        Vertical adjustment factor to convert e.g. heights in cm to m.
 
     Returns
     -------

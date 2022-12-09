@@ -5,7 +5,7 @@ from dataclasses import dataclass
 from typing import List, Union
 
 from pysst import spatial
-from pysst.export import borehole_to_vtk
+from pysst.export import borehole_to_multiblock
 
 
 class Base(object):
@@ -251,9 +251,33 @@ class PointDataCollection(Base):
         # TODO write the pandas dataframes to IPF
         pass
 
-    def to_vtk(self, out_file: Union[str, WindowsPath], **kwargs):
+    def to_vtm(
+        self,
+        out_file: Union[str, WindowsPath],
+        data_columns: List[str],
+        radius: float = 1,
+        vertical_factor: float = 1.0,
+        **kwargs,
+    ):
+        """
+        Save objects to VTM (Multiblock file, an XML VTK file pointing to multiple other VTK files).
+        For viewing in e.g. ParaView or other VTK viewers
+
+        Parameters
+        ----------
+        out_file : Union[str, WindowsPath]
+            Path to vtm file to be written
+        data_columns : List[str]
+            Which data columns to include for visualisation. Can be columns with floats, ints and strings.
+        radius : float, optional
+            Radius of the cylinders in m, by default 1
+        vertical_factor : float, optional
+            Factor to correct vertical scale. e.g. when layer boundaries are given in cm use 0.01 to convert to m, by default 1.0
+        """
         # TODO write the pandas dataframes to vtk
-        vtk_object = borehole_to_vtk(self.data, **kwargs)
+        vtk_object = borehole_to_multiblock(
+            self.data, data_columns, radius, vertical_factor, **kwargs
+        )
         vtk_object.save(out_file)
 
     def to_geodataclass(self, out_file: Union[str, WindowsPath], **kwargs):
