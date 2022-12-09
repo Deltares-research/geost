@@ -6,29 +6,34 @@ import numpy as np
 
 from time import perf_counter
 
-gefs = read_gef_cpts(
-    r"n:\Projects\11206500\11206761\B. Measurements and calculations\3D-SSM Purmerend Casus\Veldwerk\Resultaten\Purmerend DualEM\Model training\Training_CPTs"
-)
+# gefs = read_gef_cpts(
+#     r"n:\Projects\11206500\11206761\B. Measurements and calculations\3D-SSM Purmerend Casus\Veldwerk\Resultaten\Purmerend DualEM\Model training\Training_CPTs"
+# )
 
-gefs.add_lithology()
-gefs.to_vtk(
-    r"n:\Projects\11206500\11206761\B. Measurements and calculations\3D-SSM Purmerend Casus\Veldwerk\Resultaten\Purmerend DualEM\Model training\test2.vtm",
-    data_columns=["ic", "lith"],
-    radius=2,
-)
-gefs.to_parquet(
-    r"n:\Projects\11206500\11206761\B. Measurements and calculations\3D-SSM Purmerend Casus\Veldwerk\Data\van HHNK\cpts.parquet"
-)
+# gefs.add_lithology()
+# gefs.to_vtm(
+#     r"n:\Projects\11206500\11206761\B. Measurements and calculations\3D-SSM Purmerend Casus\Veldwerk\Resultaten\Purmerend DualEM\Model training\Training_CPTs\cpts.vtm",
+#     data_columns=["ic", "lith"],
+#     radius=2,
+# )
+# gefs.to_parquet(
+#     r"n:\Projects\11206500\11206761\B. Measurements and calculations\3D-SSM Purmerend Casus\Veldwerk\Data\van HHNK\cpts.parquet"
+# )
 
 
 # excel_to_parquet(
-#     r"n:\Projects\11206500\11206761\B. Measurements and calculations\3D-SSM Purmerend Casus\Veldwerk\Resultaten\Boringen\boreholes_Eva.xlsx"
+#     r"n:\Projects\11206500\11206761\B. Measurements and calculations\3D-SSM Purmerend Casus\Veldwerk\Resultaten\Boringen\boreholes_Purmerend_final.xlsx"
 # )
 
 collection = read_sst_cores(
-    r"n:\Projects\11206500\11206761\B. Measurements and calculations\3D-SSM Purmerend Casus\Veldwerk\Resultaten\Boringen\boreholes_Eva.parquet"
+    r"n:\Projects\11206500\11206761\B. Measurements and calculations\3D-SSM Purmerend Casus\Veldwerk\Resultaten\Boringen\boreholes_Purmerend_final.parquet"
 )
-collection.to_vtk("", borehole_size=100, vertical_factor=0.01)
+collection.to_vtm(
+    r"n:\Projects\11206500\11206761\B. Measurements and calculations\3D-SSM Purmerend Casus\Veldwerk\Resultaten\Boringen\boreholes_Purmerend_final.vtm",
+    data_columns=["lith_comb", "pen", "T", "Prik"],
+    radius=0.6,
+    vertical_factor=0.01,
+)
 
 
 tic = perf_counter()

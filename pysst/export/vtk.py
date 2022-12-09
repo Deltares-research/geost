@@ -16,7 +16,7 @@ def __prepare_borehole(borehole: pd.DataFrame, vertical_factor) -> np.ndarray:
     return bh
 
 
-def __create_tubes(
+def __generate_cylinders(
     table: pd.DataFrame,
     data_columns: List[str],
     radius: float,
@@ -40,8 +40,8 @@ def __create_tubes(
 def borehole_to_multiblock(
     table: pd.DataFrame,
     data_columns: List[str],
-    radius,
-    vertical_factor,
+    radius: float,
+    vertical_factor: float,
 ) -> pv.MultiBlock:
     """
     Create a PyVista MultiBlock object from the parsed boreholes/cpt's.
@@ -53,15 +53,15 @@ def borehole_to_multiblock(
     data_columns : List[str]
         Column names of data arrays to write in the vtk file
     radius : float
-        Radius of borehole tubes
+        Radius of borehole cylinders
     vertical_factor : float
         Vertical adjustment factor to convert e.g. heights in cm to m.
 
     Returns
     -------
     pv.MultiBlock
-        MultiBlock object with borehole geometries
+        MultiBlock object with boreholes represented as cylinder geometries
     """
 
-    tubes = __create_tubes(table, data_columns, radius, vertical_factor)
-    return pv.MultiBlock(list(tubes))
+    cylinders = __generate_cylinders(table, data_columns, radius, vertical_factor)
+    return pv.MultiBlock(list(cylinders))

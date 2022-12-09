@@ -185,6 +185,10 @@ class PointDataCollection(Base):
         if self.__class__ == other.__class__:
             self.__data = pd.concat([self.data, other.data])
             self.__header = pd.concat([self.header, other.header])
+        else:
+            raise TypeError(
+                f"Cannot join instance of {self.__class__} with an instance of {other.__class__}"
+            )
 
     def to_parquet(self, out_file: Union[str, WindowsPath], **kwargs):
         """
@@ -234,7 +238,7 @@ class PointDataCollection(Base):
     def to_geoparquet(self, out_file: Union[str, WindowsPath], **kwargs):
         """
         Write header data to geoparquet. You can use the resulting file to display borehole locations in GIS for instance.
-        Please not that Geoparquet is supported by GDAL >= 3.5. For Qgis this means QGis >= 3.26
+        Please note that Geoparquet is supported by GDAL >= 3.5. For Qgis this means QGis >= 3.26
 
         Parameters
         ----------
@@ -261,7 +265,7 @@ class PointDataCollection(Base):
     ):
         """
         Save objects to VTM (Multiblock file, an XML VTK file pointing to multiple other VTK files).
-        For viewing in e.g. ParaView or other VTK viewers
+        For viewing boreholes/cpt's in e.g. ParaView or other VTK viewers
 
         Parameters
         ----------
