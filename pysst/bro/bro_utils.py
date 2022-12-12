@@ -1,5 +1,4 @@
 def get_bbox_criteria(xmin, xmax, ymin, ymax):
-    # TODO unittest
     json_line = {
         "area": {
             "boundingBox": {
