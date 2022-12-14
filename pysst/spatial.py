@@ -11,6 +11,15 @@ def header_to_geopandas(entries_df) -> gpd.GeoDataFrame:
     return gpd.GeoDataFrame(entries_df, geometry=points)
 
 
+def header_from_bbox(header_df, xmin, xmax, ymin, ymax, invert):
+    return header_df[
+        (header_df.x >= xmin)
+        & (header_df.x <= xmax)
+        & (header_df.y >= ymin)
+        & (header_df.y <= ymax)
+    ]
+
+
 def header_from_points(header_df, point_gdf, buffer, invert) -> gpd.GeoDataFrame:
     data_points = header_df[["x", "y"]].values
     if isinstance(point_gdf, gpd.GeoDataFrame):

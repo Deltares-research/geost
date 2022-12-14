@@ -2,10 +2,12 @@ import pandas as pd
 import geopandas as gpd
 from pathlib import WindowsPath
 from dataclasses import dataclass
-from typing import List, Union
+from typing import List, Union, TypeVar
 
 from pysst import spatial
 from pysst.export import borehole_to_multiblock
+
+Coordinate = TypeVar("Coordinate", int, float)
 
 
 class Base(object):
@@ -63,6 +65,42 @@ class PointDataCollection(Base):
     @property
     def n_points(self):
         return len(self.header)
+
+    def select_from_bbox(
+        self,
+        xmin: Coordinate,
+        xmax: Coordinate,
+        ymin: Coordinate,
+        ymax: Coordinate,
+        invert: bool = False,
+    ):
+        """
+        Make a selection of the data based on a bounding box
+
+        Parameters
+        ----------
+        xmin : Coordinate (float or int)
+            Left x-coordinate of bbox
+        xmax : Coordinate (float or int)
+            Right x-coordinate of bbox
+        ymin : Coordinate (float or int)
+            Lower y-coordinate of bbox
+        ymax : Coordinate (float or int)
+            Upper y-coordinate of bbox
+        invert: bool, default False
+            Invert the selection
+
+        Returns
+        -------
+        Child of PointDataCollection
+            Instance of either BoreholeCollection or CptCollection.
+        """
+        selected_header = spatial.header_from_bbox(
+            self.header, xmin, xmax, ymin, ymax, invert
+        )
+        return self.__class__(
+            self.data.loc[self.data["nr"].isin(selected_header["nr"])]
+        )
 
     def select_from_points(
         self,

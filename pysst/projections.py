@@ -1,7 +1,5 @@
 import pyproj
 
-# TODO check conversion accuracy. Ellipsoid or bro problem
-
 
 def get_transformer(epsg_from, epsg_to):
     return pyproj.Transformer.from_crs(epsg_from, epsg_to, accuracy=1.0)
