@@ -190,6 +190,48 @@ class PointDataCollection(Base):
             self.data.loc[self.data["nr"].isin(selected_header["nr"])]
         )
 
+    def select_from_present_values(self, select_dict: dict):
+        """
+        Select pointdata based on the presence of given values in the given columns. Can be used for example
+        to return a BoreholeCollection of boreholes that contain peat in the lithology column. This can be achieved
+        by passing e.g. the following argument to the method:
+
+        {"lith": ["V"]},
+
+        where the column "lith" contains lithologies and we will return any cores that have at least one time "V"
+        in the lithology column. You look for multiple values as well, for example:
+
+        {"lith": ["V", "Z"]}
+
+        will return all boreholes that have either or both "V" and "Z" in the "lith" column. If you want to return
+        boreholes that have both present at the same time you should pass the following argument:
+
+        {
+            "lith": ["V"],
+            "lith": ["Z"],
+        }
+
+        Parameters
+        ----------
+        select_dict : dict
+            Dict that contains the column names as key and a list of values to look for in this column
+
+        Returns
+        -------
+        Child of PointDataCollection
+            Instance of either BoreholeCollection or CptCollection.
+        """
+        selected_header = self.header.copy()
+        for selection_key in select_dict.keys():
+            notna = self.data["nr"][
+                self.data[selection_key].isin(select_dict[selection_key])
+            ].unique()
+            selected_header = selected_header[selected_header["nr"].isin(notna)]
+
+        return self.__class__(
+            self.data.loc[self.data["nr"].isin(selected_header["nr"])]
+        )
+
     def get_area_labels(
         self, polygon_gdf: gpd.GeoDataFrame, column_name: str
     ) -> pd.DataFrame:
