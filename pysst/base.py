@@ -232,6 +232,75 @@ class PointDataCollection(Base):
             self.data.loc[self.data["nr"].isin(selected_header["nr"])]
         )
 
+    def select_from_depth(
+        self,
+        top_min: float = None,
+        top_max: float = None,
+        end_min: float = None,
+        end_max: float = None,
+    ):
+        """
+        Select data from depth constraints. If a keyword argument is not given it will not be considered.
+        e.g. if you need only boreholes that go deeper than -500 m use only end_max = -500
+
+        Parameters
+        ----------
+        top_min : float, optional
+            Minimum elevation of the borehole/cpt top, by default None
+        top_max : float, optional
+            Maximum elevation of the borehole/cpt top, by default None
+        end_min : float, optional
+            Minimum elevation of the borehole/cpt end, by default None
+        end_max : float, optional
+            Maximumelevation of the borehole/cpt end, by default None
+
+        Returns
+        -------
+        Child of PointDataCollection
+            Instance of either BoreholeCollection or CptCollection.
+        """
+        selected_header = self.header.copy()
+        if top_min is not None:
+            selected_header = selected_header[selected_header["mv"] >= top_min]
+        if top_max is not None:
+            selected_header = selected_header[selected_header["mv"] <= top_min]
+        if end_min is not None:
+            selected_header = selected_header[selected_header["end"] >= end_min]
+        if end_max is not None:
+            selected_header = selected_header[selected_header["end"] <= end_max]
+
+        return self.__class__(
+            self.data.loc[self.data["nr"].isin(selected_header["nr"])]
+        )
+
+    def select_from_length(self, min_length: float = None, max_length: float = None):
+        """
+        Select data from length constraints: e.g. all boreholes between 50 and 150 m long.
+        If a keyword argument is not given it will not be considered.
+
+        Parameters
+        ----------
+        min_length : float, optional
+            Minimum length of borehole/cpt, by default None
+        max_length : float, optional
+            Maximum length of borehole/cpt, by default None
+
+        Returns
+        -------
+        Child of PointDataCollection
+            Instance of either BoreholeCollection or CptCollection.
+        """
+        selected_header = self.header.copy()
+        length = selected_header["mv"] - selected_header["end"]
+        if min_length is not None:
+            selected_header = selected_header[length >= min_length]
+        if max_length is not None:
+            selected_header = selected_header[length <= max_length]
+
+        return self.__class__(
+            self.data.loc[self.data["nr"].isin(selected_header["nr"])]
+        )
+
     def get_area_labels(
         self, polygon_gdf: gpd.GeoDataFrame, column_name: str
     ) -> pd.DataFrame:
@@ -357,6 +426,7 @@ class PointDataCollection(Base):
             Radius of the cylinders in m, by default 1
         vertical_factor : float, optional
             Factor to correct vertical scale. e.g. when layer boundaries are given in cm use 0.01 to convert to m, by default 1.0
+            It is not recommended to use this for vertical exaggeration, use viewer functionality for that instead.
         **kwargs :
             pyvista.MultiBlock.save kwargs.
         """
