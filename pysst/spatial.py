@@ -7,7 +7,9 @@ from typing import List, Union
 
 
 def header_to_geopandas(entries_df) -> gpd.GeoDataFrame:
-    points = [Point([x, y]) for x, y in zip(entries_df.x, entries_df.y)]
+    points = [
+        Point([x, y]) for x, y in zip(entries_df.x, entries_df.y)
+    ]  # TODO check with shapely 2.0
     return gpd.GeoDataFrame(entries_df, geometry=points)
 
 

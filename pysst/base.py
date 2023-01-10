@@ -33,6 +33,7 @@ class PointDataCollection(Base):
     """
 
     __data: pd.DataFrame
+    _vertical_reference: str = "NAP"  # TODO functie die vert ref aanpast
 
     def __post_init__(self):
         self.__header = spatial.header_to_geopandas(
@@ -65,6 +66,17 @@ class PointDataCollection(Base):
     @property
     def n_points(self):
         return len(self.header)
+
+    def change_vertical_reference(self, to: str):
+        """
+        _summary_
+
+        Parameters
+        ----------
+        to : str
+            To which vertical reference to convert the layer tops and bottoms. Either 'NAP', or 'surfacelevel'
+        """
+        pass
 
     def select_from_bbox(
         self,
@@ -228,9 +240,9 @@ class PointDataCollection(Base):
             ].unique()
             selected_header = selected_header[selected_header["nr"].isin(notna)]
 
-        return self.__class__(
-            self.data.loc[self.data["nr"].isin(selected_header["nr"])]
-        )
+        selection = self.data.loc[self.data["nr"].isin(selected_header["nr"])]
+
+        return self.__class__(selection)
 
     def select_from_depth(
         self,

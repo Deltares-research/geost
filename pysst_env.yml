@@ -22,5 +22,6 @@ dependencies:
 - pydantic
 - pandera
 - pyvista
+- lxml
 - pip:
     - pygef

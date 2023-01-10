@@ -35,7 +35,6 @@ collection.to_vtm(
     r"n:\Projects\11206500\11206761\B. Measurements and calculations\3D-SSM Purmerend Casus\Veldwerk\Resultaten\Boringen\boreholes_Purmerend_final.vtm",
     data_columns=["lith_comb", "pen", "T", "Prik"],
     radius=0.6,
-    vertical_factor=0.01,
 )
 
 

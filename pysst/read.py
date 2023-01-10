@@ -51,6 +51,7 @@ def read_sst_cores(file: Union[str, WindowsPath]) -> BoreholeCollection:
         Instance of BoreholeCollection.
     """
     sst_cores = __read_parquet(Path(file))
+    # BoreholeSchema.validate(sst_cores)
     return BoreholeCollection(sst_cores)
 
 
