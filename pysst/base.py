@@ -10,19 +10,7 @@ from pysst.export import borehole_to_multiblock
 Coordinate = TypeVar("Coordinate", int, float)
 
 
-class Base(object):
-    """
-    Base class to intercept __post_init__ call when using super() in child classes.
-    This is because builtin 'object' is always last in the MRO, but doesn't have a __post_init__
-    All classes must therefore inherit from Base, such that the MRO becomes: child > parent(s) > Base > object.
-    """
-
-    def __post_init__(self):
-        pass
-
-
-@dataclass
-class PointDataCollection(Base):
+class PointDataCollection:
     """
     Dataclass for collections of pointdata, such as boreholes and CPTs. The pysst module revolves around this class
     and includes all methods that apply generically to both borehole and CPT data, such as selection and export methods.
@@ -32,13 +20,12 @@ class PointDataCollection(Base):
 
     """
 
-    __data: pd.DataFrame
-    _vertical_reference: str = "NAP"  # TODO functie die vert ref aanpast
-
-    def __post_init__(self):
+    def __init__(self, data: pd.DataFrame):
+        self.__data = data
         self.__header = spatial.header_to_geopandas(
             self.data.drop_duplicates(subset=("nr"))[["nr", "x", "y", "mv", "end"]]
         ).reset_index(drop=True)
+        self._vertical_reference = "NAP"  # TODO functie die vert ref aanpast
 
     def __new__(cls, *args, **kwargs):
         if cls is PointDataCollection:

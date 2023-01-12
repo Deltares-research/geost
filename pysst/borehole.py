@@ -9,15 +9,14 @@ from pysst.analysis import top_of_sand
 from pysst.analysis.interpret_cpt import calc_ic, calc_lithology
 
 
-@dataclass(repr=False)
 class BoreholeCollection(PointDataCollection):
     """
     BoreholeCollection class.
     """
 
-    def __post_init__(self):
-        super().__post_init__()
-        self.__classification_system: str = "5104"
+    def __init__(self, data):
+        super().__init__(data)
+        self.__classification_system = "5104"
         # BoreholeSchema.validate(self.table, inplace=True)
 
     @property
@@ -38,14 +37,13 @@ class BoreholeCollection(PointDataCollection):
         return cover_layer[["nr", "cover_thickness"]]
 
 
-@dataclass(repr=False)
 class CptCollection(PointDataCollection):
     """
     CptCollection class.
     """
 
-    def __post_init__(self):
-        super().__post_init__()
+    def __init__(self, data):
+        super().__init__(data)
         # CptSchema.validate(self.table, inplace=True)
 
     def add_ic(self):
