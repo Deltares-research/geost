@@ -10,7 +10,8 @@ from pysst.readers import pygef_gef_cpt
 
 
 def __read_parquet(file: WindowsPath) -> pd.DataFrame:
-    """Read parquet file
+    """
+    Read parquet file.
 
     Parameters
     ----------
@@ -26,6 +27,7 @@ def __read_parquet(file: WindowsPath) -> pd.DataFrame:
     ------
     TypeError
         if 'file' has no '.parquet' or '.pq' suffix.
+    
     """
     suffix = file.suffix
     if suffix in [".parquet", ".pq"]:
@@ -38,7 +40,7 @@ def __read_parquet(file: WindowsPath) -> pd.DataFrame:
 
 def read_sst_cores(file: Union[str, WindowsPath]) -> BoreholeCollection:
     """
-    Read Subsurface Toolbox native parquet file with core information
+    Read Subsurface Toolbox native parquet file with core information.
 
     Parameters
     ----------
@@ -49,6 +51,7 @@ def read_sst_cores(file: Union[str, WindowsPath]) -> BoreholeCollection:
     -------
     BoreholeCollection
         Instance of BoreholeCollection.
+    
     """
     sst_cores = __read_parquet(Path(file))
     # BoreholeSchema.validate(sst_cores)
@@ -58,6 +61,7 @@ def read_sst_cores(file: Union[str, WindowsPath]) -> BoreholeCollection:
 def read_sst_cpts(file: Union[str, WindowsPath]) -> CptCollection:
     """
     Read Subsurface Toolbox native parquet file with cpt information.
+    
     """
     filepath = Path(file)
     sst_cpts = __read_parquet(filepath)
@@ -69,6 +73,7 @@ def read_xml_geotechnical_cores(
     """
     Read xml files of BRO geotechnical boreholes (IMBRO or IMBRO/A quality).
     Decribed in NEN14688 standards
+    
     """
     pass
 
@@ -76,6 +81,7 @@ def read_xml_geotechnical_cores(
 def read_xml_soil_cores(file_or_folder: Union[str, WindowsPath]) -> BoreholeCollection:
     """
     Read xml files of BRO soil boreholes (IMBRO or IMBRO/A quality).
+    
     """
     pass
 
@@ -85,6 +91,7 @@ def read_xml_geological_cores(
 ) -> BoreholeCollection:
     """
     Read xml files of DINO geological boreholes.
+    
     """
     pass
 
@@ -92,6 +99,7 @@ def read_xml_geological_cores(
 def read_gef_cores(file_or_folder: Union[str, WindowsPath]) -> BoreholeCollection:
     """
     Read gef files of boreholes.
+    
     """
     pass
 
@@ -99,12 +107,17 @@ def read_gef_cores(file_or_folder: Union[str, WindowsPath]) -> BoreholeCollectio
 def read_gef_cpts(file_or_folder: Union[str, WindowsPath]) -> CptCollection:
     """
     Read gef files of cpts.
+    
     """
-    return CptCollection(pd.concat(pygef_gef_cpt(Path(file_or_folder))))
+    data = pygef_gef_cpt(Path(file_or_folder))
+    df = pd.concat(data)
+    
+    return CptCollection(df)
 
 
 def read_xml_cpts(file_or_folder: Union[str, WindowsPath]) -> CptCollection:
     """
     Read xml files of cpts.
+    
     """
     pass
