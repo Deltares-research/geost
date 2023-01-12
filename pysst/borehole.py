@@ -14,8 +14,8 @@ class BoreholeCollection(PointDataCollection):
     BoreholeCollection class.
     """
 
-    def __init__(self, data):
-        super().__init__(data)
+    def __init__(self, data: pd.DataFrame, vertical_reference: str = "NAP"):
+        super().__init__(data, vertical_reference)
         self.__classification_system = "5104"
         # BoreholeSchema.validate(self.table, inplace=True)
 
@@ -42,8 +42,8 @@ class CptCollection(PointDataCollection):
     CptCollection class.
     """
 
-    def __init__(self, data):
-        super().__init__(data)
+    def __init__(self, data: pd.DataFrame, vertical_reference: str = "NAP"):
+        super().__init__(data, vertical_reference)
         # CptSchema.validate(self.table, inplace=True)
 
     def add_ic(self):

@@ -20,12 +20,12 @@ class PointDataCollection:
 
     """
 
-    def __init__(self, data: pd.DataFrame):
-        self.__data = data
+    def __init__(self, data: pd.DataFrame, vertical_reference: str):
+        self._data = data
         self.__header = spatial.header_to_geopandas(
             self.data.drop_duplicates(subset=("nr"))[["nr", "x", "y", "mv", "end"]]
         ).reset_index(drop=True)
-        self._vertical_reference = "NAP"  # TODO functie die vert ref aanpast
+        self._vertical_reference = vertical_reference
 
     def __new__(cls, *args, **kwargs):
         if cls is PointDataCollection:
@@ -48,22 +48,58 @@ class PointDataCollection:
 
     @property
     def data(self):
-        return self.__data
+        return self._data
 
     @property
     def n_points(self):
         return len(self.header)
 
+    @property
+    def vertical_reference(self):
+        return self._vertical_reference
+
     def change_vertical_reference(self, to: str):
         """
-        _summary_
+        Change the vertical reference of layer tops and bottoms
 
         Parameters
         ----------
         to : str
-            To which vertical reference to convert the layer tops and bottoms. Either 'NAP', or 'surfacelevel'
+            To which vertical reference to convert the layer tops and bottoms. Either 'NAP', 'surfacelevel' or 'depth'
+            NAP = elevation with respect to NAP datum
+            surfacelevel = elevation with respect to surface (surface is 0 m, e.g. layers tops could be 0, -1, -2 etc.)
+            depth = depth with respect to surface (surface is 0 m, e.g. depth of layers tops could be 0, 1, 2 etc.)
         """
-        pass
+        match self._vertical_reference:
+            case "NAP":
+                if to == "surfacelevel":
+                    self._data["top"] = self._data["top"] - self._data["mv"]
+                    self._data["bottom"] = self._data["bottom"] - self._data["mv"]
+                    self._vertical_reference = "surfacelevel"
+                elif to == "depth":
+                    self._data["top"] = (self._data["top"] - self._data["mv"]) * -1
+                    self._data["bottom"] = (
+                        self._data["bottom"] - self._data["mv"]
+                    ) * -1
+                    self._vertical_reference = "depth"
+            case "surfacelevel":
+                if to == "NAP":
+                    self._data["top"] = self._data["top"] + self._data["mv"]
+                    self._data["bottom"] = self._data["bottom"] + self._data["mv"]
+                    self._vertical_reference = "NAP"
+                if to == "depth":
+                    self._data["top"] = self._data["top"] * -1
+                    self._data["bottom"] = self._data["bottom"] * -1
+                    self._vertical_reference = "depth"
+            case "depth":
+                if to == "NAP":
+                    self._data["top"] = self._data["top"] * -1 + self._data["mv"]
+                    self._data["bottom"] = self._data["bottom"] * -1 + self._data["mv"]
+                    self._vertical_reference = "NAP"
+                if to == "surfacelevel":
+                    self._data["top"] = self._data["top"] * -1
+                    self._data["bottom"] = self._data["bottom"] * -1
+                    self._vertical_reference = "surfacelevel"
 
     def select_from_bbox(
         self,
@@ -333,7 +369,7 @@ class PointDataCollection:
             Another object of the same type, from which the data is appended to self.
         """
         if self.__class__ == other.__class__:
-            self.__data = pd.concat([self.data, other.data])
+            self._data = pd.concat([self.data, other.data])
             self.__header = pd.concat([self.header, other.header])
         else:
             raise TypeError(
@@ -353,7 +389,7 @@ class PointDataCollection:
         **kwargs
             pd.DataFrame.to_parquet kwargs.
         """
-        self.__data.to_parquet(out_file, **kwargs)
+        self._data.to_parquet(out_file, **kwargs)
 
     def to_csv(self, out_file: Union[str, WindowsPath], **kwargs):
         """
@@ -368,7 +404,7 @@ class PointDataCollection:
         **kwargs
             pd.DataFrame.to_csv kwargs.
         """
-        self.__data.to_csv(out_file, **kwargs)
+        self._data.to_csv(out_file, **kwargs)
 
     def to_shape(self, out_file: Union[str, WindowsPath], **kwargs):
         """
@@ -431,6 +467,11 @@ class PointDataCollection:
         **kwargs :
             pyvista.MultiBlock.save kwargs.
         """
+        if not self._vertical_reference == "NAP":
+            raise NotImplementedError(
+                "VTM export for vertical references other than NAP not implemented yet"
+            )
+
         vtk_object = borehole_to_multiblock(
             self.data, data_columns, radius, vertical_factor, **kwargs
         )

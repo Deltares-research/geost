@@ -27,22 +27,22 @@ class TestExport:
         data_int = np.arange(0, 10, dtype=np.int64)
         data_float = np.arange(0, 5, 0.5, dtype=np.float64)
 
-        return BoreholeCollection(
-            pd.DataFrame(
-                {
-                    "nr": nr,
-                    "x": x,
-                    "y": y,
-                    "mv": mv,
-                    "end": end,
-                    "top": top,
-                    "bottom": bottom,
-                    "data_string": data_string,
-                    "data_int": data_int,
-                    "data_float": data_float,
-                }
-            )
+        dataframe = pd.DataFrame(
+            {
+                "nr": nr,
+                "x": x,
+                "y": y,
+                "mv": mv,
+                "end": end,
+                "top": top,
+                "bottom": bottom,
+                "data_string": data_string,
+                "data_int": data_int,
+                "data_float": data_float,
+            }
         )
+
+        return BoreholeCollection(dataframe)
 
     @pytest.mark.unittest
     def test_to_parquet(self, borehole_collection):
