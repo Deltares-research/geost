@@ -63,7 +63,8 @@ class BroApi:
                 + f"/{bro_id}"
             )
             if response.status_code == 200 and not "rejection" in response.text:
-                yield etree.fromstring(response.text.encode("utf-8"))
+                element = etree.fromstring(response.text.encode("utf-8"))
+                yield element
             elif "rejection" in response.text:
                 raise Warning(
                     f"{bro_id} is invalid and could not be retrieved from the database"
@@ -127,7 +128,8 @@ class BroApi:
         bro_elements = etree_root.findall(
             "dispatchDocument/" + self.document_types[object_type], namespaces
         )
-        return [
+        bro_objects = [
             bro_element.find("brocom:broId", namespaces).text
             for bro_element in bro_elements
         ]
+        return bro_objects

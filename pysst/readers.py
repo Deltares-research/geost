@@ -49,4 +49,5 @@ def pygef_gef_cpt(file_or_folder):
                 "bottom": gef_bottom,
             }
         )
-        yield extra_cols.join(gef_cpt_df)
+        data_out = extra_cols.join(gef_cpt_df)
+        yield data_out

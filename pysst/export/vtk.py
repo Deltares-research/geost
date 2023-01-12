@@ -34,7 +34,8 @@ def generate_cylinders(
             poly[data_column] = np.hstack(
                 [borehole[data_column].values[0], borehole[data_column].values]
             )
-        yield poly.tube(radius=radius)
+        cylinder = poly.tube(radius=radius)
+        yield cylinder
 
 
 def borehole_to_multiblock(
@@ -64,4 +65,5 @@ def borehole_to_multiblock(
     """
 
     cylinders = generate_cylinders(table, data_columns, radius, vertical_factor)
-    return pv.MultiBlock(list(cylinders))
+    cylinders_multiblock = pv.MultiBlock(list(cylinders))
+    return cylinders_multiblock

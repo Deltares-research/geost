@@ -33,8 +33,8 @@ class BoreholeCollection(PointDataCollection):
 
         cover_layer = top_sand.merge(self.header, on="nr", how="left")
         cover_layer["cover_thickness"] = cover_layer["mv"] - cover_layer["top_sand"]
-
-        return cover_layer[["nr", "cover_thickness"]]
+        cover_layer_df = cover_layer[["nr", "cover_thickness"]]
+        return cover_layer_df
 
 
 class CptCollection(PointDataCollection):

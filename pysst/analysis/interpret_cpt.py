@@ -28,7 +28,8 @@ def calc_ic(qc, rf) -> np.ndarray:
     np.ndarray
         Non-normalized IC
     """
-    return np.sqrt((3.47 - np.log10(qc / 0.1)) ** 2 + (np.log10(rf) + 1.22) ** 2)
+    ic = np.sqrt((3.47 - np.log10(qc / 0.1)) ** 2 + (np.log10(rf) + 1.22) ** 2)
+    return ic
 
 
 # TODO numpy searchsort

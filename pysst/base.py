@@ -97,9 +97,9 @@ class PointDataCollection:
         selected_header = spatial.header_from_bbox(
             self.header, xmin, xmax, ymin, ymax, invert
         )
-        return self.__class__(
-            self.data.loc[self.data["nr"].isin(selected_header["nr"])]
-        )
+        selection = self.data.loc[self.data["nr"].isin(selected_header["nr"])]
+
+        return self.__class__(selection)
 
     def select_from_points(
         self,
@@ -127,9 +127,9 @@ class PointDataCollection:
         selected_header = spatial.header_from_points(
             self.header, point_gdf, buffer, invert
         )
-        return self.__class__(
-            self.data.loc[self.data["nr"].isin(selected_header["nr"])]
-        )
+        selection = self.data.loc[self.data["nr"].isin(selected_header["nr"])]
+
+        return self.__class__(selection)
 
     def select_from_lines(
         self,
@@ -157,9 +157,9 @@ class PointDataCollection:
         selected_header = spatial.header_from_lines(
             self.header, line_gdf, buffer, invert
         )
-        return self.__class__(
-            self.data.loc[self.data["nr"].isin(selected_header["nr"])]
-        )
+        selection = self.data.loc[self.data["nr"].isin(selected_header["nr"])]
+
+        return self.__class__(selection)
 
     def select_from_polygons(
         self,
@@ -185,9 +185,9 @@ class PointDataCollection:
         selected_header = spatial.header_from_polygons(
             self.header, polygon_gdf, buffer, invert
         )
-        return self.__class__(
-            self.data.loc[self.data["nr"].isin(selected_header["nr"])]
-        )
+        selection = self.data.loc[self.data["nr"].isin(selected_header["nr"])]
+
+        return self.__class__(selection)
 
     def select_from_present_values(self, select_dict: dict):
         """
@@ -268,9 +268,9 @@ class PointDataCollection:
         if end_max is not None:
             selected_header = selected_header[selected_header["end"] <= end_max]
 
-        return self.__class__(
-            self.data.loc[self.data["nr"].isin(selected_header["nr"])]
-        )
+        selection = self.data.loc[self.data["nr"].isin(selected_header["nr"])]
+
+        return self.__class__(selection)
 
     def select_from_length(self, min_length: float = None, max_length: float = None):
         """
@@ -296,9 +296,9 @@ class PointDataCollection:
         if max_length is not None:
             selected_header = selected_header[length <= max_length]
 
-        return self.__class__(
-            self.data.loc[self.data["nr"].isin(selected_header["nr"])]
-        )
+        selection = self.data.loc[self.data["nr"].isin(selected_header["nr"])]
+
+        return self.__class__(selection)
 
     def get_area_labels(
         self, polygon_gdf: gpd.GeoDataFrame, column_name: str
@@ -319,7 +319,9 @@ class PointDataCollection:
         pd.DataFrame
             Borehole ids and the polygon label they are in
         """
-        return spatial.find_area_labels(self.header, polygon_gdf, column_name)
+        area_labels = spatial.find_area_labels(self.header, polygon_gdf, column_name)
+
+        return area_labels
 
     def append(self, other):
         """

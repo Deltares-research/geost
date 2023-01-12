@@ -10,16 +10,18 @@ def header_to_geopandas(entries_df) -> gpd.GeoDataFrame:
     points = [
         Point([x, y]) for x, y in zip(entries_df.x, entries_df.y)
     ]  # TODO check with shapely 2.0
-    return gpd.GeoDataFrame(entries_df, geometry=points)
+    header_as_gdf = gpd.GeoDataFrame(entries_df, geometry=points)
+    return header_as_gdf
 
 
 def header_from_bbox(header_df, xmin, xmax, ymin, ymax, invert):
-    return header_df[
+    header_selected = header_df[
         (header_df.x >= xmin)
         & (header_df.x <= xmax)
         & (header_df.y >= ymin)
         & (header_df.y <= ymax)
     ]
+    return header_selected
 
 
 def header_from_points(header_df, point_gdf, buffer, invert) -> gpd.GeoDataFrame:
@@ -38,16 +40,23 @@ def header_from_points(header_df, point_gdf, buffer, invert) -> gpd.GeoDataFrame
         bool_array += distance < buffer
     if invert:
         bool_array = np.invert(bool_array)
-    return header_df[bool_array]
+    header_selected = header_df[bool_array]
+    return header_selected
 
 
 def header_from_lines(header_df, line_gdf, buffer, invert) -> gpd.GeoDataFrame:
     line_gdf["geometry"] = line_gdf.buffer(distance=buffer)
-    return gpd.sjoin(header_df, line_gdf)[["nr", "x", "y", "mv", "end", "geometry"]]
+    header_selected = gpd.sjoin(header_df, line_gdf)[
+        ["nr", "x", "y", "mv", "end", "geometry"]
+    ]
+    return header_selected
 
 
 def header_from_polygons(header_df, polygon_gdf, buffer, invert) -> gpd.GeoDataFrame:
-    return gpd.sjoin(header_df, polygon_gdf)[["nr", "x", "y", "mv", "end", "geometry"]]
+    header_selected = gpd.sjoin(header_df, polygon_gdf)[
+        ["nr", "x", "y", "mv", "end", "geometry"]
+    ]
+    return header_selected
 
 
 def find_area_labels(header_df, polygon_gdf, column_name):
@@ -55,4 +64,5 @@ def find_area_labels(header_df, polygon_gdf, column_name):
     joined = gpd.sjoin(header_df, polygon_gdf)[column_name]
     # Remove any duplicated indices, which may sometimes happen
     joined = joined[~joined.index.duplicated()]
-    return pd.concat([all_nrs, joined], axis=1)
+    area_labels = pd.concat([all_nrs, joined], axis=1)
+    return area_labels
