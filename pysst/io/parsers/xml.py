@@ -45,7 +45,16 @@ class SoilCore:
         self._set_header_info()
         
         self.df = pd.DataFrame(self.parse_layers())
-    
+        
+    def __repr__(self):
+        name = self.__class__.__name__
+        repr_ = (
+            f'xml.{name} instance of BroId: {self.broid}\n'
+            f'\tEnddepth: {self.enddepth} m\n'
+            f'\tQuality: {self.quality}'
+            )
+        return repr_
+        
     @property
     def ns(self):
         ns = {
@@ -233,11 +242,11 @@ if __name__ == "__main__":
     file = workdir/'BHR000000151282_IMBRO_A.xml'
     
     xml = SoilCore(file)
-    
+    print(xml)
     test = BroApi()
     xml_from_api = SoilCore(
         next(test.get_objects('BHR000000151282', object_type='BHR-P'))
         )
     
-    print('Header is the same: ', xml.header.equals(xml_from_api.header))
-    print('Data is the same: ', xml.df.equals(xml_from_api.df))
+    # print('Header is the same: ', xml.header.equals(xml_from_api.header))
+    # print('Data is the same: ', xml.df.equals(xml_from_api.df))
