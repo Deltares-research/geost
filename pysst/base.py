@@ -35,9 +35,9 @@ class PointDataCollection:
 
     def __repr__(self):
         return f"{self.__class__.__name__}:\n# header = {self.n_points}"
-    
+
     def __set_header(self):
-        header = self.data.drop_duplicates(subset='nr')
+        header = self.data.drop_duplicates(subset="nr")
         header = header[["nr", "x", "y", "mv", "end"]].reset_index(drop=True)
         self.__header = spatial.header_to_geopandas(header)
 
@@ -138,7 +138,7 @@ class PointDataCollection:
         )
         selection = self.data.loc[self.data["nr"].isin(selected_header["nr"])]
 
-        return self.__class__(selection)
+        return self.__class__(selection, vertical_reference=self.vertical_reference)
 
     def select_from_points(
         self,
@@ -168,7 +168,7 @@ class PointDataCollection:
         )
         selection = self.data.loc[self.data["nr"].isin(selected_header["nr"])]
 
-        return self.__class__(selection)
+        return self.__class__(selection, vertical_reference=self.vertical_reference)
 
     def select_from_lines(
         self,
@@ -198,7 +198,7 @@ class PointDataCollection:
         )
         selection = self.data.loc[self.data["nr"].isin(selected_header["nr"])]
 
-        return self.__class__(selection)
+        return self.__class__(selection, vertical_reference=self.vertical_reference)
 
     def select_from_polygons(
         self,
@@ -226,7 +226,7 @@ class PointDataCollection:
         )
         selection = self.data.loc[self.data["nr"].isin(selected_header["nr"])]
 
-        return self.__class__(selection)
+        return self.__class__(selection, vertical_reference=self.vertical_reference)
 
     def select_from_present_values(self, select_dict: dict):
         """
@@ -268,7 +268,7 @@ class PointDataCollection:
 
         selection = self.data.loc[self.data["nr"].isin(selected_header["nr"])]
 
-        return self.__class__(selection)
+        return self.__class__(selection, vertical_reference=self.vertical_reference)
 
     def select_from_depth(
         self,
@@ -309,7 +309,7 @@ class PointDataCollection:
 
         selection = self.data.loc[self.data["nr"].isin(selected_header["nr"])]
 
-        return self.__class__(selection)
+        return self.__class__(selection, vertical_reference=self.vertical_reference)
 
     def select_from_length(self, min_length: float = None, max_length: float = None):
         """
@@ -337,7 +337,7 @@ class PointDataCollection:
 
         selection = self.data.loc[self.data["nr"].isin(selected_header["nr"])]
 
-        return self.__class__(selection)
+        return self.__class__(selection, vertical_reference=self.vertical_reference)
 
     def get_area_labels(
         self, polygon_gdf: gpd.GeoDataFrame, column_name: str
