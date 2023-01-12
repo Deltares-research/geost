@@ -102,8 +102,6 @@ def read_gef_cpts(file_or_folder: Union[str, WindowsPath]) -> CptCollection:
     """
     return CptCollection(pd.concat(pygef_gef_cpt(Path(file_or_folder))))
 
-    pass
-
 
 def read_xml_cpts(file_or_folder: Union[str, WindowsPath]) -> CptCollection:
     """

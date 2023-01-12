@@ -22,9 +22,7 @@ class PointDataCollection:
 
     def __init__(self, data: pd.DataFrame, vertical_reference: str):
         self._data = data
-        self.__header = spatial.header_to_geopandas(
-            self.data.drop_duplicates(subset=("nr"))[["nr", "x", "y", "mv", "end"]]
-        ).reset_index(drop=True)
+        self.__set_header()
         self._vertical_reference = vertical_reference
 
     def __new__(cls, *args, **kwargs):
@@ -37,6 +35,11 @@ class PointDataCollection:
 
     def __repr__(self):
         return f"{self.__class__.__name__}:\n# header = {self.n_points}"
+    
+    def __set_header(self):
+        header = self.data.drop_duplicates(subset='nr')
+        header = header[["nr", "x", "y", "mv", "end"]].reset_index(drop=True)
+        self.__header = spatial.header_to_geopandas(header)
 
     @property
     def header(self):
