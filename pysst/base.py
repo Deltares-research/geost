@@ -245,27 +245,21 @@ class PointDataCollection:
         """
         Select pointdata based on the presence of given values in the given columns. Can be used for example
         to return a BoreholeCollection of boreholes that contain peat in the lithology column. This can be achieved
-        by passing e.g. the following argument to the method:
+        by passing e.g. the following arguments to the method:
 
-        {"lith": ["V"]},
+        self.select_by_values("lith", ["V", "K"], how="and") - Returns boreholes where lithoclasses "V" and "K" are present at the same time
 
-        where the column "lith" contains lithologies and we will return any cores that have at least one time "V"
-        in the lithology column. You look for multiple values as well, for example:
-
-        {"lith": ["V", "Z"]}
-
-        will return all boreholes that have either or both "V" and "Z" in the "lith" column. If you want to return
-        boreholes that have both present at the same time you should pass the following argument:
-
-        {
-            "lith": ["V"],
-            "lith": ["Z"],
-        }
+        self.select_by_values("lith", ["V", "K"], how="or") - Returns boreholes where either lithoclasses "V" or "K" are present (or both by coincidence)
 
         Parameters
         ----------
-        select_dict : dict
-            Dict that contains the column names as key and a list of values to look for in this column
+        column : str
+            Name of column to use when looking for values
+        selection_values : Union[str, Iterable]
+            Values to look for in the column
+        how : str
+            Either "and" or "or". "and" requires all selction values to be present in column for selection. "or" will select the core if any one
+            of the selection_values are found in the column. Default is "and"
 
         Returns
         -------
@@ -280,16 +274,18 @@ class PointDataCollection:
         if isinstance(selection_values, str):
             selection_values = [selection_values]
 
-        selected_header = self.header.copy()
+        header_copy = self.header.copy()
         if how == "and":
             notna = self.data["nr"][self.data[column].isin(selection_values)].unique()
-            selected_header = selected_header[selected_header["nr"].isin(notna)]
+            selected_header = header_copy[header_copy["nr"].isin(notna)]
         elif how == "or":
+            subselections = []
             for selection_value in selection_values:
                 notna = self.data["nr"][
-                    self.data[column].isin(selection_value)
+                    self.data[column].isin([selection_value])
                 ].unique()
-                selected_header = selected_header[selected_header["nr"].isin(notna)]
+                subselections.append(header_copy[header_copy["nr"].isin(notna)])
+            selected_header = pd.concat(subselections)
 
         selection = self.data.loc[self.data["nr"].isin(selected_header["nr"])]
 
