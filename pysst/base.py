@@ -2,7 +2,7 @@ import pandas as pd
 import geopandas as gpd
 from pathlib import WindowsPath
 from dataclasses import dataclass
-from typing import List, Union, TypeVar
+from typing import List, Union, TypeVar, Iterable
 
 from pysst import spatial
 from pysst.export import borehole_to_multiblock
@@ -104,7 +104,7 @@ class PointDataCollection:
                     self._data["bottom"] = self._data["bottom"] * -1
                     self._vertical_reference = "surfacelevel"
 
-    def select_from_bbox(
+    def select_within_bbox(
         self,
         xmin: Coordinate,
         xmax: Coordinate,
@@ -140,7 +140,7 @@ class PointDataCollection:
 
         return self.__class__(selection, vertical_reference=self.vertical_reference)
 
-    def select_from_points(
+    def select_with_points(
         self,
         point_gdf: gpd.GeoDataFrame,
         buffer: float = 100,
@@ -170,7 +170,7 @@ class PointDataCollection:
 
         return self.__class__(selection, vertical_reference=self.vertical_reference)
 
-    def select_from_lines(
+    def select_with_lines(
         self,
         line_gdf: gpd.GeoDataFrame,
         buffer: float = 100,
@@ -200,7 +200,7 @@ class PointDataCollection:
 
         return self.__class__(selection, vertical_reference=self.vertical_reference)
 
-    def select_from_polygons(
+    def select_within_polygons(
         self,
         polygon_gdf: gpd.GeoDataFrame,
         buffer: float = 0,
@@ -228,7 +228,9 @@ class PointDataCollection:
 
         return self.__class__(selection, vertical_reference=self.vertical_reference)
 
-    def select_from_present_values(self, select_dict: dict):
+    def select_by_values(
+        self, column: str, selection_values: Union[str, Iterable], how: str = "and"
+    ):
         """
         Select pointdata based on the presence of given values in the given columns. Can be used for example
         to return a BoreholeCollection of boreholes that contain peat in the lithology column. This can be achieved
@@ -259,18 +261,30 @@ class PointDataCollection:
         Child of PointDataCollection
             Instance of either BoreholeCollection or CptCollection.
         """
+        if not column in self.data.columns:
+            raise IndexError(
+                f"The column '{column}' does not exist and cannot be used for selection"
+            )
+
+        if isinstance(selection_values, str):
+            selection_values = [selection_values]
+
         selected_header = self.header.copy()
-        for selection_key in select_dict.keys():
-            notna = self.data["nr"][
-                self.data[selection_key].isin(select_dict[selection_key])
-            ].unique()
+        if how == "and":
+            notna = self.data["nr"][self.data[column].isin(selection_values)].unique()
             selected_header = selected_header[selected_header["nr"].isin(notna)]
+        elif how == "or":
+            for selection_value in selection_values:
+                notna = self.data["nr"][
+                    self.data[column].isin(selection_value)
+                ].unique()
+                selected_header = selected_header[selected_header["nr"].isin(notna)]
 
         selection = self.data.loc[self.data["nr"].isin(selected_header["nr"])]
 
         return self.__class__(selection, vertical_reference=self.vertical_reference)
 
-    def select_from_depth(
+    def select_by_depth(
         self,
         top_min: float = None,
         top_max: float = None,
@@ -311,7 +325,7 @@ class PointDataCollection:
 
         return self.__class__(selection, vertical_reference=self.vertical_reference)
 
-    def select_from_length(self, min_length: float = None, max_length: float = None):
+    def select_by_length(self, min_length: float = None, max_length: float = None):
         """
         Select data from length constraints: e.g. all boreholes between 50 and 150 m long.
         If a keyword argument is not given it will not be considered.
@@ -387,8 +401,6 @@ class PointDataCollection:
         ----------
         out_file : Union[str, WindowsPath]
             Path to parquet file to be written.
-        selected : bool, optional
-            Use only selected data (True) or all data (False). Default False.
         **kwargs
             pd.DataFrame.to_parquet kwargs.
         """
@@ -402,8 +414,6 @@ class PointDataCollection:
         ----------
         out_file : Union[str, WindowsPath]
             Path to csv file to be written.
-        selected : bool, optional
-            Use only selected data (True) or all data (False). Default False.
         **kwargs
             pd.DataFrame.to_csv kwargs.
         """
@@ -417,8 +427,6 @@ class PointDataCollection:
         ----------
         out_file : Union[str, WindowsPath]
             Path to shapefile to be written.
-        selected : bool, optional
-            Use only selected data (True) or all data (False). Default False.
         **kwargs
             gpd.GeoDataFrame.to_file kwargs.
         """
@@ -433,8 +441,6 @@ class PointDataCollection:
         ----------
         out_file : Union[str, WindowsPath]
             Path to shapefile to be written.
-        selected : bool, optional
-            Use only selected data (True) or all data (False). Default False.
         **kwargs
             gpd.GeoDataFrame.to_parquet kwargs.
         """

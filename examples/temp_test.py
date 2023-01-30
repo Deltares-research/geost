@@ -44,7 +44,7 @@ dino = read_sst_cores(
 )
 toc = perf_counter()
 print(toc - tic)
-dino_selected = dino.select_from_lines(
+dino_selected = dino.select_with_lines(
     gpd.read_file(
         r"n:\Projects\11207500\11207576\B. Measurements and calculations\PRORAIL-88 - Review SOS RHDHV_deelopdracht_3b\data\segmenten_85.shp"
     ),
