@@ -1,7 +1,15 @@
 import numpy as np
-import pyvista as pv
 import pandas as pd
 from typing import Iterable, List
+
+# Local imports
+from pysst.utils import MissingOptionalModule
+
+# Optional imports
+try:
+    import pyvista as pv
+except ImportError:
+    pv = MissingOptionalModule("pyvista")
 
 
 def prepare_borehole(borehole: pd.DataFrame, vertical_factor: float) -> np.ndarray:

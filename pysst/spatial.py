@@ -1,9 +1,21 @@
-import geopandas as gpd
 import pandas as pd
 import numpy as np
 from pathlib import Path
-from shapely.geometry import Point
 from typing import List, Union
+
+# Local imports
+from pysst.utils import MissingOptionalModule
+
+# Optional imports
+try:
+    import geopandas as gpd
+except:
+    gpd = MissingOptionalModule("geopandas")
+
+try:
+    from shapely.geometry import Point
+except:
+    Point = MissingOptionalModule("shapely")
 
 
 def header_to_geopandas(entries_df) -> gpd.GeoDataFrame:

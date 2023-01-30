@@ -1,11 +1,22 @@
 import pandas as pd
-import geopandas as gpd
 from pathlib import WindowsPath
 from dataclasses import dataclass
 from typing import List, Union, TypeVar, Iterable
 
+# Local imports
 from pysst import spatial
 from pysst.export import borehole_to_multiblock
+from pysst.utils import MissingOptionalModule
+
+# Optional imports
+try:
+    import geopandas as gpd
+
+    create_header = spatial.header_to_geopandas
+except:
+    gpd = MissingOptionalModule("geopandas")
+    create_header = lambda x: x
+
 
 Coordinate = TypeVar("Coordinate", int, float)
 
@@ -39,7 +50,7 @@ class PointDataCollection:
     def __set_header(self):
         header = self.data.drop_duplicates(subset="nr")
         header = header[["nr", "x", "y", "mv", "end"]].reset_index(drop=True)
-        self.__header = spatial.header_to_geopandas(header)
+        self.__header = create_header(header)
 
     @property
     def header(self):
