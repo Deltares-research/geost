@@ -11,7 +11,7 @@ from pathlib import Path, WindowsPath
 from typing import Union
 
 from pysst.bro.api import BroApi
-from pysst.io.parsers.utils import (
+from pysst.io.parsers.parser_utils import (
     LayerSoilCore,
     rdcoord,
     ddcoord
