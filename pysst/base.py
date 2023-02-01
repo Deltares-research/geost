@@ -16,7 +16,7 @@ try:
     create_header = spatial.header_to_geopandas
 except:
     gpd = MissingOptionalModule("geopandas")
-    create_header = lambda x: x
+    def create_header(x): return x
 
 
 Coordinate = TypeVar("Coordinate", int, float)
@@ -125,10 +125,12 @@ class PointDataCollection:
             case "NAP":
                 if to == "surfacelevel":
                     self._data["top"] = self._data["top"] - self._data["mv"]
-                    self._data["bottom"] = self._data["bottom"] - self._data["mv"]
+                    self._data["bottom"] = self._data["bottom"] - \
+                        self._data["mv"]
                     self.__vertical_reference = "surfacelevel"
                 elif to == "depth":
-                    self._data["top"] = (self._data["top"] - self._data["mv"]) * -1
+                    self._data["top"] = (
+                        self._data["top"] - self._data["mv"]) * -1
                     self._data["bottom"] = (
                         self._data["bottom"] - self._data["mv"]
                     ) * -1
@@ -136,7 +138,8 @@ class PointDataCollection:
             case "surfacelevel":
                 if to == "NAP":
                     self._data["top"] = self._data["top"] + self._data["mv"]
-                    self._data["bottom"] = self._data["bottom"] + self._data["mv"]
+                    self._data["bottom"] = self._data["bottom"] + \
+                        self._data["mv"]
                     self.__vertical_reference = "NAP"
                 if to == "depth":
                     self._data["top"] = self._data["top"] * -1
@@ -144,8 +147,10 @@ class PointDataCollection:
                     self.__vertical_reference = "depth"
             case "depth":
                 if to == "NAP":
-                    self._data["top"] = self._data["top"] * -1 + self._data["mv"]
-                    self._data["bottom"] = self._data["bottom"] * -1 + self._data["mv"]
+                    self._data["top"] = self._data["top"] * - \
+                        1 + self._data["mv"]
+                    self._data["bottom"] = self._data["bottom"] * - \
+                        1 + self._data["mv"]
                     self.__vertical_reference = "NAP"
                 if to == "surfacelevel":
                     self._data["top"] = self._data["top"] * -1
@@ -328,16 +333,18 @@ class PointDataCollection:
             selection_values = [selection_values]
 
         header_copy = self.header.copy()
-        if how == "or":
-            notna = self.data["nr"][self.data[column].isin(selection_values)].unique()
+        if how == "and":
+            notna = self.data["nr"][self.data[column].isin(
+                selection_values)].unique()
             selected_header = header_copy[header_copy["nr"].isin(notna)]
         elif how == "and":
             for selection_value in selection_values:
                 notna = self.data["nr"][
                     self.data[column].isin([selection_value])
                 ].unique()
-                header_copy = header_copy[header_copy["nr"].isin(notna)]
-            selected_header = header_copy
+                subselections.append(
+                    header_copy[header_copy["nr"].isin(notna)])
+            selected_header = pd.concat(subselections)
 
         selection = self.data.loc[self.data["nr"].isin(selected_header["nr"])]
 
@@ -443,7 +450,8 @@ class PointDataCollection:
         pd.DataFrame
             Borehole ids and the polygon label they are in
         """
-        area_labels = spatial.find_area_labels(self.header, polygon_gdf, column_name)
+        area_labels = spatial.find_area_labels(
+            self.header, polygon_gdf, column_name)
 
         return area_labels
 
@@ -471,13 +479,15 @@ class PointDataCollection:
 
         result_dfs = []
         for value in values:
-            cumulative_thicknesses = cumulative_thickness(self.data, column, value)
+            cumulative_thicknesses = cumulative_thickness(
+                self.data, column, value)
             result_df = pd.DataFrame(
                 cumulative_thicknesses, columns=("nr", f"{value}_thickness")
             )
             result_dfs.append(result_df)
 
-        result = reduce(lambda left, right: pd.merge(left, right, on="nr"), result_dfs)
+        result = reduce(lambda left, right: pd.merge(
+            left, right, on="nr"), result_dfs)
         if include_in_header:
             self._header = self.header.merge(result, on="nr")
         else:
@@ -504,10 +514,12 @@ class PointDataCollection:
         result_dfs = []
         for value in values:
             layer_tops = layer_top(self.data, column, value)
-            result_df = pd.DataFrame(layer_tops, columns=("nr", f"{value}_top"))
+            result_df = pd.DataFrame(
+                layer_tops, columns=("nr", f"{value}_top"))
             result_dfs.append(result_df)
 
-        result = reduce(lambda left, right: pd.merge(left, right, on="nr"), result_dfs)
+        result = reduce(lambda left, right: pd.merge(
+            left, right, on="nr"), result_dfs)
         if include_in_header:
             self._header = self.header.merge(result, on="nr")
         else:
@@ -527,7 +539,8 @@ class PointDataCollection:
             other_header_overlap = other.header["nr"].isin(self.header["nr"])
             if any(other_header_overlap):
                 other_header = other.header[~other_header_overlap]
-                other_data = other.data.loc[other.data["nr"].isin(other_header["nr"])]
+                other_data = other.data.loc[other.data["nr"].isin(
+                    other_header["nr"])]
             else:
                 other_header = other.header
                 other_data = other.data
