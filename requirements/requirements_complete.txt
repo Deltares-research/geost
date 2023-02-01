@@ -1,0 +1,6 @@
+-r requirements_minimal.txt
+shapely==1.8.4
+geopandas==0.11.1
+pyvista==0.36.1
+pandera==0.6.5
+
