@@ -247,6 +247,3 @@ if __name__ == "__main__":
     xml_from_api = SoilCore(
         next(test.get_objects('BHR000000151282', object_type='BHR-P'))
         )
-    
-    # print('Header is the same: ', xml.header.equals(xml_from_api.header))
-    # print('Data is the same: ', xml.df.equals(xml_from_api.df))
