@@ -6,7 +6,7 @@ from typing import Union
 # Local imports
 from pysst.borehole import BoreholeCollection, CptCollection
 from pysst.readers import pygef_gef_cpt
-from pysst.validate import BoreholeSchema
+#from pysst.validate import BoreholeSchema
 
 
 def __read_parquet(file: WindowsPath) -> pd.DataFrame:

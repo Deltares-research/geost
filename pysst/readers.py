@@ -1,10 +1,16 @@
 from enum import Enum
 import pandas as pd
-from pygef import Cpt
 import numpy as np
 
-from pysst.utils import get_path_iterable
+# Local imports
+from pysst.utils import get_path_iterable, MissingOptionalModule
 
+# Optional dependencies
+try:
+    import pygef as Cpt
+except:
+    Cpt = MissingOptionalModule("ipygef")
+    create_header = lambda x: x
 
 def pygef_gef_cpt(file_or_folder):
     """

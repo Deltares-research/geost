@@ -19,6 +19,7 @@ except:
 
 
 Coordinate = TypeVar("Coordinate", int, float)
+GeoDataFrame = TypeVar("GeoDataFrame")
 
 
 class PointDataCollection:
@@ -34,7 +35,7 @@ class PointDataCollection:
     def __init__(self, data: pd.DataFrame, vertical_reference: str):
         self._data = data
         self.__set_header()
-        self._vertical_reference = vertical_reference
+        self.__vertical_reference = vertical_reference
 
     def __new__(cls, *args, **kwargs):
         if cls is PointDataCollection:
@@ -70,7 +71,7 @@ class PointDataCollection:
 
     @property
     def vertical_reference(self):
-        return self._vertical_reference
+        return self.__vertical_reference
 
     def change_vertical_reference(self, to: str):
         """
@@ -84,36 +85,36 @@ class PointDataCollection:
             surfacelevel = elevation with respect to surface (surface is 0 m, e.g. layers tops could be 0, -1, -2 etc.)
             depth = depth with respect to surface (surface is 0 m, e.g. depth of layers tops could be 0, 1, 2 etc.)
         """
-        match self._vertical_reference:
+        match self.__vertical_reference:
             case "NAP":
                 if to == "surfacelevel":
                     self._data["top"] = self._data["top"] - self._data["mv"]
                     self._data["bottom"] = self._data["bottom"] - self._data["mv"]
-                    self._vertical_reference = "surfacelevel"
+                    self.__vertical_reference = "surfacelevel"
                 elif to == "depth":
                     self._data["top"] = (self._data["top"] - self._data["mv"]) * -1
                     self._data["bottom"] = (
                         self._data["bottom"] - self._data["mv"]
                     ) * -1
-                    self._vertical_reference = "depth"
+                    self.__vertical_reference = "depth"
             case "surfacelevel":
                 if to == "NAP":
                     self._data["top"] = self._data["top"] + self._data["mv"]
                     self._data["bottom"] = self._data["bottom"] + self._data["mv"]
-                    self._vertical_reference = "NAP"
+                    self.__vertical_reference = "NAP"
                 if to == "depth":
                     self._data["top"] = self._data["top"] * -1
                     self._data["bottom"] = self._data["bottom"] * -1
-                    self._vertical_reference = "depth"
+                    self.__vertical_reference = "depth"
             case "depth":
                 if to == "NAP":
                     self._data["top"] = self._data["top"] * -1 + self._data["mv"]
                     self._data["bottom"] = self._data["bottom"] * -1 + self._data["mv"]
-                    self._vertical_reference = "NAP"
+                    self.__vertical_reference = "NAP"
                 if to == "surfacelevel":
                     self._data["top"] = self._data["top"] * -1
                     self._data["bottom"] = self._data["bottom"] * -1
-                    self._vertical_reference = "surfacelevel"
+                    self.__vertical_reference = "surfacelevel"
 
     def select_within_bbox(
         self,
@@ -153,7 +154,7 @@ class PointDataCollection:
 
     def select_with_points(
         self,
-        point_gdf: gpd.GeoDataFrame,
+        point_gdf: GeoDataFrame,
         buffer: float = 100,
         invert: bool = False,
     ):
@@ -183,7 +184,7 @@ class PointDataCollection:
 
     def select_with_lines(
         self,
-        line_gdf: gpd.GeoDataFrame,
+        line_gdf: GeoDataFrame,
         buffer: float = 100,
         invert: bool = False,
     ):
@@ -213,7 +214,7 @@ class PointDataCollection:
 
     def select_within_polygons(
         self,
-        polygon_gdf: gpd.GeoDataFrame,
+        polygon_gdf: GeoDataFrame,
         buffer: float = 0,
         invert: bool = False,
     ):
@@ -361,7 +362,7 @@ class PointDataCollection:
         return self.__class__(selection, vertical_reference=self.vertical_reference)
 
     def get_area_labels(
-        self, polygon_gdf: gpd.GeoDataFrame, column_name: str
+        self, polygon_gdf: GeoDataFrame, column_name: str
     ) -> pd.DataFrame:
         """
         Find in which area (polygons) the point data locations fall. e.g. to determine in which

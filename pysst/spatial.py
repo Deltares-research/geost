@@ -1,7 +1,6 @@
 import pandas as pd
 import numpy as np
-from pathlib import Path
-from typing import List, Union
+from typing import TypeVar
 
 # Local imports
 from pysst.utils import MissingOptionalModule
@@ -17,8 +16,9 @@ try:
 except:
     Point = MissingOptionalModule("shapely")
 
+GeoDataFrame = TypeVar("GeoDataFrame")
 
-def header_to_geopandas(entries_df) -> gpd.GeoDataFrame:
+def header_to_geopandas(entries_df) -> GeoDataFrame:
     points = [
         Point([x, y]) for x, y in zip(entries_df.x, entries_df.y)
     ]  # TODO check with shapely 2.0
@@ -26,7 +26,7 @@ def header_to_geopandas(entries_df) -> gpd.GeoDataFrame:
     return header_as_gdf
 
 
-def header_from_bbox(header_df, xmin, xmax, ymin, ymax, invert):
+def header_from_bbox(header_df, xmin, xmax, ymin, ymax, invert) -> GeoDataFrame:
     header_selected = header_df[
         (header_df.x >= xmin)
         & (header_df.x <= xmax)
@@ -36,7 +36,7 @@ def header_from_bbox(header_df, xmin, xmax, ymin, ymax, invert):
     return header_selected
 
 
-def header_from_points(header_df, point_gdf, buffer, invert) -> gpd.GeoDataFrame:
+def header_from_points(header_df, point_gdf, buffer, invert) -> GeoDataFrame:
     data_points = header_df[["x", "y"]].values
     if isinstance(point_gdf, gpd.GeoDataFrame):
         query_points = np.array([list(pnt.coords)[0] for pnt in point_gdf.geometry])
@@ -56,7 +56,7 @@ def header_from_points(header_df, point_gdf, buffer, invert) -> gpd.GeoDataFrame
     return header_selected
 
 
-def header_from_lines(header_df, line_gdf, buffer, invert) -> gpd.GeoDataFrame:
+def header_from_lines(header_df, line_gdf, buffer, invert) -> GeoDataFrame:
     line_gdf["geometry"] = line_gdf.buffer(distance=buffer)
     header_selected = gpd.sjoin(header_df, line_gdf)[
         ["nr", "x", "y", "mv", "end", "geometry"]
@@ -64,7 +64,7 @@ def header_from_lines(header_df, line_gdf, buffer, invert) -> gpd.GeoDataFrame:
     return header_selected
 
 
-def header_from_polygons(header_df, polygon_gdf, buffer, invert) -> gpd.GeoDataFrame:
+def header_from_polygons(header_df, polygon_gdf, buffer, invert) -> GeoDataFrame:
     header_selected = gpd.sjoin(header_df, polygon_gdf)[
         ["nr", "x", "y", "mv", "end", "geometry"]
     ]
