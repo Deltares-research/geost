@@ -1,8 +1,17 @@
 import numpy as np
-import pyvista as pv
 import pandas as pd
-from typing import Iterable, List
+from typing import Iterable, List, TypeVar
 
+# Local imports
+from pysst.utils import MissingOptionalModule
+
+# Optional imports
+try:
+    import pyvista as pv
+except ImportError:
+    pv = MissingOptionalModule("pyvista")
+
+MultiBlock = TypeVar("MultiBlock")
 
 def prepare_borehole(borehole: pd.DataFrame, vertical_factor: float) -> np.ndarray:
     bh_as_pnts = borehole[["x", "y", "bottom"]].to_numpy().astype(np.float64)
@@ -43,7 +52,7 @@ def borehole_to_multiblock(
     data_columns: List[str],
     radius: float,
     vertical_factor: float,
-) -> pv.MultiBlock:
+) -> MultiBlock:
     """
     Create a PyVista MultiBlock object from the parsed boreholes/cpt's.
 

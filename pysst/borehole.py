@@ -3,8 +3,9 @@ import pandas as pd
 from pathlib import Path, WindowsPath
 from dataclasses import dataclass
 
+# Local imports
 from pysst.base import PointDataCollection
-from pysst.validate import BoreholeSchema, CptSchema
+#from pysst.validate import BoreholeSchema, CptSchema
 from pysst.analysis import top_of_sand
 from pysst.analysis.interpret_cpt import calc_ic, calc_lithology
 

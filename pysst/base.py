@@ -1,13 +1,25 @@
 import pandas as pd
-import geopandas as gpd
 from pathlib import WindowsPath
 from dataclasses import dataclass
 from typing import List, Union, TypeVar, Iterable
 
+# Local imports
 from pysst import spatial
 from pysst.export import borehole_to_multiblock
+from pysst.utils import MissingOptionalModule
+
+# Optional imports
+try:
+    import geopandas as gpd
+
+    create_header = spatial.header_to_geopandas
+except:
+    gpd = MissingOptionalModule("geopandas")
+    create_header = lambda x: x
+
 
 Coordinate = TypeVar("Coordinate", int, float)
+GeoDataFrame = TypeVar("GeoDataFrame")
 
 
 class PointDataCollection:
@@ -23,7 +35,7 @@ class PointDataCollection:
     def __init__(self, data: pd.DataFrame, vertical_reference: str):
         self._data = data
         self.__set_header()
-        self._vertical_reference = vertical_reference
+        self.__vertical_reference = vertical_reference
 
     def __new__(cls, *args, **kwargs):
         if cls is PointDataCollection:
@@ -39,7 +51,7 @@ class PointDataCollection:
     def __set_header(self):
         header = self.data.drop_duplicates(subset="nr")
         header = header[["nr", "x", "y", "mv", "end"]].reset_index(drop=True)
-        self.__header = spatial.header_to_geopandas(header)
+        self.__header = create_header(header)
 
     @property
     def header(self):
@@ -59,7 +71,7 @@ class PointDataCollection:
 
     @property
     def vertical_reference(self):
-        return self._vertical_reference
+        return self.__vertical_reference
 
     def change_vertical_reference(self, to: str):
         """
@@ -73,36 +85,36 @@ class PointDataCollection:
             surfacelevel = elevation with respect to surface (surface is 0 m, e.g. layers tops could be 0, -1, -2 etc.)
             depth = depth with respect to surface (surface is 0 m, e.g. depth of layers tops could be 0, 1, 2 etc.)
         """
-        match self._vertical_reference:
+        match self.__vertical_reference:
             case "NAP":
                 if to == "surfacelevel":
                     self._data["top"] = self._data["top"] - self._data["mv"]
                     self._data["bottom"] = self._data["bottom"] - self._data["mv"]
-                    self._vertical_reference = "surfacelevel"
+                    self.__vertical_reference = "surfacelevel"
                 elif to == "depth":
                     self._data["top"] = (self._data["top"] - self._data["mv"]) * -1
                     self._data["bottom"] = (
                         self._data["bottom"] - self._data["mv"]
                     ) * -1
-                    self._vertical_reference = "depth"
+                    self.__vertical_reference = "depth"
             case "surfacelevel":
                 if to == "NAP":
                     self._data["top"] = self._data["top"] + self._data["mv"]
                     self._data["bottom"] = self._data["bottom"] + self._data["mv"]
-                    self._vertical_reference = "NAP"
+                    self.__vertical_reference = "NAP"
                 if to == "depth":
                     self._data["top"] = self._data["top"] * -1
                     self._data["bottom"] = self._data["bottom"] * -1
-                    self._vertical_reference = "depth"
+                    self.__vertical_reference = "depth"
             case "depth":
                 if to == "NAP":
                     self._data["top"] = self._data["top"] * -1 + self._data["mv"]
                     self._data["bottom"] = self._data["bottom"] * -1 + self._data["mv"]
-                    self._vertical_reference = "NAP"
+                    self.__vertical_reference = "NAP"
                 if to == "surfacelevel":
                     self._data["top"] = self._data["top"] * -1
                     self._data["bottom"] = self._data["bottom"] * -1
-                    self._vertical_reference = "surfacelevel"
+                    self.__vertical_reference = "surfacelevel"
 
     def select_within_bbox(
         self,
@@ -142,7 +154,7 @@ class PointDataCollection:
 
     def select_with_points(
         self,
-        point_gdf: gpd.GeoDataFrame,
+        point_gdf: GeoDataFrame,
         buffer: float = 100,
         invert: bool = False,
     ):
@@ -172,7 +184,7 @@ class PointDataCollection:
 
     def select_with_lines(
         self,
-        line_gdf: gpd.GeoDataFrame,
+        line_gdf: GeoDataFrame,
         buffer: float = 100,
         invert: bool = False,
     ):
@@ -202,7 +214,7 @@ class PointDataCollection:
 
     def select_within_polygons(
         self,
-        polygon_gdf: gpd.GeoDataFrame,
+        polygon_gdf: GeoDataFrame,
         buffer: float = 0,
         invert: bool = False,
     ):
@@ -234,27 +246,21 @@ class PointDataCollection:
         """
         Select pointdata based on the presence of given values in the given columns. Can be used for example
         to return a BoreholeCollection of boreholes that contain peat in the lithology column. This can be achieved
-        by passing e.g. the following argument to the method:
+        by passing e.g. the following arguments to the method:
 
-        {"lith": ["V"]},
+        self.select_by_values("lith", ["V", "K"], how="and") - Returns boreholes where lithoclasses "V" and "K" are present at the same time
 
-        where the column "lith" contains lithologies and we will return any cores that have at least one time "V"
-        in the lithology column. You look for multiple values as well, for example:
-
-        {"lith": ["V", "Z"]}
-
-        will return all boreholes that have either or both "V" and "Z" in the "lith" column. If you want to return
-        boreholes that have both present at the same time you should pass the following argument:
-
-        {
-            "lith": ["V"],
-            "lith": ["Z"],
-        }
+        self.select_by_values("lith", ["V", "K"], how="or") - Returns boreholes where either lithoclasses "V" or "K" are present (or both by coincidence)
 
         Parameters
         ----------
-        select_dict : dict
-            Dict that contains the column names as key and a list of values to look for in this column
+        column : str
+            Name of column to use when looking for values
+        selection_values : Union[str, Iterable]
+            Values to look for in the column
+        how : str
+            Either "and" or "or". "and" requires all selction values to be present in column for selection. "or" will select the core if any one
+            of the selection_values are found in the column. Default is "and"
 
         Returns
         -------
@@ -269,16 +275,18 @@ class PointDataCollection:
         if isinstance(selection_values, str):
             selection_values = [selection_values]
 
-        selected_header = self.header.copy()
+        header_copy = self.header.copy()
         if how == "and":
             notna = self.data["nr"][self.data[column].isin(selection_values)].unique()
-            selected_header = selected_header[selected_header["nr"].isin(notna)]
+            selected_header = header_copy[header_copy["nr"].isin(notna)]
         elif how == "or":
+            subselections = []
             for selection_value in selection_values:
                 notna = self.data["nr"][
-                    self.data[column].isin(selection_value)
+                    self.data[column].isin([selection_value])
                 ].unique()
-                selected_header = selected_header[selected_header["nr"].isin(notna)]
+                subselections.append(header_copy[header_copy["nr"].isin(notna)])
+            selected_header = pd.concat(subselections)
 
         selection = self.data.loc[self.data["nr"].isin(selected_header["nr"])]
 
@@ -354,7 +362,7 @@ class PointDataCollection:
         return self.__class__(selection, vertical_reference=self.vertical_reference)
 
     def get_area_labels(
-        self, polygon_gdf: gpd.GeoDataFrame, column_name: str
+        self, polygon_gdf: GeoDataFrame, column_name: str
     ) -> pd.DataFrame:
         """
         Find in which area (polygons) the point data locations fall. e.g. to determine in which
@@ -476,7 +484,7 @@ class PointDataCollection:
         **kwargs :
             pyvista.MultiBlock.save kwargs.
         """
-        if not self._vertical_reference == "NAP":
+        if not self.__vertical_reference == "NAP":
             raise NotImplementedError(
                 "VTM export for vertical references other than NAP not implemented yet"
             )

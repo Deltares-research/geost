@@ -1,0 +1,9 @@
+python==3.10.6
+numpy==1.23.3
+pandas==1.4.4
+pyarrow==9.0.0
+lxml==4.9.1
+pyproj==3.4.0
+
+
+

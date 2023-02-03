@@ -1,12 +1,12 @@
 import pandas as pd
 import numpy as np
 from pathlib import Path, WindowsPath
-from pysst.borehole import BoreholeCollection, CptCollection
-from pysst.readers import pygef_gef_cpt
-from pysst.validate import BoreholeSchema
 from typing import Union
 
-from time import perf_counter
+# Local imports
+from pysst.borehole import BoreholeCollection, CptCollection
+from pysst.readers import pygef_gef_cpt
+#from pysst.validate import BoreholeSchema
 
 
 def __read_parquet(file: WindowsPath) -> pd.DataFrame:

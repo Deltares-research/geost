@@ -85,6 +85,7 @@ You can contribute by testing, raising issues and making pull requests. Some gen
 - Add unit tests (and test data) for new methods and functions. We use pytest.
 - Add Numpy-style docstrings
 - Use Black formatting with default line lenght (88 characters)
+- Update requirement.txt en environment.yml files if required
 
 ## License
 MIT license
