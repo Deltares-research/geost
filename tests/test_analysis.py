@@ -1,10 +1,17 @@
 import pytest
 import numpy as np
-from numpy.testing import assert_equal, assert_allclose, assert_array_equal
+import pandas as pd
+from numpy.testing import (
+    assert_equal,
+    assert_allclose,
+    assert_array_equal,
+    assert_almost_equal,
+)
 
 # Local imports
 from pysst.analysis.interpret_cpt import calc_ic, calc_lithology
-from pysst.analysis.find_top_sand import find_top_sand
+from pysst.analysis.layer_analysis import find_top_sand
+from pysst.borehole import BoreholeCollection
 
 
 class TestAnalysis:
@@ -28,6 +35,37 @@ class TestAnalysis:
     def test_fr_array(self):
         return np.array([9.0, 7.0, 5.5, 5.0, 4.0, 3.0, 3.0, 2.0, 1.5, 1.0, 1.0])
 
+    @pytest.fixture
+    def borehole_collection(self):
+        nr = np.full(10, "B-01")
+        x = np.full(10, 139370)
+        y = np.full(10, 455540)
+        mv = np.full(10, 1.0)
+        end = np.full(10, -4.0)
+        top = np.array([1, 0.5, 0, -0.5, -1.5, -2, -2.5, -3, -3.2, -3.6])
+        bottom = np.array([0.5, 0, -0.5, -1.5, -2, -2.5, -3, -3.2, -3.6, -4.0])
+        data_string = np.array(
+            ["K", "Kz", "K", "Ks3", "Ks2", "V", "Zk", "Zs", "Z", "Z"]
+        )
+        data_int = np.arange(0, 10, dtype=np.int64)
+        data_float = np.arange(0, 5, 0.5, dtype=np.float64)
+
+        dataframe = pd.DataFrame(
+            {
+                "nr": nr,
+                "x": x,
+                "y": y,
+                "mv": mv,
+                "end": end,
+                "top": top,
+                "bottom": bottom,
+                "data_string": data_string,
+                "data_int": data_int,
+                "data_float": data_float,
+            }
+        )
+        return BoreholeCollection(dataframe)
+
     @pytest.mark.unittest
     def test_top_sand(
         self, test_borehole_lith, test_borehole_top, test_borehole_bottom
@@ -48,6 +86,42 @@ class TestAnalysis:
                 test_borehole_lith, test_borehole_top, test_borehole_bottom, 0.6, 1
             ),
             -4.0,
+        )
+
+    @pytest.mark.unittest
+    def test_cumulative_thickness(self, borehole_collection):
+        assert_almost_equal(
+            borehole_collection.get_cumulative_layer_thickness("data_string", "K")[
+                "K_thickness"
+            ][0],
+            1.0,
+        )
+        assert_almost_equal(
+            borehole_collection.get_cumulative_layer_thickness("data_string", "Z")[
+                "Z_thickness"
+            ][0],
+            0.8,
+        )
+        assert_almost_equal(
+            borehole_collection.get_cumulative_layer_thickness("data_string", "V")[
+                "V_thickness"
+            ][0],
+            0.5,
+        )
+
+    @pytest.mark.unittest
+    def test_layer_top(self, borehole_collection):
+        assert_almost_equal(
+            borehole_collection.get_layer_top("data_string", "K")["K_top"][0],
+            1.0,
+        )
+        assert_almost_equal(
+            borehole_collection.get_layer_top("data_string", "Z")["Z_top"][0],
+            -3.2,
+        )
+        assert_almost_equal(
+            borehole_collection.get_layer_top("data_string", "V")["V_top"][0],
+            -2.0,
         )
 
     @pytest.mark.unittest

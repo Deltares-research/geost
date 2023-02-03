@@ -81,3 +81,18 @@ def top_of_sand(boreholes, ids="nr", min_sand_frac=0.5, min_sand_thickness=1):
         top_sand = find_top_sand(lith, top, bottom, min_sand_frac, min_sand_thickness)
 
         yield (nr, top_sand)
+
+
+def cumulative_thickness(data, column: str, value: str):
+    for nr, obj in data.groupby("nr"):
+        selected_layers_in_obj = obj[obj[column] == value]
+        cumulative_thickness = np.sum(
+            selected_layers_in_obj["top"] - selected_layers_in_obj["bottom"]
+        )
+        yield (nr, cumulative_thickness)
+
+
+def layer_top(data, column: str, value: str):
+    for nr, obj in data.groupby("nr"):
+        layer_top = obj[obj[column] == value].iloc[0]["top"]
+        yield (nr, layer_top)

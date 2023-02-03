@@ -1,3 +1,4 @@
+import numpy as np
 import pandas as pd
 from pathlib import WindowsPath
 from dataclasses import dataclass
@@ -7,6 +8,7 @@ from typing import List, Union, TypeVar, Iterable
 from pysst import spatial
 from pysst.export import borehole_to_multiblock
 from pysst.utils import MissingOptionalModule
+from pysst.analysis import cumulative_thickness, layer_top
 
 # Optional imports
 try:
@@ -383,6 +385,58 @@ class PointDataCollection:
         area_labels = spatial.find_area_labels(self.header, polygon_gdf, column_name)
 
         return area_labels
+
+    def get_cumulative_layer_thickness(
+        self, column: str, value: str, include_in_header=False
+    ):
+        """
+        Get the cumulative thickness of layers of a certain type.
+
+        For example, to get the cumulative thickness of the layers with lithology "K" in the column "lith" use:
+
+        self.get_cumulative_layer_thickness("lith", "K")
+
+        Parameters
+        ----------
+        column : str
+            In which column the type of layer is described
+        value : str
+            Value of entries in column that you want to find the cumulative thickness of
+        include_in_header :
+            Whether to add the acquired data to the header table or not, By default False
+        """
+        cumulative_thicknesses = cumulative_thickness(self.data, column, value)
+        result_df = pd.DataFrame(
+            cumulative_thicknesses, columns=("nr", f"{value}_thickness")
+        )
+
+        if include_in_header:
+            self.__header = self.header.join(result_df[f"{value}_thickness"])
+        else:
+            return result_df
+
+    def get_layer_top(self, column: str, value: str, include_in_header=False):
+        """
+        Find the depth at which a specified layer first occurs
+
+        Parameters
+        ----------
+        column : str
+            In which column the type of layer is described
+        value : str
+            Value of entries in column that you want to find top of
+        include_in_header : bool, optional
+            Whether to add the acquired data to the header table or not, by default False
+        """
+        layer_tops = layer_top(self.data, column, value)
+        result_df = pd.DataFrame(
+            layer_tops, columns=("nr", f"{value}_top")
+        )
+
+        if include_in_header:
+            self.__header = self.header.join(result_df[f"{value}_top"])
+        else:
+            return result_df
 
     def append(self, other):
         """
