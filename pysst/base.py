@@ -484,7 +484,7 @@ class PointDataCollection:
         **kwargs :
             pyvista.MultiBlock.save kwargs.
         """
-        if not self._vertical_reference == "NAP":
+        if not self.__vertical_reference == "NAP":
             raise NotImplementedError(
                 "VTM export for vertical references other than NAP not implemented yet"
             )

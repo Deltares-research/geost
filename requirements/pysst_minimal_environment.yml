@@ -81,4 +81,3 @@ dependencies:
   - xz=5.2.6=h8d14728_0
   - zlib=1.2.13=hcfcfb64_4
   - zstd=1.5.2=h12be248_6
-prefix: C:\Users\onselen\AppData\Local\miniforge3\envs\pysst_min

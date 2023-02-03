@@ -7,10 +7,11 @@ from pysst.utils import get_path_iterable, MissingOptionalModule
 
 # Optional dependencies
 try:
-    import pygef as Cpt
+    import pygef
 except:
-    Cpt = MissingOptionalModule("ipygef")
+    pygef = MissingOptionalModule("pygef")
     create_header = lambda x: x
+
 
 def pygef_gef_cpt(file_or_folder):
     """
@@ -27,7 +28,7 @@ def pygef_gef_cpt(file_or_folder):
         pd.DataFrame per cpt
     """
     for gef_file in get_path_iterable(file_or_folder, wildcard="*.gef"):
-        gef_cpt = Cpt(str(gef_file))
+        gef_cpt = pygef.Cpt(str(gef_file))
         if "corrected_depth" in gef_cpt.df.columns:
             depth_label = "corrected_depth"
         else:
