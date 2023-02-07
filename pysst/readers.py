@@ -10,7 +10,6 @@ try:
     import pygef
 except:
     pygef = MissingOptionalModule("pygef")
-    create_header = lambda x: x
 
 
 def pygef_gef_cpt(file_or_folder):

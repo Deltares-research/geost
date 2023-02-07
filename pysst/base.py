@@ -36,7 +36,7 @@ class PointDataCollection:
 
     def __init__(self, data: pd.DataFrame, vertical_reference: str):
         self._data = data
-        self.__set_header()
+        self.reset_header()  # TODO if no header was parsed to the constructor, only then call reset_header
         self.__vertical_reference = vertical_reference
 
     def __new__(cls, *args, **kwargs):
@@ -50,10 +50,10 @@ class PointDataCollection:
     def __repr__(self):
         return f"{self.__class__.__name__}:\n# header = {self.n_points}"
 
-    def __set_header(self):
+    def reset_header(self):
         header = self.data.drop_duplicates(subset="nr")
         header = header[["nr", "x", "y", "mv", "end"]].reset_index(drop=True)
-        self.__header = create_header(header)
+        self._header = create_header(header)
 
     @property
     def header(self):
@@ -61,7 +61,7 @@ class PointDataCollection:
         This attribute is a dataframe of header (1 row per borehole/cpt) and includes:
         point id, x-coordinate, y-coordinate, surface level and end depth.
         """
-        return self.__header
+        return self._header
 
     @property
     def data(self):
@@ -74,6 +74,11 @@ class PointDataCollection:
     @property
     def vertical_reference(self):
         return self.__vertical_reference
+
+    @header.setter
+    def header(self, input):
+        # TODO <header_validation>
+        self._header = input
 
     def change_vertical_reference(self, to: str):
         """
@@ -243,7 +248,7 @@ class PointDataCollection:
         return self.__class__(selection, vertical_reference=self.vertical_reference)
 
     def select_by_values(
-        self, column: str, selection_values: Union[str, Iterable], how: str = "and"
+        self, column: str, selection_values: Union[str, Iterable], how: str = "or"
     ):
         """
         Select pointdata based on the presence of given values in the given columns. Can be used for example
@@ -257,7 +262,7 @@ class PointDataCollection:
         Parameters
         ----------
         column : str
-            Name of column to use when looking for values
+            Name of column that contains categorical data to use when looking for values. 
         selection_values : Union[str, Iterable]
             Values to look for in the column
         how : str
@@ -278,17 +283,14 @@ class PointDataCollection:
             selection_values = [selection_values]
 
         header_copy = self.header.copy()
-        if how == "and":
+        if how == "or":
             notna = self.data["nr"][self.data[column].isin(selection_values)].unique()
             selected_header = header_copy[header_copy["nr"].isin(notna)]
-        elif how == "or":
-            subselections = []
+        elif how == "and":
             for selection_value in selection_values:
-                notna = self.data["nr"][
-                    self.data[column].isin([selection_value])
-                ].unique()
-                subselections.append(header_copy[header_copy["nr"].isin(notna)])
-            selected_header = pd.concat(subselections)
+                notna = self.data["nr"][self.data[column].isin([selection_value])].unique()
+                header_copy = header_copy[header_copy["nr"].isin(notna)]
+            selected_header = header_copy
 
         selection = self.data.loc[self.data["nr"].isin(selected_header["nr"])]
 
@@ -387,7 +389,7 @@ class PointDataCollection:
         return area_labels
 
     def get_cumulative_layer_thickness(
-        self, column: str, value: str, include_in_header=False
+        self, column: str, values: Union[str, List[str]], include_in_header=False
     ):
         """
         Get the cumulative thickness of layers of a certain type.
@@ -399,44 +401,60 @@ class PointDataCollection:
         Parameters
         ----------
         column : str
-            In which column the type of layer is described
-        value : str
-            Value of entries in column that you want to find the cumulative thickness of
+            Name of column that contains categorical data
+        values : str or List[str]
+            Value(s) of entries in column that you want to find the cumulative thickness of
         include_in_header :
             Whether to add the acquired data to the header table or not, By default False
         """
-        cumulative_thicknesses = cumulative_thickness(self.data, column, value)
-        result_df = pd.DataFrame(
-            cumulative_thicknesses, columns=("nr", f"{value}_thickness")
-        )
+        if isinstance(values, str):
+            values = [values]
 
-        if include_in_header:
-            self.__header = self.header.join(result_df[f"{value}_thickness"])
-        else:
-            return result_df
+        result_dfs = []
+        for value in values:
+            cumulative_thicknesses = cumulative_thickness(self.data, column, value)
+            result_df = pd.DataFrame(
+                cumulative_thicknesses, columns=("nr", f"{value}_thickness")
+            )
+            if include_in_header:
+                self._header = self.header.join(result_df[f"{value}_thickness"])
+            else:
+                result_dfs.append(result_df)
 
-    def get_layer_top(self, column: str, value: str, include_in_header=False):
+        if not include_in_header:
+            result = pd.concat(result_dfs)
+            return result
+
+    def get_layer_top(
+        self, column: str, values: Union[str, List[str]], include_in_header=False
+    ):
         """
         Find the depth at which a specified layer first occurs
 
         Parameters
         ----------
         column : str
-            In which column the type of layer is described
+            Name of column that contains categorical data
         value : str
             Value of entries in column that you want to find top of
         include_in_header : bool, optional
             Whether to add the acquired data to the header table or not, by default False
         """
-        layer_tops = layer_top(self.data, column, value)
-        result_df = pd.DataFrame(
-            layer_tops, columns=("nr", f"{value}_top")
-        )
+        if isinstance(values, str):
+            values = [values]
 
-        if include_in_header:
-            self.__header = self.header.join(result_df[f"{value}_top"])
-        else:
-            return result_df
+        result_dfs = []
+        for value in values:
+            layer_tops = layer_top(self.data, column, value)
+            result_df = pd.DataFrame(layer_tops, columns=("nr", f"{value}_top"))
+            if include_in_header:
+                self._header = self.header.join(result_df[f"{value}_top"])
+            else:
+                result_dfs.append(result_df)
+
+        if not include_in_header:
+            result = pd.concat(result_dfs)
+            return result
 
     def append(self, other):
         """
@@ -448,8 +466,19 @@ class PointDataCollection:
             Another object of the same type, from which the data is appended to self.
         """
         if self.__class__ == other.__class__:
-            self._data = pd.concat([self.data, other.data])
-            self.__header = pd.concat([self.header, other.header])
+            # Check overlap first and remove duplicates from other header and data if required
+            other_header_overlap = other.header["nr"].isin(self.header["nr"])
+            if any(other_header_overlap):
+                other_header = other.header[~other_header_overlap]
+                other_data = other.data.loc[other.data["nr"].isin(other_header["nr"])]
+            else:
+                other_header = other.header
+                other_data = other.data
+
+            self._data = pd.concat([self.data, other_data])
+            self._header = pd.concat([self.header, other_header])
+            # TODO return newly constructed class from header and data combination
+            # once class construction from header and data is implemented.
         else:
             raise TypeError(
                 f"Cannot join instance of {self.__class__} with an instance of {other.__class__}"
