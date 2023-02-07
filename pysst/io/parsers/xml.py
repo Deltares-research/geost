@@ -9,13 +9,25 @@ import pandas as pd
 from lxml import etree
 from pathlib import Path, WindowsPath
 from typing import Union
+from collections import namedtuple
 
 from pysst.bro.api import BroApi
-from pysst.io.parsers.parser_utils import (
-    LayerSoilCore,
-    rdcoord,
-    ddcoord
+from pysst.io.parsers.parser_utils import rdcoord, ddcoord
+
+
+layer_info = (
+    'top '
+    'bottom '
+    'horizon '
+    'standard_name '
+    'pedologic_name '
+    'om '
+    'ca '
+    'gravel '
+    'shells '
+    'clay_perc'
     )
+LayerSoilCore = namedtuple('Layer', layer_info)
 
 
 class SoilCore:
