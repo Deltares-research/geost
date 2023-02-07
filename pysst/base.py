@@ -3,6 +3,7 @@ import pandas as pd
 from pathlib import WindowsPath
 from dataclasses import dataclass
 from typing import List, Union, TypeVar, Iterable
+from functools import reduce
 
 # Local imports
 from pysst import spatial
@@ -262,7 +263,7 @@ class PointDataCollection:
         Parameters
         ----------
         column : str
-            Name of column that contains categorical data to use when looking for values. 
+            Name of column that contains categorical data to use when looking for values.
         selection_values : Union[str, Iterable]
             Values to look for in the column
         how : str
@@ -288,7 +289,9 @@ class PointDataCollection:
             selected_header = header_copy[header_copy["nr"].isin(notna)]
         elif how == "and":
             for selection_value in selection_values:
-                notna = self.data["nr"][self.data[column].isin([selection_value])].unique()
+                notna = self.data["nr"][
+                    self.data[column].isin([selection_value])
+                ].unique()
                 header_copy = header_copy[header_copy["nr"].isin(notna)]
             selected_header = header_copy
 
@@ -416,13 +419,12 @@ class PointDataCollection:
             result_df = pd.DataFrame(
                 cumulative_thicknesses, columns=("nr", f"{value}_thickness")
             )
-            if include_in_header:
-                self._header = self.header.join(result_df[f"{value}_thickness"])
-            else:
-                result_dfs.append(result_df)
+            result_dfs.append(result_df)
 
-        if not include_in_header:
-            result = pd.concat(result_dfs)
+        result = reduce(lambda left, right: pd.merge(left, right, on="nr"), result_dfs)
+        if include_in_header:
+            self._header = self.header.merge(result, on="nr")
+        else:
             return result
 
     def get_layer_top(
@@ -447,13 +449,12 @@ class PointDataCollection:
         for value in values:
             layer_tops = layer_top(self.data, column, value)
             result_df = pd.DataFrame(layer_tops, columns=("nr", f"{value}_top"))
-            if include_in_header:
-                self._header = self.header.join(result_df[f"{value}_top"])
-            else:
-                result_dfs.append(result_df)
+            result_dfs.append(result_df)
 
-        if not include_in_header:
-            result = pd.concat(result_dfs)
+        result = reduce(lambda left, right: pd.merge(left, right, on="nr"), result_dfs)
+        if include_in_header:
+            self._header = self.header.merge(result, on="nr")
+        else:
             return result
 
     def append(self, other):
@@ -466,7 +467,7 @@ class PointDataCollection:
             Another object of the same type, from which the data is appended to self.
         """
         if self.__class__ == other.__class__:
-            # Check overlap first and remove duplicates from other header and data if required
+            # Check overlap first and remove duplicates from 'other' if required
             other_header_overlap = other.header["nr"].isin(self.header["nr"])
             if any(other_header_overlap):
                 other_header = other.header[~other_header_overlap]
