@@ -2,6 +2,7 @@ import numpy as np
 import pandas as pd
 from pathlib import Path, WindowsPath
 from dataclasses import dataclass
+from typing import Optional
 
 # Local imports
 from pysst.base import PointDataCollection
@@ -16,8 +17,13 @@ class BoreholeCollection(PointDataCollection):
     BoreholeCollection class.
     """
 
-    def __init__(self, data: pd.DataFrame, vertical_reference: str = "NAP"):
-        super().__init__(data, vertical_reference)
+    def __init__(
+        self,
+        data: pd.DataFrame,
+        vertical_reference: str = "NAP",
+        header: Optional[pd.DataFrame] = None,
+    ):
+        super().__init__(data, vertical_reference, header=header)
         self.__classification_system = "5104"
         # BoreholeSchema.validate(self.table, inplace=True)
 
@@ -48,8 +54,13 @@ class CptCollection(PointDataCollection):
     CptCollection class.
     """
 
-    def __init__(self, data: pd.DataFrame, vertical_reference: str = "NAP"):
-        super().__init__(data, vertical_reference)
+    def __init__(
+        self,
+        data: pd.DataFrame,
+        vertical_reference: str = "NAP",
+        header: Optional[pd.DataFrame] = None,
+    ):
+        super().__init__(data, vertical_reference, header=header)
         # CptSchema.validate(self.table, inplace=True)
 
     def add_ic(self):

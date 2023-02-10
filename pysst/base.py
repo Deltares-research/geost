@@ -1,8 +1,6 @@
-import numpy as np
 import pandas as pd
 from pathlib import WindowsPath
-from dataclasses import dataclass
-from typing import List, Union, TypeVar, Iterable
+from typing import List, Union, TypeVar, Iterable, Optional
 from functools import reduce
 
 # Local imports
@@ -27,17 +25,26 @@ GeoDataFrame = TypeVar("GeoDataFrame")
 
 class PointDataCollection:
     """
-    Dataclass for collections of pointdata, such as boreholes and CPTs. The pysst module revolves around this class
-    and includes all methods that apply generically to both borehole and CPT data, such as selection and export methods.
+    Dataclass for collections of pointdata, such as boreholes and CPTs. The pysst module
+    revolves around this class and includes all methods that apply generically to both
+    borehole and CPT data, such as selection and export methods.
 
     Args:
-        __data (pd.DataFrame): Dataframe containing borehole/CPT data.
+        data (pd.DataFrame): Dataframe containing borehole/CPT data.
 
     """
 
-    def __init__(self, data: pd.DataFrame, vertical_reference: str):
+    def __init__(
+        self,
+        data: pd.DataFrame,
+        vertical_reference: str,
+        header: Optional[pd.DataFrame] = None,
+    ):
         self._data = data
-        self.reset_header()  # TODO if no header was parsed to the constructor, only then call reset_header
+        if isinstance(header, pd.DataFrame):
+            self.header = header
+        else:
+            self.reset_header()
         self.__vertical_reference = vertical_reference
 
     def __new__(cls, *args, **kwargs):
@@ -54,13 +61,16 @@ class PointDataCollection:
     def reset_header(self):
         header = self.data.drop_duplicates(subset="nr")
         header = header[["nr", "x", "y", "mv", "end"]].reset_index(drop=True)
-        self._header = create_header(header)
+        self.header = create_header(header)
 
     @property
     def header(self):
         """
         This attribute is a dataframe of header (1 row per borehole/cpt) and includes:
-        point id, x-coordinate, y-coordinate, surface level and end depth.
+        point id, x-coordinate, y-coordinate, surface level and end depth:
+
+        Column names:
+        ["nr", "x", "y", "mv", "end"]
         """
         return self._header
 
@@ -78,8 +88,22 @@ class PointDataCollection:
 
     @header.setter
     def header(self, input):
-        # TODO <header_validation>
+        # Whenever self.header is set (inside a method or through an instance),
+        # this setter method is called. Hence calling the TODO validation is only
+        # required here. Currently there is no validation, so the header can be set to
+        # anything by accident.
+
+        # validate_header(input)
         self._header = input
+
+    @data.setter
+    def data(self, input):
+        # Same as for the header the setter is always called when trying to set
+        # self.data. TODO Data validation is applied here and upon pass the protected
+        # attr self._data is set.
+
+        # validate_data(input)
+        self._data = input
 
     def change_vertical_reference(self, to: str):
         """
@@ -88,10 +112,14 @@ class PointDataCollection:
         Parameters
         ----------
         to : str
-            To which vertical reference to convert the layer tops and bottoms. Either 'NAP', 'surfacelevel' or 'depth'
-            NAP = elevation with respect to NAP datum
-            surfacelevel = elevation with respect to surface (surface is 0 m, e.g. layers tops could be 0, -1, -2 etc.)
-            depth = depth with respect to surface (surface is 0 m, e.g. depth of layers tops could be 0, 1, 2 etc.)
+            To which vertical reference to convert the layer tops and bottoms. Either
+            'NAP', 'surfacelevel' or 'depth'.
+
+            NAP = elevation with respect to NAP datum.
+            surfacelevel = elevation with respect to surface (surface is 0 m, e.g.
+                           layers tops could be 0, -1, -2 etc.).
+            depth = depth with respect to surface (surface is 0 m, e.g. depth of layers
+                    tops could be 0, 1, 2 etc.).
         """
         match self.__vertical_reference:
             case "NAP":
@@ -133,24 +161,24 @@ class PointDataCollection:
         invert: bool = False,
     ):
         """
-        Make a selection of the data based on a bounding box
+        Make a selection of the data based on a bounding box.
 
         Parameters
         ----------
-        xmin : Coordinate (float or int)
-            Left x-coordinate of bbox
-        xmax : Coordinate (float or int)
-            Right x-coordinate of bbox
-        ymin : Coordinate (float or int)
-            Lower y-coordinate of bbox
-        ymax : Coordinate (float or int)
-            Upper y-coordinate of bbox
-        invert: bool, default False
-            Invert the selection
+        xmin : Coordinate (float or int).
+            Left x-coordinate of bbox.
+        xmax : Coordinate (float or int).
+            Right x-coordinate of bbox.
+        ymin : Coordinate (float or int).
+            Lower y-coordinate of bbox.
+        ymax : Coordinate (float or int).
+            Upper y-coordinate of bbox.
+        invert: bool, default False.
+            Invert the selection.
 
         Returns
         -------
-        Child of PointDataCollection
+        Child of PointDataCollection.
             Instance of either BoreholeCollection or CptCollection.
         """
         selected_header = spatial.header_from_bbox(
@@ -158,7 +186,11 @@ class PointDataCollection:
         )
         selection = self.data.loc[self.data["nr"].isin(selected_header["nr"])]
 
-        return self.__class__(selection, vertical_reference=self.vertical_reference)
+        return self.__class__(
+            selection,
+            vertical_reference=self.vertical_reference,
+            header=selected_header,
+        )
 
     def select_with_points(
         self,
@@ -188,7 +220,11 @@ class PointDataCollection:
         )
         selection = self.data.loc[self.data["nr"].isin(selected_header["nr"])]
 
-        return self.__class__(selection, vertical_reference=self.vertical_reference)
+        return self.__class__(
+            selection,
+            vertical_reference=self.vertical_reference,
+            header=selected_header,
+        )
 
     def select_with_lines(
         self,
@@ -218,7 +254,11 @@ class PointDataCollection:
         )
         selection = self.data.loc[self.data["nr"].isin(selected_header["nr"])]
 
-        return self.__class__(selection, vertical_reference=self.vertical_reference)
+        return self.__class__(
+            selection,
+            vertical_reference=self.vertical_reference,
+            header=selected_header,
+        )
 
     def select_within_polygons(
         self,
@@ -246,7 +286,11 @@ class PointDataCollection:
         )
         selection = self.data.loc[self.data["nr"].isin(selected_header["nr"])]
 
-        return self.__class__(selection, vertical_reference=self.vertical_reference)
+        return self.__class__(
+            selection,
+            vertical_reference=self.vertical_reference,
+            header=selected_header,
+        )
 
     def select_by_values(
         self, column: str, selection_values: Union[str, Iterable], how: str = "or"
@@ -297,7 +341,11 @@ class PointDataCollection:
 
         selection = self.data.loc[self.data["nr"].isin(selected_header["nr"])]
 
-        return self.__class__(selection, vertical_reference=self.vertical_reference)
+        return self.__class__(
+            selection,
+            vertical_reference=self.vertical_reference,
+            header=selected_header,
+        )
 
     def select_by_depth(
         self,
@@ -338,7 +386,11 @@ class PointDataCollection:
 
         selection = self.data.loc[self.data["nr"].isin(selected_header["nr"])]
 
-        return self.__class__(selection, vertical_reference=self.vertical_reference)
+        return self.__class__(
+            selection,
+            vertical_reference=self.vertical_reference,
+            header=selected_header,
+        )
 
     def select_by_length(self, min_length: float = None, max_length: float = None):
         """
@@ -366,7 +418,11 @@ class PointDataCollection:
 
         selection = self.data.loc[self.data["nr"].isin(selected_header["nr"])]
 
-        return self.__class__(selection, vertical_reference=self.vertical_reference)
+        return self.__class__(
+            selection,
+            vertical_reference=self.vertical_reference,
+            header=selected_header,
+        )
 
     def get_area_labels(
         self, polygon_gdf: GeoDataFrame, column_name: str
@@ -513,7 +569,8 @@ class PointDataCollection:
 
     def to_shape(self, out_file: Union[str, WindowsPath], **kwargs):
         """
-        Write header data to shapefile or geopackage. You can use the resulting file to display borehole locations in GIS for instance.
+        Write header data to shapefile or geopackage. You can use the resulting file to
+        display borehole locations in GIS for instance.
 
         Parameters
         ----------
