@@ -1,9 +1,3 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Fri Oct  7 13:28:57 2022
-
-@author: knaake
-"""
 import numpy as np
 
 
@@ -85,14 +79,20 @@ def top_of_sand(boreholes, ids="nr", min_sand_frac=0.5, min_sand_thickness=1):
 
 def cumulative_thickness(data, column: str, value: str):
     for nr, obj in data.groupby("nr"):
-        selected_layers_in_obj = obj[obj[column] == value]
-        cumulative_thickness = np.sum(
-            selected_layers_in_obj["top"] - selected_layers_in_obj["bottom"]
-        )
+        try:
+            selected_layers_in_obj = obj[obj[column] == value]
+            cumulative_thickness = np.sum(
+                selected_layers_in_obj["top"] - selected_layers_in_obj["bottom"]
+            )
+        except IndexError:
+            cumulative_thickness = 0
         yield (nr, cumulative_thickness)
 
 
 def layer_top(data, column: str, value: str):
     for nr, obj in data.groupby("nr"):
-        layer_top = obj[obj[column] == value].iloc[0]["top"]
+        try:
+            layer_top = obj[obj[column] == value].iloc[0]["top"]
+        except IndexError:
+            layer_top = np.nan
         yield (nr, layer_top)

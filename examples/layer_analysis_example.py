@@ -6,7 +6,8 @@ all_dino_cores = read_sst_cores(
 
 # Make a pre-selection based on the study area. Using a fast selection method like select_within_bbox
 # Is advised to reduce the amount of points, which speeds up later analysis and selections.
-all_dino_cores = all_dino_cores.select_within_bbox(155000, 180000, 495000, 515000)
+# all_dino_cores = all_dino_cores.select_within_bbox(155000, 180000, 495000, 515000)
+all_dino_cores = all_dino_cores.select_within_bbox(80000, 90000, 436000, 449000)
 
 # Create collection of dino cores that contain gyttja, detritus and dy.
 cores_with_gy = all_dino_cores.select_by_values(
@@ -27,5 +28,5 @@ cores_with_gy.get_layer_top("lith", ["GY", "DET", "DY", "V"], include_in_header=
 
 # Export collections to shapefiles
 cores_with_gy.to_shape(
-    r"n:\Projects\11207000\11207168\B. Measurements and calculations\Jaar 2\Geologie gyttja\Shapefiles\cores_with_gy.shp"
+    r"n:\Projects\11207000\11207168\B. Measurements and calculations\Jaar 2\Geologie gyttja\Shapefiles\cores_delft-schiedam.shp"
 )
