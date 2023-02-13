@@ -7,6 +7,18 @@ from typing import Union
 from collections import defaultdict
 
 
+class MissingOptionalModule:
+    """
+    Presents a clear error for optional modules.
+    
+    """
+    def __init__(self, name):
+        self.name = name
+
+    def __getattr__(self, name):
+        raise ImportError(f"{self.name} is required for this functionality")
+        
+
 def csv_to_parquet(
     file: Union[str, WindowsPath], out_file: Union[str, WindowsPath] = None, **kwargs
 ) -> None:
@@ -80,13 +92,8 @@ def get_path_iterable(path: WindowsPath, wildcard: str = "*"):
         raise TypeError("Given path is not a file or a folder")
 
 
-class MissingOptionalModule:
-    """
-    Presents a clear error for optional modules.
-    """
-
-    def __init__(self, name):
-        self.name = name
-
-    def __getattr__(self, name):
-        raise ImportError(f"{self.name} is required for this functionality")
+def safe_float(number):
+    try:
+        return float(number)
+    except ValueError:
+        return None

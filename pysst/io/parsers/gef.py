@@ -12,9 +12,11 @@ from pygef import Cpt
 from tqdm import tqdm
 from collections import namedtuple
 from pathlib import Path, WindowsPath
+from pysst.utils import safe_float
 
 
 columninfo = namedtuple('columninfo', 'value unit name standard')
+measurementvar = namedtuple('measurementvar', 'value unit quantity reserved')
 
 column_defs_data_block = {
     1: columninfo('length', 'm', 'penetration length', True),
@@ -45,6 +47,52 @@ column_defs_data_block = {
     26: columninfo('Bz', 'nT', 'magnetic field strength in Z direction', True),
     27: columninfo('', 'degrees', 'magnetic inclination', True), # reserved for future use
     28: columninfo('', 'degrees', 'magnetic inclination', True), # reserved for future use
+    }
+
+
+reserved_measurementvars = {
+    1: measurementvar(1000, 'mm2', 'nom. surface area cone tip', True),
+    2: measurementvar(15000, 'mm2', 'nom. surface area friction sleeve', True),
+    3: measurementvar(None, '', 'net surface area quotient of cone tip', True),
+    4: measurementvar(None, '', 'net surface area quotient of friction sleeve', True),
+    5: measurementvar(100, 'mm', 'distance of cone to centre of friction sleeve', True),
+    6: measurementvar(None, '', 'friction present', True),
+    7: measurementvar(None, '', 'PPT u1 present', True),
+    8: measurementvar(None, '', 'PPT u2 present', True),
+    9: measurementvar(None, '', 'PPT u3 present', True),
+    10: measurementvar(None, '', 'inclination measurement present', True),
+    11: measurementvar(None, '', 'use of back-flow compensator', True),
+    12: measurementvar(None, '', 'type of cone penetration test', True),
+    13: measurementvar(None, 'm', 'pre-excavated depth', True),
+    14: measurementvar(None, 'm', 'groundwater level', True),
+    15: measurementvar(None, 'm', 'water depth (for offshore)', True),
+    16: measurementvar(None, 'm', 'end depth of penetration test', True),
+    17: measurementvar(None, '', 'stop criteria', True),
+    # 18: measurementvar(None, '', 'for future use', True),
+    # 19: measurementvar(None, '', 'for future use', True),
+    20: measurementvar(None, 'MPa', 'zero measurement cone before', True),
+    21: measurementvar(None, 'MPa', 'zero measurement cone after', True),
+    22: measurementvar(None, 'MPa', 'zero measurement friction before', True),
+    23: measurementvar(None, 'MPa', 'zero measurement friction after', True),
+    24: measurementvar(None, 'MPa', 'zero measurement PPT u1 before', True),
+    25: measurementvar(None, 'MPa', 'zero measurement PPT u1 after', True),
+    26: measurementvar(None, 'MPa', 'zero measurement PPT u2 before', True),
+    27: measurementvar(None, 'MPa', 'zero measurement PPT u2 after', True),
+    28: measurementvar(None, 'MPa', 'zero measurement PPT u3 before', True),
+    29: measurementvar(None, 'MPa', 'zero measurement PPT u3 after', True),
+    30: measurementvar(None, 'degrees', 'zero measurement inclination before', True),
+    31: measurementvar(None, 'degrees', 'zero measurement inclination after', True),
+    32: measurementvar(None, 'degrees', 'zero measurement inclination NS before', True),
+    33: measurementvar(None, 'degrees', 'zero measurement inclination NS after', True),
+    34: measurementvar(None, 'degrees', 'zero measurement inclination EW before', True),
+    35: measurementvar(None, 'degrees', 'zero measurement inclination EW after', True),
+    # 36: measurementvar(None, '', 'for future use', True),
+    # 37: measurementvar(None, '', 'for future use', True),
+    # 38: measurementvar(None, '', 'for future use', True),
+    # 39: measurementvar(None, '', 'for future use', True),
+    # 40: measurementvar(None, '', 'for future use', True),
+    41: measurementvar(None, 'km', 'mileage', True),
+    42: measurementvar(None, 'degrees', 'Orientation between X axis inclination and North', True),
     }
 
 
@@ -106,9 +154,10 @@ class GefFile:
             keyword = re.match(r'([#\s]*([A-Z]+)\s*=)\s*', line)
             keyword_method = keyword.group(2).lower()
             
-            if hasattr(self, f'_parse_{keyword_method}'):
+            __method = f'_parse_{keyword_method}'
+            if hasattr(self, __method):
                 line = line.lstrip(keyword.group(0))
-                self.__call_header_method(keyword_method, line)
+                self.__call_header_method(__method, line)
         
         return header
     
@@ -118,7 +167,7 @@ class GefFile:
         return data
     
     def __call_header_method(self, method, line):
-        return getattr(self, f'_parse_{method}')(line)
+        return getattr(self, method)(line)
     
     def _parse_gefid(self, line):
         self.gefid = line
@@ -184,9 +233,10 @@ class GefFile:
                 )
             self.zid = zid
     
-    def _parse_measurementtext(self, line: str):
-        test = line.split(', ')
-        print(len(test))
+    def _parse_measurementtext(self, line: str): #TODO: add correct parsing of reserved measurementtexts
+        text = line.split(', ')
+        nr, info = int(text[0]), text[1:]
+        self.measurementtext.update({nr: info})
     
     def _parse_xyid(self, line: str):
         xyid = line.split(', ')
@@ -224,7 +274,21 @@ class GefFile:
         pass
     
     def _parse_measurementvar(self, line: str):
-        pass
+        num, val, unit, quantity = line.split(', ')
+        
+        num = int(num)
+        val = safe_float(val)
+        _mv = reserved_measurementvars.get(num, 'empty')
+        
+        if _mv == 'empty':
+            mvar = measurementvar(val, unit, quantity, False)
+        else:
+            if val:
+                mvar = measurementvar(val, _mv.unit, _mv.quantity, True)
+            else:
+                mvar = _mv
+        
+        self.measurementvars.update({num: mvar})
     
     def _parse_recordseparator(self, line: str):
         pass
@@ -247,32 +311,42 @@ if __name__ == "__main__":
     file = workdir/r'CPT000000157983_IMBRO.gef'
     # file = workdir/r'83268_DKMP001-A_(DKMP_C01).GEF'
     
+    gef = GefFile(file)
+    
+    for line in gef._header.splitlines():
+        keyword = re.match(r'([#\s]*([A-Z]+)\s*=)\s*', line)
+        
+        keyword_method = keyword.group(2).lower()
+        if keyword_method == 'measurementvar':
+            a = line.lstrip(keyword.group(0))
+            
+            
+            
+            
+            
+            
+            
+            
+    
+    #%% Benchmark 100 runs
+    
     new_reader = []
     pygef = []
     
-    # for i in tqdm(range(100), total=100):
-    start = time.time()
-    gef = GefFile(file)
-    end = time.time()
-    # new_reader.append(end-start)
-    
-    # print(gef.nr, gef.coord_system, gef.x, gef.y, gef.reference_system, gef.z)
-    
-    # start = time.time()
-    # gef = Cpt(str(file))
-    # end = time.time()
-    # pygef.append(end-start)
+    for i in tqdm(range(100), total=100):
+        start = time.time()
+        gef = GefFile(file)
+        end = time.time()
+        new_reader.append(end-start)
         
-    # print('\n')
-    # print(f"New reader took {np.mean(new_reader)} seconds")
-    # print(f"Pygef took {np.mean(pygef)} seconds")
-
-    # for line in gef._header.splitlines():
-    #     keyword = re.match(r'([#\s]*([A-Z]+)\s*=)\s*', line)
+        start = time.time()
+        gef = Cpt(str(file))
+        end = time.time()
+        pygef.append(end-start)
         
-    #     keyword_method = keyword.group(2).lower()
-    #     if keyword_method == 'zid':
-    #         zid = line.lstrip(keyword.group(0))
+    print('\n')
+    print(f"New reader took {np.mean(new_reader)} seconds")
+    print(f"Pygef took {np.mean(pygef)} seconds")
             
         
         
