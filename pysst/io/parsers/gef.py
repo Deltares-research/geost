@@ -1,24 +1,21 @@
 # -*- coding: utf-8 -*-
-"""
-Created on Thu Jan 12 16:07:08 2023
-
-@author: knaake
-"""
 import re
 import logging
 import time
 import numpy as np
+import pandas as pd
 from pygef import Cpt
 from tqdm import tqdm
 from collections import namedtuple
 from pathlib import Path, WindowsPath
+from shapely.geometry import Point
 from pysst.utils import safe_float
 
 
-columninfo = namedtuple('columninfo', 'value unit name standard')
-measurementvar = namedtuple('measurementvar', 'value unit quantity reserved')
+columninfo = namedtuple('columninfo', ['value', 'unit', 'name', 'standard'])
+measurementvar = namedtuple('measurementvar', ['value', 'unit', 'quantity', 'reserved'])
 
-column_defs_data_block = {
+column_defs_data_block_cpt = {
     1: columninfo('length', 'm', 'penetration length', True),
     2: columninfo('qc', 'MPa', 'measured cone resistance', True),
     3: columninfo('fs', 'MPa', 'friction resistance', True),
@@ -29,7 +26,7 @@ column_defs_data_block = {
     8: columninfo('inclination_res', 'degrees', 'inclination (resultant)', True),
     9: columninfo('inclination_ns', 'degrees', 'inclination (North-South)', True),
     10: columninfo('inclination_ew', 'degrees', 'inclination (East-West)', True),
-    11: columninfo('length_corr', 'm', 'corrected depth, below fixed surface', True),
+    11: columninfo('corrected_depth', 'm', 'corrected depth, below fixed surface', True),
     12: columninfo('time', 's', 'time', True),
     13: columninfo('qt', 'MPa', 'corrected cone resistance', True),
     14: columninfo('qn', 'MPa', 'net cone resistance', True),
@@ -50,7 +47,7 @@ column_defs_data_block = {
     }
 
 
-reserved_measurementvars = {
+reserved_measurementvars_cpt = {
     1: measurementvar(1000, 'mm2', 'nom. surface area cone tip', True),
     2: measurementvar(15000, 'mm2', 'nom. surface area friction sleeve', True),
     3: measurementvar(None, '', 'net surface area quotient of cone tip', True),
@@ -96,7 +93,17 @@ reserved_measurementvars = {
     }
 
 
-class GefFile:
+gef_cpt_reference_levels = {
+    '00000': 'own reference level',
+    '00001': 'Low Low Water Spring',
+    '31000': 'NAP',
+    '32000': 'Ostend Level',
+    '32001': 'TAW',
+    '49000': 'Normall Null'
+    }
+
+
+class CptGefFile:
     
     def __init__(self, path: str | WindowsPath, sep: str = ';'):
         self.path = path
@@ -107,10 +114,11 @@ class GefFile:
         self.x = None
         self.y = None
         self.z = None
+        self.enddepth = None
         
         ## mandatory gef header attributes
         self.gefid = None
-        self.column = None
+        self.ncolumns = None
         self.columninfo = dict()
         self.companyid = None
         self.filedate = None
@@ -124,7 +132,7 @@ class GefFile:
         ## Additional gef header attributes
         self.columnvoid = dict()
         self.columnminmax = None
-        self.columnseparator = sep # default value used if not in gef file header
+        self.columnseparator = sep # default separator used if not in gef file header
         self.dataformat = None
         self.measurementvars = dict()
         self.recordseparator = None
@@ -146,6 +154,37 @@ class GefFile:
         
         self.parse_header()
         self.parse_data()
+        self.to_df()
+    
+    @property
+    def df(self):
+        return self._df
+    
+    @property
+    def header(self):
+        header = pd.Series(
+            [self.nr, self.x, self.y, self.z, self.get_enddepth(), self.point],
+            index=['nr', 'x', 'y', 'z', 'enddepth', 'geometry']
+            )
+        return header
+    
+    @property
+    def columns(self):
+        columns = [f'{c.value}' for c in self.columninfo.values()]
+        return columns
+    
+    @property
+    def point(self):
+        return Point(self.x, self.y)
+    
+    @staticmethod
+    def to_zero_indexed(idx: str):
+        """
+        Update an index from the gef file (is 1-indexed) to a 0-indexed Python
+        index.
+
+        """
+        return int(idx) - 1
     
     def parse_header(self):
         header = self._header.splitlines()
@@ -158,36 +197,71 @@ class GefFile:
             if hasattr(self, __method):
                 line = line.lstrip(keyword.group(0))
                 self.__call_header_method(__method, line)
-        
-        return header
     
     def parse_data(self):
+        """
+        Parse datablock of the gef file.
+
+        """
         data = self._data.splitlines()
-        data = [d.split(self.columnseparator) for d in data]
-        return data
+        end_row = self.columnseparator + self.recordseparator
+        data = [d.rstrip(end_row).split(self.columnseparator) for d in data]
+        self._data = data
+        
+    def to_df(self):
+        """
+        Create a Pandas DataFrame from the gef datablock.
+
+        Returns
+        -------
+        None.
+
+        """
+        df = pd.DataFrame(self._data, dtype='float64')
+        df.replace(self.columnvoid, np.nan, inplace=True)
+        df.columns = self.columns
+        
+        if 'rf' not in df.columns:
+            df['rf'] = (df['fs']/df['qc']) * 100
+        
+        if 'corrected_depth' in df.columns: # TODO: implement calc corrected depth from inclination if not in columns
+            df['depth'] = self.z - df['corrected_depth']
+        else:
+            df['depth'] = self.z - df['length']
+        
+        self._df = df
     
     def __call_header_method(self, method, line):
+        """
+        Helper method to call the correct parser method of the class for a specific
+        header attribute (e.g. _parse_columninfo).
+
+        Parameters
+        ----------
+        method : str
+            Name of the header attribute.
+        line : str
+            Line in the header to parse.
+
+        """
         return getattr(self, method)(line)
     
     def _parse_gefid(self, line):
         self.gefid = line
         
     def _parse_column(self, line):
-        self.column = int(line)
+        self.ncolumns = int(line)
         
     def _parse_columninfo(self, line: str):
-        """
-        Parse #COLUMNINFO line in the gef file.
-
-        """
         idx, unit, value, number = line.split(', ')
-        info = column_defs_data_block.get(int(number), 'empty')
+        idx = self.to_zero_indexed(idx)
+        info = column_defs_data_block_cpt.get(int(number), 'empty')
         
         if info == 'empty':
             logging.warning(f'Unknown information in datablock of {self.path}')
             info = columninfo(value, unit, value, False)
         
-        self.columninfo.update({int(idx): info})
+        self.columninfo.update({idx: info})
     
     def _parse_companyid(self, line: str):
         self.companyid = line
@@ -211,19 +285,15 @@ class GefFile:
         self.projectid = line
     
     def _parse_testid(self, line: str):
-        """
-        Get the testid number (nr) from the gef file.
-
-        """
         self.nr = line
     
     def _parse_zid(self, line: str): # TODO: check how to fix if zid occurs in header more than once
         zid = line.split(', ')
         if len(zid) == 2:
-            self.reference_system = zid[0]
+            reference_system = zid[0]
             self.z = float(zid[1])
         elif len(zid) == 3:
-            self.reference_system = zid[0]
+            reference_system = zid[0]
             self.z = float(zid[1])
             self.delta_z = float(zid[2])
         else:
@@ -232,6 +302,8 @@ class GefFile:
                 'Check zid attribute manually.'
                 )
             self.zid = zid
+        
+        self.reference_system = gef_cpt_reference_levels[reference_system]
     
     def _parse_measurementtext(self, line: str): #TODO: add correct parsing of reserved measurementtexts
         text = line.split(', ')
@@ -262,13 +334,14 @@ class GefFile:
     
     def _parse_columnvoid(self, line: str):
         idx, value = line.split(', ')
-        self.columnvoid.update({int(idx): float(value)})
+        idx = self.to_zero_indexed(idx)
+        self.columnvoid.update({idx: float(value)})
     
     def _parse_columnminmax(self, line: str):
         pass
     
     def _parse_columnseparator(self, line: str):
-        pass
+        self.columnseparator = line
     
     def _parse_dataformat(self, line: str):
         pass
@@ -278,7 +351,8 @@ class GefFile:
         
         num = int(num)
         val = safe_float(val)
-        _mv = reserved_measurementvars.get(num, 'empty')
+        
+        _mv = reserved_measurementvars_cpt.get(num, 'empty')
         
         if _mv == 'empty':
             mvar = measurementvar(val, unit, quantity, False)
@@ -291,7 +365,7 @@ class GefFile:
         self.measurementvars.update({num: mvar})
     
     def _parse_recordseparator(self, line: str):
-        pass
+        self.recordseparator = line
     
     def _parse_reportdataformat(self, line: str):
         pass
@@ -304,6 +378,15 @@ class GefFile:
     
     def _parse_starttime(self, line: str):
         pass
+    
+    def get_enddepth(self):
+        enddepth = self.measurementvars.get(16)
+        if enddepth:
+            d = enddepth.value
+        else:
+            d = self.df['length'].max()
+        return d
+        
 
 
 if __name__ == "__main__":
@@ -311,22 +394,17 @@ if __name__ == "__main__":
     file = workdir/r'CPT000000157983_IMBRO.gef'
     # file = workdir/r'83268_DKMP001-A_(DKMP_C01).GEF'
     
-    gef = GefFile(file)
+    gef = CptGefFile(file)
+    print(gef.header)
+    print(gef.df)
     
-    for line in gef._header.splitlines():
-        keyword = re.match(r'([#\s]*([A-Z]+)\s*=)\s*', line)
+    # for line in gef._header.splitlines():
+    #     keyword = re.match(r'([#\s]*([A-Z]+)\s*=)\s*', line)
         
-        keyword_method = keyword.group(2).lower()
-        if keyword_method == 'measurementvar':
-            a = line.lstrip(keyword.group(0))
-            
-            
-            
-            
-            
-            
-            
-            
+    #     keyword_method = keyword.group(2).lower()
+    #     if keyword_method == 'columnseparator':
+    #         a = line.lstrip(keyword.group(0))
+    #         print(a)
     
     #%% Benchmark 100 runs
     
@@ -335,20 +413,18 @@ if __name__ == "__main__":
     
     for i in tqdm(range(100), total=100):
         start = time.time()
-        gef = GefFile(file)
+        gef = CptGefFile(file)
+        df = gef.df
         end = time.time()
         new_reader.append(end-start)
         
         start = time.time()
-        gef = Cpt(str(file))
+        pgef = Cpt(str(file))
+        pdf = pgef.df
         end = time.time()
         pygef.append(end-start)
         
     print('\n')
     print(f"New reader took {np.mean(new_reader)} seconds")
     print(f"Pygef took {np.mean(pygef)} seconds")
-            
-        
-        
-            
             
