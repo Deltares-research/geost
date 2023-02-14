@@ -40,7 +40,7 @@ class PointDataCollection:
         vertical_reference: str,
         header: Optional[pd.DataFrame] = None,
     ):
-        self._data = data
+        self.data = data
         if isinstance(header, pd.DataFrame):
             self.header = header
         else:
@@ -87,23 +87,23 @@ class PointDataCollection:
         return self.__vertical_reference
 
     @header.setter
-    def header(self, input):
+    def header(self, header):
         # Whenever self.header is set (inside a method or through an instance),
         # this setter method is called. Hence calling the TODO validation is only
         # required here. Currently there is no validation, so the header can be set to
         # anything by accident.
 
         # validate_header(input)
-        self._header = input
+        self._header = header
 
     @data.setter
-    def data(self, input):
+    def data(self, data):
         # Same as for the header the setter is always called when trying to set
         # self.data. TODO Data validation is applied here and upon pass the protected
         # attr self._data is set.
 
         # validate_data(input)
-        self._data = input
+        self._data = data
 
     def change_vertical_reference(self, to: str):
         """
