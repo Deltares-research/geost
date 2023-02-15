@@ -1,0 +1,21 @@
+name: pysst_env
+channels:
+  - conda-forge
+dependencies:
+  - numpy
+  - pandas
+  - pyarrow
+  - lxml
+  - pyproj
+  - shapely
+  - geopandas
+  - pyvista
+  - pandera
+  - pytest
+  - black
+  - sphinx
+  - sphinx-rtd-theme
+  - pip
+  - pip:
+      - sphinx-rtd-theme
+
