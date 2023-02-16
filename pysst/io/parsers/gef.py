@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import re
 import logging
 import time
@@ -9,7 +8,9 @@ from tqdm import tqdm
 from collections import namedtuple
 from pathlib import Path, WindowsPath
 from shapely.geometry import Point
-from pysst.utils import safe_float
+from pysst.borehole import CptCollection
+from pysst.utils import safe_float, get_path_iterable
+from typing import Iterable
 
 
 columninfo = namedtuple('columninfo', ['value', 'unit', 'name', 'standard'])
@@ -154,10 +155,12 @@ class CptGefFile:
         
         self.parse_header()
         self.parse_data()
-        self.to_df()
+        # self.to_df()
     
     @property
     def df(self):
+        if not hasattr(self, '_df'):
+            self.to_df()
         return self._df
     
     @property
@@ -195,7 +198,7 @@ class CptGefFile:
             
             __method = f'_parse_{keyword_method}'
             if hasattr(self, __method):
-                line = line.lstrip(keyword.group(0))
+                line = line.replace(keyword.group(0), '')
                 self.__call_header_method(__method, line)
     
     def parse_data(self):
@@ -388,23 +391,46 @@ class CptGefFile:
         return d
         
 
+def read_cpt_gef_files(file_or_folder):
+    
+    if isinstance(file_or_folder, (str, WindowsPath)):
+        files = get_path_iterable(Path(file_or_folder))
+    
+    elif isinstance(file_or_folder, Iterable):
+        files = file_or_folder
+    
+    for f in files:
+        cpt = CptGefFile(f)
+        df = cpt.df
+        df.insert(0, 'nr', cpt.nr)
+        df.insert(1, 'x', cpt.x)
+        df.insert(2, 'y', cpt.y)
+        df.insert(3, 'z', cpt.z)
+        df.insert(4, 'end', cpt.enddepth)
+        yield df
+        
 
 if __name__ == "__main__":
     workdir = Path(r'n:\My Documents\margriettunnel\data\cpts')
     file = workdir/r'CPT000000157983_IMBRO.gef'
-    # file = workdir/r'83268_DKMP001-A_(DKMP_C01).GEF'
+    file = workdir/r'83268_DKMP001-A_(DKMP_C01).GEF'
     
     gef = CptGefFile(file)
-    print(gef.header)
-    print(gef.df)
+    # print(gef.header)
+    # print(gef.df)
     
-    # for line in gef._header.splitlines():
-    #     keyword = re.match(r'([#\s]*([A-Z]+)\s*=)\s*', line)
+    a = pd.concat(read_cpt_gef_files(workdir), ignore_index=True)
+    print(a)
+    
+    for line in gef._header.splitlines():
+        keyword = re.match(r'([#\s]*([A-Z]+)\s*=)\s*', line)
         
-    #     keyword_method = keyword.group(2).lower()
-    #     if keyword_method == 'columnseparator':
-    #         a = line.lstrip(keyword.group(0))
-    #         print(a)
+        keyword_method = keyword.group(2).lower()
+        if keyword_method == 'testid':
+            break
+            a = line.lstrip(keyword.group(0))
+            print(a)
+
     
     #%% Benchmark 100 runs
     
