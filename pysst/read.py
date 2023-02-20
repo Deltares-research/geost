@@ -5,7 +5,7 @@ from typing import Union
 
 # Local imports
 from pysst.borehole import BoreholeCollection, CptCollection
-from pysst.io import read_cpt_gef_files
+from pysst.io import _parse_cpt_gef_files
 from pysst.readers import pygef_gef_cpt
 #from pysst.validate import BoreholeSchema
 
@@ -126,7 +126,7 @@ def read_gef_cpts(file_or_folder: Union[str, WindowsPath], use_pygef=False) -> C
     if use_pygef:
         data = pygef_gef_cpt(Path(file_or_folder))
     else:
-        data = read_cpt_gef_files(Path(file_or_folder)) # use pysst gef reader
+        data = _parse_cpt_gef_files(Path(file_or_folder)) # use pysst gef reader
     
     df = pd.concat(data)
     

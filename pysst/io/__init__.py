@@ -1,1 +1,1 @@
-from pysst.io.gef import read_cpt_gef_files
+from pysst.io.gef import _parse_cpt_gef_files
