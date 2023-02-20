@@ -1,6 +1,13 @@
-# -*- coding: utf-8 -*-
-from collections import namedtuple
+from typing import NamedTuple, Union
 
 
-rdcoord = namedtuple('RD', 'x y epsg')
-ddcoord = namedtuple('DecimalDegree', 'lat lon epsg')
+class RDCoord(NamedTuple):
+    x: Union[int, float]
+    y: Union[int, float]
+    epsg: int
+
+
+class DDCoord(NamedTuple):
+    lat: Union[int, float]
+    lon: Union[int, float]
+    epsg: int
