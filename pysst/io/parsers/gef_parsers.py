@@ -164,7 +164,7 @@ class CptGefFile:
     @property
     def header(self):
         header = pd.Series(
-            [self.nr, self.x, self.y, self.z, self.get_enddepth(), self.point],
+            [self.nr, self.x, self.y, self.z, self.enddepth, self.point],
             index=['nr', 'x', 'y', 'z', 'enddepth', 'geometry']
             )
         return header
@@ -198,6 +198,8 @@ class CptGefFile:
             if hasattr(self, __method):
                 line = line.replace(keyword.group(0), '')
                 self.__call_header_method(__method, line)
+        
+        self.get_enddepth()
     
     def parse_data(self):
         """
@@ -386,7 +388,8 @@ class CptGefFile:
             d = enddepth.value
         else:
             d = self.df['length'].max()
-        return d
+        
+        self.enddepth = d
         
 
 if __name__ == "__main__":
