@@ -5,6 +5,7 @@ import pandas as pd
 
 # Local imports
 from pysst.borehole import BoreholeCollection, CptCollection
+from pysst.io import read_cpt_gef_files
 from pysst.readers import pygef_gef_cpt
 
 
@@ -116,12 +117,29 @@ def read_gef_cores(file_or_folder: Union[str, WindowsPath]) -> BoreholeCollectio
     pass
 
 
-def read_gef_cpts(file_or_folder: Union[str, WindowsPath]) -> CptCollection:
+def read_gef_cpts(file_or_folder: Union[str, WindowsPath], use_pygef=False) -> CptCollection:
     """
-    Read gef files of cpts.
+    Read gef files of CPT data into a Pysst CptCollection.
+
+    Parameters
+    ----------
+    file_or_folder : Union[str, WindowsPath]
+        DESCRIPTION.
+    use_pygef : Boolean, optional
+        If True, the gef reader from pygef (external) is used. If False, the pysst
+        gef reader is used. The default is False.
+
+    Returns
+    -------
+    CptCollection
+        DESCRIPTION.
+
+    """
+    if use_pygef:
+        data = pygef_gef_cpt(Path(file_or_folder))
+    else:
+        data = read_cpt_gef_files(Path(file_or_folder)) # use pysst gef reader
     
-    """
-    data = pygef_gef_cpt(Path(file_or_folder))
     df = pd.concat(data)
     
     return CptCollection(df)
