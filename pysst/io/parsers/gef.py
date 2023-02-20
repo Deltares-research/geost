@@ -1,14 +1,10 @@
 import re
 import logging
-import time
 import numpy as np
 import pandas as pd
-from pygef import Cpt
-from tqdm import tqdm
 from collections import namedtuple
 from pathlib import Path, WindowsPath
 from shapely.geometry import Point
-from pysst.borehole import CptCollection
 from pysst.utils import safe_float, get_path_iterable
 from typing import Iterable
 
@@ -146,6 +142,9 @@ class CptGefFile:
         
         self.__open_file(path)
         
+    def __repr__(self):
+        return f'{self.__class__.__name__}: nr={self.nr}'
+        
     def __open_file(self, path):
         with open(path, 'r') as f:
             text = f.read()
@@ -155,7 +154,6 @@ class CptGefFile:
         
         self.parse_header()
         self.parse_data()
-        # self.to_df()
     
     @property
     def df(self):
@@ -416,11 +414,6 @@ if __name__ == "__main__":
     file = workdir/r'83268_DKMP001-A_(DKMP_C01).GEF'
     
     gef = CptGefFile(file)
-    # print(gef.header)
-    # print(gef.df)
-    
-    a = pd.concat(read_cpt_gef_files(workdir), ignore_index=True)
-    print(a)
     
     for line in gef._header.splitlines():
         keyword = re.match(r'([#\s]*([A-Z]+)\s*=)\s*', line)
@@ -430,27 +423,4 @@ if __name__ == "__main__":
             break
             a = line.lstrip(keyword.group(0))
             print(a)
-
-    
-    #%% Benchmark 100 runs
-    
-    new_reader = []
-    pygef = []
-    
-    for i in tqdm(range(100), total=100):
-        start = time.time()
-        gef = CptGefFile(file)
-        df = gef.df
-        end = time.time()
-        new_reader.append(end-start)
-        
-        start = time.time()
-        pgef = Cpt(str(file))
-        pdf = pgef.df
-        end = time.time()
-        pygef.append(end-start)
-        
-    print('\n')
-    print(f"New reader took {np.mean(new_reader)} seconds")
-    print(f"Pygef took {np.mean(pygef)} seconds")
-            
+     
