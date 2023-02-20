@@ -8,27 +8,24 @@ import re
 import pandas as pd
 from lxml import etree
 from pathlib import Path, WindowsPath
-from typing import Union
-from collections import namedtuple
+from typing import Union, NamedTuple
 
 from pysst.bro.api import BroApi
-from pysst.io.parsers.parser_utils import rdcoord, ddcoord
+from pysst.io.parsers.parser_utils import RDCoord, DDCoord
 
 
-layer_info = (
-    'top '
-    'bottom '
-    'horizon '
-    'standard_name '
-    'pedologic_name '
-    'om '
-    'ca '
-    'gravel '
-    'shells '
-    'clay_perc'
-    )
-LayerSoilCore = namedtuple('Layer', layer_info)
-
+class LayerSoilCore(NamedTuple):
+    top: Union[int, float]
+    bottom: Union[int, float]
+    horizon: str
+    standard_name: str
+    pedologic_name: str
+    om: str
+    ca: str
+    gravel: str
+    shells: str
+    clay_perc: Union[int, float]
+    
 
 class SoilCore:
     
@@ -61,9 +58,7 @@ class SoilCore:
     def __repr__(self):
         name = self.__class__.__name__
         repr_ = (
-            f'xml.{name} instance of BroId: {self.broid}\n'
-            f'\tEnddepth: {self.enddepth} m\n'
-            f'\tQuality: {self.quality}'
+            f'{name}(nr={self.broid}, end={self.enddepth}, quality={self.quality})'
             )
         return repr_
         
@@ -170,7 +165,7 @@ class SoilCore:
         self.x = round(float(x), 0)        
         self.y = round(float(y), 0)
         
-        return rdcoord(self.x, self.y, int(self.crs))
+        return RDCoord(self.x, self.y, int(self.crs))
     
     def latlon_location(self):
         """
@@ -184,7 +179,7 @@ class SoilCore:
         
         lat, lon = loc.find(f'{self.ns2}pos').text.split(' ')
         
-        return ddcoord(float(lat), float(lon), int(crs))
+        return DDCoord(float(lat), float(lon), int(crs))
     
     def get_z(self):
         elem = self.get_main_element('deliveredVerticalPosition')
@@ -227,7 +222,7 @@ class SoilCore:
             layer.find(f'*/*/{self.ns8}carbonateClass').text,
             layer.find(f'*/*/{self.ns8}containsGravel').text,
             layer.find(f'*/*/{self.ns8}containsShellMatter').text,        
-            layer.find(f'*/*/*/{self.ns8}clayContent').text,
+            float(layer.find(f'*/*/*/{self.ns8}clayContent').text),
             )
         
         return l

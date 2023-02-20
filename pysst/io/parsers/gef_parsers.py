@@ -2,91 +2,101 @@ import re
 import logging
 import numpy as np
 import pandas as pd
-from collections import namedtuple
+from typing import NamedTuple, Union
 from pathlib import Path, WindowsPath
 from shapely.geometry import Point
 from pysst.utils import safe_float
 
 
-columninfo = namedtuple('columninfo', ['value', 'unit', 'name', 'standard'])
-measurementvar = namedtuple('measurementvar', ['value', 'unit', 'quantity', 'reserved'])
+class ColumnInfo(NamedTuple):
+    value: str
+    unit: str
+    name: str
+    standard: bool
+
+
+class CptMeasurementVar(NamedTuple):
+    value: Union[int, float, str]
+    unit: str
+    quantity: str
+    reserved: bool
 
 
 column_defs_data_block_cpt = {
-    1: columninfo('length', 'm', 'penetration length', True),
-    2: columninfo('qc', 'MPa', 'measured cone resistance', True),
-    3: columninfo('fs', 'MPa', 'friction resistance', True),
-    4: columninfo('rf', '%', 'friction number', True),
-    5: columninfo('u1', 'MPa', 'pore pressure u1', True),
-    6: columninfo('u2', 'MPa', 'pore pressure u2', True),
-    7: columninfo('u3', 'MPa', 'pore pressure u3', True),
-    8: columninfo('inclination_res', 'degrees', 'inclination (resultant)', True),
-    9: columninfo('inclination_ns', 'degrees', 'inclination (North-South)', True),
-    10: columninfo('inclination_ew', 'degrees', 'inclination (East-West)', True),
-    11: columninfo('corrected_depth', 'm', 'corrected depth, below fixed surface', True),
-    12: columninfo('time', 's', 'time', True),
-    13: columninfo('qt', 'MPa', 'corrected cone resistance', True),
-    14: columninfo('qn', 'MPa', 'net cone resistance', True),
-    15: columninfo('Bq', '', 'pore ratio', True),
-    16: columninfo('Nm', '', 'cone resistance number', True),
-    17: columninfo('gamma', 'kN/m3', 'weight per unit volume', True),
-    18: columninfo('u0', 'MPa', 'in situ, initial pore pressure', True),
-    19: columninfo('sigma', 'MPa', 'total vertical soil pressure', True),
-    20: columninfo('sigma_eff', 'MPa', 'effective vertical soil pressure', True),
-    21: columninfo('inclination_x', 'degrees', 'Inclination in X direction', True),
-    22: columninfo('inclination_y', 'degrees', 'Inclination in Y direction', True),
-    23: columninfo('ec', 'S/m', 'Electric conductivity', True),
-    24: columninfo('Bx', 'nT', 'magnetic field strength in X direction', True),
-    25: columninfo('By', 'nT', 'magnetic field strength in Y direction', True),
-    26: columninfo('Bz', 'nT', 'magnetic field strength in Z direction', True),
-    27: columninfo('', 'degrees', 'magnetic inclination', True), # reserved for future use
-    28: columninfo('', 'degrees', 'magnetic inclination', True), # reserved for future use
+    1: ColumnInfo('length', 'm', 'penetration length', True),
+    2: ColumnInfo('qc', 'MPa', 'measured cone resistance', True),
+    3: ColumnInfo('fs', 'MPa', 'friction resistance', True),
+    4: ColumnInfo('rf', '%', 'friction number', True),
+    5: ColumnInfo('u1', 'MPa', 'pore pressure u1', True),
+    6: ColumnInfo('u2', 'MPa', 'pore pressure u2', True),
+    7: ColumnInfo('u3', 'MPa', 'pore pressure u3', True),
+    8: ColumnInfo('inclination_res', 'degrees', 'inclination (resultant)', True),
+    9: ColumnInfo('inclination_ns', 'degrees', 'inclination (North-South)', True),
+    10: ColumnInfo('inclination_ew', 'degrees', 'inclination (East-West)', True),
+    11: ColumnInfo('corrected_depth', 'm', 'corrected depth, below fixed surface', True),
+    12: ColumnInfo('time', 's', 'time', True),
+    13: ColumnInfo('qt', 'MPa', 'corrected cone resistance', True),
+    14: ColumnInfo('qn', 'MPa', 'net cone resistance', True),
+    15: ColumnInfo('Bq', '', 'pore ratio', True),
+    16: ColumnInfo('Nm', '', 'cone resistance number', True),
+    17: ColumnInfo('gamma', 'kN/m3', 'weight per unit volume', True),
+    18: ColumnInfo('u0', 'MPa', 'in situ, initial pore pressure', True),
+    19: ColumnInfo('sigma', 'MPa', 'total vertical soil pressure', True),
+    20: ColumnInfo('sigma_eff', 'MPa', 'effective vertical soil pressure', True),
+    21: ColumnInfo('inclination_x', 'degrees', 'Inclination in X direction', True),
+    22: ColumnInfo('inclination_y', 'degrees', 'Inclination in Y direction', True),
+    23: ColumnInfo('ec', 'S/m', 'Electric conductivity', True),
+    24: ColumnInfo('Bx', 'nT', 'magnetic field strength in X direction', True),
+    25: ColumnInfo('By', 'nT', 'magnetic field strength in Y direction', True),
+    26: ColumnInfo('Bz', 'nT', 'magnetic field strength in Z direction', True),
+    27: ColumnInfo('', 'degrees', 'magnetic inclination', True), # reserved for future use
+    28: ColumnInfo('', 'degrees', 'magnetic inclination', True), # reserved for future use
     }
 
 
 reserved_measurementvars_cpt = {
-    1: measurementvar(1000, 'mm2', 'nom. surface area cone tip', True),
-    2: measurementvar(15000, 'mm2', 'nom. surface area friction sleeve', True),
-    3: measurementvar(None, '', 'net surface area quotient of cone tip', True),
-    4: measurementvar(None, '', 'net surface area quotient of friction sleeve', True),
-    5: measurementvar(100, 'mm', 'distance of cone to centre of friction sleeve', True),
-    6: measurementvar(None, '', 'friction present', True),
-    7: measurementvar(None, '', 'PPT u1 present', True),
-    8: measurementvar(None, '', 'PPT u2 present', True),
-    9: measurementvar(None, '', 'PPT u3 present', True),
-    10: measurementvar(None, '', 'inclination measurement present', True),
-    11: measurementvar(None, '', 'use of back-flow compensator', True),
-    12: measurementvar(None, '', 'type of cone penetration test', True),
-    13: measurementvar(None, 'm', 'pre-excavated depth', True),
-    14: measurementvar(None, 'm', 'groundwater level', True),
-    15: measurementvar(None, 'm', 'water depth (for offshore)', True),
-    16: measurementvar(None, 'm', 'end depth of penetration test', True),
-    17: measurementvar(None, '', 'stop criteria', True),
-    # 18: measurementvar(None, '', 'for future use', True),
-    # 19: measurementvar(None, '', 'for future use', True),
-    20: measurementvar(None, 'MPa', 'zero measurement cone before', True),
-    21: measurementvar(None, 'MPa', 'zero measurement cone after', True),
-    22: measurementvar(None, 'MPa', 'zero measurement friction before', True),
-    23: measurementvar(None, 'MPa', 'zero measurement friction after', True),
-    24: measurementvar(None, 'MPa', 'zero measurement PPT u1 before', True),
-    25: measurementvar(None, 'MPa', 'zero measurement PPT u1 after', True),
-    26: measurementvar(None, 'MPa', 'zero measurement PPT u2 before', True),
-    27: measurementvar(None, 'MPa', 'zero measurement PPT u2 after', True),
-    28: measurementvar(None, 'MPa', 'zero measurement PPT u3 before', True),
-    29: measurementvar(None, 'MPa', 'zero measurement PPT u3 after', True),
-    30: measurementvar(None, 'degrees', 'zero measurement inclination before', True),
-    31: measurementvar(None, 'degrees', 'zero measurement inclination after', True),
-    32: measurementvar(None, 'degrees', 'zero measurement inclination NS before', True),
-    33: measurementvar(None, 'degrees', 'zero measurement inclination NS after', True),
-    34: measurementvar(None, 'degrees', 'zero measurement inclination EW before', True),
-    35: measurementvar(None, 'degrees', 'zero measurement inclination EW after', True),
-    # 36: measurementvar(None, '', 'for future use', True),
-    # 37: measurementvar(None, '', 'for future use', True),
-    # 38: measurementvar(None, '', 'for future use', True),
-    # 39: measurementvar(None, '', 'for future use', True),
-    # 40: measurementvar(None, '', 'for future use', True),
-    41: measurementvar(None, 'km', 'mileage', True),
-    42: measurementvar(None, 'degrees', 'Orientation between X axis inclination and North', True),
+    1: CptMeasurementVar(1000, 'mm2', 'nom. surface area cone tip', True),
+    2: CptMeasurementVar(15000, 'mm2', 'nom. surface area friction sleeve', True),
+    3: CptMeasurementVar(None, '', 'net surface area quotient of cone tip', True),
+    4: CptMeasurementVar(None, '', 'net surface area quotient of friction sleeve', True),
+    5: CptMeasurementVar(100, 'mm', 'distance of cone to centre of friction sleeve', True),
+    6: CptMeasurementVar(None, '', 'friction present', True),
+    7: CptMeasurementVar(None, '', 'PPT u1 present', True),
+    8: CptMeasurementVar(None, '', 'PPT u2 present', True),
+    9: CptMeasurementVar(None, '', 'PPT u3 present', True),
+    10: CptMeasurementVar(None, '', 'inclination measurement present', True),
+    11: CptMeasurementVar(None, '', 'use of back-flow compensator', True),
+    12: CptMeasurementVar(None, '', 'type of cone penetration test', True),
+    13: CptMeasurementVar(None, 'm', 'pre-excavated depth', True),
+    14: CptMeasurementVar(None, 'm', 'groundwater level', True),
+    15: CptMeasurementVar(None, 'm', 'water depth (for offshore)', True),
+    16: CptMeasurementVar(None, 'm', 'end depth of penetration test', True),
+    17: CptMeasurementVar(None, '', 'stop criteria', True),
+    # 18: CptMeasurementVar(None, '', 'for future use', True),
+    # 19: CptMeasurementVar(None, '', 'for future use', True),
+    20: CptMeasurementVar(None, 'MPa', 'zero measurement cone before', True),
+    21: CptMeasurementVar(None, 'MPa', 'zero measurement cone after', True),
+    22: CptMeasurementVar(None, 'MPa', 'zero measurement friction before', True),
+    23: CptMeasurementVar(None, 'MPa', 'zero measurement friction after', True),
+    24: CptMeasurementVar(None, 'MPa', 'zero measurement PPT u1 before', True),
+    25: CptMeasurementVar(None, 'MPa', 'zero measurement PPT u1 after', True),
+    26: CptMeasurementVar(None, 'MPa', 'zero measurement PPT u2 before', True),
+    27: CptMeasurementVar(None, 'MPa', 'zero measurement PPT u2 after', True),
+    28: CptMeasurementVar(None, 'MPa', 'zero measurement PPT u3 before', True),
+    29: CptMeasurementVar(None, 'MPa', 'zero measurement PPT u3 after', True),
+    30: CptMeasurementVar(None, 'degrees', 'zero measurement inclination before', True),
+    31: CptMeasurementVar(None, 'degrees', 'zero measurement inclination after', True),
+    32: CptMeasurementVar(None, 'degrees', 'zero measurement inclination NS before', True),
+    33: CptMeasurementVar(None, 'degrees', 'zero measurement inclination NS after', True),
+    34: CptMeasurementVar(None, 'degrees', 'zero measurement inclination EW before', True),
+    35: CptMeasurementVar(None, 'degrees', 'zero measurement inclination EW after', True),
+    # 36: MeasurementVar(None, '', 'for future use', True),
+    # 37: MeasurementVar(None, '', 'for future use', True),
+    # 38: MeasurementVar(None, '', 'for future use', True),
+    # 39: MeasurementVar(None, '', 'for future use', True),
+    # 40: MeasurementVar(None, '', 'for future use', True),
+    41: CptMeasurementVar(None, 'km', 'mileage', True),
+    42: CptMeasurementVar(None, 'degrees', 'Orientation between X axis inclination and North', True),
     }
 
 
@@ -143,7 +153,7 @@ class CptGefFile:
         self.__open_file(path)
         
     def __repr__(self):
-        return f'{self.__class__.__name__}: nr={self.nr}'
+        return f'{self.__class__.__name__}(nr={self.nr})'
         
     def __open_file(self, path):
         with open(path, 'r') as f:
@@ -262,7 +272,7 @@ class CptGefFile:
         
         if info == 'empty':
             logging.warning(f'Unknown information in datablock of {self.path}')
-            info = columninfo(value, unit, value, False)
+            info = ColumnInfo(value, unit, value, False)
         
         self.columninfo.update({idx: info})
     
@@ -358,10 +368,10 @@ class CptGefFile:
         _mv = reserved_measurementvars_cpt.get(num, 'empty')
         
         if _mv == 'empty':
-            mvar = measurementvar(val, unit, quantity, False)
+            mvar = CptMeasurementVar(val, unit, quantity, False)
         else:
             if val:
-                mvar = measurementvar(val, _mv.unit, _mv.quantity, True)
+                mvar = CptMeasurementVar(val, _mv.unit, _mv.quantity, True)
             else:
                 mvar = _mv
         
