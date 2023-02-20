@@ -5,12 +5,12 @@ import pandas as pd
 from collections import namedtuple
 from pathlib import Path, WindowsPath
 from shapely.geometry import Point
-from pysst.utils import safe_float, get_path_iterable
-from typing import Iterable
+from pysst.utils import safe_float
 
 
 columninfo = namedtuple('columninfo', ['value', 'unit', 'name', 'standard'])
 measurementvar = namedtuple('measurementvar', ['value', 'unit', 'quantity', 'reserved'])
+
 
 column_defs_data_block_cpt = {
     1: columninfo('length', 'm', 'penetration length', True),
@@ -387,25 +387,6 @@ class CptGefFile:
         else:
             d = self.df['length'].max()
         return d
-        
-
-def read_cpt_gef_files(file_or_folder):
-    
-    if isinstance(file_or_folder, (str, WindowsPath)):
-        files = get_path_iterable(Path(file_or_folder))
-    
-    elif isinstance(file_or_folder, Iterable):
-        files = file_or_folder
-    
-    for f in files:
-        cpt = CptGefFile(f)
-        df = cpt.df
-        df.insert(0, 'nr', cpt.nr)
-        df.insert(1, 'x', cpt.x)
-        df.insert(2, 'y', cpt.y)
-        df.insert(3, 'z', cpt.z)
-        df.insert(4, 'end', cpt.enddepth)
-        yield df
         
 
 if __name__ == "__main__":
