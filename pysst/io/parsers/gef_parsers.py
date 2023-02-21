@@ -1,4 +1,5 @@
 import re
+import csv
 import logging
 import numpy as np
 import pandas as pd
@@ -112,7 +113,7 @@ gef_cpt_reference_levels = {
 
 class CptGefFile:
     
-    def __init__(self, path: str | WindowsPath, sep: str = ';'):
+    def __init__(self, path: str | WindowsPath):#, sep: str = ';'):
         self.path = path
         self._header = None
         self._data = None
@@ -132,14 +133,14 @@ class CptGefFile:
         self.fileowner = None
         self.lastscan = None
         self.procedurecode = None # mandatory if gefid is 1, 0, 0
-        self.reportcode = None # either this or procedurecode is mandatory if gefid is 1, 1, 0 or higher
+        self.reportcode = None # this or procedurecode is mandatory if gefid is 1, 1, 0 or higher
         self.projectid = None
         self.measurementtext = dict()
         
         ## Additional gef header attributes
         self.columnvoid = dict()
         self.columnminmax = None
-        self.columnseparator = sep # default separator used if not in gef file header
+        self.columnseparator = None # default separator used if not in gef file header
         self.dataformat = None
         self.measurementvars = dict()
         self.recordseparator = None
@@ -163,6 +164,10 @@ class CptGefFile:
             self._header, self._data = text.split(end_header)
         
         self.parse_header()
+        
+        if not self.columnseparator:
+            self.__infer_columnseparator()
+        
         self.parse_data()
     
     @property
@@ -197,6 +202,10 @@ class CptGefFile:
         """
         return int(idx) - 1
     
+    def __infer_columnseparator(self):
+        dialect = csv.Sniffer().sniff(self._data)
+        self.columnseparator = dialect.delimiter
+    
     def parse_header(self):
         header = self._header.splitlines()
         
@@ -217,7 +226,12 @@ class CptGefFile:
 
         """
         data = self._data.splitlines()
+        
+        if not self.recordseparator:
+            self.recordseparator = '!'
+        
         end_row = self.columnseparator + self.recordseparator
+        
         data = [d.rstrip(end_row).split(self.columnseparator) for d in data]
         self._data = data
         
