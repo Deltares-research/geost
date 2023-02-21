@@ -163,11 +163,7 @@ class CptGefFile:
             
             self._header, self._data = text.split(end_header)
         
-        self.parse_header()
-        
-        # if not self.columnseparator:
-        #     self.__infer_columnseparator()
-        
+        self.parse_header()        
         self.parse_data()
         
         self.get_enddepth()
@@ -203,10 +199,6 @@ class CptGefFile:
 
         """
         return int(idx) - 1
-    
-    # def __infer_columnseparator(self):
-    #     dialect = csv.Sniffer().sniff(self._data)
-    #     self.columnseparator = dialect.delimiter
     
     def parse_header(self):
         header = self._header.splitlines()
@@ -414,21 +406,4 @@ class CptGefFile:
             d = self.df['length'].max()
         
         self.enddepth = d
-        
-
-if __name__ == "__main__":
-    workdir = Path(r'n:\My Documents\margriettunnel\data\cpts')
-    file = workdir/r'CPT000000157983_IMBRO.gef'
-    file = workdir/r'83268_DKMP001-A_(DKMP_C01).GEF'
-    
-    gef = CptGefFile(file)
-    
-    for line in gef._header.splitlines():
-        keyword = re.match(r'([#\s]*([A-Z]+)\s*=)\s*', line)
-        
-        keyword_method = keyword.group(2).lower()
-        if keyword_method == 'testid':
-            break
-            a = line.lstrip(keyword.group(0))
-            print(a)
      

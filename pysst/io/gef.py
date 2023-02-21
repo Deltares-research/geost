@@ -1,3 +1,5 @@
+# import numpy as np
+# import pandas as pd
 from typing import Iterable, Union
 from pathlib import Path, WindowsPath
 from pysst.utils import get_path_iterable
@@ -28,6 +30,17 @@ def _parse_cpt_gef_files(file_or_folder: Union[str, WindowsPath]):
     for f in files:
         cpt = CptGefFile(f)
         df = cpt.df
+        
+        # header_cols = pd.DataFrame(
+        #     dict(
+        #         nr=np.repeat(cpt.nr, len(df)),
+        #         x=np.repeat(cpt.x, len(df)),
+        #         y=np.repeat(cpt.y, len(df)),
+        #         mv=np.repeat(cpt.z, len(df)),
+        #         end=np.repeat(cpt.enddepth, len(df)),
+        #         )
+        #     )
+        
         df.insert(0, 'nr', cpt.nr)
         df.insert(1, 'x', cpt.x)
         df.insert(2, 'y', cpt.y)
