@@ -113,7 +113,7 @@ gef_cpt_reference_levels = {
 
 class CptGefFile:
     
-    def __init__(self, path: str | WindowsPath):#, sep: str = ';'):
+    def __init__(self, path: str | WindowsPath, sep: str = ' '):
         self.path = path
         self._header = None
         self._data = None
@@ -140,7 +140,7 @@ class CptGefFile:
         ## Additional gef header attributes
         self.columnvoid = dict()
         self.columnminmax = None
-        self.columnseparator = None # default separator used if not in gef file header
+        self.columnseparator = sep # default separator used if not in gef file header
         self.dataformat = None
         self.measurementvars = dict()
         self.recordseparator = None
@@ -165,10 +165,12 @@ class CptGefFile:
         
         self.parse_header()
         
-        if not self.columnseparator:
-            self.__infer_columnseparator()
+        # if not self.columnseparator:
+        #     self.__infer_columnseparator()
         
         self.parse_data()
+        
+        self.get_enddepth()
     
     @property
     def df(self):
@@ -202,9 +204,9 @@ class CptGefFile:
         """
         return int(idx) - 1
     
-    def __infer_columnseparator(self):
-        dialect = csv.Sniffer().sniff(self._data)
-        self.columnseparator = dialect.delimiter
+    # def __infer_columnseparator(self):
+    #     dialect = csv.Sniffer().sniff(self._data)
+    #     self.columnseparator = dialect.delimiter
     
     def parse_header(self):
         header = self._header.splitlines()
@@ -217,8 +219,6 @@ class CptGefFile:
             if hasattr(self, __method):
                 line = line.replace(keyword.group(0), '')
                 self.__call_header_method(__method, line)
-        
-        self.get_enddepth()
     
     def parse_data(self):
         """

@@ -4,11 +4,6 @@ from pysst.utils import get_path_iterable
 from pysst.io.parsers.gef_parsers import CptGefFile
 
 
-# class ParseGefFiles:
-    
-#     def __init__(self, file_or_folder):
-#         files
-
 def _parse_cpt_gef_files(file_or_folder: Union[str, WindowsPath]):
     """
     Parse gef files from CPT data into Pandas DataFrames.
