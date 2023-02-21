@@ -27,7 +27,7 @@ def __read_parquet(file: WindowsPath) -> pd.DataFrame:
     ------
     TypeError
         if 'file' has no '.parquet' or '.pq' suffix.
-    
+
     """
     suffix = file.suffix
     if suffix in [".parquet", ".pq"]:
@@ -62,7 +62,7 @@ def read_sst_cores(
     -------
     BoreholeCollection
         Instance of BoreholeCollection.
-    
+
     """
     sst_cores = __read_parquet(Path(file))
     return BoreholeCollection(sst_cores, vertical_reference=vertical_reference)
@@ -73,7 +73,7 @@ def read_sst_cpts(
 ) -> CptCollection:
     """
     Read Subsurface Toolbox native parquet file with cpt information.
-    
+
     """
     filepath = Path(file)
     sst_cpts = __read_parquet(filepath)
@@ -86,7 +86,7 @@ def read_xml_geotechnical_cores(
     """
     Read xml files of BRO geotechnical boreholes (IMBRO or IMBRO/A quality).
     Decribed in NEN14688 standards
-    
+
     """
     pass
 
@@ -94,7 +94,7 @@ def read_xml_geotechnical_cores(
 def read_xml_soil_cores(file_or_folder: Union[str, WindowsPath]) -> BoreholeCollection:
     """
     Read xml files of BRO soil boreholes (IMBRO or IMBRO/A quality).
-    
+
     """
     pass
 
@@ -104,7 +104,7 @@ def read_xml_geological_cores(
 ) -> BoreholeCollection:
     """
     Read xml files of DINO geological boreholes.
-    
+
     """
     pass
 
@@ -112,7 +112,7 @@ def read_xml_geological_cores(
 def read_gef_cores(file_or_folder: Union[str, WindowsPath]) -> BoreholeCollection:
     """
     Read gef files of boreholes.
-    
+
     """
     pass
 
@@ -138,16 +138,17 @@ def read_gef_cpts(file_or_folder: Union[str, WindowsPath], use_pygef=False) -> C
     if use_pygef:
         data = pygef_gef_cpt(Path(file_or_folder))
     else:
-        data = _parse_cpt_gef_files(Path(file_or_folder)) # use pysst gef reader
-    
+        data = _parse_cpt_gef_files(
+            Path(file_or_folder))  # use pysst gef reader
+
     df = pd.concat(data)
-    
+
     return CptCollection(df)
 
 
 def read_xml_cpts(file_or_folder: Union[str, WindowsPath]) -> CptCollection:
     """
     Read xml files of cpts.
-    
+
     """
     pass
