@@ -353,6 +353,7 @@ class PointDataCollection:
         top_max: float = None,
         end_min: float = None,
         end_max: float = None,
+        slice: bool = False,
     ):
         """
         Select data from depth constraints. If a keyword argument is not given it will not be considered.
@@ -423,6 +424,71 @@ class PointDataCollection:
             vertical_reference=self.vertical_reference,
             header=selected_header,
         )
+
+    def slice_depth_interval(
+        self,
+        upper_boundary: Union[float, int] = None,
+        lower_boundary: Union[float, int] = None,
+        vertical_reference: str = "NAP",
+    ):
+        """
+        Slice boreholes/cpts based on given upper and lower boundaries. e.g. if you want
+        to cut off all layers below -10 m NAP and all layers above 2 m NAP then,
+        provided that the vertical_reference is already "NAP", you can use:
+
+        self.slice_vertical(lower_boundary=-10, upper_boundary=2)
+
+        this returns an instance of the BoreholeCollection or CptCollection with only
+        the sliced layers.
+
+        Note #1: This method currently only slices along existing layer boundaries, which
+        especially for boreholes could mean that thick layers may continue beyond the
+        given boundaries.
+
+        Note #2: The instance that is returned may contain a smaller number of objects
+        if the slicing led to a removal of all layers of an object.
+
+        Parameters
+        ----------
+        upper_boundary : Union[float, int], optional
+            Every layer that starts above this is removed, by default 9999
+        lower_boundary : Union[float, int], optional
+            Every layer that starts below this is removed, by default -9999
+        vertical_reference : str
+            The vertical reference used in slicing. Either "NAP", "surface" or "depth"
+            See documentation of the change_vertical_reference method for details
+            on the possible vertical references. By default "NAP"
+
+        Returns
+        -------
+        Child of PointDataCollection
+            Instance of either BoreholeCollection or CptCollection.
+        """
+        original_vertical_reference = self.vertical_reference
+        self.change_vertical_reference(vertical_reference)
+
+        data_sliced = self.data.copy()
+
+        if vertical_reference != "depth":
+            data_sliced = data_sliced[data_sliced["top"] > (lower_boundary or -9999)]
+            data_sliced = data_sliced[data_sliced["bottom"] < (upper_boundary or 9999)]
+        elif vertical_reference == "depth":
+            data_sliced = data_sliced[data_sliced["top"] < (lower_boundary or 9999)]
+            data_sliced = data_sliced[data_sliced["bottom"] > (upper_boundary or 1)]
+
+        header_sliced = self.header.loc[
+            self.header["nr"].isin(data_sliced["nr"].unique())
+        ]
+
+        result = self.__class__(
+            data_sliced,
+            vertical_reference=vertical_reference,
+            header=header_sliced,
+        )
+
+        result.change_vertical_reference(original_vertical_reference)
+
+        return result
 
     def get_area_labels(
         self, polygon_gdf: GeoDataFrame, column_name: str
