@@ -9,7 +9,6 @@ from pysst.export import vtk
 
 
 class TestExport:
-
     export_folder = Path(__file__).parent / "data"
 
     @pytest.fixture
@@ -115,7 +114,7 @@ class TestExport:
             1.0,
         )
         assert multiblock.n_blocks == 1
-        assert multiblock.bounds == [139369.5, 139370.5, 455539.5, 455540.5, -4.0, 1.0]
+        assert multiblock.bounds == (139369.5, 139370.5, 455539.5, 455540.5, -4.0, 1.0)
         assert multiblock[0].n_arrays == 4
         assert multiblock[0].n_cells == 22
         assert multiblock[0].n_points == 260

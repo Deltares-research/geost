@@ -22,6 +22,8 @@ except:
 Coordinate = TypeVar("Coordinate", int, float)
 GeoDataFrame = TypeVar("GeoDataFrame")
 
+# pd.set_option("mode.copy_on_write", True)
+
 
 class PointDataCollection:
     """
