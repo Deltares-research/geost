@@ -8,6 +8,7 @@ from pysst import spatial
 from pysst.export import borehole_to_multiblock
 from pysst.utils import MissingOptionalModule
 from pysst.analysis import cumulative_thickness, layer_top
+from pysst.validate.validation_schemes import headerschema
 
 # Optional imports
 try:
@@ -95,7 +96,7 @@ class PointDataCollection:
         # required here. Currently there is no validation, so the header can be set to
         # anything by accident.
 
-        # validate_header(input)
+        headerschema.validate(header)
         self._header = header
 
     @data.setter
