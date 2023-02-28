@@ -37,55 +37,16 @@ common_dataschema_depth_reference = DataFrameSchema(
     },
 )
 
-
 boreholeschema = DataFrameSchema(
-    "borehole layer data validation",
+    "borehole-specific validation",
     {
-        "nr": Column(stringlike),
-        "x": Column(numeric),
-        "y": Column(numeric),
-        "mv": Column(numeric),
-        "end": Column(numeric),
-        "top": Column(numeric),
-        "bottom": Column(numeric, checks=Check("<", "top", report_by="nr")),
-    },
-)
-
-boreholeschema_depth_reference = DataFrameSchema(
-    "borehole layer data (vertical reference=depth) validation",
-    {
-        "nr": Column(stringlike),
-        "x": Column(numeric),
-        "y": Column(numeric),
-        "mv": Column(numeric),
-        "end": Column(numeric),
-        "top": Column(numeric),
-        "bottom": Column(numeric, checks=Check(">", "top", report_by="nr")),
+        "lith": Column(stringlike),
     },
 )
 
 cptschema = DataFrameSchema(
-    "CPT layer data validation",
+    "CPT-specific validation",
     {
-        "nr": Column(stringlike),
-        "x": Column(numeric),
-        "y": Column(numeric),
-        "mv": Column(numeric),
-        "end": Column(numeric),
-        "top": Column(numeric),
-        "bottom": Column(numeric, checks=Check("<", "top", report_by="nr")),
-    },
-)
-
-cptschema_depth_reference = DataFrameSchema(
-    "CPT layer data (vertical reference=depth) validation",
-    {
-        "nr": Column(stringlike),
-        "x": Column(numeric),
-        "y": Column(numeric),
-        "mv": Column(numeric),
-        "end": Column(numeric),
-        "top": Column(numeric),
-        "bottom": Column(numeric, checks=Check(">", "top", report_by="nr")),
+        "ic": Column(float),
     },
 )

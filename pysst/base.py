@@ -95,19 +95,11 @@ class PointDataCollection:
 
     @header.setter
     def header(self, header):
-        # Whenever self.header is set (inside a method or through an instance),
-        # this setter method is called. Hence calling the TODO validation is only
-        # required here. Currently there is no validation, so the header can be set to
-        # anything by accident.
-
         headerschema.validate(header)
         self._header = header
 
     @data.setter
     def data(self, data):
-        # Same as for the header the setter is always called when trying to set
-        # self.data. TODO Data validation is applied here and upon pass the protected
-        # attr self._data is set.
         if self.vertical_reference == "depth":
             common_dataschema_depth_reference.validate(data)
         else:

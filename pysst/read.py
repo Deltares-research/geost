@@ -6,7 +6,6 @@ from typing import Union
 # Local imports
 from pysst.borehole import BoreholeCollection, CptCollection
 from pysst.readers import pygef_gef_cpt
-#from pysst.validate import BoreholeSchema
 
 
 def __read_parquet(file: WindowsPath) -> pd.DataFrame:
@@ -36,7 +35,9 @@ def __read_parquet(file: WindowsPath) -> pd.DataFrame:
         )
 
 
-def read_sst_cores(file: Union[str, WindowsPath]) -> BoreholeCollection:
+def read_sst_cores(
+    file: Union[str, WindowsPath], vertical_reference: str = "NAP"
+) -> BoreholeCollection:
     """
     Read Subsurface Toolbox native parquet file with core information
 
@@ -44,6 +45,15 @@ def read_sst_cores(file: Union[str, WindowsPath]) -> BoreholeCollection:
     ----------
     file : Union[str, WindowsPath]
         Path to file to be read.
+    vertical_reference: str
+        Which vertical reference is used for tops and bottoms. Either
+        'NAP', 'surfacelevel' or 'depth'.
+
+        NAP = elevation with respect to NAP datum.
+        surfacelevel = elevation with respect to surface (surface is 0 m, e.g.
+                        layers tops could be 0, -1, -2 etc.).
+        depth = depth with respect to surface (surface is 0 m, e.g. depth of layers
+                tops could be 0, 1, 2 etc.).
 
     Returns
     -------
@@ -51,8 +61,7 @@ def read_sst_cores(file: Union[str, WindowsPath]) -> BoreholeCollection:
         Instance of BoreholeCollection.
     """
     sst_cores = __read_parquet(Path(file))
-    # BoreholeSchema.validate(sst_cores)
-    return BoreholeCollection(sst_cores)
+    return BoreholeCollection(sst_cores, vertical_reference=vertical_reference)
 
 
 def read_sst_cpts(file: Union[str, WindowsPath]) -> CptCollection:

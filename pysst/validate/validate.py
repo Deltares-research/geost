@@ -54,25 +54,40 @@ class DataFrameSchema:
         self.name = name
         self.schema = json_schema
         self.validationerrors = []
+        self.column_name = ""
+        self.column_validation_parameters = None
+        self.dataframe = None
+
+    def _validate_dtype(self):
+        column_dtype = self.dataframe[self.column_name].dtype
+        if not self.column_validation_parameters.required_dtype == column_dtype:
+            self.validationerrors.append(
+                f'During {self.name}: datatype in column "{self.column_name}" is "{column_dtype}", but is required to be "{self.column_validation_parameters.required_dtype}"'
+            )
+            return False
+        return True
+
+    def _validate_checks(self):
+        for check in self.column_validation_parameters.checks:
+            success, reports = check.check(self.dataframe, self.column_name)
+            if not success:
+                self.validationerrors.append(
+                    f'During {self.name}: data in column "{self.column_name}" failed check "{check}" for {len(reports)} rows: {reports}'
+                )
+                return False
+            return True
 
     def validate(self, dataframe):
-        for column_name, column_validation_parameters in self.schema.items():
-            column_dtype = dataframe[column_name].dtype
-            if not column_validation_parameters.required_dtype == column_dtype:
+        self.dataframe = dataframe
+        for self.column_name, self.column_validation_parameters in self.schema.items():
+            if not self.column_name in dataframe.columns:
                 self.validationerrors.append(
-                    f'During {self.name}: datatype in column "{column_name}" is "{column_dtype}", but is required to be "{column_validation_parameters.required_dtype}"'
+                    f'During {self.name}: required column "{self.column_name}" is missing'
                 )
-                dtype_ok = False
             else:
-                dtype_ok = True
-
-            if column_validation_parameters.checks and dtype_ok:
-                for check in column_validation_parameters.checks:
-                    success, reports = check.check(dataframe, column_name)
-                    if not success:
-                        self.validationerrors.append(
-                            f'During {self.name}: data in column "{column_name}" failed check "{check}" for {len(reports)} rows: {reports}'
-                        )
+                passed_dtype_check = self._validate_dtype()
+                if passed_dtype_check and self.column_validation_parameters.checks:
+                    passed_custom_checks = self._validate_checks()
 
         if len(self.validationerrors) >= 1:
             if raise_error:
@@ -80,9 +95,9 @@ class DataFrameSchema:
             else:
                 print(
                     ValidationWarning(
-                        "WARNING:\n\n"
+                        "WARNING:\n--------\n"
                         + ("\n").join(self.validationerrors)
-                        + "\n\nCONTINUING MAY LEAD TO UNEXPECTED RESULTS\n"
+                        + "\n--------\n>> CONTINUING MAY LEAD TO UNEXPECTED RESULTS\n"
                     )
                 )
 
