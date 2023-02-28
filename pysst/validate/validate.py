@@ -1,5 +1,7 @@
 import operator
 from typing import Union, Optional
+import warnings
+
 
 OPERATORS = {
     "<": operator.lt,
@@ -10,8 +12,14 @@ OPERATORS = {
     ">": operator.gt,
 }
 
+raise_error = False
+
 
 class ValidationError(Exception):
+    pass
+
+
+class ValidationWarning(Warning):
     pass
 
 
@@ -67,7 +75,16 @@ class DataFrameSchema:
                         )
 
         if len(self.validationerrors) >= 1:
-            raise ValidationError(self.validationerrors)
+            if raise_error:
+                raise ValidationError(("\n").join(self.validationerrors))
+            else:
+                print(
+                    ValidationWarning(
+                        "WARNING:\n\n"
+                        + ("\n").join(self.validationerrors)
+                        + "\n\nCONTINUING MAY LEAD TO UNEXPECTED RESULTS\n"
+                    )
+                )
 
 
 class Check:

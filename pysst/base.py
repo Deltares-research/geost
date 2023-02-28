@@ -8,7 +8,11 @@ from pysst import spatial
 from pysst.export import borehole_to_multiblock
 from pysst.utils import MissingOptionalModule
 from pysst.analysis import cumulative_thickness, layer_top
-from pysst.validate.validation_schemes import headerschema
+from pysst.validate.validation_schemes import (
+    headerschema,
+    common_dataschema,
+    common_dataschema_depth_reference,
+)
 
 # Optional imports
 try:
@@ -43,12 +47,12 @@ class PointDataCollection:
         vertical_reference: str,
         header: Optional[pd.DataFrame] = None,
     ):
+        self.__vertical_reference = vertical_reference
         self.data = data
         if isinstance(header, pd.DataFrame):
             self.header = header
         else:
             self.reset_header()
-        self.__vertical_reference = vertical_reference
 
     def __new__(cls, *args, **kwargs):
         if cls is PointDataCollection:
@@ -104,8 +108,10 @@ class PointDataCollection:
         # Same as for the header the setter is always called when trying to set
         # self.data. TODO Data validation is applied here and upon pass the protected
         # attr self._data is set.
-
-        # validate_data(input)
+        if self.vertical_reference == "depth":
+            common_dataschema_depth_reference.validate(data)
+        else:
+            common_dataschema.validate(data)
         self._data = data
 
     def change_vertical_reference(self, to: str):
