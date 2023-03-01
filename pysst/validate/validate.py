@@ -2,7 +2,6 @@ import operator
 from typing import Union, Optional
 import warnings
 
-
 OPERATORS = {
     "<": operator.lt,
     "<=": operator.le,
@@ -15,11 +14,16 @@ OPERATORS = {
 raise_error = False
 
 
+def fancy_warning(func):
+    def inner(*args, **kwargs):
+        print("WARNING:\n--------")
+        func(*args, **kwargs)
+        print("--------\n>> CONTINUING MAY LEAD TO UNEXPECTED RESULTS\n")
+
+    return inner
+
+
 class ValidationError(Exception):
-    pass
-
-
-class ValidationWarning(Warning):
     pass
 
 
@@ -53,6 +57,7 @@ class DataFrameSchema:
     def __init__(self, name: str, json_schema):
         self.name = name
         self.schema = json_schema
+        self.raise_error = raise_error
         self.validationerrors = []
         self.column_name = ""
         self.column_validation_parameters = None
@@ -90,16 +95,14 @@ class DataFrameSchema:
                     passed_custom_checks = self._validate_checks()
 
         if len(self.validationerrors) >= 1:
-            if raise_error:
+            if self.raise_error:
                 raise ValidationError(("\n").join(self.validationerrors))
             else:
-                print(
-                    ValidationWarning(
-                        "WARNING:\n--------\n"
-                        + ("\n").join(self.validationerrors)
-                        + "\n--------\n>> CONTINUING MAY LEAD TO UNEXPECTED RESULTS\n"
-                    )
-                )
+                self.warn_user()
+
+    @fancy_warning
+    def warn_user(self):
+        print(("\n").join(self.validationerrors))
 
 
 class Check:
