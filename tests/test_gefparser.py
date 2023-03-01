@@ -14,4 +14,5 @@ class TestCptGefParser:
     def test_read_files(self, test_cpt_files):
         for f in test_cpt_files:
             cpt = CptGefFile(f)
-            print(cpt)
+            print(cpt, "okay")
+            assert isinstance(cpt, CptGefFile)
