@@ -204,12 +204,17 @@ class CptGefFile:
         header = self._header.splitlines()
         
         for line in header:
-            keyword = re.match(r'([#\s]*([A-Z]+)\s*=)\s*', line)
-            keyword_method = keyword.group(2).lower()
+            keyword = re.search(r'([#\s]*([A-Z]+)\s*=)\s*', line)
+            
+            try:
+                keyword_method = keyword.group(2).lower()
+            except AttributeError:
+                continue
             
             __method = f'_parse_{keyword_method}'
             if hasattr(self, __method):
                 line = line.replace(keyword.group(0), '')
+                line = re.sub(r'["\']|\s\s+', '', line) # remove unnecessary whitespace and string quotes
                 self.__call_header_method(__method, line)
     
     def parse_data(self):
