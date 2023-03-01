@@ -277,7 +277,8 @@ class CptGefFile:
         self.ncolumns = int(line)
         
     def _parse_columninfo(self, line: str):
-        idx, unit, value, number = line.split(', ')
+        __sep = re.search(',\s*', line).group(0)
+        idx, unit, value, number = line.split(__sep)
         idx = self.to_zero_indexed(idx)
         info = column_defs_data_block_cpt.get(int(number), 'empty')
         
@@ -312,7 +313,8 @@ class CptGefFile:
         self.nr = line
     
     def _parse_zid(self, line: str): # TODO: check how to fix if zid occurs in header more than once
-        zid = line.split(', ')
+        __sep = re.search(',\s*', line).group(0)
+        zid = line.split(__sep)
         if len(zid) == 2:
             reference_system = zid[0]
             self.z = float(zid[1])
@@ -330,12 +332,14 @@ class CptGefFile:
         self.reference_system = gef_cpt_reference_levels[reference_system]
     
     def _parse_measurementtext(self, line: str): #TODO: add correct parsing of reserved measurementtexts
-        text = line.split(', ')
+        __sep = re.search(',\s*', line).group(0)
+        text = line.split(__sep)
         nr, info = int(text[0]), text[1:]
         self.measurementtext.update({nr: info})
     
     def _parse_xyid(self, line: str):
-        xyid = line.split(', ')
+        __sep = re.search(',\s*', line).group(0)
+        xyid = line.split(__sep)
         
         if len(xyid) == 3:
             self.coord_system = xyid[0]
@@ -357,7 +361,8 @@ class CptGefFile:
             self.xyid = xyid
     
     def _parse_columnvoid(self, line: str):
-        idx, value = line.split(', ')
+        __sep = re.search(',\s*', line).group(0)
+        idx, value = line.split(__sep)
         idx = self.to_zero_indexed(idx)
         self.columnvoid.update({idx: float(value)})
     
@@ -371,7 +376,8 @@ class CptGefFile:
         pass
     
     def _parse_measurementvar(self, line: str):
-        num, val, unit, quantity = line.split(', ')
+        __sep = re.search(',\s*', line).group(0)
+        num, val, unit, quantity = line.split(__sep)
         
         num = int(num)
         val = safe_float(val)
