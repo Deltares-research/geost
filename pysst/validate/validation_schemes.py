@@ -12,7 +12,7 @@ headerschema = DataFrameSchema(
 )
 
 common_dataschema = DataFrameSchema(
-    "data layer data validation",
+    "layer data validation",
     {
         "nr": Column(stringlike),
         "x": Column(numeric),
@@ -25,7 +25,7 @@ common_dataschema = DataFrameSchema(
 )
 
 common_dataschema_depth_reference = DataFrameSchema(
-    "borehole layer data (vertical reference=depth) validation",
+    "layer data (with vertical reference=depth) validation",
     {
         "nr": Column(stringlike),
         "x": Column(numeric),

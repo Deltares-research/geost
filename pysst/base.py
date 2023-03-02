@@ -8,6 +8,7 @@ from pysst import spatial
 from pysst.export import borehole_to_multiblock
 from pysst.utils import MissingOptionalModule
 from pysst.analysis import cumulative_thickness, layer_top
+from pysst.validate import fancy_warning
 from pysst.validate.validation_schemes import (
     headerschema,
     common_dataschema,
@@ -23,6 +24,7 @@ except:
     gpd = MissingOptionalModule("geopandas")
     create_header = lambda x: x
 
+warn = fancy_warning(lambda warning_info: print(warning_info))
 
 Coordinate = TypeVar("Coordinate", int, float)
 GeoDataFrame = TypeVar("GeoDataFrame")
@@ -96,6 +98,8 @@ class PointDataCollection:
     @header.setter
     def header(self, header):
         headerschema.validate(header)
+        if any(self.data["nr"].unique() != header["nr"]):
+            warn(f"Header does not cover all unique objects in data")
         self._header = header
 
     @data.setter

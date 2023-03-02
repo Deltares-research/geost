@@ -5,7 +5,6 @@ from numpy.testing import assert_array_almost_equal, assert_equal
 import pandas as pd
 
 from pysst.borehole import BoreholeCollection
-from pysst.validate import DataFrameSchema, Column, Check, numeric, stringlike
 
 
 class TestPointCollection:
@@ -68,6 +67,20 @@ class TestPointCollection:
                 "data_string": data_string,
                 "data_int": data_int,
                 "data_float": data_float,
+            }
+        )
+
+        return dataframe
+
+    @pytest.fixture
+    def header_missing_object(self):
+        dataframe = pd.DataFrame(
+            {
+                "nr": ["B-02"],
+                "x": [100000],
+                "y": [400000],
+                "mv": [0],
+                "end": [-8],
             }
         )
 
@@ -142,16 +155,21 @@ class TestPointCollection:
     def test_validation_pass(self, capfd, borehole_df_ok):
         collection = BoreholeCollection(borehole_df_ok)
         out, err = capfd.readouterr()
-        # Quite a stupid check to see if the correct combination of warnings were printed
-        # by checking the length of the string. Changing wording of the warnings will
-        # make this test fail.
+        # Since no warning line was printed, the length of out must be 0
         assert_equal(len(out), 0)
 
     @pytest.mark.integrationtest
     def test_validation_fail(self, capfd, borehole_df_bad_validation):
         collection = BoreholeCollection(borehole_df_bad_validation)
         out, err = capfd.readouterr()
-        # Quite a stupid check to see if the correct combination of warnings were printed
-        # by checking the length of the string. Changing wording of the warnings will
-        # make this test fail.
-        assert_equal(len(out), 538)
+        # Check if required warnings are printed. Note that changing warning messages
+        # will make this test fail.
+        assert 'but is required to be "stringlike type"' in out
+        assert 'data in column "bottom" failed check "< top" for 1 rows: [1]' in out
+        assert 'data in column "end" failed check "< mv" for 1 rows: [1]' in out
+
+    @pytest.mark.integrationtest
+    def test_header_mismatch(self, capfd, borehole_df_ok, header_missing_object):
+        collection = BoreholeCollection(borehole_df_ok, header=header_missing_object)
+        out, err = capfd.readouterr()
+        assert "Header does not cover all unique objects in data" in out

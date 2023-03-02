@@ -1,6 +1,25 @@
+"""
+This is a custom and lightweight validation module for Panda Dataframes. There are no
+dependencies. It is inspired by the Pandera API and replicates the way JSON schemas are 
+used to define how a pd.DataFrame is validated. e.g.:
+
+schema = DataFrameSchema(
+    "<name of validator>",
+    {
+        "requiredcolumn1": Column(stringlike),
+        "requiredcolumn2": Column(numeric),
+        "requiredcolumn3": Column(int64, checks=Check("!=", 0)),
+        "requiredcolumn4": Column(float),
+        "requiredcolumn5": Column(float, checks=Check("<", "requiredcolumn4")),
+    },
+)
+
+calling schema.validate(dataframe_to_be_validated) will print warnings for missing 
+columns, wrong datatypes and failed custom checks.
+"""
+
 import operator
 from typing import Union, Optional
-import warnings
 
 OPERATORS = {
     "<": operator.lt,
@@ -57,7 +76,6 @@ class DataFrameSchema:
     def __init__(self, name: str, json_schema):
         self.name = name
         self.schema = json_schema
-        self.raise_error = raise_error
         self.validationerrors = []
         self.column_name = ""
         self.column_validation_parameters = None
@@ -95,7 +113,7 @@ class DataFrameSchema:
                     passed_custom_checks = self._validate_checks()
 
         if len(self.validationerrors) >= 1:
-            if self.raise_error:
+            if raise_error:
                 raise ValidationError(("\n").join(self.validationerrors))
             else:
                 self.warn_user()
