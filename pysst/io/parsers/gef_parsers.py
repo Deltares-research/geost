@@ -222,14 +222,14 @@ class CptGefFile:
         Parse datablock of the gef file.
 
         """
-        data = self._data.splitlines()
+        data = self._data
         
         if not self.recordseparator:
             self.recordseparator = '!'
         
-        end_row = self.columnseparator + self.recordseparator
+        data = re.sub(fr'{self.columnseparator}{self.recordseparator}*', ',', data)
         
-        data = [d.rstrip(end_row).split(self.columnseparator) for d in data]
+        data = [d.rstrip(',').split(',') for d in data.splitlines()]
         self._data = data
         
     def to_df(self):
