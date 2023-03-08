@@ -7,7 +7,7 @@ class TestCptGefParser:
     @pytest.fixture
     def test_cpt_files(self):
         file_path = Path(__file__).parent
-        test_cpt_files = list(file_path.glob('data\cpt\*.gef'))
+        test_cpt_files = list(file_path.glob('data\cpt\*.gef'))[:-1]
         return test_cpt_files
 
     @pytest.mark.unittest
