@@ -132,6 +132,8 @@ class TestExport:
         out_folder.rmdir()
 
     @pytest.mark.unittest
-    def test_to_geodataclass(self, borehole_collection):
-        # TODO
-        pass
+    def test_to_datafusiontools(self, borehole_collection):
+        out_file = self.export_folder.joinpath("test_output_file.pickle")
+        borehole_collection.to_datafusiontools(out_file)
+        assert out_file.is_file()
+        out_file.unlink()

@@ -1,3 +1,4 @@
+import pickle
 import pandas as pd
 from pathlib import WindowsPath
 from typing import List, Union, TypeVar, Iterable, Optional
@@ -5,7 +6,7 @@ from functools import reduce
 
 # Local imports
 from pysst import spatial
-from pysst.export import borehole_to_multiblock
+from pysst.export import export_to_dftgeodata, borehole_to_multiblock
 from pysst.utils import MissingOptionalModule
 from pysst.analysis import cumulative_thickness, layer_top
 from pysst.validate import fancy_warning
@@ -698,7 +699,7 @@ class PointDataCollection:
         """
         if not self.__vertical_reference == "NAP":
             raise NotImplementedError(
-                "VTM export for vertical references other than NAP not implemented yet"
+                'VTM export is not available for other vertical references than "NAP"'
             )
 
         vtk_object = borehole_to_multiblock(
@@ -706,6 +707,26 @@ class PointDataCollection:
         )
         vtk_object.save(out_file, **kwargs)
 
-    def to_geodataclass(self, out_file: Union[str, WindowsPath], **kwargs):
-        # TODO write the pandas dataframes to geodataclass (used for Deltares GEO DataFusionTools)
-        pass
+    def to_datafusiontools(self, out_file: Union[str, WindowsPath], **kwargs):
+        """
+        Write a collection to the core "Data" class of Deltares DataFusionTools. Output
+        is a pickle file, which when loaded in Python is a list of "Data" objects, one
+        for each object in the Borehole/CptCollection that you exported. This list can
+        directly be used within DataFusionTools.
+
+        For DataFusionTools visit:
+        https://bitbucket.org/DeltaresGEO/datafusiontools/src/master/
+
+        Parameters
+        ----------
+        out_file : Union[str, WindowsPath]
+            Path to pickle file to be written
+        """
+        if not self.__vertical_reference == "NAP":
+            raise NotImplementedError(
+                'DataFusionTools export is not available for other vertical references than "NAP"'
+            )
+
+        dftgeodata = export_to_dftgeodata(self.data)
+        with open(out_file, "wb") as f:
+            pickle.dump(dftgeodata, f)
