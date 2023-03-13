@@ -1,7 +1,8 @@
 import pytest
+import pickle
 from pathlib import Path
 import numpy as np
-from numpy.testing import assert_array_equal
+from numpy.testing import assert_array_equal, assert_array_almost_equal
 import pandas as pd
 
 from pysst.borehole import BoreholeCollection
@@ -132,8 +133,72 @@ class TestExport:
         out_folder.rmdir()
 
     @pytest.mark.unittest
-    def test_to_datafusiontools(self, borehole_collection):
+    def test_to_datafusiontools_list(self, borehole_collection):
+        dft_objects = borehole_collection.to_datafusiontools(
+            ["data_string", "data_int", "data_float"]
+        )
+        assert len(dft_objects) == 1
+        assert [var.label for var in dft_objects[0].variables] == [
+            "data_int",
+            "data_float",
+            "data_string_K",
+            "data_string_Ks2",
+            "data_string_Ks3",
+            "data_string_Kz",
+            "data_string_V",
+            "data_string_Z",
+            "data_string_Zk",
+            "data_string_Zs",
+        ]
+        assert_array_equal(
+            dft_objects[0].variables[0].value,
+            borehole_collection.data["data_int"].values,
+        )
+        assert_array_almost_equal(
+            dft_objects[0].variables[1].value,
+            borehole_collection.data["data_float"].values,
+        )
+        assert_array_equal(
+            dft_objects[0].variables[2].value, np.array([1, 0, 1, 0, 0, 0, 0, 0, 0, 0])
+        )
+        assert dft_objects[0].location.x == 139370
+        assert dft_objects[0].location.y == 455540
+        assert dft_objects[0].location.z == 1.0
+
+    @pytest.mark.unittest
+    def test_to_datafusiontools_pickle(self, borehole_collection):
         out_file = self.export_folder.joinpath("test_output_file.pickle")
-        borehole_collection.to_datafusiontools(out_file)
+        borehole_collection.to_datafusiontools(
+            ["data_string", "data_int", "data_float"], out_file=out_file
+        )
         assert out_file.is_file()
+        with open(out_file, "rb") as f:
+            dft_objects = pickle.load(f)
+        assert len(dft_objects) == 1
+        assert [var.label for var in dft_objects[0].variables] == [
+            "data_int",
+            "data_float",
+            "data_string_K",
+            "data_string_Ks2",
+            "data_string_Ks3",
+            "data_string_Kz",
+            "data_string_V",
+            "data_string_Z",
+            "data_string_Zk",
+            "data_string_Zs",
+        ]
+        assert_array_equal(
+            dft_objects[0].variables[0].value,
+            borehole_collection.data["data_int"].values,
+        )
+        assert_array_almost_equal(
+            dft_objects[0].variables[1].value,
+            borehole_collection.data["data_float"].values,
+        )
+        assert_array_equal(
+            dft_objects[0].variables[2].value, np.array([1, 0, 1, 0, 0, 0, 0, 0, 0, 0])
+        )
+        assert dft_objects[0].location.x == 139370
+        assert dft_objects[0].location.y == 455540
+        assert dft_objects[0].location.z == 1.0
         out_file.unlink()

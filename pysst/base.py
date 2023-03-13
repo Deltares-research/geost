@@ -714,22 +714,29 @@ class PointDataCollection:
         Write a collection to the core "Data" class of Deltares DataFusionTools. Returns
         a list of "Data" objects, one for each object in the Borehole/CptCollection that
         you exported. This list can directly be used within DataFusionTools. If out_file
-        is given, the list of Data objects is save to a pickle file.
+        is given, the list of Data objects is saved to a pickle file.
+
+        Warning: categorical data is automatically encoded (all possible values become
+        a seperate feature that is 0 or 1). If there is a large number of possible
+        categories the export process may become slow. Please consider carefully which
+        categorical data columns need to be included.
 
         For DataFusionTools visit:
         https://bitbucket.org/DeltaresGEO/datafusiontools/src/master/
 
         Parameters
         ----------
+        columns : List[str]
+            Which columns (in the self.data dataframe) to include.
         out_file : Union[str, WindowsPath]
-            Path to pickle file to be written
+            Path to pickle file to be written.
         """
         if not self.__vertical_reference == "NAP":
             raise NotImplementedError(
                 'DataFusionTools export is not available for other vertical references than "NAP"'
             )
 
-        dftgeodata = export_to_dftgeodata(self.data)
+        dftgeodata = export_to_dftgeodata(self.data, columns)
 
         if out_file:
             with open(out_file, "wb") as f:

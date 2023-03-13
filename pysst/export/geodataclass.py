@@ -88,17 +88,13 @@ class Data:
 ########################################################################################
 
 
-def export_to_dftgeodata(data):
+def export_to_dftgeodata(data, columns):
     # Prepare and encode labelled data
-    variable_columns = data.columns[
-        ~data.columns.isin(["nr", "x", "y", "mv", "end", "top", "bottom"])
-    ]
-    data_encoded = pd.get_dummies(data.loc[:, variable_columns])
-    data.drop(variable_columns, axis=1, inplace=True)
-    data_prepared = pd.concat([data, data_encoded], axis=1)
-    variable_columns_encoded = data_prepared.columns[
-        ~data_prepared.columns.isin(["nr", "x", "y", "mv", "end", "top", "bottom"])
-    ]
+
+    data_encoded = pd.get_dummies(data.loc[:, columns])
+    encoded_columns = data_encoded.columns
+    data_prepared = data.drop(columns, axis=1)
+    data_prepared = pd.concat([data_prepared, data_encoded], axis=1)
 
     objects = data_prepared.groupby("nr")
     geodataclasses = []
@@ -109,7 +105,7 @@ def export_to_dftgeodata(data):
         independent_var_depth = Variable(
             value=(obj.top - (obj.top - obj.bottom) / 2).values, label="height"
         )
-        for variable_column in variable_columns_encoded:
+        for variable_column in encoded_columns:
             variables.append(
                 Variable(value=obj[variable_column].values, label=variable_column)
             )
