@@ -105,7 +105,7 @@ def export_to_dftgeodata(data):
 
     for nr, obj in objects:
         variables = []
-        location = Geometry(obj.x[0], obj.y[0], z=obj.mv[0])
+        location = Geometry(obj.x.iloc[0], obj.y.iloc[0], z=obj.mv.iloc[0])
         independent_var_depth = Variable(
             value=(obj.top - (obj.top - obj.bottom) / 2).values, label="height"
         )

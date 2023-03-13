@@ -707,12 +707,14 @@ class PointDataCollection:
         )
         vtk_object.save(out_file, **kwargs)
 
-    def to_datafusiontools(self, out_file: Union[str, WindowsPath], **kwargs):
+    def to_datafusiontools(
+        self, columns: List[str], out_file: Union[str, WindowsPath] = None, **kwargs
+    ):
         """
-        Write a collection to the core "Data" class of Deltares DataFusionTools. Output
-        is a pickle file, which when loaded in Python is a list of "Data" objects, one
-        for each object in the Borehole/CptCollection that you exported. This list can
-        directly be used within DataFusionTools.
+        Write a collection to the core "Data" class of Deltares DataFusionTools. Returns
+        a list of "Data" objects, one for each object in the Borehole/CptCollection that
+        you exported. This list can directly be used within DataFusionTools. If out_file
+        is given, the list of Data objects is save to a pickle file.
 
         For DataFusionTools visit:
         https://bitbucket.org/DeltaresGEO/datafusiontools/src/master/
@@ -728,5 +730,9 @@ class PointDataCollection:
             )
 
         dftgeodata = export_to_dftgeodata(self.data)
-        with open(out_file, "wb") as f:
-            pickle.dump(dftgeodata, f)
+
+        if out_file:
+            with open(out_file, "wb") as f:
+                pickle.dump(dftgeodata, f)
+        else:
+            return dftgeodata

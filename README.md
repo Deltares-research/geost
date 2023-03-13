@@ -52,7 +52,7 @@ The collection object comes with a comprehensive set of methods that apply gener
 
 Borehole and Cpt collections each have analysis methods that are specific to the data type. Please refer to the documentation for more information
 
-## Basic usage
+## Usage examples
 This example shows how you could load some borehole data
 ```
 from pysst import read_sst_cores
@@ -69,13 +69,29 @@ study_area = gpd.read_file(r'c:\path\to\polygon_shapefile.shp)
 boreholes_selected = boreholes.select_within_polygons(study area)
 ```
 
-The new instance 'boreholes_selected' contains only the boreholes within the study area polygon. You can make additional selections, do analyses on the data and export the result in various ways. For instance:
+The new instance 'boreholes_selected' contains only the boreholes within the study area polygon. You can make additional selections, do analyses on the data and export the result in various ways. Let's say we want to know the cumulative thickness of clay layers ("K" in the "lith" column) within the first 5 m for every borehole and export that information such that we can visualise it in GIS:
 ```
-boreholes_selected.to_parquet(r'c:\path\to\output.parquet)   # Write data to parquet file (or csv file, for that use the method to_csv)
-boreholes_selected.to_ipf(r'c:\path\to\output.ipf)   # Write to iMod ipf file for viewing in the iMod-QGIS plugin
-boreholes_selected.to_geoparquet(r'c:\path\to\output.geoparquet)   # Write to geoparquet for viewing of locations in Qgis
-boreholes_selected.to_vtm(r'c:\path\to\output.vtm)   # Write to vtm file for 3D visualisation in e.g. ParaView or another vtk viewer.
+# Use slice_depth_interval method with 'depth' as vertical reference to get the first 5 m of every borehole 
+# (by default it references NAP, then we would slice off everyhting below 5 m NAP, which is not what we want)
+boreholes_selected_first_5m = boreholes_selected.slice_depth_interval(lower_boundary=5, vertical_reference="depth" )
+
+# Get the cumulative thickness and add this data as a new column to the header (so we can export it later)
+boreholes_selected_first_5m.get_cumulative_layer_thickness("lith", "K", include_in_header=True)
+
+# Now export the result to a geoparquet for viewing in GIS (shapefile and geopackage are also possible)
+boreholes_selected_first_5m.to_geoparquet(r'c:\path\to\output.geoparquet)  
 ```
+
+Suppose we want to use a set of boreholes with the Deltares DataFusionTools and also export the files to vtm for 3D viewing in paraview. The full script would be:
+```
+from pysst import read_sst_cores
+
+boreholes = read_sst_cores(r'c:\path\to\boreholes.parquet')                                     # Load data
+boreholes_in_study_area = boreholes.select_within_bbox(150000, 160000, 420000, 430000)          # Select boreholes in study area
+boreholes_in_study_area.to_vtm(r'c:\path\to\boreholes.vtm', ["lith", "organic_admixture"])      # Create vtm file of boreholes with specified columns
+dftobject = boreholes_in_study_area.to_datafusiontools(["lith", "organic_admixture"])           # Create DFT "Data" objects using specified columns
+```
+The "dftobject" can now be used within DataFusionTools. See e.g. the [DFT tutorial](https://datafusiontools.readthedocs.io/en/latest/index.html)
 
 ## Contributing
 
