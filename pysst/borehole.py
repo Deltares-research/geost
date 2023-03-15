@@ -25,7 +25,6 @@ class BoreholeCollection(PointDataCollection):
     ):
         super().__init__(data, vertical_reference, header=header)
         self.__classification_system = "5104"
-        # BoreholeSchema.validate(self.table, inplace=True)
 
     @property
     def classification_system(self):
@@ -61,7 +60,6 @@ class CptCollection(PointDataCollection):
         header: Optional[pd.DataFrame] = None,
     ):
         super().__init__(data, vertical_reference, header=header)
-        # CptSchema.validate(self.table, inplace=True)
 
     def add_ic(self):
         """
@@ -78,3 +76,27 @@ class CptCollection(PointDataCollection):
         self.data["lith"] = calc_lithology(
             self.data["ic"], self.data["qc"], self.data["friction_number"]
         )
+
+    def as_boreholecollection(self):
+        """
+        Export CptCollection to BoreholeCollection. Requires the "lith" column to be
+        present.
+
+        Returns
+        -------
+        instance of BoreholeCollection
+        """
+        if not "lith" in self.data.columns:
+            raise IndexError(
+                r"The column \"lith\" is required to convert to BoreholeCollection"
+            )
+
+        borehole_converted_dataframe = self.data[
+            ["nr", "x", "y", "mv", "end", "top", "bottom", "lith"]
+        ]
+        cptcollection_as_bhcollection = BoreholeCollection(
+            borehole_converted_dataframe,
+            vertical_reference=self.vertical_reference,
+            header=self.header,
+        )
+        return cptcollection_as_bhcollection

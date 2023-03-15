@@ -64,12 +64,15 @@ def read_sst_cores(
     return BoreholeCollection(sst_cores, vertical_reference=vertical_reference)
 
 
-def read_sst_cpts(file: Union[str, WindowsPath]) -> CptCollection:
+def read_sst_cpts(
+    file: Union[str, WindowsPath], vertical_reference: str = "NAP"
+) -> CptCollection:
     """
     Read Subsurface Toolbox native parquet file with cpt information.
     """
     filepath = Path(file)
     sst_cpts = __read_parquet(filepath)
+    return CptCollection(sst_cpts, vertical_reference=vertical_reference)
 
 
 def read_xml_geotechnical_cores(

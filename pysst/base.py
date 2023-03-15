@@ -708,7 +708,11 @@ class PointDataCollection:
         vtk_object.save(out_file, **kwargs)
 
     def to_datafusiontools(
-        self, columns: List[str], out_file: Union[str, WindowsPath] = None, **kwargs
+        self,
+        columns: List[str],
+        out_file: Union[str, WindowsPath] = None,
+        encode: bool = True,
+        **kwargs,
     ):
         """
         Write a collection to the core "Data" class of Deltares DataFusionTools. Returns
@@ -716,7 +720,7 @@ class PointDataCollection:
         you exported. This list can directly be used within DataFusionTools. If out_file
         is given, the list of Data objects is saved to a pickle file.
 
-        Warning: categorical data is automatically encoded (all possible values become
+        Warning: categorical data is optionally encoded (all possible values become
         a seperate feature that is 0 or 1). If there is a large number of possible
         categories the export process may become slow. Please consider carefully which
         categorical data columns need to be included.
@@ -730,13 +734,16 @@ class PointDataCollection:
             Which columns (in the self.data dataframe) to include.
         out_file : Union[str, WindowsPath]
             Path to pickle file to be written.
+        encode : bool
+            Encode categorical data to additional binary columns (0 or 1).
+            Also see explanation above. Default is True.
         """
         if not self.__vertical_reference == "NAP":
             raise NotImplementedError(
                 'DataFusionTools export is not available for other vertical references than "NAP"'
             )
 
-        dftgeodata = export_to_dftgeodata(self.data, columns)
+        dftgeodata = export_to_dftgeodata(self.data, columns, encode=encode)
 
         if out_file:
             with open(out_file, "wb") as f:

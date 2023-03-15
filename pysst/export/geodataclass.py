@@ -88,13 +88,16 @@ class Data:
 ########################################################################################
 
 
-def export_to_dftgeodata(data, columns):
+def export_to_dftgeodata(data, columns, encode=True):
     # Prepare and encode labelled data
-
-    data_encoded = pd.get_dummies(data.loc[:, columns])
-    encoded_columns = data_encoded.columns
-    data_prepared = data.drop(columns, axis=1)
-    data_prepared = pd.concat([data_prepared, data_encoded], axis=1)
+    if encode:
+        data_encoded = pd.get_dummies(data.loc[:, columns])
+        columns_to_use = data_encoded.columns
+        data_prepared = data.drop(columns, axis=1)
+        data_prepared = pd.concat([data_prepared, data_encoded], axis=1)
+    else:
+        columns_to_use = columns
+        data_prepared = data
 
     objects = data_prepared.groupby("nr")
     geodataclasses = []
@@ -105,7 +108,7 @@ def export_to_dftgeodata(data, columns):
         independent_var_depth = Variable(
             value=(obj.top - (obj.top - obj.bottom) / 2).values, label="height"
         )
-        for variable_column in encoded_columns:
+        for variable_column in columns_to_use:
             variables.append(
                 Variable(value=obj[variable_column].values, label=variable_column)
             )
