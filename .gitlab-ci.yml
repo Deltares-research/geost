@@ -5,7 +5,7 @@ stages:
   - deploy
 
 before_script:
-    - conda env create -n pysst
+    - conda create -n pysst
     - source activate pysst
 
 buildtest:
