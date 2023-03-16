@@ -11,7 +11,7 @@ before_script:
 buildtest:
  stage: buildtest
  script:
-    - pip install -e .
+    - pip install -e .[dev]
     - cd tests
     - python -m pytest --cache-clear
     - python -m pytest --verbose
