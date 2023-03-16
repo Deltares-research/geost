@@ -1,0 +1,22 @@
+image: condaforge/miniforge3
+
+stages:
+  - buildtest
+  - deploy
+
+before_script:
+    - conda env create -n pysst
+    - source activate pysst
+
+buildtest:
+ stage: buildtest
+ script:
+    - pip install -e .
+    - cd tests
+    - python -m pytest --cache-clear
+    - python -m pytest --verbose
+
+deploy:
+  stage: deploy
+  script: echo "Not implemented yet"
+  environment: production
