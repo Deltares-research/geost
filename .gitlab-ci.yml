@@ -12,6 +12,8 @@ buildtest:
  stage: buildtest
  script:
     - pip install -e .[dev]
+    # Explicitly install pyvista
+    - pip install pyvista==0.38.2
     - cd tests
     - python -m pytest --cache-clear
     - python -m pytest --verbose
