@@ -1,11 +1,13 @@
 # pysst
 [![License: MIT](https://img.shields.io/pypi/l/imod)](https://choosealicense.com/licenses/mit)
 [![Lifecycle: experimental](https://lifecycle.r-lib.org/articles/figures/lifecycle-experimental.svg)](https://lifecycle.r-lib.org/articles/stages.html)
+[![Build: status](https://gitlab.com/deltares/tgg-projects/subsurface-toolbox/pysst/badges/main/pipeline.svg)](https://gitlab.com/deltares/tgg-projects/subsurface-toolbox/pysst/-/pipelines)
+[![Coverage](https://gitlab.com/deltares/tgg-projects/subsurface-toolbox/pysst/badges/main/coverage.svg)](https://gitlab.com/deltares/tgg-projects/subsurface-toolbox/pysst/-/pipelines)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/ambv/black)
 
-The Python Subsurface Toolbox (pysst) package is designed to handle all common formats of subsurface point data (Boreholes and CPT's). It provides selection, analysis and export methods that can be applied generically to the loaded data. It is designed to connect with other Deltares developments such as iMod Suite and DataFusionTools.
+The Python Subsurface Toolbox (pysst) package is designed to handle all common formats of subsurface point data (Boreholes and CPT's). It provides selection, analysis and export methods that can be applied generically to the loaded data. It is designed to connect with other Deltares developments such as [iMod](https://gitlab.com/deltares/imod) and [DataFusionTools](https://bitbucket.org/DeltaresGEO/datafusiontools/src/master/).
 
-The internal BoreholeCollection and CptCollection dataclasses use [Pandas](https://pandas.pydata.org/) for storing data and header information. [Pandera](https://pandera.readthedocs.io/en/stable/) is used for input data validation. For spatial functions [Geopandas](https://geopandas.org/en/stable/) is used. The package also supports reading/writing parquet and geoparquet files through Pandas and Geopandas respectively. A [Polars](https://www.pola.rs/) version was experimented with, but for now will have to wait as Pandas is sufficiently fast and provides better opportunities for data validation.
+The internal BoreholeCollection and CptCollection classes use [Pandas](https://pandas.pydata.org/) for storing data and header information. It utilizes a custom, lightweight validation module inspired by the [Pandera](https://pandera.readthedocs.io/en/stable/) API. For spatial functions [Geopandas](https://geopandas.org/en/stable/) is used. The package also supports reading/writing parquet and geoparquet files through Pandas and Geopandas respectively. 
 
 
 ## Supported borehole and CPT formats
@@ -16,7 +18,7 @@ The internal BoreholeCollection and CptCollection dataclasses use [Pandas](https
     - BRO XML geotechnical boreholes (planned)
     - BRO XML soil boreholes (planned)
     - GEF boreholes (planned)
-    - GEF CPT's (implemented through pygef)
+    - GEF CPT's (complete)
     - BRO XML CPT's (planned)
     - BRO geopackage CPT's (planned)
 - Directly from BRO (via SOAP webservice / REST API) (all planned)
