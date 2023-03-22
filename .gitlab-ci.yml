@@ -16,12 +16,11 @@ buildtest:
     - python -m pytest --cache-clear
     - python -m pytest --verbose --cov=pysst --cov-config=.coveragerc
     - coverage xml
-  artifacts:
+ artifacts:
     paths:
       - coverage.xml
     reports:
-      cobertura:
-        - coverage.xml
+      cobertura: coverage.xml
 
 
 
