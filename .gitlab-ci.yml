@@ -17,10 +17,10 @@ buildtest:
     - python -m pytest --verbose --cov=pysst --cov-config=.coveragerc
     - coverage xml
  artifacts:
-    paths:
-      - coverage.xml
     reports:
-      cobertura: coverage.xml
+      coverage_report:
+        coverage_format: cobertura
+        path: coverage.xml
 
 
 
