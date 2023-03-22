@@ -14,7 +14,12 @@ buildtest:
     - pip install -e .[dev]
     - cd tests
     - python -m pytest --cache-clear
-    - python -m pytest --verbose
+    - python -m pytest --verbose --cov=pysst --cov-config=.coveragerc
+artifacts:
+  paths:
+    - tests/coverage.xml 
+  expire_in: 1 week
+
 
 deploy:
   stage: deploy

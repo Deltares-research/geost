@@ -11,6 +11,8 @@ dependencies:
   - geopandas
   - pyvista
   - pytest
+  - coverage
+  - pytest-cov
   - black
   - sphinx
   - pip
