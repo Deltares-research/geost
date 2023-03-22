@@ -15,11 +15,14 @@ buildtest:
     - cd tests
     - python -m pytest --cache-clear
     - python -m pytest --verbose --cov=pysst --cov-config=.coveragerc
-    - cd .
- artifacts:
-   paths:
-    - tests/coverage.xml 
-   expire_in: 1 week
+    - coverage xml
+  artifacts:
+    paths:
+      - coverage.xml
+    reports:
+      cobertura:
+        - coverage.xml
+
 
 
 deploy:
