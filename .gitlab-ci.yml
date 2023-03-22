@@ -15,12 +15,17 @@ buildtest:
     - cd tests
     - python -m pytest --cache-clear
     - python -m pytest --verbose --cov=pysst --cov-config=.coveragerc
+    - coverage report
     - coverage xml
+ coverage: '/(?i)total.*? (100(?:\.0+)?\%|[1-9]?\d(?:\.\d+)?\%)$/'
  artifacts:
+    paths:
+      - pysst/tests/coverage.xml
     reports:
       coverage_report:
         coverage_format: cobertura
-        path: coverage.xml
+        path: pysst/tests/coverage.xml
+    expire_in: 1 week
 
 
 
