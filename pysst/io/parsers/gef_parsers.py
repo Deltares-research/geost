@@ -157,7 +157,7 @@ class CptGefFile:
         return f'{self.__class__.__name__}(nr={self.nr})'
         
     def __open_file(self, path):
-        with open(path, 'r') as f:
+        with open(path, 'r', encoding='utf-8', errors='ignore') as f:
             text = f.read()
             end_header = re.search(r'(?P<eoh>#EOH[=\s+]+)', text).group('eoh')
             
@@ -417,4 +417,13 @@ class CptGefFile:
             d = self.df['length'].max()
         
         self.enddepth = d
-     
+
+
+if __name__ == "__main__":
+    workdir = Path(r'n:\My Documents\projects\pysst\tests\data\cpt')
+    files = workdir.glob(r'*.gef')
+    
+    for f in files:
+        cpt = CptGefFile(f)
+        print(cpt)
+             
