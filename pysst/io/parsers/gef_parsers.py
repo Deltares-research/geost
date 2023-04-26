@@ -50,9 +50,11 @@ column_defs_data_block_cpt = {
     24: ColumnInfo('Bx', 'nT', 'magnetic field strength in X direction', True),
     25: ColumnInfo('By', 'nT', 'magnetic field strength in Y direction', True),
     26: ColumnInfo('Bz', 'nT', 'magnetic field strength in Z direction', True),
-    27: ColumnInfo('', 'degrees', 'magnetic inclination', True), # reserved for future use
-    28: ColumnInfo('', 'degrees', 'magnetic inclination', True), # reserved for future use
-    }
+    # reserved for future use
+    27: ColumnInfo('', 'degrees', 'magnetic inclination', True),
+    # reserved for future use
+    28: ColumnInfo('', 'degrees', 'magnetic inclination', True),
+}
 
 
 reserved_measurementvars_cpt = {
@@ -98,7 +100,7 @@ reserved_measurementvars_cpt = {
     # 40: CptMeasurementVar(None, '', 'for future use', True),
     41: CptMeasurementVar(None, 'km', 'mileage', True),
     42: CptMeasurementVar(None, 'degrees', 'Orientation between X axis inclination and North', True),
-    }
+}
 
 
 gef_cpt_reference_levels = {
@@ -108,23 +110,23 @@ gef_cpt_reference_levels = {
     '32000': 'Ostend Level',
     '32001': 'TAW',
     '49000': 'Normall Null'
-    }
+}
 
 
 class CptGefFile:
-    
+
     def __init__(self, path: str | WindowsPath, sep: str = ' '):
         self.path = path
         self._header = None
         self._data = None
-        
+
         self.nr = None
         self.x = None
         self.y = None
         self.z = None
         self.enddepth = None
-        
-        ## mandatory gef header attributes
+
+        # mandatory gef header attributes
         self.gefid = None
         self.ncolumns = None
         self.columninfo = dict()
@@ -132,15 +134,15 @@ class CptGefFile:
         self.filedate = None
         self.fileowner = None
         self.lastscan = None
-        self.procedurecode = None # mandatory if gefid is 1, 0, 0
-        self.reportcode = None # this or procedurecode is mandatory if gefid is 1, 1, 0 or higher
+        self.procedurecode = None  # mandatory if gefid is 1, 0, 0
+        self.reportcode = None  # this or procedurecode is mandatory if gefid is 1, 1, 0 or higher
         self.projectid = None
         self.measurementtext = dict()
-        
-        ## Additional gef header attributes
+
+        # Additional gef header attributes
         self.columnvoid = dict()
         self.columnminmax = None
-        self.columnseparator = sep # default separator used if not in gef file header
+        self.columnseparator = sep  # default separator used if not in gef file header
         self.dataformat = None
         self.measurementvars = dict()
         self.recordseparator = None
@@ -150,47 +152,47 @@ class CptGefFile:
         self.starttime = None
         self.coord_system = None
         self.reference_system = None
-        
+
         self.__open_file(path)
-        
+
     def __repr__(self):
         return f'{self.__class__.__name__}(nr={self.nr})'
-        
+
     def __open_file(self, path):
         with open(path, 'r', encoding='utf-8', errors='ignore') as f:
             text = f.read()
             end_header = re.search(r'(?P<eoh>#EOH[=\s+]+)', text).group('eoh')
-            
+
             self._header, self._data = text.split(end_header)
-        
-        self.parse_header()        
+
+        self.parse_header()
         self.parse_data()
-        
+
         self.get_enddepth()
-    
+
     @property
     def df(self):
         if not hasattr(self, '_df'):
             self.to_df()
         return self._df
-    
+
     @property
     def header(self):
         header = pd.Series(
             [self.nr, self.x, self.y, self.z, self.enddepth, self.point],
             index=['nr', 'x', 'y', 'z', 'enddepth', 'geometry']
-            )
+        )
         return header
-    
+
     @property
     def columns(self):
         columns = [f'{c.value}' for c in self.columninfo.values()]
         return columns
-    
+
     @property
     def point(self):
         return Point(self.x, self.y)
-    
+
     @staticmethod
     def to_zero_indexed(idx: str):
         """
@@ -199,39 +201,42 @@ class CptGefFile:
 
         """
         return int(idx) - 1
-    
+
     def parse_header(self):
         header = self._header.splitlines()
-        
+
         for line in header:
             keyword = re.search(r'([#\s]*([A-Z]+)\s*=)\s*', line)
-            
+
             try:
                 keyword_method = keyword.group(2).lower()
             except AttributeError:
                 continue
-            
+
             __method = f'_parse_{keyword_method}'
             if hasattr(self, __method):
                 line = line.replace(keyword.group(0), '')
-                line = re.sub(r'["\']|\s\s+', '', line) # remove unnecessary whitespace and string quotes
+                # remove unnecessary whitespace and string quotes
+                line = re.sub(r'["\']|\s\s+', '', line)
                 self.__call_header_method(__method, line)
-    
+
     def parse_data(self):
         """
         Parse datablock of the gef file.
 
         """
         data = self._data
-        
+
         if not self.recordseparator:
             self.recordseparator = '!'
-        
-        data = re.sub(fr'{self.columnseparator}{self.recordseparator}*', ',', data)
-        
+
+        data = re.sub(
+            fr'{self.columnseparator}{self.recordseparator}*', ',', data
+        )
+
         data = [d.rstrip(',').split(',') for d in data.splitlines()]
         self._data = data
-        
+
     def to_df(self):
         """
         Create a Pandas DataFrame from the gef datablock.
@@ -244,17 +249,17 @@ class CptGefFile:
         df = pd.DataFrame(self._data, dtype='float64')
         df.replace(self.columnvoid, np.nan, inplace=True)
         df.columns = self.columns
-        
+
         if 'rf' not in df.columns:
             df['rf'] = (df['fs']/df['qc']) * 100
-        
-        if 'corrected_depth' in df.columns: # TODO: implement calc corrected depth from inclination if not in columns
+
+        if 'corrected_depth' in df.columns:  # TODO: implement calc corrected depth from inclination if not in columns
             df['depth'] = self.z - df['corrected_depth']
         else:
             df['depth'] = self.z - df['length']
-        
+
         self._df = df
-    
+
     def __call_header_method(self, method, line):
         """
         Helper method to call the correct parser method of the class for a specific
@@ -269,55 +274,57 @@ class CptGefFile:
 
         """
         return getattr(self, method)(line)
-    
+
     def _parse_gefid(self, line):
         self.gefid = line
-        
+
     def _parse_column(self, line):
         self.ncolumns = int(line)
-        
+
     def _parse_columninfo(self, line: str):
         __sep = re.search(',\s*', line).group(0)
         idx, unit, value, number = line.split(__sep)
         idx = self.to_zero_indexed(idx)
         info = column_defs_data_block_cpt.get(int(number), 'empty')
-        
+
         if info == 'empty':
             logging.warning(f'Unknown information in datablock of {self.path}')
             info = ColumnInfo(value, unit, value, False)
-        
+
         self.columninfo.update({idx: info})
-    
+
     def _parse_companyid(self, line: str):
         self.companyid = line
-    
+
     def _parse_filedate(self, line: str):
         pass
-    
+
     def _parse_fileowner(self, line: str):
         self.fileowner = line
-    
+
     def _parse_lastscan(self, line: str):
         self.lastscan = int(line)
-    
+
     def _parse_procedurecode(self, line: str):
         self.procedurecode = line
-    
+
     def _parse_reportcode(self, line: str):
         self.reportcode = line
-    
+
     def _parse_projectid(self, line: str):
         self.projectid = line
-    
+
     def _parse_testid(self, line: str):
         self.nr = line
-    
-    def _parse_zid(self, line: str): # TODO: check how to fix if zid occurs in header more than once
+
+    # TODO: check how to fix if zid occurs in header more than once
+    def _parse_zid(self, line: str):
         __sep = re.search(',\s*', line).group(0)
         zid = line.split(__sep)
         if len(zid) == 2:
             reference_system = zid[0]
             self.z = float(zid[1])
+            self.delta_z = None
         elif len(zid) == 3:
             reference_system = zid[0]
             self.z = float(zid[1])
@@ -326,64 +333,65 @@ class CptGefFile:
             logging.warning(
                 f'Unclear information in #ZID of {self.path}. '
                 'Check zid attribute manually.'
-                )
+            )
             self.zid = zid
-        
+
         self.reference_system = gef_cpt_reference_levels[reference_system]
-    
-    def _parse_measurementtext(self, line: str): #TODO: add correct parsing of reserved measurementtexts
+
+    # TODO: add correct parsing of reserved measurementtexts
+    def _parse_measurementtext(self, line: str):
         __sep = re.search(',\s*', line).group(0)
         text = line.split(__sep)
         nr, info = int(text[0]), text[1:]
         self.measurementtext.update({nr: info})
-    
+
     def _parse_xyid(self, line: str):
         __sep = re.search(',\s*', line).group(0)
         xyid = line.split(__sep)
-        
+
         if len(xyid) == 3:
             self.coord_system = xyid[0]
             self.x = float(xyid[1])
             self.y = float(xyid[2])
-        
+
         elif len(xyid) == 5:
             self.coord_system = xyid[0]
             self.x = float(xyid[1])
             self.y = float(xyid[2])
             self.dx = float(xyid[3])
             self.dy = float(xyid[4])
-        
+
         else:
             logging.warning(
                 f'Unclear information in #XYID of {self.path}. '
                 'Check xyid attribute manually.'
-                )
+            )
             self.xyid = xyid
-    
+
     def _parse_columnvoid(self, line: str):
         __sep = re.search(',\s*', line).group(0)
         idx, value = line.split(__sep)
         idx = self.to_zero_indexed(idx)
         self.columnvoid.update({idx: float(value)})
-    
+
     def _parse_columnminmax(self, line: str):
         pass
-    
+
     def _parse_columnseparator(self, line: str):
         self.columnseparator = line
-    
+
     def _parse_dataformat(self, line: str):
         pass
-    
+
     def _parse_measurementvar(self, line: str):
         __sep = re.search(',\s*', line).group(0)
         num, val, unit, quantity = line.split(__sep)
-        
+
         num = int(num)
         val = safe_float(val)
-        
+
         _mv = reserved_measurementvars_cpt.get(num, 'empty')
-        
+
         if _mv == 'empty':
             mvar = CptMeasurementVar(val, unit, quantity, False)
         else:
@@ -391,39 +399,39 @@ class CptGefFile:
                 mvar = CptMeasurementVar(val, _mv.unit, _mv.quantity, True)
             else:
                 mvar = _mv
-        
+
         self.measurementvars.update({num: mvar})
-    
+
     def _parse_recordseparator(self, line: str):
         self.recordseparator = line
-    
+
     def _parse_reportdataformat(self, line: str):
         pass
-    
+
     def _parse_specimenvar(self, line: str):
         pass
-    
+
     def _parse_startdate(self, line: str):
         pass
-    
+
     def _parse_starttime(self, line: str):
         pass
-    
+
     def get_enddepth(self):
         enddepth = self.measurementvars.get(16)
         if enddepth:
             d = enddepth.value
         else:
             d = self.df['length'].max()
-        
+
         self.enddepth = d
 
 
 if __name__ == "__main__":
-    workdir = Path(r'n:\My Documents\projects\pysst\tests\data\cpt')
-    files = workdir.glob(r'*.gef')
-    
-    for f in files:
-        cpt = CptGefFile(f)
-        print(cpt)
-             
+    filepath = Path(r'n:\My Documents\projects\pysst\tests\data\cpt')
+    cpta = CptGefFile(filepath/r'83268_DKMP003_(DKMP_D03)_wiertsema.gef')
+    cptb = CptGefFile(filepath/r'AZZ158_gem_rotterdam.gef')
+    cptc = CptGefFile(filepath/r'CPT000000157983_IMBRO.gef')
+    cptd = CptGefFile(filepath/r'CPT10_marine_sampling.gef')
+
+    print(2)
