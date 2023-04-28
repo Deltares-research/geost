@@ -98,13 +98,25 @@ class PointDataCollection:
 
     @header.setter
     def header(self, header):
+        """
+        This setter is called whenever the attribute 'header' is manipulated, either
+        during construction (init) or when a user attempts to set the header on an
+        instance of the object (e.g. instance.header = new_header_df). This will run the
+        header through validation and warn the user of any potential problems.
+        """
         headerschema.validate(header)
-        if any(self.data["nr"].unique() != header["nr"]):
+        if any(~header["nr"].isin(self.data["nr"].unique())):
             warn(f"Header does not cover all unique objects in data")
         self._header = header
 
     @data.setter
     def data(self, data):
+        """
+        This setter is called whenever the attribute 'data' is manipulated, either
+        during construction (init) or when a user attempts to set the data on an
+        instance of the object (e.g. instance.data = new_data_df). This will run the
+        data through validation and warn the user of any potential problems.
+        """
         if self.vertical_reference == "depth":
             common_dataschema_depth_reference.validate(data)
         else:
@@ -190,6 +202,7 @@ class PointDataCollection:
         selected_header = spatial.header_from_bbox(
             self.header, xmin, xmax, ymin, ymax, invert
         )
+        selected_header = selected_header[~selected_header.duplicated()]
         selection = self.data.loc[self.data["nr"].isin(selected_header["nr"])]
 
         return self.__class__(
@@ -224,6 +237,7 @@ class PointDataCollection:
         selected_header = spatial.header_from_points(
             self.header, point_gdf, buffer, invert
         )
+        selected_header = selected_header[~selected_header.duplicated()]
         selection = self.data.loc[self.data["nr"].isin(selected_header["nr"])]
 
         return self.__class__(
@@ -258,6 +272,7 @@ class PointDataCollection:
         selected_header = spatial.header_from_lines(
             self.header, line_gdf, buffer, invert
         )
+        selected_header = selected_header[~selected_header.duplicated()]
         selection = self.data.loc[self.data["nr"].isin(selected_header["nr"])]
 
         return self.__class__(
@@ -290,6 +305,7 @@ class PointDataCollection:
         selected_header = spatial.header_from_polygons(
             self.header, polygon_gdf, buffer, invert
         )
+        selected_header = selected_header[~selected_header.duplicated()]
         selection = self.data.loc[self.data["nr"].isin(selected_header["nr"])]
 
         return self.__class__(
@@ -345,6 +361,7 @@ class PointDataCollection:
                 header_copy = header_copy[header_copy["nr"].isin(notna)]
             selected_header = header_copy
 
+        selected_header = selected_header[~selected_header.duplicated()]
         selection = self.data.loc[self.data["nr"].isin(selected_header["nr"])]
 
         return self.__class__(
@@ -391,6 +408,7 @@ class PointDataCollection:
         if end_max is not None:
             selected_header = selected_header[selected_header["end"] <= end_max]
 
+        selected_header = selected_header[~selected_header.duplicated()]
         selection = self.data.loc[self.data["nr"].isin(selected_header["nr"])]
 
         return self.__class__(
@@ -423,6 +441,7 @@ class PointDataCollection:
         if max_length is not None:
             selected_header = selected_header[length <= max_length]
 
+        selected_header = selected_header[~selected_header.duplicated()]
         selection = self.data.loc[self.data["nr"].isin(selected_header["nr"])]
 
         return self.__class__(
