@@ -20,13 +20,13 @@ from time import perf_counter
 #     r"n:\Projects\11206500\11206761\B. Measurements and calculations\3D-SSM Purmerend Casus\Veldwerk\Data\van HHNK\cpts.parquet"
 # )
 
-csv_to_parquet(
-    r"c:\Users\onselen\Lokale data\DINO_Extractie_bovennaaronder_d20230201.csv"
-)
+# csv_to_parquet(
+#     r"c:\Users\onselen\Lokale data\DINO_Extractie_bovennaaronder_d20230201.csv"
+# )
 
-excel_to_parquet(
-    r"n:\Projects\11206500\11206761\B. Measurements and calculations\3D-SSM Purmerend Casus\Veldwerk\Resultaten\Boringen\boreholes_Purmerend_final.xlsx"
-)
+# excel_to_parquet(
+#     r"n:\Projects\11206500\11206761\B. Measurements and calculations\3D-SSM Purmerend Casus\Veldwerk\Resultaten\Boringen\boreholes_Purmerend_final.xlsx"
+# )
 
 collection = read_sst_cores(
     r"n:\Projects\11206500\11206761\B. Measurements and calculations\3D-SSM Purmerend Casus\Veldwerk\Resultaten\Boringen\boreholes_Purmerend_final.parquet"

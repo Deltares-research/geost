@@ -30,7 +30,7 @@ warn = fancy_warning(lambda warning_info: print(warning_info))
 Coordinate = TypeVar("Coordinate", int, float)
 GeoDataFrame = TypeVar("GeoDataFrame")
 
-# pd.set_option("mode.copy_on_write", True)
+pd.set_option("mode.copy_on_write", True)
 
 
 class PointDataCollection:
