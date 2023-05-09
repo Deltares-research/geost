@@ -14,6 +14,7 @@ DataFusionTools is released under GNU GPL v3
 
 from dataclasses import dataclass
 from typing import List, Optional, Union
+
 import numpy as np
 import pandas as pd
 
@@ -78,7 +79,8 @@ class Data:
             for variable in values:
                 if len(variable.value) != len(self.independent_variable.value):
                     raise ValueError(
-                        f"Length of variable {variable.label} is not the same as that of the independent variable."
+                        f"Length of variable {variable.label} is not the same as that ",
+                        "of the independent variable.",
                     )
         self._variables = values
 

@@ -1,5 +1,4 @@
 import pytest
-from pathlib import Path
 from lxml.etree import _Element
 
 from pysst.bro import BroApi

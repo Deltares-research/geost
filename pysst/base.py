@@ -1,19 +1,20 @@
 import pickle
-import pandas as pd
-from pathlib import WindowsPath
-from typing import List, Union, TypeVar, Iterable, Optional
 from functools import reduce
+from pathlib import WindowsPath
+from typing import Iterable, List, Optional, TypeVar, Union
+
+import pandas as pd
 
 # Local imports
 from pysst import spatial
-from pysst.export import export_to_dftgeodata, borehole_to_multiblock
-from pysst.utils import MissingOptionalModule
 from pysst.analysis import cumulative_thickness, layer_top
+from pysst.export import borehole_to_multiblock, export_to_dftgeodata
+from pysst.utils import MissingOptionalModule
 from pysst.validate import fancy_warning
 from pysst.validate.validation_schemes import (
-    headerschema,
     common_dataschema,
     common_dataschema_depth_reference,
+    headerschema,
 )
 
 # Optional imports
@@ -21,9 +22,12 @@ try:
     import geopandas as gpd
 
     create_header = spatial.header_to_geopandas
-except:
+except ModuleNotFoundError:
     gpd = MissingOptionalModule("geopandas")
-    create_header = lambda x: x
+
+    def create_header(x):
+        return x
+
 
 warn = fancy_warning(lambda warning_info: print(warning_info))
 
@@ -60,7 +64,8 @@ class PointDataCollection:
     def __new__(cls, *args, **kwargs):
         if cls is PointDataCollection:
             raise TypeError(
-                f"Cannot construct {cls.__name__} directly: construct class from its children instead"
+                f"Cannot construct {cls.__name__} directly: construct class from its",
+                "children instead",
             )
         else:
             return object.__new__(cls)
@@ -106,7 +111,7 @@ class PointDataCollection:
         """
         headerschema.validate(header)
         if any(~header["nr"].isin(self.data["nr"].unique())):
-            warn(f"Header does not cover all unique objects in data")
+            warn("Header does not cover all unique objects in data")
         self._header = header
 
     @data.setter
@@ -318,30 +323,35 @@ class PointDataCollection:
         self, column: str, selection_values: Union[str, Iterable], how: str = "or"
     ):
         """
-        Select pointdata based on the presence of given values in the given columns. Can be used for example
-        to return a BoreholeCollection of boreholes that contain peat in the lithology column. This can be achieved
-        by passing e.g. the following arguments to the method:
+        Select pointdata based on the presence of given values in the given columns.
+        Can be used for example to return a BoreholeCollection of boreholes that contain
+        peat in the lithology column. This can be achieved by passing e.g. the following
+        arguments to the method:
 
-        self.select_by_values("lith", ["V", "K"], how="and") - Returns boreholes where lithoclasses "V" and "K" are present at the same time
+        self.select_by_values("lith", ["V", "K"], how="and"):
+        Returns boreholes where lithoclasses "V" and "K" are present at the same time.
 
-        self.select_by_values("lith", ["V", "K"], how="or") - Returns boreholes where either lithoclasses "V" or "K" are present (or both by coincidence)
+        self.select_by_values("lith", ["V", "K"], how="or"):
+        Returns boreholes where either lithoclasses "V" or "K" are present
+        (or both by coincidence)
 
         Parameters
         ----------
         column : str
-            Name of column that contains categorical data to use when looking for values.
+            Name of column that contains categorical data to use when looking for values
         selection_values : Union[str, Iterable]
             Values to look for in the column
         how : str
-            Either "and" or "or". "and" requires all selction values to be present in column for selection. "or" will select the core if any one
-            of the selection_values are found in the column. Default is "and"
+            Either "and" or "or". "and" requires all selction values to be present in
+            column for selection. "or" will select the core if any one of the
+            selection_values are found in the column. Default is "and".
 
         Returns
         -------
         Child of PointDataCollection
             Instance of either BoreholeCollection or CptCollection.
         """
-        if not column in self.data.columns:
+        if column not in self.data.columns:
             raise IndexError(
                 f"The column '{column}' does not exist and cannot be used for selection"
             )
@@ -379,8 +389,9 @@ class PointDataCollection:
         slice: bool = False,
     ):
         """
-        Select data from depth constraints. If a keyword argument is not given it will not be considered.
-        e.g. if you need only boreholes that go deeper than -500 m use only end_max = -500
+        Select data from depth constraints. If a keyword argument is not given it will
+        not be considered. e.g. if you need only boreholes that go deeper than -500 m
+        use only end_max = -500.
 
         Parameters
         ----------
@@ -419,8 +430,8 @@ class PointDataCollection:
 
     def select_by_length(self, min_length: float = None, max_length: float = None):
         """
-        Select data from length constraints: e.g. all boreholes between 50 and 150 m long.
-        If a keyword argument is not given it will not be considered.
+        Select data from length constraints: e.g. all boreholes between 50 and 150 m
+        long. If a keyword argument is not given it will not be considered.
 
         Parameters
         ----------
@@ -466,9 +477,9 @@ class PointDataCollection:
         this returns an instance of the BoreholeCollection or CptCollection with only
         the sliced layers.
 
-        Note #1: This method currently only slices along existing layer boundaries, which
-        especially for boreholes could mean that thick layers may continue beyond the
-        given boundaries.
+        Note #1: This method currently only slices along existing layer boundaries,
+        which especially for boreholes could mean that thick layers may continue beyond
+        the given boundaries.
 
         Note #2: The instance that is returned may contain a smaller number of objects
         if the slicing led to a removal of all layers of an object.
@@ -519,20 +530,20 @@ class PointDataCollection:
         self, polygon_gdf: GeoDataFrame, column_name: str
     ) -> pd.DataFrame:
         """
-        Find in which area (polygons) the point data locations fall. e.g. to determine in which
-        geomorphological unit points are located
+        Find in which area (polygons) the point data locations fall. e.g. to determine
+        in which geomorphological unit points are located.
 
         Parameters
         ----------
         polygon_gdf : gpd.GeoDataFrame
-            GeoDataFrame with polygons
+            GeoDataFrame with polygons.
         column_name : str
-            The column name to find the labels in
+            The column name to find the labels in.
 
         Returns
         -------
         pd.DataFrame
-            Borehole ids and the polygon label they are in
+            Borehole ids and the polygon label they are in.
         """
         area_labels = spatial.find_area_labels(self.header, polygon_gdf, column_name)
 
@@ -544,18 +555,21 @@ class PointDataCollection:
         """
         Get the cumulative thickness of layers of a certain type.
 
-        For example, to get the cumulative thickness of the layers with lithology "K" in the column "lith" use:
+        For example, to get the cumulative thickness of the layers with lithology "K" in
+        the column "lith" use:
 
         self.get_cumulative_layer_thickness("lith", "K")
 
         Parameters
         ----------
         column : str
-            Name of column that contains categorical data
+            Name of column that contains categorical data.
         values : str or List[str]
-            Value(s) of entries in column that you want to find the cumulative thickness of
+            Value(s) of entries in column that you want to find the cumulative thickness
+            of.
         include_in_header :
-            Whether to add the acquired data to the header table or not, By default False
+            Whether to add the acquired data to the header table or not,
+            By default False.
         """
         if isinstance(values, str):
             values = [values]
@@ -578,16 +592,17 @@ class PointDataCollection:
         self, column: str, values: Union[str, List[str]], include_in_header=False
     ):
         """
-        Find the depth at which a specified layer first occurs
+        Find the depth at which a specified layer first occurs.
 
         Parameters
         ----------
         column : str
-            Name of column that contains categorical data
+            Name of column that contains categorical data.
         value : str
-            Value of entries in column that you want to find top of
+            Value of entries in column that you want to find top of.
         include_in_header : bool, optional
-            Whether to add the acquired data to the header table or not, by default False
+            Whether to add the acquired data to the header table or not, by default
+            False.
         """
         if isinstance(values, str):
             values = [values]
@@ -606,7 +621,8 @@ class PointDataCollection:
 
     def append(self, other):
         """
-        Append data of other object of the same type (e.g BoreholeCollection to BoreholeCollection).
+        Append data of other object of the same type (e.g BoreholeCollection to
+        BoreholeCollection).
 
         Parameters
         ----------
@@ -629,7 +645,8 @@ class PointDataCollection:
             # once class construction from header and data is implemented.
         else:
             raise TypeError(
-                f"Cannot join instance of {self.__class__} with an instance of {other.__class__}"
+                f"Cannot join instance of {self.__class__} with an instance of ",
+                f"{other.__class__}",
             )
 
     def to_parquet(self, out_file: Union[str, WindowsPath], **kwargs):
@@ -674,8 +691,9 @@ class PointDataCollection:
 
     def to_geoparquet(self, out_file: Union[str, WindowsPath], **kwargs):
         """
-        Write header data to geoparquet. You can use the resulting file to display borehole locations in GIS for instance.
-        Please note that Geoparquet is supported by GDAL >= 3.5. For Qgis this means QGis >= 3.26
+        Write header data to geoparquet. You can use the resulting file to display
+        borehole locations in GIS for instance. Please note that Geoparquet is supported
+        by GDAL >= 3.5. For Qgis this means QGis >= 3.26
 
         Parameters
         ----------
@@ -699,20 +717,22 @@ class PointDataCollection:
         **kwargs,
     ):
         """
-        Save objects to VTM (Multiblock file, an XML VTK file pointing to multiple other VTK files).
-        For viewing boreholes/cpt's in e.g. ParaView or other VTK viewers
+        Save objects to VTM (Multiblock file, an XML VTK file pointing to multiple other
+        VTK files). For viewing boreholes/cpt's in e.g. ParaView or other VTK viewers.
 
         Parameters
         ----------
         out_file : Union[str, WindowsPath]
             Path to vtm file to be written
         data_columns : List[str]
-            Labels of data columns to include for visualisation. Can be columns that contain an array of floats, ints and strings.
+            Labels of data columns to include for visualisation. Can be columns that
+            contain an array of floats, ints and strings.
         radius : float, optional
             Radius of the cylinders in m, by default 1
         vertical_factor : float, optional
-            Factor to correct vertical scale. e.g. when layer boundaries are given in cm use 0.01 to convert to m, by default 1.0
-            It is not recommended to use this for vertical exaggeration, use viewer functionality for that instead.
+            Factor to correct vertical scale. e.g. when layer boundaries are given in cm
+            use 0.01 to convert to m, by default 1.0. It is not recommended to use this
+            for vertical exaggeration, use viewer functionality for that instead.
         **kwargs :
             pyvista.MultiBlock.save kwargs.
         """
@@ -759,7 +779,8 @@ class PointDataCollection:
         """
         if not self.__vertical_reference == "NAP":
             raise NotImplementedError(
-                'DataFusionTools export is not available for other vertical references than "NAP"'
+                "DataFusionTools export is not available for other vertical references"
+                ' than "NAP"'
             )
 
         dftgeodata = export_to_dftgeodata(self.data, columns, encode=encode)

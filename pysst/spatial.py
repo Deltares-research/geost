@@ -1,6 +1,7 @@
-import pandas as pd
-import numpy as np
 from typing import TypeVar
+
+import numpy as np
+import pandas as pd
 
 # Local imports
 from pysst.utils import MissingOptionalModule
@@ -8,15 +9,16 @@ from pysst.utils import MissingOptionalModule
 # Optional imports
 try:
     import geopandas as gpd
-except:
+except ModuleNotFoundError:
     gpd = MissingOptionalModule("geopandas")
 
 try:
     from shapely.geometry import Point
-except:
+except ModuleNotFoundError:
     Point = MissingOptionalModule("shapely")
 
 GeoDataFrame = TypeVar("GeoDataFrame")
+
 
 def header_to_geopandas(entries_df) -> GeoDataFrame:
     points = [

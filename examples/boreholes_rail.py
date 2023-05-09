@@ -1,9 +1,12 @@
 from pysst import read_sst_cores
+from pysst.base import PointDataCollection
 from pysst.borehole import BoreholeCollection
 import geopandas as gpd
 import numpy as np
 
 #############################################
+
+test = PointDataCollection("", "")
 
 all_cores = read_sst_cores(
     r"c:\Users\onselen\OneDrive - Stichting Deltares\Development\DinoCore\DINO_Extractie_bovennaaronder_d20220405.parquet"

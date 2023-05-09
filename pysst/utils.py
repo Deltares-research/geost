@@ -1,10 +1,7 @@
-import time
-import numpy as np
-import pandas as pd
 from pathlib import Path, WindowsPath
 from typing import Union
 
-from collections import defaultdict
+import pandas as pd
 
 
 def csv_to_parquet(
@@ -18,7 +15,8 @@ def csv_to_parquet(
     file : Union[str, WindowsPath]
         Path to csv file to convert.
     out_file : Union[str, WindowsPath], optional
-        Path to parquet file to be written. If not provided it will use the path of 'file'.
+        Path to parquet file to be written. If not provided it will use the path of
+        'file'.
     **kwargs
         pandas.read_csv kwargs. See pandas.read_csv documentation.
 
@@ -49,7 +47,8 @@ def excel_to_parquet(
     file : Union[str, WindowsPath]
         Path to excel file to convert.
     out_file : Union[str, WindowsPath], optional
-        Path to parquet file to be written. If not provided it will use the path of 'file'.
+        Path to parquet file to be written. If not provided it will use the path of
+        'file'.
     **kwargs
         pandas.read_excel kwargs. See pandas.read_excel documentation.
 
@@ -59,7 +58,7 @@ def excel_to_parquet(
         If 'file' is not an xlsx or xls file.
     """
     file = Path(file)
-    if not file.suffix in [".xlsx", ".xls"]:
+    if file.suffix not in [".xlsx", ".xls"]:
         raise TypeError(
             f"File must be an excel file, but a {file.suffix}-file was given"
         )

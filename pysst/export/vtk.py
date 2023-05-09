@@ -1,6 +1,7 @@
+from typing import Iterable, List, TypeVar
+
 import numpy as np
 import pandas as pd
-from typing import Iterable, List, TypeVar
 
 # Local imports
 from pysst.utils import MissingOptionalModule
@@ -12,6 +13,7 @@ except ImportError:
     pv = MissingOptionalModule("pyvista")
 
 MultiBlock = TypeVar("MultiBlock")
+
 
 def prepare_borehole(borehole: pd.DataFrame, vertical_factor: float) -> np.ndarray:
     bh_as_pnts = borehole[["x", "y", "bottom"]].to_numpy().astype(np.float64)
@@ -59,7 +61,8 @@ def borehole_to_multiblock(
     Parameters
     ----------
     table : pd.DataFrame
-        Table of borehole/CPT objects. This is CptCollection.data or BoreholeCollection.data
+        Table of borehole/CPT objects. This is CptCollection.data or
+        BoreholeCollection.data.
     data_columns : List[str]
         Column names of data arrays to write in the vtk file
     radius : float

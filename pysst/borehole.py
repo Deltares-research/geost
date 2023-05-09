@@ -1,15 +1,13 @@
-import numpy as np
-import pandas as pd
-from pathlib import Path, WindowsPath
-from dataclasses import dataclass
 from typing import Optional
 
-# Local imports
-from pysst.base import PointDataCollection
+import pandas as pd
 
 # from pysst.validate import BoreholeSchema, CptSchema
 from pysst.analysis import top_of_sand
 from pysst.analysis.interpret_cpt import calc_ic, calc_lithology
+
+# Local imports
+from pysst.base import PointDataCollection
 
 
 class BoreholeCollection(PointDataCollection):
@@ -71,7 +69,7 @@ class CptCollection(PointDataCollection):
         """
         Interpret lithoclass for all CPT's in the collection
         """
-        if not "ic" in self.data.columns:
+        if "ic" not in self.data.columns:
             self.add_ic()
         self.data["lith"] = calc_lithology(
             self.data["ic"], self.data["qc"], self.data["friction_number"]
@@ -86,7 +84,7 @@ class CptCollection(PointDataCollection):
         -------
         instance of BoreholeCollection
         """
-        if not "lith" in self.data.columns:
+        if "lith" not in self.data.columns:
             raise IndexError(
                 r"The column \"lith\" is required to convert to BoreholeCollection"
             )

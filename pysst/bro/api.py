@@ -1,14 +1,15 @@
+from typing import Iterable, Iterator, List, TypeVar, Union
+
 import requests
 from lxml import etree
-from typing import Union, Iterable, Iterator, List, TypeVar
-from pysst.projections import xy_to_ll
+
 from pysst.bro.bro_utils import get_bbox_criteria
+from pysst.projections import xy_to_ll
 
 Coordinate = TypeVar("Coordinate", int, float)
 
 
 class BroApi:
-
     apis = {
         "CPT": "/sr/cpt/v1",
         "BHR-P": "/sr/bhrp/v2",
@@ -32,14 +33,16 @@ class BroApi:
         self, bro_ids: Union[str, Iterable], object_type: str = "CPT"
     ) -> Iterator:
         """
-        Return BRO objects as a generator containing element trees that can be parsed to a reader.
+        Return BRO objects as a generator containing element trees that can be parsed to
+        a reader.
 
         Parameters
         ----------
         bro_ids : Union[str, Iterable]
             Single BRO ID or Iterable of BRO ID's
         object_type : str, optional
-            BRO object type. Can be CPT (Cone penetration tests), BHR-P (Soil cores), BHR-GT (Geotechnical cores), or BHR-G (Geological cores). By default "CPT"
+            BRO object type. Can be CPT (Cone penetration tests), BHR-P (Soil cores),
+            BHR-GT (Geotechnical cores), or BHR-G (Geological cores). By default "CPT".
 
         Yields
         ------
@@ -62,7 +65,7 @@ class BroApi:
                 + self.objects_url
                 + f"/{bro_id}"
             )
-            if response.status_code == 200 and not "rejection" in response.text:
+            if response.status_code == 200 and "rejection" not in response.text:
                 element = etree.fromstring(response.text.encode("utf-8"))
                 yield element
             elif "rejection" in response.text:
@@ -71,7 +74,8 @@ class BroApi:
                 )
             elif response.status_code != 200:
                 raise Warning(
-                    f"Error {response.status_code}: Unable to request {bro_id} from database"
+                    f"Error {response.status_code}: Unable to request {bro_id} from ",
+                    "database",
                 )
 
     def search_objects_in_bbox(
@@ -85,22 +89,25 @@ class BroApi:
     ) -> List[str]:
         """
         Search for BRO objects of the given object type within the given bounding box.
-        Returns a list of BRO objects that can be used to retrieve their data using the get_objects method
+        Returns a list of BRO objects that can be used to retrieve their data using the
+        get_objects method.
 
         Parameters
         ----------
         xmin : Union[float, int]
-            x-coordinate of the bbox lower left corner
+            x-coordinate of the bbox lower left corner.
         xmax : Union[float, int]
-            x-coordinate of the bbox upper right corner
+            x-coordinate of the bbox upper right corner.
         ymin : Union[float, int]
-            y-coordinate of the bbox lower left corner
+            y-coordinate of the bbox lower left corner.
         ymax : Union[float, int]
-            y-coordinate of the bbox upper right corner
+            y-coordinate of the bbox upper right corner.
         epsg : str, optional
-            Coordinate reference system of the given bbox coordinates, by default "28992" (= Rijksdriehoek New CRS)
+            Coordinate reference system of the given bbox coordinates, by default
+            "28992" (= Rijksdriehoek New CRS).
         object_type : str, optional
-            BRO object type. Can be CPT (Cone penetration tests), BHR-P (Soil cores), BHR-GT (Geotechnical cores), or BHR-G (Geological cores). By default "CPT"
+            BRO object type. Can be CPT (Cone penetration tests), BHR-P (Soil cores),
+            BHR-GT (Geotechnical cores), or BHR-G (Geological cores). By default "CPT".
 
         Returns
         -------
@@ -117,11 +124,11 @@ class BroApi:
         criteria = get_bbox_criteria(xmin_ll, xmax_ll, ymin_ll, ymax_ll)
         api_url = self.server_url + self.apis[object_type] + self.search_url
         response = self.session.post(api_url, json=criteria)
-        if response.status_code == 200 and not "rejection" in response.text:
+        if response.status_code == 200 and "rejection" not in response.text:
             etree_root = etree.fromstring(response.text.encode("utf-8"))
         else:
             raise Warning(
-                f"Selection is invalid and could not be retrieved from the database"
+                "Selection is invalid and could not be retrieved from the database"
             )
 
         namespaces = etree_root.nsmap

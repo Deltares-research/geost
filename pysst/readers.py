@@ -1,14 +1,12 @@
-from enum import Enum
 import pandas as pd
-import numpy as np
 
 # Local imports
-from pysst.utils import get_path_iterable, MissingOptionalModule
+from pysst.utils import MissingOptionalModule, get_path_iterable
 
 # Optional dependencies
 try:
     import pygef
-except:
+except ModuleNotFoundError:
     pygef = MissingOptionalModule("pygef")
 
 

@@ -1,4 +1,4 @@
-from pysst.validate import DataFrameSchema, Column, Check, numeric, stringlike
+from pysst.validate import Check, Column, DataFrameSchema, numeric, stringlike
 
 headerschema = DataFrameSchema(
     "header validation",

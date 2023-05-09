@@ -1,7 +1,7 @@
-import pandas as pd
-import numpy as np
 from pathlib import Path, WindowsPath
 from typing import Union
+
+import pandas as pd
 
 # Local imports
 from pysst.borehole import BoreholeCollection, CptCollection

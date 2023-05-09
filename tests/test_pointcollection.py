@@ -1,8 +1,7 @@
-import pytest
-from pathlib import Path
 import numpy as np
-from numpy.testing import assert_array_almost_equal, assert_equal
 import pandas as pd
+import pytest
+from numpy.testing import assert_array_almost_equal, assert_equal
 
 from pysst.borehole import BoreholeCollection
 
@@ -153,14 +152,14 @@ class TestPointCollection:
 
     @pytest.mark.integrationtest
     def test_validation_pass(self, capfd, borehole_df_ok):
-        collection = BoreholeCollection(borehole_df_ok)
+        BoreholeCollection(borehole_df_ok)
         out, err = capfd.readouterr()
         # Since no warning line was printed, the length of out must be 0
         assert_equal(len(out), 0)
 
     @pytest.mark.integrationtest
     def test_validation_fail(self, capfd, borehole_df_bad_validation):
-        collection = BoreholeCollection(borehole_df_bad_validation)
+        BoreholeCollection(borehole_df_bad_validation)
         out, err = capfd.readouterr()
         # Check if required warnings are printed. Note that changing warning messages
         # will make this test fail.
@@ -170,6 +169,6 @@ class TestPointCollection:
 
     @pytest.mark.integrationtest
     def test_header_mismatch(self, capfd, borehole_df_ok, header_missing_object):
-        collection = BoreholeCollection(borehole_df_ok, header=header_missing_object)
+        BoreholeCollection(borehole_df_ok, header=header_missing_object)
         out, err = capfd.readouterr()
         assert "Header does not cover all unique objects in data" in out

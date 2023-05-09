@@ -14,7 +14,8 @@ def find_top_sand(
     sand. By default: when the first layer of sand is detected, the next 1 meter
     is scanned. Within this meter, if more than 50% of the lenght has a main
     lithology of sand, the initially detected layer of sand is regarded as the top
-    of sand. If not, continue downward until the next layer of sand is detected and repeat.
+    of sand. If not, continue downward until the next layer of sand is detected and
+    repeat.
 
     Parameters
     ----------
@@ -64,7 +65,6 @@ def find_top_sand(
 
 
 def top_of_sand(boreholes, ids="nr", min_sand_frac=0.5, min_sand_thickness=1):
-
     groupby = boreholes.groupby(ids)
 
     for nr, df in groupby:

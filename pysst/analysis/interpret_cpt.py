@@ -1,20 +1,22 @@
 import numpy as np
 
-# NOTE: temporary functions ripped from old code. To be made compatible with Geolib functions
+# NOTE: temporary functions ripped from old code. To be made compatible with Geolib
+# functions
 
 
 def calc_ic(qc, rf) -> np.ndarray:
     """
-    Calculate non-normalized IC values (I_SBT in Robertson 2010). The non-normalized variant does
-    not require calculations of stresses to normalize with and hence no PWP data is required.
+    Calculate non-normalized IC values (I_SBT in Robertson 2010). The non-normalized
+    variant does not require calculations of stresses to normalize with and hence no PWP
+    data is required.
 
     Please note the following when using non-normalized IC values:
 
     "The non-normalized SBT index (ISBT) is essentially the same as the normalized SBTn
-    index (Ic) but only uses the basic CPT measurements. In general, the normalized Ic provides
-    more reliable identification of SBT than the non-normalized ISBT, but when the insitu
-    vertical effective stress is between 50 kPa to 150 kPa there is often little difference
-    between normalized and non-normalized SBT."
+    index (Ic) but only uses the basic CPT measurements. In general, the normalized Ic
+    provides more reliable identification of SBT than the non-normalized ISBT, but when
+    the insitu vertical effective stress is between 50 kPa to 150 kPa there is often
+    little difference between normalized and non-normalized SBT."
 
     Parameters
     ----------

@@ -1,11 +1,11 @@
-import pytest
 import numpy as np
 import pandas as pd
+import pytest
 from numpy.testing import (
-    assert_equal,
     assert_allclose,
-    assert_array_equal,
     assert_almost_equal,
+    assert_array_equal,
+    assert_equal,
 )
 
 # Local imports
@@ -70,8 +70,9 @@ class TestAnalysis:
     def test_top_sand(
         self, test_borehole_lith, test_borehole_top, test_borehole_bottom
     ):
-        # After the first encounter of sand (Z) > 40% of the next 1 m must consist of sand as well
-        # for this first encounter to be regarded as the top of the sand (and all the above the cover layer)
+        # After the first encounter of sand (Z) > 40% of the next 1 m must consist of
+        # sand as well for this first encounter to be regarded as the top of the sand
+        # (and all the above the cover layer)
         assert_equal(
             find_top_sand(
                 test_borehole_lith, test_borehole_top, test_borehole_bottom, 0.4, 1
@@ -79,8 +80,9 @@ class TestAnalysis:
             -3.0,
         )
 
-        # After the first encounter of sand (Z) > 60% of the next 1 m must consist of sand as well
-        # for this first encounter to be regarded as the top of the sand (and all the above the cover layer)
+        # After the first encounter of sand (Z) > 60% of the next 1 m must consist of
+        # sand as well for this first encounter to be regarded as the top of the sand
+        # (and all the above the cover layer)
         assert_equal(
             find_top_sand(
                 test_borehole_lith, test_borehole_top, test_borehole_bottom, 0.6, 1

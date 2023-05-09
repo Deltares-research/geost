@@ -1,8 +1,8 @@
-import pytest
-from pathlib import Path
-from pysst import projections
 import pyproj
+import pytest
 from numpy.testing import assert_almost_equal
+
+from pysst import projections
 
 
 class TestProjections:
