@@ -1,12 +1,21 @@
 image: condaforge/miniforge3
 
 stages:
+  - lint
   - buildtest
   - deploy
 
 before_script:
     - conda create -n pysst
     - source activate pysst
+    - pip install ruff
+
+# Ignore F401 linting error (imported package unused) because it bitches about unused 
+# __init__.py imports.
+lint:
+ stage: lint
+ script:
+    - ruff check --ignore F401 ./pysst
 
 buildtest:
  stage: buildtest

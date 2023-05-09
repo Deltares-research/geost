@@ -48,6 +48,7 @@ python-version==0.0.2
 pytz==2022.7.1
 pyvista==0.38.4
 requests==2.28.2
+ruff==0.0.265
 scooby==0.7.1
 setuptools==67.3.1
 shapely==2.0.1
