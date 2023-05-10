@@ -1,6 +1,20 @@
 import pytest
 from pathlib import Path
+from typing import NamedTuple
 from pysst.io.parsers import CptGefFile
+
+
+class CptInfo(NamedTuple):
+    nr: str
+    x: float
+    y: float
+    z: float
+    end: float
+    ncols: int
+    system: str
+    reference: str
+    error: float
+    nrecords: int
 
 
 class TestCptGefParser:
@@ -32,93 +46,61 @@ class TestCptGefParser:
     def cpt_d(self):
         cpt = CptGefFile(self.filepath/r'CPT10_marine_sampling.gef')
         return cpt
+    
+    @pytest.fixture
+    def test_info_cpt_a(self):
+        return CptInfo(
+            'DKMP_D03', 176161.1, 557162.1, -0.06, 37.317295, 11, '31000', 'NAP', 0.01, 1815
+            )
+    
+    @pytest.fixture
+    def test_info_cpt_b(self):
+        return CptInfo(
+            'AZZ158', 0.0, 0.0, 5.05, 59.5, 6, '0', 'NAP', None, 2980
+            )
+
+    @pytest.fixture
+    def test_info_cpt_c(self):
+        return CptInfo(
+            'CPT000000157983', 176416.1, 557021.9, -5.5, 28.84, 9, '28992', 'NAP', None, 1310
+            )
+    
+    @pytest.fixture
+    def test_info_cpt_d(self):
+        return CptInfo(
+            'YANGTZEHAVEN CPT 10', 61949.0, 443624.0, -17.69, 5.75, 4, '31000', 'NAP', None, None
+            )
 
     @pytest.mark.unittest
     def test_read_files(self, test_cpt_files):
         for f in test_cpt_files:
             cpt = CptGefFile(f)
             assert isinstance(cpt, CptGefFile)
-    # TODO: create single cpt test func instead of all parametrize tests separate
-    @pytest.mark.parametrize('cpt, header', [
-        ('cpt_a', ['DKMP_D03', 176161.1, 557162.1, -0.06, 37.317295]), # TODO: create fixtures for cpt attributes to assert
-        ('cpt_b', ['AZZ158', 0.0, 0.0, 5.05, 59.5]),
-        ('cpt_c', ['CPT000000157983', 176416.1, 557021.9, -5.5, 28.84]),
-        ('cpt_d', ['YANGTZEHAVEN CPT 10', 61949.0, 443624.0, -17.69, 5.75]),
-    ])
-    def test_cpt_header_info(self, cpt, header, request):
-        cpt = request.getfixturevalue(cpt)
-
-        nr, x, y, z, end = header
-
-        assert cpt.nr == nr
-        assert cpt.x == x
-        assert cpt.y == y
-        assert cpt.z == z
-        assert cpt.enddepth == end
-
-    @pytest.mark.parametrize('cpt', ['cpt_a', 'cpt_b', 'cpt_c', 'cpt_d'])
-    def test_critical_columns_present(self, cpt, request):
-        cpt = request.getfixturevalue(cpt)
-
-        expected_cols = ['length', 'qc', 'fs']
-
-        assert all(col in cpt.columns for col in expected_cols)
-
-    @pytest.mark.parametrize('cpt, n', [
-        ('cpt_a', 11),
-        ('cpt_b', 6),
-        ('cpt_c', 9),
-        ('cpt_d', 4),
-    ])
-    def test_number_of_columns(self, cpt, n, request):
-        cpt = request.getfixturevalue(cpt)
-        assert cpt.ncolumns == n
-
-    @pytest.mark.parametrize('cpt, system', [
-        ('cpt_a', '31000'),
-        ('cpt_b', '0'),
-        ('cpt_c', '28992'),
-        ('cpt_d', '31000'),
-    ])
-    def test_coordinate_system(self, cpt, system, request):
-        cpt = request.getfixturevalue(cpt)
-        assert cpt.ncolumns == system
-
-    @pytest.mark.parametrize('cpt, elevation', [
-        ('cpt_a', ('NAP', 0.01)),
-        ('cpt_b', ('NAP', None)),
-        ('cpt_c', ('NAP', None)),
-        ('cpt_d', ('NAP', None)),
-    ])
-    def test_elevation_reference(self, cpt, elevation, request):
-        cpt = request.getfixturevalue(cpt)
-
-        reference, error = elevation
-
-        assert cpt.reference_system == reference
-        assert cpt.delta_z == error
-
-    @pytest.mark.parametrize('cpt, nrecords', [
-        ('cpt_a', 1815),
-        ('cpt_b', 2980),
-        ('cpt_c', 1310),
-        # ('cpt_d', ), # TODO: fix data parsing of cpt_d
-    ])
-    def test_number_of_data_records(self, cpt, nrecords, request):
-        cpt = request.getfixturevalue(cpt)
-        assert len(cpt.df) == nrecords
-
-    def cpta_test():
-
-
-class TestFoo:
-
-    @pytest.fixture
-    def a(self):
-        return 2
     
-    @pytest.fixture
-    def b(self):
-        return 3
+    @pytest.mark.integrationtest
+    @pytest.mark.parametrize('cpt, test_info', [
+        ('cpt_a', 'test_info_cpt_a'),
+        ('cpt_b', 'test_info_cpt_b'),
+        ('cpt_c', 'test_info_cpt_c'),
+        ('cpt_d', 'test_info_cpt_d'),
+    ])
+    def test_cpt_parsing_result(self, cpt, test_info, request):
+        cpt = request.getfixturevalue(cpt)
+        test_info = request.getfixturevalue(test_info)
 
+        assert cpt.nr == test_info.nr
+        assert cpt.x == test_info.x
+        assert cpt.y == test_info.y
+        assert cpt.z == test_info.z
+        assert cpt.enddepth == test_info.end
+        assert cpt.ncolumns == test_info.ncols
+        assert cpt.coord_system == test_info.system
+        assert cpt.reference_system == test_info.reference
+        assert cpt.delta_z == test_info.error
+
+        critical_cols_from_file = ['length', 'qc', 'fs']
+        assert all(col in cpt.columns for col in critical_cols_from_file)
+
+        if cpt.nr != 'YANGTZEHAVEN CPT 10':  # TODO: Fix Yangtzehaven parsing bug.
+            assert len(cpt.df) == test_info.nrecords
   
