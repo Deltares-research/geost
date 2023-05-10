@@ -23,7 +23,8 @@ class CptMeasurementVar(NamedTuple):
     reserved: bool
 
 
-column_defs_data_block_cpt = {
+#
+COLUMN_DEFS_DATA_BLOCK_CPT = {
     1: ColumnInfo('length', 'm', 'penetration length', True),
     2: ColumnInfo('qc', 'MPa', 'measured cone resistance', True),
     3: ColumnInfo('fs', 'MPa', 'friction resistance', True),
@@ -57,7 +58,7 @@ column_defs_data_block_cpt = {
 }
 
 
-reserved_measurementvars_cpt = {
+RESERVED_MEASUREMENTVARS_CPT = {
     1: CptMeasurementVar(1000, 'mm2', 'nom. surface area cone tip', True),
     2: CptMeasurementVar(15000, 'mm2', 'nom. surface area friction sleeve', True),
     3: CptMeasurementVar(None, '', 'net surface area quotient of cone tip', True),
@@ -103,7 +104,7 @@ reserved_measurementvars_cpt = {
 }
 
 
-gef_cpt_reference_levels = {
+GEF_CPT_REFERENCE_LEVELS = {
     '00000': 'own reference level',
     '00001': 'Low Low Water Spring',
     '31000': 'NAP',
@@ -114,8 +115,21 @@ gef_cpt_reference_levels = {
 
 
 class CptGefFile:
+    """
+    Parse a .gef file of a CPT sounding for its content to retrieve the data and
+    relevant information about the measurements.
 
-    def __init__(self, path: str | WindowsPath, sep: str = ' '):
+    Parameters
+    ----------
+    path : str, WindowsPath, optional
+        Path to the gef file to parse. If None, an empty class instance is returned.
+    sep : str, optional
+        Column separator character of the gef file to use when the separator is not
+        specified within the gef file header.
+
+    """
+
+    def __init__(self, path: str | WindowsPath = None, sep: str = ' '):
         self.path = path
         self._header = None
         self._data = None
@@ -153,7 +167,8 @@ class CptGefFile:
         self.coord_system = None
         self.reference_system = None
 
-        self.__open_file(path)
+        if path:
+            self.__open_file(path)
 
     def __repr__(self):
         return f'{self.__class__.__name__}(nr={self.nr})'
@@ -285,7 +300,7 @@ class CptGefFile:
         __sep = re.search(',\s*', line).group(0)
         idx, unit, value, number = line.split(__sep)
         idx = self.to_zero_indexed(idx)
-        info = column_defs_data_block_cpt.get(int(number), 'empty')
+        info = COLUMN_DEFS_DATA_BLOCK_CPT.get(int(number), 'empty')
 
         if info == 'empty':
             logging.warning(f'Unknown information in datablock of {self.path}')
@@ -336,7 +351,7 @@ class CptGefFile:
             )
             self.zid = zid
 
-        self.reference_system = gef_cpt_reference_levels[reference_system]
+        self.reference_system = GEF_CPT_REFERENCE_LEVELS[reference_system]
 
     # TODO: add correct parsing of reserved measurementtexts
     def _parse_measurementtext(self, line: str):
@@ -390,7 +405,7 @@ class CptGefFile:
         num = int(num)
         val = safe_float(val)
 
-        _mv = reserved_measurementvars_cpt.get(num, 'empty')
+        _mv = RESERVED_MEASUREMENTVARS_CPT.get(num, 'empty')
 
         if _mv == 'empty':
             mvar = CptMeasurementVar(val, unit, quantity, False)
