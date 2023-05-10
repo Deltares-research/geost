@@ -1,6 +1,6 @@
 [build-system]
 requires = [
-    "setuptools>=42",
+    "setuptools>=64",
     "wheel"
 ]
 build-backend = "setuptools.build_meta"
@@ -13,4 +13,16 @@ markers = [
 	"unittest: test of single component",
 	"integrationtest: test of multiple components",
 ]
-	
+
+[tool.black]
+line-length = 88
+
+[tool.ruff]
+line-length = 88
+target-version = "py310"
+select = ["F", "E", "W", "N", "I001"]
+ignore = ["F401"]
+unfixable = ["F401"]
+
+[tool.ruff.pydocstyle]
+convention = "numpy"
