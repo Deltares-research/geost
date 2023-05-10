@@ -365,15 +365,15 @@ class PointDataCollection:
             selection_values = [selection_values]
 
         header_copy = self.header.copy()
-        if how == "and":
-            notna = self.data["nr"][self.data[column].isin(
-                selection_values)].unique()
+        if how == "or":
+            notna = self.data["nr"][self.data[column].isin(selection_values)].unique()
             selected_header = header_copy[header_copy["nr"].isin(notna)]
         elif how == "and":
             for selection_value in selection_values:
                 notna = self.data["nr"][
                     self.data[column].isin([selection_value])
                 ].unique()
+                header_copy = header_copy[header_copy["nr"].isin(notna)]
             selected_header = header_copy
 
         selected_header = selected_header[~selected_header.duplicated()]
