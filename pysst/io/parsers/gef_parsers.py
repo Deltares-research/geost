@@ -235,6 +235,10 @@ class CptGefFile:
                 line = re.sub(r'["\']|\s\s+', '', line)
                 self.__call_header_method(__method, line)
 
+    @staticmethod
+    def __split_header_line(line):
+        return [l.strip() for l in line.split(',')]
+
     def parse_data(self):
         """
         Parse datablock of the gef file.
@@ -297,8 +301,7 @@ class CptGefFile:
         self.ncolumns = int(line)
 
     def _parse_columninfo(self, line: str):
-        __sep = re.search(',\s*', line).group(0)
-        idx, unit, value, number = line.split(__sep)
+        idx, unit, value, number = self.__split_header_line(line)
         idx = self.to_zero_indexed(idx)
         info = COLUMN_DEFS_DATA_BLOCK_CPT.get(int(number), 'empty')
 
@@ -334,8 +337,7 @@ class CptGefFile:
 
     # TODO: check how to fix if zid occurs in header more than once
     def _parse_zid(self, line: str):
-        __sep = re.search(',\s*', line).group(0)
-        zid = line.split(__sep)
+        zid = self.__split_header_line(line)
         if len(zid) == 2:
             reference_system = zid[0]
             self.z = float(zid[1])
@@ -355,14 +357,12 @@ class CptGefFile:
 
     # TODO: add correct parsing of reserved measurementtexts
     def _parse_measurementtext(self, line: str):
-        __sep = re.search(',\s*', line).group(0)
-        text = line.split(__sep)
+        text = self.__split_header_line(line)
         nr, info = int(text[0]), text[1:]
         self.measurementtext.update({nr: info})
 
     def _parse_xyid(self, line: str):
-        __sep = re.search(',\s*', line).group(0)
-        xyid = line.split(__sep)
+        xyid = self.__split_header_line(line)
 
         if len(xyid) == 3:
             self.coord_system = xyid[0]
@@ -384,8 +384,7 @@ class CptGefFile:
             self.xyid = xyid
 
     def _parse_columnvoid(self, line: str):
-        __sep = re.search(',\s*', line).group(0)
-        idx, value = line.split(__sep)
+        idx, value = self.__split_header_line(line)
         idx = self.to_zero_indexed(idx)
         self.columnvoid.update({idx: float(value)})
 
@@ -399,8 +398,7 @@ class CptGefFile:
         pass
 
     def _parse_measurementvar(self, line: str):
-        __sep = re.search(',\s*', line).group(0)
-        num, val, unit, quantity = line.split(__sep)
+        num, val, unit, quantity = self.__split_header_line(line)
 
         num = int(num)
         val = safe_float(val)
