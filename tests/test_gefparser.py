@@ -1,7 +1,26 @@
 import pytest
+import numpy as np
 from pathlib import Path
 from typing import NamedTuple
+from numpy.testing import assert_array_almost_equal
 from pysst.io.parsers import CptGefFile
+from pysst.io.parsers.gef_parsers import ColumnInfo
+
+
+def dummy_cpt_data():
+    z = -0.5
+    columns = ['length', 'qc', 'fs', 'rf']
+    columninfo = {ii: ColumnInfo(c, None, None, None) for ii, c in enumerate(columns)}
+    columnvoid = {0: -9999.0, 1: -9999.0, 2: -999.0, 3: -9999.0}
+    
+    length = ['1.300000', '1.320000', '1.340000', '1.360000', '1.380000']
+    qc = ['-9999.0000', '0.227523', '0.279521', '0.327816', '-9999.0000']
+    fs = ['-999.000', '0.010076', '0.014140', '-999.000', '0.020937']
+    rf = ['-9999.0000', '3.561200', '4.462611', '5.452729', '5.697089']
+
+    data = np.array([length, qc, fs, rf]).T
+
+    return z, columninfo, columnvoid, data
 
 
 class CptInfo(NamedTuple):
@@ -58,6 +77,18 @@ class TestCptGefParser:
             'YANGTZEHAVEN CPT 10', 61949.0, 443624.0, -17.69, 5.75, 4, '31000', 'NAP', None, None
             )
         return cpt, info_to_test
+    
+    @pytest.fixture
+    def dummy_cpt_with_rf(self):
+        z, columninfo, columnvoid, data = dummy_cpt_data()
+
+        cpt = CptGefFile()
+        cpt.z = z
+        cpt.columninfo = columninfo
+        cpt.columnvoid = columnvoid
+        cpt._data = data
+        
+        return cpt
 
     @pytest.mark.unittest
     def test_read_files(self, test_cpt_files):
@@ -85,3 +116,21 @@ class TestCptGefParser:
 
         if cpt.nr != 'YANGTZEHAVEN CPT 10':  # TODO: Fix Yangtzehaven parsing bug.
             assert len(cpt.df) == test_info.nrecords
+    
+    @pytest.mark.unittest
+    def test_to_dataframe(self, dummy_cpt_with_rf):
+        dummy_cpt_with_rf.to_df()
+
+        target_columns = ['length', 'qc', 'fs', 'rf', 'depth']
+        target_depth = [-1.80, -1.82, -1.84, -1.86, -1.88]
+
+        df = dummy_cpt_with_rf._df
+        nancount = np.sum(np.isnan(df.values))
+
+        assert all(df.dtypes=='float64')
+        assert nancount == 5
+        assert all(df.columns==target_columns)
+
+        assert_array_almost_equal(df['depth'], target_depth)
+        
+
