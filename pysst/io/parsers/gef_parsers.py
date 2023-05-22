@@ -128,7 +128,6 @@ class CptGefFile:
         specified within the gef file header.
 
     """
-
     def __init__(self, path: str | WindowsPath = None, sep: str = ' '):
         self.path = path
         self._header = None
@@ -236,7 +235,7 @@ class CptGefFile:
                 self.__call_header_method(__method, line)
 
     @staticmethod
-    def __split_header_line(line):
+    def __split_line(line):
         return [l.strip() for l in line.split(',')]
 
     def parse_data(self):
@@ -247,13 +246,12 @@ class CptGefFile:
         data = self._data
 
         if not self.recordseparator:
-            self.recordseparator = '!'
+            r = '!'
+        else:
+            r = self.recordseparator
 
-        data = re.sub(
-            fr'{self.columnseparator}{self.recordseparator}*', ',', data
-        )
-
-        data = [d.rstrip(',').split(',') for d in data.splitlines()]
+        data = data.replace(self.columnseparator, ',')
+        data = [self.__split_line(d.rstrip(f',{r}')) for d in data.splitlines()]
         self._data = data
 
     def to_df(self):
@@ -265,7 +263,9 @@ class CptGefFile:
         None.
 
         """
-        df = pd.DataFrame(self._data, dtype='float64')
+        df = pd.DataFrame(self._data)
+        df.dropna(inplace=True)
+        df = df.astype(float)
         df.replace(self.columnvoid, np.nan, inplace=True)
         df.columns = self.columns
 
@@ -301,7 +301,7 @@ class CptGefFile:
         self.ncolumns = int(line)
 
     def _parse_columninfo(self, line: str):
-        idx, unit, value, number = self.__split_header_line(line)
+        idx, unit, value, number = self.__split_line(line)
         idx = self.to_zero_indexed(idx)
         info = COLUMN_DEFS_DATA_BLOCK_CPT.get(int(number), 'empty')
 
@@ -337,7 +337,7 @@ class CptGefFile:
 
     # TODO: check how to fix if zid occurs in header more than once
     def _parse_zid(self, line: str):
-        zid = self.__split_header_line(line)
+        zid = self.__split_line(line)
         if len(zid) == 2:
             reference_system = zid[0]
             self.z = float(zid[1])
@@ -357,12 +357,12 @@ class CptGefFile:
 
     # TODO: add correct parsing of reserved measurementtexts
     def _parse_measurementtext(self, line: str):
-        text = self.__split_header_line(line)
+        text = self.__split_line(line)
         nr, info = int(text[0]), text[1:]
         self.measurementtext.update({nr: info})
 
     def _parse_xyid(self, line: str):
-        xyid = self.__split_header_line(line)
+        xyid = self.__split_line(line)
 
         if len(xyid) == 3:
             self.coord_system = xyid[0]
@@ -384,7 +384,7 @@ class CptGefFile:
             self.xyid = xyid
 
     def _parse_columnvoid(self, line: str):
-        idx, value = self.__split_header_line(line)
+        idx, value = self.__split_line(line)
         idx = self.to_zero_indexed(idx)
         self.columnvoid.update({idx: float(value)})
 
@@ -398,7 +398,7 @@ class CptGefFile:
         pass
 
     def _parse_measurementvar(self, line: str):
-        num, val, unit, quantity = self.__split_header_line(line)
+        num, val, unit, quantity = self.__split_line(line)
 
         num = int(num)
         val = safe_float(val)
