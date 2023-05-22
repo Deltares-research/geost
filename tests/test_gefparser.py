@@ -110,7 +110,7 @@ class TestCptGefParser:
             '31000',
             'NAP',
             None,
-            None,
+            207,
             )
         return cpt, info_to_test
     
@@ -149,9 +149,7 @@ class TestCptGefParser:
 
         critical_cols_from_file = ['length', 'qc', 'fs']
         assert all(col in cpt.columns for col in critical_cols_from_file)
-
-        if cpt.nr != 'YANGTZEHAVEN CPT 10':  # TODO: Fix Yangtzehaven parsing bug.
-            assert len(cpt.df) == test_info.nrecords
+        assert len(cpt.df) == test_info.nrecords
     
     @pytest.mark.unittest
     def test_to_dataframe(self, dummy_cpt_with_rf):
