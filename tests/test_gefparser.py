@@ -50,7 +50,16 @@ class TestCptGefParser:
             self.filepath/r'83268_DKMP003_(DKMP_D03)_wiertsema.gef'
         )
         info_to_test = CptInfo(
-            'DKMP_D03', 176161.1, 557162.1, -0.06, 37.317295, 11, '31000', 'NAP', 0.01, 1815
+            'DKMP_D03',
+            176161.1,
+            557162.1,
+            -0.06,
+            37.317295,
+            11,
+            '31000',
+            'NAP',
+            0.01,
+            1815,
             )
         return cpt, info_to_test
 
@@ -58,7 +67,16 @@ class TestCptGefParser:
     def cpt_b(self):
         cpt = CptGefFile(self.filepath/r'AZZ158_gem_rotterdam.gef')
         info_to_test = CptInfo(
-            'AZZ158', 0.0, 0.0, 5.05, 59.5, 6, '0', 'NAP', None, 2980
+            'AZZ158',
+            0.0,
+            0.0,
+            5.05,
+            59.5,
+            6,
+            '0',
+            'NAP',
+            None,
+            2980,
             )
         return cpt, info_to_test
 
@@ -66,7 +84,16 @@ class TestCptGefParser:
     def cpt_c(self):
         cpt = CptGefFile(self.filepath/r'CPT000000157983_IMBRO.gef')
         info_to_test = CptInfo(
-            'CPT000000157983', 176416.1, 557021.9, -5.5, 28.84, 9, '28992', 'NAP', None, 1310
+            'CPT000000157983',
+            176416.1,
+            557021.9,
+            -5.5,
+            28.84,
+            9,
+            '28992',
+            'NAP',
+            None,
+            1310,
             )
         return cpt, info_to_test
 
@@ -74,7 +101,16 @@ class TestCptGefParser:
     def cpt_d(self):
         cpt = CptGefFile(self.filepath/r'CPT10_marine_sampling.gef')
         info_to_test = CptInfo(
-            'YANGTZEHAVEN CPT 10', 61949.0, 443624.0, -17.69, 5.75, 4, '31000', 'NAP', None, None
+            'YANGTZEHAVEN CPT 10',
+            61949.0,
+            443624.0,
+            -17.69,
+            5.75,
+            4,
+            '31000',
+            'NAP',
+            None,
+            None,
             )
         return cpt, info_to_test
     
@@ -133,4 +169,3 @@ class TestCptGefParser:
 
         assert_array_almost_equal(df['depth'], target_depth)
         
-
