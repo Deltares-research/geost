@@ -526,8 +526,11 @@ class PointDataCollection:
 
         return result
 
+    def slice_by_values(self):
+        pass
+
     def get_area_labels(
-        self, polygon_gdf: GeoDataFrame, column_name: str
+        self, polygon_gdf: GeoDataFrame, column_name: str, include_in_header=False
     ) -> pd.DataFrame:
         """
         Find in which area (polygons) the point data locations fall. e.g. to determine
@@ -547,7 +550,10 @@ class PointDataCollection:
         """
         area_labels = spatial.find_area_labels(self.header, polygon_gdf, column_name)
 
-        return area_labels
+        if include_in_header:
+            self._header = self.header.merge(area_labels, on="nr")
+        else:
+            return area_labels
 
     def get_cumulative_layer_thickness(
         self, column: str, values: Union[str, List[str]], include_in_header=False

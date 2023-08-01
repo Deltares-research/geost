@@ -47,6 +47,7 @@ boreholeschema = DataFrameSchema(
 cptschema = DataFrameSchema(
     "CPT-specific validation",
     {
-        "ic": Column(float),
+        "length": Column(float),
+        "qc": Column(float),
     },
 )
