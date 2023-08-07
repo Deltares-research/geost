@@ -3,7 +3,7 @@ from typing import Iterable, Iterator, List, TypeVar, Union
 import requests
 from lxml import etree
 
-from pysst.bro.bro_utils import get_bbox_criteria
+from pysst.bro.bro_utils import divide_bbox, get_bbox_criteria
 from pysst.projections import xy_to_ll
 
 Coordinate = TypeVar("Coordinate", int, float)
@@ -47,14 +47,14 @@ class BroApi:
         Yields
         ------
         lxml._Element
-            Element tree containing data of the requested BRO object
+            Element tree containing data of the requested BRO object.
 
         Raises
         ------
         Warning
-            When a non-existing BRO ID was given
+            When a non-existing BRO ID was given.
         Warning
-            When the server does not respond to the request (40x error)
+            When the server does not respond to the request (40x error).
         """
         if isinstance(bro_ids, str):
             bro_ids = [bro_ids]
@@ -112,25 +112,51 @@ class BroApi:
         Returns
         -------
         List[str]
-            List containing BRO ID's of objects found within the bbox
+            List containing BRO ID's of objects found within the bbox.
 
         Raises
         ------
         Warning
-            If the server does not respond or the search query was rejected
+            If the server does not respond or the search query was rejected.
         """
+        division_level = 1
+        response_accepted = False
+
+        while not response_accepted:
+            divide_bbox(xmin, xmax, ymin, ymax, level=division_level)
+            response = self.__response_to_bbox(
+                xmin, xmax, ymin, ymax, epsg=epsg, object_type=object_type
+            )
+            if response.status_code == 200 and "rejection" not in response.text:
+                etree_root = etree.fromstring(response.text.encode("utf-8"))
+                bro_objects = self.__objects_from_etree(etree_root, object_type)
+                response_accepted = True
+            elif response.status_code == 200 and "groter dan 2000" in response.text:
+                division_level += 1
+            else:
+                raise Warning(
+                    "Selection is invalid and could not be retrieved from the database"
+                )
+
+        return bro_objects
+
+    def __response_to_bbox(
+        self,
+        xmin: Coordinate,
+        xmax: Coordinate,
+        ymin: Coordinate,
+        ymax: Coordinate,
+        epsg: str = "28992",
+        object_type: str = "CPT",
+    ):
         xmin_ll, ymin_ll = xy_to_ll(xmin, ymin, epsg)
         xmax_ll, ymax_ll = xy_to_ll(xmax, ymax, epsg)
         criteria = get_bbox_criteria(xmin_ll, xmax_ll, ymin_ll, ymax_ll)
         api_url = self.server_url + self.apis[object_type] + self.search_url
         response = self.session.post(api_url, json=criteria)
-        if response.status_code == 200 and "rejection" not in response.text:
-            etree_root = etree.fromstring(response.text.encode("utf-8"))
-        else:
-            raise Warning(
-                "Selection is invalid and could not be retrieved from the database"
-            )
+        return response
 
+    def __objects_from_etree(self, etree_root, object_type):
         namespaces = etree_root.nsmap
         bro_elements = etree_root.findall(
             "dispatchDocument/" + self.document_types[object_type], namespaces

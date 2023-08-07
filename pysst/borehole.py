@@ -20,8 +20,11 @@ class BoreholeCollection(PointDataCollection):
         data: pd.DataFrame,
         vertical_reference: str = "NAP",
         header: Optional[pd.DataFrame] = None,
+        header_col_names: Optional[list] = None,
     ):
-        super().__init__(data, vertical_reference, header=header)
+        super().__init__(
+            data, vertical_reference, header=header, header_col_names=header_col_names
+        )
         self.__classification_system = "5104"
 
     @property

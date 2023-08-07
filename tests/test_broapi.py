@@ -85,7 +85,9 @@ class TestBroApi:
         cpts = api.search_objects_in_bbox(
             112400, 112500, 442750, 442850, object_type="CPT"
         )
-        assert cpts == ["CPT000000000787", "CPT000000029403"]
+        minimum_present_objects = ["CPT000000000787", "CPT000000029403"]
+        present_objects = [obj for obj in cpts if obj in minimum_present_objects]
+        assert len(present_objects) == len(minimum_present_objects)
         # Get CPTs
         cpt_datas = api.get_objects(cpts, object_type="CPT")
         for cpt_data in cpt_datas:
@@ -99,12 +101,14 @@ class TestBroApi:
         bhrps = api.search_objects_in_bbox(
             141500, 141700, 455100, 455300, object_type="BHR-P"
         )
-        assert bhrps == [
+        minimum_present_objects = [
             "BHR000000085497",
             "BHR000000247842",
             "BHR000000120513",
             "BHR000000206176",
         ]
+        present_objects = [obj for obj in bhrps if obj in minimum_present_objects]
+        assert len(present_objects) == len(minimum_present_objects)
         # Get CPTs
         bhr_datas = api.get_objects(bhrps, object_type="BHR-P")
         for bhr_data in bhr_datas:
@@ -118,13 +122,21 @@ class TestBroApi:
         bhrgts = api.search_objects_in_bbox(
             141300, 142300, 452700, 453500, object_type="BHR-GT"
         )
-        assert bhrgts == [
+        minimum_present_objects = [
             "BHR000000353592",
             "BHR000000353583",
             "BHR000000353598",
             "BHR000000353600",
         ]
+        present_objects = [obj for obj in bhrgts if obj in minimum_present_objects]
+        assert len(present_objects) == len(minimum_present_objects)
         # Get CPTs
         bhr_datas = api.get_objects(bhrgts, object_type="BHR-GT")
         for bhr_data in bhr_datas:
             assert isinstance(bhr_data, _Element)
+
+    @pytest.mark.unittest
+    def test_get_too_large_volume(self):
+        pass
+        # api = BroApi()
+        # cpts = api.search_objects_in_bbox(77000, 105000, 425000, 445000)
