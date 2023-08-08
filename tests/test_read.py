@@ -18,6 +18,7 @@ class TestReaders:
         Path(__file__).parent / "data/test_nlog_stratstelsel_20230807.parquet"
     )
 
+    @pytest.mark.unittest
     def test_nlog_reader_from_excel(self):
         nlog_cores = read_nlog_cores(self.nlog_stratstelsel_xlsx)
         desired_df = pd.DataFrame(
@@ -31,6 +32,7 @@ class TestReaders:
         )
         assert_array_equal(nlog_cores.header[["nr", "x", "y", "mv", "end"]], desired_df)
 
+    @pytest.mark.unittest
     def test_nlog_reader_from_parquet(self):
         nlog_cores = read_nlog_cores(self.nlog_stratstelsel_parquet)
         desired_df = pd.DataFrame(
