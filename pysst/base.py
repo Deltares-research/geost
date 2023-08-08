@@ -138,36 +138,6 @@ class PointDataCollection:
             common_dataschema.validate(data)
         self._data = data
 
-    def add_columns_to_header(self, columns: Union[List, str], position="first"):
-        """
-        Add a column from the data table to the header table. E.g. if you want to add
-        another borehole identification from the data table to be included in the
-        header and geometry exports.
-
-        Parameters
-        ----------
-        columns : Union[List, str]
-            Name(s) of column(s) to add/. Can be a single string or a list of strings
-        position : str, optional
-            Which value to take for the header: "first" or "last", by default "first"
-        """
-        positions = {"first": 0, "last": -1}
-
-        if isinstance(columns, str):
-            columns = [columns]
-
-        if not all([c in self.data.columns for c in columns]):
-            raise IndexError(
-                "One or more of the columns were not found in the data",
-                " and cannot be added to the header",
-            )
-
-        header_copy = self.header.copy()
-        for column in columns:
-            header_copy[column] = self.data[column].iloc[positions[position]]
-
-        self._header = header_copy
-
     def change_vertical_reference(self, to: str):
         """
         Change the vertical reference of layer tops and bottoms

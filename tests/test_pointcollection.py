@@ -150,28 +150,6 @@ class TestPointCollection:
             borehole_collection_ok.data["bottom"], target_bottom_surfacelevel
         )
 
-    @pytest.mark.unittest
-    def test_add_existing_column_to_header(self, borehole_df_ok):
-        cores = BoreholeCollection(borehole_df_ok)
-        cores.add_columns_to_header("data_string")
-        cores.add_columns_to_header(["data_int", "data_float"])
-        assert all(
-            [
-                c in cores.header.columns
-                for c in ["data_string", "data_int", "data_float"]
-            ]
-        )
-
-    @pytest.mark.unittest
-    def test_add_nonexisting_column_to_header(self, capfd, borehole_df_ok):
-        cores = BoreholeCollection(borehole_df_ok)
-        try:
-            cores.add_columns_to_header("data_absent")
-            passed = 1
-        except IndexError:
-            passed = 0
-        assert_equal(passed, 0)
-
     @pytest.mark.integrationtest
     def test_validation_pass(self, capfd, borehole_df_ok):
         BoreholeCollection(borehole_df_ok)
