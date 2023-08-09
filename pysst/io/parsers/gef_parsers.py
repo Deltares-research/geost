@@ -3,9 +3,8 @@ import logging
 import numpy as np
 import pandas as pd
 from typing import NamedTuple, Union
-from pathlib import Path, WindowsPath
+from pathlib import WindowsPath
 from shapely.geometry import Point
-from pysst.utils import safe_float
 
 
 class ColumnInfo(NamedTuple):
@@ -188,7 +187,7 @@ class CptGefFile:
         if not hasattr(self, '_df'):
             self.to_df()
         return self._df
-
+    
     @property
     def header(self):
         header = pd.Series(
@@ -201,7 +200,7 @@ class CptGefFile:
     def columns(self):
         columns = [f'{c.value}' for c in self.columninfo.values()]
         return columns
-
+    
     @property
     def point(self):
         return Point(self.x, self.y)
@@ -439,11 +438,8 @@ class CptGefFile:
         self.enddepth = d
 
 
-if __name__ == "__main__":
-    filepath = Path(r'n:\My Documents\projects\pysst\tests\data\cpt')
-    cpta = CptGefFile(filepath/r'83268_DKMP003_(DKMP_D03)_wiertsema.gef')
-    cptb = CptGefFile(filepath/r'AZZ158_gem_rotterdam.gef')
-    cptc = CptGefFile(filepath/r'CPT000000157983_IMBRO.gef')
-    cptd = CptGefFile(filepath/r'CPT10_marine_sampling.gef')
-
-    print(2)
+def safe_float(number):
+    try:
+        return float(number)
+    except ValueError:
+        return None

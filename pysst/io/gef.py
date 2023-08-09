@@ -22,7 +22,7 @@ def _parse_cpt_gef_files(file_or_folder: Union[str, WindowsPath]):
 
     """
     if isinstance(file_or_folder, (str, WindowsPath)):
-        files = get_path_iterable(Path(file_or_folder))
+        files = get_path_iterable(Path(file_or_folder), wildcard='*.gef')
 
     elif isinstance(file_or_folder, Iterable):
         files = file_or_folder
@@ -30,16 +30,6 @@ def _parse_cpt_gef_files(file_or_folder: Union[str, WindowsPath]):
     for f in files:
         cpt = CptGefFile(f)
         df = cpt.df
-
-        # header_cols = pd.DataFrame(
-        #     dict(
-        #         nr=np.repeat(cpt.nr, len(df)),
-        #         x=np.repeat(cpt.x, len(df)),
-        #         y=np.repeat(cpt.y, len(df)),
-        #         mv=np.repeat(cpt.z, len(df)),
-        #         end=np.repeat(cpt.enddepth, len(df)),
-        #         )
-        #     )
 
         df.insert(0, 'nr', cpt.nr)
         df.insert(1, 'x', cpt.x)

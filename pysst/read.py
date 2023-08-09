@@ -138,7 +138,7 @@ def read_gef_cpts(file_or_folder: Union[str, WindowsPath], use_pygef=False) -> C
     if use_pygef:
         data = pygef_gef_cpt(Path(file_or_folder))
     else:
-        data = _parse_cpt_gef_files(Path(file_or_folder))  # use pysst gef reader
+        data = _parse_cpt_gef_files(file_or_folder)  # use pysst gef reader
 
     df = pd.concat(data)
 
