@@ -1,7 +1,7 @@
 from pysst.validate.validate import (
-    DataFrameSchema,
-    Column,
     Check,
+    Column,
+    DataFrameSchema,
     fancy_warning,
     numeric,
     stringlike,

@@ -1,7 +1,26 @@
-from pysst import read_sst_cores
+import geopandas as gpd
+
+from pysst import excel_to_parquet, read_nlog_cores, read_sst_cores
+
+nlog_parquet = excel_to_parquet(
+    r"c:\Users\onselen\OneDrive - Stichting Deltares\Development\Subsurface Toolbox\pysst\tests\data\test_nlog_stratstelsel_20230807.xlsx",
+    r"c:\Users\onselen\OneDrive - Stichting Deltares\Development\Subsurface Toolbox\pysst\tests\data\test_nlog_stratstelsel_20230807.parquet",
+)
+
+cores = read_nlog_cores(
+    r"c:\Users\onselen\Lokale data\nlog_stratstelsel_20230807.parquet"
+)
+cores.to_geoparquet(
+    r"n:\Deltabox\Postbox\Onselen,van Erik\nlog_stratstelsel_20230807.geoparquet"
+)
+
 
 all_dino_cores = read_sst_cores(
     r"c:\Users\onselen\Lokale data\DINO_Extractie_bovennaaronder_d20230201.parquet"
+)
+
+geologie = gpd.read_file(
+    r"c:\Users\onselen\Lokale data\GKNederlandGeolVlak.gpkg",
 )
 
 # Make a pre-selection based on the study area. Using a fast selection method like select_within_bbox
@@ -26,7 +45,10 @@ cores_with_gy.cover_layer_thickness(include_in_header=True)
 cores_with_gy.change_vertical_reference("depth")
 cores_with_gy.get_layer_top("lith", ["GY", "DET", "DY", "V"], include_in_header=True)
 
+# Features extracted from maps
+areas_geologie = cores_with_gy.get_area_labels(geologie, "CODE", include_in_header=True)
+
 # Export collections to shapefiles
 cores_with_gy.to_shape(
-    r"n:\Projects\11207000\11207168\B. Measurements and calculations\Jaar 2\Geologie gyttja\Shapefiles\cores_delft-schiedam.shp"
+    r"c:\Users\onselen\OneDrive - Stichting Deltares\Projects\3D-4D Toolbox\temp\cores_gy_geometry.shp"
 )

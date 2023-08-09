@@ -10,14 +10,14 @@ deklaag_cores = read_sst_cores(
     r"c:\Users\onselen\OneDrive - Stichting Deltares\Projects\Deklaagdikte Marc\boringen\boringen_binnendijk.parquet"
 )
 
-morfologie = gpd.read_file(
-    r"c:\Users\onselen\Lokale data\bro-geomorfologischekaart.gpkg",
-    layer="view_geomorphological_area",
-)
+# morfologie = gpd.read_file(
+#     r"c:\Users\onselen\Lokale data\bro-geomorfologischekaart.gpkg",
+#     layer="view_geomorphological_area",
+# )
 
-bodem = gpd.read_file(
-    r"c:\Users\onselen\Lokale data\Bodemkaart_2014.gpkg",
-)
+# bodem = gpd.read_file(
+#     r"c:\Users\onselen\Lokale data\Bodemkaart_2014.gpkg",
+# )
 
 geologie = gpd.read_file(
     r"c:\Users\onselen\Lokale data\GKNederlandGeolVlak.gpkg",
@@ -25,9 +25,9 @@ geologie = gpd.read_file(
 
 
 # Features extracted from maps
-areas_morfologie = deklaag_cores.get_area_labels(morfologie, "landformsubgroup_code")
-areas_geologie = deklaag_cores.get_area_labels(geologie, "CODE")
-areas_bodem = deklaag_cores.get_area_labels(bodem, "BODEM1")
+# areas_morfologie = deklaag_cores.get_area_labels(morfologie, "landformsubgroup_code")
+areas_geologie = deklaag_cores.get_area_labels(geologie, "CODE", include_in_header=True)
+# areas_bodem = deklaag_cores.get_area_labels(bodem, "BODEM1")
 # Features from collection of boreholes
 x = deklaag_cores.header["x"]
 y = deklaag_cores.header["y"]

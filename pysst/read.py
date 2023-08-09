@@ -7,6 +7,7 @@ import pandas as pd
 from pysst.borehole import BoreholeCollection, CptCollection
 from pysst.io import _parse_cpt_gef_files
 from pysst.readers import pygef_gef_cpt
+from pysst.spatial import header_to_geopandas
 
 
 def __read_parquet(file: WindowsPath) -> pd.DataFrame:
@@ -78,6 +79,60 @@ def read_sst_cpts(
     filepath = Path(file)
     sst_cpts = __read_parquet(filepath)
     return CptCollection(sst_cpts, vertical_reference=vertical_reference)
+
+
+def read_nlog_cores(file: Union[str, WindowsPath]) -> BoreholeCollection:
+    """
+    Read NLog boreholes from the 'nlog_stratstelsel' Excel file. You can find this
+    distribution of borehole data here: https://www.nlog.nl/boringen
+
+    Parameters
+    ----------
+    file : Union[str, WindowsPath]
+        Path to nlog_stratstelsel.xlsx
+
+    Returns
+    -------
+    BoreholeCollection
+        Instance of BoreholeCollection
+    """
+    filepath = Path(file)
+    if filepath.suffix == ".xlsx":
+        nlog_cores = pd.read_excel(filepath)
+    else:
+        nlog_cores = __read_parquet(filepath)
+
+    nlog_cores.rename(
+        columns={
+            "NITG_NR": "nr",
+            "X_TOP_RD": "x",
+            "Y_TOP_RD": "y",
+            "TV_TOP_NAP": "top",
+            "TV_BOTTOM_NAP": "bottom",
+        },
+        inplace=True,
+    )
+
+    nlog_cores["top"] *= -1
+    nlog_cores["bottom"] *= -1
+
+    nrs = []
+    x = []
+    y = []
+    mv = []
+    end = []
+    for nr, data in nlog_cores.groupby("nr"):
+        nrs.append(data["nr"].iloc[0])
+        x.append(data["x"].iloc[0])
+        y.append(data["y"].iloc[0])
+        mv.append(data["top"].iloc[0])
+        end.append(data["bottom"].iloc[-1])
+
+    header = header_to_geopandas(
+        pd.DataFrame({"nr": nrs, "x": x, "y": y, "mv": mv, "end": end})
+    )
+
+    return BoreholeCollection(nlog_cores, vertical_reference="NAP", header=header)
 
 
 def read_xml_geotechnical_cores(

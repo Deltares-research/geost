@@ -53,13 +53,14 @@ class PointDataCollection:
         data: pd.DataFrame,
         vertical_reference: str,
         header: Optional[pd.DataFrame] = None,
+        header_col_names: Optional[list] = None,
     ):
         self.__vertical_reference = vertical_reference
         self.data = data
         if isinstance(header, pd.DataFrame):
             self.header = header
         else:
-            self.reset_header()
+            self.reset_header(header_col_names)
 
     def __new__(cls, *args, **kwargs):
         if cls is PointDataCollection:
@@ -73,9 +74,18 @@ class PointDataCollection:
     def __repr__(self):
         return f"{self.__class__.__name__}:\n# header = {self.n_points}"
 
-    def reset_header(self):
-        header = self.data.drop_duplicates(subset="nr")
-        header = header[["nr", "x", "y", "mv", "end"]].reset_index(drop=True)
+    def reset_header(self, header_col_names=None):
+        if isinstance(header_col_names, list):
+            if not len(header_col_names) == 5:
+                raise TypeError(
+                    "The header aliases must be aliases for (in order): 'nr', 'x', 'y'",
+                    "'mv', 'end'",
+                )
+        else:
+            header_col_names = ["nr", "x", "y", "mv", "end"]
+
+        header = self.data.drop_duplicates(subset=header_col_names[0])
+        header = header[header_col_names].reset_index(drop=True)
         self.header = create_header(header)
 
     @property
@@ -535,8 +545,11 @@ class PointDataCollection:
 
         return result
 
+    def slice_by_values(self):
+        pass
+
     def get_area_labels(
-        self, polygon_gdf: GeoDataFrame, column_name: str
+        self, polygon_gdf: GeoDataFrame, column_name: str, include_in_header=False
     ) -> pd.DataFrame:
         """
         Find in which area (polygons) the point data locations fall. e.g. to determine
@@ -557,7 +570,10 @@ class PointDataCollection:
         area_labels = spatial.find_area_labels(
             self.header, polygon_gdf, column_name)
 
-        return area_labels
+        if include_in_header:
+            self._header = self.header.merge(area_labels, on="nr")
+        else:
+            return area_labels
 
     def get_cumulative_layer_thickness(
         self, column: str, values: Union[str, List[str]], include_in_header=False

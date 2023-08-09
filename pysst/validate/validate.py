@@ -1,6 +1,6 @@
 """
 This is a custom and lightweight validation module for Panda Dataframes. There are no
-dependencies. It is inspired by the Pandera API and replicates the way JSON schemas are 
+dependencies. It is inspired by the Pandera API and replicates the way JSON schemas are
 used to define how a pd.DataFrame is validated. e.g.:
 
 schema = DataFrameSchema(
@@ -14,7 +14,7 @@ schema = DataFrameSchema(
     },
 )
 
-calling schema.validate(dataframe_to_be_validated) will print warnings for missing 
+calling schema.validate(dataframe_to_be_validated) will print warnings for missing
 columns, wrong datatypes and failed custom checks.
 """
 
