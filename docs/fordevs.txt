@@ -1,0 +1,7 @@
+To build api docs:
+
+sphinx-apidoc -f -o docs/api . ["*test*"]
+
+To build docs:
+
+sphinx-build -b html docs ./docs/build
