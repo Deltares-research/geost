@@ -67,9 +67,21 @@ def header_from_lines(header_df, line_gdf, buffer, invert) -> GeoDataFrame:
 
 
 def header_from_polygons(header_df, polygon_gdf, buffer, invert) -> GeoDataFrame:
-    header_selected = gpd.sjoin(header_df, polygon_gdf)[
-        ["nr", "x", "y", "mv", "end", "geometry"]
-    ]
+    if buffer > 0:
+        polygon_select = polygon_gdf.copy()
+        polygon_select["geometry"] = polygon_gdf.geometry.buffer(buffer)
+    else:
+        polygon_select = polygon_gdf
+
+    if invert:
+        header_selected = header_df[
+            ~header_df.geometry.within(polygon_select.geometry.unary_union)
+        ]
+    else:
+        header_selected = header_df[
+            header_df.geometry.within(polygon_select.geometry.unary_union)
+        ]
+
     return header_selected
 
 
