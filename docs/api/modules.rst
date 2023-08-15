@@ -5,4 +5,3 @@ pysst
    :maxdepth: 4
 
    pysst
-   tests

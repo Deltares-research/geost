@@ -39,13 +39,23 @@ pd.set_option("mode.copy_on_write", True)
 
 class PointDataCollection:
     """
-    Dataclass for collections of pointdata, such as boreholes and CPTs. The pysst module
-    revolves around this class and includes all methods that apply generically to both
-    borehole and CPT data, such as selection and export methods.
+    Base class for collections of pointdata, such as boreholes and CPTs. The pysst
+    module revolves around this class and includes all methods that apply generically to
+    all types of point data, such as selection and export methods.
+
+    This class cannot be constructed directly, but only from
+    :class:`~pysst.borehole.BoreholeCollection` and
+    :class:`~pysst.borehole.CptCollection`. Users must use the reader functions in
+    :py:mod:`~pysst.read` to create collections.
 
     Args:
         data (pd.DataFrame): Dataframe containing borehole/CPT data.
 
+        vertical_reference (str): Vertical reference, see
+         :py:attr:`~pysst.base.PointDataCollection.vertical_reference`
+
+        header (pd.DataFrame): Header used for construction. see
+         :py:attr:`~pysst.base.PointDataCollection.header`
     """
 
     def __init__(
@@ -75,6 +85,21 @@ class PointDataCollection:
         return f"{self.__class__.__name__}:\n# header = {self.n_points}"
 
     def reset_header(self, header_col_names=None):
+        """
+        Create a new header based on the 'data' dataframe
+        (:py:attr:`~pysst.base.PointDataCollection.data`). Can be used to reset the
+        header in case you accidentally broke the header.
+
+        Parameters
+        ----------
+        header_col_names : List or Tuple, optional
+            column names to use in the header, by default None (use default names)
+
+        Raises
+        ------
+        TypeError
+            If len(header_col_names) != 5
+        """
         if isinstance(header_col_names, list):
             if not len(header_col_names) == 5:
                 raise TypeError(
@@ -91,24 +116,56 @@ class PointDataCollection:
     @property
     def header(self):
         """
-        This attribute is a dataframe of header (1 row per borehole/cpt) and includes:
+        Pandas dataframe of header (1 row per borehole/cpt) and includes at the minimum:
         point id, x-coordinate, y-coordinate, surface level and end depth:
 
         Column names:
         ["nr", "x", "y", "mv", "end"]
+
+        Extra data can be added through various methods or manually by the user.
+        However, the above columns must always be present. Every time the header is
+        changed in some way, it runs through validation to warn the user of any
+        potential problems
         """
         return self._header
 
     @property
     def data(self):
+        """
+        Pandas dataframe that contains all data of objects in the collection. e.g. all
+        layers of a borehole.
+
+        Extra data can be added through various methods or manually by the user.
+        Every time the data attribute is changed in some way, it runs through validation
+        to warn the user of any potential problems.
+        """
         return self._data
 
     @property
     def n_points(self):
+        """
+        Number of objects in the collection.
+        """
         return len(self.header)
 
     @property
     def vertical_reference(self):
+        """
+        Current vertical reference system of the collection.
+
+        Returns
+        -------
+        str
+            Vertical reference. Either 'NAP', 'surfacelevel' or 'depth'
+
+            'NAP' is the elevation with respect to NAP datum.
+
+            'surfacelevel' is elevation with respect to surface (surface is 0 m, e.g.
+            layers tops could be 0, -1, -2 etc.).
+
+            'depth' is depth with respect to surface (surface is 0 m, e.g. depth of
+            layers tops could be 0, 1, 2 etc.).
+        """
         return self.__vertical_reference
 
     @header.setter
@@ -146,13 +203,8 @@ class PointDataCollection:
         ----------
         to : str
             To which vertical reference to convert the layer tops and bottoms. Either
-            'NAP', 'surfacelevel' or 'depth'.
-
-            NAP = elevation with respect to NAP datum.
-            surfacelevel = elevation with respect to surface (surface is 0 m, e.g.
-                           layers tops could be 0, -1, -2 etc.).
-            depth = depth with respect to surface (surface is 0 m, e.g. depth of layers
-                    tops could be 0, 1, 2 etc.).
+            'NAP', 'surfacelevel' or 'depth'. See
+            :py:attr:`~pysst.base.PointDataCollection.vertical_reference`.
         """
         match self.__vertical_reference:
             case "NAP":
@@ -211,8 +263,10 @@ class PointDataCollection:
 
         Returns
         -------
-        Child of PointDataCollection.
-            Instance of either BoreholeCollection or CptCollection.
+        Child of :class:`~pysst.base.PointDataCollection`.
+            Instance of either :class:`~pysst.borehole.BoreholeCollection` or
+            :class:`~pysst.borehole.CptCollection` containing only objects selected by
+            this method.
         """
         selected_header = spatial.header_from_bbox(
             self.header, xmin, xmax, ymin, ymax, invert
@@ -233,21 +287,23 @@ class PointDataCollection:
         invert: bool = False,
     ):
         """
-        Make a selection of the data based on points
+        Make a selection of the data based on points.
 
         Parameters
         ----------
         line_file : Union[str, WindowsPath]
-            Shapefile or geopackage containing point data
+            Shapefile or geopackage containing point data.
         buffer: float, default 100
-            Buffer around the lines to select points. Default 100
+            Buffer around the lines to select points. Default 100.
         invert: bool, default False
-            Invert the selection
+            Invert the selection.
 
         Returns
         -------
-        Child of PointDataCollection
-            Instance of either BoreholeCollection or CptCollection.
+        Child of :class:`~pysst.base.PointDataCollection`.
+            Instance of either :class:`~pysst.borehole.BoreholeCollection` or
+            :class:`~pysst.borehole.CptCollection` containing only objects selected by
+            this method.
         """
         selected_header = spatial.header_from_points(
             self.header, point_gdf, buffer, invert
@@ -268,21 +324,23 @@ class PointDataCollection:
         invert: bool = False,
     ):
         """
-        Make a selection of the data based on lines
+        Make a selection of the data based on lines.
 
         Parameters
         ----------
         line_file : Union[str, WindowsPath]
-            Shapefile or geopackage containing linestring data
+            Shapefile or geopackage containing linestring data.
         buffer: float, default 100
-            Buffer around the lines to select points. Default 100
+            Buffer around the lines to select points. Default 100.
         invert: bool, default False
-            Invert the selection
+            Invert the selection.
 
         Returns
         -------
-        Child of PointDataCollection
-            Instance of either BoreholeCollection or CptCollection.
+        Child of :class:`~pysst.base.PointDataCollection`.
+            Instance of either :class:`~pysst.borehole.BoreholeCollection` or
+            :class:`~pysst.borehole.CptCollection` containing only objects selected by
+            this method.
         """
         selected_header = spatial.header_from_lines(
             self.header, line_gdf, buffer, invert
@@ -303,19 +361,21 @@ class PointDataCollection:
         invert: bool = False,
     ):
         """
-        Make a selection of the data based on polygons
+        Make a selection of the data based on polygons.
 
         Parameters
         ----------
         polygon_file : Union[str, WindowsPath]
-            Shapefile or geopackage containing (multi)polygon data
+            Shapefile or geopackage containing (multi)polygon data.
         invert: bool, default False
-            Invert the selection
+            Invert the selection.
 
         Returns
         -------
-        Child of PointDataCollection
-            Instance of either BoreholeCollection or CptCollection.
+        Child of :class:`~pysst.base.PointDataCollection`.
+            Instance of either :class:`~pysst.borehole.BoreholeCollection` or
+            :class:`~pysst.borehole.CptCollection` containing only objects selected by
+            this method.
         """
         selected_header = spatial.header_from_polygons(
             self.header, polygon_gdf, buffer, invert
@@ -348,9 +408,10 @@ class PointDataCollection:
         Parameters
         ----------
         column : str
-            Name of column that contains categorical data to use when looking for values
+            Name of column that contains categorical data to use when looking for
+            values.
         selection_values : Union[str, Iterable]
-            Values to look for in the column
+            Values to look for in the column.
         how : str
             Either "and" or "or". "and" requires all selction values to be present in
             column for selection. "or" will select the core if any one of the
@@ -358,8 +419,10 @@ class PointDataCollection:
 
         Returns
         -------
-        Child of PointDataCollection
-            Instance of either BoreholeCollection or CptCollection.
+        Child of :class:`~pysst.base.PointDataCollection`.
+            Instance of either :class:`~pysst.borehole.BoreholeCollection` or
+            :class:`~pysst.borehole.CptCollection` containing only objects selected by
+            this method.
         """
         if column not in self.data.columns:
             raise IndexError(
@@ -406,18 +469,20 @@ class PointDataCollection:
         Parameters
         ----------
         top_min : float, optional
-            Minimum elevation of the borehole/cpt top, by default None
+            Minimum elevation of the borehole/cpt top, by default None.
         top_max : float, optional
-            Maximum elevation of the borehole/cpt top, by default None
+            Maximum elevation of the borehole/cpt top, by default None.
         end_min : float, optional
-            Minimum elevation of the borehole/cpt end, by default None
+            Minimum elevation of the borehole/cpt end, by default None.
         end_max : float, optional
-            Maximumelevation of the borehole/cpt end, by default None
+            Maximumelevation of the borehole/cpt end, by default None.
 
         Returns
         -------
-        Child of PointDataCollection
-            Instance of either BoreholeCollection or CptCollection.
+        Child of :class:`~pysst.base.PointDataCollection`.
+            Instance of either :class:`~pysst.borehole.BoreholeCollection` or
+            :class:`~pysst.borehole.CptCollection` containing only objects selected by
+            this method.
         """
         selected_header = self.header.copy()
         if top_min is not None:
@@ -446,14 +511,16 @@ class PointDataCollection:
         Parameters
         ----------
         min_length : float, optional
-            Minimum length of borehole/cpt, by default None
+            Minimum length of borehole/cpt, by default None.
         max_length : float, optional
-            Maximum length of borehole/cpt, by default None
+            Maximum length of borehole/cpt, by default None.
 
         Returns
         -------
-        Child of PointDataCollection
-            Instance of either BoreholeCollection or CptCollection.
+        Child of :class:`~pysst.base.PointDataCollection`.
+            Instance of either :class:`~pysst.borehole.BoreholeCollection` or
+            :class:`~pysst.borehole.CptCollection` containing only objects selected by
+            this method.
         """
         selected_header = self.header.copy()
         length = selected_header["mv"] - selected_header["end"]
@@ -497,18 +564,20 @@ class PointDataCollection:
         Parameters
         ----------
         upper_boundary : Union[float, int], optional
-            Every layer that starts above this is removed, by default 9999
+            Every layer that starts above this is removed, by default 9999.
         lower_boundary : Union[float, int], optional
-            Every layer that starts below this is removed, by default -9999
-        vertical_reference : str
+            Every layer that starts below this is removed, by default -9999.
+        vertical_reference : str, optional
             The vertical reference used in slicing. Either "NAP", "surface" or "depth"
             See documentation of the change_vertical_reference method for details
-            on the possible vertical references. By default "NAP"
+            on the possible vertical references. By default "NAP".
 
         Returns
         -------
-        Child of PointDataCollection
-            Instance of either BoreholeCollection or CptCollection.
+        Child of :class:`~pysst.base.PointDataCollection`.
+            Instance of either :class:`~pysst.borehole.BoreholeCollection` or
+            :class:`~pysst.borehole.CptCollection` containing depth-sliced objects
+            resulting from applying this method.
         """
         original_vertical_reference = self.vertical_reference
         self.change_vertical_reference(vertical_reference)
@@ -552,11 +621,16 @@ class PointDataCollection:
             GeoDataFrame with polygons.
         column_name : str
             The column name to find the labels in.
+        include_in_header : bool, optional
+            Whether to add the acquired data to the header table or not, by default
+            False.
 
         Returns
         -------
         pd.DataFrame
-            Borehole ids and the polygon label they are in.
+            Borehole ids and the polygon label they are in. If include_in_header = True,
+            a column containing the generated data will be added inplace to
+            :py:attr:`~pysst.base.PointDataCollection.header`.
         """
         area_labels = spatial.find_area_labels(self.header, polygon_gdf, column_name)
 
@@ -583,9 +657,16 @@ class PointDataCollection:
         values : str or List[str]
             Value(s) of entries in column that you want to find the cumulative thickness
             of.
-        include_in_header :
-            Whether to add the acquired data to the header table or not,
-            By default False.
+        include_in_header : bool, optional
+            Whether to add the acquired data to the header table or not, by default
+            False.
+
+        Returns
+        -------
+        pd.DataFrame
+            Borehole ids and cumulative thickness of selected layers. If
+            include_in_header = True, a column containing the generated data will be
+            added inplace to :py:attr:`~pysst.base.PointDataCollection.header`.
         """
         if isinstance(values, str):
             values = [values]
@@ -619,6 +700,13 @@ class PointDataCollection:
         include_in_header : bool, optional
             Whether to add the acquired data to the header table or not, by default
             False.
+
+        Returns
+        -------
+        pd.DataFrame
+            Borehole ids and top levels of selected layers. If
+            include_in_header = True, a column containing the generated data will be
+            added inplace to :py:attr:`~pysst.base.PointDataCollection.header`.
         """
         if isinstance(values, str):
             values = [values]
@@ -644,6 +732,12 @@ class PointDataCollection:
         ----------
         other : Instance of the same type as self.
             Another object of the same type, from which the data is appended to self.
+
+        Raises
+        ------
+        TypeError
+            If the instance 'other' is not of the same type as self (e.g. when
+            attempting to append a CptCollection to a BoreholeCollection).
         """
         if self.__class__ == other.__class__:
             # Check overlap first and remove duplicates from 'other' if required
@@ -674,7 +768,7 @@ class PointDataCollection:
         out_file : Union[str, WindowsPath]
             Path to parquet file to be written.
         **kwargs
-            pd.DataFrame.to_parquet kwargs.
+            pd.DataFrame.to_parquet kwargs. See relevant Pandas documentation.
         """
         self._data.to_parquet(out_file, **kwargs)
 
@@ -687,7 +781,7 @@ class PointDataCollection:
         out_file : Union[str, WindowsPath]
             Path to csv file to be written.
         **kwargs
-            pd.DataFrame.to_csv kwargs.
+            pd.DataFrame.to_csv kwargs. See relevant Pandas documentation.
         """
         self._data.to_csv(out_file, **kwargs)
 
@@ -701,7 +795,7 @@ class PointDataCollection:
         out_file : Union[str, WindowsPath]
             Path to shapefile to be written.
         **kwargs
-            gpd.GeoDataFrame.to_file kwargs.
+            gpd.GeoDataFrame.to_file kwargs. See relevant GeoPandas documentation.
         """
         self.header.to_file(out_file, **kwargs)
 
@@ -716,7 +810,7 @@ class PointDataCollection:
         out_file : Union[str, WindowsPath]
             Path to shapefile to be written.
         **kwargs
-            gpd.GeoDataFrame.to_parquet kwargs.
+            gpd.GeoDataFrame.to_parquet kwargs. See relevant Pandas documentation.
         """
         self.header.to_parquet(out_file, **kwargs)
 
@@ -739,18 +833,18 @@ class PointDataCollection:
         Parameters
         ----------
         out_file : Union[str, WindowsPath]
-            Path to vtm file to be written
+            Path to vtm file to be written.
         data_columns : List[str]
             Labels of data columns to include for visualisation. Can be columns that
             contain an array of floats, ints and strings.
         radius : float, optional
-            Radius of the cylinders in m, by default 1
+            Radius of the cylinders in m, by default 1.
         vertical_factor : float, optional
             Factor to correct vertical scale. e.g. when layer boundaries are given in cm
             use 0.01 to convert to m, by default 1.0. It is not recommended to use this
             for vertical exaggeration, use viewer functionality for that instead.
         **kwargs :
-            pyvista.MultiBlock.save kwargs.
+            pyvista.MultiBlock.save kwargs. See relevant Pyvista documentation.
         """
         if not self.__vertical_reference == "NAP":
             raise NotImplementedError(
@@ -766,7 +860,7 @@ class PointDataCollection:
         self,
         columns: List[str],
         out_file: Union[str, WindowsPath] = None,
-        encode: bool = True,
+        encode: bool = False,
         **kwargs,
     ):
         """
@@ -789,9 +883,9 @@ class PointDataCollection:
             Which columns (in the self.data dataframe) to include.
         out_file : Union[str, WindowsPath]
             Path to pickle file to be written.
-        encode : bool
+        encode : bool, default True
             Encode categorical data to additional binary columns (0 or 1).
-            Also see explanation above. Default is True.
+            Also see explanation above. Default is False.
         """
         if not self.__vertical_reference == "NAP":
             raise NotImplementedError(
