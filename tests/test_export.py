@@ -65,15 +65,18 @@ class TestExport:
         cpg_file = self.export_folder.joinpath("test_output_file.cpg")
         dbf_file = self.export_folder.joinpath("test_output_file.dbf")
         shx_file = self.export_folder.joinpath("test_output_file.shx")
+        prj_file = self.export_folder.joinpath("test_output_file.prj")
         borehole_collection.to_shape(out_file)
         assert out_file.is_file()
         assert cpg_file.is_file()
         assert dbf_file.is_file()
         assert shx_file.is_file()
+        assert prj_file.is_file()
         out_file.unlink()
         cpg_file.unlink()
         dbf_file.unlink()
         shx_file.unlink()
+        prj_file.unlink()
 
     @pytest.mark.unittest
     def test_to_geoparquet(self, borehole_collection):
@@ -136,7 +139,7 @@ class TestExport:
     @pytest.mark.unittest
     def test_to_datafusiontools_list(self, borehole_collection):
         dft_objects = borehole_collection.to_datafusiontools(
-            ["data_string", "data_int", "data_float"]
+            ["data_string", "data_int", "data_float"], encode=True
         )
         assert len(dft_objects) == 1
         assert [var.label for var in dft_objects[0].variables] == [
@@ -170,7 +173,7 @@ class TestExport:
     def test_to_datafusiontools_pickle(self, borehole_collection):
         out_file = self.export_folder.joinpath("test_output_file.pickle")
         borehole_collection.to_datafusiontools(
-            ["data_string", "data_int", "data_float"], out_file=out_file
+            ["data_string", "data_int", "data_float"], encode=True, out_file=out_file
         )
         assert out_file.is_file()
         with open(out_file, "rb") as f:

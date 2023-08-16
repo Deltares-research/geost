@@ -41,6 +41,15 @@ def fancy_warning(func):
     return inner
 
 
+def fancy_info(func):
+    def inner(*args, **kwargs):
+        print("PLEASE NOTICE:\n--------")
+        func(*args, **kwargs)
+        print("--------\n")
+
+    return inner
+
+
 class ValidationError(Exception):
     pass
 

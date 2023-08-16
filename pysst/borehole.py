@@ -26,6 +26,9 @@ class BoreholeCollection(PointDataCollection):
         vertical_reference (str): Vertical reference, see
          :py:attr:`~pysst.base.PointDataCollection.vertical_reference`
 
+        horizontal_reference (int): Horizontal reference, see
+         :py:attr:`~pysst.base.PointDataCollection.horizontal_reference`
+
         header (pd.DataFrame): Header used for construction. see
          :py:attr:`~pysst.base.PointDataCollection.header`
     """
@@ -34,11 +37,16 @@ class BoreholeCollection(PointDataCollection):
         self,
         data: pd.DataFrame,
         vertical_reference: str = "NAP",
+        horizontal_reference: int = 28992,
         header: Optional[pd.DataFrame] = None,
         header_col_names: Optional[list] = None,
     ):
         super().__init__(
-            data, vertical_reference, header=header, header_col_names=header_col_names
+            data,
+            vertical_reference,
+            horizontal_reference,
+            header=header,
+            header_col_names=header_col_names,
         )
         self.__classification_system = "5104"
 
@@ -100,6 +108,9 @@ class CptCollection(PointDataCollection):
         vertical_reference (str): Vertical reference, see
          :py:attr:`~pysst.base.PointDataCollection.vertical_reference`
 
+        horizontal_reference (int): Horizontal reference, see
+         :py:attr:`~pysst.base.PointDataCollection.horizontal_reference`
+
         header (pd.DataFrame): Header used for construction. see
          :py:attr:`~pysst.base.PointDataCollection.header`
     """
@@ -108,9 +119,11 @@ class CptCollection(PointDataCollection):
         self,
         data: pd.DataFrame,
         vertical_reference: str = "NAP",
+        horizontal_reference: int = 28992,
         header: Optional[pd.DataFrame] = None,
+        header_col_names: Optional[list] = None,
     ):
-        super().__init__(data, vertical_reference, header=header)
+        super().__init__(data, vertical_reference, horizontal_reference, header=header)
 
     def add_ic(self):
         """

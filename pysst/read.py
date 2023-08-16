@@ -37,7 +37,9 @@ def __read_parquet(file: WindowsPath) -> pd.DataFrame:
 
 
 def read_sst_cores(
-    file: Union[str, WindowsPath], vertical_reference: str = "NAP"
+    file: Union[str, WindowsPath],
+    vertical_reference: str = "NAP",
+    horizontal_reference: int = 28992,
 ) -> BoreholeCollection:
     """
     Read Subsurface Toolbox native parquet file with core information.
@@ -50,6 +52,8 @@ def read_sst_cores(
         Which vertical reference is used for tops and bottoms. See
         :py:attr:`~pysst.base.PointDataCollection.vertical_reference` for documentation
         of this attribute.
+    horizontal_reference (int): Horizontal reference, see
+        :py:attr:`~pysst.base.PointDataCollection.horizontal_reference`
 
     Returns
     -------
@@ -57,11 +61,17 @@ def read_sst_cores(
         Instance of :class:`~pysst.borehole.BoreholeCollection`.
     """
     sst_cores = __read_parquet(Path(file))
-    return BoreholeCollection(sst_cores, vertical_reference=vertical_reference)
+    return BoreholeCollection(
+        sst_cores,
+        vertical_reference=vertical_reference,
+        horizontal_reference=horizontal_reference,
+    )
 
 
 def read_sst_cpts(
-    file: Union[str, WindowsPath], vertical_reference: str = "NAP"
+    file: Union[str, WindowsPath],
+    vertical_reference: str = "NAP",
+    horizontal_reference: int = 28992,
 ) -> CptCollection:
     """
     Read Subsurface Toolbox native parquet file with cpt information.
@@ -74,6 +84,8 @@ def read_sst_cpts(
         Which vertical reference is used for tops and bottoms. See
         :py:attr:`~pysst.base.PointDataCollection.vertical_reference` for documentation
         of this attribute.
+    horizontal_reference (int): Horizontal reference, see
+        :py:attr:`~pysst.base.PointDataCollection.horizontal_reference`
 
     Returns
     -------
@@ -82,10 +94,16 @@ def read_sst_cpts(
     """
     filepath = Path(file)
     sst_cpts = __read_parquet(filepath)
-    return CptCollection(sst_cpts, vertical_reference=vertical_reference)
+    return CptCollection(
+        sst_cpts,
+        vertical_reference=vertical_reference,
+        horizontal_reference=horizontal_reference,
+    )
 
 
-def read_nlog_cores(file: Union[str, WindowsPath]) -> BoreholeCollection:
+def read_nlog_cores(
+    file: Union[str, WindowsPath], horizontal_reference: int = 28992
+) -> BoreholeCollection:
     """
     Read NLog boreholes from the 'nlog_stratstelsel' Excel file. You can find this
     distribution of borehole data here: https://www.nlog.nl/boringen
@@ -98,6 +116,8 @@ def read_nlog_cores(file: Union[str, WindowsPath]) -> BoreholeCollection:
     ----------
     file : Union[str, WindowsPath]
         Path to nlog_stratstelsel.xlsx or .parquet
+    horizontal_reference (int): Horizontal reference, see
+        :py:attr:`~pysst.base.PointDataCollection.horizontal_reference`
 
     Returns
     -------
@@ -137,10 +157,16 @@ def read_nlog_cores(file: Union[str, WindowsPath]) -> BoreholeCollection:
         end.append(data["bottom"].iloc[-1])
 
     header = header_to_geopandas(
-        pd.DataFrame({"nr": nrs, "x": x, "y": y, "mv": mv, "end": end})
+        pd.DataFrame({"nr": nrs, "x": x, "y": y, "mv": mv, "end": end}),
+        horizontal_reference,
     )
 
-    return BoreholeCollection(nlog_cores, vertical_reference="NAP", header=header)
+    return BoreholeCollection(
+        nlog_cores,
+        vertical_reference="NAP",
+        horizontal_reference=horizontal_reference,
+        header=header,
+    )
 
 
 def read_xml_geotechnical_cores(

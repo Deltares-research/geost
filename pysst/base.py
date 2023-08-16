@@ -9,8 +9,9 @@ import pandas as pd
 from pysst import spatial
 from pysst.analysis import cumulative_thickness, layer_top
 from pysst.export import borehole_to_multiblock, export_to_dftgeodata
+from pysst.projections import get_coors, get_transformer
 from pysst.utils import MissingOptionalModule
-from pysst.validate import fancy_warning
+from pysst.validate import fancy_info, fancy_warning
 from pysst.validate.validation_schemes import (
     common_dataschema,
     common_dataschema_depth_reference,
@@ -30,6 +31,7 @@ except ModuleNotFoundError:
 
 
 warn = fancy_warning(lambda warning_info: print(warning_info))
+inform = fancy_warning(lambda info: print(info))
 
 Coordinate = TypeVar("Coordinate", int, float)
 GeoDataFrame = TypeVar("GeoDataFrame")
@@ -54,6 +56,9 @@ class PointDataCollection:
         vertical_reference (str): Vertical reference, see
          :py:attr:`~pysst.base.PointDataCollection.vertical_reference`
 
+        horizontal_reference (int): Horizontal reference, see
+         :py:attr:`~pysst.base.PointDataCollection.horizontal_reference`
+
         header (pd.DataFrame): Header used for construction. see
          :py:attr:`~pysst.base.PointDataCollection.header`
     """
@@ -62,10 +67,12 @@ class PointDataCollection:
         self,
         data: pd.DataFrame,
         vertical_reference: str,
+        horizontal_reference: int,
         header: Optional[pd.DataFrame] = None,
         header_col_names: Optional[list] = None,
     ):
         self.__vertical_reference = vertical_reference
+        self.__horizontal_reference = horizontal_reference
         self.data = data
         if isinstance(header, pd.DataFrame):
             self.header = header
@@ -111,13 +118,13 @@ class PointDataCollection:
 
         header = self.data.drop_duplicates(subset=header_col_names[0])
         header = header[header_col_names].reset_index(drop=True)
-        self.header = create_header(header)
+        self.header = create_header(header, self.horizontal_reference)
 
     @property
     def header(self):
         """
-        Pandas dataframe of header (1 row per borehole/cpt) and includes at the minimum:
-        point id, x-coordinate, y-coordinate, surface level and end depth:
+        Pandas dataframe of header (1 row per object in the collection) and includes at
+        the minimum: point id, x-coordinate, y-coordinate, surface level and end depth:
 
         Column names:
         ["nr", "x", "y", "mv", "end"]
@@ -167,6 +174,20 @@ class PointDataCollection:
             layers tops could be 0, 1, 2 etc.).
         """
         return self.__vertical_reference
+
+    @property
+    def horizontal_reference(self):
+        """
+        Current horizontal reference of the collection. The horizontal reference must
+        be correct in order for spatial selection functions to work.
+
+        Returns
+        -------
+        int
+            EPSG code of the coordinate reference system (crs) used for point geometries
+            in :py:attr:`~pysst.base.PointDataCollection.header`
+        """
+        return self.__horizontal_reference
 
     @header.setter
     def header(self, header):
@@ -237,6 +258,38 @@ class PointDataCollection:
                     self._data["bottom"] = self._data["bottom"] * -1
                     self.__vertical_reference = "surfacelevel"
 
+    def change_horizontal_reference(
+        self, target_crs: int, only_geometries: bool = True
+    ):
+        """
+        Change the horizontal reference (i.e. coordinate reference system, crs) of the
+        collection to the given target crs.
+
+        Parameters
+        ----------
+        to_crs : int
+            EPSG of the target crs
+        only_geometries : bool, optional
+            Only transform the point geometries, but leave the 'x' and 'y' columns in
+            both header and data in the original crs. Only converting geometries is much
+            faster and ensures that geometry exports of the collection behave as
+            expected, by default True.
+        """
+        self._header = self._header.to_crs(target_crs)
+        if not only_geometries:
+            header_xy_unpacked = [
+                (x, y) for x, y in zip(self._header.x, self._header.y)
+            ]
+            data_xy_unpacked = [(x, y) for x, y in zip(self._data.x, self._data.y)]
+            # Create Pyproj transformer from this collection's crs to target crs
+            transformer = get_transformer(self.horizontal_reference, target_crs)
+            header_xy_transformed = transformer.itransform(header_xy_unpacked)
+            data_xy_transformed = transformer.itransform(data_xy_unpacked)
+            self._header["x"], self._header["y"] = get_coors(header_xy_transformed)
+            self._data["x"], self._data["y"] = get_coors(data_xy_transformed)
+
+        self.__horizontal_reference = target_crs
+
     def select_within_bbox(
         self,
         xmin: Coordinate,
@@ -246,7 +299,9 @@ class PointDataCollection:
         invert: bool = False,
     ):
         """
-        Make a selection of the data based on a bounding box.
+        Make a selection of the data based on a bounding box of coordinates in the
+        horizontal reference system of the collection. See also
+        :py:attr:`~pysst.base.PointDataCollection.horizontal_reference`
 
         Parameters
         ----------
@@ -305,6 +360,21 @@ class PointDataCollection:
             :class:`~pysst.borehole.CptCollection` containing only objects selected by
             this method.
         """
+        if point_gdf.crs != self.horizontal_reference:
+            point_gdf = point_gdf.to_crs(self.horizontal_reference)
+            inform(
+                "The crs of the selection geometry does not match the horizontal "
+                + "reference of the collection. The selection geometry was coerced "
+                + f"Geometry coercedto epsg:{self.horizontal_reference} automatically"
+            )
+        elif point_gdf.crs is None:
+            point_gdf.crs = self.horizontal_reference
+            warn(
+                "The selection geometry has no crs! Assuming it is the same as the "
+                + f"horizontal_reference (epsg:{self.horizontal_reference}) of this "
+                + "collection",
+            )
+
         selected_header = spatial.header_from_points(
             self.header, point_gdf, buffer, invert
         )
@@ -342,6 +412,21 @@ class PointDataCollection:
             :class:`~pysst.borehole.CptCollection` containing only objects selected by
             this method.
         """
+        if line_gdf.crs != self.horizontal_reference:
+            line_gdf = line_gdf.to_crs(self.horizontal_reference)
+            inform(
+                "The crs of the selection geometry does not match the horizontal "
+                + "reference of the collection. The selection geometry was coerced "
+                + f"to epsg:{self.horizontal_reference} automatically"
+            )
+        elif line_gdf.crs is None:
+            line_gdf.crs = self.horizontal_reference
+            warn(
+                "The selection geometry has no crs! Assuming it is the same as the "
+                + f"horizontal_reference (epsg:{self.horizontal_reference}) of this "
+                + "collection"
+            )
+
         selected_header = spatial.header_from_lines(
             self.header, line_gdf, buffer, invert
         )
@@ -377,6 +462,21 @@ class PointDataCollection:
             :class:`~pysst.borehole.CptCollection` containing only objects selected by
             this method.
         """
+        if polygon_gdf.crs != self.horizontal_reference:
+            polygon_gdf = polygon_gdf.to_crs(self.horizontal_reference)
+            inform(
+                "The crs of the selection geometry does not match the horizontal "
+                + "reference of the collection. The selection geometry was coerced "
+                + f"to epsg:{self.horizontal_reference} automatically"
+            )
+        elif polygon_gdf.crs is None:
+            polygon_gdf.crs = self.horizontal_reference
+            warn(
+                "The selection geometry has no crs! Assuming it is the same as the "
+                + f"horizontal_reference (epsg:{self.horizontal_reference}) of this "
+                + "collection"
+            )
+
         selected_header = spatial.header_from_polygons(
             self.header, polygon_gdf, buffer, invert
         )
@@ -739,7 +839,10 @@ class PointDataCollection:
             If the instance 'other' is not of the same type as self (e.g. when
             attempting to append a CptCollection to a BoreholeCollection).
         """
-        if self.__class__ == other.__class__:
+        if (
+            self.__class__ == other.__class__
+            and self.horizontal_reference == other.horizontal_reference
+        ):
             # Check overlap first and remove duplicates from 'other' if required
             other_header_overlap = other.header["nr"].isin(self.header["nr"])
             if any(other_header_overlap):
@@ -756,7 +859,8 @@ class PointDataCollection:
         else:
             raise TypeError(
                 f"Cannot join instance of {self.__class__} with an instance of ",
-                f"{other.__class__}",
+                f"{other.__class__}: collection types AND horizontal references must ",
+                "match",
             )
 
     def to_parquet(self, out_file: Union[str, WindowsPath], **kwargs):
