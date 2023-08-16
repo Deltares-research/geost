@@ -365,7 +365,7 @@ class PointDataCollection:
             inform(
                 "The crs of the selection geometry does not match the horizontal "
                 + "reference of the collection. The selection geometry was coerced "
-                + f"Geometry coercedto epsg:{self.horizontal_reference} automatically"
+                + f"to epsg:{self.horizontal_reference} automatically"
             )
         elif point_gdf.crs is None:
             point_gdf.crs = self.horizontal_reference
