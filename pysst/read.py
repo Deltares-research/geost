@@ -1,6 +1,7 @@
 from pathlib import Path, WindowsPath
 from typing import Union
 
+import numpy as np
 import pandas as pd
 
 # Local imports
@@ -149,12 +150,22 @@ def read_nlog_cores(
     y = []
     mv = []
     end = []
+    nrs_data = []
+    mv_data = []
+    end_data = []
     for nr, data in nlog_cores.groupby("nr"):
-        nrs.append(data["nr"].iloc[0])
+        nrs.append(nr)
         x.append(data["x"].iloc[0])
         y.append(data["y"].iloc[0])
         mv.append(data["top"].iloc[0])
         end.append(data["bottom"].iloc[-1])
+        nrs_data += [nr for i in range(len(data))]
+        mv_data += [data["top"].iloc[0] for i in range(len(data))]
+        end_data += [data["bottom"].iloc[-1] for i in range(len(data))]
+
+    mv_end_df = pd.DataFrame({"nr": nrs_data, "mv": mv_data, "end": end_data})
+
+    nlog_cores = nlog_cores.merge(mv_end_df, on="nr", how="left")
 
     header = header_to_geopandas(
         pd.DataFrame({"nr": nrs, "x": x, "y": y, "mv": mv, "end": end}),
