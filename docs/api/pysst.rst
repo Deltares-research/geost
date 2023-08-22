@@ -1,4 +1,4 @@
-pysst package
+API reference
 =============
 
 .. automodule:: pysst
@@ -6,7 +6,7 @@ pysst package
    :undoc-members:
    :show-inheritance:
 
-Submodules
+Modules
 ----------
 
 pysst.base module
