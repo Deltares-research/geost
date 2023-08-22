@@ -81,8 +81,8 @@ def cumulative_thickness(data, column: str, value: str):
     for nr, obj in data.groupby("nr"):
         try:
             selected_layers_in_obj = obj[obj[column] == value]
-            cumulative_thickness = np.sum(
-                selected_layers_in_obj["top"] - selected_layers_in_obj["bottom"]
+            cumulative_thickness = np.abs(
+                np.sum(selected_layers_in_obj["top"] - selected_layers_in_obj["bottom"])
             )
         except IndexError:
             cumulative_thickness = 0

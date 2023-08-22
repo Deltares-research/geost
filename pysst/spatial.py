@@ -20,11 +20,11 @@ except ModuleNotFoundError:
 GeoDataFrame = TypeVar("GeoDataFrame")
 
 
-def header_to_geopandas(entries_df) -> GeoDataFrame:
+def header_to_geopandas(entries_df, crs) -> GeoDataFrame:
     points = [
         Point([x, y]) for x, y in zip(entries_df.x, entries_df.y)
     ]  # TODO check with shapely 2.0
-    header_as_gdf = gpd.GeoDataFrame(entries_df, geometry=points)
+    header_as_gdf = gpd.GeoDataFrame(entries_df, geometry=points, crs=crs)
     return header_as_gdf
 
 
