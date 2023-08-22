@@ -1,11 +1,12 @@
+from pathlib import Path
+
 import geopandas as gpd
 import pandas as pd
 import pytest
 from numpy.testing import assert_allclose
-from pathlib import Path
 
-from pysst.borehole import BoreholeCollection
 from pysst import read_sst_cores
+from pysst.borehole import BoreholeCollection
 
 borehole_file = Path(__file__).parent / "data" / "test_boreholes.parquet"
 selection_file = Path(__file__).parent / "data" / "test_polygon.parquet"
