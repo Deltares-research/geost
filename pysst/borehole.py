@@ -1,6 +1,9 @@
-from typing import Optional
+from pathlib import Path, WindowsPath
+from typing import Optional, Union
 
+import geopandas as gpd
 import pandas as pd
+from shapely import LineString
 
 # from pysst.validate import BoreholeSchema, CptSchema
 from pysst.analysis import top_of_sand
@@ -90,6 +93,66 @@ class BoreholeCollection(PointDataCollection):
             self.header = self.header.join(cover_layer_df["cover_thickness"])
         else:
             return cover_layer_df
+
+    def to_qgis3d(self, out_file: Union[str, WindowsPath], **kwargs):
+        """
+        Write data to geopackage file that can be directly loaded in the Qgis2threejs
+        plugin. Works only for layered (borehole) data.
+
+        PLEASE NOTE:
+        PySST does not support inclined boreholes yet. 3D visualisation may look a bit
+        weird for the time being with layers being displaced instead of inclined.
+
+        Parameters
+        ----------
+        out_file : Union[str, WindowsPath]
+            Path to geopackage file to be written.
+        **kwargs
+            geopandas.GeodataFrame.to_file kwargs. See relevant Geopandas documentation.
+
+        """
+        initial_vref = self.vertical_reference
+
+        if initial_vref != "NAP":
+            self.change_vertical_reference("NAP")
+
+        data_columns = [
+            col
+            for col in self.data.columns
+            if col not in ["nr", "x", "y", "mv", "end", "top", "bottom"]
+        ]
+
+        data_to_write = dict(
+            HoleID=self.data["nr"].values,
+            From=self.data["top"].values,
+            To=self.data["bottom"].values,
+            _From_x=self.data["x"].values,
+            _From_y=self.data["y"].values,
+            _From_z=self.data["top"].values + 0.01,
+            _To_x=self.data["x"].values,
+            _To_y=self.data["y"].values,
+            _To_z=self.data["bottom"].values + 0.01,
+            _Mid_x=self.data["x"].values,
+            _Mid_y=self.data["y"].values,
+            _Mid_z=(self.data["bottom"].values + self.data["top"].values) / 2 + 0.01,
+        )
+
+        data_to_write.update(self.data[data_columns].to_dict(orient="list"))
+
+        geometries = [
+            LineString([[x, y, top + 0.01], [x, y, bottom + 0.01]])
+            for x, y, top, bottom in zip(
+                self.data["x"].values,
+                self.data["y"].values,
+                self.data["top"].values,
+                self.data["bottom"].values,
+            )
+        ]
+
+        geodataframe_result = gpd.GeoDataFrame(data=data_to_write, geometry=geometries)
+        geodataframe_result.to_file(Path(out_file))
+
+        self.change_vertical_reference(initial_vref)
 
 
 class CptCollection(PointDataCollection):

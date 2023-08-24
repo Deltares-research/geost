@@ -163,7 +163,9 @@ def read_nlog_cores(
         mv_data += [data["top"].iloc[0] for i in range(len(data))]
         end_data += [data["bottom"].iloc[-1] for i in range(len(data))]
 
-    mv_end_df = pd.DataFrame({"nr": nrs_data, "mv": mv_data, "end": end_data})
+    mv_end_df = pd.DataFrame(
+        {"nr": nrs_data, "mv": mv_data, "end": end_data}
+    ).drop_duplicates("nr")
 
     nlog_cores = nlog_cores.merge(mv_end_df, on="nr", how="left")
 
