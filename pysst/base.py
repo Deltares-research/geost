@@ -16,6 +16,7 @@ from pysst.validate.validation_schemes import (
     common_dataschema,
     common_dataschema_depth_reference,
     headerschema,
+    inclined_dataschema,
 )
 
 # Optional imports
@@ -69,15 +70,16 @@ class PointDataCollection:
         vertical_reference: str,
         horizontal_reference: int,
         header: Optional[pd.DataFrame] = None,
-        header_col_names: Optional[list] = None,
+        is_inclined: bool = False,
     ):
         self.__vertical_reference = vertical_reference
         self.__horizontal_reference = horizontal_reference
+        self.__is_inclined = is_inclined
         self.data = data
         if isinstance(header, pd.DataFrame):
             self.header = header
         else:
-            self.reset_header(header_col_names)
+            self.reset_header()
 
     def __new__(cls, *args, **kwargs):
         if cls is PointDataCollection:
@@ -91,31 +93,18 @@ class PointDataCollection:
     def __repr__(self):
         return f"{self.__class__.__name__}:\n# header = {self.n_points}"
 
-    def reset_header(self, header_col_names=None):
+    def reset_header(self):
         """
         Create a new header based on the 'data' dataframe
         (:py:attr:`~pysst.base.PointDataCollection.data`). Can be used to reset the
         header in case you accidentally broke the header.
-
-        Parameters
-        ----------
-        header_col_names : List or Tuple, optional
-            column names to use in the header, by default None (use default names)
 
         Raises
         ------
         TypeError
             If len(header_col_names) != 5
         """
-        if isinstance(header_col_names, list):
-            if not len(header_col_names) == 5:
-                raise TypeError(
-                    "The header aliases must be aliases for (in order): 'nr', 'x', 'y'",
-                    "'mv', 'end'",
-                )
-        else:
-            header_col_names = ["nr", "x", "y", "mv", "end"]
-
+        header_col_names = ["nr", "x", "y", "mv", "end"]
         header = self.data.drop_duplicates(subset=header_col_names[0])
         header = header[header_col_names].reset_index(drop=True)
         self.header = create_header(header, self.horizontal_reference)
@@ -189,6 +178,19 @@ class PointDataCollection:
         """
         return self.__horizontal_reference
 
+    @property
+    def is_inclined(self):
+        """
+        Whether borehole/cpt/log is inclined.
+
+        Returns
+        -------
+        bool
+            True if one or more of the objects in the collection are inclined. False
+            if all objects go straight downward.
+        """
+        return self.__is_inclined
+
     @header.setter
     def header(self, header):
         """
@@ -214,6 +216,10 @@ class PointDataCollection:
             common_dataschema_depth_reference.validate(data)
         else:
             common_dataschema.validate(data)
+
+        if self.is_inclined:
+            inclined_dataschema.validate(data)
+
         self._data = data
 
     def change_vertical_reference(self, to: str):
@@ -287,6 +293,16 @@ class PointDataCollection:
             data_xy_transformed = transformer.itransform(data_xy_unpacked)
             self._header["x"], self._header["y"] = get_coors(header_xy_transformed)
             self._data["x"], self._data["y"] = get_coors(data_xy_transformed)
+            if self.is_inclined:
+                data_xy_inclined_unpacked = [
+                    (x, y) for x, y in zip(self._data.x_bot, self._data.y_bot)
+                ]
+                data_xy_inclined_transformed = transformer.itransform(
+                    data_xy_inclined_unpacked
+                )
+                self._data["x_bot"], self._data["y_bot"] = get_coors(
+                    data_xy_inclined_transformed
+                )
 
         self.__horizontal_reference = target_crs
 
@@ -332,7 +348,9 @@ class PointDataCollection:
         return self.__class__(
             selection,
             vertical_reference=self.vertical_reference,
+            horizontal_reference=self.horizontal_reference,
             header=selected_header,
+            is_inclined=self.is_inclined,
         )
 
     def select_with_points(
@@ -384,7 +402,9 @@ class PointDataCollection:
         return self.__class__(
             selection,
             vertical_reference=self.vertical_reference,
+            horizontal_reference=self.horizontal_reference,
             header=selected_header,
+            is_inclined=self.is_inclined,
         )
 
     def select_with_lines(
@@ -436,7 +456,9 @@ class PointDataCollection:
         return self.__class__(
             selection,
             vertical_reference=self.vertical_reference,
+            horizontal_reference=self.horizontal_reference,
             header=selected_header,
+            is_inclined=self.is_inclined,
         )
 
     def select_within_polygons(
@@ -486,7 +508,9 @@ class PointDataCollection:
         return self.__class__(
             selection,
             vertical_reference=self.vertical_reference,
+            horizontal_reference=self.horizontal_reference,
             header=selected_header,
+            is_inclined=self.is_inclined,
         )
 
     def select_by_values(
@@ -550,7 +574,9 @@ class PointDataCollection:
         return self.__class__(
             selection,
             vertical_reference=self.vertical_reference,
+            horizontal_reference=self.horizontal_reference,
             header=selected_header,
+            is_inclined=self.is_inclined,
         )
 
     def select_by_depth(
@@ -600,7 +626,9 @@ class PointDataCollection:
         return self.__class__(
             selection,
             vertical_reference=self.vertical_reference,
+            horizontal_reference=self.horizontal_reference,
             header=selected_header,
+            is_inclined=self.is_inclined,
         )
 
     def select_by_length(self, min_length: float = None, max_length: float = None):
@@ -635,7 +663,9 @@ class PointDataCollection:
         return self.__class__(
             selection,
             vertical_reference=self.vertical_reference,
+            horizontal_reference=self.horizontal_reference,
             header=selected_header,
+            is_inclined=self.is_inclined,
         )
 
     def slice_depth_interval(
@@ -698,7 +728,9 @@ class PointDataCollection:
         result = self.__class__(
             data_sliced,
             vertical_reference=vertical_reference,
+            horizontal_reference=self.horizontal_reference,
             header=header_sliced,
+            is_inclined=self.is_inclined,
         )
 
         result.change_vertical_reference(original_vertical_reference)

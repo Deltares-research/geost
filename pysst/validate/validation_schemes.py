@@ -24,6 +24,14 @@ common_dataschema = DataFrameSchema(
     },
 )
 
+inclined_dataschema = DataFrameSchema(
+    "inclined layer data additional validation",
+    {
+        "x_bot": Column(numeric),
+        "y_bot": Column(numeric),
+    },
+)
+
 common_dataschema_depth_reference = DataFrameSchema(
     "layer data (with vertical reference=depth) validation",
     {

@@ -136,6 +136,8 @@ def read_nlog_cores(
             "NITG_NR": "nr",
             "X_TOP_RD": "x",
             "Y_TOP_RD": "y",
+            "X_BOTTOM_RD": "x_bot",
+            "Y_BOTTOM_RD": "y_bot",
             "TV_TOP_NAP": "top",
             "TV_BOTTOM_NAP": "bottom",
         },
@@ -148,6 +150,8 @@ def read_nlog_cores(
     nrs = []
     x = []
     y = []
+    x_bot = []
+    y_bot = []
     mv = []
     end = []
     nrs_data = []
@@ -157,6 +161,8 @@ def read_nlog_cores(
         nrs.append(nr)
         x.append(data["x"].iloc[0])
         y.append(data["y"].iloc[0])
+        x_bot.append(data["x_bot"].iloc[0])
+        y_bot.append(data["y_bot"].iloc[0])
         mv.append(data["top"].iloc[0])
         end.append(data["bottom"].iloc[-1])
         nrs_data += [nr for i in range(len(data))]
@@ -179,6 +185,7 @@ def read_nlog_cores(
         vertical_reference="NAP",
         horizontal_reference=horizontal_reference,
         header=header,
+        is_inclined=True,
     )
 
 

@@ -42,14 +42,14 @@ class BoreholeCollection(PointDataCollection):
         vertical_reference: str = "NAP",
         horizontal_reference: int = 28992,
         header: Optional[pd.DataFrame] = None,
-        header_col_names: Optional[list] = None,
+        is_inclined: bool = False,
     ):
         super().__init__(
             data,
             vertical_reference,
             horizontal_reference,
             header=header,
-            header_col_names=header_col_names,
+            is_inclined=is_inclined,
         )
         self.__classification_system = "5104"
 
@@ -111,48 +111,48 @@ class BoreholeCollection(PointDataCollection):
             geopandas.GeodataFrame.to_file kwargs. See relevant Geopandas documentation.
 
         """
-        initial_vref = self.vertical_reference
-
-        if initial_vref != "NAP":
-            self.change_vertical_reference("NAP")
-
         data_columns = [
             col
             for col in self.data.columns
-            if col not in ["nr", "x", "y", "mv", "end", "top", "bottom"]
+            if col
+            not in ["nr", "x", "y", "x_bot", "y_bot", "mv", "end", "top", "bottom"]
         ]
 
         data_to_write = dict(
-            HoleID=self.data["nr"].values,
-            From=self.data["top"].values,
-            To=self.data["bottom"].values,
-            _From_x=self.data["x"].values,
-            _From_y=self.data["y"].values,
-            _From_z=self.data["top"].values + 0.01,
-            _To_x=self.data["x"].values,
-            _To_y=self.data["y"].values,
-            _To_z=self.data["bottom"].values + 0.01,
-            _Mid_x=self.data["x"].values,
-            _Mid_y=self.data["y"].values,
-            _Mid_z=(self.data["bottom"].values + self.data["top"].values) / 2 + 0.01,
+            nr=self.data["nr"].values,
+            top=self.data["top"].values,
+            bottom=self.data["bottom"].values,
         )
 
         data_to_write.update(self.data[data_columns].to_dict(orient="list"))
 
-        geometries = [
-            LineString([[x, y, top + 0.01], [x, y, bottom + 0.01]])
-            for x, y, top, bottom in zip(
-                self.data["x"].values,
-                self.data["y"].values,
-                self.data["top"].values,
-                self.data["bottom"].values,
-            )
-        ]
+        if self.is_inclined:
+            geometries = [
+                LineString([[x, y, top + 0.01], [x_bot, y_bot, bottom + 0.01]])
+                for x, y, x_bot, y_bot, top, bottom in zip(
+                    self.data["x"].values,
+                    self.data["y"].values,
+                    self.data["x_bot"].values,
+                    self.data["y_bot"].values,
+                    self.data["top"].values,
+                    self.data["bottom"].values,
+                )
+            ]
+        else:
+            geometries = [
+                LineString([[x, y, top + 0.01], [x, y, bottom + 0.01]])
+                for x, y, top, bottom in zip(
+                    self.data["x"].values,
+                    self.data["y"].values,
+                    self.data["top"].values,
+                    self.data["bottom"].values,
+                )
+            ]
 
-        geodataframe_result = gpd.GeoDataFrame(data=data_to_write, geometry=geometries)
+        geodataframe_result = gpd.GeoDataFrame(
+            data=data_to_write, geometry=geometries, crs=self.horizontal_reference
+        )
         geodataframe_result.to_file(Path(out_file))
-
-        self.change_vertical_reference(initial_vref)
 
 
 class CptCollection(PointDataCollection):
@@ -184,9 +184,15 @@ class CptCollection(PointDataCollection):
         vertical_reference: str = "NAP",
         horizontal_reference: int = 28992,
         header: Optional[pd.DataFrame] = None,
-        header_col_names: Optional[list] = None,
+        is_inclined: bool = False,
     ):
-        super().__init__(data, vertical_reference, horizontal_reference, header=header)
+        super().__init__(
+            data,
+            vertical_reference,
+            horizontal_reference,
+            header=header,
+            is_inclined=is_inclined,
+        )
 
     def add_ic(self):
         """
