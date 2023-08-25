@@ -986,6 +986,10 @@ class PointDataCollection:
             raise NotImplementedError(
                 'VTM export is not available for other vertical references than "NAP"'
             )
+        if self.is_inclined:
+            raise NotImplementedError(
+                "VTM export of inclined objects is not yet supported"
+            )
 
         vtk_object = borehole_to_multiblock(
             self.data, data_columns, radius, vertical_factor, **kwargs
