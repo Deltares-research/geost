@@ -33,7 +33,7 @@ COLUMN_DEFS_DATA_BLOCK_CPT = {
     8: ColumnInfo('inclination_res', 'degrees', 'inclination (resultant)', True),
     9: ColumnInfo('inclination_ns', 'degrees', 'inclination (North-South)', True),
     10: ColumnInfo('inclination_ew', 'degrees', 'inclination (East-West)', True),
-    11: ColumnInfo('corrected_depth', 'm', 'corrected depth, below fixed surface', True),
+    11: ColumnInfo('corrected_depth', 'm', 'corrected depth, below fixed surface', True),  # noqa: E501
     12: ColumnInfo('time', 's', 'time', True),
     13: ColumnInfo('qt', 'MPa', 'corrected cone resistance', True),
     14: ColumnInfo('qn', 'MPa', 'net cone resistance', True),
@@ -60,8 +60,8 @@ RESERVED_MEASUREMENTVARS_CPT = {
     1: CptMeasurementVar(1000, 'mm2', 'nom. surface area cone tip', True),
     2: CptMeasurementVar(15000, 'mm2', 'nom. surface area friction sleeve', True),
     3: CptMeasurementVar(None, '', 'net surface area quotient of cone tip', True),
-    4: CptMeasurementVar(None, '', 'net surface area quotient of friction sleeve', True),
-    5: CptMeasurementVar(100, 'mm', 'distance of cone to centre of friction sleeve', True),
+    4: CptMeasurementVar(None, '', 'net surface area quotient of friction sleeve', True),  # noqa: E501
+    5: CptMeasurementVar(100, 'mm', 'distance of cone to centre of friction sleeve', True),  # noqa: E501
     6: CptMeasurementVar(None, '', 'friction present', True),
     7: CptMeasurementVar(None, '', 'PPT u1 present', True),
     8: CptMeasurementVar(None, '', 'PPT u2 present', True),
@@ -88,17 +88,17 @@ RESERVED_MEASUREMENTVARS_CPT = {
     29: CptMeasurementVar(None, 'MPa', 'zero measurement PPT u3 after', True),
     30: CptMeasurementVar(None, 'degrees', 'zero measurement inclination before', True),
     31: CptMeasurementVar(None, 'degrees', 'zero measurement inclination after', True),
-    32: CptMeasurementVar(None, 'degrees', 'zero measurement inclination NS before', True),
-    33: CptMeasurementVar(None, 'degrees', 'zero measurement inclination NS after', True),
-    34: CptMeasurementVar(None, 'degrees', 'zero measurement inclination EW before', True),
-    35: CptMeasurementVar(None, 'degrees', 'zero measurement inclination EW after', True),
+    32: CptMeasurementVar(None, 'degrees', 'zero measurement inclination NS before', True),  # noqa: E501
+    33: CptMeasurementVar(None, 'degrees', 'zero measurement inclination NS after', True),  # noqa: E501
+    34: CptMeasurementVar(None, 'degrees', 'zero measurement inclination EW before', True),  # noqa: E501
+    35: CptMeasurementVar(None, 'degrees', 'zero measurement inclination EW after', True),  # noqa: E501
     # 36: CptMeasurementVar(None, '', 'for future use', True),
     # 37: CptMeasurementVar(None, '', 'for future use', True),
     # 38: CptMeasurementVar(None, '', 'for future use', True),
     # 39: CptMeasurementVar(None, '', 'for future use', True),
     # 40: CptMeasurementVar(None, '', 'for future use', True),
     41: CptMeasurementVar(None, 'km', 'mileage', True),
-    42: CptMeasurementVar(None, 'degrees', 'Orientation between X axis inclination and North', True),
+    42: CptMeasurementVar(None, 'degrees', 'Orientation between X axis inclination and North', True),  # noqa: E501
 }
 
 
@@ -146,7 +146,7 @@ class CptGefFile:
         self.fileowner = None
         self.lastscan = None
         self.procedurecode = None  # mandatory if gefid is 1, 0, 0
-        self.reportcode = None  # this or procedurecode is mandatory if gefid is 1, 1, 0 or higher
+        self.reportcode = None  # this or procedurecode is mandatory if gefid > 1, 1, 0
         self.projectid = None
         self.measurementtext = dict()
 
@@ -187,7 +187,7 @@ class CptGefFile:
         if not hasattr(self, '_df'):
             self.to_df()
         return self._df
-    
+
     @property
     def header(self):
         header = pd.Series(
@@ -200,7 +200,7 @@ class CptGefFile:
     def columns(self):
         columns = [f'{c.value}' for c in self.columninfo.values()]
         return columns
-    
+
     @property
     def point(self):
         return Point(self.x, self.y)
@@ -234,7 +234,7 @@ class CptGefFile:
 
     @staticmethod
     def __split_line(line):
-        return [l.strip() for l in line.split(',')]
+        return [l.strip() for l in line.split(',')]  # noqa: E741
 
     def parse_data(self):
         """
@@ -268,9 +268,14 @@ class CptGefFile:
         df.columns = self.columns
 
         if 'rf' not in df.columns:
-            df['rf'] = (df['fs']/df['qc']) * 100
+            try:
+                df['rf'] = (df['fs']/df['qc']) * 100
+            except KeyError:
+                logging.warning(
+                    f'Missing data in {self.nr}. Data present: {self.columns}'
+                )
 
-        if 'corrected_depth' in df.columns:  # TODO: implement calc corrected depth from inclination if not in columns
+        if 'corrected_depth' in df.columns:  # TODO: implement calc corrected depth from inclination if not in columns  # noqa: E501
             df['depth'] = self.z - df['corrected_depth']
         else:
             df['depth'] = self.z - df['length']
