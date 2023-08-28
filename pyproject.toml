@@ -21,7 +21,7 @@ line-length = 88
 line-length = 88
 target-version = "py310"
 select = ["F", "E", "W", "N", "I001"]
-ignore = ["F401"]
+ignore = ["F401", "I001"]
 unfixable = ["F401"]
 
 [tool.ruff.pydocstyle]

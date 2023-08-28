@@ -12,7 +12,7 @@ def dummy_cpt_data():
     columns = ['length', 'qc', 'fs', 'rf']
     columninfo = {ii: ColumnInfo(c, None, None, None) for ii, c in enumerate(columns)}
     columnvoid = {0: -9999.0, 1: -9999.0, 2: -999.0, 3: -9999.0}
-    
+
     length = ['1.300000', '1.320000', '1.340000', '1.360000', '1.380000']
     qc = ['-9999.0000', '0.227523', '0.279521', '0.327816', '-9999.0000']
     fs = ['-999.000', '0.010076', '0.014140', '-999.000', '0.020937']
@@ -113,7 +113,7 @@ class TestCptGefParser:
             207,
             )
         return cpt, info_to_test
-    
+
     @pytest.fixture
     def dummy_cpt_with_rf(self):
         z, columninfo, columnvoid, data = dummy_cpt_data()
@@ -123,7 +123,7 @@ class TestCptGefParser:
         cpt.columninfo = columninfo
         cpt.columnvoid = columnvoid
         cpt._data = data
-        
+
         return cpt
 
     @pytest.mark.unittest
@@ -150,7 +150,7 @@ class TestCptGefParser:
         critical_cols_from_file = ['length', 'qc', 'fs']
         assert all(col in cpt.columns for col in critical_cols_from_file)
         assert len(cpt.df) == test_info.nrecords
-    
+
     @pytest.mark.unittest
     def test_to_dataframe(self, dummy_cpt_with_rf):
         dummy_cpt_with_rf.to_df()
@@ -166,4 +166,3 @@ class TestCptGefParser:
         assert all(df.columns==target_columns)
 
         assert_array_almost_equal(df['depth'], target_depth)
-        

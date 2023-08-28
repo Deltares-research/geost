@@ -172,7 +172,10 @@ def read_gef_cores(file_or_folder: Union[str, WindowsPath]) -> BoreholeCollectio
     pass
 
 
-def read_gef_cpts(file_or_folder: Union[str, WindowsPath], use_pygef=False) -> CptCollection:
+def read_gef_cpts(
+        file_or_folder: Union[str, WindowsPath],
+        use_pygef=False
+    ) -> CptCollection:
     """
     Read gef files of CPT data into a Pysst CptCollection.
 
@@ -206,4 +209,3 @@ def read_xml_cpts(file_or_folder: Union[str, WindowsPath]) -> CptCollection:
 
     """
     pass
-    
