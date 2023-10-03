@@ -8,7 +8,7 @@ from pysst.utils import MissingOptionalModule
 try:
     import pandera as pa
     from pandera.typing import Series
-except:
+except ModuleNotFoundError:
     pa = MissingOptionalModule("pandera")
 
 # class EntriesdataSchema(pa.SchemaModel):
@@ -22,6 +22,7 @@ class PointdataSchema(pa.SchemaModel):
     both boreholes and CPTs.
 
     """
+
     nr: Series[str] = pa.Field(coerce=True)
     x: Series[float] = pa.Field(coerce=True)
     y: Series[float] = pa.Field(coerce=True)
@@ -30,13 +31,14 @@ class PointdataSchema(pa.SchemaModel):
     top: Series[float] = pa.Field(coerce=True)
     bottom: Series[float] = pa.Field(coerce=True)
 
-#     @pa.dataframe_check
-#     def check_borehole_maaiveld_higher_than_end(cls, df: pd.DataFrame) -> Series[bool]:
-#         return all(df["mv"] > df["end"])
 
-#     @pa.dataframe_check
-#     def check_layer_top_higher_than_bottom(cls, df: pd.DataFrame) -> Series[bool]:
-#         return all(df["top"] > df["bottom"])
+#    @pa.dataframe_check
+#    def check_borehole_maaiveld_higher_than_end(cls, df: pd.DataFrame) -> Series[bool]:
+#        return all(df["mv"] > df["end"])
+
+#    @pa.dataframe_check
+#    def check_layer_top_higher_than_bottom(cls, df: pd.DataFrame) -> Series[bool]:
+#        return all(df["top"] > df["bottom"])
 
 
 class BoreholeSchema(PointdataSchema):
@@ -45,6 +47,7 @@ class BoreholeSchema(PointdataSchema):
     BoreholeCollection instance.
 
     """
+
     lith: Series[str] = pa.Field(coerce=True)
 
 
@@ -54,6 +57,7 @@ class CptSchema(PointdataSchema):
     CptCollection instance.
 
     """
+
     lith: Series[str] = pa.Field(coerce=True)
 
 
