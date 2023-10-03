@@ -1,12 +1,19 @@
+from pathlib import Path
+
 import numpy as np
 import pandas as pd
 import pytest
-from numpy.testing import assert_array_almost_equal, assert_equal
+from numpy.testing import assert_almost_equal, assert_array_almost_equal, assert_equal
 
+from pysst import read_nlog_cores
 from pysst.borehole import BoreholeCollection
 
 
 class TestPointCollection:
+    nlog_stratstelsel_parquet = (
+        Path(__file__).parent / "data/test_nlog_stratstelsel_20230807.parquet"
+    )
+
     @pytest.fixture
     def borehole_df_ok(self):
         nr = np.full(10, "B-01")
@@ -149,6 +156,38 @@ class TestPointCollection:
         assert_array_almost_equal(
             borehole_collection_ok.data["bottom"], target_bottom_surfacelevel
         )
+
+    @pytest.mark.unittest
+    def test_change_horizontal_reference_only_geometry(self, borehole_df_ok):
+        borehole_collection_ok = BoreholeCollection(borehole_df_ok)
+        assert_equal(borehole_collection_ok.horizontal_reference, 28992)
+        borehole_collection_ok.change_horizontal_reference(32631, only_geometries=True)
+        assert_equal(borehole_collection_ok.header.crs.name, "WGS 84 / UTM zone 31N")
+        assert_equal(borehole_collection_ok.horizontal_reference, 32631)
+
+    @pytest.mark.unittest
+    def test_change_horizontal_reference_also_data_columns(self, borehole_df_ok):
+        borehole_collection_ok = BoreholeCollection(borehole_df_ok)
+        assert_equal(borehole_collection_ok.horizontal_reference, 28992)
+        borehole_collection_ok.change_horizontal_reference(32631, only_geometries=False)
+        assert_equal(borehole_collection_ok.header.crs.name, "WGS 84 / UTM zone 31N")
+        assert_equal(borehole_collection_ok.horizontal_reference, 32631)
+        assert_almost_equal(borehole_collection_ok.header.x[0], 647927.91, decimal=2)
+        assert_almost_equal(borehole_collection_ok.header.y[0], 5.773014e6, decimal=0)
+        assert_almost_equal(borehole_collection_ok.data.x[0], 647927.91, decimal=2)
+        assert_almost_equal(borehole_collection_ok.data.y[0], 5.773014e6, decimal=0)
+
+    @pytest.mark.unittest
+    def test_change_horizontal_reference_also_data_columns_inclined(self):
+        borehole_collection_ok = read_nlog_cores(self.nlog_stratstelsel_parquet)
+        assert_equal(borehole_collection_ok.horizontal_reference, 28992)
+        borehole_collection_ok.change_horizontal_reference(32631, only_geometries=False)
+        assert_equal(borehole_collection_ok.header.crs.name, "WGS 84 / UTM zone 31N")
+        assert_equal(borehole_collection_ok.horizontal_reference, 32631)
+        assert_almost_equal(borehole_collection_ok.header.x[0], 532641.76, decimal=2)
+        assert_almost_equal(borehole_collection_ok.header.y[0], 6.170701e6, decimal=0)
+        assert_almost_equal(borehole_collection_ok.data.x_bot[0], 532650.77, decimal=2)
+        assert_almost_equal(borehole_collection_ok.data.y_bot[0], 6.170700e6, decimal=0)
 
     @pytest.mark.integrationtest
     def test_validation_pass(self, capfd, borehole_df_ok):
