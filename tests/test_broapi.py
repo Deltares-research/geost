@@ -9,7 +9,12 @@ class TestBroApi:
     def test_response(self):
         api = BroApi()
         for key in api.apis:
-            assert api.session.get(api.server_url + api.apis[key]).status_code == 200
+            # Exclude BRO Geological boreholes until added to BRO database
+            # (They currently return a 503 status code)
+            if key != "BHR-G":
+                assert (
+                    api.session.get(api.server_url + api.apis[key]).status_code == 200
+                )
 
     @pytest.mark.unittest
     def test_get_valid_cpts(self):

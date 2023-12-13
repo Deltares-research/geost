@@ -737,8 +737,44 @@ class PointDataCollection:
 
         return result
 
-    def slice_by_values(self):
-        pass
+    def slice_by_values(self, column: str, selection_values: Union[str, Iterable]):
+        """
+        Slice rows from data based on matching condition. E.g. only return rows with
+        a certain lithology in the collection object.
+
+        Parameters
+        ----------
+        column : str
+            Name of column that contains categorical data to use when looking for
+            values.
+        selection_values : Union[str, Iterable]
+            Values to look for in the column.
+
+        Returns
+        -------
+        Child of :class:`~pysst.base.PointDataCollection`.
+            Instance of either :class:`~pysst.borehole.BoreholeCollection` or
+            :class:`~pysst.borehole.CptCollection` containing depth-sliced objects
+            resulting from applying this method.
+        """
+        if isinstance(selection_values, str):
+            selection_values = [selection_values]
+
+        data_sliced = self.data.copy()
+        data_sliced = data_sliced[data_sliced[column].isin(selection_values)]
+        header_sliced = self.header.loc[
+            self.header["nr"].isin(data_sliced["nr"].unique())
+        ]
+
+        result = self.__class__(
+            data_sliced,
+            vertical_reference=self.vertical_reference,
+            horizontal_reference=self.horizontal_reference,
+            header=header_sliced,
+            is_inclined=self.is_inclined,
+        )
+
+        return result
 
     def get_area_labels(
         self, polygon_gdf: GeoDataFrame, column_name: str, include_in_header=False
