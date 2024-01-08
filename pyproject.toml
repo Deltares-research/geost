@@ -30,7 +30,7 @@ classifiers = [
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
     "Programming Language :: Python",
-    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
     "Topic :: Scientific/Engineering",
 ]
 requires-python = ">=3.10, <3.12"
@@ -80,7 +80,7 @@ line-length = 88
 
 [tool.ruff]
 line-length = 88
-target-version = "py310"
+target-version = "py311"
 select = ["F", "E", "W", "N", "I001"]
 ignore = ["F401"]
 unfixable = ["F401"]
