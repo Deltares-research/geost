@@ -1,9 +1,70 @@
 [build-system]
-requires = [
-    "setuptools>=64",
-    "wheel"
-]
+requires = ["setuptools>66", "wheel"]
 build-backend = "setuptools.build_meta"
+
+[project]
+name = "pysst"
+version = "0.1.0"
+authors = [
+    {name = "Erik van Onselen", email = "erik.vanonselen@deltares.nl"},
+    {name = "Bas Knaake", email = "bas.knaake@deltares.nl"},
+    {name = "Tommer Vermaas", email = "tommer.vermaas@deltares.nl"},
+]
+description = "The Python interface for geological point data in The Netherlands"
+readme = "README.md"
+license = {file = "LICENSE"}
+keywords = [
+    "pysst",
+    "bro",
+    "borehole",
+    "well log",
+    "cpt",
+    "geology",
+    "subsurface toolbox",
+    "deltares", 
+]
+classifiers = [
+    "Development Status :: 2 - Pre-Alpha",
+    "Intended Audience :: Science/Research/Consultans",
+    "Topic :: Scientific/Engineering :: Geology",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3.10",
+    "Topic :: Scientific/Engineering",
+]
+requires-python = ">=3.10, <3.12"
+dependencies = [
+    "numpy",
+    "pandas>=2.0.1",
+    "pyarrow",
+    "lxml",
+    "pyproj",
+    "geopandas",
+    "xlrd",
+    "openpyxl",
+    "shapely>=2.0.1",
+    "pyvista>=0.36.1", 
+]
+
+[project.optional-dependencies]
+dev = [
+    "pyvista",
+    "black",
+    "pytest",
+    "pytest-cov",
+    "ruff",
+    "sphinx",
+    "sphinx-rtd-theme",
+]
+
+[project.urls]
+Homepage = "https://gitlab.com/deltares/tgg-projects/subsurface-toolbox/pysst"
+Repository = "https://gitlab.com/deltares/tgg-projects/subsurface-toolbox/pysst"
+Issues = "https://gitlab.com/deltares/tgg-projects/subsurface-toolbox/pysst/-/issues"
+
+[tool.setuptools.packages.find]
+include = ["pysst", "pysst.*"]
 
 [tool.pytest.ini_options]
 testpaths = [
