@@ -5,7 +5,7 @@ import pandas as pd
 import pytest
 from numpy.testing import assert_almost_equal, assert_array_almost_equal, assert_equal
 
-from pysst import read_nlog_cores
+from pysst import read_nlog_cores, read_sst_cores
 from pysst.borehole import BoreholeCollection
 
 
@@ -13,6 +13,12 @@ class TestPointCollection:
     nlog_stratstelsel_parquet = (
         Path(__file__).parent / "data/test_nlog_stratstelsel_20230807.parquet"
     )
+    borehole_file = Path(__file__).parent / "data" / "test_boreholes.parquet"
+
+    @pytest.fixture
+    def boreholes(self):
+        borehole_collection = read_sst_cores(self.borehole_file)
+        return borehole_collection
 
     @pytest.fixture
     def borehole_df_ok(self):
@@ -188,6 +194,34 @@ class TestPointCollection:
         assert_almost_equal(borehole_collection_ok.header.y[0], 6.170701e6, decimal=0)
         assert_almost_equal(borehole_collection_ok.data.x_bot[0], 532650.77, decimal=2)
         assert_almost_equal(borehole_collection_ok.data.y_bot[0], 6.170700e6, decimal=0)
+
+    @pytest.mark.unittest
+    def test_slice_depth_interval(self, boreholes):
+        slice1 = boreholes.slice_depth_interval(lower_boundary=-3, upper_boundary=0)
+        slice2 = boreholes.slice_depth_interval(
+            lower_boundary=10, upper_boundary=5, vertical_reference="depth"
+        )
+
+        assert len(slice1.data) == 15
+        assert len(slice1.header) == 6
+        assert len(slice2.data) == 6
+        assert len(slice2.header) == 4
+
+    @pytest.mark.unittest
+    def test_slice_by_values(self, boreholes):
+        layers_k = boreholes.slice_by_values("lith", "K")
+        layers_ks2 = boreholes.slice_by_values("lith_comb", "Ks2")
+        layers_h2 = boreholes.slice_by_values("org", "H2")
+        layers_v_z = boreholes.slice_by_values("lith", ["V", "Z"])
+
+        assert len(layers_k.data) == 188
+        assert len(layers_k.header) == 13
+        assert len(layers_ks2.data) == 19
+        assert len(layers_ks2.header) == 6
+        assert len(layers_h2.data) == 3
+        assert len(layers_h2.header) == 3
+        assert len(layers_v_z.data) == 23
+        assert len(layers_v_z.header) == 11
 
     @pytest.mark.integrationtest
     def test_validation_pass(self, capfd, borehole_df_ok):
