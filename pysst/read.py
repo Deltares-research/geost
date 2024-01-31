@@ -6,12 +6,14 @@ import pandas as pd
 
 # Local imports
 from pysst.borehole import BoreholeCollection, CptCollection
+from pysst.io import _parse_cpt_gef_files
 from pysst.readers import pygef_gef_cpt
 from pysst.spatial import header_to_geopandas
 
 
 def __read_parquet(file: WindowsPath) -> pd.DataFrame:
-    """Read parquet file
+    """
+    Read parquet file.
 
     Parameters
     ----------
@@ -27,6 +29,7 @@ def __read_parquet(file: WindowsPath) -> pd.DataFrame:
     ------
     TypeError
         if 'file' has no '.parquet' or '.pq' suffix.
+
     """
     suffix = file.suffix
     if suffix in [".parquet", ".pq"]:
@@ -43,7 +46,7 @@ def read_sst_cores(
     horizontal_reference: int = 28992,
 ) -> BoreholeCollection:
     """
-    Read Subsurface Toolbox native parquet file with core information.
+    Read Subsurface Toolbox native parquet file with core information..
 
     Parameters
     ----------
@@ -196,6 +199,7 @@ def read_xml_geotechnical_cores(
     NOTIMPLEMENTED
     Read xml files of BRO geotechnical boreholes (IMBRO or IMBRO/A quality).
     Decribed in NEN14688 standards
+
     """
     pass
 
@@ -204,6 +208,7 @@ def read_xml_soil_cores(file_or_folder: Union[str, WindowsPath]) -> BoreholeColl
     """
     NOTIMPLEMENTED
     Read xml files of BRO soil boreholes (IMBRO or IMBRO/A quality).
+
     """
     pass
 
@@ -214,6 +219,7 @@ def read_xml_geological_cores(
     """
     NOTIMPLEMENTED
     Read xml files of DINO geological boreholes.
+
     """
     pass
 
@@ -222,21 +228,45 @@ def read_gef_cores(file_or_folder: Union[str, WindowsPath]) -> BoreholeCollectio
     """
     NOTIMPLEMENTED
     Read gef files of boreholes.
+
     """
     pass
 
 
-def read_gef_cpts(file_or_folder: Union[str, WindowsPath]) -> CptCollection:
+def read_gef_cpts(
+    file_or_folder: Union[str, WindowsPath], use_pygef=False
+) -> CptCollection:
     """
-    NOTIMPLEMENTED
-    Read gef files of cpts.
+    Read gef files of CPT data into a Pysst CptCollection.
+
+    Parameters
+    ----------
+    file_or_folder : Union[str, WindowsPath]
+        DESCRIPTION.
+    use_pygef : Boolean, optional
+        If True, the gef reader from pygef (external) is used. If False, the pysst
+        gef reader is used. The default is False.
+
+    Returns
+    -------
+    CptCollection
+        DESCRIPTION.
+
     """
-    return CptCollection(pd.concat(pygef_gef_cpt(Path(file_or_folder))))
+    if use_pygef:
+        data = pygef_gef_cpt(Path(file_or_folder))
+    else:
+        data = _parse_cpt_gef_files(file_or_folder)  # use pysst gef reader
+
+    df = pd.concat(data)
+
+    return CptCollection(df)
 
 
 def read_xml_cpts(file_or_folder: Union[str, WindowsPath]) -> CptCollection:
     """
     NOTIMPLEMENTED
     Read xml files of cpts.
+
     """
     pass

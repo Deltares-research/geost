@@ -129,7 +129,7 @@ class BroApi:
             )
             if response.status_code == 200 and "rejection" not in response.text:
                 etree_root = etree.fromstring(response.text.encode("utf-8"))
-                bro_objects = self.__objects_from_etree(etree_root, object_type)
+                bro_objects = self.__objects_from_etree(etree_root)
                 response_accepted = True
             elif response.status_code == 200 and "groter dan 2000" in response.text:
                 division_level += 1
@@ -156,13 +156,8 @@ class BroApi:
         response = self.session.post(api_url, json=criteria)
         return response
 
-    def __objects_from_etree(self, etree_root, object_type):
-        namespaces = etree_root.nsmap
-        bro_elements = etree_root.findall(
-            "dispatchDocument/" + self.document_types[object_type], namespaces
-        )
-        bro_objects = [
-            bro_element.find("brocom:broId", namespaces).text
-            for bro_element in bro_elements
-        ]
+    def __objects_from_etree(self, etree_root):
+        namespace = etree_root.nsmap["brocom"]
+        bro_ids = etree_root.findall(".//{" + f"{namespace}" + "}broId")
+        bro_objects = [id.text for id in bro_ids]
         return bro_objects
