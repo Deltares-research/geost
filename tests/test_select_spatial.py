@@ -24,7 +24,7 @@ class TestSpatial:
         gdf = gdf.set_crs(epsg=28992)
         return gdf
 
-    @pytest.mark.unittes
+    @pytest.mark.unittest
     def test_select_within_polygon_no_buffer(self, boreholes, selection_polygon):
         boreholes_selected = boreholes.select_within_polygons(selection_polygon)
         assert boreholes_selected.n_points == 3
