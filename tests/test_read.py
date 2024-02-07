@@ -5,7 +5,7 @@ import pandas as pd
 import pytest
 from numpy.testing import assert_array_equal
 
-from pysst import read_nlog_cores
+from pysst import read_nlog_cores, get_bro_soil_cores
 from pysst.borehole import BoreholeCollection
 
 
@@ -47,3 +47,8 @@ class TestReaders:
         )
         assert_array_equal(nlog_cores.header[["nr", "x", "y", "mv", "end"]], desired_df)
         assert nlog_cores.is_inclined
+
+    @pytest.mark.unittest
+    def test_get_bro_soil_cores(self):
+        soilcores = get_bro_soil_cores(xmin=87000, xmax=87500, ymin=444000, ymax=444500)
+        assert soilcores.n_points == 7

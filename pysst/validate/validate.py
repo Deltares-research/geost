@@ -55,7 +55,16 @@ class ValidationError(Exception):
 
 
 class Numeric:
-    associated_types: tuple = (int, float, "int64", "float64")
+    associated_types: tuple = (
+        int,
+        float,
+        "int64",
+        "float64",
+        "Int64",
+        "Int32",
+        "Float64",
+        "Float32",
+    )
 
     def __repr__(self):
         return "numeric type"
@@ -68,7 +77,7 @@ numeric = Numeric()
 
 
 class StringLike:
-    associated_types: tuple = (str, "object")
+    associated_types: tuple = (str, "object", "string")
 
     def __repr__(self):
         return "stringlike type"
