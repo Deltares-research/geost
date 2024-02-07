@@ -258,16 +258,3 @@ class SoilCore:
         self.ca_profile = None
         self.reworking = soilclass.find(f"{self.ns8}reworkingClass").text
         self.gw_class = soilclass.find(f"{self.ns8}groundwaterTableClass").text
-
-
-if __name__ == "__main__":
-    # workdir = Path(r"c:\Users\knaake\OneDrive - Stichting Deltares\Documents\xml_test")
-    # file = workdir / "BHR000000151282_IMBRO_A.xml"
-
-    # xml = SoilCore(file)
-    # print(xml)
-    test = BroApi()
-    xml_from_api = SoilCore(
-        next(test.get_objects("BHR000000151282", object_type="BHR-P"))
-    )
-    df = xml_from_api.to_dataframe()
