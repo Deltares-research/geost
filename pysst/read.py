@@ -6,7 +6,9 @@ import pandas as pd
 
 # Local imports
 from pysst.borehole import BoreholeCollection, CptCollection
+from pysst.bro import BroApi
 from pysst.io import _parse_cpt_gef_files
+from pysst.io.parsers import SoilCore
 from pysst.readers import pygef_gef_cpt
 from pysst.spatial import header_to_geopandas
 
@@ -41,7 +43,7 @@ def __read_parquet(file: WindowsPath) -> pd.DataFrame:
 
 
 def read_sst_cores(
-    file: Union[str, WindowsPath],
+    file: str | WindowsPath,
     vertical_reference: str = "NAP",
     horizontal_reference: int = 28992,
 ) -> BoreholeCollection:
@@ -50,7 +52,7 @@ def read_sst_cores(
 
     Parameters
     ----------
-    file : Union[str, WindowsPath]
+    file : str | WindowsPath
         Path to file to be read.
     vertical_reference: str
         Which vertical reference is used for tops and bottoms. See
@@ -73,7 +75,7 @@ def read_sst_cores(
 
 
 def read_sst_cpts(
-    file: Union[str, WindowsPath],
+    file: str | WindowsPath,
     vertical_reference: str = "NAP",
     horizontal_reference: int = 28992,
 ) -> CptCollection:
@@ -82,7 +84,7 @@ def read_sst_cpts(
 
     Parameters
     ----------
-    file : Union[str, WindowsPath]
+    file : str | WindowsPath
         Path to file to be read.
     vertical_reference: str
         Which vertical reference is used for tops and bottoms. See
@@ -106,7 +108,7 @@ def read_sst_cpts(
 
 
 def read_nlog_cores(
-    file: Union[str, WindowsPath], horizontal_reference: int = 28992
+    file: str | WindowsPath, horizontal_reference: int = 28992
 ) -> BoreholeCollection:
     """
     Read NLog boreholes from the 'nlog_stratstelsel' Excel file. You can find this
@@ -118,7 +120,7 @@ def read_nlog_cores(
 
     Parameters
     ----------
-    file : Union[str, WindowsPath]
+    file : str | WindowsPath
         Path to nlog_stratstelsel.xlsx or .parquet
     horizontal_reference (int): Horizontal reference, see
         :py:attr:`~pysst.base.PointDataCollection.horizontal_reference`
@@ -193,7 +195,7 @@ def read_nlog_cores(
 
 
 def read_xml_geotechnical_cores(
-    file_or_folder: Union[str, WindowsPath]
+    file_or_folder: str | WindowsPath,
 ) -> BoreholeCollection:
     """
     NOTIMPLEMENTED
@@ -204,7 +206,7 @@ def read_xml_geotechnical_cores(
     pass
 
 
-def read_xml_soil_cores(file_or_folder: Union[str, WindowsPath]) -> BoreholeCollection:
+def read_xml_soil_cores(file_or_folder: str | WindowsPath) -> BoreholeCollection:
     """
     NOTIMPLEMENTED
     Read xml files of BRO soil boreholes (IMBRO or IMBRO/A quality).
@@ -213,9 +215,7 @@ def read_xml_soil_cores(file_or_folder: Union[str, WindowsPath]) -> BoreholeColl
     pass
 
 
-def read_xml_geological_cores(
-    file_or_folder: Union[str, WindowsPath]
-) -> BoreholeCollection:
+def read_xml_geological_cores(file_or_folder: str | WindowsPath) -> BoreholeCollection:
     """
     NOTIMPLEMENTED
     Read xml files of DINO geological boreholes.
@@ -224,7 +224,7 @@ def read_xml_geological_cores(
     pass
 
 
-def read_gef_cores(file_or_folder: Union[str, WindowsPath]) -> BoreholeCollection:
+def read_gef_cores(file_or_folder: str | WindowsPath) -> BoreholeCollection:
     """
     NOTIMPLEMENTED
     Read gef files of boreholes.
@@ -233,15 +233,13 @@ def read_gef_cores(file_or_folder: Union[str, WindowsPath]) -> BoreholeCollectio
     pass
 
 
-def read_gef_cpts(
-    file_or_folder: Union[str, WindowsPath], use_pygef=False
-) -> CptCollection:
+def read_gef_cpts(file_or_folder: str | WindowsPath, use_pygef=False) -> CptCollection:
     """
     Read gef files of CPT data into a Pysst CptCollection.
 
     Parameters
     ----------
-    file_or_folder : Union[str, WindowsPath]
+    file_or_folder : str | WindowsPath
         DESCRIPTION.
     use_pygef : Boolean, optional
         If True, the gef reader from pygef (external) is used. If False, the pysst
@@ -263,10 +261,49 @@ def read_gef_cpts(
     return CptCollection(df)
 
 
-def read_xml_cpts(file_or_folder: Union[str, WindowsPath]) -> CptCollection:
+def read_xml_cpts(file_or_folder: str | WindowsPath) -> CptCollection:
     """
     NOTIMPLEMENTED
     Read xml files of cpts.
 
     """
     pass
+
+
+def get_bro_soil_cores(
+    xmin: int | float,
+    xmax: int | float,
+    ymin: int | float,
+    ymax: int | float,
+    vertical_reference: str = "depth",
+    horizontal_reference: int = 28992,
+) -> BoreholeCollection:
+    api = BroApi()
+    bro_ids = api.search_objects_in_bbox(
+        xmin=xmin,
+        xmax=xmax,
+        ymin=ymin,
+        ymax=ymax,
+        object_type="BHR-P",
+    )
+    bro_objects = api.get_objects(bro_ids, object_type="BHR-P")
+    bro_parsed_objects = []
+    for bro_object in bro_objects:
+        try:
+            object = SoilCore(bro_object)
+        except (TypeError, AttributeError) as err:
+            print("Cant read a soil core")
+            print(err)
+        bro_parsed_objects.append(object.pysst_df)
+
+    dataframe = pd.concat(bro_parsed_objects).reset_index()
+
+    collection = BoreholeCollection(
+        dataframe,
+        vertical_reference="depth",
+        horizontal_reference=horizontal_reference,
+        is_inclined=False,
+    )
+    collection.change_vertical_reference(vertical_reference)
+
+    return collection
