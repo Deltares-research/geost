@@ -237,12 +237,10 @@ class PointDataCollection:
             case "NAP":
                 if to == "surfacelevel":
                     self._data["top"] = self._data["top"] - self._data["mv"]
-                    self._data["bottom"] = self._data["bottom"] - \
-                        self._data["mv"]
+                    self._data["bottom"] = self._data["bottom"] - self._data["mv"]
                     self.__vertical_reference = "surfacelevel"
                 elif to == "depth":
-                    self._data["top"] = (
-                        self._data["top"] - self._data["mv"]) * -1
+                    self._data["top"] = (self._data["top"] - self._data["mv"]) * -1
                     self._data["bottom"] = (
                         self._data["bottom"] - self._data["mv"]
                     ) * -1
@@ -250,8 +248,7 @@ class PointDataCollection:
             case "surfacelevel":
                 if to == "NAP":
                     self._data["top"] = self._data["top"] + self._data["mv"]
-                    self._data["bottom"] = self._data["bottom"] + \
-                        self._data["mv"]
+                    self._data["bottom"] = self._data["bottom"] + self._data["mv"]
                     self.__vertical_reference = "NAP"
                 if to == "depth":
                     self._data["top"] = self._data["top"] * -1
@@ -259,10 +256,8 @@ class PointDataCollection:
                     self.__vertical_reference = "depth"
             case "depth":
                 if to == "NAP":
-                    self._data["top"] = self._data["top"] * - \
-                        1 + self._data["mv"]
-                    self._data["bottom"] = self._data["bottom"] * - \
-                        1 + self._data["mv"]
+                    self._data["top"] = self._data["top"] * -1 + self._data["mv"]
+                    self._data["bottom"] = self._data["bottom"] * -1 + self._data["mv"]
                     self.__vertical_reference = "NAP"
                 if to == "surfacelevel":
                     self._data["top"] = self._data["top"] * -1
@@ -383,19 +378,19 @@ class PointDataCollection:
             :class:`~pysst.borehole.CptCollection` containing only objects selected by
             this method.
         """
-        if point_gdf.crs != self.horizontal_reference:
-            point_gdf = point_gdf.to_crs(self.horizontal_reference)
-            inform(
-                "The crs of the selection geometry does not match the horizontal "
-                + "reference of the collection. The selection geometry was coerced "
-                + f"to epsg:{self.horizontal_reference} automatically"
-            )
-        elif point_gdf.crs is None:
+        if point_gdf.crs is None:
             point_gdf.crs = self.horizontal_reference
             warn(
                 "The selection geometry has no crs! Assuming it is the same as the "
                 + f"horizontal_reference (epsg:{self.horizontal_reference}) of this "
                 + "collection",
+            )
+        elif point_gdf.crs != self.horizontal_reference:
+            point_gdf = point_gdf.to_crs(self.horizontal_reference)
+            inform(
+                "The crs of the selection geometry does not match the horizontal "
+                + "reference of the collection. The selection geometry was coerced "
+                + f"to epsg:{self.horizontal_reference} automatically"
             )
 
         selected_header = spatial.header_from_points(
@@ -437,19 +432,19 @@ class PointDataCollection:
             :class:`~pysst.borehole.CptCollection` containing only objects selected by
             this method.
         """
-        if line_gdf.crs != self.horizontal_reference:
-            line_gdf = line_gdf.to_crs(self.horizontal_reference)
-            inform(
-                "The crs of the selection geometry does not match the horizontal "
-                + "reference of the collection. The selection geometry was coerced "
-                + f"to epsg:{self.horizontal_reference} automatically"
-            )
-        elif line_gdf.crs is None:
+        if line_gdf.crs is None:
             line_gdf.crs = self.horizontal_reference
             warn(
                 "The selection geometry has no crs! Assuming it is the same as the "
                 + f"horizontal_reference (epsg:{self.horizontal_reference}) of this "
                 + "collection"
+            )
+        elif line_gdf.crs != self.horizontal_reference:
+            line_gdf = line_gdf.to_crs(self.horizontal_reference)
+            inform(
+                "The crs of the selection geometry does not match the horizontal "
+                + "reference of the collection. The selection geometry was coerced "
+                + f"to epsg:{self.horizontal_reference} automatically"
             )
 
         selected_header = spatial.header_from_lines(
@@ -489,19 +484,19 @@ class PointDataCollection:
             :class:`~pysst.borehole.CptCollection` containing only objects selected by
             this method.
         """
-        if polygon_gdf.crs != self.horizontal_reference:
-            polygon_gdf = polygon_gdf.to_crs(self.horizontal_reference)
-            inform(
-                "The crs of the selection geometry does not match the horizontal "
-                + "reference of the collection. The selection geometry was coerced "
-                + f"to epsg:{self.horizontal_reference} automatically"
-            )
-        elif polygon_gdf.crs is None:
+        if polygon_gdf.crs is None:
             polygon_gdf.crs = self.horizontal_reference
             warn(
                 "The selection geometry has no crs! Assuming it is the same as the "
                 + f"horizontal_reference (epsg:{self.horizontal_reference}) of this "
                 + "collection"
+            )
+        elif polygon_gdf.crs != self.horizontal_reference:
+            polygon_gdf = polygon_gdf.to_crs(self.horizontal_reference)
+            inform(
+                "The crs of the selection geometry does not match the horizontal "
+                + "reference of the collection. The selection geometry was coerced "
+                + f"to epsg:{self.horizontal_reference} automatically"
             )
 
         selected_header = spatial.header_from_polygons(
@@ -720,15 +715,11 @@ class PointDataCollection:
         data_sliced = self.data.copy()
 
         if vertical_reference != "depth":
-            data_sliced = data_sliced[data_sliced["top"] > (
-                lower_boundary or -9999)]
-            data_sliced = data_sliced[data_sliced["bottom"] < (
-                upper_boundary or 9999)]
+            data_sliced = data_sliced[data_sliced["top"] > (lower_boundary or -9999)]
+            data_sliced = data_sliced[data_sliced["bottom"] < (upper_boundary or 9999)]
         elif vertical_reference == "depth":
-            data_sliced = data_sliced[data_sliced["top"] < (
-                lower_boundary or 9999)]
-            data_sliced = data_sliced[data_sliced["bottom"] > (
-                upper_boundary or 1)]
+            data_sliced = data_sliced[data_sliced["top"] < (lower_boundary or 9999)]
+            data_sliced = data_sliced[data_sliced["bottom"] > (upper_boundary or 1)]
 
         header_sliced = self.header.loc[
             self.header["nr"].isin(data_sliced["nr"].unique())
@@ -809,8 +800,7 @@ class PointDataCollection:
             a column containing the generated data will be added inplace to
             :py:attr:`~pysst.base.PointDataCollection.header`.
         """
-        area_labels = spatial.find_area_labels(
-            self.header, polygon_gdf, column_name)
+        area_labels = spatial.find_area_labels(self.header, polygon_gdf, column_name)
 
         if include_in_header:
             self._header = self.header.merge(area_labels, on="nr")
@@ -851,15 +841,13 @@ class PointDataCollection:
 
         result_dfs = []
         for value in values:
-            cumulative_thicknesses = cumulative_thickness(
-                self.data, column, value)
+            cumulative_thicknesses = cumulative_thickness(self.data, column, value)
             result_df = pd.DataFrame(
                 cumulative_thicknesses, columns=("nr", f"{value}_thickness")
             )
             result_dfs.append(result_df)
 
-        result = reduce(lambda left, right: pd.merge(
-            left, right, on="nr"), result_dfs)
+        result = reduce(lambda left, right: pd.merge(left, right, on="nr"), result_dfs)
         if include_in_header:
             self._header = self.header.merge(result, on="nr")
         else:
@@ -894,12 +882,10 @@ class PointDataCollection:
         result_dfs = []
         for value in values:
             layer_tops = layer_top(self.data, column, value)
-            result_df = pd.DataFrame(
-                layer_tops, columns=("nr", f"{value}_top"))
+            result_df = pd.DataFrame(layer_tops, columns=("nr", f"{value}_top"))
             result_dfs.append(result_df)
 
-        result = reduce(lambda left, right: pd.merge(
-            left, right, on="nr"), result_dfs)
+        result = reduce(lambda left, right: pd.merge(left, right, on="nr"), result_dfs)
         if include_in_header:
             self._header = self.header.merge(result, on="nr")
         else:
@@ -929,8 +915,7 @@ class PointDataCollection:
             other_header_overlap = other.header["nr"].isin(self.header["nr"])
             if any(other_header_overlap):
                 other_header = other.header[~other_header_overlap]
-                other_data = other.data.loc[other.data["nr"].isin(
-                    other_header["nr"])]
+                other_data = other.data.loc[other.data["nr"].isin(other_header["nr"])]
             else:
                 other_header = other.header
                 other_data = other.data
