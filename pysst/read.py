@@ -1,6 +1,7 @@
 from pathlib import Path, WindowsPath
 from typing import Union
 
+import geopandas as gpd
 import numpy as np
 import pandas as pd
 
@@ -9,8 +10,14 @@ from pysst.borehole import BoreholeCollection, CptCollection
 from pysst.bro import BroApi
 from pysst.io import _parse_cpt_gef_files
 from pysst.io.parsers import SoilCore
-from pysst.readers import pygef_gef_cpt
 from pysst.spatial import header_to_geopandas
+
+
+geometry_to_selection_function = {
+    "Polygon": "select_within_polygons",
+    "Line": "select_with_lines",
+    "Point": "select_with_points",
+}
 
 
 def __read_parquet(file: WindowsPath) -> pd.DataFrame:
@@ -251,11 +258,7 @@ def read_gef_cpts(file_or_folder: str | WindowsPath, use_pygef=False) -> CptColl
         DESCRIPTION.
 
     """
-    if use_pygef:
-        data = pygef_gef_cpt(Path(file_or_folder))
-    else:
-        data = _parse_cpt_gef_files(file_or_folder)  # use pysst gef reader
-
+    data = _parse_cpt_gef_files(file_or_folder)
     df = pd.concat(data)
 
     return CptCollection(df)
@@ -270,12 +273,13 @@ def read_xml_cpts(file_or_folder: str | WindowsPath) -> CptCollection:
     pass
 
 
-def get_bro_soil_cores(
+def get_bro_objects_from_bbox(
+    object_type: str,
     xmin: int | float,
     xmax: int | float,
     ymin: int | float,
     ymax: int | float,
-    vertical_reference: str = "depth",
+    vertical_reference: str = "NAP",
     horizontal_reference: int = 28992,
 ) -> BoreholeCollection:
     api = BroApi()
@@ -284,17 +288,18 @@ def get_bro_soil_cores(
         xmax=xmax,
         ymin=ymin,
         ymax=ymax,
-        object_type="BHR-P",
+        object_type=object_type,
     )
-    bro_objects = api.get_objects(bro_ids, object_type="BHR-P")
+    bro_objects = api.get_objects(bro_ids, object_type=object_type)
     bro_parsed_objects = []
+    # TODO: The below has to be adjusted for different BRO objects
     for bro_object in bro_objects:
         try:
             object = SoilCore(bro_object)
         except (TypeError, AttributeError) as err:
             print("Cant read a soil core")
             print(err)
-        bro_parsed_objects.append(object.pysst_df)
+        bro_parsed_objects.append(object.df)
 
     dataframe = pd.concat(bro_parsed_objects).reset_index()
 
@@ -304,6 +309,55 @@ def get_bro_soil_cores(
         horizontal_reference=horizontal_reference,
         is_inclined=False,
     )
+    collection.change_vertical_reference(vertical_reference)
+
+    return collection
+
+
+def get_bro_objects_from_geometry(
+    object_type: str,
+    geometry_file: Path | str,
+    buffer: int | float = 0,
+    vertical_reference: str = "NAP",
+    horizontal_reference: int = 28992,
+) -> BoreholeCollection:
+    file = Path(geometry_file)
+    if file.suffix == ".parquet":
+        geometry = gpd.read_parquet(geometry_file)
+    else:
+        geometry = gpd.read_file(geometry_file)
+    api = BroApi()
+    bro_ids = api.search_objects_in_bbox(
+        xmin=geometry.bounds.minx.values[0],
+        xmax=geometry.bounds.maxx.values[0],
+        ymin=geometry.bounds.miny.values[0],
+        ymax=geometry.bounds.maxy.values[0],
+        object_type=object_type,
+    )
+    bro_objects = api.get_objects(bro_ids, object_type=object_type)
+    bro_parsed_objects = []
+    # TODO: The below has to be adjusted for different BRO objects
+    for bro_object in bro_objects:
+        try:
+            object = SoilCore(bro_object)
+        except (TypeError, AttributeError) as err:
+            pass
+            # print("Cant read a soil core")  # supressed for demo
+            # print(err)
+        bro_parsed_objects.append(object.df)
+
+    dataframe = pd.concat(bro_parsed_objects).reset_index()
+
+    collection = BoreholeCollection(
+        dataframe,
+        vertical_reference="depth",
+        horizontal_reference=horizontal_reference,
+        is_inclined=False,
+    )
+    collection = getattr(collection, geometry_to_selection_function[geometry.type[0]])(
+        geometry, buffer
+    )
+    collection.header = collection.header.reset_index()
     collection.change_vertical_reference(vertical_reference)
 
     return collection

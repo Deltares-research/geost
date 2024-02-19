@@ -8,6 +8,7 @@ from pysst.read import (
     read_xml_geological_cores,
     read_xml_geotechnical_cores,
     read_xml_soil_cores,
-    get_bro_soil_cores,
+    get_bro_objects_from_bbox,
+    get_bro_objects_from_geometry,
 )
 from pysst.utils import csv_to_parquet, excel_to_parquet
