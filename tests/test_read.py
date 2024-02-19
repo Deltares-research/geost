@@ -5,7 +5,11 @@ import pandas as pd
 import pytest
 from numpy.testing import assert_array_equal
 
-from pysst import read_nlog_cores, get_bro_soil_cores
+from pysst import (
+    read_nlog_cores,
+    get_bro_objects_from_bbox,
+    get_bro_objects_from_geometry,
+)
 from pysst.borehole import BoreholeCollection
 
 
@@ -49,6 +53,16 @@ class TestReaders:
         assert nlog_cores.is_inclined
 
     @pytest.mark.unittest
-    def test_get_bro_soil_cores(self):
-        soilcores = get_bro_soil_cores(xmin=87000, xmax=87500, ymin=444000, ymax=444500)
+    def test_get_bro_soil_cores_from_bbox(self):
+        soilcores = get_bro_objects_from_bbox(
+            "BHR-P", xmin=87000, xmax=87500, ymin=444000, ymax=444500
+        )
         assert soilcores.n_points == 7
+
+    @pytest.mark.unittest
+    def test_get_bro_soil_cores_from_geometry(self):
+        soilcores = get_bro_objects_from_geometry(
+            "BHR-P",
+            Path(__file__).parent / "data/test_polygon.parquet",
+        )
+        assert soilcores.n_points == 1
