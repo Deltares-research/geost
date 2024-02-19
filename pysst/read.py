@@ -399,7 +399,7 @@ def get_bro_objects_from_geometry(
     for bro_object in bro_objects:
         try:
             object = SoilCore(bro_object)
-        except (TypeError, AttributeError) as err:
+        except (TypeError, AttributeError):  # as err:
             pass
             # print("Cant read a soil core")  # supressed for demo
             # print(err)
