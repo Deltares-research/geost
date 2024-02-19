@@ -48,14 +48,18 @@ class SoilCore:
         self._set_header_info()
 
         self.df = pd.DataFrame(self.parse_layers())
-        pysst_header = pd.concat(
-            [
-                self.header.loc[["nr", "x", "y", "mv", "end", "codegroup", "soilclass"]]
-                for i in range(len(self.df))
-            ],
-            axis=1,
-        ).transpose()
-        self.pysst_df = pysst_header.join(self.df).convert_dtypes()
+        attr_dict = {
+            "nr": "broid",
+            "x": "x",
+            "y": "y",
+            "mv": "z",
+            "end": "enddepth",
+            "codegroup": "codegroup",
+            "soilclass": "soilclass",
+        }
+        for attr in ["nr", "x", "y", "mv", "end", "codegroup", "soilclass"][::-1]:
+            self.df.insert(0, attr, self.__dict__[attr_dict[attr]])
+        self.df = self.df.convert_dtypes()
 
     def __repr__(self):
         name = self.__class__.__name__
