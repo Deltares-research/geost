@@ -282,6 +282,37 @@ def get_bro_objects_from_bbox(
     vertical_reference: str = "NAP",
     horizontal_reference: int = 28992,
 ) -> BoreholeCollection:
+    """
+    Directly download objects from the BRO to a PySST collection object based on the
+    given bounding box
+
+    Parameters
+    ----------
+    object_type : str
+        BRO object type to retrieve: BHR-GT, BHR-P, BHR-G or BHR-CPT
+    xmin : int | float
+        minimal x-coordinate of the bounding box
+    xmax : int | float
+        maximal x-coordinate of the bounding box
+    ymin : int | float
+        minimal y-coordinate of the bounding box
+    ymax : int | float
+        maximal y-coordinate of the bounding box
+    vertical_reference : str, optional
+        Vertical reference system to use for the resulting collection, see
+        :py:attr:`~pysst.base.PointDataCollection.vertical_reference`, by default "NAP"
+    horizontal_reference : int, optional
+        Horizontal reference system to use for the resulting collection, see
+        :py:attr:`~pysst.base.PointDataCollection.horizontal_reference`,
+        by default 28992
+
+    Returns
+    -------
+    BoreholeCollection
+        Instance of either :class:`~pysst.borehole.BoreholeCollection` or
+        :class:`~pysst.borehole.CptCollection` containing only objects selected by
+        this method.
+    """
     api = BroApi()
     bro_ids = api.search_objects_in_bbox(
         xmin=xmin,
@@ -321,6 +352,34 @@ def get_bro_objects_from_geometry(
     vertical_reference: str = "NAP",
     horizontal_reference: int = 28992,
 ) -> BoreholeCollection:
+    """
+    Directly download objects from the BRO to a PySST collection object based on given
+    geometries such as points, lines or polygons.
+
+    Parameters
+    ----------
+    object_type : str
+        BRO object type to retrieve: BHR-GT, BHR-P, BHR-G or BHR-CPT
+    geometry_file : Path | str
+        Path to geometry file. i.e a point/line/polygon shapefile/geopackage/geoparquet
+    buffer : int | float, optional
+        Buffer distance. Required to be larger than 0 for line and point geometries.
+        Adds an extra buffer zone around a polygon to select from, by default 0
+    vertical_reference : str, optional
+        Vertical reference system to use for the resulting collection, see
+        :py:attr:`~pysst.base.PointDataCollection.vertical_reference`, by default "NAP"
+    horizontal_reference : int, optional
+        Horizontal reference system to use for the resulting collection, see,
+        :py:attr:`~pysst.base.PointDataCollection.horizontal_reference`,
+        by default 28992
+
+    Returns
+    -------
+    BoreholeCollection
+        Instance of either :class:`~pysst.borehole.BoreholeCollection` or
+        :class:`~pysst.borehole.CptCollection` containing only objects selected by
+        this method.
+    """
     file = Path(geometry_file)
     if file.suffix == ".parquet":
         geometry = gpd.read_parquet(geometry_file)
