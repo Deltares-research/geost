@@ -120,8 +120,8 @@ class BoreholeCollection(PointDataCollection):
 
         data_to_write = dict(
             nr=self.data["nr"].values,
-            top=self.data["top"].values,
-            bottom=self.data["bottom"].values,
+            top=self.data["top"].values.astype(float),
+            bottom=self.data["bottom"].values.astype(float),
         )
 
         data_to_write.update(self.data[data_columns].to_dict(orient="list"))
@@ -130,29 +130,29 @@ class BoreholeCollection(PointDataCollection):
             geometries = [
                 LineString([[x, y, top + 0.01], [x_bot, y_bot, bottom + 0.01]])
                 for x, y, x_bot, y_bot, top, bottom in zip(
-                    self.data["x"].values,
-                    self.data["y"].values,
-                    self.data["x_bot"].values,
-                    self.data["y_bot"].values,
-                    self.data["top"].values,
-                    self.data["bottom"].values,
+                    self.data["x"].values.astype(float),
+                    self.data["y"].values.astype(float),
+                    self.data["x_bot"].values.astype(float),
+                    self.data["y_bot"].values.astype(float),
+                    self.data["top"].values.astype(float),
+                    self.data["bottom"].values.astype(float),
                 )
             ]
         else:
             geometries = [
                 LineString([[x, y, top + 0.01], [x, y, bottom + 0.01]])
                 for x, y, top, bottom in zip(
-                    self.data["x"].values,
-                    self.data["y"].values,
-                    self.data["top"].values,
-                    self.data["bottom"].values,
+                    self.data["x"].values.astype(float),
+                    self.data["y"].values.astype(float),
+                    self.data["top"].values.astype(float),
+                    self.data["bottom"].values.astype(float),
                 )
             ]
 
         geodataframe_result = gpd.GeoDataFrame(
             data=data_to_write, geometry=geometries, crs=self.horizontal_reference
         )
-        geodataframe_result.to_file(Path(out_file))
+        geodataframe_result.to_file(Path(out_file), driver="GPKG")
 
 
 class CptCollection(PointDataCollection):
