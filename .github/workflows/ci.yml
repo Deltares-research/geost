@@ -31,7 +31,6 @@ jobs:
       matrix:
         python-version:
           - "3.10"
-          - "3.11"
     steps:
       - name: Check out repo
         uses: actions/checkout@v2
