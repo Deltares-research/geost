@@ -1,0 +1,11 @@
+[project]
+name = "pysst"
+version = "0.1.0"
+description = "Add a short description here"
+authors = ["Erik van Onselen <erik.vanonselen@deltares.nl>"]
+channels = ["conda-forge"]
+platforms = ["win-64"]
+
+[tasks]
+
+[dependencies]
