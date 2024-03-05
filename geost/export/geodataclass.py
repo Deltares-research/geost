@@ -1,8 +1,8 @@
 """
 This code is part of the core functionality of Deltares DataFusionTools. The 'Data'
 class is used to represent all spatial data, including boreholes and CPT's. In order to
-avoid a dependency on DataFusionTools (and its many dependencies that pysst doesn't
-need), the code was copied here to allow for the export of Pysst objects to
+avoid a dependency on DataFusionTools (and its many dependencies that geost doesn't
+need), the code was copied here to allow for the export of geost objects to
 DataFusionTools Data objects.
 
 source:
@@ -86,7 +86,7 @@ class Data:
 
 
 ########################################################################################
-################################# PYSST ADDITIONS ######################################
+################################# geost ADDITIONS ######################################
 ########################################################################################
 
 

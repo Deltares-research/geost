@@ -5,8 +5,8 @@ import pandas as pd
 import pytest
 from numpy.testing import assert_allclose
 
-from pysst import read_sst_cores
-from pysst.borehole import BoreholeCollection
+from geost import read_sst_cores
+from geost.borehole import BoreholeCollection
 
 borehole_file = Path(__file__).parent / "data" / "test_boreholes.parquet"
 selection_file = Path(__file__).parent / "data" / "test_polygon.parquet"

@@ -1,7 +1,7 @@
-pysst
+geost
 =====
 
 .. toctree::
    :maxdepth: 4
 
-   pysst
+   geost

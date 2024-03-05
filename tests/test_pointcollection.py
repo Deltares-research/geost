@@ -5,8 +5,8 @@ import pandas as pd
 import pytest
 from numpy.testing import assert_almost_equal, assert_array_almost_equal, assert_equal
 
-from pysst import read_nlog_cores, read_sst_cores
-from pysst.borehole import BoreholeCollection
+from geost import read_nlog_cores, read_sst_cores
+from geost.borehole import BoreholeCollection
 
 
 class TestPointCollection:

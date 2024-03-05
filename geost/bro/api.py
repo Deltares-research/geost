@@ -3,8 +3,8 @@ from typing import Iterable, Iterator, List, TypeVar, Union
 import requests
 from lxml import etree
 
-from pysst.bro.bro_utils import divide_bbox, get_bbox_criteria
-from pysst.projections import xy_to_ll
+from geost.bro.bro_utils import divide_bbox, get_bbox_criteria
+from geost.projections import xy_to_ll
 
 Coordinate = TypeVar("Coordinate", int, float)
 

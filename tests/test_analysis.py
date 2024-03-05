@@ -9,9 +9,9 @@ from numpy.testing import (
 )
 
 # Local imports
-from pysst.analysis.interpret_cpt import calc_ic, calc_lithology
-from pysst.analysis.layer_analysis import find_top_sand
-from pysst.borehole import BoreholeCollection
+from geost.analysis.interpret_cpt import calc_ic, calc_lithology
+from geost.analysis.layer_analysis import find_top_sand
+from geost.borehole import BoreholeCollection
 
 
 class TestAnalysis:

@@ -3,8 +3,8 @@ import numpy as np
 from pathlib import Path
 from typing import NamedTuple
 from numpy.testing import assert_array_almost_equal
-from pysst.io.parsers import CptGefFile
-from pysst.io.parsers.gef_parsers import ColumnInfo
+from geost.io.parsers import CptGefFile
+from geost.io.parsers.gef_parsers import ColumnInfo
 
 
 def dummy_cpt_data():

@@ -6,13 +6,13 @@ from typing import Iterable, List, Optional, TypeVar, Union
 import pandas as pd
 
 # Local imports
-from pysst import spatial
-from pysst.analysis import cumulative_thickness, layer_top
-from pysst.export import borehole_to_multiblock, export_to_dftgeodata
-from pysst.projections import get_coors, get_transformer
-from pysst.utils import MissingOptionalModule
-from pysst.validate import fancy_info, fancy_warning
-from pysst.validate.validation_schemes import (
+from geost import spatial
+from geost.analysis import cumulative_thickness, layer_top
+from geost.export import borehole_to_multiblock, export_to_dftgeodata
+from geost.projections import get_coors, get_transformer
+from geost.utils import MissingOptionalModule
+from geost.validate import fancy_info, fancy_warning
+from geost.validate.validation_schemes import (
     common_dataschema,
     common_dataschema_depth_reference,
     headerschema,
@@ -42,26 +42,26 @@ pd.set_option("mode.copy_on_write", True)
 
 class PointDataCollection:
     """
-    Base class for collections of pointdata, such as boreholes and CPTs. The pysst
+    Base class for collections of pointdata, such as boreholes and CPTs. The geost
     module revolves around this class and includes all methods that apply generically to
     all types of point data, such as selection and export methods.
 
     This class cannot be constructed directly, but only from
-    :class:`~pysst.borehole.BoreholeCollection` and
-    :class:`~pysst.borehole.CptCollection`. Users must use the reader functions in
-    :py:mod:`~pysst.read` to create collections.
+    :class:`~geost.borehole.BoreholeCollection` and
+    :class:`~geost.borehole.CptCollection`. Users must use the reader functions in
+    :py:mod:`~geost.read` to create collections.
 
     Args:
         data (pd.DataFrame): Dataframe containing borehole/CPT data.
 
         vertical_reference (str): Vertical reference, see
-         :py:attr:`~pysst.base.PointDataCollection.vertical_reference`
+         :py:attr:`~geost.base.PointDataCollection.vertical_reference`
 
         horizontal_reference (int): Horizontal reference, see
-         :py:attr:`~pysst.base.PointDataCollection.horizontal_reference`
+         :py:attr:`~geost.base.PointDataCollection.horizontal_reference`
 
         header (pd.DataFrame): Header used for construction. see
-         :py:attr:`~pysst.base.PointDataCollection.header`
+         :py:attr:`~geost.base.PointDataCollection.header`
     """
 
     def __init__(
@@ -96,7 +96,7 @@ class PointDataCollection:
     def reset_header(self):
         """
         Create a new header based on the 'data' dataframe
-        (:py:attr:`~pysst.base.PointDataCollection.data`). Can be used to reset the
+        (:py:attr:`~geost.base.PointDataCollection.data`). Can be used to reset the
         header in case you accidentally broke the header.
 
         Raises
@@ -174,7 +174,7 @@ class PointDataCollection:
         -------
         int
             EPSG code of the coordinate reference system (crs) used for point geometries
-            in :py:attr:`~pysst.base.PointDataCollection.header`
+            in :py:attr:`~geost.base.PointDataCollection.header`
         """
         return self.__horizontal_reference
 
@@ -231,7 +231,7 @@ class PointDataCollection:
         to : str
             To which vertical reference to convert the layer tops and bottoms. Either
             'NAP', 'surfacelevel' or 'depth'. See
-            :py:attr:`~pysst.base.PointDataCollection.vertical_reference`.
+            :py:attr:`~geost.base.PointDataCollection.vertical_reference`.
         """
         match self.__vertical_reference:
             case "NAP":
@@ -317,7 +317,7 @@ class PointDataCollection:
         """
         Make a selection of the data based on a bounding box of coordinates in the
         horizontal reference system of the collection. See also
-        :py:attr:`~pysst.base.PointDataCollection.horizontal_reference`
+        :py:attr:`~geost.base.PointDataCollection.horizontal_reference`
 
         Parameters
         ----------
@@ -334,9 +334,9 @@ class PointDataCollection:
 
         Returns
         -------
-        Child of :class:`~pysst.base.PointDataCollection`.
-            Instance of either :class:`~pysst.borehole.BoreholeCollection` or
-            :class:`~pysst.borehole.CptCollection` containing only objects selected by
+        Child of :class:`~geost.base.PointDataCollection`.
+            Instance of either :class:`~geost.borehole.BoreholeCollection` or
+            :class:`~geost.borehole.CptCollection` containing only objects selected by
             this method.
         """
         selected_header = spatial.header_from_bbox(
@@ -373,9 +373,9 @@ class PointDataCollection:
 
         Returns
         -------
-        Child of :class:`~pysst.base.PointDataCollection`.
-            Instance of either :class:`~pysst.borehole.BoreholeCollection` or
-            :class:`~pysst.borehole.CptCollection` containing only objects selected by
+        Child of :class:`~geost.base.PointDataCollection`.
+            Instance of either :class:`~geost.borehole.BoreholeCollection` or
+            :class:`~geost.borehole.CptCollection` containing only objects selected by
             this method.
         """
         if point_gdf.crs is None:
@@ -427,9 +427,9 @@ class PointDataCollection:
 
         Returns
         -------
-        Child of :class:`~pysst.base.PointDataCollection`.
-            Instance of either :class:`~pysst.borehole.BoreholeCollection` or
-            :class:`~pysst.borehole.CptCollection` containing only objects selected by
+        Child of :class:`~geost.base.PointDataCollection`.
+            Instance of either :class:`~geost.borehole.BoreholeCollection` or
+            :class:`~geost.borehole.CptCollection` containing only objects selected by
             this method.
         """
         if line_gdf.crs is None:
@@ -479,9 +479,9 @@ class PointDataCollection:
 
         Returns
         -------
-        Child of :class:`~pysst.base.PointDataCollection`.
-            Instance of either :class:`~pysst.borehole.BoreholeCollection` or
-            :class:`~pysst.borehole.CptCollection` containing only objects selected by
+        Child of :class:`~geost.base.PointDataCollection`.
+            Instance of either :class:`~geost.borehole.BoreholeCollection` or
+            :class:`~geost.borehole.CptCollection` containing only objects selected by
             this method.
         """
         if polygon_gdf.crs is None:
@@ -543,9 +543,9 @@ class PointDataCollection:
 
         Returns
         -------
-        Child of :class:`~pysst.base.PointDataCollection`.
-            Instance of either :class:`~pysst.borehole.BoreholeCollection` or
-            :class:`~pysst.borehole.CptCollection` containing only objects selected by
+        Child of :class:`~geost.base.PointDataCollection`.
+            Instance of either :class:`~geost.borehole.BoreholeCollection` or
+            :class:`~geost.borehole.CptCollection` containing only objects selected by
             this method.
         """
         if column not in self.data.columns:
@@ -605,9 +605,9 @@ class PointDataCollection:
 
         Returns
         -------
-        Child of :class:`~pysst.base.PointDataCollection`.
-            Instance of either :class:`~pysst.borehole.BoreholeCollection` or
-            :class:`~pysst.borehole.CptCollection` containing only objects selected by
+        Child of :class:`~geost.base.PointDataCollection`.
+            Instance of either :class:`~geost.borehole.BoreholeCollection` or
+            :class:`~geost.borehole.CptCollection` containing only objects selected by
             this method.
         """
         selected_header = self.header.copy()
@@ -645,9 +645,9 @@ class PointDataCollection:
 
         Returns
         -------
-        Child of :class:`~pysst.base.PointDataCollection`.
-            Instance of either :class:`~pysst.borehole.BoreholeCollection` or
-            :class:`~pysst.borehole.CptCollection` containing only objects selected by
+        Child of :class:`~geost.base.PointDataCollection`.
+            Instance of either :class:`~geost.borehole.BoreholeCollection` or
+            :class:`~geost.borehole.CptCollection` containing only objects selected by
             this method.
         """
         selected_header = self.header.copy()
@@ -704,9 +704,9 @@ class PointDataCollection:
 
         Returns
         -------
-        Child of :class:`~pysst.base.PointDataCollection`.
-            Instance of either :class:`~pysst.borehole.BoreholeCollection` or
-            :class:`~pysst.borehole.CptCollection` containing depth-sliced objects
+        Child of :class:`~geost.base.PointDataCollection`.
+            Instance of either :class:`~geost.borehole.BoreholeCollection` or
+            :class:`~geost.borehole.CptCollection` containing depth-sliced objects
             resulting from applying this method.
         """
         original_vertical_reference = self.vertical_reference
@@ -752,9 +752,9 @@ class PointDataCollection:
 
         Returns
         -------
-        Child of :class:`~pysst.base.PointDataCollection`.
-            Instance of either :class:`~pysst.borehole.BoreholeCollection` or
-            :class:`~pysst.borehole.CptCollection` containing depth-sliced objects
+        Child of :class:`~geost.base.PointDataCollection`.
+            Instance of either :class:`~geost.borehole.BoreholeCollection` or
+            :class:`~geost.borehole.CptCollection` containing depth-sliced objects
             resulting from applying this method.
         """
         if isinstance(selection_values, str):
@@ -798,7 +798,7 @@ class PointDataCollection:
         pd.DataFrame
             Borehole ids and the polygon label they are in. If include_in_header = True,
             a column containing the generated data will be added inplace to
-            :py:attr:`~pysst.base.PointDataCollection.header`.
+            :py:attr:`~geost.base.PointDataCollection.header`.
         """
         area_labels = spatial.find_area_labels(self.header, polygon_gdf, column_name)
 
@@ -834,7 +834,7 @@ class PointDataCollection:
         pd.DataFrame
             Borehole ids and cumulative thickness of selected layers. If
             include_in_header = True, a column containing the generated data will be
-            added inplace to :py:attr:`~pysst.base.PointDataCollection.header`.
+            added inplace to :py:attr:`~geost.base.PointDataCollection.header`.
         """
         if isinstance(values, str):
             values = [values]
@@ -874,7 +874,7 @@ class PointDataCollection:
         pd.DataFrame
             Borehole ids and top levels of selected layers. If
             include_in_header = True, a column containing the generated data will be
-            added inplace to :py:attr:`~pysst.base.PointDataCollection.header`.
+            added inplace to :py:attr:`~geost.base.PointDataCollection.header`.
         """
         if isinstance(values, str):
             values = [values]

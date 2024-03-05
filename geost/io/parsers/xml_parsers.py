@@ -4,8 +4,8 @@ from lxml import etree
 from pathlib import Path, WindowsPath
 from typing import Union, NamedTuple
 
-from pysst.bro.api import BroApi
-from pysst.io.parsers.parser_utils import RDCoord, DDCoord
+from geost.bro.api import BroApi
+from geost.io.parsers.parser_utils import RDCoord, DDCoord
 
 
 class LayerSoilCore(NamedTuple):

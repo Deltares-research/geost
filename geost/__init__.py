@@ -1,4 +1,4 @@
-from pysst.read import (
+from geost.read import (
     read_gef_cores,
     read_gef_cpts,
     read_nlog_cores,
@@ -11,4 +11,4 @@ from pysst.read import (
     get_bro_objects_from_bbox,
     get_bro_objects_from_geometry,
 )
-from pysst.utils import csv_to_parquet, excel_to_parquet
+from geost.utils import csv_to_parquet, excel_to_parquet
