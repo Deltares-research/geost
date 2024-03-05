@@ -23,7 +23,7 @@ jobs:
       - name: Setup Pixi
         uses: prefix-dev/setup-pixi@v0.3.0
       - name: Run linter
-        uses: pixi run lint
+        run: pixi run lint
   
   test:
     runs-on: windows-latest
