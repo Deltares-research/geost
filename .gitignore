@@ -122,4 +122,6 @@ ENV/
 #*.zip
 
 # VS-Code
-*.code-workspace
+*.code-workspace# pixi environments
+.pixi
+
