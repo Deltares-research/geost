@@ -14,7 +14,7 @@ concurrency:
 
 jobs:
   lint:
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
     steps:
       - name: Check out repo
         uses: actions/checkout@v2
@@ -26,7 +26,7 @@ jobs:
         uses: pre-commit/action@v2.0.3
   
   test:
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
     strategy:
       matrix:
         python-version:
@@ -43,7 +43,7 @@ jobs:
         run: pixi run test
 
   build:
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
     steps:
       - name: Check out repo
         uses: actions/checkout@v2
@@ -53,3 +53,5 @@ jobs:
         run: pixi run test
       - name: Publish Code Coverage
         uses: codecov/codecov-action@v3
+      - name: Build Docs
+        run: pixi run docs
