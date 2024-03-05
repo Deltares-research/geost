@@ -1,9 +1,10 @@
-import re
 import logging
+import re
+from pathlib import WindowsPath
+from typing import NamedTuple, Union
+
 import numpy as np
 import pandas as pd
-from typing import NamedTuple, Union
-from pathlib import WindowsPath
 from shapely.geometry import Point
 
 

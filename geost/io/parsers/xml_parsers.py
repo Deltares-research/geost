@@ -1,11 +1,12 @@
 import re
+from pathlib import Path, WindowsPath
+from typing import NamedTuple, Union
+
 import pandas as pd
 from lxml import etree
-from pathlib import Path, WindowsPath
-from typing import Union, NamedTuple
 
 from geost.bro.api import BroApi
-from geost.io.parsers.parser_utils import RDCoord, DDCoord
+from geost.io.parsers.parser_utils import DDCoord, RDCoord
 
 
 class LayerSoilCore(NamedTuple):

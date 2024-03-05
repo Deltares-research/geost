@@ -1,0 +1,57 @@
+name: ci
+
+on:
+  push:
+    branches:
+    - main
+  pull_request:
+    branches:
+    - main
+
+concurrency:
+    group: ${{ github.workflow }}-${{ github.ref }}
+    cancel-in-progress: true
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@v2
+      - name: Set up Python
+        uses: actions/setup-python@v2
+      - name: Setup Pixi
+        uses: prefix-dev/setup-pixi@v0.3.0
+      - name: pixi run lint
+        uses: pre-commit/action@v2.0.3
+  
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version:
+          - "3.10"
+          - "3.11"
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@v2
+      - name: Setup Pixi
+        uses: prefix-dev/setup-pixi@v0.3.0
+      - name: Setup older Python versions
+        run: pixi add python=${{ matrix.python-version }} 
+      - name: Run Tests
+        run: pixi run test
+
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@v2
+      - name: Setup Pixi
+        uses: prefix-dev/setup-pixi@v0.3.0
+      - name: Run Tests
+        run: pixi run test
+      - name: Publish Code Coverage
+        uses: codecov/codecov-action@v3
+      - name: Build Docs
+        run: pixi run docs
