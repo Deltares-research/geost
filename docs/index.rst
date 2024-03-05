@@ -1,4 +1,4 @@
-PySST documentation
+GeoST documentation
 ===================
 
 The User guide
@@ -16,4 +16,4 @@ API reference
 .. toctree::
    :maxdepth: 3
 
-   api/pysst
+   api/geost

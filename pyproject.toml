@@ -3,7 +3,7 @@ requires = ["setuptools>66", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "pysst"
+name = "geost"
 version = "0.1.0"
 authors = [
     {name = "Erik van Onselen", email = "erik.vanonselen@deltares.nl"},
@@ -14,7 +14,7 @@ description = "The Python interface for geological point data in The Netherlands
 readme = "README.md"
 license = {file = "LICENSE"}
 keywords = [
-    "pysst",
+    "geost",
     "bro",
     "borehole",
     "well log",
@@ -59,12 +59,12 @@ dev = [
 ]
 
 [project.urls]
-Homepage = "https://gitlab.com/deltares/tgg-projects/subsurface-toolbox/pysst"
-Repository = "https://gitlab.com/deltares/tgg-projects/subsurface-toolbox/pysst"
-Issues = "https://gitlab.com/deltares/tgg-projects/subsurface-toolbox/pysst/-/issues"
+Homepage = "https://github.com/Deltares-research/geost"
+Repository = "https://github.com/Deltares-research/geost"
+Issues = "https://github.com/Deltares-research/geost/issues"
 
 [tool.setuptools.packages.find]
-include = ["pysst", "pysst.*"]
+include = ["geost", "geost.*"]
 
 [tool.pytest.ini_options]
 testpaths = [

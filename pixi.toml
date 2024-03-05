@@ -1,11 +1,32 @@
 [project]
-name = "pysst"
+name = "geost"
 version = "0.1.0"
 description = "Add a short description here"
-authors = ["Erik van Onselen <erik.vanonselen@deltares.nl>"]
-channels = ["conda-forge"]
+authors = ["Erik van Onselen <erik.vanonselen@deltares.nl>", 
+        "Bas Knaake <bas.knaake@gmail.com>", 
+        "Tommer Vermaas <tommer.vermaas@deltares.nl>"]
+channels = ["conda-forge", "main", "r", "msys2"]
 platforms = ["win-64"]
 
 [tasks]
+install_e = "python -m pip install --no-deps --editable ."
 
 [dependencies]
+python = "3.11.*"
+numpy = "*"
+pandas = ">=2.0.1"
+pyarrow = "*"
+lxml = "*"
+pyproj = "*"
+geopandas = "*"
+xlrd = "*"
+openpyxl = "*"
+shapely = ">=2.0.1"
+pyvista = "*"
+black = "*"
+pytest = "*"
+pytest-cov = "*"
+ruff = "*"
+sphinx = "*"
+sphinx-rtd-theme = "*"
+pip = ">=24.0,<25"

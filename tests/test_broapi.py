@@ -1,7 +1,7 @@
 import pytest
 from lxml.etree import _Element
 
-from pysst.bro import BroApi
+from geost.bro import BroApi
 
 
 class TestBroApi:

@@ -1,7 +1,7 @@
 API reference
 =============
 
-.. automodule:: pysst
+.. automodule:: geost
    :members:
    :undoc-members:
    :show-inheritance:
@@ -9,34 +9,34 @@ API reference
 Modules
 ----------
 
-pysst.base module
+geost.base module
 -----------------
 
-.. automodule:: pysst.base
+.. automodule:: geost.base
    :members:
    :undoc-members:
    :show-inheritance:
 
-pysst.borehole module
+geost.borehole module
 ---------------------
 
-.. automodule:: pysst.borehole
+.. automodule:: geost.borehole
    :members:
    :undoc-members:
    :show-inheritance:
 
-pysst.read module
+geost.read module
 -----------------
 
-.. automodule:: pysst.read
+.. automodule:: geost.read
    :members:
    :undoc-members:
    :show-inheritance:
 
-pysst.utils module
+geost.utils module
 ------------------
 
-.. automodule:: pysst.utils
+.. automodule:: geost.utils
    :members:
    :undoc-members:
    :show-inheritance:

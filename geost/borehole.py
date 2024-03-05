@@ -5,12 +5,12 @@ import geopandas as gpd
 import pandas as pd
 from shapely import LineString
 
-# from pysst.validate import BoreholeSchema, CptSchema
-from pysst.analysis import top_of_sand
-from pysst.analysis.interpret_cpt import calc_ic, calc_lithology
+# from geost.validate import BoreholeSchema, CptSchema
+from geost.analysis import top_of_sand
+from geost.analysis.interpret_cpt import calc_ic, calc_lithology
 
 # Local imports
-from pysst.base import PointDataCollection
+from geost.base import PointDataCollection
 
 
 class BoreholeCollection(PointDataCollection):
@@ -18,22 +18,22 @@ class BoreholeCollection(PointDataCollection):
     Class for collections of borehole data.
 
     Users must use the reader functions in
-    :py:mod:`~pysst.read` to create collections. The following readers generate Borehole
+    :py:mod:`~geost.read` to create collections. The following readers generate Borehole
     objects:
 
-    :func:`~pysst.read.read_sst_cores`, :func:`~pysst.read.read_nlog_cores`
+    :func:`~geost.read.read_sst_cores`, :func:`~geost.read.read_nlog_cores`
 
     Args:
         data (pd.DataFrame): Dataframe containing borehole/CPT data.
 
         vertical_reference (str): Vertical reference, see
-         :py:attr:`~pysst.base.PointDataCollection.vertical_reference`
+         :py:attr:`~geost.base.PointDataCollection.vertical_reference`
 
         horizontal_reference (int): Horizontal reference, see
-         :py:attr:`~pysst.base.PointDataCollection.horizontal_reference`
+         :py:attr:`~geost.base.PointDataCollection.horizontal_reference`
 
         header (pd.DataFrame): Header used for construction. see
-         :py:attr:`~pysst.base.PointDataCollection.header`
+         :py:attr:`~geost.base.PointDataCollection.header`
     """
 
     def __init__(
@@ -81,7 +81,7 @@ class BoreholeCollection(PointDataCollection):
         pd.DataFrame
             Borehole ids and calculated cover layer thicknessess. If
             include_in_header = True, a column containing the generated data will be
-            added inplace to :py:attr:`~pysst.base.PointDataCollection.header`.
+            added inplace to :py:attr:`~geost.base.PointDataCollection.header`.
         """
         top_sand = pd.DataFrame(top_of_sand(self.data), columns=["nr", "top_sand"])
 
@@ -100,7 +100,7 @@ class BoreholeCollection(PointDataCollection):
         plugin. Works only for layered (borehole) data.
 
         PLEASE NOTE:
-        PySST does not support inclined boreholes yet. 3D visualisation may look a bit
+        geost does not support inclined boreholes yet. 3D visualisation may look a bit
         weird for the time being with layers being displaced instead of inclined.
 
         Parameters
@@ -160,22 +160,22 @@ class CptCollection(PointDataCollection):
     Class for collections of CPT data.
 
     Users must use the reader functions in
-    :py:mod:`~pysst.read` to create collections. The following readers generate CPT
+    :py:mod:`~geost.read` to create collections. The following readers generate CPT
     objects:
 
-    :func:`~pysst.read.read_sst_cpts`, :func:`~pysst.read.read_gef_cpts`
+    :func:`~geost.read.read_sst_cpts`, :func:`~geost.read.read_gef_cpts`
 
     Args:
         data (pd.DataFrame): Dataframe containing borehole/CPT data.
 
         vertical_reference (str): Vertical reference, see
-         :py:attr:`~pysst.base.PointDataCollection.vertical_reference`
+         :py:attr:`~geost.base.PointDataCollection.vertical_reference`
 
         horizontal_reference (int): Horizontal reference, see
-         :py:attr:`~pysst.base.PointDataCollection.horizontal_reference`
+         :py:attr:`~geost.base.PointDataCollection.horizontal_reference`
 
         header (pd.DataFrame): Header used for construction. see
-         :py:attr:`~pysst.base.PointDataCollection.header`
+         :py:attr:`~geost.base.PointDataCollection.header`
     """
 
     def __init__(
@@ -198,7 +198,7 @@ class CptCollection(PointDataCollection):
         """
         Calculate soil behaviour type index (Ic) for all CPT's in the collection.
 
-        The data is added to :py:attr:`~pysst.base.PointDataCollection.header`.
+        The data is added to :py:attr:`~geost.base.PointDataCollection.header`.
         """
         self.data["ic"] = calc_ic(self.data["qc"], self.data["friction_number"])
 
@@ -206,7 +206,7 @@ class CptCollection(PointDataCollection):
         """
         Interpret lithoclass for all CPT's in the collection.
 
-        The data is added to :py:attr:`~pysst.base.PointDataCollection.header`.
+        The data is added to :py:attr:`~geost.base.PointDataCollection.header`.
         """
         if "ic" not in self.data.columns:
             self.add_ic()
@@ -217,11 +217,11 @@ class CptCollection(PointDataCollection):
     def as_boreholecollection(self):
         """
         Export CptCollection to BoreholeCollection. Requires the "lith" column to be
-        present. Use the method :py:meth:`~pysst.borehole.CptCollection.add_lithology`
+        present. Use the method :py:meth:`~geost.borehole.CptCollection.add_lithology`
 
         Returns
         -------
-        Instance of :class:`~pysst.borehole.BoreholeCollection`
+        Instance of :class:`~geost.borehole.BoreholeCollection`
         """
         if "lith" not in self.data.columns:
             raise IndexError(

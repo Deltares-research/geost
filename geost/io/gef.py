@@ -2,8 +2,8 @@
 # import pandas as pd
 from typing import Iterable, Union
 from pathlib import Path, WindowsPath
-from pysst.utils import get_path_iterable
-from pysst.io.parsers.gef_parsers import CptGefFile
+from geost.utils import get_path_iterable
+from geost.io.parsers.gef_parsers import CptGefFile
 
 
 def _parse_cpt_gef_files(file_or_folder: Union[str, WindowsPath]):
@@ -22,7 +22,7 @@ def _parse_cpt_gef_files(file_or_folder: Union[str, WindowsPath]):
 
     """
     if isinstance(file_or_folder, (str, WindowsPath)):
-        files = get_path_iterable(Path(file_or_folder), wildcard='*.gef')
+        files = get_path_iterable(Path(file_or_folder), wildcard="*.gef")
 
     elif isinstance(file_or_folder, Iterable):
         files = file_or_folder
@@ -31,9 +31,9 @@ def _parse_cpt_gef_files(file_or_folder: Union[str, WindowsPath]):
         cpt = CptGefFile(f)
         df = cpt.df
 
-        df.insert(0, 'nr', cpt.nr)
-        df.insert(1, 'x', cpt.x)
-        df.insert(2, 'y', cpt.y)
-        df.insert(3, 'mv', cpt.z)
-        df.insert(4, 'end', cpt.enddepth)
+        df.insert(0, "nr", cpt.nr)
+        df.insert(1, "x", cpt.x)
+        df.insert(2, "y", cpt.y)
+        df.insert(3, "mv", cpt.z)
+        df.insert(4, "end", cpt.enddepth)
         yield df

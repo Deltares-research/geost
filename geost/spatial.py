@@ -4,7 +4,7 @@ import numpy as np
 import pandas as pd
 
 # Local imports
-from pysst.utils import MissingOptionalModule
+from geost.utils import MissingOptionalModule
 
 # Optional imports
 try:

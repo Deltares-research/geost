@@ -6,11 +6,11 @@ import numpy as np
 import pandas as pd
 
 # Local imports
-from pysst.borehole import BoreholeCollection, CptCollection
-from pysst.bro import BroApi
-from pysst.io import _parse_cpt_gef_files
-from pysst.io.parsers import SoilCore
-from pysst.spatial import header_to_geopandas
+from geost.borehole import BoreholeCollection, CptCollection
+from geost.bro import BroApi
+from geost.io import _parse_cpt_gef_files
+from geost.io.parsers import SoilCore
+from geost.spatial import header_to_geopandas
 
 
 geometry_to_selection_function = {
@@ -63,15 +63,15 @@ def read_sst_cores(
         Path to file to be read.
     vertical_reference: str
         Which vertical reference is used for tops and bottoms. See
-        :py:attr:`~pysst.base.PointDataCollection.vertical_reference` for documentation
+        :py:attr:`~geost.base.PointDataCollection.vertical_reference` for documentation
         of this attribute.
     horizontal_reference (int): Horizontal reference, see
-        :py:attr:`~pysst.base.PointDataCollection.horizontal_reference`
+        :py:attr:`~geost.base.PointDataCollection.horizontal_reference`
 
     Returns
     -------
-    :class:`~pysst.borehole.BoreholeCollection`
-        Instance of :class:`~pysst.borehole.BoreholeCollection`.
+    :class:`~geost.borehole.BoreholeCollection`
+        Instance of :class:`~geost.borehole.BoreholeCollection`.
     """
     sst_cores = __read_parquet(Path(file))
     return BoreholeCollection(
@@ -95,15 +95,15 @@ def read_sst_cpts(
         Path to file to be read.
     vertical_reference: str
         Which vertical reference is used for tops and bottoms. See
-        :py:attr:`~pysst.base.PointDataCollection.vertical_reference` for documentation
+        :py:attr:`~geost.base.PointDataCollection.vertical_reference` for documentation
         of this attribute.
     horizontal_reference (int): Horizontal reference, see
-        :py:attr:`~pysst.base.PointDataCollection.horizontal_reference`
+        :py:attr:`~geost.base.PointDataCollection.horizontal_reference`
 
     Returns
     -------
-    :class:`~pysst.borehole.CptCollection`
-        Instance of :class:`~pysst.borehole.CptCollection`.
+    :class:`~geost.borehole.CptCollection`
+        Instance of :class:`~geost.borehole.CptCollection`.
     """
     filepath = Path(file)
     sst_cpts = __read_parquet(filepath)
@@ -122,7 +122,7 @@ def read_nlog_cores(
     distribution of borehole data here: https://www.nlog.nl/boringen
 
     Warning: reading this Excel file is really slow (~10 minutes). Converting it to
-    parquet using :func:`~pysst.utils.excel_to_parquet` and using that file instead
+    parquet using :func:`~geost.utils.excel_to_parquet` and using that file instead
     allows for much faster reading of nlog data.
 
     Parameters
@@ -130,12 +130,12 @@ def read_nlog_cores(
     file : str | WindowsPath
         Path to nlog_stratstelsel.xlsx or .parquet
     horizontal_reference (int): Horizontal reference, see
-        :py:attr:`~pysst.base.PointDataCollection.horizontal_reference`
+        :py:attr:`~geost.base.PointDataCollection.horizontal_reference`
 
     Returns
     -------
-    :class:`~pysst.borehole.BoreholeCollection`
-        :class:`~pysst.borehole.BoreholeCollection`
+    :class:`~geost.borehole.BoreholeCollection`
+        :class:`~geost.borehole.BoreholeCollection`
     """
     filepath = Path(file)
     if filepath.suffix == ".xlsx":
@@ -242,14 +242,14 @@ def read_gef_cores(file_or_folder: str | WindowsPath) -> BoreholeCollection:
 
 def read_gef_cpts(file_or_folder: str | WindowsPath, use_pygef=False) -> CptCollection:
     """
-    Read gef files of CPT data into a Pysst CptCollection.
+    Read gef files of CPT data into a geost CptCollection.
 
     Parameters
     ----------
     file_or_folder : str | WindowsPath
         DESCRIPTION.
     use_pygef : Boolean, optional
-        If True, the gef reader from pygef (external) is used. If False, the pysst
+        If True, the gef reader from pygef (external) is used. If False, the geost
         gef reader is used. The default is False.
 
     Returns
@@ -283,7 +283,7 @@ def get_bro_objects_from_bbox(
     horizontal_reference: int = 28992,
 ) -> BoreholeCollection:
     """
-    Directly download objects from the BRO to a PySST collection object based on the
+    Directly download objects from the BRO to a geost collection object based on the
     given bounding box
 
     Parameters
@@ -300,17 +300,17 @@ def get_bro_objects_from_bbox(
         maximal y-coordinate of the bounding box
     vertical_reference : str, optional
         Vertical reference system to use for the resulting collection, see
-        :py:attr:`~pysst.base.PointDataCollection.vertical_reference`, by default "NAP"
+        :py:attr:`~geost.base.PointDataCollection.vertical_reference`, by default "NAP"
     horizontal_reference : int, optional
         Horizontal reference system to use for the resulting collection, see
-        :py:attr:`~pysst.base.PointDataCollection.horizontal_reference`,
+        :py:attr:`~geost.base.PointDataCollection.horizontal_reference`,
         by default 28992
 
     Returns
     -------
     BoreholeCollection
-        Instance of either :class:`~pysst.borehole.BoreholeCollection` or
-        :class:`~pysst.borehole.CptCollection` containing only objects selected by
+        Instance of either :class:`~geost.borehole.BoreholeCollection` or
+        :class:`~geost.borehole.CptCollection` containing only objects selected by
         this method.
     """
     api = BroApi()
@@ -353,7 +353,7 @@ def get_bro_objects_from_geometry(
     horizontal_reference: int = 28992,
 ) -> BoreholeCollection:
     """
-    Directly download objects from the BRO to a PySST collection object based on given
+    Directly download objects from the BRO to a geost collection object based on given
     geometries such as points, lines or polygons.
 
     Parameters
@@ -367,17 +367,17 @@ def get_bro_objects_from_geometry(
         Adds an extra buffer zone around a polygon to select from, by default 0
     vertical_reference : str, optional
         Vertical reference system to use for the resulting collection, see
-        :py:attr:`~pysst.base.PointDataCollection.vertical_reference`, by default "NAP"
+        :py:attr:`~geost.base.PointDataCollection.vertical_reference`, by default "NAP"
     horizontal_reference : int, optional
         Horizontal reference system to use for the resulting collection, see,
-        :py:attr:`~pysst.base.PointDataCollection.horizontal_reference`,
+        :py:attr:`~geost.base.PointDataCollection.horizontal_reference`,
         by default 28992
 
     Returns
     -------
     BoreholeCollection
-        Instance of either :class:`~pysst.borehole.BoreholeCollection` or
-        :class:`~pysst.borehole.CptCollection` containing only objects selected by
+        Instance of either :class:`~geost.borehole.BoreholeCollection` or
+        :class:`~geost.borehole.CptCollection` containing only objects selected by
         this method.
     """
     file = Path(geometry_file)

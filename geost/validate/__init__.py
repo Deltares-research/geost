@@ -1,4 +1,4 @@
-from pysst.validate.validate import (
+from geost.validate.validate import (
     Check,
     Column,
     DataFrameSchema,

@@ -1,6 +1,6 @@
 To build api docs please use the following line that excludes all non-user functions:
 
-sphinx-apidoc -o docs/api ./pysst "**/bro*" "**/analysis*" "**/export*" "**/validate*" "**projections*" "**readers*" "**spatial*" -f -M
+sphinx-apidoc -o docs/api ./geost "**/bro*" "**/analysis*" "**/export*" "**/validate*" "**projections*" "**readers*" "**spatial*" -f -M
 
 To build docs use:
 

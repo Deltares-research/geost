@@ -5,12 +5,12 @@ import pandas as pd
 import pytest
 from numpy.testing import assert_array_equal
 
-from pysst import (
+from geost import (
     read_nlog_cores,
     get_bro_objects_from_bbox,
     get_bro_objects_from_geometry,
 )
-from pysst.borehole import BoreholeCollection
+from geost.borehole import BoreholeCollection
 
 
 class TestReaders:

@@ -1,4 +1,4 @@
-from pysst.validate import Check, Column, DataFrameSchema, numeric, stringlike
+from geost.validate import Check, Column, DataFrameSchema, numeric, stringlike
 
 headerschema = DataFrameSchema(
     "header validation",
