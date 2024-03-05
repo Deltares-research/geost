@@ -53,5 +53,3 @@ jobs:
         run: pixi run test
       - name: Publish Code Coverage
         uses: codecov/codecov-action@v3
-      - name: Build Docs
-        run: pixi run docs
