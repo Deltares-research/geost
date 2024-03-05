@@ -12,7 +12,6 @@ from geost.io import _parse_cpt_gef_files
 from geost.io.parsers import SoilCore
 from geost.spatial import header_to_geopandas
 
-
 geometry_to_selection_function = {
     "Polygon": "select_within_polygons",
     "Line": "select_with_lines",

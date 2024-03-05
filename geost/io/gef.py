@@ -1,9 +1,10 @@
 # import numpy as np
 # import pandas as pd
-from typing import Iterable, Union
 from pathlib import Path, WindowsPath
-from geost.utils import get_path_iterable
+from typing import Iterable, Union
+
 from geost.io.parsers.gef_parsers import CptGefFile
+from geost.utils import get_path_iterable
 
 
 def _parse_cpt_gef_files(file_or_folder: Union[str, WindowsPath]):
