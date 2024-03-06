@@ -17,11 +17,11 @@ jobs:
     runs-on: windows-latest
     steps:
       - name: Check out repo
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
       - name: Set up Python
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v5
       - name: Setup Pixi
-        uses: prefix-dev/setup-pixi@v0.3.0
+        uses: prefix-dev/setup-pixi@v0.5.1
       - name: Run linter
         run: pixi run lint
   
@@ -29,15 +29,14 @@ jobs:
     runs-on: windows-latest
     strategy:
       matrix:
-        python-version:
-          - "3.10"
+        environment: [py310]
     steps:
       - name: Check out repo
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
       - name: Setup Pixi
-        uses: prefix-dev/setup-pixi@v0.3.0
-      - name: Setup older Python versions
-        run: pixi add python=${{ matrix.python-version }} 
+        uses: prefix-dev/setup-pixi@v0.5.1
+        with:
+          environments: ${{ matrix.environment }}
       - name: Run Tests
         run: pixi run test
 
@@ -45,13 +44,13 @@ jobs:
     runs-on: windows-latest
     steps:
       - name: Check out repo
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
       - name: Setup Pixi
-        uses: prefix-dev/setup-pixi@v0.3.0
+        uses: prefix-dev/setup-pixi@v0.5.1
       - name: Run Tests
         run: pixi run test
       - name: Publish Code Coverage
-        uses: codecov/codecov-action@v3
+        uses: codecov/codecov-action@v4
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
       - name: Build Docs
