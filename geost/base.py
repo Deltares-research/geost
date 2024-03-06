@@ -283,25 +283,18 @@ class PointDataCollection:
         """
         self._header = self._header.to_crs(target_crs)
         if not only_geometries:
-            header_xy_unpacked = [
-                (x, y) for x, y in zip(self._header.x, self._header.y)
-            ]
-            data_xy_unpacked = [(x, y) for x, y in zip(self._data.x, self._data.y)]
             # Create Pyproj transformer from this collection's crs to target crs
             transformer = get_transformer(self.horizontal_reference, target_crs)
-            header_xy_transformed = transformer.itransform(header_xy_unpacked)
-            data_xy_transformed = transformer.itransform(data_xy_unpacked)
-            self._header["x"], self._header["y"] = get_coors(header_xy_transformed)
-            self._data["x"], self._data["y"] = get_coors(data_xy_transformed)
+            self._header["x"], self._header["y"] = transformer.transform(
+                self._header["x"], self._header["y"]
+            )
+            self._data["x"], self._data["y"] = transformer.transform(
+                self._data["x"], self._data["y"]
+            )
+
             if self.is_inclined:
-                data_xy_inclined_unpacked = [
-                    (x, y) for x, y in zip(self._data.x_bot, self._data.y_bot)
-                ]
-                data_xy_inclined_transformed = transformer.itransform(
-                    data_xy_inclined_unpacked
-                )
-                self._data["x_bot"], self._data["y_bot"] = get_coors(
-                    data_xy_inclined_transformed
+                self._data["x_bot"], self._data["y_bot"] = transformer.transform(
+                    self._data["x_bot"], self._data["y_bot"]
                 )
 
         self.__horizontal_reference = target_crs
