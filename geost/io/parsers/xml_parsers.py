@@ -5,7 +5,6 @@ from typing import NamedTuple, Union
 import pandas as pd
 from lxml import etree
 
-from geost.bro.api import BroApi
 from geost.io.parsers.parser_utils import DDCoord, RDCoord
 
 
