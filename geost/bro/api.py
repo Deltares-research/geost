@@ -149,8 +149,8 @@ class BroApi:
         epsg: str = "28992",
         object_type: str = "CPT",
     ):
-        xmin_ll, ymin_ll = xy_to_ll(xmin, ymin, epsg)
-        xmax_ll, ymax_ll = xy_to_ll(xmax, ymax, epsg)
+        ymin_ll, xmin_ll = xy_to_ll(xmin, ymin, epsg)
+        ymax_ll, xmax_ll = xy_to_ll(xmax, ymax, epsg)
         criteria = get_bbox_criteria(xmin_ll, xmax_ll, ymin_ll, ymax_ll)
         api_url = self.server_url + self.apis[object_type] + self.search_url
         response = self.session.post(api_url, json=criteria)
