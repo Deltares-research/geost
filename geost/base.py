@@ -9,7 +9,7 @@ import pandas as pd
 from geost import spatial
 from geost.analysis import cumulative_thickness, layer_top
 from geost.export import borehole_to_multiblock, export_to_dftgeodata
-from geost.projections import get_coors, get_transformer
+from geost.projections import get_transformer
 from geost.utils import MissingOptionalModule
 from geost.validate import fancy_info, fancy_warning
 from geost.validate.validation_schemes import (
