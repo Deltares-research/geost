@@ -692,7 +692,7 @@ class PointDataCollection:
         self,
         upper_boundary: Union[float, int] = None,
         lower_boundary: Union[float, int] = None,
-        vertical_reference: str = "NAP",
+        vertical_reference: Optional[str] = None,
     ):
         """
         Slice boreholes/cpts based on given upper and lower boundaries. e.g. if you want
@@ -728,17 +728,25 @@ class PointDataCollection:
             Instance of either :class:`~geost.borehole.BoreholeCollection` or
             :class:`~geost.borehole.CptCollection` containing depth-sliced objects
             resulting from applying this method.
+
         """
-        original_vertical_reference = self.vertical_reference
-        self.change_vertical_reference(vertical_reference)
+        if vertical_reference is None:
+            vertical_reference = self.vertical_reference
+            change_reference = False
+        else:
+            change_reference = vertical_reference != self.vertical_reference
+
+        if change_reference:
+            original_vertical_reference = self.vertical_reference
+            self.change_vertical_reference(vertical_reference)
 
         data_sliced = self.data.copy()
 
         if vertical_reference != "depth":
-            data_sliced = data_sliced[data_sliced["top"] > (lower_boundary or -9999)]
-            data_sliced = data_sliced[data_sliced["bottom"] < (upper_boundary or 9999)]
+            data_sliced = data_sliced[data_sliced["top"] > (lower_boundary or -1e34)]
+            data_sliced = data_sliced[data_sliced["bottom"] < (upper_boundary or 1e34)]
         elif vertical_reference == "depth":
-            data_sliced = data_sliced[data_sliced["top"] < (lower_boundary or 9999)]
+            data_sliced = data_sliced[data_sliced["top"] < (lower_boundary or 1e34)]
             data_sliced = data_sliced[data_sliced["bottom"] > (upper_boundary or 1)]
 
         header_sliced = self.header.loc[
@@ -753,7 +761,8 @@ class PointDataCollection:
             is_inclined=self.is_inclined,
         )
 
-        result.change_vertical_reference(original_vertical_reference)
+        if change_reference:
+            self.change_vertical_reference(original_vertical_reference)
 
         return result
 

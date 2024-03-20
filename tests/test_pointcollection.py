@@ -211,15 +211,32 @@ class TestPointCollection:
 
     @pytest.mark.unittest
     def test_slice_depth_interval(self, boreholes):
+        # test with NAP reference
         slice1 = boreholes.slice_depth_interval(lower_boundary=-3, upper_boundary=0)
+
+        assert len(slice1.data) == 15
+        assert len(slice1.header) == 6
+
+        # test with depth reference
         slice2 = boreholes.slice_depth_interval(
             lower_boundary=10, upper_boundary=5, vertical_reference="depth"
         )
 
-        assert len(slice1.data) == 15
-        assert len(slice1.header) == 6
         assert len(slice2.data) == 6
         assert len(slice2.header) == 4
+        # vertical_reference of slice must be as specified in function
+        assert slice2.vertical_reference == 'depth'
+        # original vertical_reference must be kept the same as before function call
+        assert boreholes.vertical_reference == 'NAP'
+
+        # test with surfacelevel reference and reference is specified but same as original
+        boreholes.change_vertical_reference("surfacelevel")
+        slice3 = boreholes.slice_depth_interval(
+            upper_boundary=-5, lower_boundary=-10, vertical_reference="surfacelevel"
+        )
+
+        assert len(slice3.data) == 6
+        assert len(slice3.header) == 4
 
     @pytest.mark.unittest
     def test_slice_by_values(self, boreholes):
