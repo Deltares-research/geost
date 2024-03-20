@@ -237,6 +237,22 @@ class TestPointCollection:
         assert len(layers_v_z.data) == 23
         assert len(layers_v_z.header) == 11
 
+    @pytest.mark.unittest
+    def test_inverted_slice_by_values(self, boreholes):
+        layers_non_k = boreholes.slice_by_values("lith", "K", invert=True)
+        layers_non_ks2 = boreholes.slice_by_values("lith_comb", "Ks2", invert=True)
+        layers_non_h2 = boreholes.slice_by_values("org", "H2", invert=True)
+        layers_non_v_z = boreholes.slice_by_values("lith", ["V", "Z"], invert=True)
+
+        assert len(layers_non_k.data) == 162
+        assert len(layers_non_k.header) == 13
+        assert len(layers_non_ks2.data) == 331
+        assert len(layers_non_ks2.header) == 13
+        assert len(layers_non_h2.data) == 347
+        assert len(layers_non_h2.header) == 13
+        assert len(layers_non_v_z.data) == 327
+        assert len(layers_non_v_z.header) == 13
+
     @pytest.mark.integrationtest
     def test_validation_pass(self, capfd, borehole_df_ok):
         BoreholeCollection(borehole_df_ok)
