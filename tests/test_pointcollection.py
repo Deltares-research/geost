@@ -98,6 +98,20 @@ class TestPointCollection:
 
         return dataframe
 
+    @pytest.fixture
+    def header_surplus_objects(self):
+        dataframe = pd.DataFrame(
+            {
+                "nr": ["B-01", "B-02", "B-03"],
+                "x": [139370, 100000, 110000],
+                "y": [455540, 400000, 410000],
+                "mv": [1, 0, -1],
+                "end": [-4, -8, -9],
+            }
+        )
+
+        return dataframe
+
     @pytest.mark.unittest
     def test_change_vertical_reference(self, borehole_df_ok):
         borehole_collection_ok = BoreholeCollection(borehole_df_ok)
@@ -241,7 +255,15 @@ class TestPointCollection:
         assert 'data in column "end" failed check "< mv" for 1 rows: [1]' in out
 
     @pytest.mark.integrationtest
-    def test_header_mismatch(self, capfd, borehole_df_ok, header_missing_object):
-        BoreholeCollection(borehole_df_ok, header=header_missing_object)
+    def test_header_mismatch(
+        self, capfd, borehole_df_ok, header_missing_object, header_surplus_objects
+    ):
+        # Situation #1: More unique objects in data table than listed in header
+        collection = BoreholeCollection(borehole_df_ok, header=header_missing_object)
         out, err = capfd.readouterr()
         assert "Header does not cover all unique objects in data" in out
+
+        # Situation #2: More objects in header table than in data table
+        collection = BoreholeCollection(borehole_df_ok, header=header_surplus_objects)
+        out, err = capfd.readouterr()
+        assert "Header covers more objects than present in the data table" in out

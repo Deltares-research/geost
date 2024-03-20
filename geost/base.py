@@ -93,7 +93,7 @@ class PointDataCollection:
     def __repr__(self):
         return f"{self.__class__.__name__}:\n# header = {self.n_points}"
 
-    def reset_header(self):
+    def reset_header(self, *args):
         """
         Create a new header based on the 'data' dataframe
         (:py:attr:`~geost.base.PointDataCollection.data`). Can be used to reset the
@@ -200,9 +200,8 @@ class PointDataCollection:
         header through validation and warn the user of any potential problems.
         """
         headerschema.validate(header)
-        if any(~header["nr"].isin(self.data["nr"].unique())):
-            warn("Header does not cover all unique objects in data")
         self._header = header
+        self.__check_header_to_data_alignment()
 
     @data.setter
     def data(self, data):
@@ -221,6 +220,34 @@ class PointDataCollection:
             inclined_dataschema.validate(data)
 
         self._data = data
+        self.__check_header_to_data_alignment()
+
+    def __check_header_to_data_alignment(self):
+        """
+        Two-way check to warn of any misalignment between the header and data
+        attributes. Two way, i.e. if header includes more objects than in the data and
+        if the data includes more unique objects that listed in the header.
+
+        This check is performed everytime the object is instantiated AND if any change
+        is made to either the header or data attributes (see their respective setters).
+        """
+        if hasattr(self, "_header") and hasattr(self, "_data"):
+            if any(~self.header["nr"].isin(self.data["nr"].unique())):
+                warn(
+                    "Header covers more objects than present in the data table, "
+                    "consider running the method 'reset_header' to update the header."
+                )
+            if any(
+                [
+                    True
+                    for nr in self.data["nr"].unique()
+                    if not self.header["nr"].isin([nr]).any()
+                ]
+            ):
+                warn(
+                    "Header does not cover all unique objects in data, consider running "
+                    + "the method 'reset_header' to update the header."
+                )
 
     def change_vertical_reference(self, to: str):
         """
@@ -730,7 +757,9 @@ class PointDataCollection:
 
         return result
 
-    def slice_by_values(self, column: str, selection_values: Union[str, Iterable]):
+    def slice_by_values(
+        self, column: str, selection_values: Union[str, Iterable], invert: bool = False
+    ):
         """
         Slice rows from data based on matching condition. E.g. only return rows with
         a certain lithology in the collection object.
@@ -742,6 +771,9 @@ class PointDataCollection:
             values.
         selection_values : Union[str, Iterable]
             Values to look for in the column.
+        invert : bool
+            Invert the slicing action, so remove layers with selected values instead of
+            keeping them.
 
         Returns
         -------
@@ -754,7 +786,11 @@ class PointDataCollection:
             selection_values = [selection_values]
 
         data_sliced = self.data.copy()
-        data_sliced = data_sliced[data_sliced[column].isin(selection_values)]
+        if invert:
+            data_sliced = data_sliced[~data_sliced[column].isin(selection_values)]
+        elif not invert:
+            data_sliced = data_sliced[data_sliced[column].isin(selection_values)]
+
         header_sliced = self.header.loc[
             self.header["nr"].isin(data_sliced["nr"].unique())
         ]

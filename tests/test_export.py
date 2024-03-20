@@ -112,7 +112,7 @@ class TestExport:
         )
         assert_array_equal(prepared_borehole, target)
 
-    @pytest.mark.skip(reason="CI known for not working with pyvisyta")
+    @pytest.mark.unittest  # .skip(reason="Gitlab CI not working with pyvisyta")
     def test_vtk_borehole_to_multiblock(self, borehole_collection):
         multiblock = vtk.borehole_to_multiblock(
             borehole_collection.data,
@@ -126,7 +126,7 @@ class TestExport:
         assert multiblock[0].n_cells == 22
         assert multiblock[0].n_points == 260
 
-    @pytest.mark.skip(reason="CI known for not working with pyvisyta")
+    @pytest.mark.unittest  # .skip(reason="Gitlab CI not working with pyvisyta")
     def test_to_vtm(self, borehole_collection):
         out_file = self.export_folder.joinpath("test_output_file.vtm")
         out_folder = self.export_folder.joinpath("test_output_file")
