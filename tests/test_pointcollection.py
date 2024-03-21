@@ -229,7 +229,7 @@ class TestPointCollection:
         # original vertical_reference must be kept the same as before function call
         assert boreholes.vertical_reference == 'NAP'
 
-        # test with surfacelevel reference and reference is specified but same as original
+        # test with surfacelevel reference and when a reference is specified but same as original
         boreholes.change_vertical_reference("surfacelevel")
         slice3 = boreholes.slice_depth_interval(
             upper_boundary=-5, lower_boundary=-10, vertical_reference="surfacelevel"

@@ -693,16 +693,12 @@ class PointDataCollection:
         upper_boundary: Union[float, int] = None,
         lower_boundary: Union[float, int] = None,
         vertical_reference: Optional[str] = None,
+        update_layer_boundaries: bool = True,  # TODO: implement
     ):
         """
-        Slice boreholes/cpts based on given upper and lower boundaries. e.g. if you want
-        to cut off all layers below -10 m NAP and all layers above 2 m NAP then,
-        provided that the vertical_reference is already "NAP", you can use:
-
-        self.slice_vertical(lower_boundary=-10, upper_boundary=2)
-
-        this returns an instance of the BoreholeCollection or CptCollection with only
-        the sliced layers.
+        Slice boreholes/cpts based on given upper and lower boundaries. This returns an
+        instance of the BoreholeCollection or CptCollection containing only the sliced
+        layers.
 
         Note #1: This method currently only slices along existing layer boundaries,
         which especially for boreholes could mean that thick layers may continue beyond
@@ -728,6 +724,20 @@ class PointDataCollection:
             Instance of either :class:`~geost.borehole.BoreholeCollection` or
             :class:`~geost.borehole.CptCollection` containing depth-sliced objects
             resulting from applying this method.
+
+        Examples
+        --------
+        Usage depends on the vertical_reference of the ~geost.base.PointDataCollection. For
+        example, if you want to cut off all layers below -10 m NAP and all layers above 2 m
+        NAP in a collection that has NAP as its reference, then:
+
+        >>> self.slice_vertical(upper_boundary=2, lower_boundary=-10)
+
+        This uses the vertical_reference of the collection the slice is performed on. If you
+        want to do a selection with respect to 'depth' or 'surfacelevel' references use:
+
+        >>> self.slice_vertical(upper_boundary=2, lower_boundary=6, vertical_reference='depth')
+        >>> self.slice_vertical(upper_boundary=-2, lower_boundary=-6, vertical_reference='surfacelevel')
 
         """
         if vertical_reference is None:
