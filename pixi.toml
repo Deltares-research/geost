@@ -28,21 +28,9 @@ openpyxl = "*"
 shapely = ">=2.0.1"
 pyvista = "*"
 black = "*"
-pytest = ">=8.0,<8.1"
+pytest = ">=8.1.1,<8.2"
 pytest-cov = "*"
 ruff = "*"
 sphinx = "*"
 sphinx-rtd-theme = "*"
 pip = ">=24.0,<25"
-
-[feature.py310.dependencies]
-python = "3.10.13"
-[feature.py311.dependencies]
-python = "3.11.*"
-[feature.py312.dependencies]
-python = "3.12.*"
-
-[environments]
-py310 = ["py310"]
-py311 = ["py311"]
-py312 = ["py312"]
