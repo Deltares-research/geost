@@ -23,7 +23,7 @@ jobs:
         with:
           python-version: '3.11'
       - name: Install ruff
-        uses: pip install ruff
+        run: pip install ruff
       - name: Run linter
         run: ruff check ./geost
 
