@@ -41,8 +41,7 @@ jobs:
       - name: Setup older Python versions
         run: |
           pixi add python=${{ matrix.python-version }}
-          pixi remove pytest
-          pixi add pytest 
+          pixi list
       - name: Run Tests
         run: pixi run test
 
