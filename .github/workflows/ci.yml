@@ -21,7 +21,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.11'
+          python-version: '3.12'
       - name: Install ruff
         run: pip install ruff
       - name: Run linter
@@ -39,7 +39,7 @@ jobs:
         uses: prefix-dev/setup-pixi@v0.5.1
         with: 
           environments: ${{ matrix.environment }}
-      - name: Run Tests
+      - name: Run tests in current test environment
         run: pixi run -e ${{ matrix.environment }} test
 
   build:
@@ -49,11 +49,13 @@ jobs:
         uses: actions/checkout@v4
       - name: Setup Pixi
         uses: prefix-dev/setup-pixi@v0.5.1
-      - name: Run Tests
+        with:
+          environments: py312
+      - name: Run tests
         run: pixi run test
-      - name: Publish Code Coverage
+      - name: Publish code coverage
         uses: codecov/codecov-action@v4
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
-      - name: Build Docs
+      - name: Build docs
         run: pixi run docs
