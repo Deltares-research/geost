@@ -40,7 +40,7 @@ jobs:
         with: 
           environments: ${{ matrix.environment }}
       - name: Run Tests
-        run: pixi run test
+        run: pixi run -e ${{ matrix.environment }} test
 
   build:
     runs-on: windows-latest
