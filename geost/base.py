@@ -1,7 +1,7 @@
 import pickle
 from functools import reduce
 from pathlib import WindowsPath
-from typing import Iterable, List, Optional, TypeVar, Union
+from typing import Iterable, List, Optional, TypeVar
 
 import pandas as pd
 
@@ -384,7 +384,7 @@ class PointDataCollection:
 
         Parameters
         ----------
-        line_file : Union[str, WindowsPath]
+        line_file : str | WindowsPath
             Shapefile or geopackage containing point data.
         buffer: float, default 100
             Buffer around the lines to select points. Default 100.
@@ -438,7 +438,7 @@ class PointDataCollection:
 
         Parameters
         ----------
-        line_file : Union[str, WindowsPath]
+        line_file : str | WindowsPath
             Shapefile or geopackage containing linestring data.
         buffer: float, default 100
             Buffer around the lines to select points. Default 100.
@@ -492,7 +492,7 @@ class PointDataCollection:
 
         Parameters
         ----------
-        polygon_file : Union[str, WindowsPath]
+        polygon_file : str | WindowsPath
             Shapefile or geopackage containing (multi)polygon data.
         invert: bool, default False
             Invert the selection.
@@ -534,7 +534,7 @@ class PointDataCollection:
         )
 
     def select_by_values(
-        self, column: str, selection_values: Union[str, Iterable], how: str = "or"
+        self, column: str, selection_values: str | Iterable, how: str = "or"
     ):
         """
         Select pointdata based on the presence of given values in the given columns.
@@ -554,7 +554,7 @@ class PointDataCollection:
         column : str
             Name of column that contains categorical data to use when looking for
             values.
-        selection_values : Union[str, Iterable]
+        selection_values : str | Iterable
             Values to look for in the column.
         how : str
             Either "and" or "or". "and" requires all selction values to be present in
@@ -690,8 +690,8 @@ class PointDataCollection:
 
     def slice_depth_interval(
         self,
-        upper_boundary: Union[float, int] = None,
-        lower_boundary: Union[float, int] = None,
+        upper_boundary: float | int = None,
+        lower_boundary: float | int = None,
         vertical_reference: Optional[str] = None,
         update_layer_boundaries: bool = True,  # TODO: implement
     ):
@@ -709,9 +709,9 @@ class PointDataCollection:
 
         Parameters
         ----------
-        upper_boundary : Union[float, int], optional
+        upper_boundary : float | int, optional
             Every layer that starts above this is removed, by default 9999.
-        lower_boundary : Union[float, int], optional
+        lower_boundary : float | int, optional
             Every layer that starts below this is removed, by default -9999.
         vertical_reference : str, optional
             The vertical reference used in slicing. Either "NAP", "surface" or "depth"
@@ -777,7 +777,7 @@ class PointDataCollection:
         return result
 
     def slice_by_values(
-        self, column: str, selection_values: Union[str, Iterable], invert: bool = False
+        self, column: str, selection_values: str | Iterable, invert: bool = False
     ):
         """
         Slice rows from data based on matching condition. E.g. only return rows with
@@ -788,7 +788,7 @@ class PointDataCollection:
         column : str
             Name of column that contains categorical data to use when looking for
             values.
-        selection_values : Union[str, Iterable]
+        selection_values : str | Iterable
             Values to look for in the column.
         invert : bool
             Invert the slicing action, so remove layers with selected values instead of
@@ -856,7 +856,7 @@ class PointDataCollection:
             return area_labels
 
     def get_cumulative_layer_thickness(
-        self, column: str, values: Union[str, List[str]], include_in_header=False
+        self, column: str, values: str | List[str], include_in_header=False
     ):
         """
         Get the cumulative thickness of layers of a certain type.
@@ -870,7 +870,7 @@ class PointDataCollection:
         ----------
         column : str
             Name of column that contains categorical data.
-        values : str or List[str]
+        values : str | List[str]
             Value(s) of entries in column that you want to find the cumulative thickness
             of.
         include_in_header : bool, optional
@@ -902,7 +902,7 @@ class PointDataCollection:
             return result
 
     def get_layer_top(
-        self, column: str, values: Union[str, List[str]], include_in_header=False
+        self, column: str, values: str | List[str], include_in_header=False
     ):
         """
         Find the depth at which a specified layer first occurs.
@@ -911,7 +911,7 @@ class PointDataCollection:
         ----------
         column : str
             Name of column that contains categorical data.
-        value : str
+        values : str | List[str]
             Value of entries in column that you want to find top of.
         include_in_header : bool, optional
             Whether to add the acquired data to the header table or not, by default
@@ -979,47 +979,47 @@ class PointDataCollection:
                 "match",
             )
 
-    def to_parquet(self, out_file: Union[str, WindowsPath], **kwargs):
+    def to_parquet(self, out_file: str | WindowsPath, **kwargs):
         """
         Write data to parquet file.
 
         Parameters
         ----------
-        out_file : Union[str, WindowsPath]
+        out_file : str | WindowsPath
             Path to parquet file to be written.
         **kwargs
             pd.DataFrame.to_parquet kwargs. See relevant Pandas documentation.
         """
         self._data.to_parquet(out_file, **kwargs)
 
-    def to_csv(self, out_file: Union[str, WindowsPath], **kwargs):
+    def to_csv(self, out_file: str | WindowsPath, **kwargs):
         """
         Write data to csv file.
 
         Parameters
         ----------
-        out_file : Union[str, WindowsPath]
+        out_file : str | WindowsPath
             Path to csv file to be written.
         **kwargs
             pd.DataFrame.to_csv kwargs. See relevant Pandas documentation.
         """
         self._data.to_csv(out_file, **kwargs)
 
-    def to_shape(self, out_file: Union[str, WindowsPath], **kwargs):
+    def to_shape(self, out_file: str | WindowsPath, **kwargs):
         """
         Write header data to shapefile or geopackage. You can use the resulting file to
         display borehole locations in GIS for instance.
 
         Parameters
         ----------
-        out_file : Union[str, WindowsPath]
+        out_file : str | WindowsPath
             Path to shapefile to be written.
         **kwargs
             gpd.GeoDataFrame.to_file kwargs. See relevant GeoPandas documentation.
         """
         self.header.to_file(out_file, **kwargs)
 
-    def to_geoparquet(self, out_file: Union[str, WindowsPath], **kwargs):
+    def to_geoparquet(self, out_file: str | WindowsPath, **kwargs):
         """
         Write header data to geoparquet. You can use the resulting file to display
         borehole locations in GIS for instance. Please note that Geoparquet is supported
@@ -1027,20 +1027,20 @@ class PointDataCollection:
 
         Parameters
         ----------
-        out_file : Union[str, WindowsPath]
+        out_file : str | WindowsPath
             Path to shapefile to be written.
         **kwargs
             gpd.GeoDataFrame.to_parquet kwargs. See relevant Pandas documentation.
         """
         self.header.to_parquet(out_file, **kwargs)
 
-    def to_ipf(self, out_file: Union[str, WindowsPath], **kwargs):
+    def to_ipf(self, out_file: str | WindowsPath, **kwargs):
         # TODO write the pandas dataframes to IPF
         pass
 
     def to_vtm(
         self,
-        out_file: Union[str, WindowsPath],
+        out_file: str | WindowsPath,
         data_columns: List[str],
         radius: float = 1,
         vertical_factor: float = 1.0,
@@ -1052,7 +1052,7 @@ class PointDataCollection:
 
         Parameters
         ----------
-        out_file : Union[str, WindowsPath]
+        out_file : str | WindowsPath
             Path to vtm file to be written.
         data_columns : List[str]
             Labels of data columns to include for visualisation. Can be columns that
@@ -1083,7 +1083,7 @@ class PointDataCollection:
     def to_datafusiontools(
         self,
         columns: List[str],
-        out_file: Union[str, WindowsPath] = None,
+        out_file: str | WindowsPath = None,
         encode: bool = False,
         **kwargs,
     ):
@@ -1105,7 +1105,7 @@ class PointDataCollection:
         ----------
         columns : List[str]
             Which columns (in the self.data dataframe) to include.
-        out_file : Union[str, WindowsPath]
+        out_file : str | WindowsPath
             Path to pickle file to be written.
         encode : bool, default True
             Encode categorical data to additional binary columns (0 or 1).
