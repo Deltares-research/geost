@@ -93,6 +93,23 @@ class PointDataCollection:
     def __repr__(self):
         return f"{self.__class__.__name__}:\n# header = {self.n_points}"
 
+    def get(self, selection_values: str | Iterable, column: str = "nr"):
+        if isinstance(selection_values, str):
+            selected_header = self.header[self.header[column] == selection_values]
+        elif isinstance(selection_values, Iterable):
+            selected_header = self.header[self.header[column].isin(selection_values)]
+
+        selected_header = selected_header[~selected_header.duplicated()]
+        selection = self.data.loc[self.data["nr"].isin(selected_header["nr"])]
+
+        return self.__class__(
+            selection,
+            vertical_reference=self.vertical_reference,
+            horizontal_reference=self.horizontal_reference,
+            header=selected_header,
+            is_inclined=self.is_inclined,
+        )
+
     def reset_header(self, *args):
         """
         Create a new header based on the 'data' dataframe

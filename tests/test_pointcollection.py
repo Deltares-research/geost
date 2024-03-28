@@ -113,6 +113,19 @@ class TestPointCollection:
         return dataframe
 
     @pytest.mark.unittest
+    def test_get_single_object(self, boreholes):
+        borehole_collection_single_selection = boreholes.get("HB-8")
+        assert borehole_collection_single_selection.header.iloc[0, 0] == "HB-8"
+
+    @pytest.mark.unittest
+    def test_get_multiple_objects(self, boreholes):
+        borehole_collection_multi_selection = boreholes.get(["HB-8", "HB-6"])
+        assert list(borehole_collection_multi_selection.header["nr"].unique()) == [
+            "HB-6",
+            "HB-8",
+        ]
+
+    @pytest.mark.unittest
     def test_change_vertical_reference(self, borehole_df_ok):
         borehole_collection_ok = BoreholeCollection(borehole_df_ok)
         assert borehole_collection_ok.vertical_reference == "NAP"
@@ -225,9 +238,9 @@ class TestPointCollection:
         assert len(slice2.data) == 6
         assert len(slice2.header) == 4
         # vertical_reference of slice must be as specified in function
-        assert slice2.vertical_reference == 'depth'
+        assert slice2.vertical_reference == "depth"
         # original vertical_reference must be kept the same as before function call
-        assert boreholes.vertical_reference == 'NAP'
+        assert boreholes.vertical_reference == "NAP"
 
         # test with surfacelevel reference and when a reference is specified but same as original
         boreholes.change_vertical_reference("surfacelevel")
