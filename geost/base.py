@@ -94,6 +94,38 @@ class PointDataCollection:
         return f"{self.__class__.__name__}:\n# header = {self.n_points}"
 
     def get(self, selection_values: str | Iterable, column: str = "nr"):
+        """
+        Get a subset of a collection through a string or iterable of object id(s).
+        Optionally uses a different column than "nr" (the column with object ids).
+
+        Parameters
+        ----------
+        selection_values : str | Iterable
+            Values to select
+        column : str, optional
+            In which column of the header to look for selection values, by default "nr"
+
+        Returns
+        -------
+        Child of :class:`~geost.base.PointDataCollection`.
+            Instance of either :class:`~geost.borehole.BoreholeCollection` or
+            :class:`~geost.borehole.CptCollection` containing only objects selected by
+            this method.
+
+        Examples
+        --------
+        self.get(["obj1", "obj2"]) will return a collection with only these objects.
+
+        Suppose we have a collection of boreholes that we have joined with geological
+        map units using the method
+        :meth:`~geost.base.PointDataCollection.get_area_labels`. We have added this data
+        to the header table in the column 'geological_unit'. Using:
+
+        self.get(["unit1", "unit2"], column="geological_unit")
+
+        will return a :class:`~geost.borehole.BoreholeCollection` with all boreholes
+        that are located in "unit1" and "unit2" geological map areas.
+        """
         if isinstance(selection_values, str):
             selected_header = self.header[self.header[column] == selection_values]
         elif isinstance(selection_values, Iterable):
@@ -254,13 +286,7 @@ class PointDataCollection:
                     "Header covers more objects than present in the data table, "
                     "consider running the method 'reset_header' to update the header."
                 )
-            if any(
-                [
-                    True
-                    for nr in self.data["nr"].unique()
-                    if not self.header["nr"].isin([nr]).any()
-                ]
-            ):
+            if not set(self.data["nr"].unique()).issubset(set(self.header["nr"])):
                 warn(
                     "Header does not cover all unique objects in data, consider running "
                     + "the method 'reset_header' to update the header."
