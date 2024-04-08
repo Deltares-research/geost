@@ -1,7 +1,10 @@
+from pathlib import WindowsPath
 from typing import TypeVar
 
 import numpy as np
 import pandas as pd
+import rioxarray
+import xarray as xr
 
 # Local imports
 from geost.utils import MissingOptionalModule
@@ -92,3 +95,44 @@ def find_area_labels(header_df, polygon_gdf, column_name):
     joined = joined[~joined.index.duplicated()]
     area_labels = pd.concat([all_nrs, joined], axis=1)
     return area_labels
+
+
+def get_raster_values(
+    x: np.ndarray, y: np.ndarray, raster_to_read: str | WindowsPath | xr.DataArray
+):
+    """
+    Return sampled values from a raster at the given (x, y) locations.
+
+    Parameters
+    ----------
+    x : np.ndarray
+        1D array of x-coordinates, same length as 'y'.
+    y : np.ndarray
+        1D array of y-coordinates, same length as 'x'.
+    raster_to_read : str | WindowsPath | xr.DataArray
+        Location of a raster file or an xr.DataArray with dimensions 'x' and 'y'. This
+        raster is used to sample values from at all (x, y) locations.
+
+    Returns
+    -------
+    np.ndarray
+        1D array of sampled values
+    """
+    if isinstance(raster_to_read, (str, WindowsPath)):
+        raster_data = rioxarray.open_rasterio(raster_to_read).squeeze()
+    elif isinstance(raster_to_read, xr.DataArray):
+        if set(raster_to_read.dims) != set(("y", "x")):
+            raise TypeError(
+                "The xr.DataArray to sample from does not have the "
+                + "required 'x' and 'y' dimensions"
+            )
+    else:
+        raise TypeError("Could not intepret the raster_to_read")
+
+    surface_levels = raster_data.sel(
+        x=xr.DataArray(x, dims=("loc")),
+        y=xr.DataArray(y, dims=("loc")),
+        method="nearest",
+    ).values
+
+    return surface_levels
