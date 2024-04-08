@@ -10,7 +10,7 @@ from geost import spatial
 from geost.analysis import cumulative_thickness, layer_top
 from geost.export import borehole_to_multiblock, export_to_dftgeodata
 from geost.projections import get_transformer
-from geost.utils import MissingOptionalModule
+from geost.utils import ARITHMIC_OPERATORS, MissingOptionalModule
 from geost.validate import fancy_info, fancy_warning
 from geost.validate.validation_schemes import (
     common_dataschema,
@@ -36,6 +36,7 @@ inform = fancy_warning(lambda info: print(info))
 
 Coordinate = TypeVar("Coordinate", int, float)
 GeoDataFrame = TypeVar("GeoDataFrame")
+DataArray = TypeVar("DataArray")
 
 pd.set_option("mode.copy_on_write", True)
 
@@ -288,8 +289,8 @@ class PointDataCollection:
                 )
             if not set(self.data["nr"].unique()).issubset(set(self.header["nr"])):
                 warn(
-                    "Header does not cover all unique objects in data, consider running "
-                    + "the method 'reset_header' to update the header."
+                    "Header does not cover all unique objects in data, consider "
+                    "running the method 'reset_header' to update the header."
                 )
 
     def change_vertical_reference(self, to: str):
@@ -368,6 +369,51 @@ class PointDataCollection:
                 )
 
         self.__horizontal_reference = target_crs
+
+    def update_surface_level_from_raster(
+        self, raster: str | WindowsPath | DataArray, how="replace"
+    ):
+        """
+        Update surface levels and end depths (+ layer boundaries depending on the
+        vertical reference system) based on sampled raster values.
+
+        Parameters
+        ----------
+        raster : str | WindowsPath
+            _description_
+        how : str, optional
+            How to update surface levels. Use 'replace' to replace surface
+            level values by the ones in the raster. Use arithmic operators '+', '-',
+            or '*' (as string arguments) to adjust current surface levels.
+            by default "replace"
+
+        Raises
+        ------
+        ValueError
+            If an invalid 'how' method or operator is given
+        """
+        raster_values = spatial.get_raster_values(
+            self.header.x.values, self.header.y.values, raster
+        )
+        #TODO: Vertical reference logic requires refactor. Below functionality affected!
+        original_vref = self.vertical_reference
+        self.change_vertical_reference('depth')
+        if how == "replace":
+            object_len = self.header["mv"] - self.header["end"]
+            self.header["mv"] = raster_values
+            self.header["end"] = self.header["mv"] - object_len
+        elif how in ARITHMIC_OPERATORS:
+            operator = ARITHMIC_OPERATORS[how]
+            self.header["mv"] = operator(self.header["mv"], raster_values)
+            self.header["end"] = operator(self.header["end"], raster_values)
+        else:
+            raise ValueError(
+                "The operation could not be completed. 'how' should be either "
+                + f"'replace', '+', '-', or '*', not {how}."
+            )
+
+        # Return collection's vertical reference to its original
+        self.change_vertical_reference(original_vref)
 
     def select_within_bbox(
         self,
