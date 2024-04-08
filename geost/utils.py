@@ -1,7 +1,23 @@
+import operator
 from pathlib import Path, WindowsPath
 from typing import Union
 
 import pandas as pd
+
+COMPARISON_OPERATORS = {
+    "<": operator.lt,
+    "<=": operator.le,
+    "==": operator.eq,
+    "!=": operator.ne,
+    ">=": operator.ge,
+    ">": operator.gt,
+}
+
+ARITHMIC_OPERATORS = {
+    "+": operator.add,
+    "-": operator.sub,
+    "*": operator.mul,
+}
 
 
 class MissingOptionalModule:
