@@ -34,6 +34,7 @@ ruff = "*"
 sphinx = "*"
 sphinx-rtd-theme = "*"
 pip = ">=24.0,<25"
+rioxarray = ">=0.15.3,<0.16"
 
 [feature.py310.dependencies]
 python = "3.10.*"
