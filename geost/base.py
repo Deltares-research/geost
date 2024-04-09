@@ -10,7 +10,7 @@ from geost import spatial
 from geost.analysis import cumulative_thickness, layer_top
 from geost.export import borehole_to_multiblock, export_to_dftgeodata
 from geost.projections import get_transformer
-from geost.utils import ARITHMIC_OPERATORS, MissingOptionalModule
+from geost.utils import ARITHMIC_OPERATORS
 from geost.validate import fancy_info, fancy_warning
 from geost.validate.validation_schemes import (
     common_dataschema,
@@ -18,18 +18,6 @@ from geost.validate.validation_schemes import (
     headerschema,
     inclined_dataschema,
 )
-
-# Optional imports
-try:
-    import geopandas as gpd
-
-    create_header = spatial.header_to_geopandas
-except ModuleNotFoundError:
-    gpd = MissingOptionalModule("geopandas")
-
-    def create_header(x):
-        return x
-
 
 warn = fancy_warning(lambda warning_info: print(warning_info))
 inform = fancy_warning(lambda info: print(info))
@@ -157,7 +145,9 @@ class PointDataCollection:
         header_col_names = ["nr", "x", "y", "mv", "end"]
         header = self.data.drop_duplicates(subset=header_col_names[0])
         header = header[header_col_names].reset_index(drop=True)
-        self.header = create_header(header, self.horizontal_reference)
+        self.header = spatial.dataframe_to_geodataframe(
+            header, self.horizontal_reference
+        )
 
     @property
     def header(self):
@@ -395,9 +385,9 @@ class PointDataCollection:
         raster_values = spatial.get_raster_values(
             self.header.x.values, self.header.y.values, raster
         )
-        #TODO: Vertical reference logic requires refactor. Below functionality affected!
+        # TODO: Vertical reference logic requires refactor. Below functionality affected!
         original_vref = self.vertical_reference
-        self.change_vertical_reference('depth')
+        self.change_vertical_reference("depth")
         if how == "replace":
             object_len = self.header["mv"] - self.header["end"]
             self.header["mv"] = raster_values

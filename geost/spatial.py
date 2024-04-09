@@ -1,37 +1,49 @@
 from pathlib import WindowsPath
 from typing import TypeVar
 
+import geopandas as gpd
 import numpy as np
 import pandas as pd
 import rioxarray
 import xarray as xr
-
-# Local imports
-from geost.utils import MissingOptionalModule
-
-# Optional imports
-try:
-    import geopandas as gpd
-except ModuleNotFoundError:
-    gpd = MissingOptionalModule("geopandas")
-
-try:
-    from shapely.geometry import Point
-except ModuleNotFoundError:
-    Point = MissingOptionalModule("shapely")
-
-GeoDataFrame = TypeVar("GeoDataFrame")
+from shapely.geometry import Point
 
 
-def header_to_geopandas(entries_df, crs) -> GeoDataFrame:
-    points = [
-        Point([x, y]) for x, y in zip(entries_df.x, entries_df.y)
-    ]  # TODO check with shapely 2.0
-    header_as_gdf = gpd.GeoDataFrame(entries_df, geometry=points, crs=crs)
-    return header_as_gdf
+def dataframe_to_geodataframe(
+    df: pd.DataFrame, crs: int, x_col_label: str = "x", y_col_label: str = "y"
+) -> gpd.GeoDataFrame:
+    """
+    Take a dataframe with columns that indicate x and y coordinates and use these to
+    turn the dataframe into a geopandas GeoDataFrame with a geometry column that
+    contains shapely Point geometries.
+
+    Parameters
+    ----------
+    df : pd.DataFrame
+        Input dataframe with columns for x and y coordinates.
+    crs : int
+        EPSG number as integer.
+    x_col_label : str
+        Label of the x-coordinate column, default x-coordinate column label is 'x'.
+    y_col_label : str
+        Label of the y-coordinate column, default y-coordinate column label is 'y'.
+
+    Returns
+    -------
+    gpd.GeoDataFrame
+        GeoDataFrame with point geometries in addition to input dataframe data.
+
+    Raises
+    ------
+    IndexError
+        If input dataframe does not have a colum 'x' or 'y'.
+    """
+    points = [Point([x, y]) for x, y in zip(df[x_col_label], df[y_col_label])]
+    gdf = gpd.GeoDataFrame(df, geometry=points, crs=crs)
+    return gdf
 
 
-def header_from_bbox(header_df, xmin, xmax, ymin, ymax, invert) -> GeoDataFrame:
+def header_from_bbox(header_df, xmin, xmax, ymin, ymax, invert) -> gpd.GeoDataFrame:
     header_selected = header_df[
         (header_df.x >= xmin)
         & (header_df.x <= xmax)
@@ -41,7 +53,7 @@ def header_from_bbox(header_df, xmin, xmax, ymin, ymax, invert) -> GeoDataFrame:
     return header_selected
 
 
-def header_from_points(header_df, point_gdf, buffer, invert) -> GeoDataFrame:
+def header_from_points(header_df, point_gdf, buffer, invert) -> gpd.GeoDataFrame:
     data_points = header_df[["x", "y"]].values
     if isinstance(point_gdf, gpd.GeoDataFrame):
         query_points = np.array([list(pnt.coords)[0] for pnt in point_gdf.geometry])
@@ -61,7 +73,7 @@ def header_from_points(header_df, point_gdf, buffer, invert) -> GeoDataFrame:
     return header_selected
 
 
-def header_from_lines(header_df, line_gdf, buffer, invert) -> GeoDataFrame:
+def header_from_lines(header_df, line_gdf, buffer, invert) -> gpd.GeoDataFrame:
     line_gdf["geometry"] = line_gdf.buffer(distance=buffer)
     header_selected = gpd.sjoin(header_df, line_gdf)[
         ["nr", "x", "y", "mv", "end", "geometry"]
@@ -69,7 +81,7 @@ def header_from_lines(header_df, line_gdf, buffer, invert) -> GeoDataFrame:
     return header_selected
 
 
-def header_from_polygons(header_df, polygon_gdf, buffer, invert) -> GeoDataFrame:
+def header_from_polygons(header_df, polygon_gdf, buffer, invert) -> gpd.GeoDataFrame:
     if buffer > 0:
         polygon_select = polygon_gdf.copy()
         polygon_select["geometry"] = polygon_gdf.geometry.buffer(buffer)
@@ -99,7 +111,7 @@ def find_area_labels(header_df, polygon_gdf, column_name):
 
 def get_raster_values(
     x: np.ndarray, y: np.ndarray, raster_to_read: str | WindowsPath | xr.DataArray
-):
+) -> np.ndarray:
     """
     Return sampled values from a raster at the given (x, y) locations.
 
