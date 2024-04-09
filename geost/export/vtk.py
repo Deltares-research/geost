@@ -2,17 +2,8 @@ from typing import Iterable, List, TypeVar
 
 import numpy as np
 import pandas as pd
-
-# Local imports
-from geost.utils import MissingOptionalModule
-
-# Optional imports
-try:
-    import pyvista as pv
-except ImportError:
-    pv = MissingOptionalModule("pyvista")
-
-MultiBlock = TypeVar("MultiBlock")
+import pyvista as pv
+from pyvista import MultiBlock
 
 
 def prepare_borehole(borehole: pd.DataFrame, vertical_factor: float) -> np.ndarray:
