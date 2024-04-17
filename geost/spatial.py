@@ -131,17 +131,15 @@ def get_raster_values(
         1D array of sampled values
     """
     if isinstance(raster_to_read, (str, WindowsPath)):
-        raster_data = rioxarray.open_rasterio(raster_to_read).squeeze()
-    elif isinstance(raster_to_read, xr.DataArray):
-        if set(raster_to_read.dims) != set(("y", "x")):
-            raise TypeError(
-                "The xr.DataArray to sample from does not have the "
-                + "required 'x' and 'y' dimensions"
-            )
-    else:
-        raise TypeError("Could not intepret the raster_to_read")
+        raster_to_read = rioxarray.open_rasterio(raster_to_read).squeeze()
 
-    surface_levels = raster_data.sel(
+    if set(raster_to_read.dims) != set(("y", "x")):
+        raise TypeError(
+            "The xr.DataArray to sample from does not have the "
+            + "required 'x' and 'y' dimensions"
+        )
+
+    surface_levels = raster_to_read.sel(
         x=xr.DataArray(x, dims=("loc")),
         y=xr.DataArray(y, dims=("loc")),
         method="nearest",
