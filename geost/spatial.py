@@ -100,12 +100,33 @@ def header_from_polygons(header_df, polygon_gdf, buffer, invert) -> gpd.GeoDataF
     return header_selected
 
 
-def find_area_labels(header_df, polygon_gdf, column_name):
-    all_nrs = header_df["nr"]
-    joined = gpd.sjoin(header_df, polygon_gdf)[column_name]
+def find_area_labels(
+    point_geodataframe: gpd.GeoDataFrame,
+    polygon_geodataframe: gpd.GeoDataFrame,
+    column_name: str,
+) -> pd.Series:
+    """
+    Function to find labels associated with polygon geometries for a series of queried
+    point geometries. Basically a spatial join between the point and polygon dataframe.
+
+    Parameters
+    ----------
+    point_geodataframe : gpd.GeoDataFrame
+        Geodataframe with point geometries for which you want to find in which polygon
+        geometries they are located.
+    polygon_geodataframe : gpd.GeoDataFrame
+        Geodataframe with polygon geometries
+    column_name : str
+        Label of the polygon geometries to use for assigning to the queried points
+
+    Returns
+    -------
+    pandas.Series
+        Series with labels from the polygon geometries for each point.
+    """
+    joined = gpd.sjoin(point_geodataframe, polygon_geodataframe)[column_name]
     # Remove any duplicated indices, which may sometimes happen
-    joined = joined[~joined.index.duplicated()]
-    area_labels = pd.concat([all_nrs, joined], axis=1)
+    area_labels = joined[~joined.index.duplicated()]
     return area_labels
 
 
