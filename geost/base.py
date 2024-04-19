@@ -10,17 +10,11 @@ from geost import spatial
 from geost.analysis import cumulative_thickness, layer_top
 from geost.export import borehole_to_multiblock, export_to_dftgeodata
 from geost.projections import get_transformer
-from geost.utils import ARITHMIC_OPERATORS
-from geost.validate import fancy_info, fancy_warning
-from geost.validate.validation_schemes import (
-    common_dataschema,
-    common_dataschema_depth_reference,
-    headerschema,
-    inclined_dataschema,
-)
+from geost.utils import ARITHMIC_OPERATORS, inform_user, warn_user
+from geost.validate.decorators import validate_data, validate_header
 
-warn = fancy_warning(lambda warning_info: print(warning_info))
-inform = fancy_info(lambda info: print(info))
+warn = warn_user(lambda warning_info: print(warning_info))
+inform = inform_user(lambda info: print(info))
 
 Coordinate = TypeVar("Coordinate", int, float)
 GeoDataFrame = TypeVar("GeoDataFrame")
@@ -232,6 +226,7 @@ class PointDataCollection:
         return self.__is_inclined
 
     @header.setter
+    @validate_header()
     def header(self, header):
         """
         This setter is called whenever the attribute 'header' is manipulated, either
@@ -239,11 +234,11 @@ class PointDataCollection:
         instance of the object (e.g. instance.header = new_header_df). This will run the
         header through validation and warn the user of any potential problems.
         """
-        headerschema.validate(header)
         self._header = header
         self.__check_header_to_data_alignment()
 
     @data.setter
+    @validate_data()
     def data(self, data):
         """
         This setter is called whenever the attribute 'data' is manipulated, either
@@ -251,14 +246,6 @@ class PointDataCollection:
         instance of the object (e.g. instance.data = new_data_df). This will run the
         data through validation and warn the user of any potential problems.
         """
-        if self.vertical_reference == "depth":
-            common_dataschema_depth_reference.validate(data)
-        else:
-            common_dataschema.validate(data)
-
-        if self.is_inclined:
-            inclined_dataschema.validate(data)
-
         self._data = data
         self.__check_header_to_data_alignment()
 
