@@ -1,5 +1,4 @@
 from pathlib import WindowsPath
-from typing import TypeVar
 
 import geopandas as gpd
 import numpy as np
@@ -36,7 +35,7 @@ def dataframe_to_geodataframe(
     Raises
     ------
     IndexError
-        If input dataframe does not have a colum 'x' or 'y'.
+        If input dataframe does not have a valid column for 'x' or 'y'.
     """
     points = [Point([x, y]) for x, y in zip(df[x_col_label], df[y_col_label])]
     gdf = gpd.GeoDataFrame(df, geometry=points, crs=crs)
