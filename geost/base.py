@@ -387,51 +387,6 @@ class PointDataCollection:
 
         self.__horizontal_reference = target_crs
 
-    def update_surface_level_from_raster(
-        self, raster: str | WindowsPath | DataArray, how="replace"
-    ):
-        """
-        Update surface levels and end depths (+ layer boundaries depending on the
-        vertical reference system) based on sampled raster values.
-
-        Parameters
-        ----------
-        raster : str | WindowsPath
-            _description_
-        how : str, optional
-            How to update surface levels. Use 'replace' to replace surface
-            level values by the ones in the raster. Use arithmic operators '+', '-',
-            or '*' (as string arguments) to adjust current surface levels.
-            by default "replace"
-
-        Raises
-        ------
-        ValueError
-            If an invalid 'how' method or operator is given
-        """
-        raster_values = spatial.get_raster_values(
-            self.header["x"].values, self.header["y"].values, raster
-        )
-        # TODO: Vertical reference logic requires refactor. Below functionality affected!
-        original_vref = self.vertical_reference
-        self.change_vertical_reference("depth")
-        if how == "replace":
-            object_len = self.header["mv"] - self.header["end"]
-            self.header["mv"] = raster_values
-            self.header["end"] = self.header["mv"] - object_len
-        elif how in ARITHMIC_OPERATORS:
-            operator = ARITHMIC_OPERATORS[how]
-            self.header["mv"] = operator(self.header["mv"], raster_values)
-            self.header["end"] = operator(self.header["end"], raster_values)
-        else:
-            raise ValueError(
-                "The operation could not be completed. 'how' should be either "
-                + f"'replace', '+', '-', or '*', not {how}."
-            )
-
-        # Return collection's vertical reference to its original
-        self.change_vertical_reference(original_vref)
-
     def select_within_bbox(
         self,
         xmin: Coordinate,
