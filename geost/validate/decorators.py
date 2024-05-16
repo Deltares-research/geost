@@ -29,7 +29,7 @@ def validate_data():
             collection_object = args[0]
             dataframe_to_validate = args[1]
 
-            # Determine what the validation conditions are
+            # Determine what the validation conditions are and append to 'schema_to_use'
             if collection_object.vertical_reference == "depth":
                 schema_to_use = validationschemas.common_dataschema_depth_reference
             else:

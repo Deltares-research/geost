@@ -3,6 +3,8 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 import pytest
+import rioxarray as rio
+import xarray as xr
 from numpy.testing import assert_almost_equal, assert_array_almost_equal, assert_equal
 
 from geost import read_nlog_cores, read_sst_cores
@@ -111,6 +113,14 @@ class TestPointCollection:
         )
 
         return dataframe
+
+    @pytest.fixture
+    def update_raster(self):
+        x_coors = np.arange(127000, 128500, 500)
+        y_coors = np.arange(503000, 501500, -500)
+        data = np.ones((3, 3))
+        array = xr.DataArray(data, {"x": x_coors, "y": y_coors})
+        return array
 
     @pytest.mark.unittest
     def test_get_single_object(self, boreholes):
@@ -313,3 +323,8 @@ class TestPointCollection:
         collection = BoreholeCollection(borehole_df_ok, header=header_surplus_objects)
         out, err = capfd.readouterr()
         assert "Header covers more objects than present in the data table" in out
+
+    @pytest.mark.integrationtest
+    def test_surface_level_update(self, boreholes, update_raster):
+        boreholes.update_surface_level_from_raster(update_raster, how="replace")
+        print("stop")
