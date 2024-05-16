@@ -1,19 +1,17 @@
-from geost.validate import Check, Column, DataFrameSchema, numeric, stringlike
+from typing import NamedTuple
 
-headerschema = DataFrameSchema(
-    "header validation",
-    {
+from geost.validate.validate import Check, Column, numeric, stringlike
+
+
+class ValidationSchemas(NamedTuple):
+    headerschema = {
         "nr": Column(stringlike),
         "x": Column(numeric),
         "y": Column(numeric),
         "mv": Column(numeric),
         "end": Column(numeric, checks=Check("<", "mv", report_by="nr")),
-    },
-)
-
-common_dataschema = DataFrameSchema(
-    "layer data validation",
-    {
+    }
+    common_dataschema = {
         "nr": Column(stringlike),
         "x": Column(numeric),
         "y": Column(numeric),
@@ -21,20 +19,12 @@ common_dataschema = DataFrameSchema(
         "end": Column(numeric),
         "top": Column(numeric),
         "bottom": Column(numeric, checks=Check("<", "top", report_by="nr")),
-    },
-)
-
-inclined_dataschema = DataFrameSchema(
-    "inclined layer data additional validation",
-    {
+    }
+    inclined_dataschema = {
         "x_bot": Column(numeric),
         "y_bot": Column(numeric),
-    },
-)
-
-common_dataschema_depth_reference = DataFrameSchema(
-    "layer data (with vertical reference=depth) validation",
-    {
+    }
+    common_dataschema_depth_reference = {
         "nr": Column(stringlike),
         "x": Column(numeric),
         "y": Column(numeric),
@@ -42,20 +32,11 @@ common_dataschema_depth_reference = DataFrameSchema(
         "end": Column(numeric),
         "top": Column(numeric),
         "bottom": Column(numeric, checks=Check(">", "top", report_by="nr")),
-    },
-)
-
-boreholeschema = DataFrameSchema(
-    "borehole-specific validation",
-    {
+    }
+    boreholeschema = {
         "lith": Column(stringlike),
-    },
-)
-
-cptschema = DataFrameSchema(
-    "CPT-specific validation",
-    {
+    }
+    cptschema = {
         "length": Column(float),
         "qc": Column(float),
-    },
-)
+    }

@@ -10,32 +10,15 @@ from geost import spatial
 from geost.analysis import cumulative_thickness, layer_top
 from geost.export import borehole_to_multiblock, export_to_dftgeodata
 from geost.projections import get_transformer
-from geost.utils import MissingOptionalModule
-from geost.validate import fancy_info, fancy_warning
-from geost.validate.validation_schemes import (
-    common_dataschema,
-    common_dataschema_depth_reference,
-    headerschema,
-    inclined_dataschema,
-)
+from geost.utils import ARITHMIC_OPERATORS, inform_user, warn_user
+from geost.validate.decorators import validate_data, validate_header
 
-# Optional imports
-try:
-    import geopandas as gpd
-
-    create_header = spatial.header_to_geopandas
-except ModuleNotFoundError:
-    gpd = MissingOptionalModule("geopandas")
-
-    def create_header(x):
-        return x
-
-
-warn = fancy_warning(lambda warning_info: print(warning_info))
-inform = fancy_warning(lambda info: print(info))
+warn = warn_user(lambda warning_info: print(warning_info))
+inform = inform_user(lambda info: print(info))
 
 Coordinate = TypeVar("Coordinate", int, float)
 GeoDataFrame = TypeVar("GeoDataFrame")
+DataArray = TypeVar("DataArray")
 
 pd.set_option("mode.copy_on_write", True)
 
@@ -156,7 +139,9 @@ class PointDataCollection:
         header_col_names = ["nr", "x", "y", "mv", "end"]
         header = self.data.drop_duplicates(subset=header_col_names[0])
         header = header[header_col_names].reset_index(drop=True)
-        self.header = create_header(header, self.horizontal_reference)
+        self.header = spatial.dataframe_to_geodataframe(
+            header, self.horizontal_reference
+        )
 
     @property
     def header(self):
@@ -241,6 +226,7 @@ class PointDataCollection:
         return self.__is_inclined
 
     @header.setter
+    @validate_header
     def header(self, header):
         """
         This setter is called whenever the attribute 'header' is manipulated, either
@@ -248,11 +234,11 @@ class PointDataCollection:
         instance of the object (e.g. instance.header = new_header_df). This will run the
         header through validation and warn the user of any potential problems.
         """
-        headerschema.validate(header)
         self._header = header
         self.__check_header_to_data_alignment()
 
     @data.setter
+    @validate_data
     def data(self, data):
         """
         This setter is called whenever the attribute 'data' is manipulated, either
@@ -260,14 +246,6 @@ class PointDataCollection:
         instance of the object (e.g. instance.data = new_data_df). This will run the
         data through validation and warn the user of any potential problems.
         """
-        if self.vertical_reference == "depth":
-            common_dataschema_depth_reference.validate(data)
-        else:
-            common_dataschema.validate(data)
-
-        if self.is_inclined:
-            inclined_dataschema.validate(data)
-
         self._data = data
         self.__check_header_to_data_alignment()
 
@@ -288,9 +266,49 @@ class PointDataCollection:
                 )
             if not set(self.data["nr"].unique()).issubset(set(self.header["nr"])):
                 warn(
-                    "Header does not cover all unique objects in data, consider running "
-                    + "the method 'reset_header' to update the header."
+                    "Header does not cover all unique objects in data, consider "
+                    "running the method 'reset_header' to update the header."
                 )
+
+    def __check_and_coerce_crs(self, other_gdf: GeoDataFrame) -> GeoDataFrame:
+        """
+        Check the CRS of a geodataframe against the collection's current horizontal
+        reference :py:attr:`~geost.base.PointDataCollection.horizontal_reference`. This
+        method is called whenever actions that compare the PointdataCollection
+        geometries with other geometries are performed.
+
+        If the other dataframe has no CRS, warn user and assume CRS is the same as
+        :py:attr:`~geost.base.PointDataCollection.horizontal_reference`.
+
+        If the other dataframe has a different known CRS, inform user and coerce the CRS
+        to :py:attr:`~geost.base.PointDataCollection.horizontal_reference`.
+
+        Parameters
+        ----------
+        other_gdf : GeoDataFrame
+            Other geodataframe to check for having the same CRS as the
+            PointdataCollection.
+
+        Returns
+        -------
+        GeoDataFrame
+            Other geodataframe coerced to have the same CRS as the PointdataCollection.
+        """
+        if other_gdf.crs is None:
+            other_gdf.crs = self.horizontal_reference
+            warn(
+                "The selection geometry has no crs! Assuming it is the same as the "
+                + f"horizontal_reference (epsg:{self.horizontal_reference}) of this "
+                + "collection. PLEASE CHECK WHETHER THIS IS CORRECT!",
+            )
+        elif other_gdf.crs != self.horizontal_reference:
+            other_gdf = other_gdf.to_crs(self.horizontal_reference)
+            inform(
+                "The crs of the selection geometry does not match the horizontal "
+                + "reference of the collection. The selection geometry was coerced "
+                + f"to epsg:{self.horizontal_reference} automatically"
+            )
+        return other_gdf
 
     def change_vertical_reference(self, to: str):
         """
@@ -441,20 +459,7 @@ class PointDataCollection:
             :class:`~geost.borehole.CptCollection` containing only objects selected by
             this method.
         """
-        if point_gdf.crs is None:
-            point_gdf.crs = self.horizontal_reference
-            warn(
-                "The selection geometry has no crs! Assuming it is the same as the "
-                + f"horizontal_reference (epsg:{self.horizontal_reference}) of this "
-                + "collection",
-            )
-        elif point_gdf.crs != self.horizontal_reference:
-            point_gdf = point_gdf.to_crs(self.horizontal_reference)
-            inform(
-                "The crs of the selection geometry does not match the horizontal "
-                + "reference of the collection. The selection geometry was coerced "
-                + f"to epsg:{self.horizontal_reference} automatically"
-            )
+        point_gdf = self.__check_and_coerce_crs(point_gdf)
 
         selected_header = spatial.header_from_points(
             self.header, point_gdf, buffer, invert
@@ -495,20 +500,7 @@ class PointDataCollection:
             :class:`~geost.borehole.CptCollection` containing only objects selected by
             this method.
         """
-        if line_gdf.crs is None:
-            line_gdf.crs = self.horizontal_reference
-            warn(
-                "The selection geometry has no crs! Assuming it is the same as the "
-                + f"horizontal_reference (epsg:{self.horizontal_reference}) of this "
-                + "collection"
-            )
-        elif line_gdf.crs != self.horizontal_reference:
-            line_gdf = line_gdf.to_crs(self.horizontal_reference)
-            inform(
-                "The crs of the selection geometry does not match the horizontal "
-                + "reference of the collection. The selection geometry was coerced "
-                + f"to epsg:{self.horizontal_reference} automatically"
-            )
+        line_gdf = self.__check_and_coerce_crs(line_gdf)
 
         selected_header = spatial.header_from_lines(
             self.header, line_gdf, buffer, invert
@@ -547,20 +539,7 @@ class PointDataCollection:
             :class:`~geost.borehole.CptCollection` containing only objects selected by
             this method.
         """
-        if polygon_gdf.crs is None:
-            polygon_gdf.crs = self.horizontal_reference
-            warn(
-                "The selection geometry has no crs! Assuming it is the same as the "
-                + f"horizontal_reference (epsg:{self.horizontal_reference}) of this "
-                + "collection"
-            )
-        elif polygon_gdf.crs != self.horizontal_reference:
-            polygon_gdf = polygon_gdf.to_crs(self.horizontal_reference)
-            inform(
-                "The crs of the selection geometry does not match the horizontal "
-                + "reference of the collection. The selection geometry was coerced "
-                + f"to epsg:{self.horizontal_reference} automatically"
-            )
+        polygon_gdf = self.__check_and_coerce_crs(polygon_gdf)
 
         selected_header = spatial.header_from_polygons(
             self.header, polygon_gdf, buffer, invert
@@ -891,7 +870,11 @@ class PointDataCollection:
             a column containing the generated data will be added inplace to
             :py:attr:`~geost.base.PointDataCollection.header`.
         """
+        polygon_gdf = self.__check_and_coerce_crs(polygon_gdf)
+
+        all_nrs = self.header["nr"]
         area_labels = spatial.find_area_labels(self.header, polygon_gdf, column_name)
+        area_labels = pd.concat([all_nrs, area_labels], axis=1)
 
         if include_in_header:
             self._header = self.header.merge(area_labels, on="nr")

@@ -1,20 +1,23 @@
+import operator
 from pathlib import Path, WindowsPath
 from typing import Union
 
 import pandas as pd
 
+COMPARISON_OPERATORS = {
+    "<": operator.lt,
+    "<=": operator.le,
+    "==": operator.eq,
+    "!=": operator.ne,
+    ">=": operator.ge,
+    ">": operator.gt,
+}
 
-class MissingOptionalModule:
-    """
-    Presents a clear error for optional modules.
-
-    """
-
-    def __init__(self, name):
-        self.name = name
-
-    def __getattr__(self, name):
-        raise ImportError(f"{self.name} is required for this functionality")
+ARITHMIC_OPERATORS = {
+    "+": operator.add,
+    "-": operator.sub,
+    "*": operator.mul,
+}
 
 
 def csv_to_parquet(
@@ -97,3 +100,21 @@ def safe_float(number):
         return float(number)
     except ValueError:
         return None
+
+
+def warn_user(func):
+    def inner(*args, **kwargs):
+        print("WARNING:\n--------")
+        func(*args, **kwargs)
+        print("--------\n>> CONTINUING MAY LEAD TO UNEXPECTED RESULTS\n")
+
+    return inner
+
+
+def inform_user(func):
+    def inner(*args, **kwargs):
+        print("PLEASE NOTICE:\n--------")
+        func(*args, **kwargs)
+        print("--------\n")
+
+    return inner

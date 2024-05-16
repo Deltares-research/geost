@@ -18,36 +18,9 @@ calling schema.validate(dataframe_to_be_validated) will print warnings for missi
 columns, wrong datatypes and failed custom checks.
 """
 
-import operator
-
-OPERATORS = {
-    "<": operator.lt,
-    "<=": operator.le,
-    "==": operator.eq,
-    "!=": operator.ne,
-    ">=": operator.ge,
-    ">": operator.gt,
-}
+from geost.utils import COMPARISON_OPERATORS, warn_user
 
 raise_error = False
-
-
-def fancy_warning(func):
-    def inner(*args, **kwargs):
-        print("WARNING:\n--------")
-        func(*args, **kwargs)
-        print("--------\n>> CONTINUING MAY LEAD TO UNEXPECTED RESULTS\n")
-
-    return inner
-
-
-def fancy_info(func):
-    def inner(*args, **kwargs):
-        print("PLEASE NOTICE:\n--------")
-        func(*args, **kwargs)
-        print("--------\n")
-
-    return inner
 
 
 class ValidationError(Exception):
@@ -139,7 +112,7 @@ class DataFrameSchema:
             else:
                 self.warn_user()
 
-    @fancy_warning
+    @warn_user
     def warn_user(self):
         print(("\n").join(self.validationerrors))
 
@@ -147,7 +120,7 @@ class DataFrameSchema:
 class Check:
     def __init__(self, operator: str, reference_value, report_by="index"):
         self.operator_str = operator
-        self.operator = OPERATORS[operator]
+        self.operator = COMPARISON_OPERATORS[operator]
         self.reference = reference_value
         self.report_by = report_by
 
