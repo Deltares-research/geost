@@ -226,7 +226,7 @@ class PointDataCollection:
         return self.__is_inclined
 
     @header.setter
-    @validate_header()
+    @validate_header
     def header(self, header):
         """
         This setter is called whenever the attribute 'header' is manipulated, either
@@ -238,7 +238,7 @@ class PointDataCollection:
         self.__check_header_to_data_alignment()
 
     @data.setter
-    @validate_data()
+    @validate_data
     def data(self, data):
         """
         This setter is called whenever the attribute 'data' is manipulated, either
