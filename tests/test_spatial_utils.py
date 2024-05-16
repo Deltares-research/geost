@@ -20,5 +20,5 @@ class TestPointCollection:
         return borehole_collection
 
     @pytest.mark.unittest
-    def test_get_raster_values():
+    def test_get_raster_values(self):
         pass

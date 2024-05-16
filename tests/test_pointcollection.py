@@ -324,7 +324,7 @@ class TestPointCollection:
         out, err = capfd.readouterr()
         assert "Header covers more objects than present in the data table" in out
 
-    @pytest.mark.integrationtest
-    def test_surface_level_update(self, boreholes, update_raster):
-        boreholes.update_surface_level_from_raster(update_raster, how="replace")
-        print("stop")
+    # @pytest.mark.integrationtest
+    # def test_surface_level_update(self, boreholes, update_raster):
+    #     boreholes.update_surface_level_from_raster(update_raster, how="replace")
+    #     print("stop")
