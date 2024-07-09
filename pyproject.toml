@@ -84,6 +84,6 @@ target-version = "py311"
 
 [tool.ruff.lint]
 select = ["F", "E", "W", "N", "I001"]
-ignore = ["F401", "E501"]
+ignore = ["F401", "E501", "F811"]
 unfixable = ["F401"]
 pydocstyle.convention = "numpy"

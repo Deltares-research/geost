@@ -68,11 +68,7 @@ class BroApi:
             if response.status_code == 200 and "rejection" not in response.text:
                 element = etree.fromstring(response.text.encode("utf-8"))
                 yield element
-            elif "rejection" in response.text:
-                raise Warning(
-                    f"{bro_id} is invalid and could not be retrieved from the database"
-                )
-            elif response.status_code != 200:
+            elif response.status_code != 200 or "rejection" in response.text:
                 raise Warning(
                     f"Error {response.status_code}: Unable to request {bro_id} from ",
                     "database",
@@ -119,24 +115,36 @@ class BroApi:
         Warning
             If the server does not respond or the search query was rejected.
         """
-        division_level = 1
-        response_accepted = False
-
-        while not response_accepted:
-            divide_bbox(xmin, xmax, ymin, ymax, level=division_level)
-            response = self.__response_to_bbox(
-                xmin, xmax, ymin, ymax, epsg=epsg, object_type=object_type
-            )
-            if response.status_code == 200 and "rejection" not in response.text:
-                etree_root = etree.fromstring(response.text.encode("utf-8"))
-                bro_objects = self.__objects_from_etree(etree_root)
-                response_accepted = True
-            elif response.status_code == 200 and "groter dan 2000" in response.text:
-                division_level += 1
-            else:
-                raise Warning(
-                    "Selection is invalid and could not be retrieved from the database"
+        response = self.__response_to_bbox(
+            xmin, xmax, ymin, ymax, epsg=epsg, object_type=object_type
+        )
+        if response.status_code == 200 and "rejection" not in response.text:
+            etree_root = etree.fromstring(response.text.encode("utf-8"))
+            bro_objects = self.__objects_from_etree(etree_root)
+        elif response.status_code == 400 or "groter dan 2000" in response.text:
+            bro_objects = []
+            division_levels = int(((xmax - xmin + ymax - ymin)) / 2000)
+            division_x = (xmax - xmin) / division_levels
+            for division_level in range(division_levels):
+                print(
+                    f"More than 2000 object requests in API call, dividing calls. Current call {division_level}/{division_levels}"
                 )
+                xmin_divided = xmin + (division_level * division_x)
+                xmax_divided = xmin + ((division_level + 1) * division_x)
+                response = self.__response_to_bbox(
+                    xmin_divided,
+                    xmax_divided,
+                    ymin,
+                    ymax,
+                    epsg=epsg,
+                    object_type=object_type,
+                )
+                etree_root = etree.fromstring(response.text.encode("utf-8"))
+                bro_objects += self.__objects_from_etree(etree_root)
+        else:
+            raise Warning(
+                "Selection is invalid and could not be retrieved from the database"
+            )
 
         return bro_objects
 

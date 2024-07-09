@@ -65,10 +65,7 @@ class TestBroApi:
         with pytest.raises(Warning) as excinfo:
             for cpt_data in cpt_datas:
                 pass
-        assert (
-            "CPT0000000doesnotexist is invalid and could not be retrieved from the database"
-            in str(excinfo.value)
-        )
+        assert "Unable to request CPT0000000doesnotexist" in str(excinfo.value)
 
     @pytest.mark.unittest
     def test_get_invalid_bhr(self):
@@ -77,10 +74,7 @@ class TestBroApi:
         with pytest.raises(Warning) as excinfo:
             for bhr_data in bhr_datas:
                 pass
-        assert (
-            "BHR0000000doesnotexist is invalid and could not be retrieved from the database"
-            in str(excinfo.value)
-        )
+        assert "Unable to request BHR0000000doesnotexist" in str(excinfo.value)
 
     @pytest.mark.unittest
     def test_search_and_get_cpts_in_bbox(self):
@@ -141,7 +135,8 @@ class TestBroApi:
             assert isinstance(bhr_data, _Element)
 
     @pytest.mark.unittest
-    def test_get_too_large_volume(self):
-        pass
-        # api = BroApi()
-        # cpts = api.search_objects_in_bbox(77000, 105000, 425000, 445000)
+    def test_get_too_large_volume(self, capsys):
+        api = BroApi()
+        cpts = api.search_objects_in_bbox(82000, 90000, 425000, 432000)
+        captured = capsys.readouterr()
+        assert "More than 2000 object requests in API call" in captured.out
