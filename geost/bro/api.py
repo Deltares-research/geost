@@ -123,11 +123,11 @@ class BroApi:
             bro_objects = self.__objects_from_etree(etree_root)
         elif response.status_code == 400 or "groter dan 2000" in response.text:
             bro_objects = []
-            division_levels = int(((xmax - xmin + ymax - ymin)) / 2000)
+            division_levels = int(((xmax - xmin + ymax - ymin)) / 1000)
             division_x = (xmax - xmin) / division_levels
             for division_level in range(division_levels):
                 print(
-                    f"More than 2000 object requests in API call, dividing calls. Current call {division_level}/{division_levels}"
+                    f"More than 2000 object requests in API call, dividing calls. Current call {division_level+1}/{division_levels}"
                 )
                 xmin_divided = xmin + (division_level * division_x)
                 xmax_divided = xmin + ((division_level + 1) * division_x)
