@@ -313,7 +313,7 @@ def get_bro_objects_from_bbox(
         this method.
     """
     api = BroApi()
-    bro_ids = api.search_objects_in_bbox(
+    api.search_objects_in_bbox(
         xmin=xmin,
         xmax=xmax,
         ymin=ymin,
@@ -386,7 +386,7 @@ def get_bro_objects_from_geometry(
     else:
         geometry = gpd.read_file(geometry_file)
     api = BroApi()
-    bro_ids = api.search_objects_in_bbox(
+    api.search_objects_in_bbox(
         xmin=geometry.bounds.minx.values[0],
         xmax=geometry.bounds.maxx.values[0],
         ymin=geometry.bounds.miny.values[0],
