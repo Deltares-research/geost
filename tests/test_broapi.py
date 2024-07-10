@@ -81,14 +81,14 @@ class TestBroApi:
         # Note: if test fails, check if BRO database was updated first
         api = BroApi()
         # Find CPTs
-        cpts = api.search_objects_in_bbox(
-            112400, 112500, 442750, 442850, object_type="CPT"
-        )
+        api.search_objects_in_bbox(112400, 112500, 442750, 442850, object_type="CPT")
         minimum_present_objects = ["CPT000000000787", "CPT000000029403"]
-        present_objects = [obj for obj in cpts if obj in minimum_present_objects]
+        present_objects = [
+            obj for obj in api.object_list if obj in minimum_present_objects
+        ]
         assert len(present_objects) == len(minimum_present_objects)
         # Get CPTs
-        cpt_datas = api.get_objects(cpts, object_type="CPT")
+        cpt_datas = api.get_objects(api.object_list, object_type="CPT")
         for cpt_data in cpt_datas:
             assert isinstance(cpt_data, _Element)
 
@@ -97,19 +97,19 @@ class TestBroApi:
         # Note: if test fails, check if BRO database was updated first
         api = BroApi()
         # Find CPTs
-        bhrps = api.search_objects_in_bbox(
-            141500, 141700, 455100, 455300, object_type="BHR-P"
-        )
+        api.search_objects_in_bbox(141500, 141700, 455100, 455300, object_type="BHR-P")
         minimum_present_objects = [
             "BHR000000085497",
             "BHR000000247842",
             "BHR000000120513",
             "BHR000000206176",
         ]
-        present_objects = [obj for obj in bhrps if obj in minimum_present_objects]
+        present_objects = [
+            obj for obj in api.object_list if obj in minimum_present_objects
+        ]
         assert len(present_objects) == len(minimum_present_objects)
         # Get CPTs
-        bhr_datas = api.get_objects(bhrps, object_type="BHR-P")
+        bhr_datas = api.get_objects(api.object_list, object_type="BHR-P")
         for bhr_data in bhr_datas:
             assert isinstance(bhr_data, _Element)
 
@@ -118,19 +118,19 @@ class TestBroApi:
         # Note: if test fails, check if BRO database was updated first
         api = BroApi()
         # Find CPTs
-        bhrgts = api.search_objects_in_bbox(
-            141300, 142300, 452700, 453500, object_type="BHR-GT"
-        )
+        api.search_objects_in_bbox(141300, 142300, 452700, 453500, object_type="BHR-GT")
         minimum_present_objects = [
             "BHR000000353592",
             "BHR000000353583",
             "BHR000000353598",
             "BHR000000353600",
         ]
-        present_objects = [obj for obj in bhrgts if obj in minimum_present_objects]
+        present_objects = [
+            obj for obj in api.object_list if obj in minimum_present_objects
+        ]
         assert len(present_objects) == len(minimum_present_objects)
         # Get CPTs
-        bhr_datas = api.get_objects(bhrgts, object_type="BHR-GT")
+        bhr_datas = api.get_objects(api.object_list, object_type="BHR-GT")
         for bhr_data in bhr_datas:
             assert isinstance(bhr_data, _Element)
 

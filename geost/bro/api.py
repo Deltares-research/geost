@@ -3,7 +3,7 @@ from typing import Iterable, Iterator, List, TypeVar, Union
 import requests
 from lxml import etree
 
-from geost.bro.bro_utils import divide_bbox, get_bbox_criteria
+from geost.bro.bro_utils import get_bbox_criteria
 from geost.projections import xy_to_ll
 
 Coordinate = TypeVar("Coordinate", int, float)
@@ -28,6 +28,7 @@ class BroApi:
         self.server_url = server_url
         self.objects_url = "/objects"
         self.search_url = "/characteristics/searches"
+        self.object_list = []
 
     def get_objects(
         self, bro_ids: Union[str, Iterable], object_type: str = "CPT"
@@ -120,33 +121,43 @@ class BroApi:
         )
         if response.status_code == 200 and "rejection" not in response.text:
             etree_root = etree.fromstring(response.text.encode("utf-8"))
-            bro_objects = self.__objects_from_etree(etree_root)
+            self.object_list += self.__objects_from_etree(etree_root)
         elif response.status_code == 400 or "groter dan 2000" in response.text:
-            bro_objects = []
-            division_levels = int(((xmax - xmin + ymax - ymin)) / 1000)
-            division_x = (xmax - xmin) / division_levels
-            for division_level in range(division_levels):
-                print(
-                    f"More than 2000 object requests in API call, dividing calls. Current call {division_level+1}/{division_levels}"
-                )
-                xmin_divided = xmin + (division_level * division_x)
-                xmax_divided = xmin + ((division_level + 1) * division_x)
-                response = self.__response_to_bbox(
-                    xmin_divided,
-                    xmax_divided,
-                    ymin,
-                    ymax,
-                    epsg=epsg,
-                    object_type=object_type,
-                )
-                etree_root = etree.fromstring(response.text.encode("utf-8"))
-                bro_objects += self.__objects_from_etree(etree_root)
+            self.__search_objects_in_divided_bbox(
+                xmin, xmax, ymin, ymax, epsg=epsg, object_type=object_type
+            )
         else:
             raise Warning(
                 "Selection is invalid and could not be retrieved from the database"
             )
 
-        return bro_objects
+    def __search_objects_in_divided_bbox(
+        self,
+        xmin: Coordinate,
+        xmax: Coordinate,
+        ymin: Coordinate,
+        ymax: Coordinate,
+        epsg: str = "28992",
+        object_type: str = "CPT",
+    ) -> List[str]:
+        division_levels = int(((xmax - xmin + ymax - ymin)) / 1000)
+        division_x = (xmax - xmin) / division_levels
+        for division_level in range(division_levels):
+            print(
+                f"More than 2000 object requests in API call, dividing calls. Current call {division_level+1}/{division_levels}"
+            )
+            xmin_divided = xmin + (division_level * division_x)
+            xmax_divided = xmin + ((division_level + 1) * division_x)
+            response = self.__response_to_bbox(
+                xmin_divided,
+                xmax_divided,
+                ymin,
+                ymax,
+                epsg=epsg,
+                object_type=object_type,
+            )
+            etree_root = etree.fromstring(response.text.encode("utf-8"))
+            self.object_list += self.__objects_from_etree(etree_root)
 
     def __response_to_bbox(
         self,

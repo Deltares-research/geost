@@ -320,7 +320,7 @@ def get_bro_objects_from_bbox(
         ymax=ymax,
         object_type=object_type,
     )
-    bro_objects = api.get_objects(bro_ids, object_type=object_type)
+    bro_objects = api.get_objects(api.object_list, object_type=object_type)
     bro_parsed_objects = []
     # TODO: The below has to be adjusted for different BRO objects
     for bro_object in bro_objects:
@@ -336,10 +336,11 @@ def get_bro_objects_from_bbox(
     collection = BoreholeCollection(
         dataframe,
         vertical_reference="depth",
-        horizontal_reference=horizontal_reference,
+        horizontal_reference=28992,
         is_inclined=False,
     )
     collection.change_vertical_reference(vertical_reference)
+    collection.change_horizontal_reference(horizontal_reference)
 
     return collection
 
@@ -392,16 +393,16 @@ def get_bro_objects_from_geometry(
         ymax=geometry.bounds.maxy.values[0],
         object_type=object_type,
     )
-    bro_objects = api.get_objects(bro_ids, object_type=object_type)
+    bro_objects = api.get_objects(api.object_list, object_type=object_type)
     bro_parsed_objects = []
     # TODO: The below has to be adjusted for different BRO objects
-    for bro_object in bro_objects:
+    for i, bro_object in enumerate(bro_objects):
         try:
             object = SoilCore(bro_object)
-        except (TypeError, AttributeError):  # as err:
-            pass
-            # print("Cant read a soil core")  # supressed for demo
-            # print(err)
+            print(i)
+        except (TypeError, AttributeError) as err:
+            print("Cant read a soil core")
+            print(err)
         bro_parsed_objects.append(object.df)
 
     dataframe = pd.concat(bro_parsed_objects).reset_index()
@@ -409,7 +410,7 @@ def get_bro_objects_from_geometry(
     collection = BoreholeCollection(
         dataframe,
         vertical_reference="depth",
-        horizontal_reference=horizontal_reference,
+        horizontal_reference=28992,
         is_inclined=False,
     )
     collection = getattr(collection, geometry_to_selection_function[geometry.type[0]])(
@@ -417,5 +418,6 @@ def get_bro_objects_from_geometry(
     )
     collection.header = collection.header.reset_index()
     collection.change_vertical_reference(vertical_reference)
+    collection.change_horizontal_reference(horizontal_reference)
 
     return collection
