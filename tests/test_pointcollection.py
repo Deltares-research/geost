@@ -5,7 +5,12 @@ import pandas as pd
 import pytest
 import rioxarray as rio
 import xarray as xr
-from numpy.testing import assert_almost_equal, assert_array_almost_equal, assert_equal
+from numpy.testing import (
+    assert_allclose,
+    assert_almost_equal,
+    assert_array_almost_equal,
+    assert_equal,
+)
 
 from geost import read_nlog_cores, read_sst_cores
 from geost.borehole import BoreholeCollection
@@ -292,6 +297,14 @@ class TestPointCollection:
         assert len(layers_non_h2.header) == 13
         assert len(layers_non_v_z.data) == 327
         assert len(layers_non_v_z.header) == 13
+
+    @pytest.mark.unittest
+    def test_add_header_column_to_data(self, boreholes):
+        boreholes.header["test_data"] = [i for i in range(len(boreholes.header))]
+        boreholes.add_header_column_to_data("test_data")
+
+        assert_allclose(boreholes.get("HB-6").data["test_data"], 0)
+        assert_allclose(boreholes.get("HB-03").data["test_data"], 12)
 
     @pytest.mark.integrationtest
     def test_validation_pass(self, capfd, borehole_df_ok):

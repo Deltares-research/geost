@@ -310,6 +310,19 @@ class PointDataCollection:
             )
         return other_gdf
 
+    def add_header_column_to_data(self, column_name: str):
+        """
+        Add a column from the header to the data table. Useful if you e.g. add some data
+        to the header table, but would like to add this to each layer (row in the data
+        table) as well.
+
+        Parameters
+        ----------
+        column_name : str
+            Name of the column in the header table to add.
+        """
+        self.data = pd.merge(self.data, self.header[["nr", column_name]], on="nr")
+
     def change_vertical_reference(self, to: str):
         """
         Change the vertical reference of layer tops and bottoms
