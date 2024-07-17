@@ -76,7 +76,7 @@ class PointDataCollection:
     def __repr__(self):
         return f"{self.__class__.__name__}:\n# header = {self.n_points}"
 
-    def get(self, selection_values: str | Iterable, column: str = "nr"):
+    def get(self, selection_values: str | Iterable, column: str = "nr"):  # Header class
         """
         Get a subset of a collection through a string or iterable of object id(s).
         Optionally uses a different column than "nr" (the column with object ids).
@@ -125,7 +125,9 @@ class PointDataCollection:
             is_inclined=self.is_inclined,
         )
 
-    def reset_header(self, *args):
+    def reset_header(
+        self, *args
+    ):  # Stays the same here, calls 'to_collection' from Data class
         """
         Create a new header based on the 'data' dataframe
         (:py:attr:`~geost.base.PointDataCollection.data`). Can be used to reset the
@@ -144,7 +146,7 @@ class PointDataCollection:
         )
 
     @property
-    def header(self):
+    def header(self):  # Calls property like 'self.header.df'
         """
         Pandas dataframe of header (1 row per object in the collection) and includes at
         the minimum: point id, x-coordinate, y-coordinate, surface level and end depth:
@@ -160,7 +162,7 @@ class PointDataCollection:
         return self._header
 
     @property
-    def data(self):
+    def data(self):  # Calls property like 'self.data.df'
         """
         Pandas dataframe that contains all data of objects in the collection. e.g. all
         layers of a borehole.
@@ -172,14 +174,14 @@ class PointDataCollection:
         return self._data
 
     @property
-    def n_points(self):
+    def n_points(self):  # No change
         """
         Number of objects in the collection.
         """
         return len(self.header)
 
     @property
-    def vertical_reference(self):
+    def vertical_reference(self):  # Discuss for refactor Positional reference
         """
         Current vertical reference system of the collection.
 
@@ -199,7 +201,7 @@ class PointDataCollection:
         return self.__vertical_reference
 
     @property
-    def horizontal_reference(self):
+    def horizontal_reference(self):  # Discuss for refactor Positional reference
         """
         Current horizontal reference of the collection. The horizontal reference must
         be correct in order for spatial selection functions to work.
@@ -213,7 +215,7 @@ class PointDataCollection:
         return self.__horizontal_reference
 
     @property
-    def is_inclined(self):
+    def is_inclined(self):  # Data class property
         """
         Whether borehole/cpt/log is inclined.
 
@@ -227,7 +229,7 @@ class PointDataCollection:
 
     @header.setter
     @validate_header
-    def header(self, header):
+    def header(self, header):  # No change
         """
         This setter is called whenever the attribute 'header' is manipulated, either
         during construction (init) or when a user attempts to set the header on an
@@ -239,7 +241,7 @@ class PointDataCollection:
 
     @data.setter
     @validate_data
-    def data(self, data):
+    def data(self, data):  # No change
         """
         This setter is called whenever the attribute 'data' is manipulated, either
         during construction (init) or when a user attempts to set the data on an
@@ -249,7 +251,7 @@ class PointDataCollection:
         self._data = data
         self.__check_header_to_data_alignment()
 
-    def __check_header_to_data_alignment(self):
+    def __check_header_to_data_alignment(self):  # No change
         """
         Two-way check to warn of any misalignment between the header and data
         attributes. Two way, i.e. if header includes more objects than in the data and
@@ -270,7 +272,9 @@ class PointDataCollection:
                     "running the method 'reset_header' to update the header."
                 )
 
-    def __check_and_coerce_crs(self, other_gdf: GeoDataFrame) -> GeoDataFrame:
+    def __check_and_coerce_crs(
+        self, other_gdf: GeoDataFrame
+    ) -> GeoDataFrame:  # No change untill positional reference refactor
         """
         Check the CRS of a geodataframe against the collection's current horizontal
         reference :py:attr:`~geost.base.PointDataCollection.horizontal_reference`. This
@@ -310,7 +314,7 @@ class PointDataCollection:
             )
         return other_gdf
 
-    def add_header_column_to_data(self, column_name: str):
+    def add_header_column_to_data(self, column_name: str):  # No change
         """
         Add a column from the header to the data table. Useful if you e.g. add some data
         to the header table, but would like to add this to each layer (row in the data
@@ -323,7 +327,9 @@ class PointDataCollection:
         """
         self.data = pd.merge(self.data, self.header[["nr", column_name]], on="nr")
 
-    def change_vertical_reference(self, to: str):
+    def change_vertical_reference(
+        self, to: str
+    ):  # Discuss for refactor Positional reference
         """
         Change the vertical reference of layer tops and bottoms
 
@@ -367,7 +373,7 @@ class PointDataCollection:
 
     def change_horizontal_reference(
         self, target_crs: int, only_geometries: bool = True
-    ):
+    ):  # Discuss for refactor Positional reference, probably both Header and Data classes contain this method
         """
         Change the horizontal reference (i.e. coordinate reference system, crs) of the
         collection to the given target crs.
@@ -407,7 +413,7 @@ class PointDataCollection:
         ymin: Coordinate,
         ymax: Coordinate,
         invert: bool = False,
-    ):
+    ):  # Header class
         """
         Make a selection of the data based on a bounding box of coordinates in the
         horizontal reference system of the collection. See also
@@ -452,7 +458,7 @@ class PointDataCollection:
         point_gdf: GeoDataFrame,
         buffer: float = 100,
         invert: bool = False,
-    ):
+    ):  # Header class
         """
         Make a selection of the data based on points.
 
@@ -493,7 +499,7 @@ class PointDataCollection:
         line_gdf: GeoDataFrame,
         buffer: float = 100,
         invert: bool = False,
-    ):
+    ):  # Header class
         """
         Make a selection of the data based on lines.
 
@@ -534,7 +540,7 @@ class PointDataCollection:
         polygon_gdf: GeoDataFrame,
         buffer: float = 0,
         invert: bool = False,
-    ):
+    ):  # Header class
         """
         Make a selection of the data based on polygons.
 
@@ -570,7 +576,7 @@ class PointDataCollection:
 
     def select_by_values(
         self, column: str, selection_values: str | Iterable, how: str = "or"
-    ):
+    ):  # Data class
         """
         Select pointdata based on the presence of given values in the given columns.
         Can be used for example to return a BoreholeCollection of boreholes that contain
@@ -641,7 +647,7 @@ class PointDataCollection:
         end_min: float = None,
         end_max: float = None,
         slice: bool = False,
-    ):
+    ):  # Header class
         """
         Select data from depth constraints. If a keyword argument is not given it will
         not be considered. e.g. if you need only boreholes that go deeper than -500 m
@@ -686,7 +692,9 @@ class PointDataCollection:
             is_inclined=self.is_inclined,
         )
 
-    def select_by_length(self, min_length: float = None, max_length: float = None):
+    def select_by_length(
+        self, min_length: float = None, max_length: float = None
+    ):  # Header class
         """
         Select data from length constraints: e.g. all boreholes between 50 and 150 m
         long. If a keyword argument is not given it will not be considered.
@@ -729,7 +737,7 @@ class PointDataCollection:
         lower_boundary: float | int = None,
         vertical_reference: Optional[str] = None,
         update_layer_boundaries: bool = True,  # TODO: implement
-    ):
+    ):  # Data class
         """
         Slice boreholes/cpts based on given upper and lower boundaries. This returns an
         instance of the BoreholeCollection or CptCollection containing only the sliced
@@ -813,7 +821,7 @@ class PointDataCollection:
 
     def slice_by_values(
         self, column: str, selection_values: str | Iterable, invert: bool = False
-    ):
+    ):  # Data class
         """
         Slice rows from data based on matching condition. E.g. only return rows with
         a certain lithology in the collection object.
@@ -861,7 +869,7 @@ class PointDataCollection:
 
     def get_area_labels(
         self, polygon_gdf: GeoDataFrame, column_name: str, include_in_header=False
-    ) -> pd.DataFrame:
+    ) -> pd.DataFrame:  # Header class
         """
         Find in which area (polygons) the point data locations fall. e.g. to determine
         in which geomorphological unit points are located.
@@ -896,7 +904,7 @@ class PointDataCollection:
 
     def get_cumulative_layer_thickness(
         self, column: str, values: str | List[str], include_in_header=False
-    ):
+    ):  # Data class
         """
         Get the cumulative thickness of layers of a certain type.
 
@@ -942,7 +950,7 @@ class PointDataCollection:
 
     def get_layer_top(
         self, column: str, values: str | List[str], include_in_header=False
-    ):
+    ):  # Data class
         """
         Find the depth at which a specified layer first occurs.
 
@@ -978,7 +986,7 @@ class PointDataCollection:
         else:
             return result
 
-    def append(self, other):
+    def append(self, other):  # No (significant) change
         """
         Append data of other object of the same type (e.g BoreholeCollection to
         BoreholeCollection).
@@ -1018,7 +1026,7 @@ class PointDataCollection:
                 "match",
             )
 
-    def to_parquet(self, out_file: str | WindowsPath, **kwargs):
+    def to_parquet(self, out_file: str | WindowsPath, **kwargs):  # Data class
         """
         Write data to parquet file.
 
@@ -1031,7 +1039,7 @@ class PointDataCollection:
         """
         self._data.to_parquet(out_file, **kwargs)
 
-    def to_csv(self, out_file: str | WindowsPath, **kwargs):
+    def to_csv(self, out_file: str | WindowsPath, **kwargs):  # Data class
         """
         Write data to csv file.
 
@@ -1044,7 +1052,7 @@ class PointDataCollection:
         """
         self._data.to_csv(out_file, **kwargs)
 
-    def to_shape(self, out_file: str | WindowsPath, **kwargs):
+    def to_shape(self, out_file: str | WindowsPath, **kwargs):  # Header class
         """
         Write header data to shapefile or geopackage. You can use the resulting file to
         display borehole locations in GIS for instance.
@@ -1058,7 +1066,7 @@ class PointDataCollection:
         """
         self.header.to_file(out_file, **kwargs)
 
-    def to_geoparquet(self, out_file: str | WindowsPath, **kwargs):
+    def to_geoparquet(self, out_file: str | WindowsPath, **kwargs):  # Header class
         """
         Write header data to geoparquet. You can use the resulting file to display
         borehole locations in GIS for instance. Please note that Geoparquet is supported
@@ -1073,7 +1081,7 @@ class PointDataCollection:
         """
         self.header.to_parquet(out_file, **kwargs)
 
-    def to_ipf(self, out_file: str | WindowsPath, **kwargs):
+    def to_ipf(self, out_file: str | WindowsPath, **kwargs):  # Not implemented
         # TODO write the pandas dataframes to IPF
         pass
 
@@ -1084,7 +1092,7 @@ class PointDataCollection:
         radius: float = 1,
         vertical_factor: float = 1.0,
         **kwargs,
-    ):
+    ):  # Data class
         """
         Save objects to VTM (Multiblock file, an XML VTK file pointing to multiple other
         VTK files). For viewing boreholes/cpt's in e.g. ParaView or other VTK viewers.
@@ -1125,7 +1133,7 @@ class PointDataCollection:
         out_file: str | WindowsPath = None,
         encode: bool = False,
         **kwargs,
-    ):
+    ):  # Data class
         """
         Write a collection to the core "Data" class of Deltares DataFusionTools. Returns
         a list of "Data" objects, one for each object in the Borehole/CptCollection that

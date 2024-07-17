@@ -54,7 +54,9 @@ class BoreholeCollection(PointDataCollection):
         self.__classification_system = "5104"
 
     @property
-    def classification_system(self):
+    def classification_system(
+        self,
+    ):  # Deprecate, use StrEnum for classification systems
         """
         Attribute: Borehole description protocol
 
@@ -65,7 +67,9 @@ class BoreholeCollection(PointDataCollection):
         """
         return self.__classification_system
 
-    def cover_layer_thickness(self, include_in_header=False):
+    def cover_layer_thickness(
+        self, include_in_header=False
+    ):  # Maybe deprecate, too specific
         """
         Return a DataFrame containing the borehole ids and corresponding cover
         layer thickness.
@@ -94,7 +98,9 @@ class BoreholeCollection(PointDataCollection):
         else:
             return cover_layer_df
 
-    def to_qgis3d(self, out_file: Union[str, WindowsPath], **kwargs):
+    def to_qgis3d(
+        self, out_file: Union[str, WindowsPath], **kwargs
+    ):  # LayeredData class
         """
         Write data to geopackage file that can be directly loaded in the Qgis2threejs
         plugin. Works only for layered (borehole) data.
@@ -194,7 +200,9 @@ class CptCollection(PointDataCollection):
             is_inclined=is_inclined,
         )
 
-    def add_ic(self):
+    def add_ic(
+        self,
+    ):  # Move to cpt analysis functions, use something like 'apply' function in classes
         """
         Calculate soil behaviour type index (Ic) for all CPT's in the collection.
 
@@ -202,7 +210,9 @@ class CptCollection(PointDataCollection):
         """
         self.data["ic"] = calc_ic(self.data["qc"], self.data["friction_number"])
 
-    def add_lithology(self):
+    def add_lithology(
+        self,
+    ):  # Move to cpt analysis functions, use something like 'apply' function in classes
         """
         Interpret lithoclass for all CPT's in the collection.
 
@@ -214,7 +224,7 @@ class CptCollection(PointDataCollection):
             self.data["ic"], self.data["qc"], self.data["friction_number"]
         )
 
-    def as_boreholecollection(self):
+    def as_boreholecollection(self):  # No change
         """
         Export CptCollection to BoreholeCollection. Requires the "lith" column to be
         present. Use the method :py:meth:`~geost.borehole.CptCollection.add_lithology`
