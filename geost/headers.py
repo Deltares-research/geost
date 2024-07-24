@@ -1,5 +1,7 @@
 from abc import ABC, abstractmethod
 
+from geost.mixins import GeopandasExportMixin
+
 
 class AbstractHeader(ABC):
     @abstractmethod
@@ -34,20 +36,8 @@ class AbstractHeader(ABC):
     def get_area_labels(self):
         pass
 
-    @abstractmethod
-    def to_shape(self):
-        # Can maybe already be concrete implementation (maybe from a Mixin) due to
-        # simplicity of method
-        pass
 
-    @abstractmethod
-    def to_geoparquet(self):
-        # Can maybe already be concrete implementation (maybe from a Mixin) due to
-        # simplicity of method
-        pass
-
-
-class PointHeader(AbstractHeader):
+class PointHeader(AbstractHeader, GeopandasExportMixin):
     def __init__(self, gdf):
         self.gdf = gdf
 
@@ -82,7 +72,7 @@ class PointHeader(AbstractHeader):
         raise NotImplementedError('Add function logic')
 
 
-class LineHeader(AbstractHeader):
+class LineHeader(AbstractHeader, GeopandasExportMixin):
     def __init__(self, gdf):
         self.gdf = gdf
 
@@ -108,12 +98,6 @@ class LineHeader(AbstractHeader):
         raise NotImplementedError('Add function logic')
 
     def get_area_labels(self):
-        raise NotImplementedError('Add function logic')
-
-    def to_shape(self):
-        raise NotImplementedError('Add function logic')
-
-    def to_geoparquet(self):
         raise NotImplementedError('Add function logic')
 
 
@@ -143,3 +127,8 @@ class HeaderFactory:
 header_factory = HeaderFactory()
 header_factory.register_header('Point', PointHeader)
 header_factory.register_header('Line', LineHeader)
+
+
+if __name__ == "__main__":
+    print(PointHeader(2))
+    print(LineHeader(2))

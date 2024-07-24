@@ -1,5 +1,7 @@
 from abc import ABC, abstractmethod
 
+from geost.mixins import PandasExportMixin
+
 
 class AbstractData(ABC):
     @abstractmethod
@@ -36,18 +38,6 @@ class AbstractData(ABC):
         pass
 
     @abstractmethod
-    def to_parquet(self):
-        # Can maybe already be concrete implementation (maybe from a Mixin) due to
-        # simplicity of method
-        pass
-
-    @abstractmethod
-    def to_csv(self):
-        # Can maybe already be concrete implementation (maybe from a Mixin) due to
-        # simplicity of method
-        pass
-
-    @abstractmethod
     def to_vtm(self):
         pass
 
@@ -56,9 +46,72 @@ class AbstractData(ABC):
         pass
 
 
-class LayeredData(AbstractData):
-    pass
+class LayeredData(AbstractData, PandasExportMixin):
+    def get(self):  # Not really sure if necessary
+        raise NotImplementedError()
+
+    def to_header(self):
+        raise NotImplementedError()
+
+    def to_collection(self):
+        raise NotImplementedError()
+
+    def select_by_values(self):
+        raise NotImplementedError()
+
+    def slice_depth_interval(self):
+        raise NotImplementedError()
+
+    def slice_by_values(self):
+        raise NotImplementedError()
+
+    def get_cumulative_layer_thickness(self):
+        raise NotImplementedError()
+        pass
+
+    def get_layer_top(self):
+        raise NotImplementedError()
+
+    def to_vtm(self):
+        raise NotImplementedError()
+
+    def to_datafusiontools(self):
+        raise NotImplementedError()
 
 
-class DiscreteData(AbstractData):
-    pass
+class DiscreteData(AbstractData, PandasExportMixin):
+    def get(self):  # Not really sure if necessary
+        raise NotImplementedError()
+
+    def to_header(self):
+        raise NotImplementedError()
+
+    def to_collection(self):
+        raise NotImplementedError()
+
+    def select_by_values(self):
+        raise NotImplementedError()
+
+    def slice_depth_interval(self):
+        raise NotImplementedError()
+
+    def slice_by_values(self):
+        raise NotImplementedError()
+
+    def get_cumulative_layer_thickness(self):
+        raise NotImplementedError()
+        pass
+
+    def get_layer_top(self):
+        raise NotImplementedError()
+
+    def to_vtm(self):
+        raise NotImplementedError()
+
+    def to_datafusiontools(self):
+        raise NotImplementedError()
+
+
+if __name__ == "__main__":
+    print(LayeredData())
+    print(DiscreteData())
