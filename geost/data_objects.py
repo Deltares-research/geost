@@ -1,9 +1,20 @@
 from abc import ABC, abstractmethod
 
 from geost.mixins import PandasExportMixin
+from geost.validate.decorators import validate_data
 
 
 class AbstractData(ABC):
+    @property
+    @abstractmethod
+    def df(self):
+        pass
+
+    @df.setter
+    @abstractmethod
+    def df(self, df):
+        pass
+
     @abstractmethod
     def get(self):  # Not really sure if necessary
         pass
@@ -43,10 +54,20 @@ class AbstractData(ABC):
 
     @abstractmethod
     def to_datafusiontools(self):
+        # supporting this is low priority, perhaps even deprecate
         pass
 
 
 class LayeredData(AbstractData, PandasExportMixin):
+    @property
+    def df(self):
+        return self._df
+
+    @df.setter
+    @validate_data
+    def df(self, df):
+        self._df = df
+
     def get(self):  # Not really sure if necessary
         raise NotImplementedError()
 
@@ -80,6 +101,15 @@ class LayeredData(AbstractData, PandasExportMixin):
 
 
 class DiscreteData(AbstractData, PandasExportMixin):
+    @property
+    def df(self):
+        return self._df
+
+    @df.setter
+    @validate_data
+    def df(self, df):
+        self._df = df
+
     def get(self):  # Not really sure if necessary
         raise NotImplementedError()
 

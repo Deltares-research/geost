@@ -1,9 +1,20 @@
 from abc import ABC, abstractmethod
 
 from geost.mixins import GeopandasExportMixin
+from geost.validate.decorators import validate_header
 
 
 class AbstractHeader(ABC):
+    @property
+    @abstractmethod
+    def gdf(self):
+        pass
+
+    @gdf.setter
+    @abstractmethod
+    def gdf(self, gdf):
+        pass
+
     @abstractmethod
     def get(self):
         pass
@@ -41,64 +52,82 @@ class PointHeader(AbstractHeader, GeopandasExportMixin):
     def __init__(self, gdf):
         self.gdf = gdf
 
+    @property
+    def gdf(self):
+        return self._gdf
+
+    @gdf.setter
+    @validate_header
+    def gdf(self, gdf):
+        self._gdf = gdf
+
     def get(self):
-        raise NotImplementedError('Add function logic')
+        raise NotImplementedError("Add function logic")
 
     def select_within_bbox(self):
-        raise NotImplementedError('Add function logic')
+        raise NotImplementedError("Add function logic")
 
     def select_with_points(self):
-        raise NotImplementedError('Add function logic')
+        raise NotImplementedError("Add function logic")
 
     def select_with_lines(self):
-        raise NotImplementedError('Add function logic')
+        raise NotImplementedError("Add function logic")
 
     def select_within_polygons(self):
-        raise NotImplementedError('Add function logic')
+        raise NotImplementedError("Add function logic")
 
     def select_by_depth(self):
-        raise NotImplementedError('Add function logic')
+        raise NotImplementedError("Add function logic")
 
     def select_by_length(self):
-        raise NotImplementedError('Add function logic')
+        raise NotImplementedError("Add function logic")
 
     def get_area_labels(self):
-        raise NotImplementedError('Add function logic')
+        raise NotImplementedError("Add function logic")
 
     def to_shape(self):
-        raise NotImplementedError('Add function logic')
+        raise NotImplementedError("Add function logic")
 
     def to_geoparquet(self):
-        raise NotImplementedError('Add function logic')
+        raise NotImplementedError("Add function logic")
 
 
 class LineHeader(AbstractHeader, GeopandasExportMixin):
     def __init__(self, gdf):
         self.gdf = gdf
 
+    @property
+    def gdf(self):
+        return self._gdf
+
+    @gdf.setter
+    @validate_header
+    def gdf(self, gdf):
+        self._gdf = gdf
+
     def get(self):
-        raise NotImplementedError('Add function logic')
+        raise NotImplementedError("Add function logic")
 
     def select_within_bbox(self):
-        raise NotImplementedError('Add function logic')
+        raise NotImplementedError("Add function logic")
 
     def select_with_points(self):
-        raise NotImplementedError('Add function logic')
+        raise NotImplementedError("Add function logic")
 
     def select_with_lines(self):
-        raise NotImplementedError('Add function logic')
+        raise NotImplementedError("Add function logic")
 
     def select_within_polygons(self):
-        raise NotImplementedError('Add function logic')
+        raise NotImplementedError("Add function logic")
 
     def select_by_depth(self):
-        raise NotImplementedError('Add function logic')
+        raise NotImplementedError("Add function logic")
 
     def select_by_length(self):
-        raise NotImplementedError('Add function logic')
+        raise NotImplementedError("Add function logic")
 
     def get_area_labels(self):
-        raise NotImplementedError('Add function logic')
+        raise NotImplementedError("Add function logic")
 
 
 class HeaderFactory:
@@ -112,7 +141,7 @@ class HeaderFactory:
     def get_geometry_type(gdf):
         geometry_type = gdf.geom_type.unique()
         if len(geometry_type) > 1:
-            return 'Multiple geometries'
+            return "Multiple geometries"
         else:
             return geometry_type[0]
 
@@ -120,13 +149,13 @@ class HeaderFactory:
         geometry_type = self.get_geometry_type(gdf)
         header = self._types.get(geometry_type)
         if not header:
-            raise ValueError(f'No Header type available for {geometry_type}')
+            raise ValueError(f"No Header type available for {geometry_type}")
         return header(gdf, **kwargs)
 
 
 header_factory = HeaderFactory()
-header_factory.register_header('Point', PointHeader)
-header_factory.register_header('Line', LineHeader)
+header_factory.register_header("Point", PointHeader)
+header_factory.register_header("Line", LineHeader)
 
 
 if __name__ == "__main__":
