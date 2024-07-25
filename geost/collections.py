@@ -1,5 +1,8 @@
 from abc import ABC, abstractmethod
 
+import geopandas as gpd
+import pandas as pd
+
 from geost.data_objects import AbstractData, DiscreteData, LayeredData
 from geost.headers import AbstractHeader, LineHeader, PointHeader
 
@@ -61,26 +64,88 @@ class AbstractCollection(ABC):
         pass
 
     @abstractmethod
-    def __check_header_to_data_alignment(self):
+    def check_header_to_data_alignment(self):
         pass
 
     @abstractmethod
-    def __check_and_coerce_crs(self):
+    def check_and_coerce_crs(self):
+        pass
+
+    @abstractmethod
+    def select_within_bbox(self):
+        pass
+
+    @abstractmethod
+    def select_with_points(self):
+        pass
+
+    @abstractmethod
+    def select_with_lines(self):
+        pass
+
+    @abstractmethod
+    def select_within_polygons(self):
+        pass
+
+    @abstractmethod
+    def select_by_depth(self):
+        pass
+
+    @abstractmethod
+    def select_by_length(self):
+        pass
+
+    @abstractmethod
+    def get_area_labels(self):
+        pass
+
+    @abstractmethod
+    def select_by_values(self):
+        pass
+
+    @abstractmethod
+    def slice_depth_interval(self):
+        pass
+
+    @abstractmethod
+    def slice_by_values(self):
+        pass
+
+    @abstractmethod
+    def get_cumulative_layer_thickness(self):
+        # Not sure if this should be here, potentially unsuitable with DiscreteData
+        # These kind of methods should go to a seperate layer_analysis module with
+        # functions to cover such analyses
+        pass
+
+    @abstractmethod
+    def get_layer_top(self):
+        # These kind of methods should go to a seperate layer_analysis module with
+        # functions to cover such analyses
+        pass
+
+    @abstractmethod
+    def to_vtm(self):
+        pass
+
+    @abstractmethod
+    def to_datafusiontools(self):
+        # supporting this is low priority, perhaps even deprecate
         pass
 
 
-class Collection(AbstractHeader, AbstractData, AbstractCollection):
+class Collection(AbstractCollection):
     def __init__(
         self,
-        data: DataObject,
         header: HeaderObject,
+        data: DataObject,
         horizontal_reference: int,
         vertical_reference: str,
     ):
         self.horizontal_reference = horizontal_reference
         self.vertical_reference = vertical_reference
-        self.data = data
         self.header = header
+        self.data = data
 
     def __new__(cls, *args, **kwargs):
         if cls is Collection:
@@ -107,7 +172,7 @@ class Collection(AbstractHeader, AbstractData, AbstractCollection):
         """
         Number of objects in the collection.
         """
-        return len(self.header)
+        return len(self.header.df)
 
     @property
     def horizontal_reference(self):  # Move to header class in future refactor
@@ -119,21 +184,27 @@ class Collection(AbstractHeader, AbstractData, AbstractCollection):
 
     @header.setter
     def header(self, header):
-        self._header = header
-        self.__check_header_to_data_alignment()
+        if isinstance(header, LineHeader | PointHeader):
+            self._header = header
+        elif "_header" in self.__dict__.keys() and isinstance(header, gpd.GeoDataFrame):
+            self._header = self._header.__class__(header)
+        self.check_header_to_data_alignment()
 
     @data.setter
     def data(self, data):
-        self._data = data
-        self.__check_header_to_data_alignment()
+        if isinstance(data, LayeredData | DiscreteData):
+            self._data = data
+        elif "_data" in self.__dict__.keys() and isinstance(data, pd.DataFrame):
+            self._data = self._header.__class__(data)
+        self.check_header_to_data_alignment()
 
     @horizontal_reference.setter
     def horizontal_reference(self, to_epsg):
-        raise NotImplementedError("Add function logic")
+        pass
 
     @vertical_reference.setter
     def vertical_reference(self, to_epsg):
-        raise NotImplementedError("Add function logic")
+        pass
 
     def get(self):
         raise NotImplementedError("Add function logic")
@@ -141,11 +212,11 @@ class Collection(AbstractHeader, AbstractData, AbstractCollection):
     def reset_header(self):
         raise NotImplementedError("Add function logic")
 
-    def __check_header_to_data_alignment(self):
-        raise NotImplementedError("Add function logic")
+    def check_header_to_data_alignment(self):
+        pass
 
-    def __check_and_coerce_crs(self):
-        raise NotImplementedError("Add function logic")
+    def check_and_coerce_crs(self):
+        pass
 
     def select_within_bbox(self):
         raise NotImplementedError("Add function logic")
