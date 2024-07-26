@@ -7,6 +7,11 @@ class AbstractHeader(ABC):
     def gdf(self):
         pass
 
+    @property
+    @abstractmethod
+    def horizontal_reference(self):
+        pass
+
     @gdf.setter
     @abstractmethod
     def gdf(self, gdf):

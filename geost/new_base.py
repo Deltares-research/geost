@@ -22,18 +22,32 @@ pd.set_option("mode.copy_on_write", True)
 class PointHeader(AbstractHeader, GeopandasExportMixin):
     def __init__(self, gdf):
         self.gdf = gdf
+        self.__horizontal_reference = self.gdf.crs
 
     def __repr__(self):
         return f"{self.__class__.__name__} instance containing {len(self.gdf)} objects"
+
+    def __getitem__(self, column):
+        return self.gdf[column]
+
+    def __setitem__(self, column, key):
+        self.gdf[key] = column
 
     @property
     def gdf(self):
         return self._gdf
 
+    @property
+    def horizontal_reference(self):
+        return self.__horizontal_reference
+
     @gdf.setter
     @validate_header
     def gdf(self, gdf):
         self._gdf = gdf
+
+    def __check_and_coerce_crs(self):
+        raise (NotImplementedError)
 
     def get(self, selection_values: str | Iterable, column: str = "nr"):
         """
@@ -68,9 +82,9 @@ class PointHeader(AbstractHeader, GeopandasExportMixin):
         that are located in "unit1" and "unit2" geological map areas.
         """
         if isinstance(selection_values, str):
-            selected_gdf = self.gdf[self.gdf[column] == selection_values]
+            selected_gdf = self[self[column] == selection_values]
         elif isinstance(selection_values, Iterable):
-            selected_gdf = self.gdf[self.gdf[column].isin(selection_values)]
+            selected_gdf = self[self[column].isin(selection_values)]
 
         selected_gdf = selected_gdf[~selected_gdf.duplicated()]
         # selection = self.data.loc[self.data["nr"].isin(selected_header["nr"])]
@@ -201,14 +215,114 @@ class PointHeader(AbstractHeader, GeopandasExportMixin):
         )
         return self.__class__(gdf_selected)
 
-    def select_by_depth(self):
-        raise NotImplementedError("Add function logic")
+    def select_by_depth(
+        self,
+        top_min: float = None,
+        top_max: float = None,
+        end_min: float = None,
+        end_max: float = None,
+    ):
+        """
+        Select data from depth constraints. If a keyword argument is not given it will
+        not be considered. e.g. if you need only boreholes that go deeper than -500 m
+        use only end_max = -500.
 
-    def select_by_length(self):
-        raise NotImplementedError("Add function logic")
+        Parameters
+        ----------
+        top_min : float, optional
+            Minimum elevation of the borehole/cpt top, by default None.
+        top_max : float, optional
+            Maximum elevation of the borehole/cpt top, by default None.
+        end_min : float, optional
+            Minimum elevation of the borehole/cpt end, by default None.
+        end_max : float, optional
+            Maximumelevation of the borehole/cpt end, by default None.
 
-    def get_area_labels(self):
-        raise NotImplementedError("Add function logic")
+        Returns
+        -------
+        Child of :class:`~geost.base.PointDataCollection`.
+            Instance of either :class:`~geost.borehole.BoreholeCollection` or
+            :class:`~geost.borehole.CptCollection` containing only objects selected by
+            this method.
+        """
+        selected = self.gdf.copy()
+        if top_min is not None:
+            selected = selected[selected["mv"] >= top_min]
+        if top_max is not None:
+            selected = selected[selected["mv"] <= top_max]
+        if end_min is not None:
+            selected = selected[selected["end"] >= end_min]
+        if end_max is not None:
+            selected = selected[selected["end"] <= end_max]
+
+        selected = selected[~selected.duplicated()]
+
+        return self.__class__(selected)
+
+    def select_by_length(self, min_length: float = None, max_length: float = None):
+        """
+        Select data from length constraints: e.g. all boreholes between 50 and 150 m
+        long. If a keyword argument is not given it will not be considered.
+
+        Parameters
+        ----------
+        min_length : float, optional
+            Minimum length of borehole/cpt, by default None.
+        max_length : float, optional
+            Maximum length of borehole/cpt, by default None.
+
+        Returns
+        -------
+        Child of :class:`~geost.base.PointDataCollection`.
+            Instance of either :class:`~geost.borehole.BoreholeCollection` or
+            :class:`~geost.borehole.CptCollection` containing only objects selected by
+            this method.
+        """
+        selected = self.gdf.copy()
+        length = selected["mv"] - selected["end"]
+        if min_length is not None:
+            selected = selected[length >= min_length]
+        if max_length is not None:
+            selected = selected[length <= max_length]
+
+        selected = selected[~selected.duplicated()]
+
+        return self.__class__(selected)
+
+    def get_area_labels(
+        self, polygon_gdf: gpd.GeoDataFrame, column_name: str, include_in_header=False
+    ) -> pd.DataFrame:
+        """
+        Find in which area (polygons) the point data locations fall. e.g. to determine
+        in which geomorphological unit points are located.
+
+        Parameters
+        ----------
+        polygon_gdf : gpd.GeoDataFrame
+            GeoDataFrame with polygons.
+        column_name : str
+            The column name to find the labels in.
+        include_in_header : bool, optional
+            Whether to add the acquired data to the header table or not, by default
+            False.
+
+        Returns
+        -------
+        pd.DataFrame
+            Borehole ids and the polygon label they are in. If include_in_header = True,
+            a column containing the generated data will be added inplace to
+            :py:attr:`~geost.base.PointDataCollection.header`.
+        """
+        polygon_gdf = self.__check_and_coerce_crs(polygon_gdf)
+
+        all_nrs = self.header["nr"]
+        area_labels = spatial.find_area_labels(self.header, polygon_gdf, column_name)
+        area_labels = pd.concat([all_nrs, area_labels], axis=1)
+
+        if include_in_header:
+            self._header = self.header.merge(area_labels, on="nr")
+        else:
+            return area_labels
 
     def to_shape(self):
         raise NotImplementedError("Add function logic")
@@ -220,13 +334,24 @@ class PointHeader(AbstractHeader, GeopandasExportMixin):
 class LineHeader(AbstractHeader, GeopandasExportMixin):
     def __init__(self, gdf):
         self.gdf = gdf
+        self.__horizontal_reference = self.gdf.crs
 
     def __repr__(self):
         return f"{self.__class__.__name__} instance containing {len(self.gdf)} objects"
 
+    def __getitem__(self, column):
+        return self.gdf[column]
+
+    def __setitem__(self, column, key):
+        self.gdf[key] = column
+
     @property
     def gdf(self):
         return self._gdf
+
+    @property
+    def horizontal_reference(self):
+        return self.__horizontal_reference
 
     @gdf.setter
     @validate_header
