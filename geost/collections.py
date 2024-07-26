@@ -198,13 +198,11 @@ class Collection(AbstractCollection):
             self._data = self._header.__class__(data)
         self.check_header_to_data_alignment()
 
-    @horizontal_reference.setter
     def horizontal_reference(self, to_epsg):
-        pass
+        raise NotImplementedError("Add function logic")
 
-    @vertical_reference.setter
     def vertical_reference(self, to_epsg):
-        pass
+        raise NotImplementedError("Add function logic")
 
     def get(self):
         raise NotImplementedError("Add function logic")
