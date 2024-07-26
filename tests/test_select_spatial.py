@@ -8,16 +8,10 @@ from numpy.testing import assert_allclose
 from geost import read_sst_cores
 from geost.borehole import BoreholeCollection
 
-borehole_file = Path(__file__).parent / "data" / "test_boreholes.parquet"
 selection_file = Path(__file__).parent / "data" / "test_polygon.parquet"
 
 
 class TestSpatial:
-    @pytest.fixture
-    def boreholes(self):
-        borehole_collection = read_sst_cores(borehole_file)
-        return borehole_collection
-
     @pytest.fixture
     def selection_polygon(self):
         gdf = gpd.read_parquet(selection_file)

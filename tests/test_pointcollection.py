@@ -20,12 +20,6 @@ class TestPointCollection:
     nlog_stratstelsel_parquet = (
         Path(__file__).parent / "data/test_nlog_stratstelsel_20230807.parquet"
     )
-    borehole_file = Path(__file__).parent / "data" / "test_boreholes.parquet"
-
-    @pytest.fixture
-    def boreholes(self):
-        borehole_collection = read_sst_cores(self.borehole_file)
-        return borehole_collection
 
     @pytest.fixture
     def borehole_df_ok(self):

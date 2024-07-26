@@ -11,17 +11,8 @@ from geost import read_sst_cores, spatial
 from geost.borehole import BoreholeCollection
 from geost.utils import dataframe_to_geodataframe
 
-borehole_file = Path(__file__).parent / "data" / "test_boreholes.parquet"
-selection_file = Path(__file__).parent / "data" / "test_polygon.parquet"
-
 
 class TestSpatialUtils:
-
-    @pytest.fixture
-    def boreholes(self):
-        borehole_collection = read_sst_cores(self.borehole_file)
-        return borehole_collection
-
     @pytest.fixture
     def raster(self):
         x_coors = np.arange(1, 4)
