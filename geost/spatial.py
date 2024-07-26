@@ -1,4 +1,4 @@
-from pathlib import WindowsPath
+from pathlib import Path, WindowsPath
 
 import geopandas as gpd
 import numpy as np
@@ -42,18 +42,109 @@ def dataframe_to_geodataframe(
     return gdf
 
 
-def header_from_bbox(header_df, xmin, xmax, ymin, ymax, invert) -> gpd.GeoDataFrame:
-    header_selected = header_df[
-        (header_df.x >= xmin)
-        & (header_df.x <= xmax)
-        & (header_df.y >= ymin)
-        & (header_df.y <= ymax)
+def check_gdf_instance(
+    gdf_or_path: str | WindowsPath | gpd.GeoDataFrame,
+) -> gpd.GeoDataFrame:
+    """
+    Check if the argument is already a geodataframe or pointing to a file
+    containing geometries
+
+    Parameters
+    ----------
+    gdf_or_path : str | WindowsPath | gpd.GeoDataFrame
+        The geodataframe or file that can be read and parsed to a geodataframe
+
+    Returns
+    -------
+    gpd.GeoDataFrame
+        An instance of a geopandas geodataframe
+    """
+    if isinstance(gdf_or_path, str | WindowsPath):
+        gdf_or_path = Path(gdf_or_path)
+        filetype = gdf_or_path.suffix
+        if filetype in (".parquet", ".geoparquet"):
+            gdf = gpd.read_parquet(gdf_or_path)
+        else:
+            gdf = gpd.read_file(gdf_or_path)
+    elif isinstance(gdf_or_path, gpd.GeoDataFrame):
+        gdf = gdf_or_path
+
+    return gdf
+
+
+def gdf_from_bbox(
+    gdf: str | WindowsPath | gpd.GeoDataFrame,
+    xmin: float | int,
+    xmax: float | int,
+    ymin: float | int,
+    ymax: float | int,
+    invert: bool = False,
+) -> gpd.GeoDataFrame:
+    """
+    Make a selection of geometries based on a user-given bounding box.
+
+    Parameters
+    ----------
+    gdf : str | WindowsPath | gpd.GeoDataFrame
+        Geodataframe (or file that can be parsed to a geodataframe) to select from.
+    xmin : float | int
+        Minimum x-coordinate of the bounding box.
+    xmax : float | int
+        Maximum x-coordinate of the bounding box.
+    ymin : float | int
+        Minimum y-coordinate of the bounding box.
+    ymax : float | int
+        Maximum y-coordinate of the bounding box.
+    invert : bool, optional
+        Invert the selection, so select all objects outside of the
+        bounding box in this case, by default False.
+
+    Returns
+    -------
+    gpd.GeoDataFrame
+        Geodataframe containing only selected geometries.
+    """
+    # Instance checks and coerce to geodataframe if required
+    gdf = check_gdf_instance(gdf)
+
+    # Selection logic
+    gdf_selected = gdf[
+        (gdf.x >= xmin) & (gdf.x <= xmax) & (gdf.y >= ymin) & (gdf.y <= ymax)
     ]
-    return header_selected
+    return gdf_selected
 
 
-def header_from_points(header_df, point_gdf, buffer, invert) -> gpd.GeoDataFrame:
-    data_points = header_df[["x", "y"]].values
+def gdf_from_points(
+    gdf: str | WindowsPath | gpd.GeoDataFrame,
+    point_gdf: str | WindowsPath | gpd.GeoDataFrame,
+    buffer: float | int,
+    invert: bool = False,
+) -> gpd.GeoDataFrame:
+    """
+    Make a selection of geometries based on point geometries and a buffer.
+
+    Parameters
+    ----------
+    gdf : str | WindowsPath | gpd.GeoDataFrame
+        Geodataframe (or file that can be parsed to a geodataframe) to select from.
+    point_gdf : str | WindowsPath | gpd.GeoDataFrame
+        Geodataframe (or file that can be parsed to a geodataframe) to select with.
+    buffer : float | int
+        Buffer distance for selection geometries.
+    invert : bool, optional
+        Invert the selection, by default False.
+
+    Returns
+    -------
+    gpd.GeoDataFrame
+        Geodataframe containing only selected geometries.
+    """
+    # Instance checks and coerce to geodataframe if required
+    gdf = check_gdf_instance(gdf)
+    point_gdf = check_gdf_instance(point_gdf)
+
+    # Selection logic
+    data_points = gdf[["x", "y"]].values
     if isinstance(point_gdf, gpd.GeoDataFrame):
         query_points = np.array([list(pnt.coords)[0] for pnt in point_gdf.geometry])
     else:
@@ -68,19 +159,75 @@ def header_from_points(header_df, point_gdf, buffer, invert) -> gpd.GeoDataFrame
         bool_array += distance < buffer
     if invert:
         bool_array = np.invert(bool_array)
-    header_selected = header_df[bool_array]
-    return header_selected
+    gdf_selected = gdf[bool_array]
+    return gdf_selected
 
 
-def header_from_lines(header_df, line_gdf, buffer, invert) -> gpd.GeoDataFrame:
+def gdf_from_lines(
+    gdf: str | WindowsPath | gpd.GeoDataFrame,
+    line_gdf: str | WindowsPath | gpd.GeoDataFrame,
+    buffer: float | int,
+    invert: bool = False,
+) -> gpd.GeoDataFrame:
+    """
+    Make a selection of geometries based on line geometries and a buffer.
+
+    Parameters
+    ----------
+    gdf : str | WindowsPath | gpd.GeoDataFrame
+        Geodataframe (or file that can be parsed to a geodataframe) to select from.
+    line_gdf : str | WindowsPath | gpd.GeoDataFrame
+        Geodataframe (or file that can be parsed to a geodataframe) to select with.
+    buffer : float | int
+        Buffer distance for selection geometries.
+    invert : bool, optional
+        Invert the selection, by default False.
+
+    Returns
+    -------
+    gpd.GeoDataFrame
+        Geodataframe containing only selected geometries.
+    """
+    # Instance checks and coerce to geodataframe if required
+    gdf = check_gdf_instance(gdf)
+    line_gdf = check_gdf_instance(line_gdf)
+
+    # Selection logic
     line_gdf["geometry"] = line_gdf.buffer(distance=buffer)
-    header_selected = gpd.sjoin(header_df, line_gdf)[
-        ["nr", "x", "y", "mv", "end", "geometry"]
-    ]
-    return header_selected
+    gdf_selected = gpd.sjoin(gdf, line_gdf)[["nr", "x", "y", "mv", "end", "geometry"]]
+    return gdf_selected
 
 
-def header_from_polygons(header_df, polygon_gdf, buffer, invert) -> gpd.GeoDataFrame:
+def gdf_from_polygons(
+    gdf: str | WindowsPath | gpd.GeoDataFrame,
+    polygon_gdf: str | WindowsPath | gpd.GeoDataFrame,
+    buffer: float | int = 0,
+    invert: bool = False,
+) -> gpd.GeoDataFrame:
+    """
+    Make a selection of geometries based on polygon geometries and an optional buffer.
+
+    Parameters
+    ----------
+    gdf : str | WindowsPath | gpd.GeoDataFrame
+        Geodataframe (or file that can be parsed to a geodataframe) to select from.
+    polygon_gdf : str | WindowsPath | gpd.GeoDataFrame
+        Geodataframe (or file that can be parsed to a geodataframe) to select with.
+    buffer : float | int, optional
+        Optional buffer distance around the polygon selection geometries, by default 0.
+    invert : bool, optional
+        Invert the selection, by default False.
+
+    Returns
+    -------
+    gpd.GeoDataFrame
+        Geodataframe containing only selected geometries.
+    """
+    # Instance checks and coerce to geodataframe if required
+    gdf = check_gdf_instance(gdf)
+    polygon_gdf = check_gdf_instance(polygon_gdf)
+
+    # Selection logic
     if buffer > 0:
         polygon_select = polygon_gdf.copy()
         polygon_select["geometry"] = polygon_gdf.geometry.buffer(buffer)
@@ -88,15 +235,11 @@ def header_from_polygons(header_df, polygon_gdf, buffer, invert) -> gpd.GeoDataF
         polygon_select = polygon_gdf
 
     if invert:
-        header_selected = header_df[
-            ~header_df.geometry.within(polygon_select.geometry.unary_union)
-        ]
+        gdf_selected = gdf[~gdf.geometry.within(polygon_select.geometry.unary_union)]
     else:
-        header_selected = header_df[
-            header_df.geometry.within(polygon_select.geometry.unary_union)
-        ]
+        gdf_selected = gdf[gdf.geometry.within(polygon_select.geometry.unary_union)]
 
-    return header_selected
+    return gdf_selected
 
 
 def find_area_labels(
