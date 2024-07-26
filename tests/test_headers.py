@@ -20,14 +20,14 @@ class TestHeaders:
     def test_single_get(self, point_header_gdf):
         point_header = PointHeader(point_header_gdf)
         point_header_sel = point_header.get("nr10")
-        assert point_header_sel.gdf["nr"].iloc[0] == "nr10"
+        assert point_header_sel["nr"].iloc[0] == "nr10"
 
     @pytest.mark.unittest
     def test_multi_get(self, point_header_gdf):
         point_header = PointHeader(point_header_gdf)
         query = ["nr1", "nr5", "nr10", "nr15", "nr20"]
         point_header_sel = point_header.get(query)
-        assert all([nr in point_header_sel.gdf["nr"].values for nr in query])
+        assert all([nr in point_header_sel["nr"].values for nr in query])
 
     @pytest.mark.unittest
     def test_select_within_bbox(self, point_header_gdf):

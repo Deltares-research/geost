@@ -22,18 +22,32 @@ pd.set_option("mode.copy_on_write", True)
 class PointHeader(AbstractHeader, GeopandasExportMixin):
     def __init__(self, gdf):
         self.gdf = gdf
+        self.__horizontal_reference = self.gdf.crs
 
     def __repr__(self):
         return f"{self.__class__.__name__} instance containing {len(self.gdf)} objects"
+
+    def __getitem__(self, column):
+        return self.gdf[column]
+
+    def __setitem__(self, column, key):
+        self.gdf[key] = column
 
     @property
     def gdf(self):
         return self._gdf
 
+    @property
+    def horizontal_reference(self):
+        return self.__horizontal_reference
+
     @gdf.setter
     @validate_header
     def gdf(self, gdf):
         self._gdf = gdf
+
+    def __check_and_coerce_crs(self):
+        raise (NotImplementedError)
 
     def get(self, selection_values: str | Iterable, column: str = "nr"):
         """
@@ -68,9 +82,9 @@ class PointHeader(AbstractHeader, GeopandasExportMixin):
         that are located in "unit1" and "unit2" geological map areas.
         """
         if isinstance(selection_values, str):
-            selected_gdf = self.gdf[self.gdf[column] == selection_values]
+            selected_gdf = self[self[column] == selection_values]
         elif isinstance(selection_values, Iterable):
-            selected_gdf = self.gdf[self.gdf[column].isin(selection_values)]
+            selected_gdf = self[self[column].isin(selection_values)]
 
         selected_gdf = selected_gdf[~selected_gdf.duplicated()]
         # selection = self.data.loc[self.data["nr"].isin(selected_header["nr"])]
@@ -275,8 +289,40 @@ class PointHeader(AbstractHeader, GeopandasExportMixin):
 
         return self.__class__(selected)
 
-    def get_area_labels(self):
-        raise NotImplementedError("Add function logic")
+    def get_area_labels(
+        self, polygon_gdf: gpd.GeoDataFrame, column_name: str, include_in_header=False
+    ) -> pd.DataFrame:
+        """
+        Find in which area (polygons) the point data locations fall. e.g. to determine
+        in which geomorphological unit points are located.
+
+        Parameters
+        ----------
+        polygon_gdf : gpd.GeoDataFrame
+            GeoDataFrame with polygons.
+        column_name : str
+            The column name to find the labels in.
+        include_in_header : bool, optional
+            Whether to add the acquired data to the header table or not, by default
+            False.
+
+        Returns
+        -------
+        pd.DataFrame
+            Borehole ids and the polygon label they are in. If include_in_header = True,
+            a column containing the generated data will be added inplace to
+            :py:attr:`~geost.base.PointDataCollection.header`.
+        """
+        polygon_gdf = self.__check_and_coerce_crs(polygon_gdf)
+
+        all_nrs = self.header["nr"]
+        area_labels = spatial.find_area_labels(self.header, polygon_gdf, column_name)
+        area_labels = pd.concat([all_nrs, area_labels], axis=1)
+
+        if include_in_header:
+            self._header = self.header.merge(area_labels, on="nr")
+        else:
+            return area_labels
 
     def to_shape(self):
         raise NotImplementedError("Add function logic")
@@ -288,13 +334,24 @@ class PointHeader(AbstractHeader, GeopandasExportMixin):
 class LineHeader(AbstractHeader, GeopandasExportMixin):
     def __init__(self, gdf):
         self.gdf = gdf
+        self.__horizontal_reference = self.gdf.crs
 
     def __repr__(self):
         return f"{self.__class__.__name__} instance containing {len(self.gdf)} objects"
 
+    def __getitem__(self, column):
+        return self.gdf[column]
+
+    def __setitem__(self, column, key):
+        self.gdf[key] = column
+
     @property
     def gdf(self):
         return self._gdf
+
+    @property
+    def horizontal_reference(self):
+        return self.__horizontal_reference
 
     @gdf.setter
     @validate_header
