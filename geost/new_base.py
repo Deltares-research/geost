@@ -267,6 +267,12 @@ class LayeredData(AbstractData, PandasExportMixin):
         data = self._df
         return f"{name} instance:\n{data}"
 
+    def __getitem__(self, column):
+        return self.df[column]
+
+    def __setitem__(self, column, item):
+        self.df[column] = item
+
     @property
     def df(self):
         return self._df
@@ -278,7 +284,7 @@ class LayeredData(AbstractData, PandasExportMixin):
 
     def to_header(self):
         header_columns = ["nr", "x", "y", "mv", "end"]
-        header = self._df[header_columns].drop_duplicates().reset_index(drop=True)
+        header = self[header_columns].drop_duplicates().reset_index(drop=True)
         warnings.warn(
             (
                 "Header does not contain a crs. Consider setting crs using "
@@ -328,6 +334,10 @@ class LayeredData(AbstractData, PandasExportMixin):
             Instance of either :class:`~geost.borehole.BoreholeCollection` or
             :class:`~geost.borehole.CptCollection` containing only objects selected by
             this method.
+
+        Examples
+        --------
+
         """
         if column not in self.df.columns:
             raise IndexError(
@@ -337,7 +347,16 @@ class LayeredData(AbstractData, PandasExportMixin):
         if isinstance(selection_values, str):
             selection_values = [selection_values]
 
-        raise NotImplementedError()
+        selected = self.df.copy()
+        if how == "or":
+            valid = self["nr"][self[column].isin(selection_values)].unique()
+            selected = selected[selected['nr'].isin(valid)]
+        elif how == 'and':
+            for value in selection_values:
+                valid = self['nr'][self[column] == value].unique()
+                selected = selected[selected['nr'].isin(valid)]
+
+        return self.__class__(selected)
 
     def slice_depth_interval(self):
         raise NotImplementedError()
