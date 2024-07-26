@@ -288,7 +288,49 @@ class LayeredData(AbstractData, PandasExportMixin):
             header, self, 28992, "NAP"
         )  # NOTE: Type of Collection may need to be inferred in the future.
 
-    def select_by_values(self):
+    def select_by_values(
+        self, column: str, selection_values: str | Iterable, how: str = "or"
+    ):
+        """
+        Select pointdata based on the presence of given values in the given columns.
+        Can be used for example to return a BoreholeCollection of boreholes that contain
+        peat in the lithology column. This can be achieved by passing e.g. the following
+        arguments to the method:
+
+        self.select_by_values("lith", ["V", "K"], how="and"):
+        Returns boreholes where lithoclasses "V" and "K" are present at the same time.
+
+        self.select_by_values("lith", ["V", "K"], how="or"):
+        Returns boreholes where either lithoclasses "V" or "K" are present
+        (or both by coincidence)
+
+        Parameters
+        ----------
+        column : str
+            Name of column that contains categorical data to use when looking for
+            values.
+        selection_values : str | Iterable
+            Values to look for in the column.
+        how : str
+            Either "and" or "or". "and" requires all selection values to be present in
+            column for selection. "or" will select the core if any one of the
+            selection_values are found in the column. Default is "and".
+
+        Returns
+        -------
+        Child of :class:`~geost.base.PointDataCollection`.
+            Instance of either :class:`~geost.borehole.BoreholeCollection` or
+            :class:`~geost.borehole.CptCollection` containing only objects selected by
+            this method.
+        """
+        if column not in self.df.columns:
+            raise IndexError(
+                f"The column '{column}' does not exist and cannot be used for selection"
+            )
+
+        if isinstance(selection_values, str):
+            selection_values = [selection_values]
+
         raise NotImplementedError()
 
     def slice_depth_interval(self):
