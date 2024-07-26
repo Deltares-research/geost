@@ -1,3 +1,4 @@
+import numpy as np
 import pytest
 from numpy.testing import assert_array_equal
 
@@ -36,3 +37,23 @@ class TestLayeredData:
         selected_nrs = selected["nr"].unique()
 
         assert_array_equal(selected_nrs, expected_nrs)
+
+    @pytest.mark.unittest
+    def test_slice_by_values(self, borehole_data):
+        sliced = borehole_data.slice_by_values("lith", "Z")
+
+        expected_boreholes_with_sand = ["A", "C", "D", "E"]
+        expected_length = 10
+
+        assert_array_equal(sliced["nr"].unique(), expected_boreholes_with_sand)
+        assert np.all(sliced["lith"] == "Z")
+        assert len(sliced) == expected_length
+
+        sliced = borehole_data.slice_by_values("lith", "Z", invert=True)
+
+        expected_boreholes_without_sand = ["A", "B", "C", "D"]
+        expected_length = 15
+
+        assert_array_equal(sliced["nr"].unique(), expected_boreholes_without_sand)
+        assert ~np.any(sliced["lith"] == "Z")
+        assert len(sliced) == expected_length

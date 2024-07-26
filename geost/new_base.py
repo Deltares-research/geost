@@ -398,6 +398,9 @@ class LayeredData(AbstractData, PandasExportMixin):
     def __setitem__(self, column, item):
         self.df[column] = item
 
+    def __len__(self):
+        return len(self.df)
+
     @property
     def df(self):
         return self._df
@@ -485,8 +488,52 @@ class LayeredData(AbstractData, PandasExportMixin):
     def slice_depth_interval(self):
         raise NotImplementedError()
 
-    def slice_by_values(self):
-        raise NotImplementedError()
+    def slice_by_values(
+        self, column: str, selection_values: str | Iterable, invert: bool = False
+    ):
+        """
+        Slice rows from data based on matching condition. E.g. only return rows with
+        a certain lithology in the collection object.
+
+        Parameters
+        ----------
+        column : str
+            Name of column that contains categorical data to use when looking for
+            values.
+        selection_values : str | Iterable
+            Values to look for in the column.
+        invert : bool
+            Invert the slicing action, so remove layers with selected values instead of
+            keeping them.
+
+        Returns
+        -------
+        Child of :class:`~geost.base.LayeredData`.
+            New instance containing only the data objects selected by this method.
+
+        Examples
+        --------
+        Return only rows in borehole data contain sand ("Z") as lithology:
+
+        >>> boreholes.slice_by_values("lith", "Z")
+
+        If you want all the rows that may contain everything but sand, use the "invert"
+        option:
+
+        >>> boreholes.slice_by_values("lith", "Z", invert=True)
+
+        """
+        if isinstance(selection_values, str):
+            selection_values = [selection_values]
+
+        sliced = self.df.copy()
+
+        if invert:
+            sliced = sliced[~sliced[column].isin(selection_values)]
+        else:
+            sliced = sliced[sliced[column].isin(selection_values)]
+
+        return self.__class__(sliced)
 
     def get_cumulative_layer_thickness(self):
         raise NotImplementedError()
