@@ -429,17 +429,8 @@ class LayeredData(AbstractData, PandasExportMixin):
         self, column: str, selection_values: str | Iterable, how: str = "or"
     ):
         """
-        Select pointdata based on the presence of given values in the given columns.
-        Can be used for example to return a BoreholeCollection of boreholes that contain
-        peat in the lithology column. This can be achieved by passing e.g. the following
-        arguments to the method:
-
-        self.select_by_values("lith", ["V", "K"], how="and"):
-        Returns boreholes where lithoclasses "V" and "K" are present at the same time.
-
-        self.select_by_values("lith", ["V", "K"], how="or"):
-        Returns boreholes where either lithoclasses "V" or "K" are present
-        (or both by coincidence)
+        Select data based on the presence of given values in a given column. Can be used
+        for example to select boreholes that contain peat in the lithology column.
 
         Parameters
         ----------
@@ -447,7 +438,7 @@ class LayeredData(AbstractData, PandasExportMixin):
             Name of column that contains categorical data to use when looking for
             values.
         selection_values : str | Iterable
-            Values to look for in the column.
+            Value or values to look for in the column.
         how : str
             Either "and" or "or". "and" requires all selection values to be present in
             column for selection. "or" will select the core if any one of the
@@ -455,13 +446,20 @@ class LayeredData(AbstractData, PandasExportMixin):
 
         Returns
         -------
-        Child of :class:`~geost.base.PointDataCollection`.
-            Instance of either :class:`~geost.borehole.BoreholeCollection` or
-            :class:`~geost.borehole.CptCollection` containing only objects selected by
-            this method.
+        Child of :class:`~geost.base.LayeredData`.
+            New instance containing only the data objects selected by this method.
 
         Examples
         --------
+        To select boreholes where both clay ("K") and peat ("V") are present at the same
+        time, use "and" as a selection method:
+
+        >>> boreholes.select_by_values("lith", ["V", "K"], how="and")
+
+        To select boreholes that can have one, or both lithologies, use or as the selection
+        method:
+
+        >>> boreholes.select_by_values("lith", ["V", "K"], how="and")
 
         """
         if column not in self.df.columns:
@@ -475,11 +473,12 @@ class LayeredData(AbstractData, PandasExportMixin):
         selected = self.df.copy()
         if how == "or":
             valid = self["nr"][self[column].isin(selection_values)].unique()
-            selected = selected[selected['nr'].isin(valid)]
-        elif how == 'and':
+            selected = selected[selected["nr"].isin(valid)]
+
+        elif how == "and":
             for value in selection_values:
-                valid = self['nr'][self[column] == value].unique()
-                selected = selected[selected['nr'].isin(valid)]
+                valid = self["nr"][self[column] == value].unique()
+                selected = selected[selected["nr"].isin(valid)]
 
         return self.__class__(selected)
 

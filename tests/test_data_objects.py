@@ -6,9 +6,7 @@ from geost.new_base import BoreholeCollection, PointHeader
 
 class TestLayeredData:
     @pytest.mark.unittest
-    def test_to_header(
-        self, borehole_data
-    ):  # TODO: Use __getitem__ functionality of header
+    def test_to_header(self, borehole_data):
         expected_columns = ["nr", "x", "y", "mv", "end", "geometry"]
 
         header = borehole_data.to_header()
@@ -16,7 +14,7 @@ class TestLayeredData:
         assert isinstance(header, PointHeader)
         assert_array_equal(header.gdf.columns, expected_columns)
         assert len(header.gdf) == 5
-        assert header.gdf["nr"].nunique() == 5
+        assert header["nr"].nunique() == 5
 
     @pytest.mark.unittest
     def test_to_collection(self, borehole_data):
