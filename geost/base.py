@@ -444,7 +444,7 @@ class PointDataCollection:
             :class:`~geost.borehole.CptCollection` containing only objects selected by
             this method.
         """
-        selected_header = spatial.header_from_bbox(
+        selected_header = spatial.gdf_from_bbox(
             self.header, xmin, xmax, ymin, ymax, invert
         )
         selected_header = selected_header[~selected_header.duplicated()]
@@ -485,7 +485,7 @@ class PointDataCollection:
         """
         point_gdf = self.__check_and_coerce_crs(point_gdf)
 
-        selected_header = spatial.header_from_points(
+        selected_header = spatial.gdf_from_points(
             self.header, point_gdf, buffer, invert
         )
         selected_header = selected_header[~selected_header.duplicated()]
@@ -526,7 +526,7 @@ class PointDataCollection:
         """
         line_gdf = self.__check_and_coerce_crs(line_gdf)
 
-        selected_header = spatial.header_from_lines(
+        selected_header = spatial.gdf_from_lines(
             self.header, line_gdf, buffer, invert
         )
         selected_header = selected_header[~selected_header.duplicated()]
@@ -565,7 +565,7 @@ class PointDataCollection:
         """
         polygon_gdf = self.__check_and_coerce_crs(polygon_gdf)
 
-        selected_header = spatial.header_from_polygons(
+        selected_header = spatial.gdf_from_polygons(
             self.header, polygon_gdf, buffer, invert
         )
         selected_header = selected_header[~selected_header.duplicated()]

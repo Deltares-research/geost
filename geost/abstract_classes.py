@@ -1,0 +1,219 @@
+from abc import ABC, abstractmethod
+
+
+class AbstractHeader(ABC):
+    @property
+    @abstractmethod
+    def gdf(self):
+        pass
+
+    @gdf.setter
+    @abstractmethod
+    def gdf(self, gdf):
+        pass
+
+    @abstractmethod
+    def get(self):
+        pass
+
+    @abstractmethod
+    def select_within_bbox(self):
+        pass
+
+    @abstractmethod
+    def select_with_points(self):
+        pass
+
+    @abstractmethod
+    def select_with_lines(self):
+        pass
+
+    @abstractmethod
+    def select_within_polygons(self):
+        pass
+
+    @abstractmethod
+    def select_by_depth(self):
+        pass
+
+    @abstractmethod
+    def select_by_length(self):
+        pass
+
+    @abstractmethod
+    def get_area_labels(self):
+        pass
+
+
+class AbstractData(ABC):
+    @property
+    @abstractmethod
+    def df(self):
+        pass
+
+    @df.setter
+    @abstractmethod
+    def df(self, df):
+        pass
+
+    @abstractmethod
+    def to_header(self):
+        pass
+
+    @abstractmethod
+    def to_collection(self):
+        pass
+
+    @abstractmethod
+    def select_by_values(self):
+        pass
+
+    @abstractmethod
+    def slice_depth_interval(self):
+        pass
+
+    @abstractmethod
+    def slice_by_values(self):
+        pass
+
+    @abstractmethod
+    def get_cumulative_layer_thickness(self):
+        # Not sure if this should be here, potentially unsuitable with DiscreteData
+        pass
+
+    @abstractmethod
+    def get_layer_top(self):
+        pass
+
+    @abstractmethod
+    def to_vtm(self):
+        pass
+
+    @abstractmethod
+    def to_datafusiontools(self):
+        # supporting this is low priority, perhaps even deprecate
+        pass
+
+
+class AbstractCollection(ABC):
+    @property
+    @abstractmethod
+    def header(self):
+        pass
+
+    @property
+    @abstractmethod
+    def data(self):
+        pass
+
+    @property
+    def n_points(self):
+        pass
+
+    @property
+    @abstractmethod
+    def horizontal_reference(self):  # Move to header class in future refactor
+        pass
+
+    @property
+    @abstractmethod
+    def vertical_reference(self):  # move to data class in future refactor
+        pass
+
+    @header.setter
+    @abstractmethod
+    def header(self, header):
+        pass
+
+    @data.setter
+    @abstractmethod
+    def data(self, data):
+        pass
+
+    @horizontal_reference.setter
+    @abstractmethod
+    def horizontal_reference(self, to_epsg: int):
+        pass
+
+    @vertical_reference.setter
+    @abstractmethod
+    def vertical_reference(self, to_epsg: str):  # will use epsg after refactor
+        pass
+
+    @abstractmethod
+    def get(self):
+        pass
+
+    @abstractmethod
+    def reset_header(self):
+        pass
+
+    @abstractmethod
+    def check_header_to_data_alignment(self):
+        pass
+
+    @abstractmethod
+    def check_and_coerce_crs(self):
+        pass
+
+    @abstractmethod
+    def select_within_bbox(self):
+        pass
+
+    @abstractmethod
+    def select_with_points(self):
+        pass
+
+    @abstractmethod
+    def select_with_lines(self):
+        pass
+
+    @abstractmethod
+    def select_within_polygons(self):
+        pass
+
+    @abstractmethod
+    def select_by_depth(self):
+        pass
+
+    @abstractmethod
+    def select_by_length(self):
+        pass
+
+    @abstractmethod
+    def get_area_labels(self):
+        pass
+
+    @abstractmethod
+    def select_by_values(self):
+        pass
+
+    @abstractmethod
+    def slice_depth_interval(self):
+        pass
+
+    @abstractmethod
+    def slice_by_values(self):
+        pass
+
+    @abstractmethod
+    def get_cumulative_layer_thickness(self):
+        # Not sure if this should be here, potentially unsuitable with DiscreteData
+        # These kind of methods should go to a seperate layer_analysis module with
+        # functions to cover such analyses
+        pass
+
+    @abstractmethod
+    def get_layer_top(self):
+        # These kind of methods should go to a seperate layer_analysis module with
+        # functions to cover such analyses
+        pass
+
+    @abstractmethod
+    def to_vtm(self):
+        pass
+
+    @abstractmethod
+    def to_datafusiontools(self):
+        # supporting this is low priority, perhaps even deprecate
+        pass
