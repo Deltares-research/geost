@@ -7,7 +7,7 @@ import pytest
 import xarray as xr
 from numpy.testing import assert_allclose
 
-from geost import read_sst_cores, spatial
+from geost import spatial
 from geost.borehole import BoreholeCollection
 from geost.utils import dataframe_to_geodataframe
 
@@ -38,6 +38,16 @@ class TestSpatialUtils:
     def test_dataframe_to_geodataframe(self, dataframe_with_coordinates):
         gdf = dataframe_to_geodataframe(dataframe_with_coordinates, crs=28992)
         assert isinstance(gdf["geometry"].dtype, gpd.array.GeometryDtype)
+
+    @pytest.mark.unittest
+    def test_check_gdf_instance(self, point_header_gdf):
+        point_header_gdf.to_parquet("temp_file.geoparquet")
+        point_header_gdf_file = "temp_file.geoparquet"
+        gdf_gdf = spatial.check_gdf_instance(point_header_gdf)
+        gdf_file_gdf = spatial.check_gdf_instance(point_header_gdf_file)
+        assert isinstance(gdf_gdf, gpd.GeoDataFrame)
+        assert isinstance(gdf_file_gdf, gpd.GeoDataFrame)
+        Path("temp_file.geoparquet").unlink()
 
     @pytest.mark.unittest
     def test_get_raster_values(self, raster, dataframe_with_coordinates):

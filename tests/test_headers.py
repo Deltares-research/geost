@@ -1,10 +1,11 @@
+import tempfile
 from pathlib import Path
 
 import geopandas as gpd
 import pandas as pd
 import pytest
 from numpy.testing import assert_allclose
-from shapely.geometry import LineString, Point
+from shapely.geometry import LineString, Point, Polygon
 
 from geost.new_base import LineHeader, PointHeader
 
@@ -63,3 +64,25 @@ class TestHeaders:
         )
         assert len(point_header_sel.gdf) == 21
         assert len(point_header_sel_inverted.gdf) == 4
+
+    @pytest.mark.unittest
+    def test_select_within_polygons(self, point_header_gdf):
+        point_header = PointHeader(point_header_gdf)
+        selection_polygon = [Polygon(((2, 1), (5, 4), (4, 5), (1, 2)))]
+        selection_gdf = gpd.GeoDataFrame({"id": [0]}, geometry=selection_polygon)
+
+        # Geodataframe based selection
+        point_header_sel = point_header.select_within_polygons(selection_gdf)
+        point_header_sel_inverted = point_header.select_within_polygons(
+            selection_gdf, invert=True
+        )
+        point_header_sel_buffered = point_header.select_within_polygons(
+            selection_gdf, buffer=0.1
+        )
+        point_header_sel_inverted_buffered = point_header.select_within_polygons(
+            selection_gdf, buffer=0.1, invert=True
+        )
+        assert len(point_header_sel.gdf) == 3
+        assert len(point_header_sel_inverted.gdf) == 22
+        assert len(point_header_sel_buffered.gdf) == 11
+        assert len(point_header_sel_inverted_buffered.gdf) == 14
