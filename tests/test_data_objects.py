@@ -1,7 +1,7 @@
 import pytest
 from numpy.testing import assert_array_equal
 
-from geost.new_base import PointHeader
+from geost.new_base import BoreholeCollection, PointHeader
 
 
 class TestLayeredData:
@@ -15,3 +15,8 @@ class TestLayeredData:
         assert_array_equal(header.gdf.columns, expected_columns)
         assert len(header.gdf) == 13
         assert header.gdf["nr"].nunique() == 13
+
+    @pytest.mark.unittest
+    def test_to_collection(self, borehole_data):
+        collection = borehole_data.to_collection()
+        assert isinstance(collection, BoreholeCollection)

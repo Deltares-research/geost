@@ -285,9 +285,7 @@ class LayeredData(AbstractData, PandasExportMixin):
     def to_collection(self):
         header = self.to_header()
         return BoreholeCollection(
-            header,
-            self,
-            28992,
+            header, self, 28992, "NAP"
         )  # NOTE: Type of Collection may need to be inferred in the future.
 
     def select_by_values(self):
