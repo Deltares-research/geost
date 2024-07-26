@@ -34,10 +34,13 @@ def check_gdf_instance(
     elif isinstance(gdf_or_path, gpd.GeoDataFrame):
         gdf = gdf_or_path
 
+    # Make sure you don't get a view of gdf returned
+    gdf = gdf.copy()
+
     return gdf
 
 
-def gdf_from_bbox(
+def select_points_within_bbox(
     gdf: str | WindowsPath | gpd.GeoDataFrame,
     xmin: float | int,
     xmax: float | int,
@@ -46,7 +49,7 @@ def gdf_from_bbox(
     invert: bool = False,
 ) -> gpd.GeoDataFrame:
     """
-    Make a selection of geometries based on a user-given bounding box.
+    Make a selection of point geometries based on a user-given bounding box.
 
     Parameters
     ----------
@@ -75,21 +78,21 @@ def gdf_from_bbox(
     # Selection logic
     x = gdf["geometry"].x
     y = gdf["geometry"].y
-    if not invert:
-        gdf_selected = gdf[(x >= xmin) & (x <= xmax) & (y >= ymin) & (y <= ymax)]
-    elif invert:
+    if invert:
         gdf_selected = gdf[(x < xmin) | (x > xmax) | (y < ymin) | (y > ymax)]
+    else:
+        gdf_selected = gdf[(x >= xmin) & (x <= xmax) & (y >= ymin) & (y <= ymax)]
     return gdf_selected
 
 
-def gdf_from_points(
+def select_points_near_points(
     gdf: str | WindowsPath | gpd.GeoDataFrame,
     point_gdf: str | WindowsPath | gpd.GeoDataFrame,
     buffer: float | int,
     invert: bool = False,
 ) -> gpd.GeoDataFrame:
     """
-    Make a selection of geometries based on point geometries and a buffer.
+    Make a selection of point geometries based on point geometries and a buffer.
 
     Parameters
     ----------
@@ -112,11 +115,10 @@ def gdf_from_points(
     point_gdf = check_gdf_instance(point_gdf)
 
     # Selection logic
-    data_points = gdf[["x", "y"]].values
-    if isinstance(point_gdf, gpd.GeoDataFrame):
-        query_points = np.array([list(pnt.coords)[0] for pnt in point_gdf.geometry])
-    else:
-        query_points = np.array(point_gdf.geometry.coords)
+    data_points = np.array([gdf["geometry"].x, gdf["geometry"].y]).transpose()
+    query_points = np.array(
+        [point_gdf["geometry"].x, point_gdf["geometry"].y]
+    ).transpose()
 
     bool_array = np.full(len(data_points), False)
     for query_point in query_points:
@@ -131,14 +133,14 @@ def gdf_from_points(
     return gdf_selected
 
 
-def gdf_from_lines(
+def select_points_near_lines(
     gdf: str | WindowsPath | gpd.GeoDataFrame,
     line_gdf: str | WindowsPath | gpd.GeoDataFrame,
     buffer: float | int,
     invert: bool = False,
 ) -> gpd.GeoDataFrame:
     """
-    Make a selection of geometries based on line geometries and a buffer.
+    Make a selection of point geometries based on line geometries and a buffer.
 
     Parameters
     ----------
@@ -162,18 +164,22 @@ def gdf_from_lines(
 
     # Selection logic
     line_gdf["geometry"] = line_gdf.buffer(distance=buffer)
-    gdf_selected = gpd.sjoin(gdf, line_gdf)[["nr", "x", "y", "mv", "end", "geometry"]]
+    if invert:
+        gdf_selected = gdf[~gdf.geometry.within(line_gdf.geometry.unary_union)]
+    else:
+        gdf_selected = gdf[gdf.geometry.within(line_gdf.geometry.unary_union)]
     return gdf_selected
 
 
-def gdf_from_polygons(
+def select_points_within_polygons(
     gdf: str | WindowsPath | gpd.GeoDataFrame,
     polygon_gdf: str | WindowsPath | gpd.GeoDataFrame,
     buffer: float | int = 0,
     invert: bool = False,
 ) -> gpd.GeoDataFrame:
     """
-    Make a selection of geometries based on polygon geometries and an optional buffer.
+    Make a selection of point geometries based on polygon geometries and an optional
+    buffer.
 
     Parameters
     ----------

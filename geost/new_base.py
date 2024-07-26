@@ -16,6 +16,8 @@ type HeaderObject = LineHeader | PointHeader
 
 type Coordinate = int | float
 
+pd.set_option("mode.copy_on_write", True)
+
 
 class PointHeader(AbstractHeader, GeopandasExportMixin):
     def __init__(self, gdf):
@@ -106,7 +108,7 @@ class PointHeader(AbstractHeader, GeopandasExportMixin):
             Instance of :class:`~geost.headers.PointHeader`containing only selected
             geometries.
         """
-        gdf_selected = spatial.gdf_from_bbox(
+        gdf_selected = spatial.select_points_within_bbox(
             self.gdf, xmin, xmax, ymin, ymax, invert=invert
         )
         return self.__class__(gdf_selected)
@@ -135,7 +137,9 @@ class PointHeader(AbstractHeader, GeopandasExportMixin):
             Instance of :class:`~geost.headers.PointHeader`containing only selected
             geometries.
         """
-        gdf_selected = spatial.gdf_from_points(self.gdf, points, buffer, invert=invert)
+        gdf_selected = spatial.select_points_near_points(
+            self.gdf, points, buffer, invert=invert
+        )
         return self.__class__(gdf_selected)
 
     def select_with_lines(
@@ -162,7 +166,9 @@ class PointHeader(AbstractHeader, GeopandasExportMixin):
             Instance of :class:`~geost.headers.PointHeader`containing only selected
             geometries.
         """
-        gdf_selected = spatial.gdf_from_lines(self.gdf, lines, buffer, invert=invert)
+        gdf_selected = spatial.select_points_near_lines(
+            self.gdf, lines, buffer, invert=invert
+        )
         return self.__class__(gdf_selected)
 
     def select_within_polygons(
@@ -190,7 +196,7 @@ class PointHeader(AbstractHeader, GeopandasExportMixin):
             Instance of :class:`~geost.headers.PointHeader`containing only selected
             geometries.
         """
-        gdf_selected = spatial.gdf_from_polygons(
+        gdf_selected = spatial.select_points_within_polygons(
             self.gdf, polygons, buffer, invert=invert
         )
         return self.__class__(gdf_selected)
