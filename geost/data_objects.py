@@ -65,9 +65,8 @@ class LayeredData(AbstractData, PandasExportMixin):
 
     def __repr__(self):
         name = self.__class__.__name__
-        data = self._df.head()
-        rows, columns = self._df.shape
-        return f"{name} instance:\n{data}\n[{rows} rows x {columns} columns]"
+        data = self._df
+        return f"{name} instance:\n{data}"
 
     @property
     def df(self):

@@ -19,22 +19,22 @@ class TestSpatial:
         return gdf
 
     @pytest.mark.unittest
-    def test_select_within_polygon_no_buffer(self, boreholes, selection_polygon):
-        boreholes_selected = boreholes.select_within_polygons(selection_polygon)
+    def test_select_within_polygon_no_buffer(self, borehole_collection, selection_polygon):
+        boreholes_selected = borehole_collection.select_within_polygons(selection_polygon)
         assert boreholes_selected.n_points == 3
         assert len(boreholes_selected.data) == 66
 
     @pytest.mark.unittest
-    def test_select_within_polygon_buffer(self, boreholes, selection_polygon):
-        boreholes_selected = boreholes.select_within_polygons(
+    def test_select_within_polygon_buffer(self, borehole_collection, selection_polygon):
+        boreholes_selected = borehole_collection.select_within_polygons(
             selection_polygon, buffer=1000
         )
         assert boreholes_selected.n_points == 8
         assert len(boreholes_selected.data) == 226
 
     @pytest.mark.unittest
-    def test_select_within_polygon_invert(self, boreholes, selection_polygon):
-        boreholes_selected = boreholes.select_within_polygons(
+    def test_select_within_polygon_invert(self, borehole_collection, selection_polygon):
+        boreholes_selected = borehole_collection.select_within_polygons(
             selection_polygon, invert=True
         )
         assert boreholes_selected.n_points == 10
