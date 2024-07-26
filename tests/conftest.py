@@ -4,7 +4,7 @@ import pandas as pd
 import pytest
 
 from geost import read_sst_cores
-from geost.data_objects import LayeredData
+from geost.new_base import LayeredData
 
 
 @pytest.fixture

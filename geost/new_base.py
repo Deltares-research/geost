@@ -1,58 +1,20 @@
-from abc import ABC, abstractmethod
+import warnings
 from pathlib import WindowsPath
 from typing import Iterable
 
 import geopandas as gpd
+import pandas as pd
 
 from geost import spatial
-from geost.mixins import GeopandasExportMixin
-from geost.validate.decorators import validate_header
+from geost.abstract_classes import AbstractCollection, AbstractData, AbstractHeader
+from geost.mixins import GeopandasExportMixin, PandasExportMixin
+from geost.utils import dataframe_to_geodataframe
+from geost.validate.decorators import validate_data, validate_header
+
+type DataObject = DiscreteData | LayeredData
+type HeaderObject = LineHeader | PointHeader
 
 type Coordinate = int | float
-
-
-class AbstractHeader(ABC):
-    @property
-    @abstractmethod
-    def gdf(self):
-        pass
-
-    @gdf.setter
-    @abstractmethod
-    def gdf(self, gdf):
-        pass
-
-    @abstractmethod
-    def get(self):
-        pass
-
-    @abstractmethod
-    def select_within_bbox(self):
-        pass
-
-    @abstractmethod
-    def select_with_points(self):
-        pass
-
-    @abstractmethod
-    def select_with_lines(self):
-        pass
-
-    @abstractmethod
-    def select_within_polygons(self):
-        pass
-
-    @abstractmethod
-    def select_by_depth(self):
-        pass
-
-    @abstractmethod
-    def select_by_length(self):
-        pass
-
-    @abstractmethod
-    def get_area_labels(self):
-        pass
 
 
 class PointHeader(AbstractHeader, GeopandasExportMixin):
@@ -290,40 +252,243 @@ class LineHeader(AbstractHeader, GeopandasExportMixin):
         raise NotImplementedError("Add function logic")
 
 
-class HeaderFactory:
-    def __init__(self):
-        self._types = {}
+class LayeredData(AbstractData, PandasExportMixin):
+    def __init__(self, df: pd.DataFrame):
+        self.df = df
 
-    def register_header(self, type_, header):
-        self._types[type_] = header
+    def __repr__(self):
+        name = self.__class__.__name__
+        data = self._df
+        return f"{name} instance:\n{data}"
 
-    @staticmethod
-    def get_geometry_type(gdf):
-        geometry_type = gdf.geom_type.unique()
-        if len(geometry_type) > 1:
-            return "Multiple geometries"
+    @property
+    def df(self):
+        return self._df
+
+    @df.setter
+    # @validate_data
+    def df(self, df):
+        self._df = df
+
+    def to_header(self):
+        header_columns = ["nr", "x", "y", "mv", "end"]
+        header = self._df[header_columns].drop_duplicates().reset_index(drop=True)
+        warnings.warn(
+            (
+                "Header does not contain a crs. Consider setting crs using "
+                "header.set_horizontal_reference()."
+            )
+        )
+        header = dataframe_to_geodataframe(header)
+        return PointHeader(header)
+
+    def to_collection(self):
+        header = self.to_header()
+        return BoreholeCollection(
+            header,
+            self,
+            28992,
+        )  # NOTE: Type of Collection may need to be inferred in the future.
+
+    def select_by_values(self):
+        raise NotImplementedError()
+
+    def slice_depth_interval(self):
+        raise NotImplementedError()
+
+    def slice_by_values(self):
+        raise NotImplementedError()
+
+    def get_cumulative_layer_thickness(self):
+        raise NotImplementedError()
+        pass
+
+    def get_layer_top(self):
+        raise NotImplementedError()
+
+    def to_vtm(self):
+        raise NotImplementedError()
+
+    def to_datafusiontools(self):
+        raise NotImplementedError()
+
+
+class DiscreteData(AbstractData, PandasExportMixin):
+    def __init__(self, df):
+        raise NotImplementedError(f"{self.__class__.__name__} not supported yet")
+
+    @property
+    def df(self):
+        return self._df
+
+    @df.setter
+    @validate_data
+    def df(self, df):
+        self._df = df
+
+    def to_header(self):
+        raise NotImplementedError()
+
+    def to_collection(self):
+        raise NotImplementedError()
+
+    def select_by_values(self):
+        raise NotImplementedError()
+
+    def slice_depth_interval(self):
+        raise NotImplementedError()
+
+    def slice_by_values(self):
+        raise NotImplementedError()
+
+    def get_cumulative_layer_thickness(self):
+        raise NotImplementedError()
+        pass
+
+    def get_layer_top(self):
+        raise NotImplementedError()
+
+    def to_vtm(self):
+        raise NotImplementedError()
+
+    def to_datafusiontools(self):
+        raise NotImplementedError()
+
+
+class Collection(AbstractCollection):
+    def __init__(
+        self,
+        header: HeaderObject,
+        data: DataObject,
+        horizontal_reference: int,
+        vertical_reference: str,
+    ):
+        self.horizontal_reference = horizontal_reference
+        self.vertical_reference = vertical_reference
+        self.header = header
+        self.data = data
+
+    def __new__(cls, *args, **kwargs):
+        if cls is Collection:
+            raise TypeError(
+                f"Cannot construct {cls.__name__} directly: construct class from its",
+                "children instead",
+            )
         else:
-            return geometry_type[0]
+            return object.__new__(cls)
 
-    def create_from(self, gdf, **kwargs):
-        geometry_type = self.get_geometry_type(gdf)
-        header = self._types.get(geometry_type)
-        if not header:
-            raise ValueError(f"No Header type available for {geometry_type}")
-        return header(gdf, **kwargs)
+    def __repr__(self):
+        return f"{self.__class__.__name__}:\n# header = {self.n_points}"
+
+    @property
+    def header(self):
+        return self._header
+
+    @property
+    def data(self):
+        return self._data
+
+    @property
+    def n_points(self):  # No change
+        """
+        Number of objects in the collection.
+        """
+        return len(self.header.df)
+
+    @property
+    def horizontal_reference(self):  # Move to header class in future refactor
+        return self._horizontal_reference
+
+    @property
+    def vertical_reference(self):  # move to data class in future refactor
+        return self._vertical_reference
+
+    @header.setter
+    def header(self, header):
+        if isinstance(header, LineHeader | PointHeader):
+            self._header = header
+        elif "_header" in self.__dict__.keys() and isinstance(header, gpd.GeoDataFrame):
+            self._header = self._header.__class__(header)
+        self.check_header_to_data_alignment()
+
+    @data.setter
+    def data(self, data):
+        if isinstance(data, LayeredData | DiscreteData):
+            self._data = data
+        elif "_data" in self.__dict__.keys() and isinstance(data, pd.DataFrame):
+            self._data = self._header.__class__(data)
+        self.check_header_to_data_alignment()
+
+    def horizontal_reference(self, to_epsg):
+        raise NotImplementedError("Add function logic")
+
+    def vertical_reference(self, to_epsg):
+        raise NotImplementedError("Add function logic")
+
+    def get(self):
+        raise NotImplementedError("Add function logic")
+
+    def reset_header(self):
+        raise NotImplementedError("Add function logic")
+
+    def check_header_to_data_alignment(self):
+        pass
+
+    def check_and_coerce_crs(self):
+        pass
+
+    def select_within_bbox(self):
+        raise NotImplementedError("Add function logic")
+
+    def select_with_points(self):
+        raise NotImplementedError("Add function logic")
+
+    def select_with_lines(self):
+        raise NotImplementedError("Add function logic")
+
+    def select_within_polygons(self):
+        raise NotImplementedError("Add function logic")
+
+    def select_by_depth(self):
+        raise NotImplementedError("Add function logic")
+
+    def select_by_length(self):
+        raise NotImplementedError("Add function logic")
+
+    def get_area_labels(self):
+        raise NotImplementedError("Add function logic")
+
+    def select_by_values(self):
+        raise NotImplementedError("Add function logic")
+
+    def slice_depth_interval(self):
+        raise NotImplementedError("Add function logic")
+
+    def slice_by_values(self):
+        raise NotImplementedError("Add function logic")
+
+    def get_cumulative_layer_thickness(self):
+        # Not sure if this should be here, potentially unsuitable with DiscreteData
+        raise NotImplementedError("Add function logic")
+
+    def get_layer_top(self):
+        raise NotImplementedError("Add function logic")
+
+    def to_vtm(self):
+        raise NotImplementedError("Add function logic")
+
+    def to_datafusiontools(self):
+        # supporting this is low priority, perhaps even deprecate
+        raise NotImplementedError("Add function logic")
 
 
-header_factory = HeaderFactory()
-header_factory.register_header("Point", PointHeader)
-header_factory.register_header("Line", LineHeader)
+class BoreholeCollection(Collection):
+    pass
 
 
-if __name__ == "__main__":
+class CptCollection(Collection):
+    pass
 
-    gdf_test = gpd.read_parquet(
-        r"c:\Users\onselen\Development\experimenteel\drgi_wadden.geoparquet"
-    )
-    pheader = PointHeader(gdf_test)
-    pheader.select_within_bbox(235000, 245000, 610000, 620000)
-    print(PointHeader(2))
-    print(LineHeader(2))
+
+class LogCollection(Collection):
+    pass

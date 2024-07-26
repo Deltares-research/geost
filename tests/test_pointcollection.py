@@ -234,7 +234,9 @@ class TestPointCollection:
     @pytest.mark.unittest
     def test_slice_depth_interval(self, borehole_collection):
         # test with NAP reference
-        slice1 = borehole_collection.slice_depth_interval(lower_boundary=-3, upper_boundary=0)
+        slice1 = borehole_collection.slice_depth_interval(
+            lower_boundary=-3, upper_boundary=0
+        )
 
         assert len(slice1.data) == 15
         assert len(slice1.header) == 6
@@ -279,9 +281,13 @@ class TestPointCollection:
     @pytest.mark.unittest
     def test_inverted_slice_by_values(self, borehole_collection):
         layers_non_k = borehole_collection.slice_by_values("lith", "K", invert=True)
-        layers_non_ks2 = borehole_collection.slice_by_values("lith_comb", "Ks2", invert=True)
+        layers_non_ks2 = borehole_collection.slice_by_values(
+            "lith_comb", "Ks2", invert=True
+        )
         layers_non_h2 = borehole_collection.slice_by_values("org", "H2", invert=True)
-        layers_non_v_z = borehole_collection.slice_by_values("lith", ["V", "Z"], invert=True)
+        layers_non_v_z = borehole_collection.slice_by_values(
+            "lith", ["V", "Z"], invert=True
+        )
 
         assert len(layers_non_k.data) == 162
         assert len(layers_non_k.header) == 13
@@ -294,7 +300,9 @@ class TestPointCollection:
 
     @pytest.mark.unittest
     def test_add_header_column_to_data(self, borehole_collection):
-        borehole_collection.header["test_data"] = [i for i in range(len(borehole_collection.header))]
+        borehole_collection.header["test_data"] = [
+            i for i in range(len(borehole_collection.header))
+        ]
         borehole_collection.add_header_column_to_data("test_data")
 
         assert_allclose(borehole_collection.get("HB-6").data["test_data"], 0)
@@ -332,6 +340,6 @@ class TestPointCollection:
         assert "Header covers more objects than present in the data table" in out
 
     # @pytest.mark.integrationtest
-    # def test_surface_level_update(self, boreholes, update_raster):
-    #     boreholes.update_surface_level_from_raster(update_raster, how="replace")
+    # def test_surface_level_update(self, borehole_collection, update_raster):
+    #     borehole_collection.update_surface_level_from_raster(update_raster, how="replace")
     #     print("stop")

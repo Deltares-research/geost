@@ -1,7 +1,7 @@
 import pytest
 from numpy.testing import assert_array_equal
 
-from geost.headers import PointHeader
+from geost.new_base import PointHeader
 
 
 class TestLayeredData:
