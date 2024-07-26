@@ -5,41 +5,6 @@ import numpy as np
 import pandas as pd
 import rioxarray
 import xarray as xr
-from shapely.geometry import Point
-
-
-def dataframe_to_geodataframe(
-    df: pd.DataFrame, crs: int, x_col_label: str = "x", y_col_label: str = "y"
-) -> gpd.GeoDataFrame:
-    """
-    Take a dataframe with columns that indicate x and y coordinates and use these to
-    turn the dataframe into a geopandas GeoDataFrame with a geometry column that
-    contains shapely Point geometries.
-
-    Parameters
-    ----------
-    df : pd.DataFrame
-        Input dataframe with columns for x and y coordinates.
-    crs : int
-        EPSG number as integer.
-    x_col_label : str
-        Label of the x-coordinate column, default x-coordinate column label is 'x'.
-    y_col_label : str
-        Label of the y-coordinate column, default y-coordinate column label is 'y'.
-
-    Returns
-    -------
-    gpd.GeoDataFrame
-        GeoDataFrame with point geometries in addition to input dataframe data.
-
-    Raises
-    ------
-    IndexError
-        If input dataframe does not have a valid column for 'x' or 'y'.
-    """
-    points = [Point([x, y]) for x, y in zip(df[x_col_label], df[y_col_label])]
-    gdf = gpd.GeoDataFrame(df, geometry=points, crs=crs)
-    return gdf
 
 
 def header_from_bbox(header_df, xmin, xmax, ymin, ymax, invert) -> gpd.GeoDataFrame:

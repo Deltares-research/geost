@@ -1,6 +1,11 @@
+import warnings
 from abc import ABC, abstractmethod
 
+import pandas as pd
+
+from geost.headers import PointHeader
 from geost.mixins import PandasExportMixin
+from geost.utils import dataframe_to_geodataframe
 from geost.validate.decorators import validate_data
 
 
@@ -13,10 +18,6 @@ class AbstractData(ABC):
     @df.setter
     @abstractmethod
     def df(self, df):
-        pass
-
-    @abstractmethod
-    def get(self):  # Not really sure if necessary
         pass
 
     @abstractmethod
@@ -59,6 +60,15 @@ class AbstractData(ABC):
 
 
 class LayeredData(AbstractData, PandasExportMixin):
+    def __init__(self, df: pd.DataFrame):
+        self._df = df
+
+    def __repr__(self):
+        name = self.__class__.__name__
+        data = self._df.head()
+        rows, columns = self._df.shape
+        return f"{name} instance:\n{data}\n[{rows} rows x {columns} columns]"
+
     @property
     def df(self):
         return self._df
@@ -68,11 +78,17 @@ class LayeredData(AbstractData, PandasExportMixin):
     def df(self, df):
         self._df = df
 
-    def get(self):  # Not really sure if necessary
-        raise NotImplementedError()
-
     def to_header(self):
-        raise NotImplementedError()
+        header_columns = ["nr", "x", "y", "mv", "end"]
+        header = self._df[header_columns].drop_duplicates().reset_index(drop=True)
+        warnings.warn(
+            (
+                "Header does not contain a crs. Consider setting crs using "
+                "header.set_horizontal_reference()."
+            )
+        )
+        header = dataframe_to_geodataframe(header)
+        return PointHeader(header)
 
     def to_collection(self):
         raise NotImplementedError()
@@ -101,6 +117,9 @@ class LayeredData(AbstractData, PandasExportMixin):
 
 
 class DiscreteData(AbstractData, PandasExportMixin):
+    def __init__(self, df):
+        raise NotImplementedError(f"{self.__class__.__name__} not supported yet")
+
     @property
     def df(self):
         return self._df
@@ -109,9 +128,6 @@ class DiscreteData(AbstractData, PandasExportMixin):
     @validate_data
     def df(self, df):
         self._df = df
-
-    def get(self):  # Not really sure if necessary
-        raise NotImplementedError()
 
     def to_header(self):
         raise NotImplementedError()
@@ -143,5 +159,8 @@ class DiscreteData(AbstractData, PandasExportMixin):
 
 
 if __name__ == "__main__":
-    print(LayeredData())
-    print(DiscreteData())
+    from pathlib import Path
+
+    test_parquet = Path(__file__).parents[1] / r"tests/data/test_boreholes.parquet"
+    boreholes = LayeredData(pd.read_parquet(test_parquet))
+    boreholes.to_header()

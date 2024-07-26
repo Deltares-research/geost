@@ -9,6 +9,7 @@ from numpy.testing import assert_allclose
 
 from geost import read_sst_cores, spatial
 from geost.borehole import BoreholeCollection
+from geost.utils import dataframe_to_geodataframe
 
 borehole_file = Path(__file__).parent / "data" / "test_boreholes.parquet"
 selection_file = Path(__file__).parent / "data" / "test_polygon.parquet"
@@ -44,7 +45,7 @@ class TestSpatialUtils:
 
     @pytest.mark.unittest
     def test_dataframe_to_geodataframe(self, dataframe_with_coordinates):
-        gdf = spatial.dataframe_to_geodataframe(dataframe_with_coordinates, 28992)
+        gdf = dataframe_to_geodataframe(dataframe_with_coordinates, crs=28992)
         assert isinstance(gdf["geometry"].dtype, gpd.array.GeometryDtype)
 
     @pytest.mark.unittest

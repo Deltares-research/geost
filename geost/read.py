@@ -10,7 +10,7 @@ from geost.borehole import BoreholeCollection, CptCollection
 from geost.bro import BroApi
 from geost.io import _parse_cpt_gef_files
 from geost.io.parsers import SoilCore
-from geost.spatial import dataframe_to_geodataframe
+from geost.utils import dataframe_to_geodataframe
 
 geometry_to_selection_function = {
     "Polygon": "select_within_polygons",
@@ -188,7 +188,7 @@ def read_nlog_cores(
 
     header = dataframe_to_geodataframe(
         pd.DataFrame({"nr": nrs, "x": x, "y": y, "mv": mv, "end": end}),
-        horizontal_reference,
+        crs=horizontal_reference,
     )
 
     return BoreholeCollection(
