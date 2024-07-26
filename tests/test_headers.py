@@ -86,3 +86,25 @@ class TestHeaders:
         assert len(point_header_sel_inverted.gdf) == 22
         assert len(point_header_sel_buffered.gdf) == 11
         assert len(point_header_sel_inverted_buffered.gdf) == 14
+
+    @pytest.mark.unittest
+    def test_select_by_depth(self, point_header_gdf):
+        point_header = PointHeader(point_header_gdf)
+        assert len(point_header.select_by_depth(top_min=10).gdf) == 16
+        assert len(point_header.select_by_depth(top_max=10).gdf) == 10
+        assert len(point_header.select_by_depth(end_min=-10).gdf) == 10
+        assert len(point_header.select_by_depth(end_max=-10).gdf) == 16
+        assert len(point_header.select_by_depth(top_min=10, top_max=15).gdf) == 6
+        assert (
+            len(point_header.select_by_depth(top_min=10, top_max=15, end_max=-12).gdf)
+            == 4
+        )
+
+    @pytest.mark.unittest
+    def test_select_by_length(self, point_header_gdf):
+        point_header = PointHeader(point_header_gdf)
+        assert len(point_header.select_by_length(min_length=10).gdf) == 21
+        assert len(point_header.select_by_length(max_length=30).gdf) == 15
+        assert (
+            len(point_header.select_by_length(min_length=10, max_length=30).gdf) == 11
+        )

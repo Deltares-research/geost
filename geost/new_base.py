@@ -201,11 +201,79 @@ class PointHeader(AbstractHeader, GeopandasExportMixin):
         )
         return self.__class__(gdf_selected)
 
-    def select_by_depth(self):
-        raise NotImplementedError("Add function logic")
+    def select_by_depth(
+        self,
+        top_min: float = None,
+        top_max: float = None,
+        end_min: float = None,
+        end_max: float = None,
+    ):
+        """
+        Select data from depth constraints. If a keyword argument is not given it will
+        not be considered. e.g. if you need only boreholes that go deeper than -500 m
+        use only end_max = -500.
 
-    def select_by_length(self):
-        raise NotImplementedError("Add function logic")
+        Parameters
+        ----------
+        top_min : float, optional
+            Minimum elevation of the borehole/cpt top, by default None.
+        top_max : float, optional
+            Maximum elevation of the borehole/cpt top, by default None.
+        end_min : float, optional
+            Minimum elevation of the borehole/cpt end, by default None.
+        end_max : float, optional
+            Maximumelevation of the borehole/cpt end, by default None.
+
+        Returns
+        -------
+        Child of :class:`~geost.base.PointDataCollection`.
+            Instance of either :class:`~geost.borehole.BoreholeCollection` or
+            :class:`~geost.borehole.CptCollection` containing only objects selected by
+            this method.
+        """
+        selected = self.gdf.copy()
+        if top_min is not None:
+            selected = selected[selected["mv"] >= top_min]
+        if top_max is not None:
+            selected = selected[selected["mv"] <= top_max]
+        if end_min is not None:
+            selected = selected[selected["end"] >= end_min]
+        if end_max is not None:
+            selected = selected[selected["end"] <= end_max]
+
+        selected = selected[~selected.duplicated()]
+
+        return self.__class__(selected)
+
+    def select_by_length(self, min_length: float = None, max_length: float = None):
+        """
+        Select data from length constraints: e.g. all boreholes between 50 and 150 m
+        long. If a keyword argument is not given it will not be considered.
+
+        Parameters
+        ----------
+        min_length : float, optional
+            Minimum length of borehole/cpt, by default None.
+        max_length : float, optional
+            Maximum length of borehole/cpt, by default None.
+
+        Returns
+        -------
+        Child of :class:`~geost.base.PointDataCollection`.
+            Instance of either :class:`~geost.borehole.BoreholeCollection` or
+            :class:`~geost.borehole.CptCollection` containing only objects selected by
+            this method.
+        """
+        selected = self.gdf.copy()
+        length = selected["mv"] - selected["end"]
+        if min_length is not None:
+            selected = selected[length >= min_length]
+        if max_length is not None:
+            selected = selected[length <= max_length]
+
+        selected = selected[~selected.duplicated()]
+
+        return self.__class__(selected)
 
     def get_area_labels(self):
         raise NotImplementedError("Add function logic")
