@@ -73,9 +73,12 @@ def gdf_from_bbox(
     gdf = check_gdf_instance(gdf)
 
     # Selection logic
-    gdf_selected = gdf[
-        (gdf.x >= xmin) & (gdf.x <= xmax) & (gdf.y >= ymin) & (gdf.y <= ymax)
-    ]
+    x = gdf["geometry"].x
+    y = gdf["geometry"].y
+    if not invert:
+        gdf_selected = gdf[(x >= xmin) & (x <= xmax) & (y >= ymin) & (y <= ymax)]
+    elif invert:
+        gdf_selected = gdf[(x < xmin) | (x > xmax) | (y < ymin) | (y > ymax)]
     return gdf_selected
 
 
