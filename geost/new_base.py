@@ -25,13 +25,16 @@ class PointHeader(AbstractHeader, GeopandasExportMixin):
         self.__horizontal_reference = self.gdf.crs
 
     def __repr__(self):
-        return f"{self.__class__.__name__} instance containing {len(self.gdf)} objects"
+        return f"{self.__class__.__name__} instance containing {len(self)} objects"
 
     def __getitem__(self, column):
         return self.gdf[column]
 
     def __setitem__(self, column, key):
         self.gdf[key] = column
+
+    def __len__(self):
+        return len(self.gdf)
 
     @property
     def gdf(self):
@@ -45,9 +48,6 @@ class PointHeader(AbstractHeader, GeopandasExportMixin):
     @validate_header
     def gdf(self, gdf):
         self._gdf = gdf
-
-    def __check_and_coerce_crs(self):
-        raise (NotImplementedError)
 
     def get(self, selection_values: str | Iterable, column: str = "nr"):
         """
@@ -313,14 +313,16 @@ class PointHeader(AbstractHeader, GeopandasExportMixin):
             a column containing the generated data will be added inplace to
             :py:attr:`~geost.base.PointDataCollection.header`.
         """
-        polygon_gdf = self.__check_and_coerce_crs(polygon_gdf)
+        polygon_gdf = spatial.check_and_coerce_crs(
+            polygon_gdf, self.horizontal_reference
+        )
 
-        all_nrs = self.header["nr"]
-        area_labels = spatial.find_area_labels(self.header, polygon_gdf, column_name)
+        all_nrs = self["nr"]
+        area_labels = spatial.find_area_labels(self.gdf, polygon_gdf, column_name)
         area_labels = pd.concat([all_nrs, area_labels], axis=1)
 
         if include_in_header:
-            self._header = self.header.merge(area_labels, on="nr")
+            self._gdf = self.gdf.merge(area_labels, on="nr")
         else:
             return area_labels
 
@@ -337,13 +339,16 @@ class LineHeader(AbstractHeader, GeopandasExportMixin):
         self.__horizontal_reference = self.gdf.crs
 
     def __repr__(self):
-        return f"{self.__class__.__name__} instance containing {len(self.gdf)} objects"
+        return f"{self.__class__.__name__} instance containing {len(self)} objects"
 
     def __getitem__(self, column):
         return self.gdf[column]
 
     def __setitem__(self, column, key):
         self.gdf[key] = column
+
+    def __len__(self):
+        return len(self.gdf)
 
     @property
     def gdf(self):

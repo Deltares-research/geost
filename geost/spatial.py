@@ -6,6 +6,11 @@ import pandas as pd
 import rioxarray
 import xarray as xr
 
+from geost.utils import inform_user, warn_user
+
+warn = warn_user(lambda warning_info: print(warning_info))
+inform = inform_user(lambda info: print(info))
+
 
 def check_gdf_instance(
     gdf_or_path: str | WindowsPath | gpd.GeoDataFrame,
@@ -37,6 +42,45 @@ def check_gdf_instance(
     # Make sure you don't get a view of gdf returned
     gdf = gdf.copy()
 
+    return gdf
+
+
+def check_and_coerce_crs(gdf: gpd.GeoDataFrame, to_crs: int):
+    """
+    Check the CRS of a geodataframe against given crs.
+
+    If the geodataframe has no CRS, makes the geodataframe assume the given CRS. The
+    user is warned when this occurs.
+
+    If the geodataframe has a different known CRS, inform user and coerce the CRS
+    to the given CRS (to_crs argument).
+
+    Parameters
+    ----------
+    gdf : GeoDataFrame
+        Geodataframe to be converted to the given CRS.
+    to_crs : int
+        EPSG number of the CRS to check and coerce to.
+
+    Returns
+    -------
+    GeoDataFrame
+        Geodataframe coerced to have the desired CRS
+    """
+    if gdf.crs is None:
+        gdf.crs = to_crs
+        warn(
+            "The selection geometry has no crs! Assuming it is the same as the "
+            + f"horizontal_reference (epsg:{to_crs}) of this "
+            + "collection. PLEASE CHECK WHETHER THIS IS CORRECT!",
+        )
+    elif gdf.crs != to_crs:
+        gdf = gdf.to_crs(to_crs)
+        inform(
+            "The crs of the selection geometry does not match the horizontal "
+            + "reference of the collection. The selection geometry was coerced "
+            + f"to epsg:{to_crs} automatically"
+        )
     return gdf
 
 

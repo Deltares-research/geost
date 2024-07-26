@@ -50,6 +50,13 @@ class TestSpatialUtils:
         Path("temp_file.geoparquet").unlink()
 
     @pytest.mark.unittest
+    def test_check_and_coerce_crs(self, point_header_gdf):
+        referenced_gdf = spatial.check_and_coerce_crs(point_header_gdf, 28992)
+        converted_referenced_gdf = spatial.check_and_coerce_crs(referenced_gdf, 32631)
+        assert referenced_gdf.crs == "epsg:28992"
+        assert converted_referenced_gdf.crs == "epsg:32631"
+
+    @pytest.mark.unittest
     def test_get_raster_values(self, raster, dataframe_with_coordinates):
         x = dataframe_with_coordinates["x"].values
         y = dataframe_with_coordinates["y"].values

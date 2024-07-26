@@ -4,7 +4,7 @@ from pathlib import Path
 import geopandas as gpd
 import pandas as pd
 import pytest
-from numpy.testing import assert_allclose
+from numpy.testing import assert_allclose, assert_almost_equal
 from shapely.geometry import LineString, Point, Polygon
 
 from geost.new_base import LineHeader, PointHeader
@@ -36,8 +36,8 @@ class TestHeaders:
         point_header_sel_inverted = point_header.select_within_bbox(
             1, 3, 1, 3, invert=True
         )
-        assert len(point_header_sel.gdf) == 9
-        assert len(point_header_sel_inverted.gdf) == 16
+        assert len(point_header_sel) == 9
+        assert len(point_header_sel_inverted) == 16
 
     @pytest.mark.unittest
     def test_select_with_points(self, point_header_gdf):
@@ -50,8 +50,8 @@ class TestHeaders:
         point_header_sel_inverted = point_header.select_with_points(
             selection_gdf, 1.1, invert=True
         )
-        assert len(point_header_sel.gdf) == 16
-        assert len(point_header_sel_inverted.gdf) == 9
+        assert len(point_header_sel) == 16
+        assert len(point_header_sel_inverted) == 9
 
     @pytest.mark.unittest
     def test_select_with_lines(self, point_header_gdf):
@@ -62,8 +62,8 @@ class TestHeaders:
         point_header_sel_inverted = point_header.select_with_lines(
             selection_gdf, 1, invert=True
         )
-        assert len(point_header_sel.gdf) == 21
-        assert len(point_header_sel_inverted.gdf) == 4
+        assert len(point_header_sel) == 21
+        assert len(point_header_sel_inverted) == 4
 
     @pytest.mark.unittest
     def test_select_within_polygons(self, point_header_gdf):
@@ -82,10 +82,10 @@ class TestHeaders:
         point_header_sel_inverted_buffered = point_header.select_within_polygons(
             selection_gdf, buffer=0.1, invert=True
         )
-        assert len(point_header_sel.gdf) == 3
-        assert len(point_header_sel_inverted.gdf) == 22
-        assert len(point_header_sel_buffered.gdf) == 11
-        assert len(point_header_sel_inverted_buffered.gdf) == 14
+        assert len(point_header_sel) == 3
+        assert len(point_header_sel_inverted) == 22
+        assert len(point_header_sel_buffered) == 11
+        assert len(point_header_sel_inverted_buffered) == 14
 
     @pytest.mark.unittest
     def test_select_by_depth(self, point_header_gdf):
@@ -103,8 +103,18 @@ class TestHeaders:
     @pytest.mark.unittest
     def test_select_by_length(self, point_header_gdf):
         point_header = PointHeader(point_header_gdf)
-        assert len(point_header.select_by_length(min_length=10).gdf) == 21
-        assert len(point_header.select_by_length(max_length=30).gdf) == 15
-        assert (
-            len(point_header.select_by_length(min_length=10, max_length=30).gdf) == 11
-        )
+        assert len(point_header.select_by_length(min_length=10)) == 21
+        assert len(point_header.select_by_length(max_length=30)) == 15
+        assert len(point_header.select_by_length(min_length=10, max_length=30)) == 11
+
+    @pytest.mark.unittest
+    def test_get_area_labels(self, point_header_gdf):
+        point_header = PointHeader(point_header_gdf)
+        label_polygon = [Polygon(((2, 1), (5, 4), (4, 5), (1, 2)))]
+        label_gdf = gpd.GeoDataFrame({"id": [1]}, geometry=label_polygon)
+        # Return variant
+        output = point_header.get_area_labels(label_gdf, "id")
+        assert_almost_equal(output["id"].sum(), 11)
+        # In-place variant
+        point_header.get_area_labels(label_gdf, "id", include_in_header=True)
+        assert_almost_equal(point_header["id"].sum(), 11)
