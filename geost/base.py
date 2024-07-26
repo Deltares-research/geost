@@ -10,7 +10,12 @@ from geost import spatial
 from geost.analysis import cumulative_thickness, layer_top
 from geost.export import borehole_to_multiblock, export_to_dftgeodata
 from geost.projections import get_transformer
-from geost.utils import ARITHMIC_OPERATORS, inform_user, warn_user
+from geost.utils import (
+    ARITHMIC_OPERATORS,
+    dataframe_to_geodataframe,
+    inform_user,
+    warn_user,
+)
 from geost.validate.decorators import validate_data, validate_header
 
 warn = warn_user(lambda warning_info: print(warning_info))
@@ -141,8 +146,8 @@ class PointDataCollection:
         header_col_names = ["nr", "x", "y", "mv", "end"]
         header = self.data.drop_duplicates(subset=header_col_names[0])
         header = header[header_col_names].reset_index(drop=True)
-        self.header = spatial.dataframe_to_geodataframe(
-            header, self.horizontal_reference
+        self.header = dataframe_to_geodataframe(
+            header, crs=self.horizontal_reference
         )
 
     @property
