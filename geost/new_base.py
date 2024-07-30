@@ -69,14 +69,16 @@ class PointHeader(AbstractHeader, GeopandasExportMixin):
 
         Examples
         --------
-        self.get(["obj1", "obj2"]) will return a collection with only these objects.
+        >>> self.get(["obj1", "obj2"])
 
-        Suppose we have a collection of boreholes that we have joined with geological
+        will return a collection with only these objects.
+
+        Suppose we have a number of boreholes that we have joined with geological
         map units using the method
         :meth:`~geost.headers.PointHeader.get_area_labels`. We have added this data
         to the header table in the column 'geological_unit'. Using:
 
-        self.get(["unit1", "unit2"], column="geological_unit")
+        >>> self.get(["unit1", "unit2"], column="geological_unit")
 
         will return a :class:`~geost.headers.PointHeader` with all boreholes
         that are located in "unit1" and "unit2" geological map areas.
@@ -325,12 +327,6 @@ class PointHeader(AbstractHeader, GeopandasExportMixin):
             self._gdf = self.gdf.merge(area_labels, on="nr")
         else:
             return area_labels
-
-    def to_shape(self):
-        raise NotImplementedError("Add function logic")
-
-    def to_geoparquet(self):
-        raise NotImplementedError("Add function logic")
 
 
 class LineHeader(AbstractHeader, GeopandasExportMixin):

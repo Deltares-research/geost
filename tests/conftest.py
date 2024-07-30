@@ -156,4 +156,5 @@ def point_header_gdf():
         },
         geometry=geometries,
     )
+    gdf.set_crs("epsg:28992", inplace=True)
     return gdf
