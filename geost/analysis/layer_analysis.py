@@ -81,7 +81,7 @@ def cumulative_thickness(data, top: str = "top", bottom: str = "bottom"):
     return np.abs(np.sum(data[top] - data[bottom]))
 
 
-def layer_top(data, column: str, value: str):
+def layer_top(data, column: str, value: str): # TODO
     for nr, obj in data.groupby("nr"):
         try:
             layer_top = obj[obj[column] == value].iloc[0]["top"]

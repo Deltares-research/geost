@@ -572,15 +572,40 @@ class LayeredData(AbstractData, PandasExportMixin):
         >>> boreholes.get_cumulative_layer_thickness("lith", ["K", "Z"])
 
         """
-        selected_layers = self.slice_by_values("lith", values)
+        selected_layers = self.slice_by_values(column, values)
 
         cum_thickness = selected_layers.df.groupby(["nr", column]).apply(
             cumulative_thickness
         )
         return cum_thickness.unstack(level=column)
 
-    def get_layer_top(self):
-        raise NotImplementedError()
+    def get_layer_top(self, column: str, values: str | List[str]):
+        """
+        Find the depth at which a specified layer first occurs.
+
+        Parameters
+        ----------
+        column : str
+            Name of column that contains categorical data.
+        values : str | List[str]
+            Value or values of entries in the column that you want to find top of.
+
+        Returns
+        -------
+        pd.DataFrame
+            Borehole ids and top levels of selected layers in meters below the surface.
+
+        Examples
+        --------
+        Get the top depth of layers in boreholes where the lithology in the "lith" column
+        is sand ("Z"):
+
+        >>> boreholes.get_layer_top("lith", "Z")
+
+        """
+        selected_layers = self.slice_by_values(column, values)
+        layer_top = selected_layers.df.groupby(["nr", column])["top"].first()
+        return layer_top.unstack(level=column)
 
     def to_vtm(self):
         raise NotImplementedError()

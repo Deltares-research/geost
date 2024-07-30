@@ -68,12 +68,32 @@ class TestLayeredData:
         assert_array_equal(result.index, expected_boreholes_returned)
         assert_array_almost_equal(result["V"], expected_thickness)
 
-        result = borehole_data.get_cumulative_layer_thickness("lith", ["Z", "V"])
+        result = borehole_data.get_cumulative_layer_thickness("lith", ["Z", "K"])
         expected_boreholes_returned = ["A", "B", "C", "D", "E"]
-        expected_peat_thickness = [np.nan, 1.9, np.nan, 1.4, np.nan]
         expected_sand_thickness = [2.2, np.nan, 2.6, 0.5, 3.0]
+        expected_clay_thickness = [2.0, 2.0, 2.9, 1.1, np.nan]
 
         assert result.shape == (5, 2)
         assert_array_equal(result.index, expected_boreholes_returned)
-        assert_array_almost_equal(result["V"], expected_peat_thickness)
+        assert_array_almost_equal(result["K"], expected_clay_thickness)
         assert_array_almost_equal(result["Z"], expected_sand_thickness)
+
+    @pytest.mark.unittest
+    def test_get_layer_top(self, borehole_data):
+        result = borehole_data.get_layer_top("lith", "V")
+        expected_boreholes_returned = ["B", "D"]
+        expected_tops = [1.2, 0.5]
+
+        assert len(result) == 2
+        assert_array_equal(result.index, expected_boreholes_returned)
+        assert_array_almost_equal(result["V"], expected_tops)
+
+        result = borehole_data.get_layer_top("lith", ["Z", "K"])
+        expected_boreholes_returned = ["A", "B", "C", "D", "E"]
+        expected_sand_top = [1.5, np.nan, 2.9, 2.5, 0.0]
+        expected_clay_top = [0.0, 0.0, 0.0, 0.0, np.nan]
+
+        assert result.shape == (5, 2)
+        assert_array_equal(result.index, expected_boreholes_returned)
+        assert_array_almost_equal(result["Z"], expected_sand_top)
+        assert_array_almost_equal(result["K"], expected_clay_top)
