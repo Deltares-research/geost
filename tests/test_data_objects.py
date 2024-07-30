@@ -1,6 +1,6 @@
 import numpy as np
 import pytest
-from numpy.testing import assert_array_equal
+from numpy.testing import assert_array_almost_equal, assert_array_equal
 
 from geost.new_base import BoreholeCollection, PointHeader
 
@@ -57,3 +57,23 @@ class TestLayeredData:
         assert_array_equal(sliced["nr"].unique(), expected_boreholes_without_sand)
         assert ~np.any(sliced["lith"] == "Z")
         assert len(sliced) == expected_length
+
+    @pytest.mark.unittest
+    def test_get_cumulative_layer_thickness(self, borehole_data):
+        result = borehole_data.get_cumulative_layer_thickness("lith", "V")
+        expected_boreholes_returned = ["B", "D"]
+        expected_thickness = [1.9, 1.4]
+
+        assert len(result) == 2
+        assert_array_equal(result.index, expected_boreholes_returned)
+        assert_array_almost_equal(result["V"], expected_thickness)
+
+        result = borehole_data.get_cumulative_layer_thickness("lith", ["Z", "V"])
+        expected_boreholes_returned = ["A", "B", "C", "D", "E"]
+        expected_peat_thickness = [np.nan, 1.9, np.nan, 1.4, np.nan]
+        expected_sand_thickness = [2.2, np.nan, 2.6, 0.5, 3.0]
+
+        assert result.shape == (5, 2)
+        assert_array_equal(result.index, expected_boreholes_returned)
+        assert_array_almost_equal(result["V"], expected_peat_thickness)
+        assert_array_almost_equal(result["Z"], expected_sand_thickness)

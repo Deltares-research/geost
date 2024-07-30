@@ -1,12 +1,13 @@
 import warnings
 from pathlib import WindowsPath
-from typing import Iterable
+from typing import Iterable, List
 
 import geopandas as gpd
 import pandas as pd
 
 from geost import spatial
 from geost.abstract_classes import AbstractCollection, AbstractData, AbstractHeader
+from geost.analysis import cumulative_thickness
 from geost.mixins import GeopandasExportMixin, PandasExportMixin
 from geost.utils import dataframe_to_geodataframe
 from geost.validate.decorators import validate_data, validate_header
@@ -540,9 +541,43 @@ class LayeredData(AbstractData, PandasExportMixin):
 
         return self.__class__(sliced)
 
-    def get_cumulative_layer_thickness(self):
-        raise NotImplementedError()
-        pass
+    def get_cumulative_layer_thickness(self, column: str, values: str | List[str]):
+        """
+        Get the cumulative thickness of layers where a column contains a specified search
+        value or values.
+
+        Parameters
+        ----------
+        column : str
+            Name of column that must contain the search value or values.
+        values : str | List[str]
+            Search value or values in the column to find the cumulative thickness for.
+
+        Returns
+        -------
+        pd.DataFrame
+            Borehole ids and cumulative thickness of selected layers.
+
+        Examples
+        --------
+        Get the cumulative thickness of the layers with lithology "K" in the column "lith"
+        use:
+
+        >>> boreholes.get_cumulative_layer_thickness("lith", "K")
+
+        Or get the cumulative thickness for multiple selection values. In this case, a
+        Pandas DataFrame is returned with a column per selection value containing the
+        cumulative thicknesses:
+
+        >>> boreholes.get_cumulative_layer_thickness("lith", ["K", "Z"])
+
+        """
+        selected_layers = self.slice_by_values("lith", values)
+
+        cum_thickness = selected_layers.df.groupby(["nr", column]).apply(
+            cumulative_thickness
+        )
+        return cum_thickness.unstack(level=column)
 
     def get_layer_top(self):
         raise NotImplementedError()
