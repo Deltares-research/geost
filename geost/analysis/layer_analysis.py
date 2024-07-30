@@ -77,16 +77,8 @@ def top_of_sand(boreholes, ids="nr", min_sand_frac=0.5, min_sand_thickness=1):
         yield (nr, top_sand)
 
 
-def cumulative_thickness(data, column: str, value: str):
-    for nr, obj in data.groupby("nr"):
-        try:
-            selected_layers_in_obj = obj[obj[column] == value]
-            cumulative_thickness = np.abs(
-                np.sum(selected_layers_in_obj["top"] - selected_layers_in_obj["bottom"])
-            )
-        except IndexError:
-            cumulative_thickness = 0
-        yield (nr, cumulative_thickness)
+def cumulative_thickness(data, top: str = "top", bottom: str = "bottom"):
+    return np.abs(np.sum(data[top] - data[bottom]))
 
 
 def layer_top(data, column: str, value: str):
