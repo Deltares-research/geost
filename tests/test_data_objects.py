@@ -97,3 +97,7 @@ class TestLayeredData:
         assert_array_equal(result.index, expected_boreholes_returned)
         assert_array_almost_equal(result["Z"], expected_sand_top)
         assert_array_almost_equal(result["K"], expected_clay_top)
+
+    @pytest.mark.unittest
+    def test_slice_depth_interval(self, borehole_data):
+        sliced = borehole_data.slice_depth_interval(0.6, 2.4)

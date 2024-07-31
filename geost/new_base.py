@@ -8,6 +8,7 @@ import pandas as pd
 from geost import spatial
 from geost.abstract_classes import AbstractCollection, AbstractData, AbstractHeader
 from geost.analysis import cumulative_thickness
+from geost.enums import VerticalReferences
 from geost.mixins import GeopandasExportMixin, PandasExportMixin
 from geost.utils import dataframe_to_geodataframe
 from geost.validate.decorators import validate_data, validate_header
@@ -487,8 +488,24 @@ class LayeredData(AbstractData, PandasExportMixin):
 
         return self.__class__(selected)
 
-    def slice_depth_interval(self):
-        raise NotImplementedError()
+    def slice_depth_interval(
+        self,
+        upper_boundary: float | int = None,
+        lower_boundary: float | int = None,
+        vertical_reference: str = VerticalReferences.DEPTH,
+        update_layer_boundaries: bool = True,  # TODO: implement
+    ):
+        sliced = self.df.copy()
+        sliced = sliced[
+            (sliced["bottom"] > (upper_boundary or -1e34))
+            & (sliced["top"] < (lower_boundary or 1e34))
+        ]
+
+        if update_layer_boundaries:
+            sliced.loc[sliced["top"] <= upper_boundary, "top"] = upper_boundary
+            sliced.loc[sliced["bottom"] >= lower_boundary, "top"] = lower_boundary
+
+        return sliced
 
     def slice_by_values(
         self, column: str, selection_values: str | Iterable, invert: bool = False
