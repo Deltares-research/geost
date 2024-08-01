@@ -549,7 +549,7 @@ class LayeredData(AbstractData, PandasExportMixin):
         Returns
         -------
         Child of :class:`~geost.base.LayeredData`.
-            New instance containing only the data objects selected by this method.
+            New instance containing only the data selected by this method.
 
         Examples
         --------
@@ -582,31 +582,83 @@ class LayeredData(AbstractData, PandasExportMixin):
                 valid = self["nr"][self[column] == value].unique()
                 selected = selected[selected["nr"].isin(valid)]
 
-        return self.__class__(selected)
+        return self.__class__(selected, self.has_inclined)
 
     def slice_depth_interval(
         self,
         upper_boundary: float | int = None,
         lower_boundary: float | int = None,
-        vertical_reference: str = VerticalReference.DEPTH,
+        vertical_reference: str = VerticalReference.DEPTH,  # NOTE: Think about using bool
         update_layer_boundaries: bool = True,
     ):
+        """
+        Slice data based on given upper and lower boundaries. This returns a new object
+        containing only the sliced data.
+
+        Parameters
+        ----------
+        upper_boundary : float | int, optional
+            Every layer that starts above this is removed. The default is None.
+        lower_boundary : float | int, optional
+            Every layer that starts below this is removed. The default is None.
+        vertical_reference : str, optional
+            Specify whether the slicing is done with respect to any kind of vertical
+            reference plane (e.g. "NAP", "TAW") or with respect to depth below the surface
+            ("Depth"). The default is "Depth", this performs the slice with respect to depth
+            below the surface.
+        update_layer_boundaries : bool, optional
+            If True, the layer boundaries in the sliced data are updated according to the
+            upper and lower boundaries used with the slice. If False, the original layer
+            boundaries are kept in the sliced object. The default is False.
+
+        Returns
+        -------
+        Child of :class:`~geost.base.LayeredData`.
+            New instance containing only the data selected by this method.
+
+        Examples
+        --------
+        Usage depends on whether the slicing is done with respect to "depth below the
+        surface" or to a "vertical_reference".
+
+        For example, select layers in boreholes that are between 2 and 3 meters below the
+        surface:
+
+        >>> boreholes.slice_depth_interval(2, 3)
+
+        By default, the method updates the layer boundaries in sliced object according to
+        the upper and lower boundaries. To suppress this behaviour use:
+
+        >>> boreholes.slice_depth_interval(2, 3, update_layer_boundaries=False)
+
+        Slicing can also be done with respect to a "vertical_reference". For example, to
+        select layers in boreholes that are between -3 and -5 m NAP, use:
+
+        >>> boreholes.slice_depth_interval(-3, -5, vertical_reference="NAP")
+
+        """
+        if not upper_boundary:
+            upper_boundary = (
+                -1e34 if vertical_reference == VerticalReference.DEPTH else 1e34
+            )
+
+        if not lower_boundary:
+            lower_boundary = (
+                1e34 if vertical_reference == VerticalReference.DEPTH else -1e34
+            )
+
         sliced = self.df.copy()
 
         if vertical_reference != VerticalReference.DEPTH:
             bounds_are_series = True
             upper_boundary = self["surface"] - upper_boundary
             lower_boundary = self["surface"] - lower_boundary
-
-            sliced = sliced[
-                (sliced["bottom"] > upper_boundary) & (sliced["top"] < lower_boundary)
-            ]
         else:
             bounds_are_series = False
-            sliced = sliced[
-                (sliced["bottom"] > (upper_boundary or -1e34))
-                & (sliced["top"] < (lower_boundary or 1e34))
-            ]
+
+        sliced = sliced[
+            (sliced["bottom"] > upper_boundary) & (sliced["top"] < lower_boundary)
+        ]
 
         if update_layer_boundaries:
             if bounds_are_series:
@@ -616,7 +668,7 @@ class LayeredData(AbstractData, PandasExportMixin):
             sliced.loc[sliced["top"] <= upper_boundary, "top"] = upper_boundary
             sliced.loc[sliced["bottom"] >= lower_boundary, "bottom"] = lower_boundary
 
-        return self.__class__(sliced)
+        return self.__class__(sliced, self.has_inclined)
 
     def slice_by_values(
         self, column: str, selection_values: str | Iterable, invert: bool = False
@@ -663,7 +715,7 @@ class LayeredData(AbstractData, PandasExportMixin):
         else:
             sliced = sliced[sliced[column].isin(selection_values)]
 
-        return self.__class__(sliced)
+        return self.__class__(sliced, self.has_inclined)
 
     def get_cumulative_layer_thickness(self, column: str, values: str | List[str]):
         """

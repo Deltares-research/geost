@@ -2,6 +2,6 @@ from enum import StrEnum
 
 
 class VerticalReference(StrEnum):
-    NAP = "NAP"
+    DATUM = "Local datum"
     DEPTH = "Depth"
     # Add vertical references

@@ -100,6 +100,7 @@ class TestLayeredData:
 
     @pytest.mark.unittest
     def test_slice_depth_interval(self, borehole_data):
+        # Test slicing with respect to depth below the surface.
         upper, lower = 0.6, 2.4
         sliced = borehole_data.slice_depth_interval(upper, lower)
 
@@ -111,6 +112,7 @@ class TestLayeredData:
         assert sliced["bottom"].max() == lower
         assert_array_equal(layers_per_borehole, expected_layer_count)
 
+        # Test slicing without updating layer boundaries.
         sliced = borehole_data.slice_depth_interval(
             upper, lower, update_layer_boundaries=False
         )
@@ -125,6 +127,7 @@ class TestLayeredData:
         assert_array_equal(tops_of_slice, expected_tops_of_slice)
         assert_array_equal(bottoms_of_slice, expected_bottoms_of_slice)
 
+        # Test slicing with respect to a vertical reference plane.
         nap_upper, nap_lower = -2, -3
         sliced = borehole_data.slice_depth_interval(
             nap_upper, nap_lower, vertical_reference="NAP"
@@ -140,6 +143,7 @@ class TestLayeredData:
         assert_array_equal(tops_of_slice, expected_tops_of_slice)
         assert_array_equal(bottoms_of_slice, expected_bottoms_of_slice)
 
+        # Test slices that return empty objects.
         empty_slice = borehole_data.slice_depth_interval(-2, -1)
         empty_slice_nap = borehole_data.slice_depth_interval(
             3, 2, vertical_reference="NAP"
@@ -147,6 +151,26 @@ class TestLayeredData:
 
         assert len(empty_slice) == 0
         assert len(empty_slice_nap) == 0
+
+        # Test slicing using only an upper boundary or lower boundary.
+        upper = 4
+        sliced = borehole_data.slice_depth_interval(upper)
+
+        expected_boreholes = ["A", "C"]
+
+        assert len(sliced) == 2
+        assert_array_equal(sliced["nr"], expected_boreholes)
+
+        nap_lower = -0.5
+        sliced = borehole_data.slice_depth_interval(
+            lower_boundary=nap_lower, vertical_reference="NAP"
+        )
+
+        bottoms_of_slice = sliced.df.groupby("nr")["bottom"].max()
+        expected_bottoms_of_slice = [0.7, 0.8, 0.75, 0.6, 0.4]
+
+        assert len(sliced) == 7
+        assert_array_equal(bottoms_of_slice, expected_bottoms_of_slice)
 
     @pytest.mark.unittest
     def test_to_vtm(self, borehole_data):
