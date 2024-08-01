@@ -22,7 +22,7 @@ def borehole_a():
             "nr": np.full(nlayers, "A"),
             "x": np.full(nlayers, 2),
             "y": np.full(nlayers, 3),
-            "mv": np.full(nlayers, mv),
+            "surface": np.full(nlayers, mv),
             "end": np.full(nlayers, end),
             "top": top,
             "bottom": bottom,
@@ -42,7 +42,7 @@ def borehole_b():
             "nr": np.full(nlayers, "B"),
             "x": np.full(nlayers, 1),
             "y": np.full(nlayers, 4),
-            "mv": np.full(nlayers, mv),
+            "surface": np.full(nlayers, mv),
             "end": np.full(nlayers, end),
             "top": top,
             "bottom": bottom,
@@ -62,7 +62,7 @@ def borehole_c():
             "nr": np.full(nlayers, "C"),
             "x": np.full(nlayers, 4),
             "y": np.full(nlayers, 2),
-            "mv": np.full(nlayers, mv),
+            "surface": np.full(nlayers, mv),
             "end": np.full(nlayers, end),
             "top": top,
             "bottom": bottom,
@@ -82,7 +82,7 @@ def borehole_d():
             "nr": np.full(nlayers, "D"),
             "x": np.full(nlayers, 3),
             "y": np.full(nlayers, 5),
-            "mv": np.full(nlayers, mv),
+            "surface": np.full(nlayers, mv),
             "end": np.full(nlayers, end),
             "top": top,
             "bottom": bottom,
@@ -95,14 +95,14 @@ def borehole_e():
     nlayers = 5
     top = [0, 0.5, 1.2, 1.8, 2.5]
     bottom = top[1:] + [3.0]
-    mv = 0.1
+    mv = -0.1
     end = mv - bottom[-1]
     return pd.DataFrame(
         {
             "nr": np.full(nlayers, "E"),
             "x": np.full(nlayers, 1),
             "y": np.full(nlayers, 1),
-            "mv": np.full(nlayers, mv),
+            "surface": np.full(nlayers, mv),
             "end": np.full(nlayers, end),
             "top": top,
             "bottom": bottom,
@@ -151,7 +151,7 @@ def point_header_gdf():
             "nr": nrs,
             "x": coordinates[:, 0],
             "y": coordinates[:, 1],
-            "mv": mvs,
+            "surface": mvs,
             "end": ends,
         },
         geometry=geometries,

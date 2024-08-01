@@ -1,12 +1,14 @@
 import warnings
 from pathlib import WindowsPath
-from typing import Iterable
+from typing import Iterable, List
 
 import geopandas as gpd
 import pandas as pd
 
 from geost import spatial
 from geost.abstract_classes import AbstractCollection, AbstractData, AbstractHeader
+from geost.analysis import cumulative_thickness
+from geost.enums import VerticalReference
 from geost.mixins import GeopandasExportMixin, PandasExportMixin
 from geost.utils import dataframe_to_geodataframe
 from geost.validate.decorators import validate_data, validate_header
@@ -254,9 +256,9 @@ class PointHeader(AbstractHeader, GeopandasExportMixin):
         """
         selected = self.gdf.copy()
         if top_min is not None:
-            selected = selected[selected["mv"] >= top_min]
+            selected = selected[selected["surface"] >= top_min]
         if top_max is not None:
-            selected = selected[selected["mv"] <= top_max]
+            selected = selected[selected["surface"] <= top_max]
         if end_min is not None:
             selected = selected[selected["end"] >= end_min]
         if end_max is not None:
@@ -286,7 +288,7 @@ class PointHeader(AbstractHeader, GeopandasExportMixin):
             this method.
         """
         selected = self.gdf.copy()
-        length = selected["mv"] - selected["end"]
+        length = selected["surface"] - selected["end"]
         if min_length is not None:
             selected = selected[length >= min_length]
         if max_length is not None:
@@ -426,7 +428,7 @@ class LayeredData(AbstractData, PandasExportMixin):
         horizontal_reference: int = 28992,
         vertical_reference: str = "NAP",
     ):
-        header_columns = ["nr", "x", "y", "mv", "end"]
+        header_columns = ["nr", "x", "y", "surface", "end"]
         header = self[header_columns].drop_duplicates().reset_index(drop=True)
         warnings.warn(
             (
@@ -505,8 +507,28 @@ class LayeredData(AbstractData, PandasExportMixin):
 
         return self.__class__(selected)
 
-    def slice_depth_interval(self):
-        raise NotImplementedError()
+    def slice_depth_interval(
+        self,
+        upper_boundary: float | int = None,
+        lower_boundary: float | int = None,
+        vertical_reference: str = VerticalReference.DEPTH,
+        update_layer_boundaries: bool = True,
+    ):
+        if vertical_reference != VerticalReference.DEPTH:
+            upper_boundary = self["surface"] + upper_boundary
+            lower_boundary = self["surface"] + lower_boundary
+
+        sliced = self.df.copy()
+        sliced = sliced[
+            (sliced["bottom"] > (upper_boundary or -1e34))
+            & (sliced["top"] < (lower_boundary or 1e34))
+        ]
+
+        if update_layer_boundaries:
+            sliced.loc[sliced["top"] <= upper_boundary, "top"] = upper_boundary
+            sliced.loc[sliced["bottom"] >= lower_boundary, "top"] = lower_boundary
+
+        return sliced
 
     def slice_by_values(
         self, column: str, selection_values: str | Iterable, invert: bool = False
@@ -555,12 +577,71 @@ class LayeredData(AbstractData, PandasExportMixin):
 
         return self.__class__(sliced)
 
-    def get_cumulative_layer_thickness(self):
-        raise NotImplementedError()
-        pass
+    def get_cumulative_layer_thickness(self, column: str, values: str | List[str]):
+        """
+        Get the cumulative thickness of layers where a column contains a specified search
+        value or values.
 
-    def get_layer_top(self):
-        raise NotImplementedError()
+        Parameters
+        ----------
+        column : str
+            Name of column that must contain the search value or values.
+        values : str | List[str]
+            Search value or values in the column to find the cumulative thickness for.
+
+        Returns
+        -------
+        pd.DataFrame
+            Borehole ids and cumulative thickness of selected layers.
+
+        Examples
+        --------
+        Get the cumulative thickness of the layers with lithology "K" in the column "lith"
+        use:
+
+        >>> boreholes.get_cumulative_layer_thickness("lith", "K")
+
+        Or get the cumulative thickness for multiple selection values. In this case, a
+        Pandas DataFrame is returned with a column per selection value containing the
+        cumulative thicknesses:
+
+        >>> boreholes.get_cumulative_layer_thickness("lith", ["K", "Z"])
+
+        """
+        selected_layers = self.slice_by_values(column, values)
+
+        cum_thickness = selected_layers.df.groupby(["nr", column]).apply(
+            cumulative_thickness
+        )
+        return cum_thickness.unstack(level=column)
+
+    def get_layer_top(self, column: str, values: str | List[str]):
+        """
+        Find the depth at which a specified layer first occurs.
+
+        Parameters
+        ----------
+        column : str
+            Name of column that contains categorical data.
+        values : str | List[str]
+            Value or values of entries in the column that you want to find top of.
+
+        Returns
+        -------
+        pd.DataFrame
+            Borehole ids and top levels of selected layers in meters below the surface.
+
+        Examples
+        --------
+        Get the top depth of layers in boreholes where the lithology in the "lith" column
+        is sand ("Z"):
+
+        >>> boreholes.get_layer_top("lith", "Z")
+
+        """
+        selected_layers = self.slice_by_values(column, values)
+        layer_top = selected_layers.df.groupby(["nr", column])["top"].first()
+        return layer_top.unstack(level=column)
 
     def to_vtm(self):
         raise NotImplementedError()

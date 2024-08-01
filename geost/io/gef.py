@@ -35,6 +35,6 @@ def _parse_cpt_gef_files(file_or_folder: Union[str, WindowsPath]):
         df.insert(0, "nr", cpt.nr)
         df.insert(1, "x", cpt.x)
         df.insert(2, "y", cpt.y)
-        df.insert(3, "mv", cpt.z)
+        df.insert(3, "surface", cpt.z)
         df.insert(4, "end", cpt.enddepth)
         yield df

@@ -10,7 +10,7 @@ def prepare_borehole(borehole: pd.DataFrame, vertical_factor: float) -> np.ndarr
     bh_as_pnts = borehole[["x", "y", "bottom"]].to_numpy().astype(np.float64)
     bh = np.vstack(
         [
-            np.array([bh_as_pnts[0, 0], bh_as_pnts[0, 1], borehole["mv"].iloc[0]]),
+            np.array([bh_as_pnts[0, 0], bh_as_pnts[0, 1], borehole["surface"].iloc[0]]),
             bh_as_pnts,
         ]
     )

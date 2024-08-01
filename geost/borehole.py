@@ -90,7 +90,7 @@ class BoreholeCollection(PointDataCollection):
         top_sand = pd.DataFrame(top_of_sand(self.data), columns=["nr", "top_sand"])
 
         cover_layer = top_sand.merge(self.header, on="nr", how="left")
-        cover_layer["cover_thickness"] = cover_layer["mv"] - cover_layer["top_sand"]
+        cover_layer["cover_thickness"] = cover_layer["surface"] - cover_layer["top_sand"]
         cover_layer_df = cover_layer[["nr", "cover_thickness"]]
 
         if include_in_header:
@@ -121,7 +121,7 @@ class BoreholeCollection(PointDataCollection):
             col
             for col in self.data.columns
             if col
-            not in ["nr", "x", "y", "x_bot", "y_bot", "mv", "end", "top", "bottom"]
+            not in ["nr", "x", "y", "x_bot", "y_bot", "surface", "end", "top", "bottom"]
         ]
 
         data_to_write = dict(
@@ -239,7 +239,7 @@ class CptCollection(PointDataCollection):
             )
 
         borehole_converted_dataframe = self.data[
-            ["nr", "x", "y", "mv", "end", "top", "bottom", "lith"]
+            ["nr", "x", "y", "surface", "end", "top", "bottom", "lith"]
         ]
         cptcollection_as_bhcollection = BoreholeCollection(
             borehole_converted_dataframe,

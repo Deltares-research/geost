@@ -143,7 +143,7 @@ class PointDataCollection:
         TypeError
             If len(header_col_names) != 5
         """
-        header_col_names = ["nr", "x", "y", "mv", "end"]
+        header_col_names = ["nr", "x", "y", "surface", "end"]
         header = self.data.drop_duplicates(subset=header_col_names[0])
         header = header[header_col_names].reset_index(drop=True)
         self.header = dataframe_to_geodataframe(
@@ -157,7 +157,7 @@ class PointDataCollection:
         the minimum: point id, x-coordinate, y-coordinate, surface level and end depth:
 
         Column names:
-        ["nr", "x", "y", "mv", "end"]
+        ["nr", "x", "y", "surface", "end"]
 
         Extra data can be added through various methods or manually by the user.
         However, the above columns must always be present. Every time the header is
@@ -348,19 +348,19 @@ class PointDataCollection:
         match self.__vertical_reference:
             case "NAP":
                 if to == "surfacelevel":
-                    self._data["top"] = self._data["top"] - self._data["mv"]
-                    self._data["bottom"] = self._data["bottom"] - self._data["mv"]
+                    self._data["top"] = self._data["top"] - self._data["surface"]
+                    self._data["bottom"] = self._data["bottom"] - self._data["surface"]
                     self.__vertical_reference = "surfacelevel"
                 elif to == "depth":
-                    self._data["top"] = (self._data["top"] - self._data["mv"]) * -1
+                    self._data["top"] = (self._data["top"] - self._data["surface"]) * -1
                     self._data["bottom"] = (
-                        self._data["bottom"] - self._data["mv"]
+                        self._data["bottom"] - self._data["surface"]
                     ) * -1
                     self.__vertical_reference = "depth"
             case "surfacelevel":
                 if to == "NAP":
-                    self._data["top"] = self._data["top"] + self._data["mv"]
-                    self._data["bottom"] = self._data["bottom"] + self._data["mv"]
+                    self._data["top"] = self._data["top"] + self._data["surface"]
+                    self._data["bottom"] = self._data["bottom"] + self._data["surface"]
                     self.__vertical_reference = "NAP"
                 if to == "depth":
                     self._data["top"] = self._data["top"] * -1
@@ -368,8 +368,8 @@ class PointDataCollection:
                     self.__vertical_reference = "depth"
             case "depth":
                 if to == "NAP":
-                    self._data["top"] = self._data["top"] * -1 + self._data["mv"]
-                    self._data["bottom"] = self._data["bottom"] * -1 + self._data["mv"]
+                    self._data["top"] = self._data["top"] * -1 + self._data["surface"]
+                    self._data["bottom"] = self._data["bottom"] * -1 + self._data["surface"]
                     self.__vertical_reference = "NAP"
                 if to == "surfacelevel":
                     self._data["top"] = self._data["top"] * -1
@@ -678,9 +678,9 @@ class PointDataCollection:
         """
         selected_header = self.header.copy()
         if top_min is not None:
-            selected_header = selected_header[selected_header["mv"] >= top_min]
+            selected_header = selected_header[selected_header["surface"] >= top_min]
         if top_max is not None:
-            selected_header = selected_header[selected_header["mv"] <= top_min]
+            selected_header = selected_header[selected_header["surface"] <= top_min]
         if end_min is not None:
             selected_header = selected_header[selected_header["end"] >= end_min]
         if end_max is not None:
@@ -719,7 +719,7 @@ class PointDataCollection:
             this method.
         """
         selected_header = self.header.copy()
-        length = selected_header["mv"] - selected_header["end"]
+        length = selected_header["surface"] - selected_header["end"]
         if min_length is not None:
             selected_header = selected_header[length >= min_length]
         if max_length is not None:
