@@ -98,7 +98,7 @@ class PointHeader(AbstractHeader, GeopandasExportMixin):
         selected_gdf = selected_gdf[~selected_gdf.duplicated()]
         # selection = self.data.loc[self.data["nr"].isin(selected_header["nr"])]
 
-        return self.__class__(selected_gdf)
+        return self.__class__(selected_gdf, self.vertical_reference)
 
     def select_within_bbox(
         self,
@@ -134,7 +134,7 @@ class PointHeader(AbstractHeader, GeopandasExportMixin):
         gdf_selected = spatial.select_points_within_bbox(
             self.gdf, xmin, xmax, ymin, ymax, invert=invert
         )
-        return self.__class__(gdf_selected)
+        return self.__class__(gdf_selected, self.vertical_reference)
 
     def select_with_points(
         self,
@@ -163,7 +163,7 @@ class PointHeader(AbstractHeader, GeopandasExportMixin):
         gdf_selected = spatial.select_points_near_points(
             self.gdf, points, buffer, invert=invert
         )
-        return self.__class__(gdf_selected)
+        return self.__class__(gdf_selected, self.vertical_reference)
 
     def select_with_lines(
         self,
@@ -192,7 +192,7 @@ class PointHeader(AbstractHeader, GeopandasExportMixin):
         gdf_selected = spatial.select_points_near_lines(
             self.gdf, lines, buffer, invert=invert
         )
-        return self.__class__(gdf_selected)
+        return self.__class__(gdf_selected, self.vertical_reference)
 
     def select_within_polygons(
         self,
@@ -222,7 +222,7 @@ class PointHeader(AbstractHeader, GeopandasExportMixin):
         gdf_selected = spatial.select_points_within_polygons(
             self.gdf, polygons, buffer, invert=invert
         )
-        return self.__class__(gdf_selected)
+        return self.__class__(gdf_selected, self.vertical_reference)
 
     def select_by_depth(
         self,
@@ -266,7 +266,7 @@ class PointHeader(AbstractHeader, GeopandasExportMixin):
 
         selected = selected[~selected.duplicated()]
 
-        return self.__class__(selected)
+        return self.__class__(selected, self.vertical_reference)
 
     def select_by_length(self, min_length: float = None, max_length: float = None):
         """
@@ -296,7 +296,7 @@ class PointHeader(AbstractHeader, GeopandasExportMixin):
 
         selected = selected[~selected.duplicated()]
 
-        return self.__class__(selected)
+        return self.__class__(selected, self.vertical_reference)
 
     def get_area_labels(
         self, polygon_gdf: gpd.GeoDataFrame, column_name: str, include_in_header=False

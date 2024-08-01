@@ -118,7 +118,7 @@ def borehole_file():
 
 @pytest.fixture
 def borehole_collection(borehole_file):
-    borehole_collection = read_sst_cores(borehole_file)
+    borehole_collection = read_sst_cores(borehole_file, 28992, "NAP")
     return borehole_collection
 
 
