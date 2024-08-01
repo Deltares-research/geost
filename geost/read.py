@@ -53,6 +53,7 @@ def read_sst_cores(
     horizontal_reference: str | int | CRS = 28992,
     vertical_reference: str | int | CRS = 5709,
     has_inclined: bool = False,
+    column_mapper: dict = {},
 ) -> BoreholeCollection:
     """
     Read Subsurface Toolbox native parquet file with core information..
@@ -75,17 +76,12 @@ def read_sst_cores(
     :class:`~geost.borehole.BoreholeCollection`
         Instance of :class:`~geost.borehole.BoreholeCollection`.
     """
+    column_mapper = {value: key for key, value in column_mapper.items()}
     sst_cores = __read_parquet(Path(file))
+    sst_cores.rename(columns=column_mapper, inplace=True)
     layerdata = LayeredData(sst_cores, has_inclined=has_inclined)
     collection = layerdata.to_collection(horizontal_reference, vertical_reference)
     return collection
-
-    return BoreholeCollection(
-        sst_cores,
-        vertical_reference=vertical_reference,
-        horizontal_reference=horizontal_reference,
-        has_inclined=False,
-    )
 
 
 def read_sst_cpts(
