@@ -146,19 +146,18 @@ class TestPointCollection:
 
     @pytest.mark.unittest
     def test_change_vertical_reference(self, borehole_df_ok):
-        borehole_collection_ok = LayeredData(borehole_df_ok).to_collection(
-            horizontal_reference=28992, vertical_reference=5709
-        )
-        borehole_collection_ok
+        borehole_collection_ok = LayeredData(borehole_df_ok).to_collection()
         assert borehole_collection_ok.vertical_reference == 5709
+        borehole_collection_ok.change_vertical_reference("Ostend height")
+        assert borehole_collection_ok.vertical_reference == 5710
 
     @pytest.mark.unittest
-    def test_change_horizontal_reference_only_geometry(self, borehole_df_ok):
-        borehole_collection_ok = BoreholeCollection(borehole_df_ok)
-        assert_equal(borehole_collection_ok.horizontal_reference, 28992)
-        borehole_collection_ok.change_horizontal_reference(32631, only_geometries=True)
-        assert_equal(borehole_collection_ok.header.crs.name, "WGS 84 / UTM zone 31N")
-        assert_equal(borehole_collection_ok.horizontal_reference, 32631)
+    def test_change_horizontal_reference(self, borehole_df_ok):
+        borehole_collection_ok = LayeredData(borehole_df_ok).to_collection()
+        assert borehole_collection_ok.horizontal_reference == 28992
+        borehole_collection_ok.change_horizontal_reference(32631)
+        assert borehole_collection_ok.horizontal_reference == 32631
+        # ADD COORDINATE VALUE ASSERTION
 
     @pytest.mark.unittest
     def test_change_horizontal_reference_also_data_columns(self, borehole_df_ok):

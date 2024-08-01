@@ -63,12 +63,27 @@ class PointHeader(AbstractHeader, GeopandasExportMixin):
     def change_horizontal_reference(self, to_epsg: str | int | CRS):
         """
         Change the horizontal reference (i.e. coordinate reference system, crs) of the
-        collection to the given target crs.
+        header to the given target crs.
 
         Parameters
         ----------
-        to_crs : int
-            EPSG of the target crs
+        to_epsg : str | int | CRS
+            EPSG of the target crs. Takes anything that can be interpreted by
+            pyproj.crs.CRS.from_user_input().
+
+        Examples
+        --------
+        To change the header's current horizontal reference to WGS 84 UTM zone 31N:
+
+        >>> self.change_horizontal_reference(32631)
+
+        This would be the same as:
+
+        >>> self.change_horizontal_reference("epsg:32631")
+
+        Or even by using the CRS's full official name:
+
+        >>> self.change_horizontal_reference("WGS 84 / UTM zone 31N")
         """
         transformer = horizontal_reference_transformer(
             self.horizontal_reference, to_epsg
@@ -81,12 +96,28 @@ class PointHeader(AbstractHeader, GeopandasExportMixin):
     def change_vertical_reference(self, to_epsg: str | int | CRS):
         """
         Change the vertical reference of the object's surface levels
+
         Parameters
         ----------
-        to_epsg : int
-            To which vertical datum to convert, referenced by the datum's EPSG number.
-            see spatialreference.org. E.g. NAP is EPSG:5709 and TAW is EPSG:5710.
+        to_epsg : str | int | CRS
+            EPSG of the target vertical datum. Takes anything that can be interpreted by
+            pyproj.crs.CRS.from_user_input(). However, it must be a vertical datum. FYI:
+            "NAP" is EPSG 5709 and The Belgian reference system (Ostend height) is ESPG
+            5710.
 
+        Examples
+        --------
+        To change the header's current vertical reference to NAP:
+
+        >>> self.change_horizontal_reference(5709)
+
+        This would be the same as:
+
+        >>> self.change_horizontal_reference("epsg:5709")
+
+        Or even by using the CRS's full official name:
+
+        >>> self.change_horizontal_reference("NAP")
         """
         transformer = vertical_reference_transformer(
             self.horizontal_reference, self.vertical_reference, to_epsg
@@ -94,7 +125,11 @@ class PointHeader(AbstractHeader, GeopandasExportMixin):
         _, _, new_surface = transformer.transform(
             self.gdf["x"], self.gdf["y"], self.gdf["surface"]
         )
+        _, _, new_end = transformer.transform(
+            self.gdf["x"], self.gdf["y"], self.gdf["end"]
+        )
         self._gdf["surface"] = new_surface
+        self._gdf["end"] = new_end
         self.__vertical_reference = CRS(to_epsg)
 
     def get(self, selection_values: str | Iterable, column: str = "nr"):
@@ -137,7 +172,6 @@ class PointHeader(AbstractHeader, GeopandasExportMixin):
             selected_gdf = self[self[column].isin(selection_values)]
 
         selected_gdf = selected_gdf[~selected_gdf.duplicated()]
-        # selection = self.data.loc[self.data["nr"].isin(selected_header["nr"])]
 
         return self.__class__(selected_gdf, self.vertical_reference)
 
@@ -476,8 +510,8 @@ class LayeredData(AbstractData, PandasExportMixin):
 
     def to_header(
         self,
-        horizontal_reference: int = 28992,
-        vertical_reference: str = "NAP",
+        horizontal_reference: str | int | CRS = 28992,
+        vertical_reference: str | int | CRS = 5709,
     ):
         header_columns = ["nr", "x", "y", "surface", "end"]
         header = self[header_columns].drop_duplicates().reset_index(drop=True)
@@ -486,8 +520,8 @@ class LayeredData(AbstractData, PandasExportMixin):
 
     def to_collection(
         self,
-        horizontal_reference: int = 28992,
-        vertical_reference: str = "NAP",
+        horizontal_reference: str | int | CRS = 28992,
+        vertical_reference: str | int | CRS = 5709,
     ):
         header = self.to_header(horizontal_reference, vertical_reference)
         return BoreholeCollection(header, self)
@@ -858,6 +892,78 @@ class Collection(AbstractCollection):
         selected_data = self.data.select_by_values(column, selection_values)
 
         return self.__class__(selected_header, selected_data)
+
+    def change_horizontal_reference(self, to_epsg: str | int | CRS):
+        """
+        Change the horizontal reference (i.e. coordinate reference system, crs) of the
+        collection to the given target crs.
+
+        Parameters
+        ----------
+        to_epsg : str | int | CRS
+            EPSG of the target crs. Takes anything that can be interpreted by
+            pyproj.crs.CRS.from_user_input().
+
+        Examples
+        --------
+        To change the collection's current horizontal reference to WGS 84 UTM zone 31N:
+
+        >>> self.change_horizontal_reference(32631)
+
+        This would be the same as:
+
+        >>> self.change_horizontal_reference("epsg:32631")
+
+        Or even by using the CRS's full official name:
+
+        >>> self.change_horizontal_reference("WGS 84 / UTM zone 31N")
+        """
+        transformer = horizontal_reference_transformer(
+            self.horizontal_reference, to_epsg
+        )
+        self.data["x"], self.data["y"] = transformer.transform(
+            self.data["x"], self.data["y"]
+        )
+        self.header.change_horizontal_reference(to_epsg)
+
+    def change_vertical_reference(self, to_epsg: str | int | CRS):
+        """
+        Change the vertical reference of the collection object's surface levels
+
+        Parameters
+        ----------
+        to_epsg : str | int | CRS
+            EPSG of the target vertical datum. Takes anything that can be interpreted by
+            pyproj.crs.CRS.from_user_input(). However, it must be a vertical datum. FYI:
+            "NAP" is EPSG 5709 and The Belgian reference system (Ostend height) is ESPG
+            5710.
+
+        Examples
+        --------
+        To change the header's current vertical reference to NAP:
+
+        >>> self.change_horizontal_reference(5709)
+
+        This would be the same as:
+
+        >>> self.change_horizontal_reference("epsg:5709")
+
+        Or even by using the CRS's full official name:
+
+        >>> self.change_horizontal_reference("NAP")
+        """
+        transformer = vertical_reference_transformer(
+            self.horizontal_reference, self.vertical_reference, to_epsg
+        )
+        _, _, new_surface = transformer.transform(
+            self.data["x"], self.data["y"], self.data["surface"]
+        )
+        _, _, new_end = transformer.transform(
+            self.data["x"], self.data["y"], self.data["end"]
+        )
+        self.data["surface"] = new_surface
+        self.data["end"] = new_end
+        self.header.change_vertical_reference(to_epsg)
 
     def reset_header(self):
         raise NotImplementedError("Add function logic")
