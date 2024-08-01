@@ -49,8 +49,8 @@ def __read_parquet(file: WindowsPath) -> pd.DataFrame:
 
 def read_sst_cores(
     file: str | WindowsPath,
-    vertical_reference: str = "NAP",
     horizontal_reference: int = 28992,
+    vertical_reference: str = "NAP",
     has_inclined: bool = False,
 ) -> BoreholeCollection:
     """
