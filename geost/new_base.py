@@ -548,7 +548,7 @@ class LayeredData(AbstractData, PandasExportMixin):
                 valid = self["nr"][self[column] == value].unique()
                 selected = selected[selected["nr"].isin(valid)]
 
-        return self.__class__(selected)
+        return self.__class__(selected, self.has_inclined)
 
     def slice_depth_interval(
         self,
@@ -634,7 +634,7 @@ class LayeredData(AbstractData, PandasExportMixin):
             sliced.loc[sliced["top"] <= upper_boundary, "top"] = upper_boundary
             sliced.loc[sliced["bottom"] >= lower_boundary, "bottom"] = lower_boundary
 
-        return self.__class__(sliced)
+        return self.__class__(sliced, self.has_inclined)
 
     def slice_by_values(
         self, column: str, selection_values: str | Iterable, invert: bool = False
@@ -681,7 +681,7 @@ class LayeredData(AbstractData, PandasExportMixin):
         else:
             sliced = sliced[sliced[column].isin(selection_values)]
 
-        return self.__class__(sliced)
+        return self.__class__(sliced, self.has_inclined)
 
     def get_cumulative_layer_thickness(self, column: str, values: str | List[str]):
         """
