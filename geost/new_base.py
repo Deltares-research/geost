@@ -8,7 +8,7 @@ import pandas as pd
 from geost import spatial
 from geost.abstract_classes import AbstractCollection, AbstractData, AbstractHeader
 from geost.analysis import cumulative_thickness
-from geost.enums import VerticalReferences
+from geost.enums import VerticalReference
 from geost.mixins import GeopandasExportMixin, PandasExportMixin
 from geost.utils import dataframe_to_geodataframe
 from geost.validate.decorators import validate_data, validate_header
@@ -251,9 +251,9 @@ class PointHeader(AbstractHeader, GeopandasExportMixin):
         """
         selected = self.gdf.copy()
         if top_min is not None:
-            selected = selected[selected["mv"] >= top_min]
+            selected = selected[selected["surface"] >= top_min]
         if top_max is not None:
-            selected = selected[selected["mv"] <= top_max]
+            selected = selected[selected["surface"] <= top_max]
         if end_min is not None:
             selected = selected[selected["end"] >= end_min]
         if end_max is not None:
@@ -283,7 +283,7 @@ class PointHeader(AbstractHeader, GeopandasExportMixin):
             this method.
         """
         selected = self.gdf.copy()
-        length = selected["mv"] - selected["end"]
+        length = selected["surface"] - selected["end"]
         if min_length is not None:
             selected = selected[length >= min_length]
         if max_length is not None:
@@ -414,7 +414,7 @@ class LayeredData(AbstractData, PandasExportMixin):
         self._df = df
 
     def to_header(self):
-        header_columns = ["nr", "x", "y", "mv", "end"]
+        header_columns = ["nr", "x", "y", "surface", "end"]
         header = self[header_columns].drop_duplicates().reset_index(drop=True)
         warnings.warn(
             (
@@ -492,9 +492,13 @@ class LayeredData(AbstractData, PandasExportMixin):
         self,
         upper_boundary: float | int = None,
         lower_boundary: float | int = None,
-        vertical_reference: str = VerticalReferences.DEPTH,
-        update_layer_boundaries: bool = True,  # TODO: implement
+        vertical_reference: str = VerticalReference.DEPTH,
+        update_layer_boundaries: bool = True,
     ):
+        if vertical_reference != VerticalReference.DEPTH:
+            upper_boundary = self["surface"] + upper_boundary
+            lower_boundary = self["surface"] + lower_boundary
+
         sliced = self.df.copy()
         sliced = sliced[
             (sliced["bottom"] > (upper_boundary or -1e34))

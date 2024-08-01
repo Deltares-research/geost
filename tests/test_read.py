@@ -30,11 +30,11 @@ class TestReaders:
                 "nr": ["BA050018", "BA080036", "BA110040"],
                 "x": [37395, 44175, 39309],
                 "y": [857077, 840614, 833198],
-                "mv": [36.7, 39.54, 33.51],
+                "surface": [36.7, 39.54, 33.51],
                 "end": [-3921.75, -3262.69, -3865.89],
             }
         )
-        assert_array_equal(nlog_cores.header[["nr", "x", "y", "mv", "end"]], desired_df)
+        assert_array_equal(nlog_cores.header[["nr", "x", "y", "surface", "end"]], desired_df)
         assert nlog_cores.is_inclined
 
     @pytest.mark.unittest
@@ -45,11 +45,11 @@ class TestReaders:
                 "nr": ["BA050018", "BA080036", "BA110040"],
                 "x": [37395, 44175, 39309],
                 "y": [857077, 840614, 833198],
-                "mv": [36.7, 39.54, 33.51],
+                "surface": [36.7, 39.54, 33.51],
                 "end": [-3921.75, -3262.69, -3865.89],
             }
         )
-        assert_array_equal(nlog_cores.header[["nr", "x", "y", "mv", "end"]], desired_df)
+        assert_array_equal(nlog_cores.header[["nr", "x", "y", "surface", "end"]], desired_df)
         assert nlog_cores.is_inclined
 
     @pytest.mark.unittest

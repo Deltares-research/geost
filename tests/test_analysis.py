@@ -55,7 +55,7 @@ class TestAnalysis:
                 "nr": nr,
                 "x": x,
                 "y": y,
-                "mv": mv,
+                "surface": mv,
                 "end": end,
                 "top": top,
                 "bottom": bottom,

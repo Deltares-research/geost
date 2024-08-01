@@ -8,7 +8,7 @@ from geost.new_base import BoreholeCollection, PointHeader
 class TestLayeredData:
     @pytest.mark.unittest
     def test_to_header(self, borehole_data):
-        expected_columns = ["nr", "x", "y", "mv", "end", "geometry"]
+        expected_columns = ["nr", "x", "y", "surface", "end", "geometry"]
 
         header = borehole_data.to_header()
 

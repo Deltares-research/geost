@@ -181,13 +181,13 @@ def read_nlog_cores(
         end_data += [data["bottom"].iloc[-1] for i in range(len(data))]
 
     mv_end_df = pd.DataFrame(
-        {"nr": nrs_data, "mv": mv_data, "end": end_data}
+        {"nr": nrs_data, "surface": mv_data, "end": end_data}
     ).drop_duplicates("nr")
 
     nlog_cores = nlog_cores.merge(mv_end_df, on="nr", how="left")
 
     header = dataframe_to_geodataframe(
-        pd.DataFrame({"nr": nrs, "x": x, "y": y, "mv": mv, "end": end}),
+        pd.DataFrame({"nr": nrs, "x": x, "y": y, "surface": mv, "end": end}),
         crs=horizontal_reference,
     )
 

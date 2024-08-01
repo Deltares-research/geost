@@ -41,7 +41,7 @@ class TestPointCollection:
                 "nr": nr,
                 "x": x,
                 "y": y,
-                "mv": mv,
+                "surface": mv,
                 "end": end,
                 "top": top,
                 "bottom": bottom,
@@ -73,7 +73,7 @@ class TestPointCollection:
                 "nr": nr,
                 "x": x,
                 "y": y,
-                "mv": mv,
+                "surface": mv,
                 "end": end,
                 "top": top,
                 "bottom": bottom,
@@ -92,7 +92,7 @@ class TestPointCollection:
                 "nr": ["B-02"],
                 "x": [100000],
                 "y": [400000],
-                "mv": [0],
+                "surface": [0],
                 "end": [-8],
             }
         )
@@ -106,7 +106,7 @@ class TestPointCollection:
                 "nr": ["B-01", "B-02", "B-03"],
                 "x": [139370, 100000, 110000],
                 "y": [455540, 400000, 410000],
-                "mv": [1, 0, -1],
+                "surface": [1, 0, -1],
                 "end": [-4, -8, -9],
             }
         )
