@@ -557,21 +557,32 @@ class LayeredData(AbstractData, PandasExportMixin):
         vertical_reference: str = VerticalReference.DEPTH,
         update_layer_boundaries: bool = True,
     ):
-        if vertical_reference != VerticalReference.DEPTH:
-            upper_boundary = self["surface"] + upper_boundary
-            lower_boundary = self["surface"] + lower_boundary
-
         sliced = self.df.copy()
-        sliced = sliced[
-            (sliced["bottom"] > (upper_boundary or -1e34))
-            & (sliced["top"] < (lower_boundary or 1e34))
-        ]
+
+        if vertical_reference != VerticalReference.DEPTH:
+            bounds_are_series = True
+            upper_boundary = self["surface"] - upper_boundary
+            lower_boundary = self["surface"] - lower_boundary
+
+            sliced = sliced[
+                (sliced["bottom"] > upper_boundary) & (sliced["top"] < lower_boundary)
+            ]
+        else:
+            bounds_are_series = False
+            sliced = sliced[
+                (sliced["bottom"] > (upper_boundary or -1e34))
+                & (sliced["top"] < (lower_boundary or 1e34))
+            ]
 
         if update_layer_boundaries:
-            sliced.loc[sliced["top"] <= upper_boundary, "top"] = upper_boundary
-            sliced.loc[sliced["bottom"] >= lower_boundary, "top"] = lower_boundary
+            if bounds_are_series:
+                upper_boundary = upper_boundary.loc[sliced.index]
+                lower_boundary = lower_boundary.loc[sliced.index]
 
-        return sliced
+            sliced.loc[sliced["top"] <= upper_boundary, "top"] = upper_boundary
+            sliced.loc[sliced["bottom"] >= lower_boundary, "bottom"] = lower_boundary
+
+        return self.__class__(sliced)
 
     def slice_by_values(
         self, column: str, selection_values: str | Iterable, invert: bool = False
@@ -687,7 +698,7 @@ class LayeredData(AbstractData, PandasExportMixin):
         return layer_top.unstack(level=column)
 
     def to_vtm(self):
-        raise NotImplementedError()
+        print(2)
 
     def to_datafusiontools(self):
         raise NotImplementedError()

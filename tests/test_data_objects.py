@@ -100,4 +100,54 @@ class TestLayeredData:
 
     @pytest.mark.unittest
     def test_slice_depth_interval(self, borehole_data):
-        sliced = borehole_data.slice_depth_interval(0.6, 2.4)
+        upper, lower = 0.6, 2.4
+        sliced = borehole_data.slice_depth_interval(upper, lower)
+
+        layers_per_borehole = sliced["nr"].value_counts()
+        expected_layer_count = [3, 3, 3, 3, 2]
+
+        assert len(sliced) == 14
+        assert sliced["top"].min() == upper
+        assert sliced["bottom"].max() == lower
+        assert_array_equal(layers_per_borehole, expected_layer_count)
+
+        sliced = borehole_data.slice_depth_interval(
+            upper, lower, update_layer_boundaries=False
+        )
+
+        expected_tops_of_slice = [0.0, 0.6, 0.0, 0.5, 0.5]
+        expected_bottoms_of_slice = [2.5, 2.5, 2.9, 2.5, 2.5]
+
+        tops_of_slice = sliced.df.groupby("nr")["top"].min()
+        bottoms_of_slice = sliced.df.groupby("nr")["bottom"].max()
+
+        assert len(sliced) == 14
+        assert_array_equal(tops_of_slice, expected_tops_of_slice)
+        assert_array_equal(bottoms_of_slice, expected_bottoms_of_slice)
+
+        nap_upper, nap_lower = -2, -3
+        sliced = borehole_data.slice_depth_interval(
+            nap_upper, nap_lower, vertical_reference="NAP"
+        )
+
+        expected_tops_of_slice = [2.2, 2.3, 2.25, 2.1, 1.9]
+        expected_bottoms_of_slice = [3.2, 3.3, 3.25, 3.0, 2.9]
+
+        tops_of_slice = sliced.df.groupby("nr")["top"].min()
+        bottoms_of_slice = sliced.df.groupby("nr")["bottom"].max()
+
+        assert len(sliced) == 11
+        assert_array_equal(tops_of_slice, expected_tops_of_slice)
+        assert_array_equal(bottoms_of_slice, expected_bottoms_of_slice)
+
+        empty_slice = borehole_data.slice_depth_interval(-2, -1)
+        empty_slice_nap = borehole_data.slice_depth_interval(
+            3, 2, vertical_reference="NAP"
+        )
+
+        assert len(empty_slice) == 0
+        assert len(empty_slice_nap) == 0
+
+    @pytest.mark.unittest
+    def test_to_vtm(self, borehole_data):
+        borehole_data.to_vtm()
