@@ -20,9 +20,10 @@ pd.set_option("mode.copy_on_write", True)
 
 
 class PointHeader(AbstractHeader, GeopandasExportMixin):
-    def __init__(self, gdf):
+    def __init__(self, gdf, vertical_reference):
         self.gdf = gdf
         self.__horizontal_reference = self.gdf.crs
+        self.__vertical_reference = vertical_reference
 
     def __repr__(self):
         return f"{self.__class__.__name__} instance containing {len(self)} objects"
@@ -43,6 +44,10 @@ class PointHeader(AbstractHeader, GeopandasExportMixin):
     @property
     def horizontal_reference(self):
         return self.__horizontal_reference
+
+    @property
+    def vertical_reference(self):
+        return self.__vertical_reference
 
     @gdf.setter
     @validate_header
@@ -330,9 +335,10 @@ class PointHeader(AbstractHeader, GeopandasExportMixin):
 
 
 class LineHeader(AbstractHeader, GeopandasExportMixin):
-    def __init__(self, gdf):
+    def __init__(self, gdf, vertical_reference):
         self.gdf = gdf
         self.__horizontal_reference = self.gdf.crs
+        self.__vertical_reference = vertical_reference
 
     def __repr__(self):
         return f"{self.__class__.__name__} instance containing {len(self)} objects"
@@ -353,6 +359,10 @@ class LineHeader(AbstractHeader, GeopandasExportMixin):
     @property
     def horizontal_reference(self):
         return self.__horizontal_reference
+
+    @property
+    def vertical_reference(self):
+        return self.__vertical_reference
 
     @gdf.setter
     @validate_header
@@ -411,7 +421,11 @@ class LayeredData(AbstractData, PandasExportMixin):
     def df(self, df):
         self._df = df
 
-    def to_header(self):
+    def to_header(
+        self,
+        horizontal_reference: int = 28992,
+        vertical_reference: str = "NAP",
+    ):
         header_columns = ["nr", "x", "y", "mv", "end"]
         header = self[header_columns].drop_duplicates().reset_index(drop=True)
         warnings.warn(
@@ -420,13 +434,18 @@ class LayeredData(AbstractData, PandasExportMixin):
                 "header.set_horizontal_reference()."
             )
         )
-        header = dataframe_to_geodataframe(header)
-        return PointHeader(header)
+        header = dataframe_to_geodataframe(header).set_crs(horizontal_reference)
+        return PointHeader(header, vertical_reference)
 
-    def to_collection(self):
-        header = self.to_header()
+    def to_collection(
+        self,
+        horizontal_reference: int = 28992,
+        vertical_reference: str = "NAP",
+        has_inclined: bool = False,
+    ):
+        header = self.to_header(horizontal_reference, vertical_reference)
         return BoreholeCollection(
-            header, self, 28992, "NAP"
+            header, self, has_inclined=has_inclined
         )  # NOTE: Type of Collection may need to be inferred in the future.
 
     def select_by_values(
@@ -597,13 +616,11 @@ class Collection(AbstractCollection):
         self,
         header: HeaderObject,
         data: DataObject,
-        horizontal_reference: int,
-        vertical_reference: str,
+        has_inclined: bool,
     ):
-        self.horizontal_reference = horizontal_reference
-        self.vertical_reference = vertical_reference
         self.header = header
         self.data = data
+        self.__has_inclined = has_inclined
 
     def __new__(cls, *args, **kwargs):
         if cls is Collection:
@@ -630,15 +647,19 @@ class Collection(AbstractCollection):
         """
         Number of objects in the collection.
         """
-        return len(self.header.df)
+        return len(self.header.gdf)
+
+    @property
+    def has_inclined(self):
+        return self.__has_inclined
 
     @property
     def horizontal_reference(self):  # Move to header class in future refactor
-        return self._horizontal_reference
+        return self.header.horizontal_reference
 
     @property
     def vertical_reference(self):  # move to data class in future refactor
-        return self._vertical_reference
+        return self.header.vertical_reference
 
     @header.setter
     def header(self, header):
@@ -656,10 +677,23 @@ class Collection(AbstractCollection):
             self._data = self._header.__class__(data)
         self.check_header_to_data_alignment()
 
-    def horizontal_reference(self, to_epsg):
+    def add_header_column_to_data(self, column_name: str):  # No change
+        """
+        Add a column from the header to the data table. Useful if you e.g. add some data
+        to the header table, but would like to add this to each layer (row in the data
+        table) as well.
+
+        Parameters
+        ----------
+        column_name : str
+            Name of the column in the header table to add.
+        """
+        self.data = pd.merge(self.data, self.header[["nr", column_name]], on="nr")
+
+    def change_horizontal_reference(self, to_epsg):
         raise NotImplementedError("Add function logic")
 
-    def vertical_reference(self, to_epsg):
+    def change_vertical_reference(self, to_epsg):
         raise NotImplementedError("Add function logic")
 
     def get(self):

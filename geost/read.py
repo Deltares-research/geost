@@ -5,11 +5,10 @@ import geopandas as gpd
 import numpy as np
 import pandas as pd
 
-# Local imports
-from geost.borehole import BoreholeCollection, CptCollection
 from geost.bro import BroApi
 from geost.io import _parse_cpt_gef_files
 from geost.io.parsers import SoilCore
+from geost.new_base import BoreholeCollection, CptCollection, LayeredData
 from geost.utils import dataframe_to_geodataframe
 
 geometry_to_selection_function = {
@@ -52,6 +51,7 @@ def read_sst_cores(
     file: str | WindowsPath,
     vertical_reference: str = "NAP",
     horizontal_reference: int = 28992,
+    has_inclined: bool = False,
 ) -> BoreholeCollection:
     """
     Read Subsurface Toolbox native parquet file with core information..
@@ -73,10 +73,17 @@ def read_sst_cores(
         Instance of :class:`~geost.borehole.BoreholeCollection`.
     """
     sst_cores = __read_parquet(Path(file))
+    layerdata = LayeredData(sst_cores)
+    collection = layerdata.to_collection(
+        horizontal_reference, vertical_reference, has_inclined
+    )
+    return collection
+
     return BoreholeCollection(
         sst_cores,
         vertical_reference=vertical_reference,
         horizontal_reference=horizontal_reference,
+        has_inclined=False,
     )
 
 
