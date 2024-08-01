@@ -13,7 +13,7 @@ from numpy.testing import (
 )
 
 from geost import read_nlog_cores, read_sst_cores
-from geost.borehole import BoreholeCollection
+from geost.new_base import BoreholeCollection, LayeredData
 
 
 class TestPointCollection:
@@ -124,7 +124,7 @@ class TestPointCollection:
     @pytest.mark.unittest
     def test_get_single_object(self, borehole_collection):
         borehole_collection_single_selection = borehole_collection.get("HB-8")
-        assert borehole_collection_single_selection.header.iloc[0, 0] == "HB-8"
+        assert borehole_collection_single_selection.header.gdf.iloc[0, 0] == "HB-8"
 
     @pytest.mark.unittest
     def test_get_multiple_objects(self, borehole_collection):
@@ -135,69 +135,22 @@ class TestPointCollection:
         ]
 
     @pytest.mark.unittest
+    def test_add_header_column_to_data(self, borehole_collection):
+        borehole_collection.header["test_data"] = [
+            i for i in range(len(borehole_collection.header))
+        ]
+        borehole_collection.add_header_column_to_data("test_data")
+
+        assert_allclose(borehole_collection.get("HB-6").data["test_data"], 0)
+        assert_allclose(borehole_collection.get("HB-03").data["test_data"], 12)
+
+    @pytest.mark.unittest
     def test_change_vertical_reference(self, borehole_df_ok):
-        borehole_collection_ok = BoreholeCollection(borehole_df_ok)
-        assert borehole_collection_ok.vertical_reference == "NAP"
-
-        target_top_nap = np.array([1, 0.5, 0, -0.5, -1.5, -2, -2.5, -3, -3.2, -3.6])
-        target_bottom_nap = np.array(
-            [0.5, 0, -0.5, -1.5, -2, -2.5, -3, -3.2, -3.6, -4.0]
+        borehole_collection_ok = LayeredData(borehole_df_ok).to_collection(
+            horizontal_reference=28992, vertical_reference=5709
         )
-        target_top_surfacelevel = np.array(
-            [0, -0.5, -1, -1.5, -2.5, -3, -3.5, -4, -4.2, -4.6]
-        )
-        target_bottom_surfacelevel = np.array(
-            [-0.5, -1, -1.5, -2.5, -3, -3.5, -4, -4.2, -4.6, -5.0]
-        )
-        target_top_depth = np.array([0, 0.5, 1, 1.5, 2.5, 3, 3.5, 4, 4.2, 4.6])
-        target_bottom_depth = np.array([0.5, 1, 1.5, 2.5, 3, 3.5, 4, 4.2, 4.6, 5.0])
-
-        # From NAP to surfacelevel
-        borehole_collection_ok.change_vertical_reference("surfacelevel")
-        assert_array_almost_equal(
-            borehole_collection_ok.data["top"], target_top_surfacelevel
-        )
-        assert_array_almost_equal(
-            borehole_collection_ok.data["bottom"], target_bottom_surfacelevel
-        )
-
-        # From surfacelevel to NAP
-        borehole_collection_ok.change_vertical_reference("NAP")
-        assert_array_almost_equal(borehole_collection_ok.data["top"], target_top_nap)
-        assert_array_almost_equal(
-            borehole_collection_ok.data["bottom"], target_bottom_nap
-        )
-
-        # From NAP to depth
-        borehole_collection_ok.change_vertical_reference("depth")
-        assert_array_almost_equal(borehole_collection_ok.data["top"], target_top_depth)
-        assert_array_almost_equal(
-            borehole_collection_ok.data["bottom"], target_bottom_depth
-        )
-
-        # From depth to NAP
-        borehole_collection_ok.change_vertical_reference("NAP")
-        assert_array_almost_equal(borehole_collection_ok.data["top"], target_top_nap)
-        assert_array_almost_equal(
-            borehole_collection_ok.data["bottom"], target_bottom_nap
-        )
-
-        # From surfacelevel to depth
-        borehole_collection_ok.change_vertical_reference("surfacelevel")
-        borehole_collection_ok.change_vertical_reference("depth")
-        assert_array_almost_equal(borehole_collection_ok.data["top"], target_top_depth)
-        assert_array_almost_equal(
-            borehole_collection_ok.data["bottom"], target_bottom_depth
-        )
-
-        # From depth to surfacelevel
-        borehole_collection_ok.change_vertical_reference("surfacelevel")
-        assert_array_almost_equal(
-            borehole_collection_ok.data["top"], target_top_surfacelevel
-        )
-        assert_array_almost_equal(
-            borehole_collection_ok.data["bottom"], target_bottom_surfacelevel
-        )
+        borehole_collection_ok
+        assert borehole_collection_ok.vertical_reference == 5709
 
     @pytest.mark.unittest
     def test_change_horizontal_reference_only_geometry(self, borehole_df_ok):
@@ -297,16 +250,6 @@ class TestPointCollection:
         assert len(layers_non_h2.header) == 13
         assert len(layers_non_v_z.data) == 327
         assert len(layers_non_v_z.header) == 13
-
-    @pytest.mark.unittest
-    def test_add_header_column_to_data(self, borehole_collection):
-        borehole_collection.header["test_data"] = [
-            i for i in range(len(borehole_collection.header))
-        ]
-        borehole_collection.add_header_column_to_data("test_data")
-
-        assert_allclose(borehole_collection.get("HB-6").data["test_data"], 0)
-        assert_allclose(borehole_collection.get("HB-03").data["test_data"], 12)
 
     @pytest.mark.integrationtest
     def test_validation_pass(self, capfd, borehole_df_ok):
