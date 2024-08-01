@@ -30,6 +30,24 @@ class TestHeaders:
         assert all([nr in point_header_sel["nr"].values for nr in query])
 
     @pytest.mark.unittest
+    def test_change_horizontal_reference(self, point_header_gdf):
+        point_header = PointHeader(point_header_gdf, "NAP")
+        point_header.change_horizontal_reference(32631)
+        assert point_header.horizontal_reference == 32631
+        assert_almost_equal(point_header["x"][0], 523402.3476207458)
+        assert_almost_equal(point_header["y"][0], 5313544.160440822)
+
+    @pytest.mark.unittest
+    def test_change_vertical_reference(self, point_header_gdf):
+        point_header = PointHeader(point_header_gdf, "NAP")
+        current_NAP_levels = point_header["surface"].copy()
+        # The offset between NAP (epsg:5709) and TAW (epsg:5710) is 2.28234 m.
+        expected_TAW_levels = current_NAP_levels + 2.28234
+        point_header.change_vertical_reference(5710)
+        assert point_header.vertical_reference == 5710
+        assert_allclose(point_header["surface"], expected_TAW_levels)
+
+    @pytest.mark.unittest
     def test_select_within_bbox(self, point_header_gdf):
         point_header = PointHeader(point_header_gdf, "NAP")
         point_header_sel = point_header.select_within_bbox(1, 3, 1, 3)

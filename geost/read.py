@@ -73,10 +73,8 @@ def read_sst_cores(
         Instance of :class:`~geost.borehole.BoreholeCollection`.
     """
     sst_cores = __read_parquet(Path(file))
-    layerdata = LayeredData(sst_cores)
-    collection = layerdata.to_collection(
-        horizontal_reference, vertical_reference, has_inclined
-    )
+    layerdata = LayeredData(sst_cores, has_inclined=has_inclined)
+    collection = layerdata.to_collection(horizontal_reference, vertical_reference)
     return collection
 
     return BoreholeCollection(

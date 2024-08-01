@@ -12,9 +12,22 @@ class AbstractHeader(ABC):
     def horizontal_reference(self):
         pass
 
+    @property
+    @abstractmethod
+    def vertical_reference(self):
+        pass
+
     @gdf.setter
     @abstractmethod
     def gdf(self, gdf):
+        pass
+
+    @abstractmethod
+    def change_horizontal_reference(self):
+        pass
+
+    @abstractmethod
+    def change_vertical_reference(self):
         pass
 
     @abstractmethod

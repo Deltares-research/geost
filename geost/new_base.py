@@ -4,12 +4,17 @@ from typing import Iterable, List
 
 import geopandas as gpd
 import pandas as pd
+from pyproj import CRS
 
 from geost import spatial
 from geost.abstract_classes import AbstractCollection, AbstractData, AbstractHeader
 from geost.analysis import cumulative_thickness
 from geost.enums import VerticalReference
 from geost.mixins import GeopandasExportMixin, PandasExportMixin
+from geost.projections import (
+    horizontal_reference_transformer,
+    vertical_reference_transformer,
+)
 from geost.utils import dataframe_to_geodataframe
 from geost.validate.decorators import validate_data, validate_header
 
@@ -22,10 +27,9 @@ pd.set_option("mode.copy_on_write", True)
 
 
 class PointHeader(AbstractHeader, GeopandasExportMixin):
-    def __init__(self, gdf, vertical_reference):
+    def __init__(self, gdf, vertical_reference: str | int | CRS):
         self.gdf = gdf
-        self.__horizontal_reference = self.gdf.crs
-        self.__vertical_reference = vertical_reference
+        self.__vertical_reference = CRS(vertical_reference)
 
     def __repr__(self):
         return f"{self.__class__.__name__} instance containing {len(self)} objects"
@@ -33,8 +37,8 @@ class PointHeader(AbstractHeader, GeopandasExportMixin):
     def __getitem__(self, column):
         return self.gdf[column]
 
-    def __setitem__(self, column, key):
-        self.gdf[key] = column
+    def __setitem__(self, key, values):
+        self.gdf[key] = values
 
     def __len__(self):
         return len(self.gdf)
@@ -45,7 +49,7 @@ class PointHeader(AbstractHeader, GeopandasExportMixin):
 
     @property
     def horizontal_reference(self):
-        return self.__horizontal_reference
+        return self.gdf.crs
 
     @property
     def vertical_reference(self):
@@ -55,6 +59,43 @@ class PointHeader(AbstractHeader, GeopandasExportMixin):
     @validate_header
     def gdf(self, gdf):
         self._gdf = gdf
+
+    def change_horizontal_reference(self, to_epsg: str | int | CRS):
+        """
+        Change the horizontal reference (i.e. coordinate reference system, crs) of the
+        collection to the given target crs.
+
+        Parameters
+        ----------
+        to_crs : int
+            EPSG of the target crs
+        """
+        transformer = horizontal_reference_transformer(
+            self.horizontal_reference, to_epsg
+        )
+        self._gdf = self.gdf.to_crs(to_epsg)
+        self._gdf["x"], self._gdf["y"] = transformer.transform(
+            self._gdf["x"], self._gdf["y"]
+        )
+
+    def change_vertical_reference(self, to_epsg: str | int | CRS):
+        """
+        Change the vertical reference of the object's surface levels
+        Parameters
+        ----------
+        to_epsg : int
+            To which vertical datum to convert, referenced by the datum's EPSG number.
+            see spatialreference.org. E.g. NAP is EPSG:5709 and TAW is EPSG:5710.
+
+        """
+        transformer = vertical_reference_transformer(
+            self.horizontal_reference, self.vertical_reference, to_epsg
+        )
+        _, _, new_surface = transformer.transform(
+            self.gdf["x"], self.gdf["y"], self.gdf["surface"]
+        )
+        self._gdf["surface"] = new_surface
+        self.__vertical_reference = CRS(to_epsg)
 
     def get(self, selection_values: str | Iterable, column: str = "nr"):
         """
@@ -337,10 +378,9 @@ class PointHeader(AbstractHeader, GeopandasExportMixin):
 
 
 class LineHeader(AbstractHeader, GeopandasExportMixin):
-    def __init__(self, gdf, vertical_reference):
+    def __init__(self, gdf, vertical_reference: str | int | CRS):
         self.gdf = gdf
-        self.__horizontal_reference = self.gdf.crs
-        self.__vertical_reference = vertical_reference
+        self.__vertical_reference = CRS(vertical_reference)
 
     def __repr__(self):
         return f"{self.__class__.__name__} instance containing {len(self)} objects"
@@ -348,8 +388,8 @@ class LineHeader(AbstractHeader, GeopandasExportMixin):
     def __getitem__(self, column):
         return self.gdf[column]
 
-    def __setitem__(self, column, key):
-        self.gdf[key] = column
+    def __setitem__(self, key, values):
+        self.gdf[key] = values
 
     def __len__(self):
         return len(self.gdf)
@@ -360,7 +400,7 @@ class LineHeader(AbstractHeader, GeopandasExportMixin):
 
     @property
     def horizontal_reference(self):
-        return self.__horizontal_reference
+        return self.gdf.crs
 
     @property
     def vertical_reference(self):
@@ -370,6 +410,12 @@ class LineHeader(AbstractHeader, GeopandasExportMixin):
     @validate_header
     def gdf(self, gdf):
         self._gdf = gdf
+
+    def change_horizontal_reference(self, to_epsg: str | int | CRS):
+        raise NotImplementedError("Add function logic")
+
+    def change_vertical_reference(self, to_epsg: str | int | CRS):
+        raise NotImplementedError("Add function logic")
 
     def get(self):
         raise NotImplementedError("Add function logic")
@@ -397,8 +443,13 @@ class LineHeader(AbstractHeader, GeopandasExportMixin):
 
 
 class LayeredData(AbstractData, PandasExportMixin):
-    def __init__(self, df: pd.DataFrame):
+    def __init__(
+        self,
+        df: pd.DataFrame,
+        has_inclined: bool = False,
+    ):
         self.df = df
+        self.has_inclined = has_inclined
 
     def __repr__(self):
         name = self.__class__.__name__
@@ -430,12 +481,6 @@ class LayeredData(AbstractData, PandasExportMixin):
     ):
         header_columns = ["nr", "x", "y", "surface", "end"]
         header = self[header_columns].drop_duplicates().reset_index(drop=True)
-        warnings.warn(
-            (
-                "Header does not contain a crs. Consider setting crs using "
-                "header.set_horizontal_reference()."
-            )
-        )
         header = dataframe_to_geodataframe(header).set_crs(horizontal_reference)
         return PointHeader(header, vertical_reference)
 
@@ -443,12 +488,10 @@ class LayeredData(AbstractData, PandasExportMixin):
         self,
         horizontal_reference: int = 28992,
         vertical_reference: str = "NAP",
-        has_inclined: bool = False,
     ):
         header = self.to_header(horizontal_reference, vertical_reference)
-        return BoreholeCollection(
-            header, self, has_inclined=has_inclined
-        )  # NOTE: Type of Collection may need to be inferred in the future.
+        return BoreholeCollection(header, self)
+        # NOTE: Type of Collection may need to be inferred in the future.
 
     def select_by_values(
         self, column: str, selection_values: str | Iterable, how: str = "or"
@@ -714,7 +757,9 @@ class LayeredData(AbstractData, PandasExportMixin):
 
 
 class DiscreteData(AbstractData, PandasExportMixin):
-    def __init__(self, df):
+    def __init__(self, df, has_inclined: bool = False):
+        self.df = df
+        self.has_inclined = has_inclined
         raise NotImplementedError(f"{self.__class__.__name__} not supported yet")
 
     @property
@@ -760,11 +805,9 @@ class Collection(AbstractCollection):
         self,
         header: HeaderObject,
         data: DataObject,
-        has_inclined: bool,
     ):
         self.header = header
         self.data = data
-        self.__has_inclined = has_inclined
 
     def __new__(cls, *args, **kwargs):
         if cls is Collection:
@@ -792,10 +835,6 @@ class Collection(AbstractCollection):
         Number of objects in the collection.
         """
         return len(self.header.gdf)
-
-    @property
-    def has_inclined(self):
-        return self.__has_inclined
 
     @property
     def horizontal_reference(self):  # Move to header class in future refactor
@@ -832,16 +871,45 @@ class Collection(AbstractCollection):
         column_name : str
             Name of the column in the header table to add.
         """
-        self.data = pd.merge(self.data, self.header[["nr", column_name]], on="nr")
+        self.data.df = pd.merge(self.data.df, self.header[["nr", column_name]], on="nr")
 
-    def change_horizontal_reference(self, to_epsg):
-        raise NotImplementedError("Add function logic")
+    def get(self, selection_values: str | Iterable, column: str = "nr"):
+        """
+        Get a subset of a collection through a string or iterable of object id(s).
+        Optionally uses a different column than "nr" (the column with object ids).
 
-    def change_vertical_reference(self, to_epsg):
-        raise NotImplementedError("Add function logic")
+        Parameters
+        ----------
+        selection_values : str | Iterable
+            Values to select
+        column : str, optional
+            In which column of the header to look for selection values, by default "nr"
 
-    def get(self):
-        raise NotImplementedError("Add function logic")
+        Returns
+        -------
+        Child of :class:`~geost.base.PointDataCollection`.
+            Instance of either :class:`~geost.borehole.BoreholeCollection` or
+            :class:`~geost.borehole.CptCollection` containing only objects selected by
+            this method.
+
+        Examples
+        --------
+        self.get(["obj1", "obj2"]) will return a collection with only these objects.
+
+        Suppose we have a collection of boreholes that we have joined with geological
+        map units using the method
+        :meth:`~geost.base.PointDataCollection.get_area_labels`. We have added this data
+        to the header table in the column 'geological_unit'. Using:
+
+        self.get(["unit1", "unit2"], column="geological_unit")
+
+        will return a :class:`~geost.borehole.BoreholeCollection` with all boreholes
+        that are located in "unit1" and "unit2" geological map areas.
+        """
+        selected_header = self.header.get(selection_values, column)
+        selected_data = self.data.select_by_values(column, selection_values)
+
+        return self.__class__(selected_header, selected_data)
 
     def reset_header(self):
         raise NotImplementedError("Add function logic")
@@ -882,13 +950,6 @@ class Collection(AbstractCollection):
     def slice_by_values(self):
         raise NotImplementedError("Add function logic")
 
-    def get_cumulative_layer_thickness(self):
-        # Not sure if this should be here, potentially unsuitable with DiscreteData
-        raise NotImplementedError("Add function logic")
-
-    def get_layer_top(self):
-        raise NotImplementedError("Add function logic")
-
     def to_vtm(self):
         raise NotImplementedError("Add function logic")
 
@@ -898,7 +959,12 @@ class Collection(AbstractCollection):
 
 
 class BoreholeCollection(Collection):
-    pass
+    def get_cumulative_layer_thickness(self):
+        # Not sure if this should be here, potentially unsuitable with DiscreteData
+        raise NotImplementedError("Add function logic")
+
+    def get_layer_top(self):
+        raise NotImplementedError("Add function logic")
 
 
 class CptCollection(Collection):
