@@ -253,3 +253,13 @@ class TestLayeredData:
 
         assert_array_almost_equal(borehole["top"], expected_top)
         assert_array_almost_equal(borehole["bottom"], expected_bottom)
+
+    @pytest.mark.unittest
+    def test_check_correct_instance(self, borehole_data):
+        inst = "string"
+        inst = borehole_data._check_correct_instance(inst)
+        assert isinstance(inst, list)
+
+        inst = ["list of strings"]
+        inst = borehole_data._check_correct_instance(inst)
+        assert isinstance(inst, list)
