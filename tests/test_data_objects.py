@@ -23,6 +23,8 @@ class TestLayeredData:
     def test_to_collection(self, borehole_data):
         collection = borehole_data.to_collection()
         assert isinstance(collection, BoreholeCollection)
+        assert isinstance(collection.header, PointHeader)
+        assert len(collection.header) == 5
 
     @pytest.mark.unittest
     def test_select_by_values(self, borehole_data):
