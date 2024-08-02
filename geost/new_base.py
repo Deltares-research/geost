@@ -1,4 +1,4 @@
-import warnings
+import pickle
 from pathlib import WindowsPath
 from typing import Iterable, List
 
@@ -525,6 +525,18 @@ class LayeredData(AbstractData, PandasExportMixin):
     def df(self, df):
         self._df = df
 
+    @staticmethod
+    def _check_correct_instance(selection_values: str | Iterable) -> Iterable:
+        if isinstance(selection_values, str):
+            selection_values = [selection_values]
+        return selection_values
+
+    @staticmethod
+    def _change_depth_values(df: pd.DataFrame) -> pd.DataFrame:
+        df["top"] = df["surface"] - df["top"]
+        df["bottom"] = df["surface"] - df["bottom"]
+        return df
+
     def to_header(
         self,
         horizontal_reference: str | int | CRS = 28992,
@@ -717,8 +729,7 @@ class LayeredData(AbstractData, PandasExportMixin):
         >>> boreholes.slice_by_values("lith", "Z", invert=True)
 
         """
-        if isinstance(selection_values, str):
-            selection_values = [selection_values]
+        selection_values = self._check_correct_instance(selection_values)
 
         sliced = self.df.copy()
 
@@ -830,14 +841,12 @@ class LayeredData(AbstractData, PandasExportMixin):
             A composite class holding the data which can be iterated over.
 
         """
-        if isinstance(data_columns, str):
-            data_columns = [data_columns]
+        data_columns = self._check_correct_instance(data_columns)
 
         data = self.df.copy()
 
         if relative_to_vertical_reference:
-            data["top"] = data["surface"] - data["top"]
-            data["bottom"] = data["surface"] - data["bottom"]
+            data = self._change_depth_values(data)
         else:
             data["surface"] = 0
 
@@ -847,7 +856,7 @@ class LayeredData(AbstractData, PandasExportMixin):
 
     def to_vtm(
         self,
-        out_file: str | WindowsPath,
+        outfile: str | WindowsPath,
         data_columns: str | List[str],
         radius: float = 1,
         vertical_factor: float = 1.0,
@@ -860,7 +869,7 @@ class LayeredData(AbstractData, PandasExportMixin):
 
         Parameters
         ----------
-        out_file : str | WindowsPath
+        outfile : str | WindowsPath
             Path to vtm file to be written.
         data_columns : str | List[str]
             Name or names of data columns to include for visualisation. Can be columns that
@@ -888,16 +897,62 @@ class LayeredData(AbstractData, PandasExportMixin):
             relative_to_vertical_reference,
             **kwargs,
         )
-        vtk_object.save(out_file, **kwargs)
+        vtk_object.save(outfile, **kwargs)
 
     def to_datafusiontools(
         self,
         columns: List[str],
-        out_file: str | WindowsPath = None,
+        outfile: str | WindowsPath = None,
         encode: bool = False,
-        **kwargs,
+        relative_to_vertical_reference: bool = True,
     ):
-        raise NotImplementedError()
+        """
+        Export all data to the core "Data" class of Deltares DataFusionTools. Returns
+        a list of "Data" objects, one for each data object that is exported. This list
+        can directly be used within DataFusionTools. If out_file is given, the list of
+        Data objects is saved to a pickle file.
+
+        For DataFusionTools visit:
+        https://bitbucket.org/DeltaresGEO/datafusiontools/src/master/
+
+        Parameters
+        ----------
+        columns : List[str]
+            Which columns in the data to include for the export. These will become variables
+            in the DataFusionTools "Data" class.
+        outfile : str | WindowsPath, optional
+            If a path to outfile is given, the data is written to a pickle file.
+        encode : bool, default True
+            If True, categorical data columns are encoded to additional binary columns
+            (all possible values become a seperate feature that is 0 or 1). The default is
+            False. Warning: if there is a large number of possible categories, many columns
+            with categorical data or both, the export process may become slow and may consume
+            a large amount memory. Please consider carefully which categorical data columns
+            need to be included.
+        relative_to_vertical_reference : bool, optional
+            If True, the depth of all data objects will converted to a depth with respect to
+            a reference plane (e.g. "NAP", "TAW"). If False, the depth will be kept as original
+            in the "top" and "bottom" columns which is in meter below the surface. The default
+            is True.
+
+        Returns
+        -------
+        List[Data]
+            List containing the DataFusionTools Data objects.
+
+        """
+        columns = self._check_correct_instance(columns)
+        data = self.df.copy()
+        if relative_to_vertical_reference:
+            data = self._change_depth_values(data)
+
+        dftgeodata = export_to_dftgeodata(data, columns, encode=encode)
+
+        if outfile:
+            with open(outfile, "wb") as f:
+                pickle.dump(dftgeodata, f)
+        else:
+            return dftgeodata
 
 
 class DiscreteData(AbstractData, PandasExportMixin):

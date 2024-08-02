@@ -3,6 +3,7 @@ import pytest
 from numpy.testing import assert_array_almost_equal, assert_array_equal
 from pyvista import MultiBlock
 
+from geost.export import geodataclass
 from geost.new_base import BoreholeCollection, PointHeader
 
 
@@ -203,3 +204,34 @@ class TestLayeredData:
         expected_bounds = (0.0, 5.0, 0.0, 6.0, 0.0, 55.0)
         assert multiblock.n_blocks == 5
         assert multiblock.bounds == expected_bounds
+
+    @pytest.mark.unittest
+    def test_to_datafusiontools(self, borehole_data):
+        # Test normal export.
+        dft = borehole_data.to_datafusiontools("lith")
+
+        expected_independent_value = [-0.2, -0.95, -1.8, -2.9, -3.75]
+        expected_number_of_variables = 1
+
+        assert len(dft) == 5
+        assert np.all([isinstance(d, geodataclass.Data) for d in dft])
+        assert np.all([len(d.variables) == expected_number_of_variables for d in dft])
+        assert_array_almost_equal(
+            dft[0].independent_variable.value, expected_independent_value
+        )
+
+        # Test with label encoding.
+        dft = borehole_data.to_datafusiontools("lith", encode=True)
+        expected_number_of_variables = 3
+        assert np.all([isinstance(d, geodataclass.Data) for d in dft])
+        assert np.all([len(d.variables) == expected_number_of_variables for d in dft])
+
+        # Test without updating layer depths to NAP
+        dft = borehole_data.to_datafusiontools(
+            "lith", relative_to_vertical_reference=False
+        )
+        expected_independent_value = [0.4, 1.15, 2.0, 3.1, 3.95]
+
+        assert_array_almost_equal(
+            dft[0].independent_variable.value, expected_independent_value
+        )
