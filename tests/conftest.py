@@ -117,9 +117,20 @@ def borehole_file():
 
 
 @pytest.fixture
+def nlog_borehole_file():
+    return Path(__file__).parent / "data/test_nlog_stratstelsel_20230807.parquet"
+
+
+@pytest.fixture
 def borehole_collection(borehole_file):
     borehole_collection = read_sst_cores(borehole_file, 28992, "NAP")
     return borehole_collection
+
+
+@pytest.fixture
+def nlog_borehole_collection(nlog_borehole_file):
+    nlog_borehole_collection = read_sst_cores(nlog_borehole_file, 28992, "NAP")
+    return nlog_borehole_collection
 
 
 @pytest.fixture

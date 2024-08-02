@@ -4,6 +4,7 @@ from typing import Union
 import geopandas as gpd
 import numpy as np
 import pandas as pd
+from pyproj import CRS
 
 from geost.bro import BroApi
 from geost.io import _parse_cpt_gef_files
@@ -49,9 +50,10 @@ def __read_parquet(file: WindowsPath) -> pd.DataFrame:
 
 def read_sst_cores(
     file: str | WindowsPath,
-    horizontal_reference: int = 28992,
-    vertical_reference: str = "NAP",
+    horizontal_reference: str | int | CRS = 28992,
+    vertical_reference: str | int | CRS = 5709,
     has_inclined: bool = False,
+    column_mapper: dict = {},
 ) -> BoreholeCollection:
     """
     Read Subsurface Toolbox native parquet file with core information..
@@ -60,35 +62,32 @@ def read_sst_cores(
     ----------
     file : str | WindowsPath
         Path to file to be read.
-    vertical_reference: str
-        Which vertical reference is used for tops and bottoms. See
-        :py:attr:`~geost.base.PointDataCollection.vertical_reference` for documentation
-        of this attribute.
     horizontal_reference (int): Horizontal reference, see
-        :py:attr:`~geost.base.PointDataCollection.horizontal_reference`
+        EPSG of the data's coordinate reference system. Takes anything that can be
+        interpreted by pyproj.crs.CRS.from_user_input().
+    vertical_reference: str | int | CRS
+        EPSG of the data's vertical datum. Takes anything that can be interpreted by
+        pyproj.crs.CRS.from_user_input(). However, it must be a vertical datum. FYI:
+        "NAP" is EPSG 5709 and The Belgian reference system (Ostend height) is ESPG
+        5710.
 
     Returns
     -------
     :class:`~geost.borehole.BoreholeCollection`
         Instance of :class:`~geost.borehole.BoreholeCollection`.
     """
+    column_mapper = {value: key for key, value in column_mapper.items()}
     sst_cores = __read_parquet(Path(file))
+    sst_cores.rename(columns=column_mapper, inplace=True)
     layerdata = LayeredData(sst_cores, has_inclined=has_inclined)
     collection = layerdata.to_collection(horizontal_reference, vertical_reference)
     return collection
 
-    return BoreholeCollection(
-        sst_cores,
-        vertical_reference=vertical_reference,
-        horizontal_reference=horizontal_reference,
-        has_inclined=False,
-    )
-
 
 def read_sst_cpts(
     file: str | WindowsPath,
-    vertical_reference: str = "NAP",
-    horizontal_reference: int = 28992,
+    horizontal_reference: str | int | CRS = 28992,
+    vertical_reference: str | int | CRS = 5709,
 ) -> CptCollection:
     """
     Read Subsurface Toolbox native parquet file with cpt information.
