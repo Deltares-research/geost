@@ -5,6 +5,7 @@ from typing import Iterable, List
 import geopandas as gpd
 import pandas as pd
 from pyproj import CRS
+from shapely.geometry import LineString
 
 from geost import spatial
 from geost.abstract_classes import AbstractCollection, AbstractData, AbstractHeader
@@ -521,7 +522,7 @@ class LayeredData(AbstractData, PandasExportMixin):
         return self._df
 
     @df.setter
-    # @validate_data
+    # @validate_data  # TODO: Make sure validation works.
     def df(self, df):
         self._df = df
 
@@ -953,6 +954,56 @@ class LayeredData(AbstractData, PandasExportMixin):
                 pickle.dump(dftgeodata, f)
         else:
             return dftgeodata
+
+    def to_qgis3d(
+        self, outfile: str | WindowsPath, relative_to_vertical_reference: bool = True
+    ):
+        data = self.df.copy()
+
+        if relative_to_vertical_reference:
+            data = self._change_depth_values(data)
+
+        data_columns = [
+            col
+            for col in data.columns
+            if col
+            not in ["nr", "x", "y", "x_bot", "y_bot", "surface", "end", "top", "bottom"]
+        ]
+
+        data_to_write = dict(
+            nr=data["nr"].values,
+            top=data["top"].values.astype(float),
+            bottom=data["bottom"].values.astype(float),
+        )
+
+        data_to_write.update(data[data_columns].to_dict(orient="list"))
+
+        if self.has_inclined:
+            geometries = [
+                LineString([[x, y, top + 0.01], [x_bot, y_bot, bottom + 0.01]])
+                for x, y, x_bot, y_bot, top, bottom in zip(
+                    data["x"].values.astype(float),
+                    data["y"].values.astype(float),
+                    data["x_bot"].values.astype(float),
+                    data["y_bot"].values.astype(float),
+                    data["top"].values.astype(float),
+                    data["bottom"].values.astype(float),
+                )
+            ]
+        else:  # NOTE: Doesn't it need to be "top - 0.01" to create overlap?
+            geometries = [
+                LineString([[x, y, top + 0.01], [x, y, bottom + 0.01]])
+                for x, y, top, bottom in zip(
+                    data["x"].values.astype(float),
+                    data["y"].values.astype(float),
+                    data["top"].values.astype(float),
+                    data["bottom"].values.astype(float),
+                )
+            ]
+
+        qgis3d = gpd.GeoDataFrame(data=data_to_write, geometry=geometries)
+        qgis3d.to_file(outfile, driver="GPKG")
+        return qgis3d
 
 
 class DiscreteData(AbstractData, PandasExportMixin):
