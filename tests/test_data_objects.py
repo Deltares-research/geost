@@ -131,7 +131,7 @@ class TestLayeredData:
         # Test slicing with respect to a vertical reference plane.
         nap_upper, nap_lower = -2, -3
         sliced = borehole_data.slice_depth_interval(
-            nap_upper, nap_lower, vertical_reference="NAP"
+            nap_upper, nap_lower, relative_to_vertical_reference=True
         )
 
         expected_tops_of_slice = [2.2, 2.3, 2.25, 2.1, 1.9]
@@ -147,7 +147,7 @@ class TestLayeredData:
         # Test slices that return empty objects.
         empty_slice = borehole_data.slice_depth_interval(-2, -1)
         empty_slice_nap = borehole_data.slice_depth_interval(
-            3, 2, vertical_reference="NAP"
+            3, 2, relative_to_vertical_reference=True
         )
 
         assert len(empty_slice) == 0
@@ -164,7 +164,7 @@ class TestLayeredData:
 
         nap_lower = -0.5
         sliced = borehole_data.slice_depth_interval(
-            lower_boundary=nap_lower, vertical_reference="NAP"
+            lower_boundary=nap_lower, relative_to_vertical_reference=True
         )
 
         bottoms_of_slice = sliced.df.groupby("nr")["bottom"].max()

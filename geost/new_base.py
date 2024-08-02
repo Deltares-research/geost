@@ -478,6 +478,22 @@ class LineHeader(AbstractHeader, GeopandasExportMixin):
 
 
 class LayeredData(AbstractData, PandasExportMixin):
+    """
+    A class to hold layered data objects (i.e. containing "tops" and "bottoms") like
+    borehole descriptions which can be used for selections and exports.
+
+    Parameters
+    ----------
+    df : pd.DataFrame
+        Pandas DataFrame containing the data. Mandatory columns that must be present in the
+        DataFrame are: "nr", "x", "y", "surface", "top" and "bottom". Otherwise, many methods
+        in the class will not work.
+    has_inclined : bool, optional
+        If True, the data also contains inclined objects which means the top of layers is
+        not in the same x,y-location as the bottom of layers.
+
+    """
+
     def __init__(
         self,
         df: pd.DataFrame,
@@ -542,7 +558,7 @@ class LayeredData(AbstractData, PandasExportMixin):
             values.
         selection_values : str | Iterable
             Value or values to look for in the column.
-        how : str
+        how : str, optional
             Either "and" or "or". "and" requires all selection values to be present in
             column for selection. "or" will select the core if any one of the
             selection_values are found in the column. Default is "and".
@@ -589,7 +605,7 @@ class LayeredData(AbstractData, PandasExportMixin):
         self,
         upper_boundary: float | int = None,
         lower_boundary: float | int = None,
-        vertical_reference_plane: str = VerticalReference.DEPTH,  # NOTE: Think about using bool
+        relative_to_vertical_reference: bool = False,
         update_layer_boundaries: bool = True,
     ):
         """
@@ -602,11 +618,10 @@ class LayeredData(AbstractData, PandasExportMixin):
             Every layer that starts above this is removed. The default is None.
         lower_boundary : float | int, optional
             Every layer that starts below this is removed. The default is None.
-        vertical_reference_plane : str, optional
-            Specify whether the slicing is done with respect to any kind of vertical
-            reference plane (e.g. "NAP", "TAW") or with respect to depth below the surface
-            ("Depth"). The default is "Depth", this performs the slice with respect to depth
-            below the surface.
+        relative_to_vertical_reference : bool, optional
+            If True, the slicing is done with respect to any kind of vertical reference
+            plane (e.g. "NAP", "TAW"). If False, the slice is done with respect to depth
+            below the surface. The default is False.
         update_layer_boundaries : bool, optional
             If True, the layer boundaries in the sliced data are updated according to the
             upper and lower boundaries used with the slice. If False, the original layer
@@ -619,8 +634,8 @@ class LayeredData(AbstractData, PandasExportMixin):
 
         Examples
         --------
-        Usage depends on whether the slicing is done with respect to "depth below the
-        surface" or to a "vertical_reference".
+        Usage depends on whether the slicing is done with respect to depth below the
+        surface or to a vertical reference plane.
 
         For example, select layers in boreholes that are between 2 and 3 meters below the
         surface:
@@ -632,25 +647,21 @@ class LayeredData(AbstractData, PandasExportMixin):
 
         >>> boreholes.slice_depth_interval(2, 3, update_layer_boundaries=False)
 
-        Slicing can also be done with respect to a "vertical_reference". For example, to
-        select layers in boreholes that are between -3 and -5 m NAP, use:
+        Slicing can also be done with respect to a vertical reference plane like "NAP".
+        For example, to select layers in boreholes that are between -3 and -5 m NAP, use:
 
-        >>> boreholes.slice_depth_interval(-3, -5, vertical_reference="NAP")
+        >>> boreholes.slice_depth_interval(-3, -5, relative_to_vertical_reference=True)
 
         """
         if not upper_boundary:
-            upper_boundary = (
-                -1e34 if vertical_reference_plane == VerticalReference.DEPTH else 1e34
-            )
+            upper_boundary = 1e34 if relative_to_vertical_reference else -1e34
 
         if not lower_boundary:
-            lower_boundary = (
-                1e34 if vertical_reference_plane == VerticalReference.DEPTH else -1e34
-            )
+            lower_boundary = -1e34 if relative_to_vertical_reference else 1e34
 
         sliced = self.df.copy()
 
-        if vertical_reference_plane != VerticalReference.DEPTH:
+        if relative_to_vertical_reference:
             bounds_are_series = True
             upper_boundary = self["surface"] - upper_boundary
             lower_boundary = self["surface"] - lower_boundary
@@ -685,9 +696,9 @@ class LayeredData(AbstractData, PandasExportMixin):
             values.
         selection_values : str | Iterable
             Values to look for in the column.
-        invert : bool
-            Invert the slicing action, so remove layers with selected values instead of
-            keeping them.
+        invert : bool, optional
+            If True, invert the slicing action, so remove layers with selected values
+            instead of keeping them. The default is False.
 
         Returns
         -------
@@ -802,7 +813,7 @@ class LayeredData(AbstractData, PandasExportMixin):
             Name or names of data columns to include for visualisation. Can be columns that
             contain an array of floats, ints and strings.
         radius : float, optional
-            Radius of the cylinders in m, by default 1.
+            Radius of the cylinders in m in the MultiBlock. The default is 1.
         vertical_factor : float, optional
             Factor to correct vertical scale. For example, when layer boundaries are given
             in cm, use 0.01 to convert to m. The default is 1.0, so no correction is applied.
