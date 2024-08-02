@@ -1,6 +1,7 @@
 import numpy as np
 import pytest
 from numpy.testing import assert_array_almost_equal, assert_array_equal
+from pyvista import MultiBlock
 
 from geost.new_base import BoreholeCollection, PointHeader
 
@@ -173,5 +174,32 @@ class TestLayeredData:
         assert_array_equal(bottoms_of_slice, expected_bottoms_of_slice)
 
     @pytest.mark.unittest
-    def test_to_vtm(self, borehole_data):
-        borehole_data.to_vtm()
+    def test_to_multiblock(self, borehole_data):
+        # Test normal to multiblock.
+        multiblock = borehole_data.to_multiblock("lith")
+        expected_bounds = (0.0, 5.0, 0.0, 6.0, -5.25, 0.3)
+        assert isinstance(multiblock, MultiBlock)
+        assert multiblock.n_blocks == 5
+        assert multiblock.bounds == expected_bounds
+
+        # Test with vertical exageration.
+        multiblock = borehole_data.to_multiblock("lith", vertical_factor=10)
+        expected_bounds = (0.0, 5.0, 0.0, 6.0, -52.5, 3.0)
+        assert multiblock.n_blocks == 5
+        assert multiblock.bounds == expected_bounds
+
+        # Test to multiblock with respect to depth below the surface.
+        multiblock = borehole_data.to_multiblock(
+            "lith", relative_to_vertical_reference=False
+        )
+        expected_bounds = (0.0, 5.0, 0.0, 6.0, 0.0, 5.5)
+        assert multiblock.n_blocks == 5
+        assert multiblock.bounds == expected_bounds
+
+        # Test with both options.
+        multiblock = borehole_data.to_multiblock(
+            "lith", vertical_factor=10, relative_to_vertical_reference=False
+        )
+        expected_bounds = (0.0, 5.0, 0.0, 6.0, 0.0, 55.0)
+        assert multiblock.n_blocks == 5
+        assert multiblock.bounds == expected_bounds

@@ -10,6 +10,7 @@ from geost import spatial
 from geost.abstract_classes import AbstractCollection, AbstractData, AbstractHeader
 from geost.analysis import cumulative_thickness
 from geost.enums import VerticalReference
+from geost.export import borehole_to_multiblock, export_to_dftgeodata
 from geost.mixins import GeopandasExportMixin, PandasExportMixin
 from geost.projections import (
     horizontal_reference_transformer,
@@ -554,7 +555,7 @@ class LayeredData(AbstractData, PandasExportMixin):
         self,
         upper_boundary: float | int = None,
         lower_boundary: float | int = None,
-        vertical_reference: str = VerticalReference.DEPTH,  # NOTE: Think about using bool
+        vertical_reference_plane: str = VerticalReference.DEPTH,  # NOTE: Think about using bool
         update_layer_boundaries: bool = True,
     ):
         """
@@ -567,7 +568,7 @@ class LayeredData(AbstractData, PandasExportMixin):
             Every layer that starts above this is removed. The default is None.
         lower_boundary : float | int, optional
             Every layer that starts below this is removed. The default is None.
-        vertical_reference : str, optional
+        vertical_reference_plane : str, optional
             Specify whether the slicing is done with respect to any kind of vertical
             reference plane (e.g. "NAP", "TAW") or with respect to depth below the surface
             ("Depth"). The default is "Depth", this performs the slice with respect to depth
@@ -605,17 +606,17 @@ class LayeredData(AbstractData, PandasExportMixin):
         """
         if not upper_boundary:
             upper_boundary = (
-                -1e34 if vertical_reference == VerticalReference.DEPTH else 1e34
+                -1e34 if vertical_reference_plane == VerticalReference.DEPTH else 1e34
             )
 
         if not lower_boundary:
             lower_boundary = (
-                1e34 if vertical_reference == VerticalReference.DEPTH else -1e34
+                1e34 if vertical_reference_plane == VerticalReference.DEPTH else -1e34
             )
 
         sliced = self.df.copy()
 
-        if vertical_reference != VerticalReference.DEPTH:
+        if vertical_reference_plane != VerticalReference.DEPTH:
             bounds_are_series = True
             upper_boundary = self["surface"] - upper_boundary
             lower_boundary = self["surface"] - lower_boundary
@@ -749,8 +750,46 @@ class LayeredData(AbstractData, PandasExportMixin):
         layer_top = selected_layers.df.groupby(["nr", column])["top"].first()
         return layer_top.unstack(level=column)
 
-    def to_vtm(self):
-        print(2)
+    def to_multiblock(  # TODO: Make @abstractmethod in AbstractData?
+        self,
+        data_columns: str | List[str],
+        radius: float = 1,
+        vertical_factor: float = 1.0,
+        relative_to_vertical_reference: bool = True,
+        **kwargs,  # NOTE: are **kwargs used by borehole_to_multiblock???
+    ):
+        if isinstance(data_columns, str):
+            data_columns = [data_columns]
+
+        data = self.df.copy()
+
+        if relative_to_vertical_reference:
+            data["top"] = data["surface"] - data["top"]
+            data["bottom"] = data["surface"] - data["bottom"]
+        else:
+            data["surface"] = 0
+
+        return borehole_to_multiblock(
+            data, data_columns, radius, vertical_factor, **kwargs
+        )
+
+    def to_vtm(
+        self,
+        out_file: str | WindowsPath,
+        data_columns: str | List[str],
+        radius: float = 1,
+        vertical_factor: float = 1.0,
+        relative_to_vertical_reference: bool = True,
+        **kwargs,
+    ):
+        vtk_object = self.to_multiblock(
+            data_columns,
+            radius,
+            vertical_factor,
+            relative_to_vertical_reference,
+            **kwargs,
+        )
+        vtk_object.save(out_file, **kwargs)
 
     def to_datafusiontools(self):
         raise NotImplementedError()
