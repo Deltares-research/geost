@@ -792,6 +792,33 @@ class LayeredData(AbstractData, PandasExportMixin):
         relative_to_vertical_reference: bool = True,
         **kwargs,  # NOTE: are **kwargs used by borehole_to_multiblock???
     ):
+        """
+        Create a Pyvista MultiBlock object from the data that can be used for 3D plotting
+        and other spatial analyses.
+
+        Parameters
+        ----------
+        data_columns : str | List[str]
+            Name or names of data columns to include for visualisation. Can be columns that
+            contain an array of floats, ints and strings.
+        radius : float, optional
+            Radius of the cylinders in m, by default 1.
+        vertical_factor : float, optional
+            Factor to correct vertical scale. For example, when layer boundaries are given
+            in cm, use 0.01 to convert to m. The default is 1.0, so no correction is applied.
+            It is not recommended to use this for vertical exaggeration, use viewer functionality
+            for that instead.
+        relative_to_vertical_reference : bool, optional
+            If True, the depth of the objects in the vtm file will be with respect to a
+            reference plane (e.g. "NAP", "TAW"). If False, the depth will be with respect
+            to 0.0. The default is True.
+
+        Returns
+        -------
+        MultiBlock
+            A composite class holding the data which can be iterated over.
+
+        """
         if isinstance(data_columns, str):
             data_columns = [data_columns]
 
@@ -816,6 +843,33 @@ class LayeredData(AbstractData, PandasExportMixin):
         relative_to_vertical_reference: bool = True,
         **kwargs,
     ):
+        """
+        Save data as VTM (Multiblock file, an XML VTK file pointing to multiple other
+        VTK files) for viewing in external GUI software like ParaView or other VTK viewers.
+
+        Parameters
+        ----------
+        out_file : str | WindowsPath
+            Path to vtm file to be written.
+        data_columns : str | List[str]
+            Name or names of data columns to include for visualisation. Can be columns that
+            contain an array of floats, ints and strings.
+        radius : float, optional
+            Radius of the cylinders in m, by default 1.
+        vertical_factor : float, optional
+            Factor to correct vertical scale. For example, when layer boundaries are given
+            in cm, use 0.01 to convert to m. The default is 1.0, so no correction is applied.
+            It is not recommended to use this for vertical exaggeration, use viewer functionality
+            for that instead.
+        relative_to_vertical_reference : bool, optional
+            If True, the depth of the objects in the vtm file will be with respect to a
+            reference plane (e.g. "NAP", "TAW"). If False, the depth will be with respect
+            to 0.0. The default is True.
+
+        **kwargs :
+            pyvista.MultiBlock.save kwargs. See relevant Pyvista documentation.
+
+        """
         vtk_object = self.to_multiblock(
             data_columns,
             radius,
@@ -825,7 +879,13 @@ class LayeredData(AbstractData, PandasExportMixin):
         )
         vtk_object.save(out_file, **kwargs)
 
-    def to_datafusiontools(self):
+    def to_datafusiontools(
+        self,
+        columns: List[str],
+        out_file: str | WindowsPath = None,
+        encode: bool = False,
+        **kwargs,
+    ):
         raise NotImplementedError()
 
 
