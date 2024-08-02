@@ -7,15 +7,13 @@ from pyvista import MultiBlock
 
 
 def prepare_borehole(borehole: pd.DataFrame, vertical_factor: float) -> np.ndarray:
-    bh_as_pnts = borehole[["x", "y", "bottom"]].to_numpy().astype(np.float64)
-    bh = np.vstack(
-        [
-            np.array([bh_as_pnts[0, 0], bh_as_pnts[0, 1], borehole["surface"].iloc[0]]),
-            bh_as_pnts,
-        ]
+    borehole_xyz = borehole[["x", "y", "bottom"]].to_numpy()
+    surface_xyz = np.array(
+        [borehole_xyz[0, 0], borehole_xyz[0, 1], borehole["surface"].iloc[0]]
     )
-    bh[:, 2] *= vertical_factor
-    return bh
+    borehole_xyz = np.vstack([surface_xyz, borehole_xyz], dtype="float64")
+    borehole_xyz[:, 2] *= vertical_factor
+    return borehole_xyz
 
 
 def generate_cylinders(
@@ -65,8 +63,8 @@ def borehole_to_multiblock(
     -------
     pv.MultiBlock
         MultiBlock object with boreholes represented as cylinder geometries
-    """
 
+    """
     cylinders = generate_cylinders(table, data_columns, radius, vertical_factor)
     cylinders_multiblock = pv.MultiBlock(list(cylinders))
     return cylinders_multiblock
