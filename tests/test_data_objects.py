@@ -182,6 +182,9 @@ class TestLayeredData:
         assert isinstance(multiblock, MultiBlock)
         assert multiblock.n_blocks == 5
         assert multiblock.bounds == expected_bounds
+        assert multiblock[0].n_arrays == 2
+        assert multiblock[0].n_cells == 22
+        assert multiblock[0].n_points == 160
 
         # Test with vertical exageration.
         multiblock = borehole_data.to_multiblock("lith", vertical_factor=10)
@@ -235,3 +238,18 @@ class TestLayeredData:
         assert_array_almost_equal(
             dft[0].independent_variable.value, expected_independent_value
         )
+
+    @pytest.mark.unittest
+    def test_to_qgis3d(self, borehole_data):
+        pass
+
+    @pytest.mark.unittest
+    def test_change_depth_values(self, borehole_data):
+        borehole = borehole_data.select_by_values("nr", "A").df
+        borehole = borehole_data._change_depth_values(borehole)
+
+        expected_top = [0.2, -0.6, -1.3, -2.3, -3.5]
+        expected_bottom = [-0.6, -1.3, -2.3, -3.5, -4.0]
+
+        assert_array_almost_equal(borehole["top"], expected_top)
+        assert_array_almost_equal(borehole["bottom"], expected_bottom)
