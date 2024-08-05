@@ -69,9 +69,19 @@ class AbstractData(ABC):
     def df(self):
         pass
 
+    @property
+    @abstractmethod
+    def datatype(self):
+        pass
+
     @df.setter
     @abstractmethod
     def df(self, df):
+        pass
+
+    @datatype.setter
+    @abstractmethod
+    def datatype(self):
         pass
 
     @abstractmethod

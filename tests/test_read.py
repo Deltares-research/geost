@@ -6,9 +6,10 @@ import pytest
 from numpy.testing import assert_array_equal
 
 from geost import (
-    read_nlog_cores,
     get_bro_objects_from_bbox,
     get_bro_objects_from_geometry,
+    read_nlog_cores,
+    read_sst_cores,
 )
 from geost.borehole import BoreholeCollection
 
@@ -34,8 +35,10 @@ class TestReaders:
                 "end": [-3921.75, -3262.69, -3865.89],
             }
         )
-        assert_array_equal(nlog_cores.header[["nr", "x", "y", "surface", "end"]], desired_df)
-        assert nlog_cores.is_inclined
+        assert_array_equal(
+            nlog_cores.header[["nr", "x", "y", "surface", "end"]], desired_df
+        )
+        assert nlog_cores.has_inclined
 
     @pytest.mark.unittest
     def test_nlog_reader_from_parquet(self):
@@ -49,8 +52,10 @@ class TestReaders:
                 "end": [-3921.75, -3262.69, -3865.89],
             }
         )
-        assert_array_equal(nlog_cores.header[["nr", "x", "y", "surface", "end"]], desired_df)
-        assert nlog_cores.is_inclined
+        assert_array_equal(
+            nlog_cores.header[["nr", "x", "y", "surface", "end"]], desired_df
+        )
+        assert nlog_cores.data.has_inclined
 
     @pytest.mark.unittest
     def test_get_bro_soil_cores_from_bbox(self):
@@ -66,3 +71,11 @@ class TestReaders:
             Path(__file__).parent / "data/test_polygon.parquet",
         )
         assert soilcores.n_points == 1
+
+    @pytest.mark.unittest
+    def test_read_dino(self):
+        dino = read_sst_cores(
+            r"c:\Users\onselen\Lokale data\DINO_Extractie_bovennaaronder_d20230201.parquet",
+            column_mapper={"surface": "mv"},
+        )
+        print("stop")

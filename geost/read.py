@@ -48,6 +48,39 @@ def __read_parquet(file: WindowsPath) -> pd.DataFrame:
         )
 
 
+def adjust_z_coordinates(data_dataframe: pd.DataFrame) -> pd.DataFrame:
+    """
+    Interpret an array containing elevation or z-coordinates. GeoST data objects require
+    that elevation to indicate layer top/bottom or discrete data point z-coordinates to
+    be increasing downward while starting at 0. This function detects from a given array
+    how elevation is defined and turns it into the required format if required.
+
+    Parameters
+    ----------
+    data_dataframe : pd.DataFrame
+        Dataframe with layer or discrete data that includes columns referecing layer
+        top, bottoms or discrete data z-coordinates.
+    """
+    top_column_label = [col for col in data_dataframe.columns if col in ["top", "z"]][0]
+    has_bottom_column = any([True for col in data_dataframe.columns if col == "bottom"])
+
+    # TODO: think about detection. Only considers first two indices to determine
+    # downward decreasing or increasing of z-coordinates.
+    if data_dataframe[top_column_label].iloc[0] == data_dataframe["surface"].iloc[0]:
+        data_dataframe[top_column_label] -= data_dataframe["surface"]
+        if has_bottom_column:
+            data_dataframe["bottom"] -= data_dataframe["surface"]
+    if (
+        data_dataframe[top_column_label].iloc[0]
+        > data_dataframe[top_column_label].iloc[1]
+    ):
+        data_dataframe[top_column_label] *= -1
+        if has_bottom_column:
+            data_dataframe["bottom"] *= -1
+
+    return data_dataframe
+
+
 def read_sst_cores(
     file: str | WindowsPath,
     horizontal_reference: str | int | CRS = 28992,
@@ -56,7 +89,21 @@ def read_sst_cores(
     column_mapper: dict = {},
 ) -> BoreholeCollection:
     """
-    Read Subsurface Toolbox native parquet file with core information..
+    Read Subsurface Toolbox native parquet file with core information. Such a file
+    includes row data for each (borehole) layer and must at least include the following
+    column headers:
+
+    nr      - Object id
+    x       - X-coordinates according to the given horizontal_reference
+    y       - Y-coordinates according to the given horizontal_reference
+    surface - Surface elevation according to the given vertical_reference
+    end     - End depth according to the given vertical_reference
+    top     - Top depth of each layer
+    bottom  - Bottom depth of each layer
+
+    If you are reading a file that uses different column names, see the optional
+    argument "column_mapper" below. There are no further limits or requirements to
+    additional (data) columns.
 
     Parameters
     ----------
@@ -70,15 +117,33 @@ def read_sst_cores(
         pyproj.crs.CRS.from_user_input(). However, it must be a vertical datum. FYI:
         "NAP" is EPSG 5709 and The Belgian reference system (Ostend height) is ESPG
         5710.
+    column_mapper: dict
+        If the file to be read uses different column names than the ones given in the
+        description above, you can use a dictionary mapping to translate the column
+        names to the required format.
 
     Returns
     -------
     :class:`~geost.borehole.BoreholeCollection`
         Instance of :class:`~geost.borehole.BoreholeCollection`.
+
+    Examples
+    --------
+    Suppose we have a file of boreholes with columns 'nr', 'x', 'y', 'maaiveld', 'end',
+    'top' and 'bottom'. . The column 'maaiveld' corresponds to the required column
+    'surface' in GeoST and thus needs to be remapped. The x and y-coordinates are given
+    in WGS84 UTM 31N whereas the vertical datum is given in the Belgian Ostend height
+    vertical datum:
+
+    >>> read_sst_cores(file, 32631, 'Ostend height', column_mapper={'maaiveld': 'surface'})
     """
     column_mapper = {value: key for key, value in column_mapper.items()}
     sst_cores = __read_parquet(Path(file))
     sst_cores.rename(columns=column_mapper, inplace=True)
+
+    # Figure out top and bottom reference and coerce to downward increasing from 0 if
+    # required.
+    sst_cores = adjust_z_coordinates(sst_cores)
     layerdata = LayeredData(sst_cores, has_inclined=has_inclined)
     collection = layerdata.to_collection(horizontal_reference, vertical_reference)
     return collection
@@ -117,23 +182,19 @@ def read_sst_cpts(
     )
 
 
-def read_nlog_cores(
-    file: str | WindowsPath, horizontal_reference: int = 28992
-) -> BoreholeCollection:
+def read_nlog_cores(file: str | WindowsPath) -> BoreholeCollection:
     """
     Read NLog boreholes from the 'nlog_stratstelsel' Excel file. You can find this
     distribution of borehole data here: https://www.nlog.nl/boringen
 
     Warning: reading this Excel file is really slow (~10 minutes). Converting it to
-    parquet using :func:`~geost.utils.excel_to_parquet` and using that file instead
+    parquet using :func:`~geost.utils.excel_to_parquet` once and using that file instead
     allows for much faster reading of nlog data.
 
     Parameters
     ----------
     file : str | WindowsPath
         Path to nlog_stratstelsel.xlsx or .parquet
-    horizontal_reference (int): Horizontal reference, see
-        :py:attr:`~geost.base.PointDataCollection.horizontal_reference`
 
     Returns
     -------
@@ -167,10 +228,10 @@ def read_nlog_cores(
     y = []
     x_bot = []
     y_bot = []
-    mv = []
+    surface = []
     end = []
     nrs_data = []
-    mv_data = []
+    surface_data = []
     end_data = []
     for nr, data in nlog_cores.groupby("nr"):
         nrs.append(nr)
@@ -178,30 +239,22 @@ def read_nlog_cores(
         y.append(data["y"].iloc[0])
         x_bot.append(data["x_bot"].iloc[0])
         y_bot.append(data["y_bot"].iloc[0])
-        mv.append(data["top"].iloc[0])
+        surface.append(data["top"].iloc[0])
         end.append(data["bottom"].iloc[-1])
         nrs_data += [nr for i in range(len(data))]
-        mv_data += [data["top"].iloc[0] for i in range(len(data))]
+        surface_data += [data["top"].iloc[0] for i in range(len(data))]
         end_data += [data["bottom"].iloc[-1] for i in range(len(data))]
 
-    mv_end_df = pd.DataFrame(
-        {"nr": nrs_data, "surface": mv_data, "end": end_data}
+    surface_end_df = pd.DataFrame(
+        {"nr": nrs_data, "surface": surface_data, "end": end_data}
     ).drop_duplicates("nr")
 
-    nlog_cores = nlog_cores.merge(mv_end_df, on="nr", how="left")
+    nlog_cores = nlog_cores.merge(surface_end_df, on="nr", how="left")
+    nlog_cores = adjust_z_coordinates(nlog_cores)
 
-    header = dataframe_to_geodataframe(
-        pd.DataFrame({"nr": nrs, "x": x, "y": y, "surface": mv, "end": end}),
-        crs=horizontal_reference,
-    )
+    collection = LayeredData(nlog_cores, has_inclined=True).to_collection(28992, 5709)
 
-    return BoreholeCollection(
-        nlog_cores,
-        vertical_reference="NAP",
-        horizontal_reference=horizontal_reference,
-        header=header,
-        is_inclined=True,
-    )
+    return collection
 
 
 def read_xml_geotechnical_cores(

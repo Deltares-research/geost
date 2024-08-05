@@ -145,43 +145,46 @@ class TestPointCollection:
         assert_allclose(borehole_collection.get("HB-03").data["test_data"], 12)
 
     @pytest.mark.unittest
-    def test_change_vertical_reference(self, borehole_df_ok):
-        borehole_collection_ok = LayeredData(borehole_df_ok).to_collection()
+    def test_change_vertical_reference(self, borehole_data):
+        borehole_collection_ok = LayeredData(borehole_data).to_collection()
         assert borehole_collection_ok.vertical_reference == 5709
         borehole_collection_ok.change_vertical_reference("Ostend height")
         assert borehole_collection_ok.vertical_reference == 5710
 
     @pytest.mark.unittest
-    def test_change_horizontal_reference(self, borehole_df_ok):
-        borehole_collection_ok = LayeredData(borehole_df_ok).to_collection()
+    def test_change_horizontal_reference(self, borehole_data):
+        borehole_collection_ok = LayeredData(borehole_data).to_collection()
         assert borehole_collection_ok.horizontal_reference == 28992
         borehole_collection_ok.change_horizontal_reference(32631)
         assert borehole_collection_ok.horizontal_reference == 32631
-        # ADD COORDINATE VALUE ASSERTION
+        assert_almost_equal(
+            borehole_collection_ok.data["x"][0], borehole_collection_ok.header["x"][0]
+        )
+        assert_almost_equal(
+            borehole_collection_ok.data["x"][0], 523403.281803, decimal=5
+        )
+        assert_almost_equal(
+            borehole_collection_ok.data["y"][0], borehole_collection_ok.header["y"][0]
+        )
+        assert_almost_equal(
+            borehole_collection_ok.data["y"][0], 5313546.187669, decimal=5
+        )
 
     @pytest.mark.unittest
-    def test_change_horizontal_reference_also_data_columns(self, borehole_df_ok):
-        borehole_collection_ok = BoreholeCollection(borehole_df_ok)
-        assert_equal(borehole_collection_ok.horizontal_reference, 28992)
-        borehole_collection_ok.change_horizontal_reference(32631, only_geometries=False)
-        assert_equal(borehole_collection_ok.header.crs.name, "WGS 84 / UTM zone 31N")
-        assert_equal(borehole_collection_ok.horizontal_reference, 32631)
-        assert_almost_equal(borehole_collection_ok.header.x[0], 647927.91, decimal=2)
-        assert_almost_equal(borehole_collection_ok.header.y[0], 5.773014e6, decimal=0)
-        assert_almost_equal(borehole_collection_ok.data.x[0], 647927.91, decimal=2)
-        assert_almost_equal(borehole_collection_ok.data.y[0], 5.773014e6, decimal=0)
-
-    @pytest.mark.unittest
-    def test_change_horizontal_reference_also_data_columns_inclined(self):
-        borehole_collection_ok = read_nlog_cores(self.nlog_stratstelsel_parquet)
-        assert_equal(borehole_collection_ok.horizontal_reference, 28992)
-        borehole_collection_ok.change_horizontal_reference(32631, only_geometries=False)
-        assert_equal(borehole_collection_ok.header.crs.name, "WGS 84 / UTM zone 31N")
-        assert_equal(borehole_collection_ok.horizontal_reference, 32631)
-        assert_almost_equal(borehole_collection_ok.header.x[0], 532641.76, decimal=2)
-        assert_almost_equal(borehole_collection_ok.header.y[0], 6.170701e6, decimal=0)
-        assert_almost_equal(borehole_collection_ok.data.x_bot[0], 532650.77, decimal=2)
-        assert_almost_equal(borehole_collection_ok.data.y_bot[0], 6.170700e6, decimal=0)
+    def test_change_horizontal_reference_also_data_columns_inclined(
+        self, nlog_borehole_collection
+    ):
+        assert nlog_borehole_collection.horizontal_reference == 28992
+        nlog_borehole_collection.change_horizontal_reference(32631)
+        assert nlog_borehole_collection.horizontal_reference == 32631
+        assert_almost_equal(nlog_borehole_collection.header["x"][0], 532641.76, decimal=2)
+        assert_almost_equal(nlog_borehole_collection.header["y"][0], 6.170701e6, decimal=0)
+        assert_almost_equal(
+            nlog_borehole_collection.data["x_bot"][0], 532650.77, decimal=2
+        )
+        assert_almost_equal(
+            nlog_borehole_collection.data["y_bot"][0], 6.170700e6, decimal=0
+        )
 
     @pytest.mark.unittest
     def test_slice_depth_interval(self, borehole_collection):

@@ -81,7 +81,7 @@ class PointHeader(AbstractHeader, GeopandasExportMixin):
 
         >>> self.change_horizontal_reference("epsg:32631")
 
-        Or even by using the CRS's full official name:
+        As Pyproj is very flexible, you can even use the CRS's full official name:
 
         >>> self.change_horizontal_reference("WGS 84 / UTM zone 31N")
         """
@@ -115,9 +115,12 @@ class PointHeader(AbstractHeader, GeopandasExportMixin):
 
         >>> self.change_horizontal_reference("epsg:5709")
 
-        Or even by using the CRS's full official name:
+        As the Pyproj constructors are very flexible, you can even use the CRS's full
+        official name instead of an EPSG number. E.g. for changing to NAP and the
+        Belgian Ostend height vertical datums repsectively, you can use:
 
         >>> self.change_horizontal_reference("NAP")
+        >>> self.change_horizontal_reference("Ostend height")
         """
         transformer = vertical_reference_transformer(
             self.horizontal_reference, self.vertical_reference, to_epsg
@@ -482,8 +485,9 @@ class LayeredData(AbstractData, PandasExportMixin):
         df: pd.DataFrame,
         has_inclined: bool = False,
     ):
-        self.df = df
+        self.datatype = "layered"
         self.has_inclined = has_inclined
+        self.df = df
 
     def __repr__(self):
         name = self.__class__.__name__
@@ -503,10 +507,22 @@ class LayeredData(AbstractData, PandasExportMixin):
     def df(self):
         return self._df
 
+    @property
+    def datatype(self):
+        return self._datatype
+
     @df.setter
-    # @validate_data
+    @validate_data
     def df(self, df):
         self._df = df
+
+    @datatype.setter
+    def datatype(self, datatype):
+        if "datatype" in self.__dict__.keys():
+            # Make sure the datatype attr can only be set during init
+            raise Exception("Cannot change datatype of existing data object")
+        else:
+            self._datatype = datatype
 
     def to_header(
         self,
@@ -514,7 +530,7 @@ class LayeredData(AbstractData, PandasExportMixin):
         vertical_reference: str | int | CRS = 5709,
     ):
         header_columns = ["nr", "x", "y", "surface", "end"]
-        header = self[header_columns].drop_duplicates().reset_index(drop=True)
+        header = self[header_columns].drop_duplicates("nr").reset_index(drop=True)
         header = dataframe_to_geodataframe(header).set_crs(horizontal_reference)
         return PointHeader(header, vertical_reference)
 
@@ -792,8 +808,9 @@ class LayeredData(AbstractData, PandasExportMixin):
 
 class DiscreteData(AbstractData, PandasExportMixin):
     def __init__(self, df, has_inclined: bool = False):
-        self.df = df
+        self.__datatype = "discrete"
         self.has_inclined = has_inclined
+        self.df = df
         raise NotImplementedError(f"{self.__class__.__name__} not supported yet")
 
     @property
@@ -871,11 +888,11 @@ class Collection(AbstractCollection):
         return len(self.header.gdf)
 
     @property
-    def horizontal_reference(self):  # Move to header class in future refactor
+    def horizontal_reference(self):
         return self.header.horizontal_reference
 
     @property
-    def vertical_reference(self):  # move to data class in future refactor
+    def vertical_reference(self):
         return self.header.vertical_reference
 
     @header.setter
@@ -891,7 +908,7 @@ class Collection(AbstractCollection):
         if isinstance(data, LayeredData | DiscreteData):
             self._data = data
         elif "_data" in self.__dict__.keys() and isinstance(data, pd.DataFrame):
-            self._data = self._header.__class__(data)
+            self._data = self._data.__class__(data)
         self.check_header_to_data_alignment()
 
     def add_header_column_to_data(self, column_name: str):  # No change
@@ -966,7 +983,7 @@ class Collection(AbstractCollection):
 
         >>> self.change_horizontal_reference("epsg:32631")
 
-        Or even by using the CRS's full official name:
+        As Pyproj is very flexible, you can even use the CRS's full official name:
 
         >>> self.change_horizontal_reference("WGS 84 / UTM zone 31N")
         """
@@ -976,6 +993,11 @@ class Collection(AbstractCollection):
         self.data["x"], self.data["y"] = transformer.transform(
             self.data["x"], self.data["y"]
         )
+        if self.data.has_inclined:
+            self.data["x_bot"], self.data["y_bot"] = transformer.transform(
+                self.data["x_bot"], self.data["y_bot"]
+            )
+
         self.header.change_horizontal_reference(to_epsg)
 
     def change_vertical_reference(self, to_epsg: str | int | CRS):
@@ -1000,9 +1022,12 @@ class Collection(AbstractCollection):
 
         >>> self.change_horizontal_reference("epsg:5709")
 
-        Or even by using the CRS's full official name:
+        As the Pyproj constructors are very flexible, you can even use the CRS's full
+        official name instead of an EPSG number. E.g. for changing to NAP and the
+        Belgian Ostend height vertical datums repsectively, you can use:
 
         >>> self.change_horizontal_reference("NAP")
+        >>> self.change_horizontal_reference("Ostend height")
         """
         transformer = vertical_reference_transformer(
             self.horizontal_reference, self.vertical_reference, to_epsg
