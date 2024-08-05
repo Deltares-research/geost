@@ -17,7 +17,7 @@ from geost.projections import (
     horizontal_reference_transformer,
     vertical_reference_transformer,
 )
-from geost.utils import dataframe_to_geodataframe
+from geost.utils import dataframe_to_geodataframe, warn_user
 from geost.validate.decorators import validate_data, validate_header
 
 type DataObject = DiscreteData | LayeredData
@@ -26,6 +26,8 @@ type HeaderObject = LineHeader | PointHeader
 type Coordinate = int | float
 
 pd.set_option("mode.copy_on_write", True)
+
+warn = warn_user(lambda warning_info: print(warning_info))
 
 
 class PointHeader(AbstractHeader, GeopandasExportMixin):
@@ -789,7 +791,6 @@ class LayeredData(AbstractData, PandasExportMixin):
 
         """
         selected_layers = self.slice_by_values(column, values)
-
         cum_thickness = selected_layers.df.groupby(["nr", column]).apply(
             cumulative_thickness
         )
@@ -1259,16 +1260,72 @@ class Collection(AbstractCollection):
         self.header.change_vertical_reference(to_epsg)
 
     def reset_header(self):
-        raise NotImplementedError("Add function logic")
+        """
+        Refresh the header based on the loaded data in case the header got messed up.
+        """
+        self.header = self.data.to_header(
+            self.horizontal_reference, self.vertical_reference
+        )
 
     def check_header_to_data_alignment(self):
-        pass
+        """
+        Two-way check to warn of any misalignment between the header and data
+        attributes. Two way, i.e. if header includes more objects than in the data and
+        if the data includes more unique objects that listed in the header.
 
-    def check_and_coerce_crs(self):
-        pass
+        This check is performed everytime the object is instantiated AND if any change
+        is made to either the header or data attributes (see their respective setters).
+        """
+        if hasattr(self, "_header") and hasattr(self, "_data"):
+            if any(~self.header["nr"].isin(self.data["nr"].unique())):
+                warn(
+                    "Header covers more objects than present in the data table, "
+                    "consider running the method 'reset_header' to update the header."
+                )
+            if not set(self.data["nr"].unique()).issubset(set(self.header["nr"])):
+                warn(
+                    "Header does not cover all unique objects in data, consider "
+                    "running the method 'reset_header' to update the header."
+                )
 
-    def select_within_bbox(self):
-        raise NotImplementedError("Add function logic")
+    def select_within_bbox(
+        self,
+        xmin: Coordinate,
+        xmax: Coordinate,
+        ymin: Coordinate,
+        ymax: Coordinate,
+        invert: bool = False,
+    ):
+        """
+        Make a selection of the collection based on a bounding box.
+
+        Parameters
+        ----------
+        xmin : float | int
+            Minimum x-coordinate of the bounding box.
+        xmax : float | int
+            Maximum x-coordinate of the bounding box.
+        ymin : float | int
+            Minimum y-coordinate of the bounding box.
+        ymax : float | int
+            Maximum y-coordinate of the bounding box.
+        invert : bool, optional
+            Invert the selection, so select all objects outside of the
+            bounding box in this case, by default False.
+
+        Returns
+        -------
+        :class:`~geost.base.Collection`
+            Instance of :class:`~geost.base.Collection`containing only selected
+            geometries.
+        """
+        # This selection is header-based, so call the appropiate header method and then
+        # adjust the data to align with the selected header objects.
+        header_selected = self.header.select_within_bbox(
+            xmin, xmax, ymin, ymax, invert=invert
+        )
+        data_selected = self.data.select_by_values("nr", header_selected["nr"].unique())
+        return self.__class__(header_selected, data_selected)
 
     def select_with_points(self):
         raise NotImplementedError("Add function logic")

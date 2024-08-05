@@ -50,10 +50,10 @@ def __read_parquet(file: WindowsPath) -> pd.DataFrame:
 
 def adjust_z_coordinates(data_dataframe: pd.DataFrame) -> pd.DataFrame:
     """
-    Interpret an array containing elevation or z-coordinates. GeoST data objects require
-    that elevation to indicate layer top/bottom or discrete data point z-coordinates to
-    be increasing downward while starting at 0. This function detects from a given array
-    how elevation is defined and turns it into the required format if required.
+    Interpret data containing elevation or z-coordinates. GeoST data objects require
+    that layer top/bottom or discrete data point z-coordinates to be increasing
+    downward, starting at at 0. This function detects how elevation is currently defined
+    and turns it into the desired format if required.
 
     Parameters
     ----------

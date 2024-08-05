@@ -27,9 +27,8 @@ class ValidationSchemas(NamedTuple):
         "surface": Column(numeric),
         "end": Column(numeric),
         "z": Column(numeric),
-        "bottom": Column(numeric, checks=Check(">", "top", report_by="nr")),
     }
-    dataschema_layered_inclined_point = {
+    dataschema_inclined_point = {
         "x_bot": Column(numeric),
         "y_bot": Column(numeric),
     }

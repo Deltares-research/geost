@@ -33,9 +33,7 @@ def validate_data(f):
             schema_to_use = validationschemas.dataschema_discrete_point
 
         if data_object.has_inclined:
-            schema_to_use = (
-                schema_to_use | validationschemas.dataschema_layered_inclined_point
-            )
+            schema_to_use = schema_to_use | validationschemas.dataschema_inclined_point
 
         # Use the acquired validation conditions for validation
         validation_instance = DataFrameSchema("Data validation", schema_to_use)

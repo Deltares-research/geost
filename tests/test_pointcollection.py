@@ -177,14 +177,29 @@ class TestPointCollection:
         assert nlog_borehole_collection.horizontal_reference == 28992
         nlog_borehole_collection.change_horizontal_reference(32631)
         assert nlog_borehole_collection.horizontal_reference == 32631
-        assert_almost_equal(nlog_borehole_collection.header["x"][0], 532641.76, decimal=2)
-        assert_almost_equal(nlog_borehole_collection.header["y"][0], 6.170701e6, decimal=0)
+        assert_almost_equal(
+            nlog_borehole_collection.header["x"][0], 532641.76, decimal=2
+        )
+        assert_almost_equal(
+            nlog_borehole_collection.header["y"][0], 6.170701e6, decimal=0
+        )
         assert_almost_equal(
             nlog_borehole_collection.data["x_bot"][0], 532650.77, decimal=2
         )
         assert_almost_equal(
             nlog_borehole_collection.data["y_bot"][0], 6.170700e6, decimal=0
         )
+
+    @pytest.mark.unittest
+    def test_select_within_bbox(self, borehole_data):
+        borehole_collection = borehole_data.to_collection()
+        borehole_collection_selected = borehole_collection.select_within_bbox(
+            1.5, 3.5, 1.5, 5
+        )
+        # The selection results boreholes 'A' and 'D'
+        assert all(borehole_collection_selected.header.gdf["nr"].unique() == ["A", "D"])
+        assert all(borehole_collection_selected.data.df["nr"].unique() == ["A", "D"])
+
 
     @pytest.mark.unittest
     def test_slice_depth_interval(self, borehole_collection):

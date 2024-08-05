@@ -181,10 +181,6 @@ class AbstractCollection(ABC):
         pass
 
     @abstractmethod
-    def check_and_coerce_crs(self):
-        pass
-
-    @abstractmethod
     def select_within_bbox(self):
         pass
 
