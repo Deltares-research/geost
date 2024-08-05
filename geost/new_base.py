@@ -1,15 +1,17 @@
-import warnings
+import pickle
 from pathlib import WindowsPath
 from typing import Iterable, List
 
 import geopandas as gpd
 import pandas as pd
 from pyproj import CRS
+from shapely.geometry import LineString
 
 from geost import spatial
 from geost.abstract_classes import AbstractCollection, AbstractData, AbstractHeader
 from geost.analysis import cumulative_thickness
 from geost.enums import VerticalReference
+from geost.export import borehole_to_multiblock, export_to_dftgeodata
 from geost.mixins import GeopandasExportMixin, PandasExportMixin
 from geost.projections import (
     horizontal_reference_transformer,
@@ -480,6 +482,22 @@ class LineHeader(AbstractHeader, GeopandasExportMixin):
 
 
 class LayeredData(AbstractData, PandasExportMixin):
+    """
+    A class to hold layered data objects (i.e. containing "tops" and "bottoms") like
+    borehole descriptions which can be used for selections and exports.
+
+    Parameters
+    ----------
+    df : pd.DataFrame
+        Pandas DataFrame containing the data. Mandatory columns that must be present in the
+        DataFrame are: "nr", "x", "y", "surface", "top" and "bottom". Otherwise, many methods
+        in the class will not work.
+    has_inclined : bool, optional
+        If True, the data also contains inclined objects which means the top of layers is
+        not in the same x,y-location as the bottom of layers.
+
+    """
+
     def __init__(
         self,
         df: pd.DataFrame,
@@ -524,6 +542,18 @@ class LayeredData(AbstractData, PandasExportMixin):
         else:
             self._datatype = datatype
 
+    @staticmethod
+    def _check_correct_instance(selection_values: str | Iterable) -> Iterable:
+        if isinstance(selection_values, str):
+            selection_values = [selection_values]
+        return selection_values
+
+    @staticmethod
+    def _change_depth_values(df: pd.DataFrame) -> pd.DataFrame:
+        df["top"] = df["surface"] - df["top"]
+        df["bottom"] = df["surface"] - df["bottom"]
+        return df
+
     def to_header(
         self,
         horizontal_reference: str | int | CRS = 28992,
@@ -557,7 +587,7 @@ class LayeredData(AbstractData, PandasExportMixin):
             values.
         selection_values : str | Iterable
             Value or values to look for in the column.
-        how : str
+        how : str, optional
             Either "and" or "or". "and" requires all selection values to be present in
             column for selection. "or" will select the core if any one of the
             selection_values are found in the column. Default is "and".
@@ -604,7 +634,7 @@ class LayeredData(AbstractData, PandasExportMixin):
         self,
         upper_boundary: float | int = None,
         lower_boundary: float | int = None,
-        vertical_reference: str = VerticalReference.DEPTH,  # NOTE: Think about using bool
+        relative_to_vertical_reference: bool = False,
         update_layer_boundaries: bool = True,
     ):
         """
@@ -617,11 +647,10 @@ class LayeredData(AbstractData, PandasExportMixin):
             Every layer that starts above this is removed. The default is None.
         lower_boundary : float | int, optional
             Every layer that starts below this is removed. The default is None.
-        vertical_reference : str, optional
-            Specify whether the slicing is done with respect to any kind of vertical
-            reference plane (e.g. "NAP", "TAW") or with respect to depth below the surface
-            ("Depth"). The default is "Depth", this performs the slice with respect to depth
-            below the surface.
+        relative_to_vertical_reference : bool, optional
+            If True, the slicing is done with respect to any kind of vertical reference
+            plane (e.g. "NAP", "TAW"). If False, the slice is done with respect to depth
+            below the surface. The default is False.
         update_layer_boundaries : bool, optional
             If True, the layer boundaries in the sliced data are updated according to the
             upper and lower boundaries used with the slice. If False, the original layer
@@ -634,8 +663,8 @@ class LayeredData(AbstractData, PandasExportMixin):
 
         Examples
         --------
-        Usage depends on whether the slicing is done with respect to "depth below the
-        surface" or to a "vertical_reference".
+        Usage depends on whether the slicing is done with respect to depth below the
+        surface or to a vertical reference plane.
 
         For example, select layers in boreholes that are between 2 and 3 meters below the
         surface:
@@ -647,25 +676,21 @@ class LayeredData(AbstractData, PandasExportMixin):
 
         >>> boreholes.slice_depth_interval(2, 3, update_layer_boundaries=False)
 
-        Slicing can also be done with respect to a "vertical_reference". For example, to
-        select layers in boreholes that are between -3 and -5 m NAP, use:
+        Slicing can also be done with respect to a vertical reference plane like "NAP".
+        For example, to select layers in boreholes that are between -3 and -5 m NAP, use:
 
-        >>> boreholes.slice_depth_interval(-3, -5, vertical_reference="NAP")
+        >>> boreholes.slice_depth_interval(-3, -5, relative_to_vertical_reference=True)
 
         """
         if not upper_boundary:
-            upper_boundary = (
-                -1e34 if vertical_reference == VerticalReference.DEPTH else 1e34
-            )
+            upper_boundary = 1e34 if relative_to_vertical_reference else -1e34
 
         if not lower_boundary:
-            lower_boundary = (
-                1e34 if vertical_reference == VerticalReference.DEPTH else -1e34
-            )
+            lower_boundary = -1e34 if relative_to_vertical_reference else 1e34
 
         sliced = self.df.copy()
 
-        if vertical_reference != VerticalReference.DEPTH:
+        if relative_to_vertical_reference:
             bounds_are_series = True
             upper_boundary = self["surface"] - upper_boundary
             lower_boundary = self["surface"] - lower_boundary
@@ -700,9 +725,9 @@ class LayeredData(AbstractData, PandasExportMixin):
             values.
         selection_values : str | Iterable
             Values to look for in the column.
-        invert : bool
-            Invert the slicing action, so remove layers with selected values instead of
-            keeping them.
+        invert : bool, optional
+            If True, invert the slicing action, so remove layers with selected values
+            instead of keeping them. The default is False.
 
         Returns
         -------
@@ -721,8 +746,7 @@ class LayeredData(AbstractData, PandasExportMixin):
         >>> boreholes.slice_by_values("lith", "Z", invert=True)
 
         """
-        if isinstance(selection_values, str):
-            selection_values = [selection_values]
+        selection_values = self._check_correct_instance(selection_values)
 
         sliced = self.df.copy()
 
@@ -799,11 +823,203 @@ class LayeredData(AbstractData, PandasExportMixin):
         layer_top = selected_layers.df.groupby(["nr", column])["top"].first()
         return layer_top.unstack(level=column)
 
-    def to_vtm(self):
-        print(2)
+    def to_multiblock(  # TODO: Make @abstractmethod in AbstractData?
+        self,
+        data_columns: str | List[str],
+        radius: float = 1,
+        vertical_factor: float = 1.0,
+        relative_to_vertical_reference: bool = True,
+        **kwargs,  # NOTE: are **kwargs used by borehole_to_multiblock???
+    ):
+        """
+        Create a Pyvista MultiBlock object from the data that can be used for 3D plotting
+        and other spatial analyses.
 
-    def to_datafusiontools(self):
-        raise NotImplementedError()
+        Parameters
+        ----------
+        data_columns : str | List[str]
+            Name or names of data columns to include for visualisation. Can be columns that
+            contain an array of floats, ints and strings.
+        radius : float, optional
+            Radius of the cylinders in m in the MultiBlock. The default is 1.
+        vertical_factor : float, optional
+            Factor to correct vertical scale. For example, when layer boundaries are given
+            in cm, use 0.01 to convert to m. The default is 1.0, so no correction is applied.
+            It is not recommended to use this for vertical exaggeration, use viewer functionality
+            for that instead.
+        relative_to_vertical_reference : bool, optional
+            If True, the depth of the objects in the vtm file will be with respect to a
+            reference plane (e.g. "NAP", "TAW"). If False, the depth will be with respect
+            to 0.0. The default is True.
+
+        Returns
+        -------
+        MultiBlock
+            A composite class holding the data which can be iterated over.
+
+        """
+        data_columns = self._check_correct_instance(data_columns)
+
+        data = self.df.copy()
+
+        if relative_to_vertical_reference:
+            data = self._change_depth_values(data)
+        else:
+            data["surface"] = 0
+
+        return borehole_to_multiblock(
+            data, data_columns, radius, vertical_factor, **kwargs
+        )
+
+    def to_vtm(
+        self,
+        outfile: str | WindowsPath,
+        data_columns: str | List[str],
+        radius: float = 1,
+        vertical_factor: float = 1.0,
+        relative_to_vertical_reference: bool = True,
+        **kwargs,
+    ):
+        """
+        Save data as VTM (Multiblock file, an XML VTK file pointing to multiple other
+        VTK files) for viewing in external GUI software like ParaView or other VTK viewers.
+
+        Parameters
+        ----------
+        outfile : str | WindowsPath
+            Path to vtm file to be written.
+        data_columns : str | List[str]
+            Name or names of data columns to include for visualisation. Can be columns that
+            contain an array of floats, ints and strings.
+        radius : float, optional
+            Radius of the cylinders in m, by default 1.
+        vertical_factor : float, optional
+            Factor to correct vertical scale. For example, when layer boundaries are given
+            in cm, use 0.01 to convert to m. The default is 1.0, so no correction is applied.
+            It is not recommended to use this for vertical exaggeration, use viewer functionality
+            for that instead.
+        relative_to_vertical_reference : bool, optional
+            If True, the depth of the objects in the vtm file will be with respect to a
+            reference plane (e.g. "NAP", "TAW"). If False, the depth will be with respect
+            to 0.0. The default is True.
+
+        **kwargs :
+            pyvista.MultiBlock.save kwargs. See relevant Pyvista documentation.
+
+        """
+        vtk_object = self.to_multiblock(
+            data_columns,
+            radius,
+            vertical_factor,
+            relative_to_vertical_reference,
+            **kwargs,
+        )
+        vtk_object.save(outfile, **kwargs)
+
+    def to_datafusiontools(
+        self,
+        columns: List[str],
+        outfile: str | WindowsPath = None,
+        encode: bool = False,
+        relative_to_vertical_reference: bool = True,
+    ):
+        """
+        Export all data to the core "Data" class of Deltares DataFusionTools. Returns
+        a list of "Data" objects, one for each data object that is exported. This list
+        can directly be used within DataFusionTools. If out_file is given, the list of
+        Data objects is saved to a pickle file.
+
+        For DataFusionTools visit:
+        https://bitbucket.org/DeltaresGEO/datafusiontools/src/master/
+
+        Parameters
+        ----------
+        columns : List[str]
+            Which columns in the data to include for the export. These will become variables
+            in the DataFusionTools "Data" class.
+        outfile : str | WindowsPath, optional
+            If a path to outfile is given, the data is written to a pickle file.
+        encode : bool, default True
+            If True, categorical data columns are encoded to additional binary columns
+            (all possible values become a seperate feature that is 0 or 1). The default is
+            False. Warning: if there is a large number of possible categories, many columns
+            with categorical data or both, the export process may become slow and may consume
+            a large amount memory. Please consider carefully which categorical data columns
+            need to be included.
+        relative_to_vertical_reference : bool, optional
+            If True, the depth of all data objects will converted to a depth with respect to
+            a reference plane (e.g. "NAP", "TAW"). If False, the depth will be kept as original
+            in the "top" and "bottom" columns which is in meter below the surface. The default
+            is True.
+
+        Returns
+        -------
+        List[Data]
+            List containing the DataFusionTools Data objects.
+
+        """
+        columns = self._check_correct_instance(columns)
+        data = self.df.copy()
+        if relative_to_vertical_reference:
+            data = self._change_depth_values(data)
+
+        dftgeodata = export_to_dftgeodata(data, columns, encode=encode)
+
+        if outfile:
+            with open(outfile, "wb") as f:
+                pickle.dump(dftgeodata, f)
+        else:
+            return dftgeodata
+
+    def to_qgis3d(
+        self, outfile: str | WindowsPath, relative_to_vertical_reference: bool = True
+    ):
+        data = self.df.copy()
+
+        if relative_to_vertical_reference:
+            data = self._change_depth_values(data)
+
+        data_columns = [
+            col
+            for col in data.columns
+            if col
+            not in ["nr", "x", "y", "x_bot", "y_bot", "surface", "end", "top", "bottom"]
+        ]
+
+        data_to_write = dict(
+            nr=data["nr"].values,
+            top=data["top"].values.astype(float),
+            bottom=data["bottom"].values.astype(float),
+        )
+
+        data_to_write.update(data[data_columns].to_dict(orient="list"))
+
+        if self.has_inclined:
+            geometries = [
+                LineString([[x, y, top + 0.01], [x_bot, y_bot, bottom + 0.01]])
+                for x, y, x_bot, y_bot, top, bottom in zip(
+                    data["x"].values.astype(float),
+                    data["y"].values.astype(float),
+                    data["x_bot"].values.astype(float),
+                    data["y_bot"].values.astype(float),
+                    data["top"].values.astype(float),
+                    data["bottom"].values.astype(float),
+                )
+            ]
+        else:  # NOTE: Doesn't it need to be "top - 0.01" to create overlap?
+            geometries = [
+                LineString([[x, y, top + 0.01], [x, y, bottom + 0.01]])
+                for x, y, top, bottom in zip(
+                    data["x"].values.astype(float),
+                    data["y"].values.astype(float),
+                    data["top"].values.astype(float),
+                    data["bottom"].values.astype(float),
+                )
+            ]
+
+        qgis3d = gpd.GeoDataFrame(data=data_to_write, geometry=geometries)
+        qgis3d.to_file(outfile, driver="GPKG")
+        return qgis3d
 
 
 class DiscreteData(AbstractData, PandasExportMixin):

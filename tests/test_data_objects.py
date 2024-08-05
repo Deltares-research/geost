@@ -1,7 +1,9 @@
 import numpy as np
 import pytest
 from numpy.testing import assert_array_almost_equal, assert_array_equal
+from pyvista import MultiBlock
 
+from geost.export import geodataclass
 from geost.new_base import BoreholeCollection, PointHeader
 
 
@@ -21,6 +23,8 @@ class TestLayeredData:
     def test_to_collection(self, borehole_data):
         collection = borehole_data.to_collection()
         assert isinstance(collection, BoreholeCollection)
+        assert isinstance(collection.header, PointHeader)
+        assert len(collection.header) == 5
 
     @pytest.mark.unittest
     def test_select_by_values(self, borehole_data):
@@ -130,7 +134,7 @@ class TestLayeredData:
         # Test slicing with respect to a vertical reference plane.
         nap_upper, nap_lower = -2, -3
         sliced = borehole_data.slice_depth_interval(
-            nap_upper, nap_lower, vertical_reference="NAP"
+            nap_upper, nap_lower, relative_to_vertical_reference=True
         )
 
         expected_tops_of_slice = [2.2, 2.3, 2.25, 2.1, 1.9]
@@ -146,7 +150,7 @@ class TestLayeredData:
         # Test slices that return empty objects.
         empty_slice = borehole_data.slice_depth_interval(-2, -1)
         empty_slice_nap = borehole_data.slice_depth_interval(
-            3, 2, vertical_reference="NAP"
+            3, 2, relative_to_vertical_reference=True
         )
 
         assert len(empty_slice) == 0
@@ -163,7 +167,7 @@ class TestLayeredData:
 
         nap_lower = -0.5
         sliced = borehole_data.slice_depth_interval(
-            lower_boundary=nap_lower, vertical_reference="NAP"
+            lower_boundary=nap_lower, relative_to_vertical_reference=True
         )
 
         bottoms_of_slice = sliced.df.groupby("nr")["bottom"].max()
@@ -173,5 +177,91 @@ class TestLayeredData:
         assert_array_equal(bottoms_of_slice, expected_bottoms_of_slice)
 
     @pytest.mark.unittest
-    def test_to_vtm(self, borehole_data):
-        borehole_data.to_vtm()
+    def test_to_multiblock(self, borehole_data):
+        # Test normal to multiblock.
+        multiblock = borehole_data.to_multiblock("lith")
+        expected_bounds = (0.0, 5.0, 0.0, 6.0, -5.25, 0.3)
+        assert isinstance(multiblock, MultiBlock)
+        assert multiblock.n_blocks == 5
+        assert multiblock.bounds == expected_bounds
+        assert multiblock[0].n_arrays == 2
+        assert multiblock[0].n_cells == 22
+        assert multiblock[0].n_points == 160
+
+        # Test with vertical exageration.
+        multiblock = borehole_data.to_multiblock("lith", vertical_factor=10)
+        expected_bounds = (0.0, 5.0, 0.0, 6.0, -52.5, 3.0)
+        assert multiblock.n_blocks == 5
+        assert multiblock.bounds == expected_bounds
+
+        # Test to multiblock with respect to depth below the surface.
+        multiblock = borehole_data.to_multiblock(
+            "lith", relative_to_vertical_reference=False
+        )
+        expected_bounds = (0.0, 5.0, 0.0, 6.0, 0.0, 5.5)
+        assert multiblock.n_blocks == 5
+        assert multiblock.bounds == expected_bounds
+
+        # Test with both options.
+        multiblock = borehole_data.to_multiblock(
+            "lith", vertical_factor=10, relative_to_vertical_reference=False
+        )
+        expected_bounds = (0.0, 5.0, 0.0, 6.0, 0.0, 55.0)
+        assert multiblock.n_blocks == 5
+        assert multiblock.bounds == expected_bounds
+
+    @pytest.mark.unittest
+    def test_to_datafusiontools(self, borehole_data):
+        # Test normal export.
+        dft = borehole_data.to_datafusiontools("lith")
+
+        expected_independent_value = [-0.2, -0.95, -1.8, -2.9, -3.75]
+        expected_number_of_variables = 1
+
+        assert len(dft) == 5
+        assert np.all([isinstance(d, geodataclass.Data) for d in dft])
+        assert np.all([len(d.variables) == expected_number_of_variables for d in dft])
+        assert_array_almost_equal(
+            dft[0].independent_variable.value, expected_independent_value
+        )
+
+        # Test with label encoding.
+        dft = borehole_data.to_datafusiontools("lith", encode=True)
+        expected_number_of_variables = 3
+        assert np.all([isinstance(d, geodataclass.Data) for d in dft])
+        assert np.all([len(d.variables) == expected_number_of_variables for d in dft])
+
+        # Test without updating layer depths to NAP
+        dft = borehole_data.to_datafusiontools(
+            "lith", relative_to_vertical_reference=False
+        )
+        expected_independent_value = [0.4, 1.15, 2.0, 3.1, 3.95]
+
+        assert_array_almost_equal(
+            dft[0].independent_variable.value, expected_independent_value
+        )
+
+    @pytest.mark.unittest
+    def test_to_qgis3d(self, borehole_data):
+        pass
+
+    @pytest.mark.unittest
+    def test_change_depth_values(self, borehole_data):
+        borehole = borehole_data.select_by_values("nr", "A").df
+        borehole = borehole_data._change_depth_values(borehole)
+
+        expected_top = [0.2, -0.6, -1.3, -2.3, -3.5]
+        expected_bottom = [-0.6, -1.3, -2.3, -3.5, -4.0]
+
+        assert_array_almost_equal(borehole["top"], expected_top)
+        assert_array_almost_equal(borehole["bottom"], expected_bottom)
+
+    @pytest.mark.unittest
+    def test_check_correct_instance(self, borehole_data):
+        inst = "string"
+        inst = borehole_data._check_correct_instance(inst)
+        assert isinstance(inst, list)
+
+        inst = ["list of strings"]
+        inst = borehole_data._check_correct_instance(inst)
+        assert isinstance(inst, list)
