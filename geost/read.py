@@ -62,7 +62,7 @@ def adjust_z_coordinates(data_dataframe: pd.DataFrame) -> pd.DataFrame:
         top, bottoms or discrete data z-coordinates.
     """
     top_column_label = [col for col in data_dataframe.columns if col in ["top", "z"]][0]
-    has_bottom_column = any([True for col in data_dataframe.columns if col == "bottom"])
+    has_bottom_column = "bottom" in data_dataframe.columns
 
     # TODO: think about detection. Only considers first two indices to determine
     # downward decreasing or increasing of z-coordinates.

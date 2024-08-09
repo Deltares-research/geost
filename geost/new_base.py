@@ -1319,33 +1319,66 @@ class Collection(AbstractCollection):
             Instance of :class:`~geost.base.Collection`containing only selected
             geometries.
         """
-        # This selection is header-based, so call the appropiate header method and then
-        # adjust the data to align with the selected header objects.
         header_selected = self.header.select_within_bbox(
             xmin, xmax, ymin, ymax, invert=invert
         )
         data_selected = self.data.select_by_values("nr", header_selected["nr"].unique())
         return self.__class__(header_selected, data_selected)
 
-    def select_with_points(self):
-        raise NotImplementedError("Add function logic")
+    def select_with_points(
+        self,
+        points: str | WindowsPath | gpd.GeoDataFrame,
+        buffer: float | int,
+        invert: bool = False,
+    ):
+        """
+        Make a selection of the collection based on point geometries.
+
+        Parameters
+        ----------
+        points : str | WindowsPath | gpd.GeoDataFrame
+            Geodataframe (or file that can be parsed to a geodataframe) to select with.
+        buffer : float | int
+            Buffer distance for selection geometries.
+        invert : bool, optional
+            Invert the selection, by default False.
+
+        Returns
+        -------
+        :class:`~geost.base.Collection`
+            Instance of :class:`~geost.base.Collection`containing only selected
+            geometries.
+        """
+        header_selected = self.header.select_with_points(points, buffer, invert=invert)
+        data_selected = self.data.select_by_values("nr", header_selected["nr"].unique())
+        return self.__class__(header_selected, data_selected)
 
     def select_with_lines(self):
+        # data_selected = self.data.select_by_values("nr", header_selected["nr"].unique())
+        # return self.__class__(header_selected, data_selected)
         raise NotImplementedError("Add function logic")
 
     def select_within_polygons(self):
+        # data_selected = self.data.select_by_values("nr", header_selected["nr"].unique())
+        # return self.__class__(header_selected, data_selected)
         raise NotImplementedError("Add function logic")
 
     def select_by_depth(self):
+        # data_selected = self.data.select_by_values("nr", header_selected["nr"].unique())
+        # return self.__class__(header_selected, data_selected)
         raise NotImplementedError("Add function logic")
 
     def select_by_length(self):
-        raise NotImplementedError("Add function logic")
-
-    def get_area_labels(self):
+        # data_selected = self.data.select_by_values("nr", header_selected["nr"].unique())
+        # return self.__class__(header_selected, data_selected)
         raise NotImplementedError("Add function logic")
 
     def select_by_values(self):
+        # data_selected = self.data.select_by_values("nr", header_selected["nr"].unique())
+        # return self.__class__(header_selected, data_selected)
+        raise NotImplementedError("Add function logic")
+
+    def get_area_labels(self):
         raise NotImplementedError("Add function logic")
 
     def slice_depth_interval(self):
