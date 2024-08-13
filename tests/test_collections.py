@@ -312,3 +312,30 @@ class TestCollection:
     # def test_surface_level_update(self, borehole_collection, update_raster):
     #     borehole_collection.update_surface_level_from_raster(update_raster, how="replace")
     #     print("stop")
+
+
+class TestBoreholeCollection:
+    @pytest.mark.unittest
+    def test_get_cumulative_layer_thickness(self, borehole_collection):
+        borehole_collection.get_cumulative_layer_thickness(
+            "lith", ["Z", "K"], include_in_header=True
+        )
+        expected_clay_thickness = [2.0, 2.0, 2.9, 1.1, np.nan]
+        expected_sand_thickness = [2.2, np.nan, 2.6, 0.5, 3.0]
+
+        assert_almost_equal(
+            borehole_collection.header["K_thickness"], expected_clay_thickness
+        )
+        assert_almost_equal(
+            borehole_collection.header["Z_thickness"], expected_sand_thickness
+        )
+
+    @pytest.mark.unittest
+    def test_get_layer_top(self, borehole_collection):
+        borehole_collection.get_layer_top("lith", ["Z", "K"], include_in_header=True)
+
+        expected_sand_top = [1.5, np.nan, 2.9, 2.5, 0.0]
+        expected_clay_top = [0.0, 0.0, 0.0, 0.0, np.nan]
+
+        assert_almost_equal(borehole_collection.header["K_top"], expected_clay_top)
+        assert_almost_equal(borehole_collection.header["Z_top"], expected_sand_top)

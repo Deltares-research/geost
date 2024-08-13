@@ -1115,12 +1115,16 @@ class Collection(AbstractCollection):
     def vertical_reference(self):
         return self.header.vertical_reference
 
+    @property
+    def has_inclined(self):
+        return self.data.has_inclined
+
     @header.setter
     def header(self, header):
         if isinstance(header, LineHeader | PointHeader):
             self._header = header
         elif "_header" in self.__dict__.keys() and isinstance(header, gpd.GeoDataFrame):
-            self._header = self._header.__class__(header)
+            self._header = self._header.__class__(header, self.vertical_reference)
         self.check_header_to_data_alignment()
 
     @data.setter
@@ -1128,7 +1132,7 @@ class Collection(AbstractCollection):
         if isinstance(data, LayeredData | DiscreteData):
             self._data = data
         elif "_data" in self.__dict__.keys() and isinstance(data, pd.DataFrame):
-            self._data = self._data.__class__(data)
+            self._data = self._data.__class__(data, self.has_inclined)
         self.check_header_to_data_alignment()
 
     def add_header_column_to_data(self, column_name: str):  # No change
@@ -1524,12 +1528,54 @@ class BoreholeCollection(Collection):
         cum_thickness = self.data.get_cumulative_layer_thickness(column, values)
 
         if include_in_header:
-            self.header = self.header.df.merge(cum_thickness, on="nr", how="left")
+            self.header = self.header.gdf.merge(
+                cum_thickness.add_suffix("_thickness"), on="nr", how="left"
+            )
         else:
             return cum_thickness
 
-    def get_layer_top(self, column: str, values: str | List[str]):
-        return self.data.get_layer_top(column, values)
+    def get_layer_top(
+        self, column: str, values: str | List[str], include_in_header: bool = False
+    ):
+        """
+        Find the depth at which a specified layer first occurs.
+
+        Parameters
+        ----------
+        column : str
+            Name of column that contains categorical data.
+        values : str | List[str]
+            Value or values of entries in the column that you want to find top of.
+        include_in_header : bool, optional
+            If True, include the result in the header table of the collection. In this
+            case, the method does not return a DataFrame. The default is False.
+
+        Returns
+        -------
+        pd.DataFrame
+            Borehole ids and top levels of selected layers in meters below the surface.
+
+        Examples
+        --------
+        Get the top depth of layers in boreholes where the lithology in the "lith" column
+        is sand ("Z"):
+
+        >>> boreholes.get_layer_top("lith", "Z")
+
+        To include the result in the header object of the collection, use the
+        "include_in_header" option:
+
+        >>> boreholes.get_layer_top("lith", "Z", include_in_header=True)
+
+        """
+        tops = self.data.get_layer_top(column, values)
+
+        if include_in_header:
+            self.header = self.header.gdf.merge(
+                tops.add_suffix("_top"), on="nr", how="left"
+            )
+        else:
+            return tops
 
 
 class CptCollection(Collection):
