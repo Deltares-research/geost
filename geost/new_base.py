@@ -1630,8 +1630,34 @@ class Collection(AbstractCollection):
         collection_selected = data_selected.to_collection()
         return collection_selected
 
-    def get_area_labels(self):
-        raise NotImplementedError("Add function logic")
+    def get_area_labels(
+        self, polygon_gdf: gpd.GeoDataFrame, column_name: str, include_in_header=False
+    ) -> pd.DataFrame:
+        """
+        Find in which area (polygons) the point data locations fall. e.g. to determine
+        in which geomorphological unit points are located.
+
+        Parameters
+        ----------
+        polygon_gdf : gpd.GeoDataFrame
+            GeoDataFrame with polygons.
+        column_name : str
+            The column name to find the labels in.
+        include_in_header : bool, optional
+            Whether to add the acquired data to the header table or not, by default
+            False.
+
+        Returns
+        -------
+        pd.DataFrame
+            Borehole ids and the polygon label they are in. If include_in_header = True,
+            a column containing the generated data will be added inplace to
+            :py:attr:`~geost.base.PointDataCollection.header`.
+        """
+        result = self.header.get_area_labels(
+            polygon_gdf, column_name, include_in_header=include_in_header
+        )
+        return result
 
     def to_multiblock(
         self,

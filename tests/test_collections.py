@@ -421,6 +421,17 @@ class TestCollection:
         assert "Header covers more/other objects than present in the data table" in out
 
     @pytest.mark.unittest
+    def test_get_area_labels(self, borehole_collection):
+        label_polygon = [Polygon(((2, 1), (5, 4), (4, 5), (1, 4)))]
+        label_gdf = gpd.GeoDataFrame({"id": [1]}, geometry=label_polygon)
+        # Return variant
+        output = borehole_collection.get_area_labels(label_gdf, "id")
+        assert_almost_equal(output["id"].sum(), 2)
+        # In-place variant
+        borehole_collection.get_area_labels(label_gdf, "id", include_in_header=True)
+        assert_almost_equal(borehole_collection.header["id"].sum(), 2)
+
+    @pytest.mark.unittest
     def test_to_multiblock(self, borehole_collection):
         # More detailed tests are in TestLayeredData in test_data_objects.py
         multiblock = borehole_collection.to_multiblock("lith")
