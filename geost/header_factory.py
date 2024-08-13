@@ -1,4 +1,4 @@
-from geost.new_base import LineHeader, PointHeader
+from geost.base import LineHeader, PointHeader
 
 
 class HeaderFactory:

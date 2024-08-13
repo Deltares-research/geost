@@ -9,7 +9,7 @@ from pyproj import CRS
 from geost.bro import BroApi
 from geost.io import _parse_cpt_gef_files
 from geost.io.parsers import SoilCore
-from geost.new_base import BoreholeCollection, CptCollection, LayeredData
+from geost.base import BoreholeCollection, CptCollection, LayeredData
 from geost.utils import dataframe_to_geodataframe
 
 MANDATORY_LAYERED_DATA_COLUMNS = ["nr", "x", "y", "surface", "end", "top", "bottom"]

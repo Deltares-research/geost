@@ -6,7 +6,7 @@ from numpy.testing import assert_array_almost_equal, assert_array_equal
 from pyvista import MultiBlock
 
 from geost.export import geodataclass
-from geost.new_base import BoreholeCollection, PointHeader
+from geost.base import BoreholeCollection, PointHeader
 
 
 class TestLayeredData:

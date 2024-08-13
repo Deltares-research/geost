@@ -11,7 +11,7 @@ from geost import (
     read_borehole_table,
     read_nlog_cores,
 )
-from geost.new_base import BoreholeCollection, LayeredData
+from geost.base import BoreholeCollection, LayeredData
 from geost.read import MANDATORY_LAYERED_DATA_COLUMNS, _check_mandatory_column_presence
 
 
@@ -105,7 +105,9 @@ class TestReaders:
         assert_array_equal(table_wrong_columns.columns, MANDATORY_LAYERED_DATA_COLUMNS)
 
     @pytest.mark.unittest
-    def test_check_mandatory_columns_with_user_input(self, table_wrong_columns, monkeypatch):
+    def test_check_mandatory_columns_with_user_input(
+        self, table_wrong_columns, monkeypatch
+    ):
         monkeypatch.setattr("builtins.input", lambda _: "maaiveld")
         table_wrong_columns = _check_mandatory_column_presence(
             table_wrong_columns, MANDATORY_LAYERED_DATA_COLUMNS

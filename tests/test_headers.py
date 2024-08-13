@@ -7,7 +7,7 @@ import pytest
 from numpy.testing import assert_allclose, assert_almost_equal
 from shapely.geometry import LineString, Point, Polygon
 
-from geost.new_base import LineHeader, PointHeader
+from geost.base import LineHeader, PointHeader
 
 
 class TestHeaders:

@@ -7,9 +7,14 @@ from geost import projections
 
 class TestProjections:
     @pytest.mark.unittest
-    def test_get_transformer(self):
-        T = projections.get_transformer(28992, 4326)
-        assert type(T) == pyproj.transformer.Transformer
+    def test_get_horizontal_transformer(self):
+        t = projections.horizontal_reference_transformer(28992, 4326)
+        assert isinstance(t, pyproj.transformer.Transformer)
+
+    @pytest.mark.unittest
+    def test_get_vertical_transformer(self):
+        t = projections.vertical_reference_transformer(28992, 5709, 5710)
+        assert isinstance(t, pyproj.transformer.Transformer)
 
     @pytest.mark.unittest
     def test_xy_to_ll(self):

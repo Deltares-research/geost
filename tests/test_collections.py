@@ -18,7 +18,7 @@ from shapely.geometry import LineString, Point, Polygon
 
 from geost import read_borehole_table, read_nlog_cores
 from geost.export import geodataclass
-from geost.new_base import BoreholeCollection, LayeredData, PointHeader
+from geost.base import BoreholeCollection, LayeredData, PointHeader
 
 
 class TestCollection:
