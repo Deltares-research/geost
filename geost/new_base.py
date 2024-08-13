@@ -1396,12 +1396,57 @@ class Collection(AbstractCollection):
 
 
 class BoreholeCollection(Collection):
-    def get_cumulative_layer_thickness(self):
-        # Not sure if this should be here, potentially unsuitable with DiscreteData
-        raise NotImplementedError("Add function logic")
+    def get_cumulative_layer_thickness(
+        self, column: str, values: str | List[str], include_in_header: bool = False
+    ):
+        """
+        Get the cumulative thickness of layers where a column contains a specified search
+        value or values.
 
-    def get_layer_top(self):
-        raise NotImplementedError("Add function logic")
+        Parameters
+        ----------
+        column : str
+            Name of column that must contain the search value or values.
+        values : str | List[str]
+            Search value or values in the column to find the cumulative thickness for.
+        include_in_header : bool, optional
+            If True, include the result in the header table of the collection. In this
+            case, the method does not return a DataFrame. The default is False.
+
+        Returns
+        -------
+        pd.DataFrame
+            Borehole ids and cumulative thickness of selected layers if the "include_in_header"
+            option is set to False.
+
+        Examples
+        --------
+        Get the cumulative thickness of the layers with lithology "K" in the column "lith"
+        use:
+
+        >>> boreholes.get_cumulative_layer_thickness("lith", "K")
+
+        Or get the cumulative thickness for multiple selection values. In this case, a
+        Pandas DataFrame is returned with a column per selection value containing the
+        cumulative thicknesses:
+
+        >>> boreholes.get_cumulative_layer_thickness("lith", ["K", "Z"])
+
+        To include the result in the header object of the collection, use the
+        "include_in_header" option:
+
+        >>> boreholes.get_cumulative_layer_thickness("lith", ["K"], include_in_header=True)
+
+        """
+        cum_thickness = self.data.get_cumulative_layer_thickness(column, values)
+
+        if include_in_header:
+            self.header = self.header.df.merge(cum_thickness, on="nr", how="left")
+        else:
+            return cum_thickness
+
+    def get_layer_top(self, column: str, values: str | List[str]):
+        return self.data.get_layer_top(column, values)
 
 
 class CptCollection(Collection):
