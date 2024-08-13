@@ -122,8 +122,8 @@ def nlog_borehole_file():
 
 
 @pytest.fixture
-def borehole_collection(borehole_file):
-    borehole_collection = read_borehole_table(borehole_file, 28992, "NAP")
+def borehole_collection(borehole_data):
+    borehole_collection = borehole_data.to_collection()
     return borehole_collection
 
 
