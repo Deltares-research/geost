@@ -833,7 +833,6 @@ class LayeredData(AbstractData, PandasExportMixin):
         radius: float = 1,
         vertical_factor: float = 1.0,
         relative_to_vertical_reference: bool = True,
-        **kwargs,  # NOTE: are **kwargs used by borehole_to_multiblock???
     ):
         """
         Create a Pyvista MultiBlock object from the data that can be used for 3D plotting
@@ -871,9 +870,7 @@ class LayeredData(AbstractData, PandasExportMixin):
         else:
             data["surface"] = 0
 
-        return borehole_to_multiblock(
-            data, data_columns, radius, vertical_factor, **kwargs
-        )
+        return borehole_to_multiblock(data, data_columns, radius, vertical_factor)
 
     def to_vtm(
         self,
@@ -1528,12 +1525,133 @@ class Collection(AbstractCollection):
     def slice_by_values(self):
         raise NotImplementedError("Add function logic")
 
-    def to_vtm(self):
-        raise NotImplementedError("Add function logic")
+    def to_multiblock(
+        self,
+        data_columns: str | List[str],
+        radius: float = 1,
+        vertical_factor: float = 1.0,
+        relative_to_vertical_reference: bool = True,
+    ):
+        """
+        Create a Pyvista MultiBlock object from the data that can be used for 3D plotting
+        and other spatial analyses.
 
-    def to_datafusiontools(self):
-        # supporting this is low priority, perhaps even deprecate
-        raise NotImplementedError("Add function logic")
+        Parameters
+        ----------
+        data_columns : str | List[str]
+            Name or names of data columns to include for visualisation. Can be columns that
+            contain an array of floats, ints and strings.
+        radius : float, optional
+            Radius of the cylinders in m in the MultiBlock. The default is 1.
+        vertical_factor : float, optional
+            Factor to correct vertical scale. For example, when layer boundaries are given
+            in cm, use 0.01 to convert to m. The default is 1.0, so no correction is applied.
+            It is not recommended to use this for vertical exaggeration, use viewer functionality
+            for that instead.
+        relative_to_vertical_reference : bool, optional
+            If True, the depth of the objects in the vtm file will be with respect to a
+            reference plane (e.g. "NAP", "TAW"). If False, the depth will be with respect
+            to 0.0. The default is True.
+
+        Returns
+        -------
+        MultiBlock
+            A composite class holding the data which can be iterated over.
+
+        """
+        return self.data.to_multiblock(
+            data_columns, radius, vertical_factor, relative_to_vertical_reference
+        )
+
+    def to_vtm(
+        self,
+        outfile: str | WindowsPath,
+        data_columns: str | List[str],
+        radius: float = 1,
+        vertical_factor: float = 1.0,
+        relative_to_vertical_reference: bool = True,
+        **kwargs,
+    ):
+        """
+        Save data as VTM (Multiblock file, an XML VTK file pointing to multiple other
+        VTK files) for viewing in external GUI software like ParaView or other VTK viewers.
+
+        Parameters
+        ----------
+        outfile : str | WindowsPath
+            Path to vtm file to be written.
+        data_columns : str | List[str]
+            Name or names of data columns to include for visualisation. Can be columns that
+            contain an array of floats, ints and strings.
+        radius : float, optional
+            Radius of the cylinders in m, by default 1.
+        vertical_factor : float, optional
+            Factor to correct vertical scale. For example, when layer boundaries are given
+            in cm, use 0.01 to convert to m. The default is 1.0, so no correction is applied.
+            It is not recommended to use this for vertical exaggeration, use viewer functionality
+            for that instead.
+        relative_to_vertical_reference : bool, optional
+            If True, the depth of the objects in the vtm file will be with respect to a
+            reference plane (e.g. "NAP", "TAW"). If False, the depth will be with respect
+            to 0.0. The default is True.
+
+        **kwargs :
+            pyvista.MultiBlock.save kwargs. See relevant Pyvista documentation.
+
+        """
+        self.data.to_vtm(
+            outfile,
+            data_columns,
+            radius,
+            vertical_factor,
+            relative_to_vertical_reference,
+        )
+
+    def to_datafusiontools(
+        self,
+        columns: List[str],
+        outfile: str | WindowsPath = None,
+        encode: bool = False,
+        relative_to_vertical_reference: bool = True,
+    ):
+        """
+        Export all data to the core "Data" class of Deltares DataFusionTools. Returns
+        a list of "Data" objects, one for each data object that is exported. This list
+        can directly be used within DataFusionTools. If out_file is given, the list of
+        Data objects is saved to a pickle file.
+
+        For DataFusionTools visit:
+        https://bitbucket.org/DeltaresGEO/datafusiontools/src/master/
+
+        Parameters
+        ----------
+        columns : List[str]
+            Which columns in the data to include for the export. These will become variables
+            in the DataFusionTools "Data" class.
+        outfile : str | WindowsPath, optional
+            If a path to outfile is given, the data is written to a pickle file.
+        encode : bool, default True
+            If True, categorical data columns are encoded to additional binary columns
+            (all possible values become a seperate feature that is 0 or 1). The default is
+            False. Warning: if there is a large number of possible categories, many columns
+            with categorical data or both, the export process may become slow and may consume
+            a large amount memory. Please consider carefully which categorical data columns
+            need to be included.
+        relative_to_vertical_reference : bool, optional
+            If True, the depth of all data objects will converted to a depth with respect to
+            a reference plane (e.g. "NAP", "TAW"). If False, the depth will be kept as original
+            in the "top" and "bottom" columns which is in meter below the surface. The default
+            is True.
+
+        Returns
+        -------
+        List[Data]
+            List containing the DataFusionTools Data objects.
+
+        """
+        return self.data.to_datafusiontools(
+            columns, outfile, encode, relative_to_vertical_reference
+        )
 
 
 class BoreholeCollection(Collection):
