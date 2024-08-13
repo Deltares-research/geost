@@ -7,7 +7,7 @@ import pandas as pd
 import pytest
 from shapely.geometry import Point
 
-from geost import read_nlog_cores, read_borehole_table
+from geost import read_borehole_table, read_nlog_cores
 from geost.new_base import LayeredData
 
 

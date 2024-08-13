@@ -114,6 +114,10 @@ class AbstractData(ABC):
         pass
 
     @abstractmethod
+    def to_multiblock(self):
+        pass
+
+    @abstractmethod
     def to_vtm(self):
         pass
 
@@ -231,6 +235,10 @@ class AbstractCollection(ABC):
     def get_layer_top(self):
         # These kind of methods should go to a seperate layer_analysis module with
         # functions to cover such analyses
+        pass
+
+    @abstractmethod
+    def to_multiblock(self):
         pass
 
     @abstractmethod

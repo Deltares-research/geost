@@ -13,9 +13,11 @@ from numpy.testing import (
     assert_array_equal,
     assert_equal,
 )
+from pyvista import MultiBlock
 from shapely.geometry import LineString, Point, Polygon
 
 from geost import read_borehole_table, read_nlog_cores
+from geost.export import geodataclass
 from geost.new_base import BoreholeCollection, LayeredData, PointHeader
 
 
@@ -418,7 +420,57 @@ class TestCollection:
         out, err = capfd.readouterr()
         assert "Header covers more/other objects than present in the data table" in out
 
+    @pytest.mark.unittest
+    def test_to_multiblock(self, borehole_collection):
+        # More detailed tests are in TestLayeredData in test_data_objects.py
+        multiblock = borehole_collection.to_multiblock("lith")
+        assert isinstance(multiblock, MultiBlock)
+
+    @pytest.mark.unittest
+    def test_to_vtm(self, borehole_collection):
+        outfile = Path("temp.vtm")
+        outfolder = outfile.parent / r"temp"
+        borehole_collection.to_vtm(outfile, "lith")
+        assert outfile.is_file()
+        outfile.unlink()
+        for f in outfolder.glob("*.vtp"):
+            f.unlink()
+        outfolder.rmdir()
+
+    @pytest.mark.unittest
+    def test_to_datafusiontools(self, borehole_collection):
+        # More detailed tests are in TestLayeredData in test_data_objects.py
+        dft = borehole_collection.to_datafusiontools("lith")
+        assert np.all([isinstance(d, geodataclass.Data) for d in dft])
+
     # @pytest.mark.integrationtest
     # def test_surface_level_update(self, borehole_collection, update_raster):
     #     borehole_collection.update_surface_level_from_raster(update_raster, how="replace")
     #     print("stop")
+
+
+class TestBoreholeCollection:
+    @pytest.mark.unittest
+    def test_get_cumulative_layer_thickness(self, borehole_collection):
+        borehole_collection.get_cumulative_layer_thickness(
+            "lith", ["Z", "K"], include_in_header=True
+        )
+        expected_clay_thickness = [2.0, 2.0, 2.9, 1.1, np.nan]
+        expected_sand_thickness = [2.2, np.nan, 2.6, 0.5, 3.0]
+
+        assert_almost_equal(
+            borehole_collection.header["K_thickness"], expected_clay_thickness
+        )
+        assert_almost_equal(
+            borehole_collection.header["Z_thickness"], expected_sand_thickness
+        )
+
+    @pytest.mark.unittest
+    def test_get_layer_top(self, borehole_collection):
+        borehole_collection.get_layer_top("lith", ["Z", "K"], include_in_header=True)
+
+        expected_sand_top = [1.5, np.nan, 2.9, 2.5, 0.0]
+        expected_clay_top = [0.0, 0.0, 0.0, 0.0, np.nan]
+
+        assert_almost_equal(borehole_collection.header["K_top"], expected_clay_top)
+        assert_almost_equal(borehole_collection.header["Z_top"], expected_sand_top)
