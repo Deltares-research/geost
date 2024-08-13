@@ -1455,12 +1455,66 @@ class Collection(AbstractCollection):
         data_selected = self.data.select_by_values("nr", header_selected["nr"].unique())
         return self.__class__(header_selected, data_selected)
 
-    def select_by_length(self):
-        # data_selected = self.data.select_by_values("nr", header_selected["nr"].unique())
-        # return self.__class__(header_selected, data_selected)
-        raise NotImplementedError("Add function logic")
+    def select_by_length(self, min_length: float = None, max_length: float = None):
+        """
+        Select data from length constraints: e.g. all boreholes between 50 and 150 m
+        long. If a keyword argument is not given it will not be considered.
 
-    def select_by_values(self):
+        Parameters
+        ----------
+        min_length : float, optional
+            Minimum length of borehole/cpt, by default None.
+        max_length : float, optional
+            Maximum length of borehole/cpt, by default None.
+
+        Returns
+        -------
+        Child of :class:`~geost.base.Collection`.
+            Instance of the current type of collection containing only objects selected
+            by this method.
+        """
+        header_selected = self.header.select_by_length(min_length, max_length)
+        data_selected = self.data.select_by_values("nr", header_selected["nr"].unique())
+        return self.__class__(header_selected, data_selected)
+
+    def select_by_values(
+        self, column: str, selection_values: str | Iterable, how: str = "or"
+    ):
+        """
+        Select data based on the presence of given values in a given column. Can be used
+        for example to select boreholes that contain peat in the lithology column.
+
+        Parameters
+        ----------
+        column : str
+            Name of column that contains categorical data to use when looking for
+            values.
+        selection_values : str | Iterable
+            Value or values to look for in the column.
+        how : str, optional
+            Either "and" or "or". "and" requires all selection values to be present in
+            column for selection. "or" will select the core if any one of the
+            selection_values are found in the column. Default is "and".
+
+        Returns
+        -------
+        Child of :class:`~geost.base.LayeredData`.
+            New instance containing only the data selected by this method.
+
+        Examples
+        --------
+        To select boreholes where both clay ("K") and peat ("V") are present at the same
+        time, use "and" as a selection method:
+
+        >>> boreholes.select_by_values("lith", ["V", "K"], how="and")
+
+        To select boreholes that can have one, or both lithologies, use or as the selection
+        method:
+
+        >>> boreholes.select_by_values("lith", ["V", "K"], how="and")
+
+        """
+        data_selected = self.data.select_by_values(column, selection_values, how=how)
         # data_selected = self.data.select_by_values("nr", header_selected["nr"].unique())
         # return self.__class__(header_selected, data_selected)
         raise NotImplementedError("Add function logic")

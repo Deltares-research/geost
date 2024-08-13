@@ -266,6 +266,26 @@ class TestCollection:
         )
 
     @pytest.mark.unittest
+    def test_select_by_length(self, borehole_data):
+        borehole_collection = borehole_data.to_collection()
+        assert borehole_collection.select_by_length(min_length=4).n_points == 2
+        assert borehole_collection.select_by_length(max_length=4).n_points == 3
+        assert (
+            borehole_collection.select_by_length(min_length=3, max_length=5).n_points
+            == 4
+        )
+
+    @pytest.mark.unittest
+    def test_select_by_values(self, borehole_data):
+        borehole_collection = borehole_data.to_collection()
+        assert borehole_collection.select_by_length(min_length=4).n_points == 2
+        assert borehole_collection.select_by_length(max_length=4).n_points == 3
+        assert (
+            borehole_collection.select_by_length(min_length=3, max_length=5).n_points
+            == 4
+        )
+
+    @pytest.mark.unittest
     def test_slice_depth_interval(self, borehole_collection):
         pass
 
