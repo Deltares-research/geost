@@ -1,5 +1,6 @@
 from pathlib import Path
 
+import geopandas as gpd
 import numpy as np
 import pandas as pd
 import pytest
@@ -11,12 +12,13 @@ from numpy.testing import (
     assert_array_almost_equal,
     assert_equal,
 )
+from shapely.geometry import LineString, Point, Polygon
 
 from geost import read_nlog_cores, read_sst_cores
 from geost.new_base import BoreholeCollection, LayeredData
 
 
-class TestPointCollection:
+class TestCollection:
     nlog_stratstelsel_parquet = (
         Path(__file__).parent / "data/test_nlog_stratstelsel_20230807.parquet"
     )
@@ -146,14 +148,14 @@ class TestPointCollection:
 
     @pytest.mark.unittest
     def test_change_vertical_reference(self, borehole_data):
-        borehole_collection_ok = LayeredData(borehole_data).to_collection()
+        borehole_collection_ok = borehole_data.to_collection()
         assert borehole_collection_ok.vertical_reference == 5709
         borehole_collection_ok.change_vertical_reference("Ostend height")
         assert borehole_collection_ok.vertical_reference == 5710
 
     @pytest.mark.unittest
     def test_change_horizontal_reference(self, borehole_data):
-        borehole_collection_ok = LayeredData(borehole_data).to_collection()
+        borehole_collection_ok = borehole_data.to_collection()
         assert borehole_collection_ok.horizontal_reference == 28992
         borehole_collection_ok.change_horizontal_reference(32631)
         assert borehole_collection_ok.horizontal_reference == 32631
@@ -200,6 +202,68 @@ class TestPointCollection:
         assert all(borehole_collection_selected.header.gdf["nr"].unique() == ["A", "D"])
         assert all(borehole_collection_selected.data.df["nr"].unique() == ["A", "D"])
 
+    @pytest.mark.unittest
+    def test_select_with_points(self, borehole_data):
+        borehole_collection = borehole_data.to_collection()
+        selection_points = [Point(1, 1), Point(4, 4), Point(1, 4), Point(4, 1)]
+        selection_gdf = gpd.GeoDataFrame(
+            {"id": [0, 1, 2, 3]}, geometry=selection_points
+        )
+        collection_sel = borehole_collection.select_with_points(selection_gdf, 1.1)
+        collection_sel_inverted = borehole_collection.select_with_points(
+            selection_gdf, 1.1, invert=True
+        )
+        assert collection_sel.n_points == 3
+        assert collection_sel_inverted.n_points == 2
+
+    @pytest.mark.unittest
+    def test_select_with_lines(self, borehole_data):
+        borehole_collection = borehole_data.to_collection()
+        selection_lines = [LineString([[1, 1], [5, 5]]), LineString([[1, 5], [5, 1]])]
+        selection_gdf = gpd.GeoDataFrame({"id": [0, 1]}, geometry=selection_lines)
+        collection_sel = borehole_collection.select_with_lines(selection_gdf, 0.6)
+        collection_sel_inverted = borehole_collection.select_with_lines(
+            selection_gdf, 0.6, invert=True
+        )
+        assert collection_sel.n_points == 2
+        assert collection_sel_inverted.n_points == 3
+
+    @pytest.mark.unittest
+    def test_select_within_polygons(self, borehole_data):
+        borehole_collection = borehole_data.to_collection()
+        selection_polygon = [Polygon(((2, 1), (5, 4), (4, 5), (1, 3)))]
+        selection_gdf = gpd.GeoDataFrame({"id": [0]}, geometry=selection_polygon)
+
+        # Polygon selection without buffer
+        collection_sel = borehole_collection.select_within_polygons(selection_gdf)
+        collection_sel_inverted = borehole_collection.select_within_polygons(
+            selection_gdf, invert=True
+        )
+        assert collection_sel.n_points == 1
+        assert collection_sel_inverted.n_points == 4
+
+        # Polygon selection with a buffer
+        collection_sel_buff = borehole_collection.select_within_polygons(
+            selection_gdf, buffer=0.7
+        )
+        collection_sel_inverted_buff = borehole_collection.select_within_polygons(
+            selection_gdf, buffer=0.7, invert=True
+        )
+        assert collection_sel_buff.n_points == 2
+        assert collection_sel_inverted_buff.n_points == 3
+
+    @pytest.mark.unittest
+    def test_select_by_depth(self, borehole_data):
+        borehole_collection = borehole_data.to_collection()
+        assert borehole_collection.select_by_depth(top_min=0).n_points == 4
+        assert borehole_collection.select_by_depth(top_max=0).n_points == 1
+        assert borehole_collection.select_by_depth(end_min=-3.5).n_points == 2
+        assert (
+            borehole_collection.select_by_depth(
+                top_min=0, top_max=0.3, end_max=-4
+            ).n_points
+            == 2
+        )
 
     @pytest.mark.unittest
     def test_slice_depth_interval(self, borehole_collection):
