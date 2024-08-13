@@ -7,7 +7,7 @@ import pandas as pd
 import pytest
 from shapely.geometry import Point
 
-from geost import read_nlog_cores, read_sst_cores
+from geost import read_nlog_cores, read_borehole_table
 from geost.new_base import LayeredData
 
 
@@ -123,7 +123,7 @@ def nlog_borehole_file():
 
 @pytest.fixture
 def borehole_collection(borehole_file):
-    borehole_collection = read_sst_cores(borehole_file, 28992, "NAP")
+    borehole_collection = read_borehole_table(borehole_file, 28992, "NAP")
     return borehole_collection
 
 

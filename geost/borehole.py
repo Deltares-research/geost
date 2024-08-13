@@ -21,7 +21,7 @@ class BoreholeCollection(PointDataCollection):
     :py:mod:`~geost.read` to create collections. The following readers generate Borehole
     objects:
 
-    :func:`~geost.read.read_sst_cores`, :func:`~geost.read.read_nlog_cores`
+    :func:`~geost.read.read_borehole_table`, :func:`~geost.read.read_nlog_cores`
 
     Args:
         data (pd.DataFrame): Dataframe containing borehole/CPT data.

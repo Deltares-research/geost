@@ -14,7 +14,7 @@ from numpy.testing import (
 )
 from shapely.geometry import LineString, Point, Polygon
 
-from geost import read_nlog_cores, read_sst_cores
+from geost import read_borehole_table, read_nlog_cores
 from geost.new_base import BoreholeCollection, LayeredData
 
 

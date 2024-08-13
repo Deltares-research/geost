@@ -5,7 +5,7 @@ import pandas as pd
 import pytest
 from numpy.testing import assert_allclose
 
-from geost import read_sst_cores
+from geost import read_borehole_table
 from geost.borehole import BoreholeCollection
 
 selection_file = Path(__file__).parent / "data" / "test_polygon.parquet"
