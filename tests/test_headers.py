@@ -40,11 +40,11 @@ class TestHeaders:
     @pytest.mark.unittest
     def test_change_vertical_reference(self, point_header_gdf):
         point_header = PointHeader(point_header_gdf, "NAP")
-        current_NAP_levels = point_header["surface"].copy()
-        current_NAP_ends = point_header["end"].copy()
+        current_NAP_levels = point_header["surface"].copy()  # noqa: N806
+        current_NAP_ends = point_header["end"].copy()  # noqa: N806
         # The offset between NAP (epsg:5709) and TAW (epsg:5710) is 2.28234 m.
-        expected_TAW_levels = current_NAP_levels + 2.28234
-        expected_TAW_ends = current_NAP_ends + 2.28234
+        expected_TAW_levels = current_NAP_levels + 2.28234  # noqa: N806
+        expected_TAW_ends = current_NAP_ends + 2.28234  # noqa: N806
         point_header.change_vertical_reference(5710)
         assert point_header.vertical_reference == 5710
         assert_allclose(point_header["surface"], expected_TAW_levels, atol=10e-4)

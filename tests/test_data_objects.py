@@ -1,3 +1,5 @@
+from pathlib import Path
+
 import numpy as np
 import pytest
 from numpy.testing import assert_array_almost_equal, assert_array_equal
@@ -242,6 +244,25 @@ class TestLayeredData:
         )
 
     @pytest.mark.unittest
+    def test_to_vtm_with_file(self, borehole_data):
+        outfile = Path("temp.vtm")
+        outfolder = outfile.parent / r"temp"
+        borehole_data.to_vtm(outfile, "lith")
+        assert outfile.is_file()
+        outfile.unlink()
+        for f in outfolder.glob("*.vtp"):
+            f.unlink()
+        outfolder.rmdir()
+        pass
+
+    @pytest.mark.unittest
+    def test_to_datafusiontools_with_file(self, borehole_data):
+        outfile = Path("dft.pkl")
+        borehole_data.to_datafusiontools("lith", outfile)
+        assert outfile.is_file()
+        outfile.unlink()
+
+    @pytest.mark.unittest
     def test_to_qgis3d(self, borehole_data):
         pass
 
@@ -265,3 +286,17 @@ class TestLayeredData:
         inst = ["list of strings"]
         inst = borehole_data._check_correct_instance(inst)
         assert isinstance(inst, list)
+
+    @pytest.mark.unittest
+    def test_to_csv_mixin(self, borehole_data):
+        outfile = Path("temp.csv")
+        borehole_data.to_csv(outfile)
+        assert outfile.is_file()
+        outfile.unlink()
+
+    @pytest.mark.unittest
+    def test_to_parquet_mixin(self, borehole_data):
+        outfile = Path("temp.parquet")
+        borehole_data.to_parquet(outfile)
+        assert outfile.is_file()
+        outfile.unlink()
