@@ -443,6 +443,11 @@ class TestCollection:
         dft = borehole_collection.to_datafusiontools("lith")
         assert np.all([isinstance(d, geodataclass.Data) for d in dft])
 
+        outfile = Path("dft.pkl")
+        borehole_collection.to_datafusiontools("lith", outfile)
+        assert outfile.is_file()
+        outfile.unlink()
+
     # @pytest.mark.integrationtest
     # def test_surface_level_update(self, borehole_collection, update_raster):
     #     borehole_collection.update_surface_level_from_raster(update_raster, how="replace")
