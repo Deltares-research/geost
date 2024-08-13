@@ -36,7 +36,10 @@ class PointHeader(AbstractHeader, GeopandasExportMixin):
         self.__vertical_reference = CRS(vertical_reference)
 
     def __repr__(self):
-        return f"{self.__class__.__name__} instance containing {len(self)} objects"
+        name = self.__class__.__name__
+        data = self._gdf
+        length = len(data)
+        return f"{name} instance containing {length} objects\n{data}"
 
     def __getitem__(self, column):
         return self.gdf[column]
@@ -1353,20 +1356,100 @@ class Collection(AbstractCollection):
         data_selected = self.data.select_by_values("nr", header_selected["nr"].unique())
         return self.__class__(header_selected, data_selected)
 
-    def select_with_lines(self):
-        # data_selected = self.data.select_by_values("nr", header_selected["nr"].unique())
-        # return self.__class__(header_selected, data_selected)
-        raise NotImplementedError("Add function logic")
+    def select_with_lines(
+        self,
+        lines: str | WindowsPath | gpd.GeoDataFrame,
+        buffer: float | int,
+        invert: bool = False,
+    ):
+        """
+        Make a selection of the collection based on line geometries.
 
-    def select_within_polygons(self):
-        # data_selected = self.data.select_by_values("nr", header_selected["nr"].unique())
-        # return self.__class__(header_selected, data_selected)
-        raise NotImplementedError("Add function logic")
+        Parameters
+        ----------
+        lines : str | WindowsPath | gpd.GeoDataFrame
+            Geodataframe (or file that can be parsed to a geodataframe) to select with.
+        buffer : float | int
+            Buffer distance for selection geometries.
+        invert : bool, optional
+            Invert the selection, by default False.
 
-    def select_by_depth(self):
-        # data_selected = self.data.select_by_values("nr", header_selected["nr"].unique())
-        # return self.__class__(header_selected, data_selected)
-        raise NotImplementedError("Add function logic")
+        Returns
+        -------
+        :class:`~geost.base.Collection`
+            Instance of :class:`~geost.base.Collection`containing only selected
+            geometries.
+        """
+        header_selected = self.header.select_with_lines(lines, buffer, invert=invert)
+        data_selected = self.data.select_by_values("nr", header_selected["nr"].unique())
+        return self.__class__(header_selected, data_selected)
+
+    def select_within_polygons(
+        self,
+        polygons: str | WindowsPath | gpd.GeoDataFrame,
+        buffer: float | int = 0,
+        invert: bool = False,
+    ):
+        """
+        Make a selection of the collection based on polygon geometries.
+
+        Parameters
+        ----------
+        polygons : str | WindowsPath | gpd.GeoDataFrame
+            Geodataframe (or file that can be parsed to a geodataframe) to select with.
+        buffer : float | int, optional
+            Optional buffer distance around the polygon selection geometries, by default
+            0.
+        invert : bool, optional
+            Invert the selection, by default False.
+
+        Returns
+        -------
+        :class:`~geost.base.Collection`
+            Instance of :class:`~geost.base.Collection`containing only selected
+            geometries.
+        """
+        header_selected = self.header.select_within_polygons(
+            polygons, buffer, invert=invert
+        )
+        data_selected = self.data.select_by_values("nr", header_selected["nr"].unique())
+        return self.__class__(header_selected, data_selected)
+
+    def select_by_depth(
+        self,
+        top_min: float = None,
+        top_max: float = None,
+        end_min: float = None,
+        end_max: float = None,
+    ):
+        """
+        Select data from depth constraints. If a keyword argument is not given it will
+        not be considered. e.g. if you need only boreholes that go deeper than -500 m
+        use only end_max = -500.
+
+        Parameters
+        ----------
+        top_min : float, optional
+            Minimum elevation of the borehole/cpt top, by default None.
+        top_max : float, optional
+            Maximum elevation of the borehole/cpt top, by default None.
+        end_min : float, optional
+            Minimum elevation of the borehole/cpt end, by default None.
+        end_max : float, optional
+            Maximumelevation of the borehole/cpt end, by default None.
+
+        Returns
+        -------
+        Child of :class:`~geost.base.PointDataCollection`.
+            Instance of either :class:`~geost.borehole.BoreholeCollection` or
+            :class:`~geost.borehole.CptCollection` containing only objects selected by
+            this method.
+        """
+        header_selected = self.header.select_by_depth(
+            top_min, top_max, end_min, end_max
+        )
+        data_selected = self.data.select_by_values("nr", header_selected["nr"].unique())
+        return self.__class__(header_selected, data_selected)
 
     def select_by_length(self):
         # data_selected = self.data.select_by_values("nr", header_selected["nr"].unique())
