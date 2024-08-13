@@ -972,9 +972,20 @@ class LayeredData(AbstractData, PandasExportMixin):
         else:
             return dftgeodata
 
-    def to_qgis3d(
-        self, outfile: str | WindowsPath, relative_to_vertical_reference: bool = True
-    ):
+    def _create_geodataframe_3d(self, relative_to_vertical_reference: bool = True):
+        """
+        Helper method for export method "to_qgis3d" to create the necessary GeoDataFrame
+        containing 3D Shapely objects and associated information.
+
+        Parameters
+        ----------
+        relative_to_vertical_reference : bool, optional
+            If True, the depth of all data objects will converted to a depth with respect to
+            a reference plane (e.g. "NAP", "TAW"). If False, the depth will be kept as original
+            in the "top" and "bottom" columns which is in meter below the surface. The default
+            is True.
+
+        """
         data = self.df.copy()
 
         if relative_to_vertical_reference:
@@ -1018,9 +1029,14 @@ class LayeredData(AbstractData, PandasExportMixin):
                 )
             ]
 
-        qgis3d = gpd.GeoDataFrame(data=data_to_write, geometry=geometries)
+        gdf = gpd.GeoDataFrame(data=data_to_write, geometry=geometries)
+        return gdf
+
+    def to_qgis3d(
+        self, outfile: str | WindowsPath, relative_to_vertical_reference: bool = True
+    ):
+        qgis3d = self._create_geodataframe_3d(relative_to_vertical_reference)
         qgis3d.to_file(outfile, driver="GPKG")
-        return qgis3d
 
 
 class DiscreteData(AbstractData, PandasExportMixin):
