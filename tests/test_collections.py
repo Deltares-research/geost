@@ -16,9 +16,8 @@ from numpy.testing import (
 from pyvista import MultiBlock
 from shapely.geometry import LineString, Point, Polygon
 
-from geost import read_borehole_table, read_nlog_cores
-from geost.export import geodataclass
 from geost.base import BoreholeCollection, LayeredData, PointHeader
+from geost.export import geodataclass
 
 
 class TestCollection:
@@ -407,14 +406,14 @@ class TestCollection:
         self, capfd, borehole_df_ok, header_missing_object, header_surplus_objects
     ):
         # Situation #1: More unique objects in data table than listed in header
-        collection = BoreholeCollection(
+        BoreholeCollection(
             PointHeader(header_missing_object, 28992), LayeredData(borehole_df_ok)
         )
         out, err = capfd.readouterr()
         assert "Header does not cover all unique objects in data" in out
 
         # Situation #2: More objects in header table than in data table
-        collection = BoreholeCollection(
+        BoreholeCollection(
             PointHeader(header_surplus_objects, 28992), LayeredData(borehole_df_ok)
         )
         out, err = capfd.readouterr()
@@ -456,6 +455,13 @@ class TestCollection:
 
         outfile = Path("dft.pkl")
         borehole_collection.to_datafusiontools("lith", outfile)
+        assert outfile.is_file()
+        outfile.unlink()
+
+    @pytest.mark.unittest
+    def test_to_qgis3d(self, borehole_collection):
+        outfile = Path("temp.gpkg")
+        borehole_collection.to_qgis3d(outfile)
         assert outfile.is_file()
         outfile.unlink()
 

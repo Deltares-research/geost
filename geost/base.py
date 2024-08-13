@@ -1033,10 +1033,35 @@ class LayeredData(AbstractData, PandasExportMixin):
         return gdf
 
     def to_qgis3d(
-        self, outfile: str | WindowsPath, relative_to_vertical_reference: bool = True
+        self,
+        outfile: str | WindowsPath,
+        relative_to_vertical_reference: bool = True,
+        **kwargs,
     ):
+        """
+        Write data to geopackage file that can be directly loaded in the Qgis2threejs
+        plugin. Works only for layered (borehole) data.
+
+        PLEASE NOTE:
+        geost does not support inclined boreholes yet. 3D visualisation may look a bit
+        weird for the time being with layers being displaced instead of inclined.
+
+        Parameters
+        ----------
+        outfile : str | WindowsPath
+            Path to geopackage file to be written.
+        relative_to_vertical_reference : bool, optional
+            If True, the depth of all data objects will converted to a depth with respect to
+            a reference plane (e.g. "NAP", "TAW"). If False, the depth will be kept as original
+            in the "top" and "bottom" columns which is in meter below the surface. The default
+            is True.
+
+        **kwargs
+            geopandas.GeodataFrame.to_file kwargs. See relevant Geopandas documentation.
+
+        """
         qgis3d = self._create_geodataframe_3d(relative_to_vertical_reference)
-        qgis3d.to_file(outfile, driver="GPKG")
+        qgis3d.to_file(outfile, driver="GPKG", **kwargs)
 
 
 class DiscreteData(AbstractData, PandasExportMixin):
@@ -1898,6 +1923,36 @@ class BoreholeCollection(Collection):
             )
         else:
             return tops
+
+    def to_qgis3d(
+        self,
+        outfile: str | WindowsPath,
+        relative_to_vertical_reference: bool = True,
+        **kwargs,
+    ):
+        """
+        Write data to geopackage file that can be directly loaded in the Qgis2threejs
+        plugin. Works only for layered (borehole) data.
+
+        PLEASE NOTE:
+        geost does not support inclined boreholes yet. 3D visualisation may look a bit
+        weird for the time being with layers being displaced instead of inclined.
+
+        Parameters
+        ----------
+        outfile : str | WindowsPath
+            Path to geopackage file to be written.
+        relative_to_vertical_reference : bool, optional
+            If True, the depth of all data objects will converted to a depth with respect to
+            a reference plane (e.g. "NAP", "TAW"). If False, the depth will be kept as original
+            in the "top" and "bottom" columns which is in meter below the surface. The default
+            is True.
+
+        **kwargs
+            geopandas.GeodataFrame.to_file kwargs. See relevant Geopandas documentation.
+
+        """
+        self.data.to_qgis3d(outfile, relative_to_vertical_reference, **kwargs)
 
 
 class CptCollection(Collection):
