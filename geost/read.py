@@ -12,7 +12,9 @@ from geost.io.parsers import SoilCore
 from geost.new_base import BoreholeCollection, CptCollection, LayeredData
 from geost.utils import dataframe_to_geodataframe
 
-geometry_to_selection_function = {
+MANDATORY_LAYERED_DATA_COLUMNS = ["nr", "x", "y", "surface", "end", "top", "bottom"]
+MANDATORY_DISCRETE_DATA_COLUMNS = ["nr", "x", "y", "surface", "end", "depth"]
+GEOMETRY_TO_SELECTION_FUNCTION = {
     "Polygon": "select_within_polygons",
     "Line": "select_with_lines",
     "Point": "select_with_points",
@@ -61,19 +63,23 @@ def adjust_z_coordinates(data_dataframe: pd.DataFrame) -> pd.DataFrame:
         Dataframe with layer or discrete data that includes columns referecing layer
         top, bottoms or discrete data z-coordinates.
     """
-    top_column_label = [col for col in data_dataframe.columns if col in ["top", "z"]][0]
+    # TODO: Use attribute of LayerData or DiscreteData
+    top_column_label = [
+        col for col in data_dataframe.columns if col in ["top", "depth"]
+    ][0]
     has_bottom_column = "bottom" in data_dataframe.columns
 
     # TODO: think about detection. Only considers first two indices to determine
     # downward decreasing or increasing of z-coordinates.
-    if data_dataframe[top_column_label].iloc[0] == data_dataframe["surface"].iloc[0]:
+    first_surface = data_dataframe["surface"].iloc[0]
+    first_top = data_dataframe[top_column_label].iloc[0]
+    second_top = data_dataframe[top_column_label].iloc[0]
+
+    if first_top == first_surface:
         data_dataframe[top_column_label] -= data_dataframe["surface"]
         if has_bottom_column:
             data_dataframe["bottom"] -= data_dataframe["surface"]
-    if (
-        data_dataframe[top_column_label].iloc[0]
-        > data_dataframe[top_column_label].iloc[1]
-    ):
+    if first_top > second_top:
         data_dataframe[top_column_label] *= -1
         if has_bottom_column:
             data_dataframe["bottom"] *= -1
@@ -81,13 +87,35 @@ def adjust_z_coordinates(data_dataframe: pd.DataFrame) -> pd.DataFrame:
     return data_dataframe
 
 
-def read_sst_cores(
+def _check_mandatory_column_presence(
+    df: pd.DataFrame, mandatory_cols: list, column_mapper: dict = None
+) -> pd.DataFrame:
+    missing_mandatory = [col for col in mandatory_cols if col not in df.columns]
+
+    if missing_mandatory:
+        if not column_mapper:
+            column_mapper = dict()
+            print(
+                f"\nMandatory columns {missing_mandatory} are missing in the "
+                f"data table. Columns present are: \n{list(df.columns)}\n"
+            )
+            for missing in missing_mandatory:
+                name = input(f"Which column is {missing}? ")
+                column_mapper[name] = missing
+
+        df.rename(columns=column_mapper, inplace=True)
+
+    return df
+
+
+def read_borehole_table(
     file: str | WindowsPath,
     horizontal_reference: str | int | CRS = 28992,
     vertical_reference: str | int | CRS = 5709,
     has_inclined: bool = False,
-    column_mapper: dict = {},
-) -> BoreholeCollection:
+    as_collection: bool = True,
+    column_mapper: dict = None,
+) -> BoreholeCollection:  # TODO: update docstring.
     """
     Read Subsurface Toolbox native parquet file with core information. Such a file
     includes row data for each (borehole) layer and must at least include the following
@@ -117,6 +145,12 @@ def read_sst_cores(
         pyproj.crs.CRS.from_user_input(). However, it must be a vertical datum. FYI:
         "NAP" is EPSG 5709 and The Belgian reference system (Ostend height) is ESPG
         5710.
+    has_inclined : bool, optional
+        If True, the borehole data table contains inclined boreholes. The default is False.
+    as_collection : bool, optional
+        If True, the borehole table will be read as a :class:`~geost.base.Collection`
+        which includes a header object and spatial selection functionality. If False,
+        a :class:`~geost.base.LayeredData` object is returned. The default is True.
     column_mapper: dict
         If the file to be read uses different column names than the ones given in the
         description above, you can use a dictionary mapping to translate the column
@@ -124,29 +158,35 @@ def read_sst_cores(
 
     Returns
     -------
-    :class:`~geost.borehole.BoreholeCollection`
-        Instance of :class:`~geost.borehole.BoreholeCollection`.
+    :class:`~geost.base.BoreholeCollection` or :class:`~geost.base.LayeredData`
+        Instance of :class:`~geost.base.BoreholeCollection` or :class:`~geost.base.LayeredData`
+        depending on if the table is read as a collection or not.
 
     Examples
     --------
     Suppose we have a file of boreholes with columns 'nr', 'x', 'y', 'maaiveld', 'end',
-    'top' and 'bottom'. . The column 'maaiveld' corresponds to the required column
+    'top' and 'bottom'. The column 'maaiveld' corresponds to the required column
     'surface' in GeoST and thus needs to be remapped. The x and y-coordinates are given
     in WGS84 UTM 31N whereas the vertical datum is given in the Belgian Ostend height
     vertical datum:
 
-    >>> read_sst_cores(file, 32631, 'Ostend height', column_mapper={'maaiveld': 'surface'})
-    """
-    column_mapper = {value: key for key, value in column_mapper.items()}
-    sst_cores = __read_parquet(Path(file))
-    sst_cores.rename(columns=column_mapper, inplace=True)
+    >>> read_borehole_table(file, 32631, 'Ostend height', column_mapper={'maaiveld': 'surface'})
 
+    """
+    boreholes = __read_parquet(Path(file))
+
+    boreholes = _check_mandatory_column_presence(
+        boreholes, MANDATORY_LAYERED_DATA_COLUMNS, column_mapper
+    )
     # Figure out top and bottom reference and coerce to downward increasing from 0 if
     # required.
-    sst_cores = adjust_z_coordinates(sst_cores)
-    layerdata = LayeredData(sst_cores, has_inclined=has_inclined)
-    collection = layerdata.to_collection(horizontal_reference, vertical_reference)
-    return collection
+    boreholes = adjust_z_coordinates(boreholes)
+    boreholes = LayeredData(boreholes, has_inclined=has_inclined)
+
+    if as_collection:
+        boreholes = boreholes.to_collection(horizontal_reference, vertical_reference)
+
+    return boreholes
 
 
 def read_sst_cpts(
@@ -470,7 +510,7 @@ def get_bro_objects_from_geometry(
         horizontal_reference=28992,
         is_inclined=False,
     )
-    collection = getattr(collection, geometry_to_selection_function[geometry.type[0]])(
+    collection = getattr(collection, GEOMETRY_TO_SELECTION_FUNCTION[geometry.type[0]])(
         geometry, buffer
     )
     collection.header = collection.header.reset_index()
@@ -478,3 +518,8 @@ def get_bro_objects_from_geometry(
     collection.change_horizontal_reference(horizontal_reference)
 
     return collection
+
+
+if __name__ == "__main__":
+    boreholes = read_borehole_table(r"c:\src\python\geost\tests\data\temp.parquet")
+    print(boreholes.data)
