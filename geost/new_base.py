@@ -1282,7 +1282,7 @@ class Collection(AbstractCollection):
         if hasattr(self, "_header") and hasattr(self, "_data"):
             if any(~self.header["nr"].isin(self.data["nr"].unique())):
                 warn(
-                    "Header covers more objects than present in the data table, "
+                    "Header covers more/other objects than present in the data table, "
                     "consider running the method 'reset_header' to update the header."
                 )
             if not set(self.data["nr"].unique()).issubset(set(self.header["nr"])):
@@ -1318,9 +1318,10 @@ class Collection(AbstractCollection):
 
         Returns
         -------
-        :class:`~geost.base.Collection`
-            Instance of :class:`~geost.base.Collection`containing only selected
-            geometries.
+        New instance of the current object.
+            New instance of the current object containing only the selection resulting
+            from application of this method. e.g. if you are calling this method from a
+            Collection, you will get an instance of a Collection back.
         """
         header_selected = self.header.select_within_bbox(
             xmin, xmax, ymin, ymax, invert=invert
@@ -1348,9 +1349,10 @@ class Collection(AbstractCollection):
 
         Returns
         -------
-        :class:`~geost.base.Collection`
-            Instance of :class:`~geost.base.Collection`containing only selected
-            geometries.
+        New instance of the current object.
+            New instance of the current object containing only the selection resulting
+            from application of this method. e.g. if you are calling this method from a
+            Collection, you will get an instance of a Collection back.
         """
         header_selected = self.header.select_with_points(points, buffer, invert=invert)
         data_selected = self.data.select_by_values("nr", header_selected["nr"].unique())
@@ -1376,9 +1378,10 @@ class Collection(AbstractCollection):
 
         Returns
         -------
-        :class:`~geost.base.Collection`
-            Instance of :class:`~geost.base.Collection`containing only selected
-            geometries.
+        New instance of the current object.
+            New instance of the current object containing only the selection resulting
+            from application of this method. e.g. if you are calling this method from a
+            Collection, you will get an instance of a Collection back.
         """
         header_selected = self.header.select_with_lines(lines, buffer, invert=invert)
         data_selected = self.data.select_by_values("nr", header_selected["nr"].unique())
@@ -1405,12 +1408,13 @@ class Collection(AbstractCollection):
 
         Returns
         -------
-        :class:`~geost.base.Collection`
-            Instance of :class:`~geost.base.Collection`containing only selected
-            geometries.
+        New instance of the current object.
+            New instance of the current object containing only the selection resulting
+            from application of this method. e.g. if you are calling this method from a
+            Collection, you will get an instance of a Collection back.
         """
         header_selected = self.header.select_within_polygons(
-            polygons, buffer, invert=invert
+            polygons, buffer=buffer, invert=invert
         )
         data_selected = self.data.select_by_values("nr", header_selected["nr"].unique())
         return self.__class__(header_selected, data_selected)
@@ -1440,13 +1444,13 @@ class Collection(AbstractCollection):
 
         Returns
         -------
-        Child of :class:`~geost.base.PointDataCollection`.
-            Instance of either :class:`~geost.borehole.BoreholeCollection` or
-            :class:`~geost.borehole.CptCollection` containing only objects selected by
-            this method.
+        New instance of the current object.
+            New instance of the current object containing only the selection resulting
+            from application of this method. e.g. if you are calling this method from a
+            Collection, you will get an instance of a Collection back.
         """
         header_selected = self.header.select_by_depth(
-            top_min, top_max, end_min, end_max
+            top_min=top_min, top_max=top_max, end_min=end_min, end_max=end_max
         )
         data_selected = self.data.select_by_values("nr", header_selected["nr"].unique())
         return self.__class__(header_selected, data_selected)
@@ -1465,11 +1469,14 @@ class Collection(AbstractCollection):
 
         Returns
         -------
-        Child of :class:`~geost.base.Collection`.
-            Instance of the current type of collection containing only objects selected
-            by this method.
+        New instance of the current object.
+            New instance of the current object containing only the selection resulting
+            from application of this method. e.g. if you are calling this method from a
+            Collection, you will get an instance of a Collection back.
         """
-        header_selected = self.header.select_by_length(min_length, max_length)
+        header_selected = self.header.select_by_length(
+            min_length=min_length, max_length=max_length
+        )
         data_selected = self.data.select_by_values("nr", header_selected["nr"].unique())
         return self.__class__(header_selected, data_selected)
 
@@ -1494,8 +1501,10 @@ class Collection(AbstractCollection):
 
         Returns
         -------
-        Child of :class:`~geost.base.LayeredData`.
-            New instance containing only the data selected by this method.
+        New instance of the current object.
+            New instance of the current object containing only the selection resulting
+            from application of this method. e.g. if you are calling this method from a
+            Collection, you will get an instance of a Collection back.
 
         Examples
         --------
@@ -1511,17 +1520,116 @@ class Collection(AbstractCollection):
 
         """
         data_selected = self.data.select_by_values(column, selection_values, how=how)
-        # data_selected = self.data.select_by_values("nr", header_selected["nr"].unique())
-        # return self.__class__(header_selected, data_selected)
-        raise NotImplementedError("Add function logic")
+        collection_selected = data_selected.to_collection()
+        return collection_selected
+
+    def slice_depth_interval(
+        self,
+        upper_boundary: float | int = None,
+        lower_boundary: float | int = None,
+        relative_to_vertical_reference: bool = False,
+        update_layer_boundaries: bool = True,
+    ):
+        """
+        Slice data based on given upper and lower boundaries. This returns a new object
+        containing only the sliced data.
+
+        Parameters
+        ----------
+        upper_boundary : float | int, optional
+            Every layer that starts above this is removed. The default is None.
+        lower_boundary : float | int, optional
+            Every layer that starts below this is removed. The default is None.
+        relative_to_vertical_reference : bool, optional
+            If True, the slicing is done with respect to any kind of vertical reference
+            plane (e.g. "NAP", "TAW"). If False, the slice is done with respect to depth
+            below the surface. The default is False.
+        update_layer_boundaries : bool, optional
+            If True, the layer boundaries in the sliced data are updated according to the
+            upper and lower boundaries used with the slice. If False, the original layer
+            boundaries are kept in the sliced object. The default is False.
+
+        Returns
+        -------
+        New instance of the current object.
+            New instance of the current object containing only the selection resulting
+            from application of this method. e.g. if you are calling this method from a
+            Collection, you will get an instance of a Collection back.
+
+        Examples
+        --------
+        Usage depends on whether the slicing is done with respect to depth below the
+        surface or to a vertical reference plane.
+
+        For example, select layers in boreholes that are between 2 and 3 meters below the
+        surface:
+
+        >>> boreholes.slice_depth_interval(2, 3)
+
+        By default, the method updates the layer boundaries in sliced object according to
+        the upper and lower boundaries. To suppress this behaviour use:
+
+        >>> boreholes.slice_depth_interval(2, 3, update_layer_boundaries=False)
+
+        Slicing can also be done with respect to a vertical reference plane like "NAP".
+        For example, to select layers in boreholes that are between -3 and -5 m NAP, use:
+
+        >>> boreholes.slice_depth_interval(-3, -5, relative_to_vertical_reference=True)
+
+        """
+        data_selected = self.data.slice_depth_interval(
+            upper_boundary=upper_boundary,
+            lower_boundary=lower_boundary,
+            relative_to_vertical_reference=relative_to_vertical_reference,
+            update_layer_boundaries=update_layer_boundaries,
+        )
+        collection_selected = data_selected.to_collection()
+        return collection_selected
+
+    def slice_by_values(
+        self, column: str, selection_values: str | Iterable, invert: bool = False
+    ):
+        """
+        Slice rows from data based on matching condition. E.g. only return rows with
+        a certain lithology in the collection object.
+
+        Parameters
+        ----------
+        column : str
+            Name of column that contains categorical data to use when looking for
+            values.
+        selection_values : str | Iterable
+            Values to look for in the column.
+        invert : bool, optional
+            If True, invert the slicing action, so remove layers with selected values
+            instead of keeping them. The default is False.
+
+        Returns
+        -------
+        New instance of the current object.
+            New instance of the current object containing only the selection resulting
+            from application of this method. e.g. if you are calling this method from a
+            Collection, you will get an instance of a Collection back.
+
+        Examples
+        --------
+        Return only rows in borehole data contain sand ("Z") as lithology:
+
+        >>> boreholes.slice_by_values("lith", "Z")
+
+        If you want all the rows that may contain everything but sand, use the "invert"
+        option:
+
+        >>> boreholes.slice_by_values("lith", "Z", invert=True)
+
+        """
+        data_selected = self.data.slice_by_values(
+            column, selection_values, invert=invert
+        )
+        collection_selected = data_selected.to_collection()
+        return collection_selected
 
     def get_area_labels(self):
-        raise NotImplementedError("Add function logic")
-
-    def slice_depth_interval(self):
-        raise NotImplementedError("Add function logic")
-
-    def slice_by_values(self):
         raise NotImplementedError("Add function logic")
 
     def to_vtm(self):

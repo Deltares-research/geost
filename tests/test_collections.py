@@ -10,12 +10,13 @@ from numpy.testing import (
     assert_allclose,
     assert_almost_equal,
     assert_array_almost_equal,
+    assert_array_equal,
     assert_equal,
 )
 from shapely.geometry import LineString, Point, Polygon
 
 from geost import read_borehole_table, read_nlog_cores
-from geost.new_base import BoreholeCollection, LayeredData
+from geost.new_base import BoreholeCollection, LayeredData, PointHeader
 
 
 class TestCollection:
@@ -30,8 +31,8 @@ class TestCollection:
         y = np.full(10, 455540)
         mv = np.full(10, 1.0)
         end = np.full(10, -4.0)
-        top = np.array([1, 0.5, 0, -0.5, -1.5, -2, -2.5, -3, -3.2, -3.6])
-        bottom = np.array([0.5, 0, -0.5, -1.5, -2, -2.5, -3, -3.2, -3.6, -4.0])
+        top = np.array([0, 0.5, 1, 1.5, 2, 3, 4, 5, 6, 7])
+        bottom = np.array([0.5, 1, 1.5, 2, 3, 4, 5, 6, 7, 8])
         data_string = np.array(
             ["K", "Kz", "K", "Ks3", "Ks2", "V", "Zk", "Zs", "Z", "Z"]
         )
@@ -62,8 +63,8 @@ class TestCollection:
         y = np.full(10, 455540)
         mv = np.full(10, 1.0)
         end = np.full(10, 4.0)
-        top = np.array([1, 0.5, 0, -0.5, -1.5, -2, -2.5, -3, -3.2, -4.2])
-        bottom = np.array([0.5, 0, -0.5, -1.5, -2, -2.5, -3, -3.2, -3.6, -4.0])
+        top = np.array([0, 0.5, 1, 1.5, 2, 3, 4, 5, 6, 7])
+        bottom = np.array([0.5, 1, 1.5, 2, 3, 4, 5, 6, 7, 6.5])
         data_string = np.array(
             ["K", "Kz", "K", "Ks3", "Ks2", "V", "Zk", "Zs", "Z", "Z"]
         )
@@ -147,30 +148,24 @@ class TestCollection:
         assert_allclose(borehole_collection.get("B").data["test_data"], 1)
 
     @pytest.mark.unittest
-    def test_change_vertical_reference(self, borehole_data):
-        borehole_collection_ok = borehole_data.to_collection()
-        assert borehole_collection_ok.vertical_reference == 5709
-        borehole_collection_ok.change_vertical_reference("Ostend height")
-        assert borehole_collection_ok.vertical_reference == 5710
+    def test_change_vertical_reference(self, borehole_collection):
+        assert borehole_collection.vertical_reference == 5709
+        borehole_collection.change_vertical_reference("Ostend height")
+        assert borehole_collection.vertical_reference == 5710
 
     @pytest.mark.unittest
-    def test_change_horizontal_reference(self, borehole_data):
-        borehole_collection_ok = borehole_data.to_collection()
-        assert borehole_collection_ok.horizontal_reference == 28992
-        borehole_collection_ok.change_horizontal_reference(32631)
-        assert borehole_collection_ok.horizontal_reference == 32631
+    def test_change_horizontal_reference(self, borehole_collection):
+        assert borehole_collection.horizontal_reference == 28992
+        borehole_collection.change_horizontal_reference(32631)
+        assert borehole_collection.horizontal_reference == 32631
         assert_almost_equal(
-            borehole_collection_ok.data["x"][0], borehole_collection_ok.header["x"][0]
+            borehole_collection.data["x"][0], borehole_collection.header["x"][0]
         )
+        assert_almost_equal(borehole_collection.data["x"][0], 523403.281803, decimal=5)
         assert_almost_equal(
-            borehole_collection_ok.data["x"][0], 523403.281803, decimal=5
+            borehole_collection.data["y"][0], borehole_collection.header["y"][0]
         )
-        assert_almost_equal(
-            borehole_collection_ok.data["y"][0], borehole_collection_ok.header["y"][0]
-        )
-        assert_almost_equal(
-            borehole_collection_ok.data["y"][0], 5313546.187669, decimal=5
-        )
+        assert_almost_equal(borehole_collection.data["y"][0], 5313546.187669, decimal=5)
 
     @pytest.mark.unittest
     def test_change_horizontal_reference_also_data_columns_inclined(
@@ -193,8 +188,7 @@ class TestCollection:
         )
 
     @pytest.mark.unittest
-    def test_select_within_bbox(self, borehole_data):
-        borehole_collection = borehole_data.to_collection()
+    def test_select_within_bbox(self, borehole_collection):
         borehole_collection_selected = borehole_collection.select_within_bbox(
             1.5, 3.5, 1.5, 5
         )
@@ -203,8 +197,7 @@ class TestCollection:
         assert all(borehole_collection_selected.data.df["nr"].unique() == ["A", "D"])
 
     @pytest.mark.unittest
-    def test_select_with_points(self, borehole_data):
-        borehole_collection = borehole_data.to_collection()
+    def test_select_with_points(self, borehole_collection):
         selection_points = [Point(1, 1), Point(4, 4), Point(1, 4), Point(4, 1)]
         selection_gdf = gpd.GeoDataFrame(
             {"id": [0, 1, 2, 3]}, geometry=selection_points
@@ -217,8 +210,7 @@ class TestCollection:
         assert collection_sel_inverted.n_points == 2
 
     @pytest.mark.unittest
-    def test_select_with_lines(self, borehole_data):
-        borehole_collection = borehole_data.to_collection()
+    def test_select_with_lines(self, borehole_collection):
         selection_lines = [LineString([[1, 1], [5, 5]]), LineString([[1, 5], [5, 1]])]
         selection_gdf = gpd.GeoDataFrame({"id": [0, 1]}, geometry=selection_lines)
         collection_sel = borehole_collection.select_with_lines(selection_gdf, 0.6)
@@ -229,8 +221,7 @@ class TestCollection:
         assert collection_sel_inverted.n_points == 3
 
     @pytest.mark.unittest
-    def test_select_within_polygons(self, borehole_data):
-        borehole_collection = borehole_data.to_collection()
+    def test_select_within_polygons(self, borehole_collection):
         selection_polygon = [Polygon(((2, 1), (5, 4), (4, 5), (1, 3)))]
         selection_gdf = gpd.GeoDataFrame({"id": [0]}, geometry=selection_polygon)
 
@@ -253,8 +244,7 @@ class TestCollection:
         assert collection_sel_inverted_buff.n_points == 3
 
     @pytest.mark.unittest
-    def test_select_by_depth(self, borehole_data):
-        borehole_collection = borehole_data.to_collection()
+    def test_select_by_depth(self, borehole_collection):
         assert borehole_collection.select_by_depth(top_min=0).n_points == 4
         assert borehole_collection.select_by_depth(top_max=0).n_points == 1
         assert borehole_collection.select_by_depth(end_min=-3.5).n_points == 2
@@ -266,8 +256,7 @@ class TestCollection:
         )
 
     @pytest.mark.unittest
-    def test_select_by_length(self, borehole_data):
-        borehole_collection = borehole_data.to_collection()
+    def test_select_by_length(self, borehole_collection):
         assert borehole_collection.select_by_length(min_length=4).n_points == 2
         assert borehole_collection.select_by_length(max_length=4).n_points == 3
         assert (
@@ -276,57 +265,158 @@ class TestCollection:
         )
 
     @pytest.mark.unittest
-    def test_select_by_values(self, borehole_data):
-        borehole_collection = borehole_data.to_collection()
-        assert borehole_collection.select_by_length(min_length=4).n_points == 2
-        assert borehole_collection.select_by_length(max_length=4).n_points == 3
-        assert (
-            borehole_collection.select_by_length(min_length=3, max_length=5).n_points
-            == 4
-        )
+    def test_select_by_values(self, borehole_collection):
+        selected = borehole_collection.select_by_values("lith", ["V", "K"], how="or")
+
+        expected_nrs = ["A", "B", "C", "D"]
+        selected_nrs = selected.data["nr"].unique()
+
+        assert_array_equal(selected_nrs, expected_nrs)
+
+        selected = borehole_collection.select_by_values("lith", ["V", "K"], how="and")
+
+        expected_nrs = ["B", "D"]
+        selected_nrs = selected.data["nr"].unique()
+
+        assert_array_equal(selected_nrs, expected_nrs)
 
     @pytest.mark.unittest
     def test_slice_depth_interval(self, borehole_collection):
-        pass
+        # Test slicing with respect to depth below the surface.
+        upper, lower = 0.6, 2.4
+        sliced = borehole_collection.slice_depth_interval(upper, lower)
+
+        layers_per_borehole = sliced.data["nr"].value_counts()
+        expected_layer_count = [3, 3, 3, 3, 2]
+
+        assert len(sliced.data) == 14
+        assert sliced.n_points == 5
+        assert sliced.data["top"].min() == upper
+        assert sliced.data["bottom"].max() == lower
+        assert_array_equal(layers_per_borehole, expected_layer_count)
+
+        # Test slicing without updating layer boundaries.
+        sliced = borehole_collection.slice_depth_interval(
+            upper, lower, update_layer_boundaries=False
+        )
+
+        expected_tops_of_slice = [0.0, 0.6, 0.0, 0.5, 0.5]
+        expected_bottoms_of_slice = [2.5, 2.5, 2.9, 2.5, 2.5]
+
+        tops_of_slice = sliced.data.df.groupby("nr")["top"].min()
+        bottoms_of_slice = sliced.data.df.groupby("nr")["bottom"].max()
+
+        assert len(sliced.data) == 14
+        assert sliced.n_points == 5
+        assert_array_equal(tops_of_slice, expected_tops_of_slice)
+        assert_array_equal(bottoms_of_slice, expected_bottoms_of_slice)
+
+        # Test slicing with respect to a vertical reference plane.
+        nap_upper, nap_lower = -2, -3
+        sliced = borehole_collection.slice_depth_interval(
+            nap_upper, nap_lower, relative_to_vertical_reference=True
+        )
+
+        expected_tops_of_slice = [2.2, 2.3, 2.25, 2.1, 1.9]
+        expected_bottoms_of_slice = [3.2, 3.3, 3.25, 3.0, 2.9]
+
+        tops_of_slice = sliced.data.df.groupby("nr")["top"].min()
+        bottoms_of_slice = sliced.data.df.groupby("nr")["bottom"].max()
+
+        assert len(sliced.data) == 11
+        assert sliced.n_points == 5
+        assert_array_equal(tops_of_slice, expected_tops_of_slice)
+        assert_array_equal(bottoms_of_slice, expected_bottoms_of_slice)
+
+        # Test slices that return empty objects.
+        empty_slice = borehole_collection.slice_depth_interval(-2, -1)
+        empty_slice_nap = borehole_collection.slice_depth_interval(
+            3, 2, relative_to_vertical_reference=True
+        )
+
+        assert len(empty_slice.data) == 0
+        assert len(empty_slice_nap.data) == 0
+        assert empty_slice.n_points == 0
+        assert empty_slice_nap.n_points == 0
+
+        # Test slicing using only an upper boundary or lower boundary.
+        upper = 4
+        sliced = borehole_collection.slice_depth_interval(upper)
+
+        expected_boreholes = ["A", "C"]
+
+        assert len(sliced.data) == 2
+        assert sliced.n_points == 2
+        assert_array_equal(sliced.data["nr"], expected_boreholes)
+
+        nap_lower = -0.5
+        sliced = borehole_collection.slice_depth_interval(
+            lower_boundary=nap_lower, relative_to_vertical_reference=True
+        )
+
+        bottoms_of_slice = sliced.data.df.groupby("nr")["bottom"].max()
+        expected_bottoms_of_slice = [0.7, 0.8, 0.75, 0.6, 0.4]
+
+        assert len(sliced.data) == 7
+        assert sliced.n_points == 5
+        assert_array_equal(bottoms_of_slice, expected_bottoms_of_slice)
 
     @pytest.mark.unittest
     def test_slice_by_values(self, borehole_collection):
-        pass
+        sliced = borehole_collection.slice_by_values("lith", "Z")
 
-    @pytest.mark.unittest
-    def test_inverted_slice_by_values(self, borehole_collection):
-        pass
+        expected_boreholes_with_sand = ["A", "C", "D", "E"]
+        expected_length = 10
+
+        assert_array_equal(sliced.data["nr"].unique(), expected_boreholes_with_sand)
+        assert np.all(sliced.data["lith"] == "Z")
+        assert len(sliced.data) == expected_length
+        assert sliced.n_points == 4
+
+        sliced = borehole_collection.slice_by_values("lith", "Z", invert=True)
+
+        expected_boreholes_without_sand = ["A", "B", "C", "D"]
+        expected_length = 15
+
+        assert_array_equal(sliced.data["nr"].unique(), expected_boreholes_without_sand)
+        assert ~np.any(sliced.data["lith"] == "Z")
+        assert len(sliced.data) == expected_length
+        assert sliced.n_points == 4
 
     @pytest.mark.integrationtest
     def test_validation_pass(self, capfd, borehole_df_ok):
-        BoreholeCollection(borehole_df_ok)
+        LayeredData(borehole_df_ok).to_collection()
         out, err = capfd.readouterr()
         # Since no warning line was printed, the length of out must be 0
         assert_equal(len(out), 0)
 
     @pytest.mark.integrationtest
     def test_validation_fail(self, capfd, borehole_df_bad_validation):
-        BoreholeCollection(borehole_df_bad_validation)
+        LayeredData(borehole_df_bad_validation).to_collection()
         out, err = capfd.readouterr()
         # Check if required warnings are printed. Note that changing warning messages
         # will make this test fail.
         assert 'but is required to be "stringlike type"' in out
-        assert 'data in column "bottom" failed check "< top" for 1 rows: [1]' in out
-        assert 'data in column "end" failed check "< mv" for 1 rows: [1]' in out
+        assert 'data in column "bottom" failed check "> top" for 1 rows: [1]' in out
+        assert 'data in column "end" failed check "< surface" for 1 rows: [1]' in out
 
     @pytest.mark.integrationtest
     def test_header_mismatch(
         self, capfd, borehole_df_ok, header_missing_object, header_surplus_objects
     ):
         # Situation #1: More unique objects in data table than listed in header
-        collection = BoreholeCollection(borehole_df_ok, header=header_missing_object)
+        collection = BoreholeCollection(
+            PointHeader(header_missing_object, 28992), LayeredData(borehole_df_ok)
+        )
         out, err = capfd.readouterr()
         assert "Header does not cover all unique objects in data" in out
 
         # Situation #2: More objects in header table than in data table
-        collection = BoreholeCollection(borehole_df_ok, header=header_surplus_objects)
+        collection = BoreholeCollection(
+            PointHeader(header_surplus_objects, 28992), LayeredData(borehole_df_ok)
+        )
         out, err = capfd.readouterr()
-        assert "Header covers more objects than present in the data table" in out
+        assert "Header covers more/other objects than present in the data table" in out
 
     # @pytest.mark.integrationtest
     # def test_surface_level_update(self, borehole_collection, update_raster):

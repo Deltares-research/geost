@@ -136,7 +136,9 @@ def read_borehole_table(
     Parameters
     ----------
     file : str | WindowsPath
-        Path to file to be read.
+        Path to file to be read. Depending on the file extension, the corresponding
+        Pandas read function will be called. This can be either pandas.read_parquet,
+        pandas.read_csv or pandas.read_excel
     horizontal_reference (int): Horizontal reference, see
         EPSG of the data's coordinate reference system. Takes anything that can be
         interpreted by pyproj.crs.CRS.from_user_input().
@@ -154,7 +156,7 @@ def read_borehole_table(
     column_mapper: dict
         If the file to be read uses different column names than the ones given in the
         description above, you can use a dictionary mapping to translate the column
-        names to the required format.
+        names to the required format. If you do
 
     Returns
     -------

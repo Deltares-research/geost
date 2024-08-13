@@ -14,7 +14,7 @@ class TestHeaders:
     @pytest.mark.unittest
     def test_init_header(self, point_header_gdf):
         point_header = PointHeader(point_header_gdf, "NAP")
-        assert point_header.__repr__() == "PointHeader instance containing 25 objects"
+        assert "PointHeader instance containing 25 objects" in point_header.__repr__()
 
     @pytest.mark.unittest
     def test_single_get(self, point_header_gdf):
