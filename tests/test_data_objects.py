@@ -4,9 +4,10 @@ import numpy as np
 import pytest
 from numpy.testing import assert_array_almost_equal, assert_array_equal
 from pyvista import MultiBlock
+from shapely import get_coordinates
 
-from geost.export import geodataclass
 from geost.base import BoreholeCollection, PointHeader
+from geost.export import geodataclass
 
 
 class TestLayeredData:
@@ -264,7 +265,30 @@ class TestLayeredData:
 
     @pytest.mark.unittest
     def test_to_qgis3d(self, borehole_data):
-        pass
+        outfile = Path("temp.gpkg")
+        borehole_data.to_qgis3d(outfile)
+        assert outfile.is_file()
+        outfile.unlink()
+
+    @pytest.mark.unittest
+    def test_create_geodataframe_3d(self, borehole_data):
+        relative_to_vertical_reference = True
+        gdf = borehole_data._create_geodataframe_3d(relative_to_vertical_reference)
+
+        first_line_coords = get_coordinates(gdf['geometry'].iloc[0], include_z=True)
+        expected_coords = [[2., 3., 0.21], [2., 3., -0.59]]
+
+        assert all(gdf.geom_type == "LineString")
+        assert_array_almost_equal(first_line_coords, expected_coords)
+
+        relative_to_vertical_reference = False
+        gdf = borehole_data._create_geodataframe_3d(relative_to_vertical_reference)
+
+        first_line_coords = get_coordinates(gdf['geometry'].iloc[0], include_z=True)
+        expected_coords = [[2., 3., 0.01], [2., 3., 0.81]]
+
+        assert all(gdf.geom_type == "LineString")
+        assert_array_almost_equal(first_line_coords, expected_coords)
 
     @pytest.mark.unittest
     def test_change_depth_values(self, borehole_data):
