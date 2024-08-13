@@ -89,12 +89,26 @@ class TestReaders:
 
     @pytest.mark.unittest
     def test_read_borehole_table(self):
-        file = Path(__file__).parent / r"data/test_borehole_table.parquet"
-        cores = read_borehole_table(file)
-        assert isinstance(cores, BoreholeCollection)
+        file_pq = Path(__file__).parent / r"data/test_borehole_table.parquet"
+        file_csv = Path(__file__).parent / r"data/test_borehole_table.csv"
+        cores_pq = read_borehole_table(file_pq)
+        cores_csv = read_borehole_table(file_csv)
+        assert isinstance(cores_pq, BoreholeCollection)
+        assert isinstance(cores_csv, BoreholeCollection)
 
-        cores = read_borehole_table(file, as_collection=False)
-        assert isinstance(cores, LayeredData)
+        cores_pq = read_borehole_table(file_pq, as_collection=False)
+        cores_csv = read_borehole_table(file_csv, as_collection=False)
+        assert isinstance(cores_pq, LayeredData)
+        assert isinstance(cores_csv, LayeredData)
+
+    @pytest.mark.unittest
+    def test_read_inclined_borehole_table(self):
+        file_pq = Path(__file__).parent / r"data/test_inclined_borehole_table.parquet"
+        cores_pq = read_borehole_table(file_pq, has_inclined=True)
+        assert isinstance(cores_pq, BoreholeCollection)
+
+        cores_pq = read_borehole_table(file_pq, has_inclined=True, as_collection=False)
+        assert isinstance(cores_pq, LayeredData)
 
     @pytest.mark.unittest
     def test_check_mandatory_columns(self, table_wrong_columns):

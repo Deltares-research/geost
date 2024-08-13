@@ -209,9 +209,9 @@ def select_points_near_lines(
     # Selection logic
     line_gdf["geometry"] = line_gdf.buffer(distance=buffer)
     if invert:
-        gdf_selected = gdf[~gdf.geometry.within(line_gdf.geometry.unary_union)]
+        gdf_selected = gdf[~gdf.geometry.within(line_gdf.union_all())]
     else:
-        gdf_selected = gdf[gdf.geometry.within(line_gdf.geometry.unary_union)]
+        gdf_selected = gdf[gdf.geometry.within(line_gdf.union_all())]
     return gdf_selected
 
 
@@ -253,9 +253,9 @@ def select_points_within_polygons(
         polygon_select = polygon_gdf
 
     if invert:
-        gdf_selected = gdf[~gdf.geometry.within(polygon_select.geometry.unary_union)]
+        gdf_selected = gdf[~gdf.geometry.within(polygon_select.union_all())]
     else:
-        gdf_selected = gdf[gdf.geometry.within(polygon_select.geometry.unary_union)]
+        gdf_selected = gdf[gdf.geometry.within(polygon_select.union_all())]
 
     return gdf_selected
 
