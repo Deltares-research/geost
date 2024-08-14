@@ -22,7 +22,6 @@ from geost.validate.decorators import validate_data, validate_header
 
 type DataObject = DiscreteData | LayeredData
 type HeaderObject = LineHeader | PointHeader
-
 type Coordinate = int | float
 
 pd.set_option("mode.copy_on_write", True)
@@ -52,14 +51,23 @@ class PointHeader(AbstractHeader, GeopandasExportMixin):
 
     @property
     def gdf(self):
+        """
+        Underlying geopandas.GeodataFrame with header data.
+        """
         return self._gdf
 
     @property
     def horizontal_reference(self):
+        """
+        Coordinate reference system represented by an instance of pyproj.crs.CRS
+        """
         return self.gdf.crs
 
     @property
     def vertical_reference(self):
+        """
+        Vertical datum represented by an instance of pyproj.crs.CRS
+        """
         return self.__vertical_reference
 
     @gdf.setter
@@ -102,7 +110,7 @@ class PointHeader(AbstractHeader, GeopandasExportMixin):
 
     def change_vertical_reference(self, to_epsg: str | int | CRS):
         """
-        Change the vertical reference of the object's surface levels
+        Change the vertical reference of the object's surface levels.
 
         Parameters
         ----------
@@ -144,7 +152,7 @@ class PointHeader(AbstractHeader, GeopandasExportMixin):
 
     def get(self, selection_values: str | Iterable, column: str = "nr"):
         """
-        Get a subset of a collection through a string or iterable of object id(s).
+        Get a subset of a header through a string or iterable of object id(s).
         Optionally uses a different column than "nr" (the column with object ids).
 
         Parameters
@@ -156,8 +164,8 @@ class PointHeader(AbstractHeader, GeopandasExportMixin):
 
         Returns
         -------
-        Instance of :class:`~geost.headers.PointHeader`.
-            Instance of :class:`~geost.headers.PointHeader` containing only
+        Instance of :class:`~geost.base.PointHeader`.
+            Instance of :class:`~geost.base.PointHeader` containing only
             objects selected through this method.
 
         Examples
@@ -168,12 +176,12 @@ class PointHeader(AbstractHeader, GeopandasExportMixin):
 
         Suppose we have a number of boreholes that we have joined with geological
         map units using the method
-        :meth:`~geost.headers.PointHeader.get_area_labels`. We have added this data
+        :meth:`~geost.base.PointHeader.get_area_labels`. We have added this data
         to the header table in the column 'geological_unit'. Using:
 
         >>> self.get(["unit1", "unit2"], column="geological_unit")
 
-        will return a :class:`~geost.headers.PointHeader` with all boreholes
+        will return a :class:`~geost.base.PointHeader` with all boreholes
         that are located in "unit1" and "unit2" geological map areas.
         """
         if isinstance(selection_values, str):
@@ -212,8 +220,8 @@ class PointHeader(AbstractHeader, GeopandasExportMixin):
 
         Returns
         -------
-        :class:`~geost.headers.PointHeader`
-            Instance of :class:`~geost.headers.PointHeader`containing only selected
+        :class:`~geost.base.PointHeader`
+            Instance of :class:`~geost.base.PointHeader`containing only selected
             geometries.
         """
         gdf_selected = spatial.select_points_within_bbox(
@@ -241,8 +249,8 @@ class PointHeader(AbstractHeader, GeopandasExportMixin):
 
         Returns
         -------
-        :class:`~geost.headers.PointHeader`
-            Instance of :class:`~geost.headers.PointHeader`containing only selected
+        :class:`~geost.base.PointHeader`
+            Instance of :class:`~geost.base.PointHeader`containing only selected
             geometries.
         """
         gdf_selected = spatial.select_points_near_points(
@@ -270,8 +278,8 @@ class PointHeader(AbstractHeader, GeopandasExportMixin):
 
         Returns
         -------
-        :class:`~geost.headers.PointHeader`
-            Instance of :class:`~geost.headers.PointHeader`containing only selected
+        :class:`~geost.base.PointHeader`
+            Instance of :class:`~geost.base.PointHeader`containing only selected
             geometries.
         """
         gdf_selected = spatial.select_points_near_lines(
@@ -300,8 +308,8 @@ class PointHeader(AbstractHeader, GeopandasExportMixin):
 
         Returns
         -------
-        :class:`~geost.headers.PointHeader`
-            Instance of :class:`~geost.headers.PointHeader`containing only selected
+        :class:`~geost.base.PointHeader`
+            Instance of :class:`~geost.base.PointHeader`containing only selected
             geometries.
         """
         gdf_selected = spatial.select_points_within_polygons(
@@ -334,10 +342,9 @@ class PointHeader(AbstractHeader, GeopandasExportMixin):
 
         Returns
         -------
-        Child of :class:`~geost.base.PointDataCollection`.
-            Instance of either :class:`~geost.borehole.BoreholeCollection` or
-            :class:`~geost.borehole.CptCollection` containing only objects selected by
-            this method.
+        Child of :class:`~geost.base.PointHeader`.
+            Instance of :class:`~geost.base.PointHeader` or containing only objects
+            selected by this method.
         """
         selected = self.gdf.copy()
         if top_min is not None:
@@ -367,10 +374,9 @@ class PointHeader(AbstractHeader, GeopandasExportMixin):
 
         Returns
         -------
-        Child of :class:`~geost.base.PointDataCollection`.
-            Instance of either :class:`~geost.borehole.BoreholeCollection` or
-            :class:`~geost.borehole.CptCollection` containing only objects selected by
-            this method.
+        Child of :class:`~geost.base.PointHeader`.
+            Instance of :class:`~geost.base.PointHeader` or containing only objects
+            selected by this method.
         """
         selected = self.gdf.copy()
         length = selected["surface"] - selected["end"]
@@ -404,8 +410,7 @@ class PointHeader(AbstractHeader, GeopandasExportMixin):
         -------
         pd.DataFrame
             Borehole ids and the polygon label they are in. If include_in_header = True,
-            a column containing the generated data will be added inplace to
-            :py:attr:`~geost.base.PointDataCollection.header`.
+            a column containing the generated data will be added inplace.
         """
         polygon_gdf = spatial.check_and_coerce_crs(
             polygon_gdf, self.horizontal_reference
@@ -537,6 +542,9 @@ class LayeredData(AbstractData, PandasExportMixin):
     @df.setter
     @validate_data
     def df(self, df):
+        """
+        Underlying pandas.DataFrame
+        """
         self._df = df
 
     @datatype.setter
@@ -564,6 +572,25 @@ class LayeredData(AbstractData, PandasExportMixin):
         horizontal_reference: str | int | CRS = 28992,
         vertical_reference: str | int | CRS = 5709,
     ):
+        """
+        Generate a :class:`~geost.base.PointHeader` from this instance of LayaredData.
+
+        Parameters
+        ----------
+        horizontal_reference : str | int | CRS, optional
+            EPSG of the target crs. Takes anything that can be interpreted by
+            pyproj.crs.CRS.from_user_input(), by default 28992.
+        vertical_reference : str | int | CRS, optional
+            EPSG of the target vertical datum. Takes anything that can be interpreted by
+            pyproj.crs.CRS.from_user_input(). However, it must be a vertical datum. FYI:
+            "NAP" is EPSG 5709 and The Belgian reference system (Ostend height) is ESPG
+            5710, by default 5709.
+
+        Returns
+        -------
+        :class:`~geost.base.PointHeader`
+            An instance of :class:`~geost.base.PointHeader`
+        """
         header_columns = ["nr", "x", "y", "surface", "end"]
         header = self[header_columns].drop_duplicates("nr").reset_index(drop=True)
         header = dataframe_to_geodataframe(header).set_crs(horizontal_reference)
@@ -574,6 +601,26 @@ class LayeredData(AbstractData, PandasExportMixin):
         horizontal_reference: str | int | CRS = 28992,
         vertical_reference: str | int | CRS = 5709,
     ):
+        """
+        Create a collection from this instance of LayeredData. A collection combines
+        header and data and ensures that they remain aligned when applying methods.
+
+        Parameters
+        ----------
+        horizontal_reference : str | int | CRS, optional
+            EPSG of the target crs. Takes anything that can be interpreted by
+            pyproj.crs.CRS.from_user_input(), by default 28992.
+        vertical_reference : str | int | CRS, optional
+            EPSG of the target vertical datum. Takes anything that can be interpreted by
+            pyproj.crs.CRS.from_user_input(). However, it must be a vertical datum. FYI:
+            "NAP" is EPSG 5709 and The Belgian reference system (Ostend height) is ESPG
+            5710, by default 5709.
+
+        Returns
+        -------
+        :class:`~geost.base.Collection`
+            An instance of :class:`~geost.base.Collection`
+        """
         header = self.to_header(horizontal_reference, vertical_reference)
         return BoreholeCollection(header, self)
         # NOTE: Type of Collection may need to be inferred in the future.
@@ -599,7 +646,7 @@ class LayeredData(AbstractData, PandasExportMixin):
 
         Returns
         -------
-        Child of :class:`~geost.base.LayeredData`.
+        :class:`~geost.base.LayeredData`
             New instance containing only the data selected by this method.
 
         Examples
@@ -663,7 +710,7 @@ class LayeredData(AbstractData, PandasExportMixin):
 
         Returns
         -------
-        Child of :class:`~geost.base.LayeredData`.
+        :class:`~geost.base.LayeredData`
             New instance containing only the data selected by this method.
 
         Examples
@@ -736,7 +783,7 @@ class LayeredData(AbstractData, PandasExportMixin):
 
         Returns
         -------
-        Child of :class:`~geost.base.LayeredData`.
+        :class:`~geost.base.LayeredData`
             New instance containing only the data objects selected by this method.
 
         Examples
@@ -827,7 +874,7 @@ class LayeredData(AbstractData, PandasExportMixin):
         layer_top = selected_layers.df.groupby(["nr", column])["top"].first()
         return layer_top.unstack(level=column)
 
-    def to_multiblock(  # TODO: Make @abstractmethod in AbstractData?
+    def to_multiblock(
         self,
         data_columns: str | List[str],
         radius: float = 1,
@@ -1042,19 +1089,15 @@ class LayeredData(AbstractData, PandasExportMixin):
         Write data to geopackage file that can be directly loaded in the Qgis2threejs
         plugin. Works only for layered (borehole) data.
 
-        PLEASE NOTE:
-        geost does not support inclined boreholes yet. 3D visualisation may look a bit
-        weird for the time being with layers being displaced instead of inclined.
-
         Parameters
         ----------
         outfile : str | WindowsPath
             Path to geopackage file to be written.
         relative_to_vertical_reference : bool, optional
-            If True, the depth of all data objects will converted to a depth with respect to
-            a reference plane (e.g. "NAP", "TAW"). If False, the depth will be kept as original
-            in the "top" and "bottom" columns which is in meter below the surface. The default
-            is True.
+            If True, the depth of all data objects will converted to a depth with
+            respect to a reference plane (e.g. "NAP", "Ostend height"). If False, the
+            depth will be kept as original in the "top" and "bottom" columns which is in
+            meter below the surface. The default is True.
 
         **kwargs
             geopandas.GeodataFrame.to_file kwargs. See relevant Geopandas documentation.
@@ -1110,6 +1153,18 @@ class DiscreteData(AbstractData, PandasExportMixin):
 
 
 class Collection(AbstractCollection):
+    """
+    A collection combines header and data and ensures that they remain aligned when
+    applying methods.
+
+    Parameters
+    ----------
+    header : :class:`~geost.base.PointHeader` or :class:`~geost.base.LineHeader`
+        Instance of a header class corresponding to the data.
+    data : :class:`~geost.base.LayeredData` or :class:`~geost.base.DiscreteData`
+        Instance of a data object corresponding to the header.
+    """
+
     def __init__(
         self,
         header: HeaderObject,
@@ -1132,10 +1187,16 @@ class Collection(AbstractCollection):
 
     @property
     def header(self):
+        """
+        The collection's header.
+        """
         return self._header
 
     @property
     def data(self):
+        """
+        The collection's data.
+        """
         return self._data
 
     @property
@@ -1147,14 +1208,23 @@ class Collection(AbstractCollection):
 
     @property
     def horizontal_reference(self):
+        """
+        Coordinate reference system represented by an instance of pyproj.crs.CRS.
+        """
         return self.header.horizontal_reference
 
     @property
     def vertical_reference(self):
+        """
+        Vertical datum represented by an instance of pyproj.crs.CRS.
+        """
         return self.header.vertical_reference
 
     @property
     def has_inclined(self):
+        """
+        Boolean indicating whether there are inclined objects within the collection
+        """
         return self.data.has_inclined
 
     @header.setter
@@ -1200,10 +1270,10 @@ class Collection(AbstractCollection):
 
         Returns
         -------
-        Child of :class:`~geost.base.PointDataCollection`.
-            Instance of either :class:`~geost.borehole.BoreholeCollection` or
-            :class:`~geost.borehole.CptCollection` containing only objects selected by
-            this method.
+        New instance of the current object.
+            New instance of the current object containing only the selection resulting
+            from application of this method. e.g. if you are calling this method from a
+            Collection, you will get an instance of a Collection back.
 
         Examples
         --------
@@ -1216,7 +1286,7 @@ class Collection(AbstractCollection):
 
         self.get(["unit1", "unit2"], column="geological_unit")
 
-        will return a :class:`~geost.borehole.BoreholeCollection` with all boreholes
+        will return a :class:`~geost.base.BoreholeCollection` with all boreholes
         that are located in "unit1" and "unit2" geological map areas.
         """
         selected_header = self.header.get(selection_values, column)
@@ -1692,8 +1762,7 @@ class Collection(AbstractCollection):
         -------
         pd.DataFrame
             Borehole ids and the polygon label they are in. If include_in_header = True,
-            a column containing the generated data will be added inplace to
-            :py:attr:`~geost.base.PointDataCollection.header`.
+            a column containing the generated data will be added inplace to the header.
         """
         result = self.header.get_area_labels(
             polygon_gdf, column_name, include_in_header=include_in_header
@@ -1725,8 +1794,8 @@ class Collection(AbstractCollection):
             for that instead.
         relative_to_vertical_reference : bool, optional
             If True, the depth of the objects in the vtm file will be with respect to a
-            reference plane (e.g. "NAP", "TAW"). If False, the depth will be with respect
-            to 0.0. The default is True.
+            reference plane (e.g. "NAP", "Ostend height"). If False, the depth will be
+            with respect to 0.0. The default is True.
 
         Returns
         -------
@@ -1767,8 +1836,8 @@ class Collection(AbstractCollection):
             for that instead.
         relative_to_vertical_reference : bool, optional
             If True, the depth of the objects in the vtm file will be with respect to a
-            reference plane (e.g. "NAP", "TAW"). If False, the depth will be with respect
-            to 0.0. The default is True.
+            reference plane (e.g. "NAP", "Ostend height"). If False, the depth will be
+            with respect to 0.0. The default is True.
 
         **kwargs :
             pyvista.MultiBlock.save kwargs. See relevant Pyvista documentation.
@@ -1814,9 +1883,9 @@ class Collection(AbstractCollection):
             need to be included.
         relative_to_vertical_reference : bool, optional
             If True, the depth of all data objects will converted to a depth with respect to
-            a reference plane (e.g. "NAP", "TAW"). If False, the depth will be kept as original
-            in the "top" and "bottom" columns which is in meter below the surface. The default
-            is True.
+            a reference plane (e.g. "NAP", "Ostend height"). If False, the depth will be
+            kept as original in the "top" and "bottom" columns which is in meter below
+            the surface. The default is True.
 
         Returns
         -------
@@ -1830,6 +1899,18 @@ class Collection(AbstractCollection):
 
 
 class BoreholeCollection(Collection):
+    """
+    A collection combines header and borehole data and ensures that they remain aligned
+    when applying methods.
+
+    Parameters
+    ----------
+    header : :class:`~geost.base.PointHeader`
+        Instance of a header class corresponding to the data.
+    data : :class:`~geost.base.LayeredData`
+        Instance of a data object corresponding to the header.
+    """
+
     def get_cumulative_layer_thickness(
         self, column: str, values: str | List[str], include_in_header: bool = False
     ):
@@ -1933,10 +2014,6 @@ class BoreholeCollection(Collection):
         """
         Write data to geopackage file that can be directly loaded in the Qgis2threejs
         plugin. Works only for layered (borehole) data.
-
-        PLEASE NOTE:
-        geost does not support inclined boreholes yet. 3D visualisation may look a bit
-        weird for the time being with layers being displaced instead of inclined.
 
         Parameters
         ----------
