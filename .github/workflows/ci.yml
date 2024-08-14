@@ -31,7 +31,7 @@ jobs:
     runs-on: windows-latest
     strategy:
       matrix:
-        environment: [py310, py311, py312]
+        environment: [py312]
     steps:
       - name: Check out repo
         uses: actions/checkout@v4

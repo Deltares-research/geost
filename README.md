@@ -5,11 +5,30 @@
 [![codecov](https://codecov.io/gh/Deltares-research/geost/graph/badge.svg?token=HCNGLWTQ2H)](https://codecov.io/gh/Deltares-research/geost)
 [![Formatting: ruff](https://camo.githubusercontent.com/18c26428c337f9d641fa09b629a3a03b514e8ac84b57974a0ed7d1b38e14e060/68747470733a2f2f696d672e736869656c64732e696f2f656e64706f696e743f75726c3d68747470733a2f2f7261772e67697468756275736572636f6e74656e742e636f6d2f61737472616c2d73682f727566662f6d61696e2f6173736574732f62616467652f76322e6a736f6e)](https://github.com/charliermarsh/ruff)
 
-The Geological Subsurface Toolbox (geost) package is designed to be an easy-to-use Python interface for working with subsurface point data in The Netherlands(boreholes, well logs and CPT's). It provides selection, analysis and export methods that can be applied generically to the loaded data. It is designed to connect with other Deltares developments such as [iMod](https://gitlab.com/deltares/imod) and [DataFusionTools](https://bitbucket.org/DeltaresGEO/datafusiontools/src/master/).
+The Geological Subsurface Toolbox (geost) package is designed to be an easy-to-use Python interface for working with subsurface point data in The Netherlands (boreholes, well logs and CPT's). It provides selection, analysis and export methods that can be applied generically to the loaded data. It is designed to connect with other Deltares developments such as [iMod](https://gitlab.com/deltares/imod) and [DataFusionTools](https://bitbucket.org/DeltaresGEO/datafusiontools/src/master/).
 
 The internal BoreholeCollection, LogCollection and CptCollection classes use [Pandas](https://pandas.pydata.org/) for storing data and header information. It utilizes a custom, lightweight validation module inspired by the [Pandera](https://pandera.readthedocs.io/en/stable/) API. For spatial functions [Geopandas](https://geopandas.org/en/stable/) is used. The package also supports reading/writing parquet and geoparquet files through Pandas and Geopandas respectively. 
 
 GeoST was formerly known as PySST. We had to change the name to avoid a name conflict on PyPi
+
+## Installation (user)
+In a Python > 3.12 environment, install using pip directly from the repository (temporary solution until we publish it on PyPi):
+
+    pip install git+https://github.com/Deltares-research/geost.git
+
+## Installation (developer)
+We use [Pixi](https://github.com/prefix-dev/pixi) for package management and workflows.
+
+With pixi installed, navigate the the folder of the cloned repository and run:
+
+    pixi install
+
+To install all GeoST dependencies. Next install GeoST in editable mode by running the 
+pixi task 'install':
+
+    pixi run install
+
+See the [Pixi documentation](https://pixi.sh/latest/) for more information.
 
 ## Supported borehole and CPT formats
 - From local files
@@ -31,11 +50,11 @@ GeoST was formerly known as PySST. We had to change the name to avoid a name con
     - BHR-G
 
 ## Features
-After loading data from one of the supported formats it will automatically be validated. If the validation is succesful, a Collection object will be returned depending on your input data type (mixed CPT/well log/borehole collections are not allowed). A collection object consists of two main attributes: the **header table** and the **data table**. The header attribute is a table that contains one entry per object and provides some general information about the name, location, surface level, and borehole/log/cpt start and end depths. The data attribute is a table that includes the data for every described layer (boreholes) or measurement (well logs, cpt's).
+After loading data from one of the supported formats it will automatically be validated. If the validation is succesful, a Collection object will be returned depending on your input data type (mixed CPT/well log/borehole collections are not allowed). A collection object consists of two main attributes: the **header** and **data**. The header contains a table with one entry per object and provides information about the name, location, surface level, and borehole/log/cpt start and end depths. The data attribute is a table that includes the data for every described layer (boreholes) or measurement (well logs, cpt's).
 
-The collection object comes with a comprehensive set of methods that can be applied generically:
+The collection object comes with a comprehensive set of methods that can be applied generically while ensuring that the header and data remain synchronized:
 
-- Selection methods (e.g., objects within bounding box, within or close to geometries, based on depth and other conditions)   
+- Selection/slicing methods (e.g., objects within bounding box, within or close to geometries, based on depth and other conditions)   
 - Export methods (e.g. to csv, parquet, geopackage, VTK, DataFusionTools, Kingdom* , etc)
 - Datafusion methods (e.g. combining collections*, combining with data from maps, conversion of description protocols*)
 - Miscellaneous methods (e.g. changing vertical/horizontal position reference system)

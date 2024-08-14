@@ -1,6 +1,6 @@
 [project]
 name = "geost"
-version = "0.1.0"
+version = "0.2.0"
 description = "GeoST is the Python interface for subsurface data of The Netherlands"
 authors = ["Erik van Onselen <erik.vanonselen@deltares.nl>", 
         "Bas Knaake <bas.knaake@gmail.com>", 
@@ -16,7 +16,7 @@ format = "black ."
 lint = { depends_on = ["install"], cmd = "ruff check --fix ./geost"}
 
 [dependencies]
-python = ">=3.10"
+python = ">=3.12"
 numpy = "*"
 pandas = ">=2.0.1"
 pyarrow = "*"
@@ -36,14 +36,8 @@ sphinx-rtd-theme = "*"
 pip = ">=24.0,<25"
 rioxarray = ">=0.15.3,<0.16"
 
-[feature.py310.dependencies]
-python = "3.10.*"
-[feature.py311.dependencies]
-python = "3.11.*"
 [feature.py312.dependencies]
 python = "3.12.*"
 
 [environments]
-py310 = ["py310"]
-py311 = ["py311"]
 py312 = ["py312"]
