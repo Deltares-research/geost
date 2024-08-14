@@ -52,12 +52,12 @@ class SoilCore:
             "nr": "broid",
             "x": "x",
             "y": "y",
-            "mv": "z",
+            "surface": "z",
             "end": "enddepth",
             "codegroup": "codegroup",
             "soilclass": "soilclass",
         }
-        for attr in ["nr", "x", "y", "mv", "end", "codegroup", "soilclass"][::-1]:
+        for attr in ["nr", "x", "y", "surface", "end", "codegroup", "soilclass"][::-1]:
             self.df.insert(0, attr, self.__dict__[attr_dict[attr]])
         self.df = self.df.convert_dtypes()
 
@@ -103,7 +103,7 @@ class SoilCore:
             "nr",
             "x",
             "y",
-            "mv",
+            "surface",
             "end",
             "quality",
             "crs",

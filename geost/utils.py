@@ -2,7 +2,9 @@ import operator
 from pathlib import Path, WindowsPath
 from typing import Union
 
+import geopandas as gpd
 import pandas as pd
+from shapely.geometry import Point
 
 COMPARISON_OPERATORS = {
     "<": operator.lt,
@@ -118,3 +120,37 @@ def inform_user(func):
         print("--------\n")
 
     return inner
+
+
+def dataframe_to_geodataframe(
+    df: pd.DataFrame, x_col_label: str = "x", y_col_label: str = "y", crs: int = None
+) -> gpd.GeoDataFrame:
+    """
+    Take a dataframe with columns that indicate x and y coordinates and use these to
+    turn the dataframe into a geopandas GeoDataFrame with a geometry column that
+    contains shapely Point geometries.
+
+    Parameters
+    ----------
+    df : pd.DataFrame
+        Input dataframe with columns for x and y coordinates.
+    x_col_label : str
+        Label of the x-coordinate column, default x-coordinate column label is 'x'.
+    y_col_label : str
+        Label of the y-coordinate column, default y-coordinate column label is 'y'.
+    crs : int
+        EPSG number as integer.
+
+    Returns
+    -------
+    gpd.GeoDataFrame
+        GeoDataFrame with point geometries in addition to input dataframe data.
+
+    Raises
+    ------
+    IndexError
+        If input dataframe does not have a valid column for 'x' or 'y'.
+    """
+    points = [Point([x, y]) for x, y in zip(df[x_col_label], df[y_col_label])]
+    gdf = gpd.GeoDataFrame(df, geometry=points, crs=crs)
+    return gdf

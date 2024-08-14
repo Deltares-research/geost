@@ -17,10 +17,10 @@ geost.base module
    :undoc-members:
    :show-inheritance:
 
-geost.borehole module
+geost.spatial module
 ---------------------
 
-.. automodule:: geost.borehole
+.. automodule:: geost.spatial
    :members:
    :undoc-members:
    :show-inheritance:

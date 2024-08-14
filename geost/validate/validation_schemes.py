@@ -4,35 +4,36 @@ from geost.validate.validate import Check, Column, numeric, stringlike
 
 
 class ValidationSchemas(NamedTuple):
-    headerschema = {
+    headerschema_point = {
         "nr": Column(stringlike),
         "x": Column(numeric),
         "y": Column(numeric),
-        "mv": Column(numeric),
-        "end": Column(numeric, checks=Check("<", "mv", report_by="nr")),
+        "surface": Column(numeric),
+        "end": Column(numeric, checks=Check("<", "surface", report_by="nr")),
     }
-    common_dataschema = {
+    dataschema_layered_point = {
         "nr": Column(stringlike),
         "x": Column(numeric),
         "y": Column(numeric),
-        "mv": Column(numeric),
-        "end": Column(numeric),
-        "top": Column(numeric),
-        "bottom": Column(numeric, checks=Check("<", "top", report_by="nr")),
-    }
-    inclined_dataschema = {
-        "x_bot": Column(numeric),
-        "y_bot": Column(numeric),
-    }
-    common_dataschema_depth_reference = {
-        "nr": Column(stringlike),
-        "x": Column(numeric),
-        "y": Column(numeric),
-        "mv": Column(numeric),
+        "surface": Column(numeric),
         "end": Column(numeric),
         "top": Column(numeric),
         "bottom": Column(numeric, checks=Check(">", "top", report_by="nr")),
     }
+    dataschema_discrete_point = {
+        "nr": Column(stringlike),
+        "x": Column(numeric),
+        "y": Column(numeric),
+        "surface": Column(numeric),
+        "end": Column(numeric),
+        "z": Column(numeric),
+    }
+    dataschema_inclined_point = {
+        "x_bot": Column(numeric),
+        "y_bot": Column(numeric),
+    }
+
+    # Below schemas are not yet in use
     boreholeschema = {
         "lith": Column(stringlike),
     }

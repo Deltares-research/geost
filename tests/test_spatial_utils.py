@@ -7,20 +7,11 @@ import pytest
 import xarray as xr
 from numpy.testing import assert_allclose
 
-from geost import read_sst_cores, spatial
-from geost.borehole import BoreholeCollection
-
-borehole_file = Path(__file__).parent / "data" / "test_boreholes.parquet"
-selection_file = Path(__file__).parent / "data" / "test_polygon.parquet"
+from geost import spatial
+from geost.utils import dataframe_to_geodataframe
 
 
 class TestSpatialUtils:
-
-    @pytest.fixture
-    def boreholes(self):
-        borehole_collection = read_sst_cores(self.borehole_file)
-        return borehole_collection
-
     @pytest.fixture
     def raster(self):
         x_coors = np.arange(1, 4)
@@ -44,8 +35,25 @@ class TestSpatialUtils:
 
     @pytest.mark.unittest
     def test_dataframe_to_geodataframe(self, dataframe_with_coordinates):
-        gdf = spatial.dataframe_to_geodataframe(dataframe_with_coordinates, 28992)
+        gdf = dataframe_to_geodataframe(dataframe_with_coordinates, crs=28992)
         assert isinstance(gdf["geometry"].dtype, gpd.array.GeometryDtype)
+
+    @pytest.mark.unittest
+    def test_check_gdf_instance(self, point_header_gdf):
+        point_header_gdf.to_parquet("temp_file.geoparquet")
+        point_header_gdf_file = "temp_file.geoparquet"
+        gdf_gdf = spatial.check_gdf_instance(point_header_gdf)
+        gdf_file_gdf = spatial.check_gdf_instance(point_header_gdf_file)
+        assert isinstance(gdf_gdf, gpd.GeoDataFrame)
+        assert isinstance(gdf_file_gdf, gpd.GeoDataFrame)
+        Path("temp_file.geoparquet").unlink()
+
+    @pytest.mark.unittest
+    def test_check_and_coerce_crs(self, point_header_gdf):
+        referenced_gdf = spatial.check_and_coerce_crs(point_header_gdf, 28992)
+        converted_referenced_gdf = spatial.check_and_coerce_crs(referenced_gdf, 32631)
+        assert referenced_gdf.crs == "epsg:28992"
+        assert converted_referenced_gdf.crs == "epsg:32631"
 
     @pytest.mark.unittest
     def test_get_raster_values(self, raster, dataframe_with_coordinates):

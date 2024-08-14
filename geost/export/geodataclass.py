@@ -91,29 +91,29 @@ class Data:
 
 
 def export_to_dftgeodata(data, columns, encode=True):
-    # Prepare and encode labelled data
     if encode:
-        data_encoded = pd.get_dummies(data.loc[:, columns])
-        columns_to_use = data_encoded.columns
-        data_prepared = data.drop(columns, axis=1)
-        data_prepared = pd.concat([data_prepared, data_encoded], axis=1)
-    else:
-        columns_to_use = columns
-        data_prepared = data
+        data_encoded = pd.get_dummies(data[columns])
+        data.drop(columns=columns, inplace=True)
+        columns = data_encoded.columns
+        data = pd.concat([data, data_encoded], axis=1)
 
-    objects = data_prepared.groupby("nr")
+    objects = data.groupby("nr")
     geodataclasses = []
 
-    for nr, obj in objects:
+    for _, obj in objects:
         variables = []
-        location = Geometry(obj.x.iloc[0], obj.y.iloc[0], z=obj.mv.iloc[0])
-        independent_var_depth = Variable(
-            value=(obj.top - (obj.top - obj.bottom) / 2).values, label="height"
+
+        location = Geometry(
+            obj["x"].iloc[0], obj["y"].iloc[0], z=obj["surface"].iloc[0]
         )
-        for variable_column in columns_to_use:
-            variables.append(
-                Variable(value=obj[variable_column].values, label=variable_column)
-            )
+
+        independent_var_depth = Variable(
+            value=(obj["top"] - (obj["top"] - obj["bottom"]) / 2).values, label="height"
+        )
+
+        for col in columns:
+            variables.append(Variable(value=obj[col].values, label=col))
+
         geodataclasses.append(Data(location, independent_var_depth, variables))
 
     return geodataclasses

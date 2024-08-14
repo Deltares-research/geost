@@ -4,22 +4,35 @@ from typing import Union
 import geopandas as gpd
 import numpy as np
 import pandas as pd
+from pyproj import CRS
 
-# Local imports
-from geost.borehole import BoreholeCollection, CptCollection
+from geost.base import BoreholeCollection, CptCollection, LayeredData
 from geost.bro import BroApi
 from geost.io import _parse_cpt_gef_files
 from geost.io.parsers import SoilCore
-from geost.spatial import dataframe_to_geodataframe
+from geost.utils import dataframe_to_geodataframe
 
-geometry_to_selection_function = {
+MANDATORY_LAYERED_DATA_COLUMNS = ["nr", "x", "y", "surface", "end", "top", "bottom"]
+MANDATORY_DISCRETE_DATA_COLUMNS = ["nr", "x", "y", "surface", "end", "depth"]
+MANDATORY_INCLINED_LAYERED_DATA_COLUMNS = [
+    "nr",
+    "x",
+    "y",
+    "x_bot",
+    "y_bot",
+    "surface",
+    "end",
+    "top",
+    "bottom",
+]
+GEOMETRY_TO_SELECTION_FUNCTION = {
     "Polygon": "select_within_polygons",
     "Line": "select_with_lines",
     "Point": "select_with_points",
 }
 
 
-def __read_parquet(file: WindowsPath) -> pd.DataFrame:
+def __read_file(file: WindowsPath, **kwargs) -> pd.DataFrame:
     """
     Read parquet file.
 
@@ -27,6 +40,8 @@ def __read_parquet(file: WindowsPath) -> pd.DataFrame:
     ----------
     file : WindowsPath
         Path to file to be read.
+    kwargs : optional
+        Kwargs to pass to the read function
 
     Returns
     -------
@@ -36,54 +51,183 @@ def __read_parquet(file: WindowsPath) -> pd.DataFrame:
     Raises
     ------
     TypeError
-        if 'file' has no '.parquet' or '.pq' suffix.
+        if 'file' has no valid suffix.
 
     """
     suffix = file.suffix
     if suffix in [".parquet", ".pq"]:
-        return pd.read_parquet(file)
+        return pd.read_parquet(file, **kwargs)
+    elif suffix in [".csv"]:
+        return pd.read_csv(file, **kwargs)
+    elif suffix in [".xls", ".xlsx"]:
+        return pd.read_excel(file, **kwargs)
     else:
         raise TypeError(
             f"Expected parquet file (with .parquet or .pq suffix) but got {suffix} file"
         )
 
 
-def read_sst_cores(
+def adjust_z_coordinates(data_dataframe: pd.DataFrame) -> pd.DataFrame:
+    """
+    Interpret data containing elevation or z-coordinates. GeoST data objects require
+    that layer top/bottom or discrete data point z-coordinates to be increasing
+    downward, starting at at 0. This function detects how elevation is currently defined
+    and turns it into the desired format if required.
+
+    Parameters
+    ----------
+    data_dataframe : pd.DataFrame
+        Dataframe with layer or discrete data that includes columns referecing layer
+        top, bottoms or discrete data z-coordinates.
+    """
+    top_column_label = [
+        col for col in data_dataframe.columns if col in ["top", "depth"]
+    ][0]
+    has_bottom_column = "bottom" in data_dataframe.columns
+
+    # TODO: think about detection. Only considers first two indices to determine
+    # downward decreasing or increasing of z-coordinates.
+    first_surface = data_dataframe["surface"].iloc[0]
+    first_top = data_dataframe[top_column_label].iloc[0]
+    second_top = data_dataframe[top_column_label].iloc[0]
+
+    if first_top == first_surface:
+        data_dataframe[top_column_label] -= data_dataframe["surface"]
+        if has_bottom_column:
+            data_dataframe["bottom"] -= data_dataframe["surface"]
+    if first_top > second_top:
+        data_dataframe[top_column_label] *= -1
+        if has_bottom_column:
+            data_dataframe["bottom"] *= -1
+
+    return data_dataframe
+
+
+def _check_mandatory_column_presence(
+    df: pd.DataFrame, mandatory_cols: list, column_mapper: dict = None
+) -> pd.DataFrame:
+    missing_mandatory = [col for col in mandatory_cols if col not in df.columns]
+
+    if missing_mandatory:
+        if not column_mapper:
+            column_mapper = dict()
+            print(
+                f"\nMandatory columns {missing_mandatory} are missing in the "
+                f"data table. Columns present are: \n{list(df.columns)}\n"
+            )
+            for missing in missing_mandatory:
+                name = input(f"Which column is {missing}? ")
+                column_mapper[name] = missing
+
+        df.rename(columns=column_mapper, inplace=True)
+
+    return df
+
+
+def read_borehole_table(
     file: str | WindowsPath,
-    vertical_reference: str = "NAP",
-    horizontal_reference: int = 28992,
+    horizontal_reference: str | int | CRS = 28992,
+    vertical_reference: str | int | CRS = 5709,
+    has_inclined: bool = False,
+    as_collection: bool = True,
+    column_mapper: dict = None,
+    **kwargs,
 ) -> BoreholeCollection:
     """
-    Read Subsurface Toolbox native parquet file with core information..
+    Read tabular borehole information information. This is a file (parquet, csv or
+    Excel) that includes row data for each (borehole) layer and must at least include
+    the following column headers:
+
+    nr      - Object id
+    x       - X-coordinates according to the given horizontal_reference
+    y       - Y-coordinates according to the given horizontal_reference
+    surface - Surface elevation according to the given vertical_reference
+    end     - End depth according to the given vertical_reference
+    top     - Top depth of each layer
+    bottom  - Bottom depth of each layer
+
+    In case there are inclined boreholes in the layer data, you additionally require:
+
+    x_bot   - X-coordinates of the layer bottoms
+    y_bot   - Y-coordinates of the layer bottoms
+
+    If you are reading a file that uses different column names, see the optional
+    argument "column_mapper" below. There are no further limits or requirements to
+    additional (data) columns.
 
     Parameters
     ----------
     file : str | WindowsPath
-        Path to file to be read.
-    vertical_reference: str
-        Which vertical reference is used for tops and bottoms. See
-        :py:attr:`~geost.base.PointDataCollection.vertical_reference` for documentation
-        of this attribute.
+        Path to file to be read. Depending on the file extension, the corresponding
+        Pandas read function will be called. This can be either pandas.read_parquet,
+        pandas.read_csv or pandas.read_excel. The **kwargs that can be given to this
+        function will be passed to the selected Panda's read function.
     horizontal_reference (int): Horizontal reference, see
-        :py:attr:`~geost.base.PointDataCollection.horizontal_reference`
+        EPSG of the data's coordinate reference system. Takes anything that can be
+        interpreted by pyproj.crs.CRS.from_user_input().
+    vertical_reference: str | int | CRS
+        EPSG of the data's vertical datum. Takes anything that can be interpreted by
+        pyproj.crs.CRS.from_user_input(). However, it must be a vertical datum. FYI:
+        "NAP" is EPSG 5709 and The Belgian reference system (Ostend height) is ESPG
+        5710.
+    has_inclined : bool, optional
+        If True, the borehole data table contains inclined boreholes. The default is False.
+    as_collection : bool, optional
+        If True, the borehole table will be read as a :class:`~geost.base.Collection`
+        which includes a header object and spatial selection functionality. If False,
+        a :class:`~geost.base.LayeredData` object is returned. The default is True.
+    column_mapper: dict, optional
+        If the file to be read uses different column names than the ones given in the
+        description above, you can use a dictionary mapping to translate the column
+        names to the required format. column_mapper is None by default, in which case
+        the user is asked for input if not all required columns are encountered in the
+        file.
+    kwargs: optional
+        Optional keyword arguments for Pandas.read_parquet, Pandas.read_csv or
+        Pandas.read_excel.
 
     Returns
     -------
-    :class:`~geost.borehole.BoreholeCollection`
-        Instance of :class:`~geost.borehole.BoreholeCollection`.
+    :class:`~geost.base.BoreholeCollection` or :class:`~geost.base.LayeredData`
+        Instance of :class:`~geost.base.BoreholeCollection` or :class:`~geost.base.LayeredData`
+        depending on if the table is read as a collection or not.
+
+    Examples
+    --------
+    Suppose we have a file of boreholes with columns 'nr', 'x', 'y', 'maaiveld', 'end',
+    'top' and 'bottom'. The column 'maaiveld' corresponds to the required column
+    'surface' in GeoST and thus needs to be remapped. The x and y-coordinates are given
+    in WGS84 UTM 31N whereas the vertical datum is given in the Belgian Ostend height
+    vertical datum:
+
+    >>> read_borehole_table(file, 32631, 'Ostend height', column_mapper={'maaiveld': 'surface'})
+
     """
-    sst_cores = __read_parquet(Path(file))
-    return BoreholeCollection(
-        sst_cores,
-        vertical_reference=vertical_reference,
-        horizontal_reference=horizontal_reference,
-    )
+    boreholes = __read_file(Path(file), **kwargs)
+
+    if has_inclined:
+        boreholes = _check_mandatory_column_presence(
+            boreholes, MANDATORY_INCLINED_LAYERED_DATA_COLUMNS, column_mapper
+        )
+    else:
+        boreholes = _check_mandatory_column_presence(
+            boreholes, MANDATORY_LAYERED_DATA_COLUMNS, column_mapper
+        )
+    # Figure out top and bottom reference and coerce to downward increasing from 0 if
+    # required.
+    boreholes = adjust_z_coordinates(boreholes)
+    boreholes = LayeredData(boreholes, has_inclined=has_inclined)
+
+    if as_collection:
+        boreholes = boreholes.to_collection(horizontal_reference, vertical_reference)
+
+    return boreholes
 
 
 def read_sst_cpts(
     file: str | WindowsPath,
-    vertical_reference: str = "NAP",
-    horizontal_reference: int = 28992,
+    horizontal_reference: str | int | CRS = 28992,
+    vertical_reference: str | int | CRS = 5709,
 ) -> CptCollection:
     """
     Read Subsurface Toolbox native parquet file with cpt information.
@@ -105,7 +249,7 @@ def read_sst_cpts(
         Instance of :class:`~geost.borehole.CptCollection`.
     """
     filepath = Path(file)
-    sst_cpts = __read_parquet(filepath)
+    sst_cpts = __read_file(filepath)
     return CptCollection(
         sst_cpts,
         vertical_reference=vertical_reference,
@@ -113,23 +257,19 @@ def read_sst_cpts(
     )
 
 
-def read_nlog_cores(
-    file: str | WindowsPath, horizontal_reference: int = 28992
-) -> BoreholeCollection:
+def read_nlog_cores(file: str | WindowsPath) -> BoreholeCollection:
     """
     Read NLog boreholes from the 'nlog_stratstelsel' Excel file. You can find this
     distribution of borehole data here: https://www.nlog.nl/boringen
 
     Warning: reading this Excel file is really slow (~10 minutes). Converting it to
-    parquet using :func:`~geost.utils.excel_to_parquet` and using that file instead
+    parquet using :func:`~geost.utils.excel_to_parquet` once and using that file instead
     allows for much faster reading of nlog data.
 
     Parameters
     ----------
     file : str | WindowsPath
         Path to nlog_stratstelsel.xlsx or .parquet
-    horizontal_reference (int): Horizontal reference, see
-        :py:attr:`~geost.base.PointDataCollection.horizontal_reference`
 
     Returns
     -------
@@ -140,7 +280,7 @@ def read_nlog_cores(
     if filepath.suffix == ".xlsx":
         nlog_cores = pd.read_excel(filepath)
     else:
-        nlog_cores = __read_parquet(filepath)
+        nlog_cores = __read_file(filepath)
 
     nlog_cores.rename(
         columns={
@@ -163,10 +303,10 @@ def read_nlog_cores(
     y = []
     x_bot = []
     y_bot = []
-    mv = []
+    surface = []
     end = []
     nrs_data = []
-    mv_data = []
+    surface_data = []
     end_data = []
     for nr, data in nlog_cores.groupby("nr"):
         nrs.append(nr)
@@ -174,30 +314,22 @@ def read_nlog_cores(
         y.append(data["y"].iloc[0])
         x_bot.append(data["x_bot"].iloc[0])
         y_bot.append(data["y_bot"].iloc[0])
-        mv.append(data["top"].iloc[0])
+        surface.append(data["top"].iloc[0])
         end.append(data["bottom"].iloc[-1])
         nrs_data += [nr for i in range(len(data))]
-        mv_data += [data["top"].iloc[0] for i in range(len(data))]
+        surface_data += [data["top"].iloc[0] for i in range(len(data))]
         end_data += [data["bottom"].iloc[-1] for i in range(len(data))]
 
-    mv_end_df = pd.DataFrame(
-        {"nr": nrs_data, "mv": mv_data, "end": end_data}
+    surface_end_df = pd.DataFrame(
+        {"nr": nrs_data, "surface": surface_data, "end": end_data}
     ).drop_duplicates("nr")
 
-    nlog_cores = nlog_cores.merge(mv_end_df, on="nr", how="left")
+    nlog_cores = nlog_cores.merge(surface_end_df, on="nr", how="left")
+    nlog_cores = adjust_z_coordinates(nlog_cores)
 
-    header = dataframe_to_geodataframe(
-        pd.DataFrame({"nr": nrs, "x": x, "y": y, "mv": mv, "end": end}),
-        horizontal_reference,
-    )
+    collection = LayeredData(nlog_cores, has_inclined=True).to_collection(28992, 5709)
 
-    return BoreholeCollection(
-        nlog_cores,
-        vertical_reference="NAP",
-        horizontal_reference=horizontal_reference,
-        header=header,
-        is_inclined=True,
-    )
+    return collection
 
 
 def read_xml_geotechnical_cores(
@@ -278,8 +410,8 @@ def get_bro_objects_from_bbox(
     xmax: int | float,
     ymin: int | float,
     ymax: int | float,
-    vertical_reference: str = "NAP",
-    horizontal_reference: int = 28992,
+    horizontal_reference: str | int | CRS = 28992,
+    vertical_reference: str | int | CRS = 5709,
 ) -> BoreholeCollection:
     """
     Directly download objects from the BRO to a geost collection object based on the
@@ -297,13 +429,14 @@ def get_bro_objects_from_bbox(
         minimal y-coordinate of the bounding box
     ymax : int | float
         maximal y-coordinate of the bounding box
-    vertical_reference : str, optional
-        Vertical reference system to use for the resulting collection, see
-        :py:attr:`~geost.base.PointDataCollection.vertical_reference`, by default "NAP"
     horizontal_reference : int, optional
-        Horizontal reference system to use for the resulting collection, see
-        :py:attr:`~geost.base.PointDataCollection.horizontal_reference`,
-        by default 28992
+        EPSG of the desiredcrs. Takes anything that can be interpreted by
+        pyproj.crs.CRS.from_user_input().
+    vertical_reference : str, optional
+        EPSG of the desired vertical datum. Takes anything that can be interpreted by
+        pyproj.crs.CRS.from_user_input(). However, it must be a vertical datum. FYI:
+        "NAP" is EPSG 5709 and The Belgian reference system (Ostend height) is ESPG
+        5710.
 
     Returns
     -------
@@ -333,14 +466,11 @@ def get_bro_objects_from_bbox(
 
     dataframe = pd.concat(bro_parsed_objects).reset_index()
 
-    collection = BoreholeCollection(
-        dataframe,
-        vertical_reference="depth",
-        horizontal_reference=28992,
-        is_inclined=False,
+    collection = LayeredData(dataframe, has_inclined=False).to_collection(
+        horizontal_reference=28992, vertical_reference=5709
     )
-    collection.change_vertical_reference(vertical_reference)
     collection.change_horizontal_reference(horizontal_reference)
+    collection.change_vertical_reference(vertical_reference)
 
     return collection
 
@@ -349,8 +479,8 @@ def get_bro_objects_from_geometry(
     object_type: str,
     geometry_file: Path | str,
     buffer: int | float = 0,
-    vertical_reference: str = "NAP",
-    horizontal_reference: int = 28992,
+    horizontal_reference: str | int | CRS = 28992,
+    vertical_reference: str | int | CRS = 5709,
 ) -> BoreholeCollection:
     """
     Directly download objects from the BRO to a geost collection object based on given
@@ -365,13 +495,14 @@ def get_bro_objects_from_geometry(
     buffer : int | float, optional
         Buffer distance. Required to be larger than 0 for line and point geometries.
         Adds an extra buffer zone around a polygon to select from, by default 0
-    vertical_reference : str, optional
-        Vertical reference system to use for the resulting collection, see
-        :py:attr:`~geost.base.PointDataCollection.vertical_reference`, by default "NAP"
     horizontal_reference : int, optional
-        Horizontal reference system to use for the resulting collection, see,
-        :py:attr:`~geost.base.PointDataCollection.horizontal_reference`,
-        by default 28992
+        EPSG of the desiredcrs. Takes anything that can be interpreted by
+        pyproj.crs.CRS.from_user_input().
+    vertical_reference : str, optional
+        EPSG of the desired vertical datum. Takes anything that can be interpreted by
+        pyproj.crs.CRS.from_user_input(). However, it must be a vertical datum. FYI:
+        "NAP" is EPSG 5709 and The Belgian reference system (Ostend height) is ESPG
+        5710.
 
     Returns
     -------
@@ -407,17 +538,13 @@ def get_bro_objects_from_geometry(
 
     dataframe = pd.concat(bro_parsed_objects).reset_index()
 
-    collection = BoreholeCollection(
-        dataframe,
-        vertical_reference="depth",
-        horizontal_reference=28992,
-        is_inclined=False,
+    collection = LayeredData(dataframe, has_inclined=False).to_collection(
+        horizontal_reference=28992, vertical_reference=5709
     )
-    collection = getattr(collection, geometry_to_selection_function[geometry.type[0]])(
+    collection = getattr(collection, GEOMETRY_TO_SELECTION_FUNCTION[geometry.type[0]])(
         geometry, buffer
     )
-    collection.header = collection.header.reset_index()
-    collection.change_vertical_reference(vertical_reference)
     collection.change_horizontal_reference(horizontal_reference)
+    collection.change_vertical_reference(vertical_reference)
 
     return collection
