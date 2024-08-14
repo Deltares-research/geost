@@ -9,7 +9,7 @@ The Geological Subsurface Toolbox (geost) package is designed to be an easy-to-u
 
 The internal BoreholeCollection, LogCollection and CptCollection classes use [Pandas](https://pandas.pydata.org/) for storing data and header information. It utilizes a custom, lightweight validation module inspired by the [Pandera](https://pandera.readthedocs.io/en/stable/) API. For spatial functions [Geopandas](https://geopandas.org/en/stable/) is used. The package also supports reading/writing parquet and geoparquet files through Pandas and Geopandas respectively. 
 
-GeoST was formerly known as PySST. We had to change the name to avoid a name conflict on PyPi
+GeoST was formerly known as PySST. We had to change the name to avoid a name conflict on PyPi.
 
 ## Installation (user)
 In a Python > 3.12 environment, install using pip directly from the repository (temporary solution until we publish it on PyPi):
@@ -19,7 +19,7 @@ In a Python > 3.12 environment, install using pip directly from the repository (
 ## Installation (developer)
 We use [Pixi](https://github.com/prefix-dev/pixi) for package management and workflows.
 
-With pixi installed, navigate the the folder of the cloned repository and run:
+With pixi installed, navigate to the folder of the cloned repository and run:
 
     pixi install
 
