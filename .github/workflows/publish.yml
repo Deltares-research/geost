@@ -8,8 +8,8 @@ permissions: read-all
 
 jobs:
   deploy:
-    runs-on: windows-latest
-    
+    runs-on: ubuntu-latest
+
     permissions:
         id-token: write
 
