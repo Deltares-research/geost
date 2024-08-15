@@ -5,11 +5,11 @@
 [![codecov](https://codecov.io/gh/Deltares-research/geost/graph/badge.svg?token=HCNGLWTQ2H)](https://codecov.io/gh/Deltares-research/geost)
 [![Formatting: ruff](https://camo.githubusercontent.com/18c26428c337f9d641fa09b629a3a03b514e8ac84b57974a0ed7d1b38e14e060/68747470733a2f2f696d672e736869656c64732e696f2f656e64706f696e743f75726c3d68747470733a2f2f7261772e67697468756275736572636f6e74656e742e636f6d2f61737472616c2d73682f727566662f6d61696e2f6173736574732f62616467652f76322e6a736f6e)](https://github.com/charliermarsh/ruff)
 
-The Geological Subsurface Toolbox (geost) package is designed to be an easy-to-use Python interface for working with subsurface point data in The Netherlands (boreholes, well logs and CPT's). It provides selection, analysis and export methods that can be applied generically to the loaded data. It is designed to connect with other Deltares developments such as [iMod](https://gitlab.com/deltares/imod) and [DataFusionTools](https://bitbucket.org/DeltaresGEO/datafusiontools/src/master/).
+The Geological Subsurface Toolbox (GeoST) package is designed to be an easy-to-use Python interface for working with subsurface point data in The Netherlands (boreholes, well logs and CPT's). It provides selection, analysis and export methods that can be applied generically to the loaded data. It is designed to connect with other Deltares developments such as [iMod](https://github.com/Deltares/imod-python) and [DataFusionTools](https://publicwiki.deltares.nl/display/TKIP/Data+Fusion+Tools).
 
 The internal BoreholeCollection, LogCollection and CptCollection classes use [Pandas](https://pandas.pydata.org/) for storing data and header information. It utilizes a custom, lightweight validation module inspired by the [Pandera](https://pandera.readthedocs.io/en/stable/) API. For spatial functions [Geopandas](https://geopandas.org/en/stable/) is used. The package also supports reading/writing parquet and geoparquet files through Pandas and Geopandas respectively. 
 
-GeoST is a work-in-progress and currently support a limited number of data sources.
+GeoST is a work-in-progress and currently supports a limited number of data sources.
 
 ## Installation (user)
 In a Python > 3.12 environment, install the latest stable release using pip:
@@ -23,12 +23,12 @@ Or the latest (experimental) version of the main branch directly from GitHub usi
 ## Installation (developer)
 We use [Pixi](https://github.com/prefix-dev/pixi) for package management and workflows.
 
-With pixi installed, navigate to the folder of the cloned repository and run:
+With pixi installed, navigate to the folder of the cloned repository and run the following 
+to install all GeoST dependencies:
 
     pixi install
 
-To install all GeoST dependencies. Next install GeoST in editable mode by running the 
-pixi task 'install':
+Next install GeoST in editable mode by running the pixi task 'install':
 
     pixi run install
 
@@ -63,7 +63,7 @@ The collection object comes with a comprehensive set of methods that can be appl
 - Datafusion methods (e.g. combining collections*, combining with data from maps, conversion of description protocols*)
 - Miscellaneous methods (e.g. changing vertical/horizontal position reference system)
 
-For a better overview of basic functionality, see the [Basics Tutorial](https://gitlab.com/deltares/tgg-projects/subsurface-toolbox/pysst/-/blob/main/tutorials/basics.ipynb?ref_type=heads).
+For a better overview of basic functionality, see the [Basics Tutorial](https://github.com/Deltares-research/geost/tree/main/tutorials).
 
 ## Contributing
 

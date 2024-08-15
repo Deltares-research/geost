@@ -1,6 +1,6 @@
 [project]
 name = "geost"
-version = "0.2.0"
+version = "0.2.1"
 description = "GeoST is the Python interface for subsurface data of The Netherlands"
 authors = ["Erik van Onselen <erik.vanonselen@deltares.nl>", 
         "Bas Knaake <bas.knaake@gmail.com>", 

@@ -89,7 +89,7 @@ def adjust_z_coordinates(data_dataframe: pd.DataFrame) -> pd.DataFrame:
     # downward decreasing or increasing of z-coordinates.
     first_surface = data_dataframe["surface"].iloc[0]
     first_top = data_dataframe[top_column_label].iloc[0]
-    second_top = data_dataframe[top_column_label].iloc[0]
+    second_top = data_dataframe[top_column_label].iloc[1]
 
     if first_top == first_surface:
         data_dataframe[top_column_label] -= data_dataframe["surface"]

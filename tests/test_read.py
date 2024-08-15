@@ -12,7 +12,11 @@ from geost import (
     read_nlog_cores,
 )
 from geost.base import BoreholeCollection, LayeredData
-from geost.read import MANDATORY_LAYERED_DATA_COLUMNS, _check_mandatory_column_presence
+from geost.read import (
+    MANDATORY_LAYERED_DATA_COLUMNS,
+    _check_mandatory_column_presence,
+    adjust_z_coordinates,
+)
 
 
 class TestReaders:
@@ -127,3 +131,22 @@ class TestReaders:
             table_wrong_columns, MANDATORY_LAYERED_DATA_COLUMNS
         )
         assert_array_equal(table_wrong_columns.columns, MANDATORY_LAYERED_DATA_COLUMNS)
+
+    @pytest.mark.unittest
+    def test_adjust_z_coordinates(self):
+        file = Path(__file__).parent / r"data/test_borehole_table.parquet"
+        cores = read_borehole_table(file, as_collection=False)
+        cores_df = cores.df.copy()
+
+        # test situation where top and bottoms are already positive downward
+        cores_df_adjusted = adjust_z_coordinates(cores_df.copy())
+        assert cores_df_adjusted["top"].iloc[0] < cores_df_adjusted["top"].iloc[1]
+        assert cores_df_adjusted["bottom"].iloc[0] < cores_df_adjusted["bottom"].iloc[1]
+
+        # Test situation where top and bottoms are given as negative downward
+        cores_df["top"] *= -1
+        cores_df["bottom"] *= -1
+
+        cores_df_adjusted = adjust_z_coordinates(cores_df.copy())
+        assert cores_df_adjusted["top"].iloc[0] < cores_df_adjusted["top"].iloc[1]
+        assert cores_df_adjusted["bottom"].iloc[0] < cores_df_adjusted["bottom"].iloc[1]
