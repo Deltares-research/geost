@@ -12,7 +12,7 @@ The internal BoreholeCollection, LogCollection and CptCollection classes use [Pa
 GeoST is a work-in-progress and currently supports a limited number of data sources.
 
 ## Installation (user)
-In a Python > 3.12 environment, install the latest stable release using pip:
+In a Python >= 3.12 environment, install the latest stable release using pip:
 
     pip install geost
 
