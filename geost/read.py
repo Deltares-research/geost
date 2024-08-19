@@ -120,6 +120,7 @@ def _check_mandatory_column_presence(
                 column_mapper[name] = missing
 
         df.rename(columns=column_mapper, inplace=True)
+        df = df.loc[:, ~df.columns.duplicated(keep="last")]
 
     return df
 
