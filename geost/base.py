@@ -24,8 +24,6 @@ type DataObject = DiscreteData | LayeredData
 type HeaderObject = LineHeader | PointHeader
 type Coordinate = int | float
 
-pd.set_option("mode.copy_on_write", True)
-
 warn = warn_user(lambda warning_info: print(warning_info))
 
 
@@ -670,7 +668,7 @@ class LayeredData(AbstractData, PandasExportMixin):
         if isinstance(selection_values, str):
             selection_values = [selection_values]
 
-        selected = self.df.copy()
+        selected = self.df
         if how == "or":
             valid = self["nr"][self[column].isin(selection_values)].unique()
             selected = selected[selected["nr"].isin(valid)]
