@@ -5,10 +5,9 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "geost"
 dynamic = ["version"]
-authors = [
+maintainers = [
     {name = "Erik van Onselen", email = "erik.vanonselen@deltares.nl"},
     {name = "Bas Knaake", email = "bas.knaake@deltares.nl"},
-    {name = "Tommer Vermaas", email = "tommer.vermaas@deltares.nl"},
 ]
 description = "The Python interface for geological point data in The Netherlands"
 readme = "README.md"
