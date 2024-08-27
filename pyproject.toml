@@ -67,6 +67,48 @@ Issues = "https://github.com/Deltares-research/geost/issues"
 [tool.setuptools.packages.find]
 include = ["geost", "geost.*"]
 
+[tool.setuptools.dynamic]
+version = {attr = "geost.__version__"}
+
+[tool.pixi.project]
+channels = ["conda-forge"]
+platforms = ["win-64", "linux-64", "osx-64", "osx-arm64"]
+
+[tool.pixi.dependencies]
+python = ">=3.12"
+numpy = "*"
+pandas = ">=2.0.1"
+pyarrow = "*"
+lxml = "*"
+pyproj = "*"
+geopandas = "*"
+xlrd = "*"
+openpyxl = "*"
+shapely = ">=2.0.1"
+pyvista = "*"
+black = "*"
+pytest = ">=8.1.1,<8.2"
+pytest-cov = "*"
+ruff = "*"
+sphinx = "*"
+sphinx-rtd-theme = "*"
+pip = ">=24.0,<25"
+rioxarray = ">=0.15.3,<0.16"
+
+[tool.pixi.tasks]
+install = "python -m pip install --no-deps --editable ."
+test = { depends_on = ["install"], cmd = "python -m pytest --verbose --cov=geost --cov-report xml --cov-report term"}
+docs = "sphinx-build -b html docs ./docs/build"
+format = "black ."
+lint = { depends_on = ["install"], cmd = "ruff check --fix ./geost"}
+
+[tool.pixi.feature.py312.dependencies]
+python = "3.12.*"
+
+[tool.pixi.environments]
+default = { features = ["py312"], solve-group = "py312" }
+py312 = { features = ["py312"], solve-group = "py312" }
+
 [tool.pytest.ini_options]
 testpaths = [
     "tests",
