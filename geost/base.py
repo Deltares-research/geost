@@ -114,9 +114,15 @@ class PointHeader(AbstractHeader, GeopandasExportMixin):
         ----------
         to_epsg : str | int | CRS
             EPSG of the target vertical datum. Takes anything that can be interpreted by
-            pyproj.crs.CRS.from_user_input(). However, it must be a vertical datum. FYI:
-            "NAP" is EPSG 5709 and The Belgian reference system (Ostend height) is ESPG
-            5710.
+            pyproj.crs.CRS.from_user_input(). However, it must be a vertical datum.
+
+            Some often-used vertical datums are:
+            NAP             : 5709
+            MSL NL depth    : 9288
+            LAT NL depth    : 9287
+            Ostend height   : 5710
+
+            See epsg.io for more.
 
         Examples
         --------
@@ -1338,9 +1344,15 @@ class Collection(AbstractCollection):
         ----------
         to_epsg : str | int | CRS
             EPSG of the target vertical datum. Takes anything that can be interpreted by
-            pyproj.crs.CRS.from_user_input(). However, it must be a vertical datum. FYI:
-            "NAP" is EPSG 5709 and The Belgian reference system (Ostend height) is ESPG
-            5710.
+            pyproj.crs.CRS.from_user_input(). However, it must be a vertical datum.
+
+            Some often-used vertical datums are:
+            NAP             : 5709
+            MSL NL depth    : 9288
+            LAT NL depth    : 9287
+            Ostend height   : 5710
+
+            See epsg.io for more.
 
         Examples
         --------
