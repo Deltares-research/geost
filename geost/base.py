@@ -42,7 +42,7 @@ class PointHeader(AbstractHeader, GeopandasExportMixin):
         return self.gdf[column]
 
     def __setitem__(self, key, values):
-        self.gdf[key] = values
+        self.gdf.loc[:, key] = values
 
     def __len__(self):
         return len(self.gdf)
@@ -442,7 +442,7 @@ class LineHeader(AbstractHeader, GeopandasExportMixin):
         return self.gdf[column]
 
     def __setitem__(self, key, values):
-        self.gdf[key] = values
+        self.gdf.loc[:, key] = values
 
     def __len__(self):
         return len(self.gdf)
@@ -530,7 +530,7 @@ class LayeredData(AbstractData, PandasExportMixin):
         return self.df[column]
 
     def __setitem__(self, column, item):
-        self.df[column] = item
+        self.df.loc[:, column] = item
 
     def __len__(self):
         return len(self.df)
