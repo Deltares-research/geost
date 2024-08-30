@@ -465,6 +465,16 @@ class TestCollection:
         assert outfile.is_file()
         outfile.unlink()
 
+    @pytest.mark.unittest
+    def test_to_kingdom(self, borehole_data):
+        outfile = Path("temp_kingdom.csv")
+        tdfile = Path(outfile.parent, f"{outfile.stem}_TDCHART{outfile.suffix}")
+        borehole_data.to_kingdom(outfile)
+        assert outfile.is_file()
+        assert tdfile.is_file()
+        outfile.unlink()
+        tdfile.unlink()
+
     # @pytest.mark.integrationtest
     # def test_surface_level_update(self, borehole_collection, update_raster):
     #     borehole_collection.update_surface_level_from_raster(update_raster, how="replace")
