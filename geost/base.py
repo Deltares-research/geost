@@ -1,5 +1,5 @@
 import pickle
-from pathlib import WindowsPath
+from pathlib import Path, WindowsPath
 from typing import Iterable, List
 
 import geopandas as gpd
@@ -1166,7 +1166,7 @@ class LayeredData(AbstractData, PandasExportMixin):
 
         tdchart.drop("surface", axis=1, inplace=True)
         tdchart.sort_values(by=["id", "MD"], inplace=True)
-        outfile = WindowsPath(outfile.parent, f"{outfile.stem}_TDCHART{outfile.suffix}")
+        outfile = Path(outfile.parent, f"{outfile.stem}_TDCHART{outfile.suffix}")
         tdchart.to_csv(outfile, index=False)
 
 
