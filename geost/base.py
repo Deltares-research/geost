@@ -1112,7 +1112,7 @@ class LayeredData(AbstractData, PandasExportMixin):
 
     def to_kingdom(self, outfile, vw=1500.0, vs=1600.0):
         """
-        Write data to 2 csv files: interval data and time-depth chart,
+        Write data to 2 csv files: 1) interval data and 2) time-depth chart,
             for import in Kingdom seismic interpretation software.
 
         Parameters
@@ -1124,7 +1124,6 @@ class LayeredData(AbstractData, PandasExportMixin):
         vs : float
             sound velocity in sediment in m/s, default is 1600 m/s
         """
-        outfile = WindowsPath(outfile)
 
         """
         1) add column needed in kingdom and write interval data
