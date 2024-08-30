@@ -1130,19 +1130,19 @@ class LayeredData(AbstractData, PandasExportMixin):
         """
         # total depth of borehole in m
         if "Total depth" in self.df.columns:
-            self["Total depth"] = (self["surface"] - self["end"]).to_list()
+            self["Total depth"] = self["surface"] - self["end"]
         else:
-            self.df.insert(7, "Total depth", (self["surface"] - self["end"]).to_list())
+            self.df.insert(7, "Total depth", (self["surface"] - self["end"]))
         # start depth of interval in m
         if "Start depth" in self.df.columns:
-            self["Start depth"] = (self["top"]).to_list()
+            self["Start depth"] = self["top"]
         else:
-            self.df.insert(8, "Start depth", (self["top"]).to_list())
+            self.df.insert(8, "Start depth", (self["top"]))
         # end depth of interval in m
         if "End depth" in self.df.columns:
-            self["End depth"] = (self["bottom"]).to_list()
+            self["End depth"] = self["bottom"]
         else:
-            self.df.insert(9, "End depth", (self["bottom"]).to_list())
+            self.df.insert(9, "End depth", (self["bottom"]))
 
         self.to_csv(outfile, index=False)
 
