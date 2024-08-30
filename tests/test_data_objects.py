@@ -271,12 +271,22 @@ class TestLayeredData:
         outfile.unlink()
 
     @pytest.mark.unittest
+    def test_to_kingdom(self, borehole_data):
+        outfile = Path("temp_kingdom.csv")
+        tdfile = Path(outfile.parent, f"{outfile.stem}_TDCHART{outfile.suffix}")
+        borehole_data.to_kingdom(outfile)
+        assert outfile.is_file()
+        assert tdfile.is_file()
+        outfile.unlink()
+        tdfile.unlink()
+
+    @pytest.mark.unittest
     def test_create_geodataframe_3d(self, borehole_data):
         relative_to_vertical_reference = True
         gdf = borehole_data._create_geodataframe_3d(relative_to_vertical_reference)
 
-        first_line_coords = get_coordinates(gdf['geometry'].iloc[0], include_z=True)
-        expected_coords = [[2., 3., 0.21], [2., 3., -0.59]]
+        first_line_coords = get_coordinates(gdf["geometry"].iloc[0], include_z=True)
+        expected_coords = [[2.0, 3.0, 0.21], [2.0, 3.0, -0.59]]
 
         assert all(gdf.geom_type == "LineString")
         assert_array_almost_equal(first_line_coords, expected_coords)
@@ -284,8 +294,8 @@ class TestLayeredData:
         relative_to_vertical_reference = False
         gdf = borehole_data._create_geodataframe_3d(relative_to_vertical_reference)
 
-        first_line_coords = get_coordinates(gdf['geometry'].iloc[0], include_z=True)
-        expected_coords = [[2., 3., 0.01], [2., 3., 0.81]]
+        first_line_coords = get_coordinates(gdf["geometry"].iloc[0], include_z=True)
+        expected_coords = [[2.0, 3.0, 0.01], [2.0, 3.0, 0.81]]
 
         assert all(gdf.geom_type == "LineString")
         assert_array_almost_equal(first_line_coords, expected_coords)
