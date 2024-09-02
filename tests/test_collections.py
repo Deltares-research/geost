@@ -477,8 +477,8 @@ class TestBoreholeCollection:
         borehole_collection.get_cumulative_layer_thickness(
             "lith", ["Z", "K"], include_in_header=True
         )
-        expected_clay_thickness = [2.0, 2.0, 2.9, 1.1, np.nan]
-        expected_sand_thickness = [2.2, np.nan, 2.6, 0.5, 3.0]
+        expected_clay_thickness = [2.0, 2.0, 2.9, 1.1, 0.0]
+        expected_sand_thickness = [2.2, 0.0, 2.6, 0.5, 3.0]
 
         assert_almost_equal(
             borehole_collection.header["K_thickness"], expected_clay_thickness

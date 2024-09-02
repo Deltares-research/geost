@@ -848,7 +848,9 @@ class LayeredData(AbstractData, PandasExportMixin):
         cum_thickness = selected_layers.df.groupby(["nr", column]).apply(
             cumulative_thickness
         )
-        return cum_thickness.unstack(level=column)
+        cum_thickness = cum_thickness.unstack(level=column)
+        cum_thickness[cum_thickness.isna()] = 0
+        return cum_thickness
 
     def get_layer_top(self, column: str, values: str | List[str]):
         """

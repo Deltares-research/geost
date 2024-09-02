@@ -77,8 +77,8 @@ class TestLayeredData:
 
         result = borehole_data.get_cumulative_layer_thickness("lith", ["Z", "K"])
         expected_boreholes_returned = ["A", "B", "C", "D", "E"]
-        expected_sand_thickness = [2.2, np.nan, 2.6, 0.5, 3.0]
-        expected_clay_thickness = [2.0, 2.0, 2.9, 1.1, np.nan]
+        expected_sand_thickness = [2.2, 0.0, 2.6, 0.5, 3.0]
+        expected_clay_thickness = [2.0, 2.0, 2.9, 1.1, 0.0]
 
         assert result.shape == (5, 2)
         assert_array_equal(result.index, expected_boreholes_returned)
@@ -275,8 +275,8 @@ class TestLayeredData:
         relative_to_vertical_reference = True
         gdf = borehole_data._create_geodataframe_3d(relative_to_vertical_reference)
 
-        first_line_coords = get_coordinates(gdf['geometry'].iloc[0], include_z=True)
-        expected_coords = [[2., 3., 0.21], [2., 3., -0.59]]
+        first_line_coords = get_coordinates(gdf["geometry"].iloc[0], include_z=True)
+        expected_coords = [[2.0, 3.0, 0.21], [2.0, 3.0, -0.59]]
 
         assert all(gdf.geom_type == "LineString")
         assert_array_almost_equal(first_line_coords, expected_coords)
@@ -284,8 +284,8 @@ class TestLayeredData:
         relative_to_vertical_reference = False
         gdf = borehole_data._create_geodataframe_3d(relative_to_vertical_reference)
 
-        first_line_coords = get_coordinates(gdf['geometry'].iloc[0], include_z=True)
-        expected_coords = [[2., 3., 0.01], [2., 3., 0.81]]
+        first_line_coords = get_coordinates(gdf["geometry"].iloc[0], include_z=True)
+        expected_coords = [[2.0, 3.0, 0.01], [2.0, 3.0, 0.81]]
 
         assert all(gdf.geom_type == "LineString")
         assert_array_almost_equal(first_line_coords, expected_coords)
