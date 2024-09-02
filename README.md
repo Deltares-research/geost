@@ -35,6 +35,10 @@ Next install GeoST in editable mode by running the pixi task 'install':
 
 See the [Pixi documentation](https://pixi.sh/latest/) for more information.
 
+## Examples
+We collect examples that make use of GeoST and other Subsurface Toolbox developments in 
+the [Deltares sst-examples repository](https://github.com/Deltares-research/sst-examples). 
+
 ## Supported borehole and CPT formats
 - From local files
     - geost .parquet file (complete)
