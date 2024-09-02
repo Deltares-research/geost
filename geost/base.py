@@ -425,6 +425,11 @@ class PointHeader(AbstractHeader, GeopandasExportMixin):
         area_labels = pd.concat([all_nrs, area_labels], axis=1)
 
         if include_in_header:
+            self.gdf.drop(
+                columns=column_name,
+                errors="ignore",
+                inplace=True,
+            )
             self._gdf = self.gdf.merge(area_labels, on="nr")
         else:
             return area_labels
@@ -1968,6 +1973,11 @@ class BoreholeCollection(Collection):
         cum_thickness = self.data.get_cumulative_layer_thickness(column, values)
 
         if include_in_header:
+            self.header.gdf.drop(
+                columns=[c + "_thickness" for c in cum_thickness.columns],
+                errors="ignore",
+                inplace=True,
+            )
             self.header = self.header.gdf.merge(
                 cum_thickness.add_suffix("_thickness"), on="nr", how="left"
             )
@@ -2011,6 +2021,11 @@ class BoreholeCollection(Collection):
         tops = self.data.get_layer_top(column, values)
 
         if include_in_header:
+            self.header.gdf.drop(
+                columns=[c + "_top" for c in tops.columns],
+                errors="ignore",
+                inplace=True,
+            )
             self.header = self.header.gdf.merge(
                 tops.add_suffix("_top"), on="nr", how="left"
             )
