@@ -17,6 +17,7 @@ from geost.projections import (
     horizontal_reference_transformer,
     vertical_reference_transformer,
 )
+from geost.spatial import check_gdf_instance
 from geost.utils import dataframe_to_geodataframe, warn_user
 from geost.validate.decorators import validate_data, validate_header
 
@@ -394,7 +395,10 @@ class PointHeader(AbstractHeader, GeopandasExportMixin):
         return self.__class__(selected, self.vertical_reference)
 
     def get_area_labels(
-        self, polygon_gdf: gpd.GeoDataFrame, column_name: str, include_in_header=False
+        self,
+        polygon_gdf: str | WindowsPath | gpd.GeoDataFrame,
+        column_name: str,
+        include_in_header=False,
     ) -> pd.DataFrame:
         """
         Find in which area (polygons) the point data locations fall. e.g. to determine
@@ -402,7 +406,7 @@ class PointHeader(AbstractHeader, GeopandasExportMixin):
 
         Parameters
         ----------
-        polygon_gdf : gpd.GeoDataFrame
+        polygon_gdf : str | WindowsPath | gpd.GeoDataFrame
             GeoDataFrame with polygons.
         column_name : str
             The column name to find the labels in.
@@ -416,6 +420,7 @@ class PointHeader(AbstractHeader, GeopandasExportMixin):
             Borehole ids and the polygon label they are in. If include_in_header = True,
             a column containing the generated data will be added inplace.
         """
+        polygon_gdf = check_gdf_instance(polygon_gdf)
         polygon_gdf = spatial.check_and_coerce_crs(
             polygon_gdf, self.horizontal_reference
         )
@@ -1759,7 +1764,10 @@ class Collection(AbstractCollection):
         return collection_selected
 
     def get_area_labels(
-        self, polygon_gdf: gpd.GeoDataFrame, column_name: str, include_in_header=False
+        self,
+        polygon_gdf: str | WindowsPath | gpd.GeoDataFrame,
+        column_name: str,
+        include_in_header=False,
     ) -> pd.DataFrame:
         """
         Find in which area (polygons) the point data locations fall. e.g. to determine
@@ -1767,7 +1775,7 @@ class Collection(AbstractCollection):
 
         Parameters
         ----------
-        polygon_gdf : gpd.GeoDataFrame
+        polygon_gdf : str | WindowsPath | gpd.GeoDataFrame
             GeoDataFrame with polygons.
         column_name : str
             The column name to find the labels in.
