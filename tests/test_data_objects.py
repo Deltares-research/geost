@@ -273,7 +273,9 @@ class TestLayeredData:
     @pytest.mark.unittest
     def test_create_geodataframe_3d(self, borehole_data):
         relative_to_vertical_reference = True
-        gdf = borehole_data._create_geodataframe_3d(relative_to_vertical_reference)
+        gdf = borehole_data._create_geodataframe_3d(
+            relative_to_vertical_reference, crs=28992
+        )
 
         first_line_coords = get_coordinates(gdf["geometry"].iloc[0], include_z=True)
         expected_coords = [[2.0, 3.0, 0.21], [2.0, 3.0, -0.59]]
@@ -282,7 +284,9 @@ class TestLayeredData:
         assert_array_almost_equal(first_line_coords, expected_coords)
 
         relative_to_vertical_reference = False
-        gdf = borehole_data._create_geodataframe_3d(relative_to_vertical_reference)
+        gdf = borehole_data._create_geodataframe_3d(
+            relative_to_vertical_reference, crs=28992
+        )
 
         first_line_coords = get_coordinates(gdf["geometry"].iloc[0], include_z=True)
         expected_coords = [[2.0, 3.0, 0.01], [2.0, 3.0, 0.81]]

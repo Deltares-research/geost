@@ -150,8 +150,8 @@ def point_header_gdf():
     """
     Creates a synthetic header geodataframe for testing
     """
-    x_coors = [1, 2, 3, 4, 5]
-    y_coors = [1, 2, 3, 4, 5]
+    x_coors = [1.0, 2.0, 3.0, 4.0, 5.0]
+    y_coors = [1.0, 2.0, 3.0, 4.0, 5.0]
     coordinates = np.array([(x, y) for x, y in product(x_coors, y_coors)])
     nrs = ["nr" + str(i + 1) for i in range(len(coordinates))]
     mvs = np.arange(1, 26)

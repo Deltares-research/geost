@@ -103,7 +103,7 @@ class PointHeader(AbstractHeader, GeopandasExportMixin):
             self.horizontal_reference, to_epsg
         )
         self._gdf = self.gdf.to_crs(to_epsg)
-        self._gdf["x"], self._gdf["y"] = transformer.transform(
+        self._gdf.loc[:, "x"], self._gdf.loc[:, "y"] = transformer.transform(
             self._gdf["x"], self._gdf["y"]
         )
 
@@ -151,8 +151,8 @@ class PointHeader(AbstractHeader, GeopandasExportMixin):
         _, _, new_end = transformer.transform(
             self.gdf["x"], self.gdf["y"], self.gdf["end"]
         )
-        self._gdf["surface"] = new_surface
-        self._gdf["end"] = new_end
+        self._gdf.loc[:, "surface"] = new_surface
+        self._gdf.loc[:, "end"] = new_end
         self.__vertical_reference = CRS(to_epsg)
 
     def get(self, selection_values: str | Iterable, column: str = "nr"):
@@ -1350,12 +1350,12 @@ class Collection(AbstractCollection):
         transformer = horizontal_reference_transformer(
             self.horizontal_reference, to_epsg
         )
-        self.data["x"], self.data["y"] = transformer.transform(
+        self.data.df.loc[:, "x"], self.data.df.loc[:, "y"] = transformer.transform(
             self.data["x"], self.data["y"]
         )
         if self.data.has_inclined:
-            self.data["x_bot"], self.data["y_bot"] = transformer.transform(
-                self.data["x_bot"], self.data["y_bot"]
+            self.data.df.loc[:, "x_bot"], self.data.df.loc[:, "y_bot"] = (
+                transformer.transform(self.data["x_bot"], self.data["y_bot"])
             )
 
         self.header.change_horizontal_reference(to_epsg)
@@ -1404,8 +1404,8 @@ class Collection(AbstractCollection):
         _, _, new_end = transformer.transform(
             self.data["x"], self.data["y"], self.data["end"]
         )
-        self.data["surface"] = new_surface
-        self.data["end"] = new_end
+        self.data.df.loc[:, "surface"] = new_surface
+        self.data.df.loc[:, "end"] = new_end
         self.header.change_vertical_reference(to_epsg)
 
     def reset_header(self):
