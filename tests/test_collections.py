@@ -496,3 +496,13 @@ class TestBoreholeCollection:
 
         assert_almost_equal(borehole_collection.header["K_top"], expected_clay_top)
         assert_almost_equal(borehole_collection.header["Z_top"], expected_sand_top)
+
+    @pytest.mark.unittest
+    def test_to_kingdom(self, borehole_collection):
+        outfile = Path("temp_kingdom.csv")
+        tdfile = Path(outfile.parent, f"{outfile.stem}_TDCHART{outfile.suffix}")
+        borehole_collection.to_kingdom(outfile)
+        assert outfile.is_file()
+        assert tdfile.is_file()
+        outfile.unlink()
+        tdfile.unlink()

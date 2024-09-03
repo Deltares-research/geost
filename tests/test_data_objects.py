@@ -1,6 +1,7 @@
 from pathlib import Path
 
 import numpy as np
+import pandas as pd
 import pytest
 from numpy.testing import assert_array_almost_equal, assert_array_equal
 from pyvista import MultiBlock
@@ -269,6 +270,64 @@ class TestLayeredData:
         borehole_data.to_qgis3d(outfile)
         assert outfile.is_file()
         outfile.unlink()
+
+    @pytest.mark.unittest
+    def test_to_kingdom(self, borehole_data):
+        outfile = Path("temp_kingdom.csv")
+        tdfile = Path(outfile.parent, f"{outfile.stem}_TDCHART{outfile.suffix}")
+        borehole_data.to_kingdom(outfile)
+        assert outfile.is_file()
+        assert tdfile.is_file()
+        out_layerdata = pd.read_csv(outfile)
+        out_tddata = pd.read_csv(tdfile)
+        assert_array_almost_equal(
+            out_layerdata["Start depth"][:6],
+            np.array([0.0, 0.8, 1.5, 2.5, 3.7, 0.0]),
+        )
+        assert_array_almost_equal(
+            out_layerdata["End depth"][:6],
+            np.array([0.8, 1.5, 2.5, 3.7, 4.2, 0.6]),
+        )
+        assert_array_almost_equal(
+            out_layerdata["Total depth"][:6],
+            np.array([4.2, 4.2, 4.2, 4.2, 4.2, 3.9]),
+        )
+        assert_array_almost_equal(
+            out_tddata["MD"],
+            np.array(
+                [
+                    0,
+                    1,
+                    0,
+                    1,
+                    0,
+                    1,
+                    0,
+                    1,
+                    0,
+                    1,
+                ]
+            ),
+        )
+        assert_array_almost_equal(
+            out_tddata["TWT"],
+            np.array(
+                [
+                    -0.26666667,
+                    0.98333333,
+                    -0.4,
+                    0.85,
+                    -0.33333333,
+                    0.91666667,
+                    -0.13333333,
+                    1.11666667,
+                    0.13333333,
+                    1.38333333,
+                ]
+            ),
+        )
+        outfile.unlink()
+        tdfile.unlink()
 
     @pytest.mark.unittest
     def test_create_geodataframe_3d(self, borehole_data):

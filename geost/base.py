@@ -3,6 +3,7 @@ from pathlib import WindowsPath
 from typing import Iterable, List
 
 import geopandas as gpd
+import numpy as np
 import pandas as pd
 from pyproj import CRS
 from shapely.geometry import LineString
@@ -1134,6 +1135,60 @@ class LayeredData(AbstractData, PandasExportMixin):
         qgis3d = self._create_geodataframe_3d(relative_to_vertical_reference, crs=crs)
         qgis3d.to_file(outfile, driver="GPKG", **kwargs)
 
+    def to_kingdom(
+        self,
+        outfile: str | WindowsPath,
+        tdstart: int = 1,
+        vw: float = 1500.0,
+        vs: float = 1600.0,
+    ):
+        """
+        Write data to 2 csv files: 1) interval data and 2) time-depth chart. These files
+        can be imported in the Kingdom seismic interpretation software.
+
+        Parameters
+        ----------
+        outfile : str | WindowsPath
+            Path to csv file to be written.
+        tdstart : int
+            startindex for TDchart, default is 1
+        vw : float
+            sound velocity in water in m/s, default is 1500 m/s
+        vs : float
+            sound velocity in sediment in m/s, default is 1600 m/s
+        """
+        # 1. add column needed in kingdom and write interval data
+        kingdom_df = self.df.copy()
+        # Add total depth and rename bottom and top columns to Kingdom requirements
+        kingdom_df.insert(7, "Total depth", (kingdom_df["surface"] - kingdom_df["end"]))
+        kingdom_df.rename(
+            columns={"top": "Start depth", "bottom": "End depth"}, inplace=True
+        )
+        kingdom_df.to_csv(outfile, index=False)
+
+        # 2. create and write time-depth chart
+        tdchart = self[["nr", "surface"]].copy()
+        tdchart.drop_duplicates(inplace=True)
+        tdchart.insert(0, "id", range(tdstart, tdstart + len(tdchart)))
+        # Add measured depth (predefined depths of 0 and 1 m below surface)
+        tdchart = pd.concat(
+            [
+                tdchart.assign(MD=np.zeros(len(tdchart), dtype=np.int64)),
+                tdchart.assign(MD=np.ones(len(tdchart), dtype=np.int64)),
+            ]
+        )
+        # Add two-way travel time
+        tdchart["TWT"] = (-tdchart["surface"] / (vw / 2 / 1000)) + (
+            tdchart["MD"] * 1 / (vs / 2 / 1000)
+        )
+
+        tdchart.drop("surface", axis=1, inplace=True)
+        tdchart.sort_values(by=["id", "MD"], inplace=True)
+        tdchart.to_csv(
+            outfile.parent.joinpath(f"{outfile.stem}_TDCHART{outfile.suffix}"),
+            index=False,
+        )
+
 
 class DiscreteData(AbstractData, PandasExportMixin):
     def __init__(self, df, has_inclined: bool = False):
@@ -2082,6 +2137,30 @@ class BoreholeCollection(Collection):
             crs=self.horizontal_reference,
             **kwargs,
         )
+
+    def to_kingdom(
+        self,
+        outfile: str | WindowsPath,
+        tdstart: int = 1,
+        vw: float = 1500.0,
+        vs: float = 1600.0,
+    ):
+        """
+        Write data to 2 csv files: interval data and time-depth chart,
+            for import in Kingdom seismic interpretation software.
+
+        Parameters
+        ----------
+        out_file : str | WindowsPath
+            Path to csv file to be written.
+        tdstart : int
+            startindex for TDchart, default is 1
+        vw : float
+            sound velocity in water in m/s, default is 1500 m/s
+        vs : float
+            sound velocity in sediment in m/s, default is 1600 m/s
+        """
+        self.data.to_kingdom(outfile, tdstart, vw, vs)
 
 
 class CptCollection(Collection):
