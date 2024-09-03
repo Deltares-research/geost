@@ -465,16 +465,6 @@ class TestCollection:
         assert outfile.is_file()
         outfile.unlink()
 
-    @pytest.mark.unittest
-    def test_to_kingdom(self, borehole_collection):
-        outfile = Path("temp_kingdom.csv")
-        tdfile = Path(outfile.parent, f"{outfile.stem}_TDCHART{outfile.suffix}")
-        borehole_collection.to_kingdom(outfile)
-        assert outfile.is_file()
-        assert tdfile.is_file()
-        outfile.unlink()
-        tdfile.unlink()
-
     # @pytest.mark.integrationtest
     # def test_surface_level_update(self, borehole_collection, update_raster):
     #     borehole_collection.update_surface_level_from_raster(update_raster, how="replace")
@@ -506,3 +496,13 @@ class TestBoreholeCollection:
 
         assert_almost_equal(borehole_collection.header["K_top"], expected_clay_top)
         assert_almost_equal(borehole_collection.header["Z_top"], expected_sand_top)
+
+    @pytest.mark.unittest
+    def test_to_kingdom(self, borehole_collection):
+        outfile = Path("temp_kingdom.csv")
+        tdfile = Path(outfile.parent, f"{outfile.stem}_TDCHART{outfile.suffix}")
+        borehole_collection.to_kingdom(outfile)
+        assert outfile.is_file()
+        assert tdfile.is_file()
+        outfile.unlink()
+        tdfile.unlink()
