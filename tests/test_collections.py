@@ -466,10 +466,10 @@ class TestCollection:
         outfile.unlink()
 
     @pytest.mark.unittest
-    def test_to_kingdom(self, borehole_data):
+    def test_to_kingdom(self, borehole_collection):
         outfile = Path("temp_kingdom.csv")
         tdfile = Path(outfile.parent, f"{outfile.stem}_TDCHART{outfile.suffix}")
-        borehole_data.to_kingdom(outfile)
+        borehole_collection.to_kingdom(outfile)
         assert outfile.is_file()
         assert tdfile.is_file()
         outfile.unlink()
