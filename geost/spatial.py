@@ -320,18 +320,7 @@ def get_raster_values(
             + "required 'x' and 'y' dimensions"
         )
 
-    # Determine x/y min/max, accounting for xarray coordinates that represent cell
-    # midpoints. Subsequently determine whether the queried x/y values fall outside of
-    # the raster_to_read area.
-    half_cellsize = np.abs(raster_to_read["x"][1] - raster_to_read["x"][0]).values / 2
-    xmin, xmax = (
-        raster_to_read["x"].min().values - half_cellsize,
-        raster_to_read["x"].max().values + half_cellsize,
-    )
-    ymin, ymax = (
-        raster_to_read["y"].min().values - half_cellsize,
-        raster_to_read["y"].max().values + half_cellsize,
-    )
+    xmin, ymin, xmax, ymax = raster_to_read.rio.bounds()
     outside_x = (x < xmin) | (x > xmax)
     outside_y = (y < ymin) | (y > ymax)
 
