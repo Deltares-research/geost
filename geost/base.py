@@ -1,6 +1,6 @@
 import pickle
 from pathlib import WindowsPath
-from typing import Iterable, List
+from typing import Any, Iterable, List
 
 import geopandas as gpd
 import numpy as np
@@ -824,6 +824,44 @@ class LayeredData(AbstractData, PandasExportMixin):
 
         return self.__class__(sliced, self.has_inclined)
 
+    def select_by_condition(self, condition: Any, invert: bool = False):
+        """
+        Select data using a manual condition that results in a boolean mask. Returns the
+        rows in the data where the 'condition' evaluates to True.
+
+        Parameters
+        ----------
+        condition : list, pd.Series or array like
+            Boolean array like object with locations at which the values will be
+            preserved, dtype must be 'bool' and the length must correspond with the
+            length of the data.
+        invert : bool, optional
+            If True, the selection is inverted so rows that evaluate to False will be
+            returned. The default is False.
+
+        Returns
+        -------
+        :class:`~geost.base.LayeredData`
+            New instance containing only the data objects selected by this method.
+
+        Examples
+        --------
+        Select rows in borehole data that contain a specific value:
+
+        >>> boreholes.select_by_condition(boreholes["lith"]=="V")
+
+        Or select rows in the borehole data that contain a specific (part of) string or
+        strings:
+
+        >>> boreholes.select_by_condition(boreholes["column"].str.contains("foo|bar"))
+
+        """
+        if invert:
+            selected = self[~condition]
+        else:
+            selected = self[condition]
+        return self.__class__(selected, self.has_inclined)
+
     def get_cumulative_layer_thickness(self, column: str, values: str | List[str]):
         """
         Get the cumulative thickness of layers where a column contains a specified search
@@ -1221,9 +1259,11 @@ class DiscreteData(AbstractData, PandasExportMixin):
     def slice_by_values(self):
         raise NotImplementedError()
 
+    def select_by_condition(self):
+        raise NotImplementedError()
+
     def get_cumulative_layer_thickness(self):
         raise NotImplementedError()
-        pass
 
     def get_layer_top(self):
         raise NotImplementedError()
@@ -1829,6 +1869,41 @@ class Collection(AbstractCollection):
         )
         collection_selected = data_selected.to_collection()
         return collection_selected
+
+    def select_by_condition(self, condition: Any, invert: bool = False):
+        """
+        Select from collection.data using a manual condition that results in a boolean
+        mask. Returns the rows in the data where the 'condition' evaluates to True.
+
+        Parameters
+        ----------
+        condition : list, pd.Series or array like
+            Boolean array like object with locations at which the values will be
+            preserved, dtype must be 'bool' and the length must correspond with the
+            length of the data.
+        invert : bool, optional
+            If True, the selection is inverted so rows that evaluate to False will be
+            returned. The default is False.
+
+        Returns
+        -------
+        :class:`~geost.base.LayeredData`
+            New instance containing only the data objects selected by this method.
+
+        Examples
+        --------
+        Select rows in borehole data that contain a specific value:
+
+        >>> boreholes.select_by_condition(boreholes["lith"]=="V")
+
+        Or select rows in the borehole data that contain a specific (part of) string or
+        strings:
+
+        >>> boreholes.select_by_condition(boreholes["column"].str.contains("foo|bar"))
+
+        """
+        selected = self.data.select_by_condition(condition, invert)
+        return selected.to_collection()
 
     def get_area_labels(
         self,

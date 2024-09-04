@@ -384,6 +384,15 @@ class TestCollection:
         assert len(sliced.data) == expected_length
         assert sliced.n_points == 4
 
+    @pytest.mark.unittest
+    def test_select_by_condition(self, borehole_collection):
+        # same selection with this method is used in test_data_objects
+        selected = borehole_collection.select_by_condition(
+            borehole_collection.data["lith"] == "V"
+        )
+        assert isinstance(selected, BoreholeCollection)
+        assert selected.n_points == 2
+
     @pytest.mark.integrationtest
     def test_validation_pass(self, capfd, borehole_df_ok):
         LayeredData(borehole_df_ok).to_collection()

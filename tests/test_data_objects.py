@@ -181,6 +181,20 @@ class TestLayeredData:
         assert_array_equal(bottoms_of_slice, expected_bottoms_of_slice)
 
     @pytest.mark.unittest
+    def test_select_by_condition(self, borehole_data):
+        selected = borehole_data.select_by_condition(borehole_data["lith"] == "V")
+        expected_nrs = ["B", "D"]
+        assert_array_equal(selected["nr"].unique(), expected_nrs)
+        assert np.all(selected["lith"] == "V")
+        assert len(selected) == 4
+
+        selected = borehole_data.select_by_condition(
+            borehole_data["lith"] == "V", invert=True
+        )
+        assert len(selected) == 21
+        assert ~np.all(selected['lith']=='V')
+
+    @pytest.mark.unittest
     def test_to_multiblock(self, borehole_data):
         # Test normal to multiblock.
         multiblock = borehole_data.to_multiblock("lith")

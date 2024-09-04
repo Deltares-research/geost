@@ -105,6 +105,10 @@ class AbstractData(ABC):
         pass
 
     @abstractmethod
+    def select_by_condition(self):
+        pass
+
+    @abstractmethod
     def get_cumulative_layer_thickness(self):
         # Not sure if this should be here, potentially unsuitable with DiscreteData
         pass
@@ -206,6 +210,10 @@ class AbstractCollection(ABC):
 
     @abstractmethod
     def select_by_length(self):
+        pass
+
+    @abstractmethod
+    def select_by_condition(self):
         pass
 
     @abstractmethod
