@@ -512,7 +512,7 @@ class TestCollection:
 
 class TestBoreholeCollection:
     @pytest.mark.unittest
-    def test_get_cumulative_layer_thickness(self, borehole_collection):
+    def test_get_cumulative_layer_thickness_multiple(self, borehole_collection):
         borehole_collection.get_cumulative_layer_thickness(
             "lith", ["Z", "K"], include_in_header=True
         )
@@ -521,6 +521,26 @@ class TestBoreholeCollection:
 
         assert_almost_equal(
             borehole_collection.header["K_thickness"], expected_clay_thickness
+        )
+        assert_almost_equal(
+            borehole_collection.header["Z_thickness"], expected_sand_thickness
+        )
+
+        # Single query
+        borehole_collection.get_cumulative_layer_thickness(
+            "lith", "Z", include_in_header=True
+        )
+        assert_almost_equal(
+            borehole_collection.header["Z_thickness"], expected_sand_thickness
+        )
+
+    @pytest.mark.unittest
+    def test_get_cumulative_layer_thickness_single(self, borehole_collection):
+        expected_sand_thickness = [2.2, 0.0, 2.6, 0.5, 3.0]
+
+        # Single query
+        borehole_collection.get_cumulative_layer_thickness(
+            "lith", "Z", include_in_header=True
         )
         assert_almost_equal(
             borehole_collection.header["Z_thickness"], expected_sand_thickness

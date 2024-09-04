@@ -898,7 +898,6 @@ class LayeredData(AbstractData, PandasExportMixin):
             cumulative_thickness
         )
         cum_thickness = cum_thickness.unstack(level=column)
-        cum_thickness[cum_thickness.isna()] = 0
         return cum_thickness
 
     def get_layer_top(self, column: str, values: str | List[str]):
@@ -2225,14 +2224,16 @@ class BoreholeCollection(Collection):
         cum_thickness = self.data.get_cumulative_layer_thickness(column, values)
 
         if include_in_header:
+            columns = [c + "_thickness" for c in cum_thickness.columns]
             self.header.gdf.drop(
-                columns=[c + "_thickness" for c in cum_thickness.columns],
+                columns=columns,
                 errors="ignore",
                 inplace=True,
             )
             self.header = self.header.gdf.merge(
                 cum_thickness.add_suffix("_thickness"), on="nr", how="left"
             )
+            self.header[columns] = self.header[columns].fillna(0)
         else:
             return cum_thickness
 
