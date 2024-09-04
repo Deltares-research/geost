@@ -465,6 +465,36 @@ class TestCollection:
         assert outfile.is_file()
         outfile.unlink()
 
+    @pytest.mark.unittest
+    def test_to_geoparquet(self, borehole_collection, tmp_path):
+        outfile = tmp_path / r"test_export.geoparquet"
+        borehole_collection.to_geoparquet(outfile)
+        assert outfile.is_file()
+
+    @pytest.mark.unittest
+    def test_to_shape(self, borehole_collection, tmp_path):
+        outfile = tmp_path / r"test_export.shp"
+        borehole_collection.to_shape(outfile)
+        assert outfile.is_file()
+
+    @pytest.mark.unittest
+    def test_to_geopackage(self, borehole_collection, tmp_path):
+        outfile = tmp_path / r"test_export.gpkg"
+        borehole_collection.to_geopackage(outfile)
+        assert outfile.is_file()
+
+    @pytest.mark.unittest
+    def test_to_parquet(self, borehole_collection, tmp_path):
+        outfile = tmp_path / r"test_export.gpkg"
+        borehole_collection.to_parquet(outfile)
+        assert outfile.is_file()
+
+    @pytest.mark.unittest
+    def test_to_csv(self, borehole_collection, tmp_path):
+        outfile = tmp_path / r"test_export.gpkg"
+        borehole_collection.to_csv(outfile)
+        assert outfile.is_file()
+
     # @pytest.mark.integrationtest
     # def test_surface_level_update(self, borehole_collection, update_raster):
     #     borehole_collection.update_surface_level_from_raster(update_raster, how="replace")

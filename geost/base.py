@@ -1861,6 +1861,108 @@ class Collection(AbstractCollection):
         )
         return result
 
+    def to_geoparquet(self, outfile: str | WindowsPath, **kwargs):
+        """
+        Write header data to geoparquet. You can use the resulting file to display
+        borehole locations in GIS for instance. Please note that Geoparquet is supported
+        by GDAL >= 3.5. For Qgis this means QGis >= 3.26
+
+        Parameters
+        ----------
+        file : str | WindowsPath
+            Path to shapefile to be written.
+        **kwargs
+            gpd.GeoDataFrame.to_parquet kwargs. See relevant Pandas documentation.
+
+        """
+        self.header.to_geoparquet(outfile, **kwargs)
+
+    def to_shape(self, outfile: str | WindowsPath, **kwargs):
+        """
+        Write header data to shapefile. You can use the resulting file to display
+        borehole locations in GIS for instance.
+
+        Parameters
+        ----------
+        file : str | WindowsPath
+            Path to shapefile to be written.
+        **kwargs
+            gpd.GeoDataFrame.to_file kwargs. See relevant GeoPandas documentation.
+
+        """
+        self.header.to_shape(outfile, **kwargs)
+
+    def to_geopackage(self, outfile: str | WindowsPath, **kwargs):
+        """
+        Write header data to geopackage. You can use the resulting file to display
+        borehole locations in GIS for instance.
+
+        Parameters
+        ----------
+        file : str | WindowsPath
+            Path to geopackage to be written.
+        **kwargs
+            gpd.GeoDataFrame.to_file kwargs. See relevant GeoPandas documentation.
+
+        """
+        self.header.to_geopackage(outfile, **kwargs)
+
+    def to_parquet(self, outfile: str | WindowsPath, data_table: bool = True, **kwargs):
+        """
+        Export the data or header table to a parquet file. By default the data table is
+        exported.
+
+        Parameters
+        ----------
+        file : str | WindowsPath
+            Path to parquet file to be written.
+        data_table : bool, optional
+            If True, the data table is exported. If False, the header table is exported.
+        **kwargs
+            pd.DataFrame.to_parquet kwargs. See relevant Pandas documentation.
+
+        Examples
+        --------
+        Export the data table:
+        >>> collection.to_parquet("example.parquet")
+
+        Export the header table:
+        >>> collection.to_parquet("example.parquet", data_table=False)
+
+        """
+        if data_table:
+            self.data.to_parquet(outfile, **kwargs)
+        else:
+            self.header.to_parquet(outfile, **kwargs)
+
+    def to_csv(self, outfile: str | WindowsPath, data_table: bool = True, **kwargs):
+        """
+        Export the data or header table to a csv file. By default the data table is
+        exported.
+
+        Parameters
+        ----------
+        file : str | WindowsPath
+            Path to csv file to be written.
+        data_table : bool, optional
+            If True, the data table is exported. If False, the header table is exported.
+        **kwargs
+            pd.DataFrame.to_csv kwargs. See relevant Pandas documentation.
+
+        Examples
+        --------
+        Export the data table:
+        >>> collection.to_parquet("example.csv")
+
+        Export the header table:
+        >>> collection.to_parquet("example.csv", data_table=False)
+
+        """
+        if data_table:
+            self.data.to_csv(outfile, **kwargs)
+        else:
+            self.header.to_csv(outfile, **kwargs)
+
     def to_multiblock(
         self,
         data_columns: str | List[str],
