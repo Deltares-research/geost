@@ -78,8 +78,8 @@ class TestLayeredData:
 
         result = borehole_data.get_cumulative_layer_thickness("lith", ["Z", "K"])
         expected_boreholes_returned = ["A", "B", "C", "D", "E"]
-        expected_sand_thickness = [2.2, 0.0, 2.6, 0.5, 3.0]
-        expected_clay_thickness = [2.0, 2.0, 2.9, 1.1, 0.0]
+        expected_sand_thickness = [2.2, np.nan, 2.6, 0.5, 3.0]
+        expected_clay_thickness = [2.0, 2.0, 2.9, 1.1, np.nan]
 
         assert result.shape == (5, 2)
         assert_array_equal(result.index, expected_boreholes_returned)
