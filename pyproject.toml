@@ -93,6 +93,7 @@ sphinx = "*"
 sphinx-rtd-theme = "*"
 pip = ">=24.0,<25"
 rioxarray = ">=0.15.3,<0.16"
+xarray = ">=2024.9.0,<2024.10"
 
 [tool.pixi.tasks]
 install = "python -m pip install --no-deps --editable ."
