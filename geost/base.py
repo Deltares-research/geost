@@ -523,12 +523,13 @@ class LayeredData(AbstractData, PandasExportMixin):
 
     """
 
+    __datatype = "layered"
+
     def __init__(
         self,
         df: pd.DataFrame,
         has_inclined: bool = False,
     ):
-        self.datatype = "layered"
         self.has_inclined = has_inclined
         self.df = df
 
@@ -552,7 +553,7 @@ class LayeredData(AbstractData, PandasExportMixin):
 
     @property
     def datatype(self):
-        return self._datatype
+        return self.__datatype
 
     @df.setter
     @validate_data
@@ -561,14 +562,6 @@ class LayeredData(AbstractData, PandasExportMixin):
         Underlying pandas.DataFrame
         """
         self._df = df
-
-    @datatype.setter
-    def datatype(self, datatype):
-        if "datatype" in self.__dict__.keys():
-            # Make sure the datatype attr can only be set during init
-            raise Exception("Cannot change datatype of existing data object")
-        else:
-            self._datatype = datatype
 
     @staticmethod
     def _check_correct_instance(selection_values: str | Iterable) -> Iterable:
@@ -1228,8 +1221,9 @@ class LayeredData(AbstractData, PandasExportMixin):
 
 
 class DiscreteData(AbstractData, PandasExportMixin):
+    __datatype = "discrete"
+
     def __init__(self, df, has_inclined: bool = False):
-        self.__datatype = "discrete"
         self.has_inclined = has_inclined
         self.df = df
         raise NotImplementedError(f"{self.__class__.__name__} not supported yet")
