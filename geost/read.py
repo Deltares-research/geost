@@ -6,7 +6,7 @@ import numpy as np
 import pandas as pd
 from pyproj import CRS
 
-from geost.base import BoreholeCollection, CptCollection, LayeredData
+from geost.base import BoreholeCollection, CptCollection, LayeredData, PointHeader
 from geost.bro import BroApi
 from geost.io import _parse_cpt_gef_files
 from geost.io.parsers import SoilCore
@@ -29,6 +29,17 @@ GEOMETRY_TO_SELECTION_FUNCTION = {
     "Polygon": "select_within_polygons",
     "Line": "select_with_lines",
     "Point": "select_with_points",
+}
+
+
+LLG_COLUMN_MAPPING = {
+    "BOORP": "nr",
+    "XCO": "x",
+    "YCO": "y",
+    "MV_HoogteNAP": "surface",
+    "BoringEinddiepteNAP": "end",
+    "BEGIN_DIEPTE": "top",
+    "EIND_DIEPTE": "bottom",
 }
 
 
@@ -549,3 +560,59 @@ def get_bro_objects_from_geometry(
     collection.change_vertical_reference(vertical_reference)
 
     return collection
+
+
+def read_uullg_tables(
+    header_table: str | WindowsPath,
+    data_table: str | WindowsPath,
+    horizontal_reference: str | int | CRS = 28992,
+    vertical_reference: str | int | CRS = 5709,
+    **kwargs,
+) -> BoreholeCollection:
+    """
+    Read the header and data tables from UU-LLG boreholes (see: EasyDans KNAW) from a
+    local csv or parquet file into a GeoST BoreholeCollection object.
+
+    Reference dataset: https://easy.dans.knaw.nl/ui/datasets/id/easy-dataset:74935
+    See https://wikiwfs.geo.uu.nl/ for additional information.
+
+    Parameters
+    ----------
+    header_table : str | WindowsPath
+        Path to file of the UU-LLG header table.
+    data_table : str | WindowsPath
+        Path to file of the UU-LLG data table.
+    horizontal_reference : str | int | CRS, optional
+        EPSG of the data's horizontal reference. Takes anything that can be interpreted
+        by pyproj.crs.CRS.from_user_input(), by default 28992._description_, The default
+        is 28992.
+    vertical_reference : str | int | CRS, optional
+        EPSG of the data's vertical datum. Takes anything that can be interpreted by
+        pyproj.crs.CRS.from_user_input(). However, it must be a vertical datum. FYI:
+        "NAP" is EPSG 5709 and The Belgian reference system (Ostend height) is ESPG
+        5710. The default is 5709.
+
+    Returns
+    -------
+    :class:`~geost.borehole.BoreholeCollection`
+        Instance of :class:`~geost.borehole.BoreholeCollection` of the UU-LLG data.
+
+    """
+    header = __read_file(header_table, **kwargs)
+    data = __read_file(data_table, **kwargs)
+
+    header.rename(columns=LLG_COLUMN_MAPPING, inplace=True)
+    data.rename(columns=LLG_COLUMN_MAPPING, inplace=True)
+
+    header = header.astype({"nr": str})
+    data = data.astype({"nr": str})
+
+    header = dataframe_to_geodataframe(header).set_crs(horizontal_reference)
+
+    add_header_cols = [c for c in ["x", "y", "surface", "end"] if c not in data.columns]
+    if add_header_cols:
+        data = data.merge(header[["nr"] + add_header_cols], on="nr", how="left")
+
+    header = PointHeader(header, vertical_reference)
+    data = LayeredData(data)
+    return BoreholeCollection(header, data)

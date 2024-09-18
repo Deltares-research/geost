@@ -3,6 +3,7 @@ from geost.read import (
     get_bro_objects_from_geometry,
     read_borehole_table,
     read_nlog_cores,
+    read_uullg_tables,
 )
 
 # read_gef_cores,

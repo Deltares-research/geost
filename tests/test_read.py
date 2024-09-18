@@ -10,6 +10,7 @@ from geost import (
     get_bro_objects_from_geometry,
     read_borehole_table,
     read_nlog_cores,
+    read_uullg_tables,
 )
 from geost.base import BoreholeCollection, LayeredData
 from geost.read import (
@@ -17,6 +18,52 @@ from geost.read import (
     _check_mandatory_column_presence,
     adjust_z_coordinates,
 )
+
+
+@pytest.fixture
+def llg_header_table(tmp_path):
+    outfile = tmp_path / r"llg_header.parquet"
+    header = pd.DataFrame(
+        {
+            "BOORP": [1901, 1902],
+            "XCO": [1, 2],
+            "YCO": [1, 2],
+            "MV_HoogteNAP": [2.1, 1.9],
+            "BoringEinddiepteNAP": [1.7, 1.5],
+        }
+    )
+    header.to_parquet(outfile)
+    return outfile
+
+
+@pytest.fixture
+def llg_data_table(tmp_path):
+    outfile = tmp_path / r"llg_data.parquet"
+    data = pd.DataFrame(
+        {
+            "BOORP": [1901, 1901, 1902, 1902],
+            "BEGIN_DIEPTE": [0, 30, 0, 20],
+            "EIND_DIEPTE": [30, 40, 20, 40],
+            "TEXTUUR": ["ZK", "L", "Z", "K"],
+        }
+    )
+    data.to_parquet(outfile)
+    return outfile
+
+
+@pytest.fixture
+def llg_data_table_duplicate_column(tmp_path):
+    outfile = tmp_path / r"llg_data_dupl.parquet"
+    data = pd.DataFrame(
+        {
+            "nr": [1901, 1901, 1902, 1902],
+            "top": [0, 30, 0, 20],
+            "bottom": [30, 40, 20, 40],
+            "TEXTUUR": ["ZK", "L", "Z", "K"],
+        }
+    )
+    data.to_parquet(outfile)
+    return outfile
 
 
 class TestReaders:
@@ -150,3 +197,26 @@ class TestReaders:
         cores_df_adjusted = adjust_z_coordinates(cores_df.copy())
         assert cores_df_adjusted["top"].iloc[0] < cores_df_adjusted["top"].iloc[1]
         assert cores_df_adjusted["bottom"].iloc[0] < cores_df_adjusted["bottom"].iloc[1]
+
+
+@pytest.mark.unittest
+def test_read_uullg_table(
+    llg_header_table, llg_data_table, llg_data_table_duplicate_column
+):
+    llg = read_uullg_tables(llg_header_table, llg_data_table)
+    assert isinstance(llg, BoreholeCollection)
+    expected_header_cols = ["nr", "x", "y", "surface", "end"]
+    header_columns = llg.header.gdf.columns
+    assert all([c in header_columns for c in expected_header_cols])
+    expected_data_cols = ["nr", "x", "y", "surface", "end"]
+    data_columns = llg.data.df.columns
+    assert all([c in data_columns for c in expected_data_cols])
+
+    llg = read_uullg_tables(llg_header_table, llg_data_table_duplicate_column)
+    assert isinstance(llg, BoreholeCollection)
+    expected_header_cols = ["nr", "x", "y", "surface", "end"]
+    header_columns = llg.header.gdf.columns
+    assert all([c in header_columns for c in expected_header_cols])
+    expected_data_cols = ["nr", "x", "y", "surface", "end"]
+    data_columns = llg.data.df.columns
+    assert all([c in data_columns for c in expected_data_cols])
