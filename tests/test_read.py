@@ -9,15 +9,21 @@ from geost import (
     get_bro_objects_from_bbox,
     get_bro_objects_from_geometry,
     read_borehole_table,
+    read_gef_cpts,
     read_nlog_cores,
     read_uullg_tables,
 )
-from geost.base import BoreholeCollection, LayeredData
+from geost.base import BoreholeCollection, CptCollection, LayeredData
 from geost.read import (
     MANDATORY_LAYERED_DATA_COLUMNS,
     _check_mandatory_column_presence,
     adjust_z_coordinates,
 )
+
+
+@pytest.fixture
+def data_dir():
+    return Path(__file__).parent / "data"
 
 
 @pytest.fixture
@@ -220,3 +226,18 @@ def test_read_uullg_table(
     expected_data_cols = ["nr", "x", "y", "surface", "end"]
     data_columns = llg.data.df.columns
     assert all([c in data_columns for c in expected_data_cols])
+
+
+@pytest.mark.unittest
+def test_read_gef_cpts(data_dir):
+    files = Path(data_dir / "cpt").glob("*.gef")
+    cpts = read_gef_cpts(files)
+    assert isinstance(cpts, CptCollection)
+
+    expected_cpts_present = [
+        "DKMP_D03",
+        "AZZ158",
+        "CPT000000157983",
+        "YANGTZEHAVEN CPT 10",
+    ]
+    assert_array_equal(cpts.header['nr'], expected_cpts_present)

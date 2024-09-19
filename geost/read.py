@@ -6,7 +6,13 @@ import numpy as np
 import pandas as pd
 from pyproj import CRS
 
-from geost.base import BoreholeCollection, CptCollection, LayeredData, PointHeader
+from geost.base import (
+    BoreholeCollection,
+    CptCollection,
+    DiscreteData,
+    LayeredData,
+    PointHeader,
+)
 from geost.bro import BroApi
 from geost.io import _parse_cpt_gef_files
 from geost.io.parsers import SoilCore
@@ -385,26 +391,23 @@ def read_gef_cores(file_or_folder: str | WindowsPath) -> BoreholeCollection:
 
 def read_gef_cpts(file_or_folder: str | WindowsPath) -> CptCollection:
     """
-    Read gef files of CPT data into a geost CptCollection.
+    Read one or more GEF files of CPT data into a geost CptCollection.
 
     Parameters
     ----------
     file_or_folder : str | WindowsPath
-        DESCRIPTION.
-    use_pygef : Boolean, optional
-        If True, the gef reader from pygef (external) is used. If False, the geost
-        gef reader is used. The default is False.
+        GEF files to read.
 
     Returns
     -------
-    CptCollection
-        DESCRIPTION.
+    :class:`~geost.base.CptCollection`
+        :class:`~geost.base.CptCollection` of the GEF file(s).
 
     """
     data = _parse_cpt_gef_files(file_or_folder)
     df = pd.concat(data)
 
-    return CptCollection(df)
+    return DiscreteData(df).to_collection()
 
 
 def read_xml_cpts(file_or_folder: str | WindowsPath) -> CptCollection:
