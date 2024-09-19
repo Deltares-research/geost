@@ -13,6 +13,10 @@ from geost.export import geodataclass
 
 class TestLayeredData:
     @pytest.mark.unittest
+    def test_datatype(self, borehole_data):
+        assert borehole_data.datatype == "layered"
+
+    @pytest.mark.unittest
     def test_to_header(self, borehole_data):
         expected_columns = ["nr", "x", "y", "surface", "end", "geometry"]
 
@@ -22,6 +26,8 @@ class TestLayeredData:
         assert_array_equal(header.gdf.columns, expected_columns)
         assert len(header.gdf) == 5
         assert header["nr"].nunique() == 5
+        assert header.horizontal_reference == 28992
+        assert header.vertical_reference == 5709
 
     @pytest.mark.unittest
     def test_to_collection(self, borehole_data):
@@ -192,7 +198,7 @@ class TestLayeredData:
             borehole_data["lith"] == "V", invert=True
         )
         assert len(selected) == 21
-        assert ~np.all(selected['lith']=='V')
+        assert ~np.all(selected["lith"] == "V")
 
     @pytest.mark.unittest
     def test_to_multiblock(self, borehole_data):
@@ -401,3 +407,23 @@ class TestLayeredData:
         borehole_data.to_parquet(outfile)
         assert outfile.is_file()
         outfile.unlink()
+
+
+class TestDiscreteData:
+    @pytest.mark.unittest
+    def test_datatype(self, cpt_data):
+        assert cpt_data.datatype == "discrete"
+
+    @pytest.mark.unittest
+    def test_to_header(self, cpt_data):
+        header = cpt_data.to_header()
+        expected_columns = ["nr", "x", "y", "surface", "end", "geometry"]
+
+        header = cpt_data.to_header()
+
+        assert isinstance(header, PointHeader)
+        assert_array_equal(header.gdf.columns, expected_columns)
+        assert len(header.gdf) == 2
+        assert header["nr"].nunique() == 2
+        assert header.horizontal_reference == 28992
+        assert header.vertical_reference == 5709

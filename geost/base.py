@@ -1236,12 +1236,53 @@ class DiscreteData(AbstractData, PandasExportMixin):
     def df(self, df):
         self._df = df
 
+    def __repr__(self):
+        name = self.__class__.__name__
+        data = self._df
+        return f"{name} instance:\n{data}"
+
+    def __getitem__(self, column):
+        return self.df[column]
+
+    def __setitem__(self, column, item):
+        self.df.loc[:, column] = item
+
+    def __len__(self):
+        return len(self.df)
+
     @property
     def datatype(self):
         return self.__datatype
 
-    def to_header(self):
-        raise NotImplementedError()
+    def to_header(
+        self,
+        horizontal_reference: str | int | CRS = 28992,
+        vertical_reference: str | int | CRS = 5709,
+    ):
+        """
+        Generate a :class:`~geost.base.PointHeader` from this instance of DiscreteData.
+
+        Parameters
+        ----------
+        horizontal_reference : str | int | CRS, optional
+            EPSG of the target crs. Takes anything that can be interpreted by
+            pyproj.crs.CRS.from_user_input(), by default 28992.
+        vertical_reference : str | int | CRS, optional
+            EPSG of the target vertical datum. Takes anything that can be interpreted by
+            pyproj.crs.CRS.from_user_input(). However, it must be a vertical datum. FYI:
+            "NAP" is EPSG 5709 and The Belgian reference system (Ostend height) is ESPG
+            5710, by default 5709.
+
+        Returns
+        -------
+        :class:`~geost.base.PointHeader`
+            An instance of :class:`~geost.base.PointHeader`
+
+        """
+        header_columns = ["nr", "x", "y", "surface", "end"]
+        header = self[header_columns].drop_duplicates("nr").reset_index(drop=True)
+        header = dataframe_to_geodataframe(header).set_crs(horizontal_reference)
+        return PointHeader(header, vertical_reference)
 
     def to_collection(self):
         raise NotImplementedError()
