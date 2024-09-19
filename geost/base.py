@@ -1284,8 +1284,35 @@ class DiscreteData(AbstractData, PandasExportMixin):
         header = dataframe_to_geodataframe(header).set_crs(horizontal_reference)
         return PointHeader(header, vertical_reference)
 
-    def to_collection(self):
-        raise NotImplementedError()
+    def to_collection(
+        self,
+        horizontal_reference: str | int | CRS = 28992,
+        vertical_reference: str | int | CRS = 5709,
+    ):
+        """
+        Create a collection from this instance of DiscreteData. A collection combines
+        header and data and ensures that they remain aligned when applying methods.
+
+        Parameters
+        ----------
+        horizontal_reference : str | int | CRS, optional
+            EPSG of the target crs. Takes anything that can be interpreted by
+            pyproj.crs.CRS.from_user_input(), by default 28992.
+        vertical_reference : str | int | CRS, optional
+            EPSG of the target vertical datum. Takes anything that can be interpreted by
+            pyproj.crs.CRS.from_user_input(). However, it must be a vertical datum. FYI:
+            "NAP" is EPSG 5709 and The Belgian reference system (Ostend height) is ESPG
+            5710, by default 5709.
+
+        Returns
+        -------
+        :class:`~geost.base.Collection`
+            An instance of :class:`~geost.base.Collection`
+        """
+        header = self.to_header(horizontal_reference, vertical_reference)
+        return CptCollection(
+            header, self
+        )  # TODO: type of Collection needs to be inferred in the future
 
     def select_by_values(self):
         raise NotImplementedError()
@@ -2383,8 +2410,16 @@ class BoreholeCollection(Collection):
 
 
 class CptCollection(Collection):
-    pass
+    def get_cumulative_layer_thickness(self):
+        raise NotImplementedError()
+
+    def get_layer_top(self):
+        raise NotImplementedError()
 
 
 class LogCollection(Collection):
-    pass
+    def get_cumulative_layer_thickness(self):
+        raise NotImplementedError()
+
+    def get_layer_top(self):
+        raise NotImplementedError()

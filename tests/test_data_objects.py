@@ -7,7 +7,7 @@ from numpy.testing import assert_array_almost_equal, assert_array_equal
 from pyvista import MultiBlock
 from shapely import get_coordinates
 
-from geost.base import BoreholeCollection, PointHeader
+from geost.base import BoreholeCollection, CptCollection, PointHeader
 from geost.export import geodataclass
 
 
@@ -427,3 +427,10 @@ class TestDiscreteData:
         assert header["nr"].nunique() == 2
         assert header.horizontal_reference == 28992
         assert header.vertical_reference == 5709
+
+    @pytest.mark.unittest
+    def test_to_collection(self, cpt_data):
+        collection = cpt_data.to_collection()
+        assert isinstance(collection, CptCollection)
+        assert isinstance(collection.header, PointHeader)
+        assert len(collection.header) == 2
