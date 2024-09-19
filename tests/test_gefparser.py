@@ -1,8 +1,10 @@
-import pytest
-import numpy as np
 from pathlib import Path
 from typing import NamedTuple
+
+import numpy as np
+import pytest
 from numpy.testing import assert_array_almost_equal
+
 from geost.io.parsers import CptGefFile
 from geost.io.parsers.gef_parsers import ColumnInfo
 
