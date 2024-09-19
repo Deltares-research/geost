@@ -1226,7 +1226,6 @@ class DiscreteData(AbstractData, PandasExportMixin):
     def __init__(self, df, has_inclined: bool = False):
         self.has_inclined = has_inclined
         self.df = df
-        raise NotImplementedError(f"{self.__class__.__name__} not supported yet")
 
     @property
     def df(self):
@@ -1236,6 +1235,10 @@ class DiscreteData(AbstractData, PandasExportMixin):
     @validate_data
     def df(self, df):
         self._df = df
+
+    @property
+    def datatype(self):
+        return self.__datatype
 
     def to_header(self):
         raise NotImplementedError()
@@ -1265,6 +1268,9 @@ class DiscreteData(AbstractData, PandasExportMixin):
         raise NotImplementedError()
 
     def to_datafusiontools(self):
+        raise NotImplementedError()
+
+    def to_multiblock(self):
         raise NotImplementedError()
 
 
