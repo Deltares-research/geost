@@ -265,7 +265,7 @@ def read_cpt_table(
     Parameters
     ----------
     file : str | WindowsPath
-        _description_
+        File with the CPT information to read.
     horizontal_reference : str | int | CRS, optional
         EPSG of the data's horizontal reference. Takes anything that can be interpreted
         by pyproj.crs.CRS.from_user_input(). The default is 28992.
