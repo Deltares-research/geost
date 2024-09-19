@@ -9,11 +9,12 @@ from geost import (
     get_bro_objects_from_bbox,
     get_bro_objects_from_geometry,
     read_borehole_table,
+    read_cpt_table,
     read_gef_cpts,
     read_nlog_cores,
     read_uullg_tables,
 )
-from geost.base import BoreholeCollection, CptCollection, LayeredData
+from geost.base import BoreholeCollection, CptCollection, DiscreteData, LayeredData
 from geost.read import (
     MANDATORY_LAYERED_DATA_COLUMNS,
     _check_mandatory_column_presence,
@@ -137,17 +138,16 @@ class TestReaders:
         assert soilcores.n_points == 7
 
     @pytest.mark.unittest
-    def test_get_bro_soil_cores_from_geometry(self):
+    def test_get_bro_soil_cores_from_geometry(self, data_dir):
         soilcores = get_bro_objects_from_geometry(
-            "BHR-P",
-            Path(__file__).parent / "data/test_polygon.parquet",
+            "BHR-P", data_dir / "test_polygon.parquet"
         )
         assert soilcores.n_points == 1
 
     @pytest.mark.unittest
-    def test_read_borehole_table(self):
-        file_pq = Path(__file__).parent / r"data/test_borehole_table.parquet"
-        file_csv = Path(__file__).parent / r"data/test_borehole_table.csv"
+    def test_read_borehole_table(self, data_dir):
+        file_pq = data_dir / r"test_borehole_table.parquet"
+        file_csv = data_dir / r"test_borehole_table.csv"
         cores_pq = read_borehole_table(file_pq)
         cores_csv = read_borehole_table(file_csv)
         assert isinstance(cores_pq, BoreholeCollection)
@@ -159,8 +159,8 @@ class TestReaders:
         assert isinstance(cores_csv, LayeredData)
 
     @pytest.mark.unittest
-    def test_read_inclined_borehole_table(self):
-        file_pq = Path(__file__).parent / r"data/test_inclined_borehole_table.parquet"
+    def test_read_inclined_borehole_table(self, data_dir):
+        file_pq = data_dir / r"test_inclined_borehole_table.parquet"
         cores_pq = read_borehole_table(file_pq, has_inclined=True)
         assert isinstance(cores_pq, BoreholeCollection)
 
@@ -186,8 +186,8 @@ class TestReaders:
         assert_array_equal(table_wrong_columns.columns, MANDATORY_LAYERED_DATA_COLUMNS)
 
     @pytest.mark.unittest
-    def test_adjust_z_coordinates(self):
-        file = Path(__file__).parent / r"data/test_borehole_table.parquet"
+    def test_adjust_z_coordinates(self, data_dir):
+        file = data_dir / r"test_borehole_table.parquet"
         cores = read_borehole_table(file, as_collection=False)
         cores_df = cores.df.copy()
 
@@ -240,4 +240,16 @@ def test_read_gef_cpts(data_dir):
         "CPT000000157983",
         "YANGTZEHAVEN CPT 10",
     ]
-    assert_array_equal(cpts.header['nr'], expected_cpts_present)
+    assert_array_equal(cpts.header["nr"], expected_cpts_present)
+
+
+@pytest.mark.unittest
+def test_read_cpt_table(data_dir, monkeypatch):
+    monkeypatch.setattr("builtins.input", lambda _: "mv")
+    cpts = read_cpt_table(data_dir / r"test_cpts.parquet")
+    assert isinstance(cpts, CptCollection)
+    assert cpts.horizontal_reference == 28992
+    assert cpts.vertical_reference == 5709
+
+    cpts = read_cpt_table(data_dir / r"test_cpts.parquet", as_collection=False)
+    assert isinstance(cpts, DiscreteData)

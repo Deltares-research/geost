@@ -152,9 +152,9 @@ def read_borehole_table(
     **kwargs,
 ) -> BoreholeCollection:
     """
-    Read tabular borehole information information. This is a file (parquet, csv or
-    Excel) that includes row data for each (borehole) layer and must at least include
-    the following column headers:
+    Read tabular borehole information. This is a file (parquet, csv or Excel) that
+    includes row data for each (borehole) layer and must at least include the following
+    column headers:
 
     nr      - Object id
     x       - X-coordinates according to the given horizontal_reference
@@ -180,14 +180,14 @@ def read_borehole_table(
         Pandas read function will be called. This can be either pandas.read_parquet,
         pandas.read_csv or pandas.read_excel. The **kwargs that can be given to this
         function will be passed to the selected Panda's read function.
-    horizontal_reference (int): Horizontal reference, see
-        EPSG of the data's coordinate reference system. Takes anything that can be
-        interpreted by pyproj.crs.CRS.from_user_input().
-    vertical_reference: str | int | CRS
+    horizontal_reference : str | int | CRS, optional
+        EPSG of the data's horizontal reference. Takes anything that can be interpreted
+        by pyproj.crs.CRS.from_user_input(). The default is 28992.
+    vertical_reference : str | int | CRS, optional
         EPSG of the data's vertical datum. Takes anything that can be interpreted by
         pyproj.crs.CRS.from_user_input(). However, it must be a vertical datum. FYI:
         "NAP" is EPSG 5709 and The Belgian reference system (Ostend height) is ESPG
-        5710.
+        5710. The default is 5709.
     has_inclined : bool, optional
         If True, the borehole data table contains inclined boreholes. The default is False.
     as_collection : bool, optional
@@ -242,37 +242,70 @@ def read_borehole_table(
     return boreholes
 
 
-def read_sst_cpts(
+def read_cpt_table(
     file: str | WindowsPath,
     horizontal_reference: str | int | CRS = 28992,
     vertical_reference: str | int | CRS = 5709,
+    as_collection: bool = True,
+    column_mapper: dict = None,
+    **kwargs,
 ) -> CptCollection:
     """
-    Read Subsurface Toolbox native parquet file with cpt information.
+    Read tabular CPT information. This is a file (parquet, csv or Excel) that includes
+    row data for each CPT depth interval and must at least include the following header
+    information as columns:
+
+    nr      - Object id
+    x       - X-coordinates according to the given horizontal_reference
+    y       - Y-coordinates according to the given horizontal_reference
+    surface - Surface elevation according to the given vertical_reference
+    end     - End depth according to the given vertical_reference
+    depth   - Depth in meters below the surface
 
     Parameters
     ----------
     file : str | WindowsPath
-        Path to file to be read.
-    vertical_reference: str
-        Which vertical reference is used for tops and bottoms. See
-        :py:attr:`~geost.base.PointDataCollection.vertical_reference` for documentation
-        of this attribute.
-    horizontal_reference (int): Horizontal reference, see
-        :py:attr:`~geost.base.PointDataCollection.horizontal_reference`
+        _description_
+    horizontal_reference : str | int | CRS, optional
+        EPSG of the data's horizontal reference. Takes anything that can be interpreted
+        by pyproj.crs.CRS.from_user_input(). The default is 28992.
+    vertical_reference : str | int | CRS, optional
+        EPSG of the data's vertical datum. Takes anything that can be interpreted by
+        pyproj.crs.CRS.from_user_input(). However, it must be a vertical datum. FYI:
+        "NAP" is EPSG 5709 and The Belgian reference system (Ostend height) is ESPG
+        5710. The default is 5709.
+    as_collection : bool, optional
+        If True, the CPT table will be read as a :class:`~geost.base.Collection`
+        which includes a header object and spatial selection functionality. If False,
+        a :class:`~geost.base.DiscreteData` object is returned. The default is True.
+    column_mapper: dict, optional
+        If the file to be read uses different column names than the ones given in the
+        description above, you can use a dictionary mapping to translate the column
+        names to the required format. column_mapper is None by default, in which case
+        the user is asked for input if not all required columns are encountered in the
+        file.
+    kwargs: optional
+        Optional keyword arguments for Pandas.read_parquet, Pandas.read_csv or
+        Pandas.read_excel.
 
     Returns
     -------
-    :class:`~geost.borehole.CptCollection`
-        Instance of :class:`~geost.borehole.CptCollection`.
+    :class:`~geost.base.CptCollection`
+        Instance of :class:`~geost.base.CptCollection`.
+
     """
     filepath = Path(file)
-    sst_cpts = __read_file(filepath)
-    return CptCollection(
-        sst_cpts,
-        vertical_reference=vertical_reference,
-        horizontal_reference=horizontal_reference,
+    cpts = __read_file(filepath, **kwargs)
+
+    cpts = _check_mandatory_column_presence(
+        cpts, MANDATORY_DISCRETE_DATA_COLUMNS, column_mapper
     )
+    cpts = DiscreteData(cpts)
+
+    if as_collection:
+        cpts = cpts.to_collection(horizontal_reference, vertical_reference)
+
+    return cpts
 
 
 def read_nlog_cores(file: str | WindowsPath) -> BoreholeCollection:
@@ -444,14 +477,14 @@ def get_bro_objects_from_bbox(
         minimal y-coordinate of the bounding box
     ymax : int | float
         maximal y-coordinate of the bounding box
-    horizontal_reference : int, optional
-        EPSG of the desiredcrs. Takes anything that can be interpreted by
-        pyproj.crs.CRS.from_user_input().
-    vertical_reference : str, optional
-        EPSG of the desired vertical datum. Takes anything that can be interpreted by
+    horizontal_reference : str | int | CRS, optional
+        EPSG of the data's horizontal reference. Takes anything that can be interpreted
+        by pyproj.crs.CRS.from_user_input(). The default is 28992.
+    vertical_reference : str | int | CRS, optional
+        EPSG of the data's vertical datum. Takes anything that can be interpreted by
         pyproj.crs.CRS.from_user_input(). However, it must be a vertical datum. FYI:
         "NAP" is EPSG 5709 and The Belgian reference system (Ostend height) is ESPG
-        5710.
+        5710. The default is 5709.
 
     Returns
     -------
@@ -510,14 +543,14 @@ def get_bro_objects_from_geometry(
     buffer : int | float, optional
         Buffer distance. Required to be larger than 0 for line and point geometries.
         Adds an extra buffer zone around a polygon to select from, by default 0
-    horizontal_reference : int, optional
-        EPSG of the desiredcrs. Takes anything that can be interpreted by
-        pyproj.crs.CRS.from_user_input().
-    vertical_reference : str, optional
-        EPSG of the desired vertical datum. Takes anything that can be interpreted by
+    horizontal_reference : str | int | CRS, optional
+        EPSG of the data's horizontal reference. Takes anything that can be interpreted
+        by pyproj.crs.CRS.from_user_input(). The default is 28992.
+    vertical_reference : str | int | CRS, optional
+        EPSG of the data's vertical datum. Takes anything that can be interpreted by
         pyproj.crs.CRS.from_user_input(). However, it must be a vertical datum. FYI:
         "NAP" is EPSG 5709 and The Belgian reference system (Ostend height) is ESPG
-        5710.
+        5710. The default is 5709.
 
     Returns
     -------
@@ -587,8 +620,7 @@ def read_uullg_tables(
         Path to file of the UU-LLG data table.
     horizontal_reference : str | int | CRS, optional
         EPSG of the data's horizontal reference. Takes anything that can be interpreted
-        by pyproj.crs.CRS.from_user_input(), by default 28992._description_, The default
-        is 28992.
+        by pyproj.crs.CRS.from_user_input(). The default is 28992.
     vertical_reference : str | int | CRS, optional
         EPSG of the data's vertical datum. Takes anything that can be interpreted by
         pyproj.crs.CRS.from_user_input(). However, it must be a vertical datum. FYI:
@@ -597,8 +629,8 @@ def read_uullg_tables(
 
     Returns
     -------
-    :class:`~geost.borehole.BoreholeCollection`
-        Instance of :class:`~geost.borehole.BoreholeCollection` of the UU-LLG data.
+    :class:`~geost.base.BoreholeCollection`
+        Instance of :class:`~geost.base.BoreholeCollection` of the UU-LLG data.
 
     """
     header = __read_file(header_table, **kwargs)

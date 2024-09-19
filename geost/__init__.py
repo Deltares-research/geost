@@ -2,13 +2,13 @@ from geost.read import (
     get_bro_objects_from_bbox,
     get_bro_objects_from_geometry,
     read_borehole_table,
+    read_cpt_table,
     read_gef_cpts,
     read_nlog_cores,
     read_uullg_tables,
 )
 
 # read_gef_cores,
-# read_sst_cpts,
 # read_xml_cpts,
 # read_xml_geological_cores,
 # read_xml_geotechnical_cores,
