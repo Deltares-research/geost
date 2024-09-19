@@ -87,8 +87,8 @@ def check_and_coerce_crs(gdf: gpd.GeoDataFrame, to_crs: int):
 def select_points_within_bbox(
     gdf: str | WindowsPath | gpd.GeoDataFrame,
     xmin: float | int,
-    xmax: float | int,
     ymin: float | int,
+    xmax: float | int,
     ymax: float | int,
     invert: bool = False,
 ) -> gpd.GeoDataFrame:
@@ -101,10 +101,10 @@ def select_points_within_bbox(
         Geodataframe (or file that can be parsed to a geodataframe) to select from.
     xmin : float | int
         Minimum x-coordinate of the bounding box.
-    xmax : float | int
-        Maximum x-coordinate of the bounding box.
     ymin : float | int
         Minimum y-coordinate of the bounding box.
+    xmax : float | int
+        Maximum x-coordinate of the bounding box.
     ymax : float | int
         Maximum y-coordinate of the bounding box.
     invert : bool, optional

@@ -202,8 +202,8 @@ class PointHeader(AbstractHeader, GeopandasExportMixin):
     def select_within_bbox(
         self,
         xmin: Coordinate,
-        xmax: Coordinate,
         ymin: Coordinate,
+        xmax: Coordinate,
         ymax: Coordinate,
         invert: bool = False,
     ):
@@ -214,10 +214,10 @@ class PointHeader(AbstractHeader, GeopandasExportMixin):
         ----------
         xmin : float | int
             Minimum x-coordinate of the bounding box.
-        xmax : float | int
-            Maximum x-coordinate of the bounding box.
         ymin : float | int
             Minimum y-coordinate of the bounding box.
+        xmax : float | int
+            Maximum x-coordinate of the bounding box.
         ymax : float | int
             Maximum y-coordinate of the bounding box.
         invert : bool, optional
@@ -231,7 +231,7 @@ class PointHeader(AbstractHeader, GeopandasExportMixin):
             geometries.
         """
         gdf_selected = spatial.select_points_within_bbox(
-            self.gdf, xmin, xmax, ymin, ymax, invert=invert
+            self.gdf, xmin, ymin, xmax, ymax, invert=invert
         )
         return self.__class__(gdf_selected, self.vertical_reference)
 
@@ -1314,8 +1314,62 @@ class DiscreteData(AbstractData, PandasExportMixin):
             header, self
         )  # TODO: type of Collection needs to be inferred in the future
 
-    def select_by_values(self):
-        raise NotImplementedError()
+    def select_by_values(
+        self, column: str, selection_values: str | Iterable, how: str = "or"
+    ):
+        """
+        Select data based on the presence of given values in a given column. Can be used
+        for example to select boreholes that contain peat in the lithology column.
+
+        Parameters
+        ----------
+        column : str
+            Name of column that contains categorical data to use when looking for
+            values.
+        selection_values : str | Iterable
+            Value or values to look for in the column.
+        how : str, optional
+            Either "and" or "or". "and" requires all selection values to be present in
+            column for selection. "or" will select the core if any one of the
+            selection_values are found in the column. Default is "and".
+
+        Returns
+        -------
+        :class:`~geost.base.DiscreteData`
+            New instance containing only the data selected by this method.
+
+        Examples
+        --------
+        To select boreholes where both clay ("K") and peat ("V") are present at the same
+        time, use "and" as a selection method:
+
+        >>> boreholes.select_by_values("lith", ["V", "K"], how="and")
+
+        To select boreholes that can have one, or both lithologies, use or as the selection
+        method:
+
+        >>> boreholes.select_by_values("lith", ["V", "K"], how="and")
+
+        """
+        if column not in self.df.columns:
+            raise IndexError(
+                f"The column '{column}' does not exist and cannot be used for selection"
+            )
+
+        if isinstance(selection_values, str):
+            selection_values = [selection_values]
+
+        selected = self.df
+        if how == "or":
+            valid = self["nr"][self[column].isin(selection_values)].unique()
+            selected = selected[selected["nr"].isin(valid)]
+
+        elif how == "and":
+            for value in selection_values:
+                valid = self["nr"][self[column] == value].unique()
+                selected = selected[selected["nr"].isin(valid)]
+
+        return self.__class__(selected, self.has_inclined)
 
     def slice_depth_interval(self):
         raise NotImplementedError()
@@ -1602,8 +1656,8 @@ class Collection(AbstractCollection):
     def select_within_bbox(
         self,
         xmin: Coordinate,
-        xmax: Coordinate,
         ymin: Coordinate,
+        xmax: Coordinate,
         ymax: Coordinate,
         invert: bool = False,
     ):
@@ -1614,10 +1668,10 @@ class Collection(AbstractCollection):
         ----------
         xmin : float | int
             Minimum x-coordinate of the bounding box.
-        xmax : float | int
-            Maximum x-coordinate of the bounding box.
         ymin : float | int
             Minimum y-coordinate of the bounding box.
+        xmax : float | int
+            Maximum x-coordinate of the bounding box.
         ymax : float | int
             Maximum y-coordinate of the bounding box.
         invert : bool, optional
@@ -1632,7 +1686,7 @@ class Collection(AbstractCollection):
             Collection, you will get an instance of a Collection back.
         """
         header_selected = self.header.select_within_bbox(
-            xmin, xmax, ymin, ymax, invert=invert
+            xmin, ymin, xmax, ymax, invert=invert
         )
         data_selected = self.data.select_by_values("nr", header_selected["nr"].unique())
         return self.__class__(header_selected, data_selected)

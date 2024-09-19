@@ -53,9 +53,9 @@ class TestHeaders:
     @pytest.mark.unittest
     def test_select_within_bbox(self, point_header_gdf):
         point_header = PointHeader(point_header_gdf, "NAP")
-        point_header_sel = point_header.select_within_bbox(1, 3, 1, 3)
+        point_header_sel = point_header.select_within_bbox(1, 1, 3, 3)
         point_header_sel_inverted = point_header.select_within_bbox(
-            1, 3, 1, 3, invert=True
+            1, 1, 3, 3, invert=True
         )
         assert len(point_header_sel) == 9
         assert len(point_header_sel_inverted) == 16

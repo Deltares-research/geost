@@ -7,7 +7,13 @@ from numpy.testing import assert_array_almost_equal, assert_array_equal
 from pyvista import MultiBlock
 from shapely import get_coordinates
 
-from geost.base import BoreholeCollection, CptCollection, PointHeader
+from geost.base import (
+    BoreholeCollection,
+    CptCollection,
+    DiscreteData,
+    LayeredData,
+    PointHeader,
+)
 from geost.export import geodataclass
 
 
@@ -39,10 +45,10 @@ class TestLayeredData:
     @pytest.mark.unittest
     def test_select_by_values(self, borehole_data):
         selected = borehole_data.select_by_values("lith", ["V", "K"], how="or")
+        assert isinstance(selected, LayeredData)
 
         expected_nrs = ["A", "B", "C", "D"]
         selected_nrs = selected["nr"].unique()
-
         assert_array_equal(selected_nrs, expected_nrs)
 
         selected = borehole_data.select_by_values("lith", ["V", "K"], how="and")
@@ -55,6 +61,7 @@ class TestLayeredData:
     @pytest.mark.unittest
     def test_slice_by_values(self, borehole_data):
         sliced = borehole_data.slice_by_values("lith", "Z")
+        assert isinstance(sliced, LayeredData)
 
         expected_boreholes_with_sand = ["A", "C", "D", "E"]
         expected_length = 10
@@ -117,6 +124,7 @@ class TestLayeredData:
         # Test slicing with respect to depth below the surface.
         upper, lower = 0.6, 2.4
         sliced = borehole_data.slice_depth_interval(upper, lower)
+        assert isinstance(sliced, LayeredData)
 
         layers_per_borehole = sliced["nr"].value_counts()
         expected_layer_count = [3, 3, 3, 3, 2]
@@ -189,6 +197,8 @@ class TestLayeredData:
     @pytest.mark.unittest
     def test_select_by_condition(self, borehole_data):
         selected = borehole_data.select_by_condition(borehole_data["lith"] == "V")
+        assert isinstance(selected, LayeredData)
+
         expected_nrs = ["B", "D"]
         assert_array_equal(selected["nr"].unique(), expected_nrs)
         assert np.all(selected["lith"] == "V")
@@ -314,20 +324,7 @@ class TestLayeredData:
         )
         assert_array_almost_equal(
             out_tddata["MD"],
-            np.array(
-                [
-                    0,
-                    1,
-                    0,
-                    1,
-                    0,
-                    1,
-                    0,
-                    1,
-                    0,
-                    1,
-                ]
-            ),
+            np.array([0, 1, 0, 1, 0, 1, 0, 1, 0, 1]),
         )
         assert_array_almost_equal(
             out_tddata["TWT"],
@@ -434,3 +431,10 @@ class TestDiscreteData:
         assert isinstance(collection, CptCollection)
         assert isinstance(collection.header, PointHeader)
         assert len(collection.header) == 2
+
+    @pytest.mark.unittest
+    def test_select_by_values(self, cpt_data):
+        selected = cpt_data.select_by_values("nr", "a")
+        assert isinstance(selected, DiscreteData)
+        assert len(selected) == 10
+        assert_array_equal(selected["nr"].unique(), "a")

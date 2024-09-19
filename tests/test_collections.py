@@ -191,7 +191,7 @@ class TestCollection:
     @pytest.mark.unittest
     def test_select_within_bbox(self, borehole_collection):
         borehole_collection_selected = borehole_collection.select_within_bbox(
-            1.5, 3.5, 1.5, 5
+            1.5, 1.5, 3.5, 5
         )
         # The selection results boreholes 'A' and 'D'
         assert all(borehole_collection_selected.header.gdf["nr"].unique() == ["A", "D"])
