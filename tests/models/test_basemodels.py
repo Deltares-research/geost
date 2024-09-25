@@ -27,23 +27,47 @@ class TestVoxelModel:
         # TODO: Make sure an input DataArray becomes a Dataset which is needed by all methods.
 
     @pytest.mark.unittest
-    def test_resolution(self, voxelmodel):
-        resolution = voxelmodel.resolution
-        assert resolution == (1, 1, 0.5)
+    def test_attributes(self, voxelmodel):
+        assert voxelmodel.sizes == {"y": 4, "x": 4, "z": 4}
+        assert voxelmodel.shape == (4, 4, 4)
+        assert voxelmodel.resolution == (1, 1, 0.5)
+        assert voxelmodel.horizontal_bounds == (0, 0, 4, 4)
+        assert voxelmodel.vertical_bounds == (0, 2)
+        assert voxelmodel.crs == 28992
+        assert_array_equal(voxelmodel.variables, ["strat", "lith"])
+        assert voxelmodel.xmin == 0
+        assert voxelmodel.ymin == 0
+        assert voxelmodel.xmax == 4
+        assert voxelmodel.ymax == 4
+        assert voxelmodel.zmin == 0
+        assert voxelmodel.zmax == 2
 
     @pytest.mark.unittest
-    def test_horizontal_bounds(self, voxelmodel):
-        bounds = voxelmodel.horizontal_bounds
-        assert bounds == (0, 0, 4, 4)
+    def test_select(self, voxelmodel):
+        ## Select exact coordinates
+        selected = voxelmodel.select(x=[1.5, 2.5])
+        assert isinstance(selected, VoxelModel)
+        assert selected.shape == (4, 2, 4)
+
+        ## Other selections
+        selected = voxelmodel.select(x=[1.7, 2.3], method="nearest")
+        assert selected.shape == (4, 2, 4)
+        assert_array_equal(selected["x"], [1.5, 2.5])
+
+        selected = voxelmodel.select(x=slice(0.1, 2.5))
+        assert selected.shape == (4, 3, 4)
+        assert_array_equal(selected["x"], [0.5, 1.5, 2.5])
 
     @pytest.mark.unittest
-    def test_vertical_bounds(self, voxelmodel):
-        bounds = voxelmodel.vertical_bounds
-        assert bounds == (0, 2)
+    def test_select_index(self, voxelmodel):
+        selected = voxelmodel.select_index(x=[0, 2])
+        assert isinstance(selected, VoxelModel)
+        assert selected.shape == (4, 2, 4)
+        assert_array_equal(selected["x"], [0.5, 2.5])
 
-    @pytest.mark.unittest
-    def test_crs(self, voxelmodel):
-        voxelmodel.crs == 28992
+        selected = voxelmodel.select_index(x=slice(0, 2))
+        assert selected.shape == (4, 2, 4)
+        assert_array_equal(selected["x"], [0.5, 1.5])
 
     @pytest.mark.unittest
     def test_select_with_points(self, voxelmodel, borehole_collection):
