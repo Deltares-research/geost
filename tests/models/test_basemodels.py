@@ -1,4 +1,5 @@
 import pytest
+from numpy.testing import assert_array_equal
 
 from geost.models.basemodels import VoxelModel
 
@@ -28,3 +29,11 @@ class TestVoxelModel:
     @pytest.mark.unittest
     def test_crs(self, voxelmodel):
         voxelmodel.crs == 28992
+
+    @pytest.mark.unittest
+    def test_select_with_points(self, voxelmodel, borehole_collection):
+        points = borehole_collection.header.gdf
+        select = voxelmodel.select_with_points(points)
+        assert select.sizes == {"idx": 4, "z": 4}
+        assert_array_equal(select["idx"], [0, 1, 2, 4])
+        assert_array_equal(select.data_vars, ['strat', 'lith'])

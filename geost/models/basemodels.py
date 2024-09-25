@@ -1,8 +1,14 @@
 from abc import ABC, abstractmethod
+from pathlib import WindowsPath
 
+import geopandas as gpd
 import numpy as np
 import rioxarray as rio
 import xarray as xr
+
+from geost.spatial import check_gdf_instance
+
+from .model_utils import sample_along_line, sample_with_coords
 
 
 class AbstractSpatial(ABC):
@@ -178,8 +184,49 @@ class VoxelModel(AbstractSpatial, AbstractModel3D):
     def select_with_line(self):
         raise NotImplementedError()
 
-    def select_with_points(self):
-        raise NotImplementedError()
+    def select_with_points(
+        self, points: str | WindowsPath | gpd.GeoDataFrame
+    ) -> xr.Dataset:
+        """
+        Select voxel columns at the locations of point geometries.
+
+        Parameters
+        ----------
+        points : str | WindowsPath | gpd.GeoDataFrame
+            Geodataframe (or file that can be parsed to a geodataframe) to select with.
+
+        Returns
+        -------
+        xr.Dataset
+            Selected Xarray Dataset with dimensions "idx" and "z". The dimension "idx"
+            is the index order of the selection points. The "z" dimension is the original
+            depth dimension of the VoxelModel instance. The returned Dataset contains all
+            original data variables of the VoxelModel instance.
+
+        Examples
+        --------
+        To sample a VoxelModel with a GeoDataFrame containing point geometries:
+        >>> selected = voxelmodel.select_with_points(point_gdf)
+
+        This way, it is easily possible to sample a VoxelModel at point locations using
+        GeoST Header or Collection objects by accessing their "gdf" attributes.
+
+        Using a Header object:
+        >>> selected = voxelmodel.select_with_points(Header.gdf)
+
+        Using a Collection object:
+        >>> selected = voxelmodel.select_with_points(Collection.header.gdf)
+
+        """
+        points = check_gdf_instance(points)
+
+        if "x" in points.columns and "y" in points.columns:
+            coords = points[["x", "y"]].values
+        else:
+            x, y = points["geometry"].x, points["geometry"].y
+            coords = np.c_[x, y]
+
+        return sample_with_coords(self.ds, coords)
 
     def select_within_polygons(self):
         raise NotImplementedError()
