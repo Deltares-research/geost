@@ -1,7 +1,22 @@
 import pytest
+import xarray as xr
 from numpy.testing import assert_array_equal
 
 from geost.models.basemodels import VoxelModel
+
+
+@pytest.fixture
+def point_shapefile(point_header_gdf, tmp_path):
+    shapefile = tmp_path / "point_shapefile.shp"
+    point_header_gdf.to_file(shapefile)
+    return shapefile
+
+
+@pytest.fixture
+def point_parquet(point_header_gdf, tmp_path):
+    parquet = tmp_path / "point_shapefile.geoparquet"
+    point_header_gdf.to_parquet(parquet)
+    return parquet
 
 
 class TestVoxelModel:
@@ -34,6 +49,14 @@ class TestVoxelModel:
     def test_select_with_points(self, voxelmodel, borehole_collection):
         points = borehole_collection.header.gdf
         select = voxelmodel.select_with_points(points)
+        assert isinstance(select, xr.Dataset)
         assert select.sizes == {"idx": 4, "z": 4}
         assert_array_equal(select["idx"], [0, 1, 2, 4])
-        assert_array_equal(select.data_vars, ['strat', 'lith'])
+        assert_array_equal(select.data_vars, ["strat", "lith"])
+
+    @pytest.mark.unittest
+    @pytest.mark.parametrize("file", ["point_shapefile", "point_parquet"])
+    def test_select_with_points_from_file(self, voxelmodel, file, request):
+        file = request.getfixturevalue(file)
+        select = voxelmodel.select_with_points(file)
+        assert isinstance(select, xr.Dataset)

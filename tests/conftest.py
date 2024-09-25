@@ -123,6 +123,10 @@ def nlog_borehole_file():
 
 @pytest.fixture
 def borehole_collection(borehole_data):
+    """
+    Fixture containing a BoreholeCollection instance of synthetic borehole data.
+
+    """
     borehole_collection = borehole_data.to_collection()
     return borehole_collection
 
@@ -141,6 +145,10 @@ def borehole_data():
     d = borehole_d()
     e = borehole_e()
     df = pd.concat([a, b, c, d, e], ignore_index=True)
+    """
+    Fixture containing a LayeredData instance of synthetic borehole data.
+
+    """
     return LayeredData(df)
 
 
@@ -172,6 +180,10 @@ def point_header_gdf():
 
 
 def cpt_a():
+    """
+    Helper function for a synthetic CPT containing qs, fs and u2 "measurements".
+
+    """
     depth = np.arange(10)
     surface = 2.1
     end = surface - depth.max()
@@ -194,6 +206,10 @@ def cpt_a():
 
 
 def cpt_b():
+    """
+    Helper function for a synthetic CPT containing qs, fs and u2 "measurements".
+
+    """
     depth = np.arange(10)
     surface = 0.8
     end = surface - depth.max()
@@ -217,5 +233,9 @@ def cpt_b():
 
 @pytest.fixture
 def cpt_data():
+    """
+    Fixture containing a DiscreteData instance of synthetic CPT data.
+
+    """
     df = pd.concat([cpt_a(), cpt_b()], ignore_index=True)
     return DiscreteData(df)
