@@ -49,7 +49,7 @@ LLG_COLUMN_MAPPING = {
 }
 
 
-def __read_file(file: WindowsPath, **kwargs) -> pd.DataFrame:
+def __read_file(file: str | WindowsPath, **kwargs) -> pd.DataFrame:
     """
     Read parquet file.
 
@@ -71,6 +71,7 @@ def __read_file(file: WindowsPath, **kwargs) -> pd.DataFrame:
         if 'file' has no valid suffix.
 
     """
+    file = Path(file)
     suffix = file.suffix
     if suffix in [".parquet", ".pq"]:
         return pd.read_parquet(file, **kwargs)
@@ -221,7 +222,7 @@ def read_borehole_table(
     >>> read_borehole_table(file, 32631, 'Ostend height', column_mapper={'maaiveld': 'surface'})
 
     """
-    boreholes = __read_file(Path(file), **kwargs)
+    boreholes = __read_file(file, **kwargs)
 
     if has_inclined:
         boreholes = _check_mandatory_column_presence(
@@ -294,8 +295,7 @@ def read_cpt_table(
         Instance of :class:`~geost.base.CptCollection`.
 
     """
-    filepath = Path(file)
-    cpts = __read_file(filepath, **kwargs)
+    cpts = __read_file(file, **kwargs)
 
     cpts = _check_mandatory_column_presence(
         cpts, MANDATORY_DISCRETE_DATA_COLUMNS, column_mapper
@@ -327,11 +327,10 @@ def read_nlog_cores(file: str | WindowsPath) -> BoreholeCollection:
     :class:`~geost.borehole.BoreholeCollection`
         :class:`~geost.borehole.BoreholeCollection`
     """
-    filepath = Path(file)
-    if filepath.suffix == ".xlsx":
-        nlog_cores = pd.read_excel(filepath)
+    if Path(file).suffix == ".xlsx":
+        nlog_cores = pd.read_excel(file)
     else:
-        nlog_cores = __read_file(filepath)
+        nlog_cores = __read_file(file)
 
     nlog_cores.rename(
         columns={
