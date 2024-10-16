@@ -230,7 +230,7 @@ def test_read_uullg_table(
 
 @pytest.mark.unittest
 def test_read_gef_cpts(data_dir):
-    files = Path(data_dir / "cpt").glob("*.gef")
+    files = sorted(Path(data_dir / "cpt").glob("*.gef"))
     cpts = read_gef_cpts(files)
     assert isinstance(cpts, CptCollection)
 
