@@ -26,7 +26,7 @@ class ValidationSchemas(NamedTuple):
         "y": Column(numeric),
         "surface": Column(numeric),
         "end": Column(numeric),
-        "z": Column(numeric),
+        "depth": Column(numeric),
     }
     dataschema_inclined_point = {
         "x_bot": Column(numeric),
