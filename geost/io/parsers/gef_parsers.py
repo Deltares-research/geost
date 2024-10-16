@@ -1,6 +1,6 @@
 import logging
 import re
-from pathlib import WindowsPath
+from pathlib import Path
 from typing import NamedTuple, Union
 
 import numpy as np
@@ -24,110 +24,127 @@ class CptMeasurementVar(NamedTuple):
 
 #
 COLUMN_DEFS_DATA_BLOCK_CPT = {
-    1: ColumnInfo('length', 'm', 'penetration length', True),
-    2: ColumnInfo('qc', 'MPa', 'measured cone resistance', True),
-    3: ColumnInfo('fs', 'MPa', 'friction resistance', True),
-    4: ColumnInfo('rf', '%', 'friction number', True),
-    5: ColumnInfo('u1', 'MPa', 'pore pressure u1', True),
-    6: ColumnInfo('u2', 'MPa', 'pore pressure u2', True),
-    7: ColumnInfo('u3', 'MPa', 'pore pressure u3', True),
-    8: ColumnInfo('inclination_res', 'degrees', 'inclination (resultant)', True),
-    9: ColumnInfo('inclination_ns', 'degrees', 'inclination (North-South)', True),
-    10: ColumnInfo('inclination_ew', 'degrees', 'inclination (East-West)', True),
-    11: ColumnInfo('corrected_depth', 'm', 'corrected depth, below fixed surface', True),  # noqa: E501
-    12: ColumnInfo('time', 's', 'time', True),
-    13: ColumnInfo('qt', 'MPa', 'corrected cone resistance', True),
-    14: ColumnInfo('qn', 'MPa', 'net cone resistance', True),
-    15: ColumnInfo('Bq', '', 'pore ratio', True),
-    16: ColumnInfo('Nm', '', 'cone resistance number', True),
-    17: ColumnInfo('gamma', 'kN/m3', 'weight per unit volume', True),
-    18: ColumnInfo('u0', 'MPa', 'in situ, initial pore pressure', True),
-    19: ColumnInfo('sigma', 'MPa', 'total vertical soil pressure', True),
-    20: ColumnInfo('sigma_eff', 'MPa', 'effective vertical soil pressure', True),
-    21: ColumnInfo('inclination_x', 'degrees', 'Inclination in X direction', True),
-    22: ColumnInfo('inclination_y', 'degrees', 'Inclination in Y direction', True),
-    23: ColumnInfo('ec', 'S/m', 'Electric conductivity', True),
-    24: ColumnInfo('Bx', 'nT', 'magnetic field strength in X direction', True),
-    25: ColumnInfo('By', 'nT', 'magnetic field strength in Y direction', True),
-    26: ColumnInfo('Bz', 'nT', 'magnetic field strength in Z direction', True),
+    1: ColumnInfo("length", "m", "penetration length", True),
+    2: ColumnInfo("qc", "MPa", "measured cone resistance", True),
+    3: ColumnInfo("fs", "MPa", "friction resistance", True),
+    4: ColumnInfo("rf", "%", "friction number", True),
+    5: ColumnInfo("u1", "MPa", "pore pressure u1", True),
+    6: ColumnInfo("u2", "MPa", "pore pressure u2", True),
+    7: ColumnInfo("u3", "MPa", "pore pressure u3", True),
+    8: ColumnInfo("inclination_res", "degrees", "inclination (resultant)", True),
+    9: ColumnInfo("inclination_ns", "degrees", "inclination (North-South)", True),
+    10: ColumnInfo("inclination_ew", "degrees", "inclination (East-West)", True),
+    11: ColumnInfo(
+        "corrected_depth", "m", "corrected depth, below fixed surface", True
+    ),  # noqa: E501
+    12: ColumnInfo("time", "s", "time", True),
+    13: ColumnInfo("qt", "MPa", "corrected cone resistance", True),
+    14: ColumnInfo("qn", "MPa", "net cone resistance", True),
+    15: ColumnInfo("Bq", "", "pore ratio", True),
+    16: ColumnInfo("Nm", "", "cone resistance number", True),
+    17: ColumnInfo("gamma", "kN/m3", "weight per unit volume", True),
+    18: ColumnInfo("u0", "MPa", "in situ, initial pore pressure", True),
+    19: ColumnInfo("sigma", "MPa", "total vertical soil pressure", True),
+    20: ColumnInfo("sigma_eff", "MPa", "effective vertical soil pressure", True),
+    21: ColumnInfo("inclination_x", "degrees", "Inclination in X direction", True),
+    22: ColumnInfo("inclination_y", "degrees", "Inclination in Y direction", True),
+    23: ColumnInfo("ec", "S/m", "Electric conductivity", True),
+    24: ColumnInfo("Bx", "nT", "magnetic field strength in X direction", True),
+    25: ColumnInfo("By", "nT", "magnetic field strength in Y direction", True),
+    26: ColumnInfo("Bz", "nT", "magnetic field strength in Z direction", True),
     # reserved for future use
-    27: ColumnInfo('', 'degrees', 'magnetic inclination', True),
+    27: ColumnInfo("", "degrees", "magnetic inclination", True),
     # reserved for future use
-    28: ColumnInfo('', 'degrees', 'magnetic inclination', True),
+    28: ColumnInfo("", "degrees", "magnetic inclination", True),
 }
 
 
 RESERVED_MEASUREMENTVARS_CPT = {
-    1: CptMeasurementVar(1000, 'mm2', 'nom. surface area cone tip', True),
-    2: CptMeasurementVar(15000, 'mm2', 'nom. surface area friction sleeve', True),
-    3: CptMeasurementVar(None, '', 'net surface area quotient of cone tip', True),
-    4: CptMeasurementVar(None, '', 'net surface area quotient of friction sleeve', True),  # noqa: E501
-    5: CptMeasurementVar(100, 'mm', 'distance of cone to centre of friction sleeve', True),  # noqa: E501
-    6: CptMeasurementVar(None, '', 'friction present', True),
-    7: CptMeasurementVar(None, '', 'PPT u1 present', True),
-    8: CptMeasurementVar(None, '', 'PPT u2 present', True),
-    9: CptMeasurementVar(None, '', 'PPT u3 present', True),
-    10: CptMeasurementVar(None, '', 'inclination measurement present', True),
-    11: CptMeasurementVar(None, '', 'use of back-flow compensator', True),
-    12: CptMeasurementVar(None, '', 'type of cone penetration test', True),
-    13: CptMeasurementVar(None, 'm', 'pre-excavated depth', True),
-    14: CptMeasurementVar(None, 'm', 'groundwater level', True),
-    15: CptMeasurementVar(None, 'm', 'water depth (for offshore)', True),
-    16: CptMeasurementVar(None, 'm', 'end depth of penetration test', True),
-    17: CptMeasurementVar(None, '', 'stop criteria', True),
+    1: CptMeasurementVar(1000, "mm2", "nom. surface area cone tip", True),
+    2: CptMeasurementVar(15000, "mm2", "nom. surface area friction sleeve", True),
+    3: CptMeasurementVar(None, "", "net surface area quotient of cone tip", True),
+    4: CptMeasurementVar(
+        None, "", "net surface area quotient of friction sleeve", True
+    ),  # noqa: E501
+    5: CptMeasurementVar(
+        100, "mm", "distance of cone to centre of friction sleeve", True
+    ),  # noqa: E501
+    6: CptMeasurementVar(None, "", "friction present", True),
+    7: CptMeasurementVar(None, "", "PPT u1 present", True),
+    8: CptMeasurementVar(None, "", "PPT u2 present", True),
+    9: CptMeasurementVar(None, "", "PPT u3 present", True),
+    10: CptMeasurementVar(None, "", "inclination measurement present", True),
+    11: CptMeasurementVar(None, "", "use of back-flow compensator", True),
+    12: CptMeasurementVar(None, "", "type of cone penetration test", True),
+    13: CptMeasurementVar(None, "m", "pre-excavated depth", True),
+    14: CptMeasurementVar(None, "m", "groundwater level", True),
+    15: CptMeasurementVar(None, "m", "water depth (for offshore)", True),
+    16: CptMeasurementVar(None, "m", "end depth of penetration test", True),
+    17: CptMeasurementVar(None, "", "stop criteria", True),
     # 18: CptMeasurementVar(None, '', 'for future use', True),
     # 19: CptMeasurementVar(None, '', 'for future use', True),
-    20: CptMeasurementVar(None, 'MPa', 'zero measurement cone before', True),
-    21: CptMeasurementVar(None, 'MPa', 'zero measurement cone after', True),
-    22: CptMeasurementVar(None, 'MPa', 'zero measurement friction before', True),
-    23: CptMeasurementVar(None, 'MPa', 'zero measurement friction after', True),
-    24: CptMeasurementVar(None, 'MPa', 'zero measurement PPT u1 before', True),
-    25: CptMeasurementVar(None, 'MPa', 'zero measurement PPT u1 after', True),
-    26: CptMeasurementVar(None, 'MPa', 'zero measurement PPT u2 before', True),
-    27: CptMeasurementVar(None, 'MPa', 'zero measurement PPT u2 after', True),
-    28: CptMeasurementVar(None, 'MPa', 'zero measurement PPT u3 before', True),
-    29: CptMeasurementVar(None, 'MPa', 'zero measurement PPT u3 after', True),
-    30: CptMeasurementVar(None, 'degrees', 'zero measurement inclination before', True),
-    31: CptMeasurementVar(None, 'degrees', 'zero measurement inclination after', True),
-    32: CptMeasurementVar(None, 'degrees', 'zero measurement inclination NS before', True),  # noqa: E501
-    33: CptMeasurementVar(None, 'degrees', 'zero measurement inclination NS after', True),  # noqa: E501
-    34: CptMeasurementVar(None, 'degrees', 'zero measurement inclination EW before', True),  # noqa: E501
-    35: CptMeasurementVar(None, 'degrees', 'zero measurement inclination EW after', True),  # noqa: E501
+    20: CptMeasurementVar(None, "MPa", "zero measurement cone before", True),
+    21: CptMeasurementVar(None, "MPa", "zero measurement cone after", True),
+    22: CptMeasurementVar(None, "MPa", "zero measurement friction before", True),
+    23: CptMeasurementVar(None, "MPa", "zero measurement friction after", True),
+    24: CptMeasurementVar(None, "MPa", "zero measurement PPT u1 before", True),
+    25: CptMeasurementVar(None, "MPa", "zero measurement PPT u1 after", True),
+    26: CptMeasurementVar(None, "MPa", "zero measurement PPT u2 before", True),
+    27: CptMeasurementVar(None, "MPa", "zero measurement PPT u2 after", True),
+    28: CptMeasurementVar(None, "MPa", "zero measurement PPT u3 before", True),
+    29: CptMeasurementVar(None, "MPa", "zero measurement PPT u3 after", True),
+    30: CptMeasurementVar(None, "degrees", "zero measurement inclination before", True),
+    31: CptMeasurementVar(None, "degrees", "zero measurement inclination after", True),
+    32: CptMeasurementVar(
+        None, "degrees", "zero measurement inclination NS before", True
+    ),  # noqa: E501
+    33: CptMeasurementVar(
+        None, "degrees", "zero measurement inclination NS after", True
+    ),  # noqa: E501
+    34: CptMeasurementVar(
+        None, "degrees", "zero measurement inclination EW before", True
+    ),  # noqa: E501
+    35: CptMeasurementVar(
+        None, "degrees", "zero measurement inclination EW after", True
+    ),  # noqa: E501
     # 36: CptMeasurementVar(None, '', 'for future use', True),
     # 37: CptMeasurementVar(None, '', 'for future use', True),
     # 38: CptMeasurementVar(None, '', 'for future use', True),
     # 39: CptMeasurementVar(None, '', 'for future use', True),
     # 40: CptMeasurementVar(None, '', 'for future use', True),
-    41: CptMeasurementVar(None, 'km', 'mileage', True),
-    42: CptMeasurementVar(None, 'degrees', 'Orientation between X axis inclination and North', True),  # noqa: E501
+    41: CptMeasurementVar(None, "km", "mileage", True),
+    42: CptMeasurementVar(
+        None, "degrees", "Orientation between X axis inclination and North", True
+    ),  # noqa: E501
 }
 
 
 GEF_CPT_REFERENCE_LEVELS = {
-    '00000': 'own reference level',
-    '00001': 'Low Low Water Spring',
-    '31000': 'NAP',
-    '32000': 'Ostend Level',
-    '32001': 'TAW',
-    '49000': 'Normall Null'
+    "00000": "own reference level",
+    "00001": "Low Low Water Spring",
+    "31000": "NAP",
+    "32000": "Ostend Level",
+    "32001": "TAW",
+    "49000": "Normall Null",
 }
 
 
-class CptGefFile:
+class CptGefFile:  # TODO: Break parser down in HeaderParser and DataParser and returning a CPT object
     """
     Parse a .gef file of a CPT sounding for its content to retrieve the data and
     relevant information about the measurements.
 
     Parameters
     ----------
-    path : str, WindowsPath, optional
+    path : str, Path, optional
         Path to the gef file to parse. If None, an empty class instance is returned.
     sep : str, optional
         Column separator character of the gef file to use when the separator is not
         specified within the gef file header.
 
     """
-    def __init__(self, path: str | WindowsPath = None, sep: str = ' '):
+
+    def __init__(self, path: str | Path = None, sep: str = " "):
         self.path = path
         self._header = None
         self._data = None
@@ -169,12 +186,12 @@ class CptGefFile:
             self.__open_file(path)
 
     def __repr__(self):
-        return f'{self.__class__.__name__}(nr={self.nr})'
+        return f"{self.__class__.__name__}(nr={self.nr})"
 
     def __open_file(self, path):
-        with open(path, 'r', encoding='utf-8', errors='ignore') as f:
+        with open(path, "r", encoding="utf-8", errors="ignore") as f:
             text = f.read()
-            end_header = re.search(r'(?P<eoh>#EOH[=\s+]+)', text).group('eoh')
+            end_header = re.search(r"(?P<eoh>#EOH[=\s+]+)", text).group("eoh")
 
             self._header, self._data = text.split(end_header)
 
@@ -185,7 +202,7 @@ class CptGefFile:
 
     @property
     def df(self):
-        if not hasattr(self, '_df'):
+        if not hasattr(self, "_df"):
             self.to_df()
         return self._df
 
@@ -193,13 +210,13 @@ class CptGefFile:
     def header(self):
         header = pd.Series(
             [self.nr, self.x, self.y, self.z, self.enddepth, self.point],
-            index=['nr', 'x', 'y', 'z', 'enddepth', 'geometry']
+            index=["nr", "x", "y", "z", "enddepth", "geometry"],
         )
         return header
 
     @property
     def columns(self):
-        columns = [f'{c.value}' for c in self.columninfo.values()]
+        columns = [f"{c.value}" for c in self.columninfo.values()]
         return columns
 
     @property
@@ -219,23 +236,23 @@ class CptGefFile:
         header = self._header.splitlines()
 
         for line in header:
-            keyword = re.search(r'([#\s]*([A-Z]+)\s*=)\s*', line)
+            keyword = re.search(r"([#\s]*([A-Z]+)\s*=)\s*", line)
 
             try:
                 keyword_method = keyword.group(2).lower()
             except AttributeError:
                 continue
 
-            __method = f'_parse_{keyword_method}'
+            __method = f"_parse_{keyword_method}"
             if hasattr(self, __method):
-                line = line.replace(keyword.group(0), '')
+                line = line.replace(keyword.group(0), "")
                 # remove unnecessary whitespace and string quotes
-                line = re.sub(r'["\']|\s\s+', '', line)
+                line = re.sub(r'["\']|\s\s+', "", line)
                 self.__call_header_method(__method, line)
 
     @staticmethod
     def __split_line(line):
-        return [l.strip() for l in line.split(',')]  # noqa: E741
+        return [l.strip() for l in line.split(",")]  # noqa: E741
 
     def parse_data(self):
         """
@@ -245,12 +262,12 @@ class CptGefFile:
         data = self._data
 
         if not self.recordseparator:
-            r = '!'
+            r = "!"
         else:
             r = self.recordseparator
 
-        data = data.replace(self.columnseparator, ',')
-        data = [self.__split_line(d.rstrip(f',{r}')) for d in data.splitlines()]
+        data = data.replace(self.columnseparator, ",")
+        data = [self.__split_line(d.rstrip(f",{r}")) for d in data.splitlines()]
         self._data = data
 
     def to_df(self):
@@ -268,18 +285,20 @@ class CptGefFile:
         df.replace(self.columnvoid, np.nan, inplace=True)
         df.columns = self.columns
 
-        if 'rf' not in df.columns:
+        if "rf" not in df.columns:
             try:
-                df['rf'] = (df['fs']/df['qc']) * 100
+                df["rf"] = (df["fs"] / df["qc"]) * 100
             except KeyError:
                 logging.warning(
-                    f'Missing data in {self.nr}. Data present: {self.columns}'
+                    f"Missing data in {self.nr}. Data present: {self.columns}"
                 )
 
-        if 'corrected_depth' in df.columns:  # TODO: implement calc corrected depth from inclination if not in columns  # noqa: E501
-            df['depth'] = self.z - df['corrected_depth']
+        if (
+            "corrected_depth" in df.columns
+        ):  # TODO: implement calc corrected depth from inclination if not in columns  # noqa: E501
+            df["depth"] = self.z - df["corrected_depth"]
         else:
-            df['depth'] = self.z - df['length']
+            df["depth"] = self.z - df["length"]
 
         self._df = df
 
@@ -307,10 +326,10 @@ class CptGefFile:
     def _parse_columninfo(self, line: str):
         idx, unit, value, number = self.__split_line(line)
         idx = self.to_zero_indexed(idx)
-        info = COLUMN_DEFS_DATA_BLOCK_CPT.get(int(number), 'empty')
+        info = COLUMN_DEFS_DATA_BLOCK_CPT.get(int(number), "empty")
 
-        if info == 'empty':
-            logging.warning(f'Unknown information in datablock of {self.path}')
+        if info == "empty":
+            logging.warning(f"Unknown information in datablock of {self.path}")
             info = ColumnInfo(value, unit, value, False)
 
         self.columninfo.update({idx: info})
@@ -352,8 +371,8 @@ class CptGefFile:
             self.delta_z = float(zid[2])
         else:
             logging.warning(
-                f'Unclear information in #ZID of {self.path}. '
-                'Check zid attribute manually.'
+                f"Unclear information in #ZID of {self.path}. "
+                "Check zid attribute manually."
             )
             self.zid = zid
 
@@ -382,8 +401,8 @@ class CptGefFile:
 
         else:
             logging.warning(
-                f'Unclear information in #XYID of {self.path}. '
-                'Check xyid attribute manually.'
+                f"Unclear information in #XYID of {self.path}. "
+                "Check xyid attribute manually."
             )
             self.xyid = xyid
 
@@ -407,9 +426,9 @@ class CptGefFile:
         num = int(num)
         val = safe_float(val)
 
-        _mv = RESERVED_MEASUREMENTVARS_CPT.get(num, 'empty')
+        _mv = RESERVED_MEASUREMENTVARS_CPT.get(num, "empty")
 
-        if _mv == 'empty':
+        if _mv == "empty":
             mvar = CptMeasurementVar(val, unit, quantity, False)
         else:
             if val:
@@ -439,7 +458,7 @@ class CptGefFile:
         if enddepth:
             d = enddepth.value
         else:
-            d = self.df['length'].max()
+            d = self.df["length"].max()
 
         self.enddepth = d
 

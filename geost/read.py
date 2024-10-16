@@ -1,4 +1,4 @@
-from pathlib import Path, WindowsPath
+from pathlib import Path
 from typing import Union
 
 import geopandas as gpd
@@ -6,7 +6,13 @@ import numpy as np
 import pandas as pd
 from pyproj import CRS
 
-from geost.base import BoreholeCollection, CptCollection, LayeredData
+from geost.base import (
+    BoreholeCollection,
+    CptCollection,
+    DiscreteData,
+    LayeredData,
+    PointHeader,
+)
 from geost.bro import BroApi
 from geost.io import _parse_cpt_gef_files
 from geost.io.parsers import SoilCore
@@ -32,13 +38,24 @@ GEOMETRY_TO_SELECTION_FUNCTION = {
 }
 
 
-def __read_file(file: WindowsPath, **kwargs) -> pd.DataFrame:
+LLG_COLUMN_MAPPING = {
+    "BOORP": "nr",
+    "XCO": "x",
+    "YCO": "y",
+    "MV_HoogteNAP": "surface",
+    "BoringEinddiepteNAP": "end",
+    "BEGIN_DIEPTE": "top",
+    "EIND_DIEPTE": "bottom",
+}
+
+
+def __read_file(file: str | Path, **kwargs) -> pd.DataFrame:
     """
     Read parquet file.
 
     Parameters
     ----------
-    file : WindowsPath
+    file : Path
         Path to file to be read.
     kwargs : optional
         Kwargs to pass to the read function
@@ -54,6 +71,7 @@ def __read_file(file: WindowsPath, **kwargs) -> pd.DataFrame:
         if 'file' has no valid suffix.
 
     """
+    file = Path(file)
     suffix = file.suffix
     if suffix in [".parquet", ".pq"]:
         return pd.read_parquet(file, **kwargs)
@@ -126,7 +144,7 @@ def _check_mandatory_column_presence(
 
 
 def read_borehole_table(
-    file: str | WindowsPath,
+    file: str | Path,
     horizontal_reference: str | int | CRS = 28992,
     vertical_reference: str | int | CRS = 5709,
     has_inclined: bool = False,
@@ -135,9 +153,9 @@ def read_borehole_table(
     **kwargs,
 ) -> BoreholeCollection:
     """
-    Read tabular borehole information information. This is a file (parquet, csv or
-    Excel) that includes row data for each (borehole) layer and must at least include
-    the following column headers:
+    Read tabular borehole information. This is a file (parquet, csv or Excel) that
+    includes row data for each (borehole) layer and must at least include the following
+    column headers:
 
     nr      - Object id
     x       - X-coordinates according to the given horizontal_reference
@@ -158,19 +176,19 @@ def read_borehole_table(
 
     Parameters
     ----------
-    file : str | WindowsPath
+    file : str | Path
         Path to file to be read. Depending on the file extension, the corresponding
         Pandas read function will be called. This can be either pandas.read_parquet,
         pandas.read_csv or pandas.read_excel. The **kwargs that can be given to this
         function will be passed to the selected Panda's read function.
-    horizontal_reference (int): Horizontal reference, see
-        EPSG of the data's coordinate reference system. Takes anything that can be
-        interpreted by pyproj.crs.CRS.from_user_input().
-    vertical_reference: str | int | CRS
+    horizontal_reference : str | int | CRS, optional
+        EPSG of the data's horizontal reference. Takes anything that can be interpreted
+        by pyproj.crs.CRS.from_user_input(). The default is 28992.
+    vertical_reference : str | int | CRS, optional
         EPSG of the data's vertical datum. Takes anything that can be interpreted by
         pyproj.crs.CRS.from_user_input(). However, it must be a vertical datum. FYI:
         "NAP" is EPSG 5709 and The Belgian reference system (Ostend height) is ESPG
-        5710.
+        5710. The default is 5709.
     has_inclined : bool, optional
         If True, the borehole data table contains inclined boreholes. The default is False.
     as_collection : bool, optional
@@ -204,7 +222,7 @@ def read_borehole_table(
     >>> read_borehole_table(file, 32631, 'Ostend height', column_mapper={'maaiveld': 'surface'})
 
     """
-    boreholes = __read_file(Path(file), **kwargs)
+    boreholes = __read_file(file, **kwargs)
 
     if has_inclined:
         boreholes = _check_mandatory_column_presence(
@@ -225,40 +243,72 @@ def read_borehole_table(
     return boreholes
 
 
-def read_sst_cpts(
-    file: str | WindowsPath,
+def read_cpt_table(
+    file: str | Path,
     horizontal_reference: str | int | CRS = 28992,
     vertical_reference: str | int | CRS = 5709,
+    as_collection: bool = True,
+    column_mapper: dict = None,
+    **kwargs,
 ) -> CptCollection:
     """
-    Read Subsurface Toolbox native parquet file with cpt information.
+    Read tabular CPT information. This is a file (parquet, csv or Excel) that includes
+    row data for each CPT depth interval and must at least include the following header
+    information as columns:
+
+    nr      - Object id
+    x       - X-coordinates according to the given horizontal_reference
+    y       - Y-coordinates according to the given horizontal_reference
+    surface - Surface elevation according to the given vertical_reference
+    end     - End depth according to the given vertical_reference
+    depth   - Depth in meters below the surface
 
     Parameters
     ----------
-    file : str | WindowsPath
-        Path to file to be read.
-    vertical_reference: str
-        Which vertical reference is used for tops and bottoms. See
-        :py:attr:`~geost.base.PointDataCollection.vertical_reference` for documentation
-        of this attribute.
-    horizontal_reference (int): Horizontal reference, see
-        :py:attr:`~geost.base.PointDataCollection.horizontal_reference`
+    file : str | Path
+        File with the CPT information to read.
+    horizontal_reference : str | int | CRS, optional
+        EPSG of the data's horizontal reference. Takes anything that can be interpreted
+        by pyproj.crs.CRS.from_user_input(). The default is 28992.
+    vertical_reference : str | int | CRS, optional
+        EPSG of the data's vertical datum. Takes anything that can be interpreted by
+        pyproj.crs.CRS.from_user_input(). However, it must be a vertical datum. FYI:
+        "NAP" is EPSG 5709 and The Belgian reference system (Ostend height) is ESPG
+        5710. The default is 5709.
+    as_collection : bool, optional
+        If True, the CPT table will be read as a :class:`~geost.base.Collection`
+        which includes a header object and spatial selection functionality. If False,
+        a :class:`~geost.base.DiscreteData` object is returned. The default is True.
+    column_mapper: dict, optional
+        If the file to be read uses different column names than the ones given in the
+        description above, you can use a dictionary mapping to translate the column
+        names to the required format. column_mapper is None by default, in which case
+        the user is asked for input if not all required columns are encountered in the
+        file.
+    kwargs: optional
+        Optional keyword arguments for Pandas.read_parquet, Pandas.read_csv or
+        Pandas.read_excel.
 
     Returns
     -------
-    :class:`~geost.borehole.CptCollection`
-        Instance of :class:`~geost.borehole.CptCollection`.
+    :class:`~geost.base.CptCollection`
+        Instance of :class:`~geost.base.CptCollection`.
+
     """
-    filepath = Path(file)
-    sst_cpts = __read_file(filepath)
-    return CptCollection(
-        sst_cpts,
-        vertical_reference=vertical_reference,
-        horizontal_reference=horizontal_reference,
+    cpts = __read_file(file, **kwargs)
+
+    cpts = _check_mandatory_column_presence(
+        cpts, MANDATORY_DISCRETE_DATA_COLUMNS, column_mapper
     )
+    cpts = DiscreteData(cpts)
+
+    if as_collection:
+        cpts = cpts.to_collection(horizontal_reference, vertical_reference)
+
+    return cpts
 
 
-def read_nlog_cores(file: str | WindowsPath) -> BoreholeCollection:
+def read_nlog_cores(file: str | Path) -> BoreholeCollection:
     """
     Read NLog boreholes from the 'nlog_stratstelsel' Excel file. You can find this
     distribution of borehole data here: https://www.nlog.nl/boringen
@@ -269,7 +319,7 @@ def read_nlog_cores(file: str | WindowsPath) -> BoreholeCollection:
 
     Parameters
     ----------
-    file : str | WindowsPath
+    file : str | Path
         Path to nlog_stratstelsel.xlsx or .parquet
 
     Returns
@@ -277,11 +327,10 @@ def read_nlog_cores(file: str | WindowsPath) -> BoreholeCollection:
     :class:`~geost.borehole.BoreholeCollection`
         :class:`~geost.borehole.BoreholeCollection`
     """
-    filepath = Path(file)
-    if filepath.suffix == ".xlsx":
-        nlog_cores = pd.read_excel(filepath)
+    if Path(file).suffix == ".xlsx":
+        nlog_cores = pd.read_excel(file)
     else:
-        nlog_cores = __read_file(filepath)
+        nlog_cores = __read_file(file)
 
     nlog_cores.rename(
         columns={
@@ -334,7 +383,7 @@ def read_nlog_cores(file: str | WindowsPath) -> BoreholeCollection:
 
 
 def read_xml_geotechnical_cores(
-    file_or_folder: str | WindowsPath,
+    file_or_folder: str | Path,
 ) -> BoreholeCollection:
     """
     NOTIMPLEMENTED
@@ -345,7 +394,7 @@ def read_xml_geotechnical_cores(
     pass
 
 
-def read_xml_soil_cores(file_or_folder: str | WindowsPath) -> BoreholeCollection:
+def read_xml_soil_cores(file_or_folder: str | Path) -> BoreholeCollection:
     """
     NOTIMPLEMENTED
     Read xml files of BRO soil boreholes (IMBRO or IMBRO/A quality).
@@ -354,7 +403,7 @@ def read_xml_soil_cores(file_or_folder: str | WindowsPath) -> BoreholeCollection
     pass
 
 
-def read_xml_geological_cores(file_or_folder: str | WindowsPath) -> BoreholeCollection:
+def read_xml_geological_cores(file_or_folder: str | Path) -> BoreholeCollection:
     """
     NOTIMPLEMENTED
     Read xml files of DINO geological boreholes.
@@ -363,7 +412,7 @@ def read_xml_geological_cores(file_or_folder: str | WindowsPath) -> BoreholeColl
     pass
 
 
-def read_gef_cores(file_or_folder: str | WindowsPath) -> BoreholeCollection:
+def read_gef_cores(file_or_folder: str | Path) -> BoreholeCollection:
     """
     NOTIMPLEMENTED
     Read gef files of boreholes.
@@ -372,31 +421,28 @@ def read_gef_cores(file_or_folder: str | WindowsPath) -> BoreholeCollection:
     pass
 
 
-def read_gef_cpts(file_or_folder: str | WindowsPath, use_pygef=False) -> CptCollection:
+def read_gef_cpts(file_or_folder: str | Path) -> CptCollection:
     """
-    Read gef files of CPT data into a geost CptCollection.
+    Read one or more GEF files of CPT data into a geost CptCollection.
 
     Parameters
     ----------
-    file_or_folder : str | WindowsPath
-        DESCRIPTION.
-    use_pygef : Boolean, optional
-        If True, the gef reader from pygef (external) is used. If False, the geost
-        gef reader is used. The default is False.
+    file_or_folder : str | Path
+        GEF files to read.
 
     Returns
     -------
-    CptCollection
-        DESCRIPTION.
+    :class:`~geost.base.CptCollection`
+        :class:`~geost.base.CptCollection` of the GEF file(s).
 
     """
     data = _parse_cpt_gef_files(file_or_folder)
     df = pd.concat(data)
 
-    return CptCollection(df)
+    return DiscreteData(df).to_collection()
 
 
-def read_xml_cpts(file_or_folder: str | WindowsPath) -> CptCollection:
+def read_xml_cpts(file_or_folder: str | Path) -> CptCollection:
     """
     NOTIMPLEMENTED
     Read xml files of cpts.
@@ -430,14 +476,14 @@ def get_bro_objects_from_bbox(
         minimal y-coordinate of the bounding box
     ymax : int | float
         maximal y-coordinate of the bounding box
-    horizontal_reference : int, optional
-        EPSG of the desiredcrs. Takes anything that can be interpreted by
-        pyproj.crs.CRS.from_user_input().
-    vertical_reference : str, optional
-        EPSG of the desired vertical datum. Takes anything that can be interpreted by
+    horizontal_reference : str | int | CRS, optional
+        EPSG of the data's horizontal reference. Takes anything that can be interpreted
+        by pyproj.crs.CRS.from_user_input(). The default is 28992.
+    vertical_reference : str | int | CRS, optional
+        EPSG of the data's vertical datum. Takes anything that can be interpreted by
         pyproj.crs.CRS.from_user_input(). However, it must be a vertical datum. FYI:
         "NAP" is EPSG 5709 and The Belgian reference system (Ostend height) is ESPG
-        5710.
+        5710. The default is 5709.
 
     Returns
     -------
@@ -496,14 +542,14 @@ def get_bro_objects_from_geometry(
     buffer : int | float, optional
         Buffer distance. Required to be larger than 0 for line and point geometries.
         Adds an extra buffer zone around a polygon to select from, by default 0
-    horizontal_reference : int, optional
-        EPSG of the desiredcrs. Takes anything that can be interpreted by
-        pyproj.crs.CRS.from_user_input().
-    vertical_reference : str, optional
-        EPSG of the desired vertical datum. Takes anything that can be interpreted by
+    horizontal_reference : str | int | CRS, optional
+        EPSG of the data's horizontal reference. Takes anything that can be interpreted
+        by pyproj.crs.CRS.from_user_input(). The default is 28992.
+    vertical_reference : str | int | CRS, optional
+        EPSG of the data's vertical datum. Takes anything that can be interpreted by
         pyproj.crs.CRS.from_user_input(). However, it must be a vertical datum. FYI:
         "NAP" is EPSG 5709 and The Belgian reference system (Ostend height) is ESPG
-        5710.
+        5710. The default is 5709.
 
     Returns
     -------
@@ -549,3 +595,58 @@ def get_bro_objects_from_geometry(
     collection.change_vertical_reference(vertical_reference)
 
     return collection
+
+
+def read_uullg_tables(
+    header_table: str | Path,
+    data_table: str | Path,
+    horizontal_reference: str | int | CRS = 28992,
+    vertical_reference: str | int | CRS = 5709,
+    **kwargs,
+) -> BoreholeCollection:
+    """
+    Read the header and data tables from UU-LLG boreholes (see: EasyDans KNAW) from a
+    local csv or parquet file into a GeoST BoreholeCollection object.
+
+    Reference dataset: https://easy.dans.knaw.nl/ui/datasets/id/easy-dataset:74935
+    See https://wikiwfs.geo.uu.nl/ for additional information.
+
+    Parameters
+    ----------
+    header_table : str | Path
+        Path to file of the UU-LLG header table.
+    data_table : str | Path
+        Path to file of the UU-LLG data table.
+    horizontal_reference : str | int | CRS, optional
+        EPSG of the data's horizontal reference. Takes anything that can be interpreted
+        by pyproj.crs.CRS.from_user_input(). The default is 28992.
+    vertical_reference : str | int | CRS, optional
+        EPSG of the data's vertical datum. Takes anything that can be interpreted by
+        pyproj.crs.CRS.from_user_input(). However, it must be a vertical datum. FYI:
+        "NAP" is EPSG 5709 and The Belgian reference system (Ostend height) is ESPG
+        5710. The default is 5709.
+
+    Returns
+    -------
+    :class:`~geost.base.BoreholeCollection`
+        Instance of :class:`~geost.base.BoreholeCollection` of the UU-LLG data.
+
+    """
+    header = __read_file(header_table, **kwargs)
+    data = __read_file(data_table, **kwargs)
+
+    header.rename(columns=LLG_COLUMN_MAPPING, inplace=True)
+    data.rename(columns=LLG_COLUMN_MAPPING, inplace=True)
+
+    header = header.astype({"nr": str})
+    data = data.astype({"nr": str})
+
+    header = dataframe_to_geodataframe(header).set_crs(horizontal_reference)
+
+    add_header_cols = [c for c in ["x", "y", "surface", "end"] if c not in data.columns]
+    if add_header_cols:
+        data = data.merge(header[["nr"] + add_header_cols], on="nr", how="left")
+
+    header = PointHeader(header, vertical_reference)
+    data = LayeredData(data)
+    return BoreholeCollection(header, data)

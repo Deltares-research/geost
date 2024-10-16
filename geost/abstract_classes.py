@@ -79,11 +79,6 @@ class AbstractData(ABC):
     def df(self, df):
         pass
 
-    @datatype.setter
-    @abstractmethod
-    def datatype(self):
-        pass
-
     @abstractmethod
     def to_header(self):
         pass

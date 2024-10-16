@@ -1,19 +1,19 @@
 # import numpy as np
 # import pandas as pd
-from pathlib import Path, WindowsPath
+from pathlib import Path
 from typing import Iterable, Union
 
 from geost.io.parsers.gef_parsers import CptGefFile
 from geost.utils import get_path_iterable
 
 
-def _parse_cpt_gef_files(file_or_folder: Union[str, WindowsPath]):
+def _parse_cpt_gef_files(file_or_folder: Union[str, Path]):
     """
     Parse gef files from CPT data into Pandas DataFrames.
 
     Parameters
     ----------
-    file_or_folder : Union[str, WindowsPath]
+    file_or_folder : Union[str, Path]
         Gef file or folder with gef files to parse.
 
     Yields
@@ -22,7 +22,7 @@ def _parse_cpt_gef_files(file_or_folder: Union[str, WindowsPath]):
         Pandas DataFrame per gef file.
 
     """
-    if isinstance(file_or_folder, (str, WindowsPath)):
+    if isinstance(file_or_folder, (str, Path)):
         files = get_path_iterable(Path(file_or_folder), wildcard="*.gef")
 
     elif isinstance(file_or_folder, Iterable):

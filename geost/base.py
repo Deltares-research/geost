@@ -1,5 +1,5 @@
 import pickle
-from pathlib import WindowsPath
+from pathlib import Path
 from typing import Any, Iterable, List
 
 import geopandas as gpd
@@ -202,8 +202,8 @@ class PointHeader(AbstractHeader, GeopandasExportMixin):
     def select_within_bbox(
         self,
         xmin: Coordinate,
-        xmax: Coordinate,
         ymin: Coordinate,
+        xmax: Coordinate,
         ymax: Coordinate,
         invert: bool = False,
     ):
@@ -214,10 +214,10 @@ class PointHeader(AbstractHeader, GeopandasExportMixin):
         ----------
         xmin : float | int
             Minimum x-coordinate of the bounding box.
-        xmax : float | int
-            Maximum x-coordinate of the bounding box.
         ymin : float | int
             Minimum y-coordinate of the bounding box.
+        xmax : float | int
+            Maximum x-coordinate of the bounding box.
         ymax : float | int
             Maximum y-coordinate of the bounding box.
         invert : bool, optional
@@ -231,13 +231,13 @@ class PointHeader(AbstractHeader, GeopandasExportMixin):
             geometries.
         """
         gdf_selected = spatial.select_points_within_bbox(
-            self.gdf, xmin, xmax, ymin, ymax, invert=invert
+            self.gdf, xmin, ymin, xmax, ymax, invert=invert
         )
         return self.__class__(gdf_selected, self.vertical_reference)
 
     def select_with_points(
         self,
-        points: str | WindowsPath | gpd.GeoDataFrame,
+        points: str | Path | gpd.GeoDataFrame,
         buffer: float | int,
         invert: bool = False,
     ):
@@ -246,7 +246,7 @@ class PointHeader(AbstractHeader, GeopandasExportMixin):
 
         Parameters
         ----------
-        points : str | WindowsPath | gpd.GeoDataFrame
+        points : str | Path | gpd.GeoDataFrame
             Geodataframe (or file that can be parsed to a geodataframe) to select with.
         buffer : float | int
             Buffer distance for selection geometries.
@@ -266,7 +266,7 @@ class PointHeader(AbstractHeader, GeopandasExportMixin):
 
     def select_with_lines(
         self,
-        lines: str | WindowsPath | gpd.GeoDataFrame,
+        lines: str | Path | gpd.GeoDataFrame,
         buffer: float | int,
         invert: bool = False,
     ):
@@ -275,7 +275,7 @@ class PointHeader(AbstractHeader, GeopandasExportMixin):
 
         Parameters
         ----------
-        lines : str | WindowsPath | gpd.GeoDataFrame
+        lines : str | Path | gpd.GeoDataFrame
             Geodataframe (or file that can be parsed to a geodataframe) to select with.
         buffer : float | int
             Buffer distance for selection geometries.
@@ -295,7 +295,7 @@ class PointHeader(AbstractHeader, GeopandasExportMixin):
 
     def select_within_polygons(
         self,
-        polygons: str | WindowsPath | gpd.GeoDataFrame,
+        polygons: str | Path | gpd.GeoDataFrame,
         buffer: float | int = 0,
         invert: bool = False,
     ):
@@ -304,7 +304,7 @@ class PointHeader(AbstractHeader, GeopandasExportMixin):
 
         Parameters
         ----------
-        polygons : str | WindowsPath | gpd.GeoDataFrame
+        polygons : str | Path | gpd.GeoDataFrame
             Geodataframe (or file that can be parsed to a geodataframe) to select with.
         buffer : float | int, optional
             Optional buffer distance around the polygon selection geometries, by default
@@ -397,7 +397,7 @@ class PointHeader(AbstractHeader, GeopandasExportMixin):
 
     def get_area_labels(
         self,
-        polygon_gdf: str | WindowsPath | gpd.GeoDataFrame,
+        polygon_gdf: str | Path | gpd.GeoDataFrame,
         column_name: str,
         include_in_header=False,
     ) -> pd.DataFrame:
@@ -407,7 +407,7 @@ class PointHeader(AbstractHeader, GeopandasExportMixin):
 
         Parameters
         ----------
-        polygon_gdf : str | WindowsPath | gpd.GeoDataFrame
+        polygon_gdf : str | Path | gpd.GeoDataFrame
             GeoDataFrame with polygons.
         column_name : str
             The column name to find the labels in.
@@ -523,12 +523,13 @@ class LayeredData(AbstractData, PandasExportMixin):
 
     """
 
+    __datatype = "layered"
+
     def __init__(
         self,
         df: pd.DataFrame,
         has_inclined: bool = False,
     ):
-        self.datatype = "layered"
         self.has_inclined = has_inclined
         self.df = df
 
@@ -552,7 +553,7 @@ class LayeredData(AbstractData, PandasExportMixin):
 
     @property
     def datatype(self):
-        return self._datatype
+        return self.__datatype
 
     @df.setter
     @validate_data
@@ -561,14 +562,6 @@ class LayeredData(AbstractData, PandasExportMixin):
         Underlying pandas.DataFrame
         """
         self._df = df
-
-    @datatype.setter
-    def datatype(self, datatype):
-        if "datatype" in self.__dict__.keys():
-            # Make sure the datatype attr can only be set during init
-            raise Exception("Cannot change datatype of existing data object")
-        else:
-            self._datatype = datatype
 
     @staticmethod
     def _check_correct_instance(selection_values: str | Iterable) -> Iterable:
@@ -975,7 +968,7 @@ class LayeredData(AbstractData, PandasExportMixin):
 
     def to_vtm(
         self,
-        outfile: str | WindowsPath,
+        outfile: str | Path,
         data_columns: str | List[str],
         radius: float = 1,
         vertical_factor: float = 1.0,
@@ -988,7 +981,7 @@ class LayeredData(AbstractData, PandasExportMixin):
 
         Parameters
         ----------
-        outfile : str | WindowsPath
+        outfile : str | Path
             Path to vtm file to be written.
         data_columns : str | List[str]
             Name or names of data columns to include for visualisation. Can be columns that
@@ -1021,7 +1014,7 @@ class LayeredData(AbstractData, PandasExportMixin):
     def to_datafusiontools(
         self,
         columns: List[str],
-        outfile: str | WindowsPath = None,
+        outfile: str | Path = None,
         encode: bool = False,
         relative_to_vertical_reference: bool = True,
     ):
@@ -1039,7 +1032,7 @@ class LayeredData(AbstractData, PandasExportMixin):
         columns : List[str]
             Which columns in the data to include for the export. These will become variables
             in the DataFusionTools "Data" class.
-        outfile : str | WindowsPath, optional
+        outfile : str | Path, optional
             If a path to outfile is given, the data is written to a pickle file.
         encode : bool, default True
             If True, categorical data columns are encoded to additional binary columns
@@ -1143,7 +1136,7 @@ class LayeredData(AbstractData, PandasExportMixin):
 
     def to_qgis3d(
         self,
-        outfile: str | WindowsPath,
+        outfile: str | Path,
         relative_to_vertical_reference: bool = True,
         crs: str | int | CRS = None,
         **kwargs,
@@ -1154,7 +1147,7 @@ class LayeredData(AbstractData, PandasExportMixin):
 
         Parameters
         ----------
-        outfile : str | WindowsPath
+        outfile : str | Path
             Path to geopackage file to be written.
         relative_to_vertical_reference : bool, optional
             If True, the depth of all data objects will converted to a depth with
@@ -1174,7 +1167,7 @@ class LayeredData(AbstractData, PandasExportMixin):
 
     def to_kingdom(
         self,
-        outfile: str | WindowsPath,
+        outfile: str | Path,
         tdstart: int = 1,
         vw: float = 1500.0,
         vs: float = 1600.0,
@@ -1185,7 +1178,7 @@ class LayeredData(AbstractData, PandasExportMixin):
 
         Parameters
         ----------
-        outfile : str | WindowsPath
+        outfile : str | Path
             Path to csv file to be written.
         tdstart : int
             startindex for TDchart, default is 1
@@ -1228,11 +1221,11 @@ class LayeredData(AbstractData, PandasExportMixin):
 
 
 class DiscreteData(AbstractData, PandasExportMixin):
+    __datatype = "discrete"
+
     def __init__(self, df, has_inclined: bool = False):
-        self.__datatype = "discrete"
         self.has_inclined = has_inclined
         self.df = df
-        raise NotImplementedError(f"{self.__class__.__name__} not supported yet")
 
     @property
     def df(self):
@@ -1243,14 +1236,140 @@ class DiscreteData(AbstractData, PandasExportMixin):
     def df(self, df):
         self._df = df
 
-    def to_header(self):
-        raise NotImplementedError()
+    def __repr__(self):
+        name = self.__class__.__name__
+        data = self._df
+        return f"{name} instance:\n{data}"
 
-    def to_collection(self):
-        raise NotImplementedError()
+    def __getitem__(self, column):
+        return self.df[column]
 
-    def select_by_values(self):
-        raise NotImplementedError()
+    def __setitem__(self, column, item):
+        self.df.loc[:, column] = item
+
+    def __len__(self):
+        return len(self.df)
+
+    @property
+    def datatype(self):
+        return self.__datatype
+
+    def to_header(
+        self,
+        horizontal_reference: str | int | CRS = 28992,
+        vertical_reference: str | int | CRS = 5709,
+    ):
+        """
+        Generate a :class:`~geost.base.PointHeader` from this instance of DiscreteData.
+
+        Parameters
+        ----------
+        horizontal_reference : str | int | CRS, optional
+            EPSG of the target crs. Takes anything that can be interpreted by
+            pyproj.crs.CRS.from_user_input(), by default 28992.
+        vertical_reference : str | int | CRS, optional
+            EPSG of the target vertical datum. Takes anything that can be interpreted by
+            pyproj.crs.CRS.from_user_input(). However, it must be a vertical datum. FYI:
+            "NAP" is EPSG 5709 and The Belgian reference system (Ostend height) is ESPG
+            5710, by default 5709.
+
+        Returns
+        -------
+        :class:`~geost.base.PointHeader`
+            An instance of :class:`~geost.base.PointHeader`
+
+        """
+        header_columns = ["nr", "x", "y", "surface", "end"]
+        header = self[header_columns].drop_duplicates("nr").reset_index(drop=True)
+        header = dataframe_to_geodataframe(header).set_crs(horizontal_reference)
+        return PointHeader(header, vertical_reference)
+
+    def to_collection(
+        self,
+        horizontal_reference: str | int | CRS = 28992,
+        vertical_reference: str | int | CRS = 5709,
+    ):
+        """
+        Create a collection from this instance of DiscreteData. A collection combines
+        header and data and ensures that they remain aligned when applying methods.
+
+        Parameters
+        ----------
+        horizontal_reference : str | int | CRS, optional
+            EPSG of the target crs. Takes anything that can be interpreted by
+            pyproj.crs.CRS.from_user_input(), by default 28992.
+        vertical_reference : str | int | CRS, optional
+            EPSG of the target vertical datum. Takes anything that can be interpreted by
+            pyproj.crs.CRS.from_user_input(). However, it must be a vertical datum. FYI:
+            "NAP" is EPSG 5709 and The Belgian reference system (Ostend height) is ESPG
+            5710, by default 5709.
+
+        Returns
+        -------
+        :class:`~geost.base.Collection`
+            An instance of :class:`~geost.base.Collection`
+        """
+        header = self.to_header(horizontal_reference, vertical_reference)
+        return CptCollection(
+            header, self
+        )  # TODO: type of Collection needs to be inferred in the future
+
+    def select_by_values(
+        self, column: str, selection_values: str | Iterable, how: str = "or"
+    ):
+        """
+        Select data based on the presence of given values in a given column. Can be used
+        for example to select boreholes that contain peat in the lithology column.
+
+        Parameters
+        ----------
+        column : str
+            Name of column that contains categorical data to use when looking for
+            values.
+        selection_values : str | Iterable
+            Value or values to look for in the column.
+        how : str, optional
+            Either "and" or "or". "and" requires all selection values to be present in
+            column for selection. "or" will select the core if any one of the
+            selection_values are found in the column. Default is "and".
+
+        Returns
+        -------
+        :class:`~geost.base.DiscreteData`
+            New instance containing only the data selected by this method.
+
+        Examples
+        --------
+        To select boreholes where both clay ("K") and peat ("V") are present at the same
+        time, use "and" as a selection method:
+
+        >>> boreholes.select_by_values("lith", ["V", "K"], how="and")
+
+        To select boreholes that can have one, or both lithologies, use or as the selection
+        method:
+
+        >>> boreholes.select_by_values("lith", ["V", "K"], how="and")
+
+        """
+        if column not in self.df.columns:
+            raise IndexError(
+                f"The column '{column}' does not exist and cannot be used for selection"
+            )
+
+        if isinstance(selection_values, str):
+            selection_values = [selection_values]
+
+        selected = self.df
+        if how == "or":
+            valid = self["nr"][self[column].isin(selection_values)].unique()
+            selected = selected[selected["nr"].isin(valid)]
+
+        elif how == "and":
+            for value in selection_values:
+                valid = self["nr"][self[column] == value].unique()
+                selected = selected[selected["nr"].isin(valid)]
+
+        return self.__class__(selected, self.has_inclined)
 
     def slice_depth_interval(self):
         raise NotImplementedError()
@@ -1271,6 +1390,9 @@ class DiscreteData(AbstractData, PandasExportMixin):
         raise NotImplementedError()
 
     def to_datafusiontools(self):
+        raise NotImplementedError()
+
+    def to_multiblock(self):
         raise NotImplementedError()
 
 
@@ -1534,8 +1656,8 @@ class Collection(AbstractCollection):
     def select_within_bbox(
         self,
         xmin: Coordinate,
-        xmax: Coordinate,
         ymin: Coordinate,
+        xmax: Coordinate,
         ymax: Coordinate,
         invert: bool = False,
     ):
@@ -1546,10 +1668,10 @@ class Collection(AbstractCollection):
         ----------
         xmin : float | int
             Minimum x-coordinate of the bounding box.
-        xmax : float | int
-            Maximum x-coordinate of the bounding box.
         ymin : float | int
             Minimum y-coordinate of the bounding box.
+        xmax : float | int
+            Maximum x-coordinate of the bounding box.
         ymax : float | int
             Maximum y-coordinate of the bounding box.
         invert : bool, optional
@@ -1564,14 +1686,14 @@ class Collection(AbstractCollection):
             Collection, you will get an instance of a Collection back.
         """
         header_selected = self.header.select_within_bbox(
-            xmin, xmax, ymin, ymax, invert=invert
+            xmin, ymin, xmax, ymax, invert=invert
         )
         data_selected = self.data.select_by_values("nr", header_selected["nr"].unique())
         return self.__class__(header_selected, data_selected)
 
     def select_with_points(
         self,
-        points: str | WindowsPath | gpd.GeoDataFrame,
+        points: str | Path | gpd.GeoDataFrame,
         buffer: float | int,
         invert: bool = False,
     ):
@@ -1580,7 +1702,7 @@ class Collection(AbstractCollection):
 
         Parameters
         ----------
-        points : str | WindowsPath | gpd.GeoDataFrame
+        points : str | Path | gpd.GeoDataFrame
             Geodataframe (or file that can be parsed to a geodataframe) to select with.
         buffer : float | int
             Buffer distance for selection geometries.
@@ -1600,7 +1722,7 @@ class Collection(AbstractCollection):
 
     def select_with_lines(
         self,
-        lines: str | WindowsPath | gpd.GeoDataFrame,
+        lines: str | Path | gpd.GeoDataFrame,
         buffer: float | int,
         invert: bool = False,
     ):
@@ -1609,7 +1731,7 @@ class Collection(AbstractCollection):
 
         Parameters
         ----------
-        lines : str | WindowsPath | gpd.GeoDataFrame
+        lines : str | Path | gpd.GeoDataFrame
             Geodataframe (or file that can be parsed to a geodataframe) to select with.
         buffer : float | int
             Buffer distance for selection geometries.
@@ -1629,7 +1751,7 @@ class Collection(AbstractCollection):
 
     def select_within_polygons(
         self,
-        polygons: str | WindowsPath | gpd.GeoDataFrame,
+        polygons: str | Path | gpd.GeoDataFrame,
         buffer: float | int = 0,
         invert: bool = False,
     ):
@@ -1638,7 +1760,7 @@ class Collection(AbstractCollection):
 
         Parameters
         ----------
-        polygons : str | WindowsPath | gpd.GeoDataFrame
+        polygons : str | Path | gpd.GeoDataFrame
             Geodataframe (or file that can be parsed to a geodataframe) to select with.
         buffer : float | int, optional
             Optional buffer distance around the polygon selection geometries, by default
@@ -1906,7 +2028,7 @@ class Collection(AbstractCollection):
 
     def get_area_labels(
         self,
-        polygon_gdf: str | WindowsPath | gpd.GeoDataFrame,
+        polygon_gdf: str | Path | gpd.GeoDataFrame,
         column_name: str,
         include_in_header=False,
     ) -> pd.DataFrame:
@@ -1916,7 +2038,7 @@ class Collection(AbstractCollection):
 
         Parameters
         ----------
-        polygon_gdf : str | WindowsPath | gpd.GeoDataFrame
+        polygon_gdf : str | Path | gpd.GeoDataFrame
             GeoDataFrame with polygons.
         column_name : str
             The column name to find the labels in.
@@ -1935,7 +2057,7 @@ class Collection(AbstractCollection):
         )
         return result
 
-    def to_geoparquet(self, outfile: str | WindowsPath, **kwargs):
+    def to_geoparquet(self, outfile: str | Path, **kwargs):
         """
         Write header data to geoparquet. You can use the resulting file to display
         borehole locations in GIS for instance. Please note that Geoparquet is supported
@@ -1943,7 +2065,7 @@ class Collection(AbstractCollection):
 
         Parameters
         ----------
-        file : str | WindowsPath
+        file : str | Path
             Path to shapefile to be written.
         **kwargs
             gpd.GeoDataFrame.to_parquet kwargs. See relevant Pandas documentation.
@@ -1951,14 +2073,14 @@ class Collection(AbstractCollection):
         """
         self.header.to_geoparquet(outfile, **kwargs)
 
-    def to_shape(self, outfile: str | WindowsPath, **kwargs):
+    def to_shape(self, outfile: str | Path, **kwargs):
         """
         Write header data to shapefile. You can use the resulting file to display
         borehole locations in GIS for instance.
 
         Parameters
         ----------
-        file : str | WindowsPath
+        file : str | Path
             Path to shapefile to be written.
         **kwargs
             gpd.GeoDataFrame.to_file kwargs. See relevant GeoPandas documentation.
@@ -1966,14 +2088,14 @@ class Collection(AbstractCollection):
         """
         self.header.to_shape(outfile, **kwargs)
 
-    def to_geopackage(self, outfile: str | WindowsPath, **kwargs):
+    def to_geopackage(self, outfile: str | Path, **kwargs):
         """
         Write header data to geopackage. You can use the resulting file to display
         borehole locations in GIS for instance.
 
         Parameters
         ----------
-        file : str | WindowsPath
+        file : str | Path
             Path to geopackage to be written.
         **kwargs
             gpd.GeoDataFrame.to_file kwargs. See relevant GeoPandas documentation.
@@ -1981,14 +2103,14 @@ class Collection(AbstractCollection):
         """
         self.header.to_geopackage(outfile, **kwargs)
 
-    def to_parquet(self, outfile: str | WindowsPath, data_table: bool = True, **kwargs):
+    def to_parquet(self, outfile: str | Path, data_table: bool = True, **kwargs):
         """
         Export the data or header table to a parquet file. By default the data table is
         exported.
 
         Parameters
         ----------
-        file : str | WindowsPath
+        file : str | Path
             Path to parquet file to be written.
         data_table : bool, optional
             If True, the data table is exported. If False, the header table is exported.
@@ -2009,14 +2131,14 @@ class Collection(AbstractCollection):
         else:
             self.header.to_parquet(outfile, **kwargs)
 
-    def to_csv(self, outfile: str | WindowsPath, data_table: bool = True, **kwargs):
+    def to_csv(self, outfile: str | Path, data_table: bool = True, **kwargs):
         """
         Export the data or header table to a csv file. By default the data table is
         exported.
 
         Parameters
         ----------
-        file : str | WindowsPath
+        file : str | Path
             Path to csv file to be written.
         data_table : bool, optional
             If True, the data table is exported. If False, the header table is exported.
@@ -2077,7 +2199,7 @@ class Collection(AbstractCollection):
 
     def to_vtm(
         self,
-        outfile: str | WindowsPath,
+        outfile: str | Path,
         data_columns: str | List[str],
         radius: float = 1,
         vertical_factor: float = 1.0,
@@ -2090,7 +2212,7 @@ class Collection(AbstractCollection):
 
         Parameters
         ----------
-        outfile : str | WindowsPath
+        outfile : str | Path
             Path to vtm file to be written.
         data_columns : str | List[str]
             Name or names of data columns to include for visualisation. Can be columns that
@@ -2122,7 +2244,7 @@ class Collection(AbstractCollection):
     def to_datafusiontools(
         self,
         columns: List[str],
-        outfile: str | WindowsPath = None,
+        outfile: str | Path = None,
         encode: bool = False,
         relative_to_vertical_reference: bool = True,
     ):
@@ -2140,7 +2262,7 @@ class Collection(AbstractCollection):
         columns : List[str]
             Which columns in the data to include for the export. These will become variables
             in the DataFusionTools "Data" class.
-        outfile : str | WindowsPath, optional
+        outfile : str | Path, optional
             If a path to outfile is given, the data is written to a pickle file.
         encode : bool, default True
             If True, categorical data columns are encoded to additional binary columns
@@ -2287,7 +2409,7 @@ class BoreholeCollection(Collection):
 
     def to_qgis3d(
         self,
-        outfile: str | WindowsPath,
+        outfile: str | Path,
         relative_to_vertical_reference: bool = True,
         **kwargs,
     ):
@@ -2297,7 +2419,7 @@ class BoreholeCollection(Collection):
 
         Parameters
         ----------
-        outfile : str | WindowsPath
+        outfile : str | Path
             Path to geopackage file to be written.
         relative_to_vertical_reference : bool, optional
             If True, the depth of all data objects will converted to a depth with respect to
@@ -2318,7 +2440,7 @@ class BoreholeCollection(Collection):
 
     def to_kingdom(
         self,
-        outfile: str | WindowsPath,
+        outfile: str | Path,
         tdstart: int = 1,
         vw: float = 1500.0,
         vs: float = 1600.0,
@@ -2329,7 +2451,7 @@ class BoreholeCollection(Collection):
 
         Parameters
         ----------
-        out_file : str | WindowsPath
+        out_file : str | Path
             Path to csv file to be written.
         tdstart : int
             startindex for TDchart, default is 1
@@ -2342,8 +2464,16 @@ class BoreholeCollection(Collection):
 
 
 class CptCollection(Collection):
-    pass
+    def get_cumulative_layer_thickness(self):
+        raise NotImplementedError()
+
+    def get_layer_top(self):
+        raise NotImplementedError()
 
 
 class LogCollection(Collection):
-    pass
+    def get_cumulative_layer_thickness(self):
+        raise NotImplementedError()
+
+    def get_layer_top(self):
+        raise NotImplementedError()

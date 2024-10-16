@@ -8,7 +8,7 @@ import pytest
 from shapely.geometry import Point
 
 from geost import read_borehole_table, read_nlog_cores
-from geost.base import LayeredData
+from geost.base import DiscreteData, LayeredData
 
 
 def borehole_a():
@@ -123,6 +123,10 @@ def nlog_borehole_file():
 
 @pytest.fixture
 def borehole_collection(borehole_data):
+    """
+    Fixture containing a BoreholeCollection instance of synthetic borehole data.
+
+    """
     borehole_collection = borehole_data.to_collection()
     return borehole_collection
 
@@ -141,6 +145,10 @@ def borehole_data():
     d = borehole_d()
     e = borehole_e()
     df = pd.concat([a, b, c, d, e], ignore_index=True)
+    """
+    Fixture containing a LayeredData instance of synthetic borehole data.
+
+    """
     return LayeredData(df)
 
 
@@ -169,3 +177,65 @@ def point_header_gdf():
     )
     gdf.set_crs("epsg:28992", inplace=True)
     return gdf
+
+
+def cpt_a():
+    """
+    Helper function for a synthetic CPT containing qs, fs and u2 "measurements".
+
+    """
+    depth = np.arange(10)
+    surface = 2.1
+    end = surface - depth.max()
+    qc = [0.227, 0.279, 0.327, 0.354, 0.357, 0.354, 0.363, 0.447, 0.761, 1.481]
+    fs = [0.010, 0.014, 0.019, 0.021, 0.022, 0.023, 0.026, 0.023, 0.022, 0.021]
+    u2 = [0.018, 0.026, 0.035, 0.041, 0.047, 0.052, 0.058, 0.061, 0.057, 0.036]
+    return pd.DataFrame(
+        {
+            "nr": np.repeat("a", 10),
+            "x": np.repeat(1, 10),
+            "y": np.repeat(1, 10),
+            "surface": np.repeat(surface, 10),
+            "end": np.repeat(end, 10),
+            "depth": depth,
+            "qc": qc,
+            "fs": fs,
+            "u2": u2,
+        }
+    )
+
+
+def cpt_b():
+    """
+    Helper function for a synthetic CPT containing qs, fs and u2 "measurements".
+
+    """
+    depth = np.arange(10)
+    surface = 0.8
+    end = surface - depth.max()
+    qc = [8.721, 12.733, 17.324, 17.036, 16.352, 15.781, 15.365, 15.509, 15.884, 15.982]
+    fs = [0.061, 0.058, 0.055, 0.054, 0.052, 0.051, 0.052, 0.051, 0.051, 0.050]
+    u2 = [0.218, 0.219, 0.221, 0.220, 0.219, 0.220, 0.221, 0.224, 0.224, 0.225]
+    return pd.DataFrame(
+        {
+            "nr": np.repeat("b", 10),
+            "x": np.repeat(2, 10),
+            "y": np.repeat(2, 10),
+            "surface": np.repeat(surface, 10),
+            "end": np.repeat(end, 10),
+            "depth": depth,
+            "qc": qc,
+            "fs": fs,
+            "u2": u2,
+        }
+    )
+
+
+@pytest.fixture
+def cpt_data():
+    """
+    Fixture containing a DiscreteData instance of synthetic CPT data.
+
+    """
+    df = pd.concat([cpt_a(), cpt_b()], ignore_index=True)
+    return DiscreteData(df)

@@ -7,11 +7,21 @@ from numpy.testing import assert_array_almost_equal, assert_array_equal
 from pyvista import MultiBlock
 from shapely import get_coordinates
 
-from geost.base import BoreholeCollection, PointHeader
+from geost.base import (
+    BoreholeCollection,
+    CptCollection,
+    DiscreteData,
+    LayeredData,
+    PointHeader,
+)
 from geost.export import geodataclass
 
 
 class TestLayeredData:
+    @pytest.mark.unittest
+    def test_datatype(self, borehole_data):
+        assert borehole_data.datatype == "layered"
+
     @pytest.mark.unittest
     def test_to_header(self, borehole_data):
         expected_columns = ["nr", "x", "y", "surface", "end", "geometry"]
@@ -22,6 +32,8 @@ class TestLayeredData:
         assert_array_equal(header.gdf.columns, expected_columns)
         assert len(header.gdf) == 5
         assert header["nr"].nunique() == 5
+        assert header.horizontal_reference == 28992
+        assert header.vertical_reference == 5709
 
     @pytest.mark.unittest
     def test_to_collection(self, borehole_data):
@@ -33,10 +45,10 @@ class TestLayeredData:
     @pytest.mark.unittest
     def test_select_by_values(self, borehole_data):
         selected = borehole_data.select_by_values("lith", ["V", "K"], how="or")
+        assert isinstance(selected, LayeredData)
 
         expected_nrs = ["A", "B", "C", "D"]
         selected_nrs = selected["nr"].unique()
-
         assert_array_equal(selected_nrs, expected_nrs)
 
         selected = borehole_data.select_by_values("lith", ["V", "K"], how="and")
@@ -49,6 +61,7 @@ class TestLayeredData:
     @pytest.mark.unittest
     def test_slice_by_values(self, borehole_data):
         sliced = borehole_data.slice_by_values("lith", "Z")
+        assert isinstance(sliced, LayeredData)
 
         expected_boreholes_with_sand = ["A", "C", "D", "E"]
         expected_length = 10
@@ -111,6 +124,7 @@ class TestLayeredData:
         # Test slicing with respect to depth below the surface.
         upper, lower = 0.6, 2.4
         sliced = borehole_data.slice_depth_interval(upper, lower)
+        assert isinstance(sliced, LayeredData)
 
         layers_per_borehole = sliced["nr"].value_counts()
         expected_layer_count = [3, 3, 3, 3, 2]
@@ -183,6 +197,8 @@ class TestLayeredData:
     @pytest.mark.unittest
     def test_select_by_condition(self, borehole_data):
         selected = borehole_data.select_by_condition(borehole_data["lith"] == "V")
+        assert isinstance(selected, LayeredData)
+
         expected_nrs = ["B", "D"]
         assert_array_equal(selected["nr"].unique(), expected_nrs)
         assert np.all(selected["lith"] == "V")
@@ -192,7 +208,7 @@ class TestLayeredData:
             borehole_data["lith"] == "V", invert=True
         )
         assert len(selected) == 21
-        assert ~np.all(selected['lith']=='V')
+        assert ~np.all(selected["lith"] == "V")
 
     @pytest.mark.unittest
     def test_to_multiblock(self, borehole_data):
@@ -308,20 +324,7 @@ class TestLayeredData:
         )
         assert_array_almost_equal(
             out_tddata["MD"],
-            np.array(
-                [
-                    0,
-                    1,
-                    0,
-                    1,
-                    0,
-                    1,
-                    0,
-                    1,
-                    0,
-                    1,
-                ]
-            ),
+            np.array([0, 1, 0, 1, 0, 1, 0, 1, 0, 1]),
         )
         assert_array_almost_equal(
             out_tddata["TWT"],
@@ -401,3 +404,37 @@ class TestLayeredData:
         borehole_data.to_parquet(outfile)
         assert outfile.is_file()
         outfile.unlink()
+
+
+class TestDiscreteData:
+    @pytest.mark.unittest
+    def test_datatype(self, cpt_data):
+        assert cpt_data.datatype == "discrete"
+
+    @pytest.mark.unittest
+    def test_to_header(self, cpt_data):
+        header = cpt_data.to_header()
+        expected_columns = ["nr", "x", "y", "surface", "end", "geometry"]
+
+        header = cpt_data.to_header()
+
+        assert isinstance(header, PointHeader)
+        assert_array_equal(header.gdf.columns, expected_columns)
+        assert len(header.gdf) == 2
+        assert header["nr"].nunique() == 2
+        assert header.horizontal_reference == 28992
+        assert header.vertical_reference == 5709
+
+    @pytest.mark.unittest
+    def test_to_collection(self, cpt_data):
+        collection = cpt_data.to_collection()
+        assert isinstance(collection, CptCollection)
+        assert isinstance(collection.header, PointHeader)
+        assert len(collection.header) == 2
+
+    @pytest.mark.unittest
+    def test_select_by_values(self, cpt_data):
+        selected = cpt_data.select_by_values("nr", "a")
+        assert isinstance(selected, DiscreteData)
+        assert len(selected) == 10
+        assert_array_equal(selected["nr"].unique(), "a")

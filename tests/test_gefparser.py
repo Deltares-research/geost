@@ -1,8 +1,10 @@
-import pytest
-import numpy as np
 from pathlib import Path
 from typing import NamedTuple
+
+import numpy as np
+import pytest
 from numpy.testing import assert_array_almost_equal
+
 from geost.io.parsers import CptGefFile
 from geost.io.parsers.gef_parsers import ColumnInfo
 
@@ -46,7 +48,7 @@ class TestCptGefParser:
 
     @pytest.fixture
     def cpt_a(self):
-        cpt = CptGefFile(self.filepath / r"83268_DKMP003_(DKMP_D03)_wiertsema.GEF")
+        cpt = CptGefFile(self.filepath / r"83268_DKMP003_wiertsema.gef")
         info_to_test = CptInfo(
             "DKMP_D03",
             176161.1,
@@ -97,7 +99,7 @@ class TestCptGefParser:
 
     @pytest.fixture
     def cpt_d(self):
-        cpt = CptGefFile(self.filepath / r"CPT10_marine_sampling.GEF")
+        cpt = CptGefFile(self.filepath / r"CPT10.gef")
         info_to_test = CptInfo(
             "YANGTZEHAVEN CPT 10",
             61949.0,

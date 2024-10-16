@@ -1,4 +1,4 @@
-from pathlib import Path, WindowsPath
+from pathlib import Path
 
 import geopandas as gpd
 import numpy as np
@@ -13,7 +13,7 @@ inform = inform_user(lambda info: print(info))
 
 
 def check_gdf_instance(
-    gdf_or_path: str | WindowsPath | gpd.GeoDataFrame,
+    gdf_or_path: str | Path | gpd.GeoDataFrame,
 ) -> gpd.GeoDataFrame:
     """
     Check if the argument is already a geodataframe or pointing to a file
@@ -21,7 +21,7 @@ def check_gdf_instance(
 
     Parameters
     ----------
-    gdf_or_path : str | WindowsPath | gpd.GeoDataFrame
+    gdf_or_path : str | Path | gpd.GeoDataFrame
         The geodataframe or file that can be read and parsed to a geodataframe
 
     Returns
@@ -29,7 +29,7 @@ def check_gdf_instance(
     gpd.GeoDataFrame
         An instance of a geopandas geodataframe
     """
-    if isinstance(gdf_or_path, str | WindowsPath):
+    if isinstance(gdf_or_path, str | Path):
         gdf_or_path = Path(gdf_or_path)
         filetype = gdf_or_path.suffix
         if filetype in (".parquet", ".geoparquet"):
@@ -85,10 +85,10 @@ def check_and_coerce_crs(gdf: gpd.GeoDataFrame, to_crs: int):
 
 
 def select_points_within_bbox(
-    gdf: str | WindowsPath | gpd.GeoDataFrame,
+    gdf: str | Path | gpd.GeoDataFrame,
     xmin: float | int,
-    xmax: float | int,
     ymin: float | int,
+    xmax: float | int,
     ymax: float | int,
     invert: bool = False,
 ) -> gpd.GeoDataFrame:
@@ -97,14 +97,14 @@ def select_points_within_bbox(
 
     Parameters
     ----------
-    gdf : str | WindowsPath | gpd.GeoDataFrame
+    gdf : str | Path | gpd.GeoDataFrame
         Geodataframe (or file that can be parsed to a geodataframe) to select from.
     xmin : float | int
         Minimum x-coordinate of the bounding box.
-    xmax : float | int
-        Maximum x-coordinate of the bounding box.
     ymin : float | int
         Minimum y-coordinate of the bounding box.
+    xmax : float | int
+        Maximum x-coordinate of the bounding box.
     ymax : float | int
         Maximum y-coordinate of the bounding box.
     invert : bool, optional
@@ -130,8 +130,8 @@ def select_points_within_bbox(
 
 
 def select_points_near_points(
-    gdf: str | WindowsPath | gpd.GeoDataFrame,
-    point_gdf: str | WindowsPath | gpd.GeoDataFrame,
+    gdf: str | Path | gpd.GeoDataFrame,
+    point_gdf: str | Path | gpd.GeoDataFrame,
     buffer: float | int,
     invert: bool = False,
 ) -> gpd.GeoDataFrame:
@@ -140,9 +140,9 @@ def select_points_near_points(
 
     Parameters
     ----------
-    gdf : str | WindowsPath | gpd.GeoDataFrame
+    gdf : str | Path | gpd.GeoDataFrame
         Geodataframe (or file that can be parsed to a geodataframe) to select from.
-    point_gdf : str | WindowsPath | gpd.GeoDataFrame
+    point_gdf : str | Path | gpd.GeoDataFrame
         Geodataframe (or file that can be parsed to a geodataframe) to select with.
     buffer : float | int
         Buffer distance for selection geometries.
@@ -178,8 +178,8 @@ def select_points_near_points(
 
 
 def select_points_near_lines(
-    gdf: str | WindowsPath | gpd.GeoDataFrame,
-    line_gdf: str | WindowsPath | gpd.GeoDataFrame,
+    gdf: str | Path | gpd.GeoDataFrame,
+    line_gdf: str | Path | gpd.GeoDataFrame,
     buffer: float | int,
     invert: bool = False,
 ) -> gpd.GeoDataFrame:
@@ -188,9 +188,9 @@ def select_points_near_lines(
 
     Parameters
     ----------
-    gdf : str | WindowsPath | gpd.GeoDataFrame
+    gdf : str | Path | gpd.GeoDataFrame
         Geodataframe (or file that can be parsed to a geodataframe) to select from.
-    line_gdf : str | WindowsPath | gpd.GeoDataFrame
+    line_gdf : str | Path | gpd.GeoDataFrame
         Geodataframe (or file that can be parsed to a geodataframe) to select with.
     buffer : float | int
         Buffer distance for selection geometries.
@@ -216,8 +216,8 @@ def select_points_near_lines(
 
 
 def select_points_within_polygons(
-    gdf: str | WindowsPath | gpd.GeoDataFrame,
-    polygon_gdf: str | WindowsPath | gpd.GeoDataFrame,
+    gdf: str | Path | gpd.GeoDataFrame,
+    polygon_gdf: str | Path | gpd.GeoDataFrame,
     buffer: float | int = 0,
     invert: bool = False,
 ) -> gpd.GeoDataFrame:
@@ -227,9 +227,9 @@ def select_points_within_polygons(
 
     Parameters
     ----------
-    gdf : str | WindowsPath | gpd.GeoDataFrame
+    gdf : str | Path | gpd.GeoDataFrame
         Geodataframe (or file that can be parsed to a geodataframe) to select from.
-    polygon_gdf : str | WindowsPath | gpd.GeoDataFrame
+    polygon_gdf : str | Path | gpd.GeoDataFrame
         Geodataframe (or file that can be parsed to a geodataframe) to select with.
     buffer : float | int, optional
         Optional buffer distance around the polygon selection geometries, by default 0.
@@ -291,7 +291,7 @@ def find_area_labels(
 
 
 def get_raster_values(
-    x: np.ndarray, y: np.ndarray, raster_to_read: str | WindowsPath | xr.DataArray
+    x: np.ndarray, y: np.ndarray, raster_to_read: str | Path | xr.DataArray
 ) -> np.ndarray:
     """
     Return sampled values from a raster at the given (x, y) locations.
@@ -302,7 +302,7 @@ def get_raster_values(
         1D array of x-coordinates, same length as 'y'.
     y : np.ndarray
         1D array of y-coordinates, same length as 'x'.
-    raster_to_read : str | WindowsPath | xr.DataArray
+    raster_to_read : str | Path | xr.DataArray
         Location of a raster file or an xr.DataArray with dimensions 'x' and 'y'. This
         raster is used to sample values from at all (x, y) locations.
 
@@ -311,7 +311,7 @@ def get_raster_values(
     np.ndarray
         1D array of sampled values
     """
-    if isinstance(raster_to_read, (str, WindowsPath)):
+    if isinstance(raster_to_read, (str, Path)):
         raster_to_read = rioxarray.open_rasterio(raster_to_read).squeeze()
 
     if set(raster_to_read.dims) != set(("y", "x")):

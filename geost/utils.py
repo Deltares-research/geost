@@ -1,5 +1,5 @@
 import operator
-from pathlib import Path, WindowsPath
+from pathlib import Path
 from typing import Union
 
 import geopandas as gpd
@@ -23,16 +23,16 @@ ARITHMIC_OPERATORS = {
 
 
 def csv_to_parquet(
-    file: Union[str, WindowsPath], out_file: Union[str, WindowsPath] = None, **kwargs
+    file: Union[str, Path], out_file: Union[str, Path] = None, **kwargs
 ) -> None:
     """
     Convert csv table to parquet.
 
     Parameters
     ----------
-    file : Union[str, WindowsPath]
+    file : Union[str, Path]
         Path to csv file to convert.
-    out_file : Union[str, WindowsPath], optional
+    out_file : Union[str, Path], optional
         Path to parquet file to be written. If not provided it will use the path of
         'file'.
     **kwargs
@@ -55,16 +55,16 @@ def csv_to_parquet(
 
 
 def excel_to_parquet(
-    file: Union[str, WindowsPath], out_file: Union[str, WindowsPath] = None, **kwargs
+    file: Union[str, Path], out_file: Union[str, Path] = None, **kwargs
 ) -> None:
     """
     Convert excel table to parquet.
 
     Parameters
     ----------
-    file : Union[str, WindowsPath]
+    file : Union[str, Path]
         Path to excel file to convert.
-    out_file : Union[str, WindowsPath], optional
+    out_file : Union[str, Path], optional
         Path to parquet file to be written. If not provided it will use the path of
         'file'.
     **kwargs
@@ -88,7 +88,7 @@ def excel_to_parquet(
         df.to_parquet(out_file)
 
 
-def get_path_iterable(path: WindowsPath, wildcard: str = "*"):
+def get_path_iterable(path: Path, wildcard: str = "*"):
     if path.is_file():
         return [path]
     elif path.is_dir():
