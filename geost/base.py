@@ -1,5 +1,5 @@
 import pickle
-from pathlib import WindowsPath
+from pathlib import Path
 from typing import Any, Iterable, List
 
 import geopandas as gpd
@@ -237,7 +237,7 @@ class PointHeader(AbstractHeader, GeopandasExportMixin):
 
     def select_with_points(
         self,
-        points: str | WindowsPath | gpd.GeoDataFrame,
+        points: str | Path | gpd.GeoDataFrame,
         buffer: float | int,
         invert: bool = False,
     ):
@@ -246,7 +246,7 @@ class PointHeader(AbstractHeader, GeopandasExportMixin):
 
         Parameters
         ----------
-        points : str | WindowsPath | gpd.GeoDataFrame
+        points : str | Path | gpd.GeoDataFrame
             Geodataframe (or file that can be parsed to a geodataframe) to select with.
         buffer : float | int
             Buffer distance for selection geometries.
@@ -266,7 +266,7 @@ class PointHeader(AbstractHeader, GeopandasExportMixin):
 
     def select_with_lines(
         self,
-        lines: str | WindowsPath | gpd.GeoDataFrame,
+        lines: str | Path | gpd.GeoDataFrame,
         buffer: float | int,
         invert: bool = False,
     ):
@@ -275,7 +275,7 @@ class PointHeader(AbstractHeader, GeopandasExportMixin):
 
         Parameters
         ----------
-        lines : str | WindowsPath | gpd.GeoDataFrame
+        lines : str | Path | gpd.GeoDataFrame
             Geodataframe (or file that can be parsed to a geodataframe) to select with.
         buffer : float | int
             Buffer distance for selection geometries.
@@ -295,7 +295,7 @@ class PointHeader(AbstractHeader, GeopandasExportMixin):
 
     def select_within_polygons(
         self,
-        polygons: str | WindowsPath | gpd.GeoDataFrame,
+        polygons: str | Path | gpd.GeoDataFrame,
         buffer: float | int = 0,
         invert: bool = False,
     ):
@@ -304,7 +304,7 @@ class PointHeader(AbstractHeader, GeopandasExportMixin):
 
         Parameters
         ----------
-        polygons : str | WindowsPath | gpd.GeoDataFrame
+        polygons : str | Path | gpd.GeoDataFrame
             Geodataframe (or file that can be parsed to a geodataframe) to select with.
         buffer : float | int, optional
             Optional buffer distance around the polygon selection geometries, by default
@@ -397,7 +397,7 @@ class PointHeader(AbstractHeader, GeopandasExportMixin):
 
     def get_area_labels(
         self,
-        polygon_gdf: str | WindowsPath | gpd.GeoDataFrame,
+        polygon_gdf: str | Path | gpd.GeoDataFrame,
         column_name: str,
         include_in_header=False,
     ) -> pd.DataFrame:
@@ -407,7 +407,7 @@ class PointHeader(AbstractHeader, GeopandasExportMixin):
 
         Parameters
         ----------
-        polygon_gdf : str | WindowsPath | gpd.GeoDataFrame
+        polygon_gdf : str | Path | gpd.GeoDataFrame
             GeoDataFrame with polygons.
         column_name : str
             The column name to find the labels in.
@@ -968,7 +968,7 @@ class LayeredData(AbstractData, PandasExportMixin):
 
     def to_vtm(
         self,
-        outfile: str | WindowsPath,
+        outfile: str | Path,
         data_columns: str | List[str],
         radius: float = 1,
         vertical_factor: float = 1.0,
@@ -981,7 +981,7 @@ class LayeredData(AbstractData, PandasExportMixin):
 
         Parameters
         ----------
-        outfile : str | WindowsPath
+        outfile : str | Path
             Path to vtm file to be written.
         data_columns : str | List[str]
             Name or names of data columns to include for visualisation. Can be columns that
@@ -1014,7 +1014,7 @@ class LayeredData(AbstractData, PandasExportMixin):
     def to_datafusiontools(
         self,
         columns: List[str],
-        outfile: str | WindowsPath = None,
+        outfile: str | Path = None,
         encode: bool = False,
         relative_to_vertical_reference: bool = True,
     ):
@@ -1032,7 +1032,7 @@ class LayeredData(AbstractData, PandasExportMixin):
         columns : List[str]
             Which columns in the data to include for the export. These will become variables
             in the DataFusionTools "Data" class.
-        outfile : str | WindowsPath, optional
+        outfile : str | Path, optional
             If a path to outfile is given, the data is written to a pickle file.
         encode : bool, default True
             If True, categorical data columns are encoded to additional binary columns
@@ -1136,7 +1136,7 @@ class LayeredData(AbstractData, PandasExportMixin):
 
     def to_qgis3d(
         self,
-        outfile: str | WindowsPath,
+        outfile: str | Path,
         relative_to_vertical_reference: bool = True,
         crs: str | int | CRS = None,
         **kwargs,
@@ -1147,7 +1147,7 @@ class LayeredData(AbstractData, PandasExportMixin):
 
         Parameters
         ----------
-        outfile : str | WindowsPath
+        outfile : str | Path
             Path to geopackage file to be written.
         relative_to_vertical_reference : bool, optional
             If True, the depth of all data objects will converted to a depth with
@@ -1167,7 +1167,7 @@ class LayeredData(AbstractData, PandasExportMixin):
 
     def to_kingdom(
         self,
-        outfile: str | WindowsPath,
+        outfile: str | Path,
         tdstart: int = 1,
         vw: float = 1500.0,
         vs: float = 1600.0,
@@ -1178,7 +1178,7 @@ class LayeredData(AbstractData, PandasExportMixin):
 
         Parameters
         ----------
-        outfile : str | WindowsPath
+        outfile : str | Path
             Path to csv file to be written.
         tdstart : int
             startindex for TDchart, default is 1
@@ -1693,7 +1693,7 @@ class Collection(AbstractCollection):
 
     def select_with_points(
         self,
-        points: str | WindowsPath | gpd.GeoDataFrame,
+        points: str | Path | gpd.GeoDataFrame,
         buffer: float | int,
         invert: bool = False,
     ):
@@ -1702,7 +1702,7 @@ class Collection(AbstractCollection):
 
         Parameters
         ----------
-        points : str | WindowsPath | gpd.GeoDataFrame
+        points : str | Path | gpd.GeoDataFrame
             Geodataframe (or file that can be parsed to a geodataframe) to select with.
         buffer : float | int
             Buffer distance for selection geometries.
@@ -1722,7 +1722,7 @@ class Collection(AbstractCollection):
 
     def select_with_lines(
         self,
-        lines: str | WindowsPath | gpd.GeoDataFrame,
+        lines: str | Path | gpd.GeoDataFrame,
         buffer: float | int,
         invert: bool = False,
     ):
@@ -1731,7 +1731,7 @@ class Collection(AbstractCollection):
 
         Parameters
         ----------
-        lines : str | WindowsPath | gpd.GeoDataFrame
+        lines : str | Path | gpd.GeoDataFrame
             Geodataframe (or file that can be parsed to a geodataframe) to select with.
         buffer : float | int
             Buffer distance for selection geometries.
@@ -1751,7 +1751,7 @@ class Collection(AbstractCollection):
 
     def select_within_polygons(
         self,
-        polygons: str | WindowsPath | gpd.GeoDataFrame,
+        polygons: str | Path | gpd.GeoDataFrame,
         buffer: float | int = 0,
         invert: bool = False,
     ):
@@ -1760,7 +1760,7 @@ class Collection(AbstractCollection):
 
         Parameters
         ----------
-        polygons : str | WindowsPath | gpd.GeoDataFrame
+        polygons : str | Path | gpd.GeoDataFrame
             Geodataframe (or file that can be parsed to a geodataframe) to select with.
         buffer : float | int, optional
             Optional buffer distance around the polygon selection geometries, by default
@@ -2028,7 +2028,7 @@ class Collection(AbstractCollection):
 
     def get_area_labels(
         self,
-        polygon_gdf: str | WindowsPath | gpd.GeoDataFrame,
+        polygon_gdf: str | Path | gpd.GeoDataFrame,
         column_name: str,
         include_in_header=False,
     ) -> pd.DataFrame:
@@ -2038,7 +2038,7 @@ class Collection(AbstractCollection):
 
         Parameters
         ----------
-        polygon_gdf : str | WindowsPath | gpd.GeoDataFrame
+        polygon_gdf : str | Path | gpd.GeoDataFrame
             GeoDataFrame with polygons.
         column_name : str
             The column name to find the labels in.
@@ -2057,7 +2057,7 @@ class Collection(AbstractCollection):
         )
         return result
 
-    def to_geoparquet(self, outfile: str | WindowsPath, **kwargs):
+    def to_geoparquet(self, outfile: str | Path, **kwargs):
         """
         Write header data to geoparquet. You can use the resulting file to display
         borehole locations in GIS for instance. Please note that Geoparquet is supported
@@ -2065,7 +2065,7 @@ class Collection(AbstractCollection):
 
         Parameters
         ----------
-        file : str | WindowsPath
+        file : str | Path
             Path to shapefile to be written.
         **kwargs
             gpd.GeoDataFrame.to_parquet kwargs. See relevant Pandas documentation.
@@ -2073,14 +2073,14 @@ class Collection(AbstractCollection):
         """
         self.header.to_geoparquet(outfile, **kwargs)
 
-    def to_shape(self, outfile: str | WindowsPath, **kwargs):
+    def to_shape(self, outfile: str | Path, **kwargs):
         """
         Write header data to shapefile. You can use the resulting file to display
         borehole locations in GIS for instance.
 
         Parameters
         ----------
-        file : str | WindowsPath
+        file : str | Path
             Path to shapefile to be written.
         **kwargs
             gpd.GeoDataFrame.to_file kwargs. See relevant GeoPandas documentation.
@@ -2088,14 +2088,14 @@ class Collection(AbstractCollection):
         """
         self.header.to_shape(outfile, **kwargs)
 
-    def to_geopackage(self, outfile: str | WindowsPath, **kwargs):
+    def to_geopackage(self, outfile: str | Path, **kwargs):
         """
         Write header data to geopackage. You can use the resulting file to display
         borehole locations in GIS for instance.
 
         Parameters
         ----------
-        file : str | WindowsPath
+        file : str | Path
             Path to geopackage to be written.
         **kwargs
             gpd.GeoDataFrame.to_file kwargs. See relevant GeoPandas documentation.
@@ -2103,14 +2103,14 @@ class Collection(AbstractCollection):
         """
         self.header.to_geopackage(outfile, **kwargs)
 
-    def to_parquet(self, outfile: str | WindowsPath, data_table: bool = True, **kwargs):
+    def to_parquet(self, outfile: str | Path, data_table: bool = True, **kwargs):
         """
         Export the data or header table to a parquet file. By default the data table is
         exported.
 
         Parameters
         ----------
-        file : str | WindowsPath
+        file : str | Path
             Path to parquet file to be written.
         data_table : bool, optional
             If True, the data table is exported. If False, the header table is exported.
@@ -2131,14 +2131,14 @@ class Collection(AbstractCollection):
         else:
             self.header.to_parquet(outfile, **kwargs)
 
-    def to_csv(self, outfile: str | WindowsPath, data_table: bool = True, **kwargs):
+    def to_csv(self, outfile: str | Path, data_table: bool = True, **kwargs):
         """
         Export the data or header table to a csv file. By default the data table is
         exported.
 
         Parameters
         ----------
-        file : str | WindowsPath
+        file : str | Path
             Path to csv file to be written.
         data_table : bool, optional
             If True, the data table is exported. If False, the header table is exported.
@@ -2199,7 +2199,7 @@ class Collection(AbstractCollection):
 
     def to_vtm(
         self,
-        outfile: str | WindowsPath,
+        outfile: str | Path,
         data_columns: str | List[str],
         radius: float = 1,
         vertical_factor: float = 1.0,
@@ -2212,7 +2212,7 @@ class Collection(AbstractCollection):
 
         Parameters
         ----------
-        outfile : str | WindowsPath
+        outfile : str | Path
             Path to vtm file to be written.
         data_columns : str | List[str]
             Name or names of data columns to include for visualisation. Can be columns that
@@ -2244,7 +2244,7 @@ class Collection(AbstractCollection):
     def to_datafusiontools(
         self,
         columns: List[str],
-        outfile: str | WindowsPath = None,
+        outfile: str | Path = None,
         encode: bool = False,
         relative_to_vertical_reference: bool = True,
     ):
@@ -2262,7 +2262,7 @@ class Collection(AbstractCollection):
         columns : List[str]
             Which columns in the data to include for the export. These will become variables
             in the DataFusionTools "Data" class.
-        outfile : str | WindowsPath, optional
+        outfile : str | Path, optional
             If a path to outfile is given, the data is written to a pickle file.
         encode : bool, default True
             If True, categorical data columns are encoded to additional binary columns
@@ -2409,7 +2409,7 @@ class BoreholeCollection(Collection):
 
     def to_qgis3d(
         self,
-        outfile: str | WindowsPath,
+        outfile: str | Path,
         relative_to_vertical_reference: bool = True,
         **kwargs,
     ):
@@ -2419,7 +2419,7 @@ class BoreholeCollection(Collection):
 
         Parameters
         ----------
-        outfile : str | WindowsPath
+        outfile : str | Path
             Path to geopackage file to be written.
         relative_to_vertical_reference : bool, optional
             If True, the depth of all data objects will converted to a depth with respect to
@@ -2440,7 +2440,7 @@ class BoreholeCollection(Collection):
 
     def to_kingdom(
         self,
-        outfile: str | WindowsPath,
+        outfile: str | Path,
         tdstart: int = 1,
         vw: float = 1500.0,
         vs: float = 1600.0,
@@ -2451,7 +2451,7 @@ class BoreholeCollection(Collection):
 
         Parameters
         ----------
-        out_file : str | WindowsPath
+        out_file : str | Path
             Path to csv file to be written.
         tdstart : int
             startindex for TDchart, default is 1

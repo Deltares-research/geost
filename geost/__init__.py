@@ -15,4 +15,4 @@ from geost.read import (
 # read_xml_soil_cores,
 from geost.utils import csv_to_parquet, excel_to_parquet
 
-__version__ = "0.2.4"
+__version__ = "0.2.5"

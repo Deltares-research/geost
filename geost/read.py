@@ -1,4 +1,4 @@
-from pathlib import Path, WindowsPath
+from pathlib import Path
 from typing import Union
 
 import geopandas as gpd
@@ -49,13 +49,13 @@ LLG_COLUMN_MAPPING = {
 }
 
 
-def __read_file(file: str | WindowsPath, **kwargs) -> pd.DataFrame:
+def __read_file(file: str | Path, **kwargs) -> pd.DataFrame:
     """
     Read parquet file.
 
     Parameters
     ----------
-    file : WindowsPath
+    file : Path
         Path to file to be read.
     kwargs : optional
         Kwargs to pass to the read function
@@ -144,7 +144,7 @@ def _check_mandatory_column_presence(
 
 
 def read_borehole_table(
-    file: str | WindowsPath,
+    file: str | Path,
     horizontal_reference: str | int | CRS = 28992,
     vertical_reference: str | int | CRS = 5709,
     has_inclined: bool = False,
@@ -176,7 +176,7 @@ def read_borehole_table(
 
     Parameters
     ----------
-    file : str | WindowsPath
+    file : str | Path
         Path to file to be read. Depending on the file extension, the corresponding
         Pandas read function will be called. This can be either pandas.read_parquet,
         pandas.read_csv or pandas.read_excel. The **kwargs that can be given to this
@@ -244,7 +244,7 @@ def read_borehole_table(
 
 
 def read_cpt_table(
-    file: str | WindowsPath,
+    file: str | Path,
     horizontal_reference: str | int | CRS = 28992,
     vertical_reference: str | int | CRS = 5709,
     as_collection: bool = True,
@@ -265,7 +265,7 @@ def read_cpt_table(
 
     Parameters
     ----------
-    file : str | WindowsPath
+    file : str | Path
         File with the CPT information to read.
     horizontal_reference : str | int | CRS, optional
         EPSG of the data's horizontal reference. Takes anything that can be interpreted
@@ -308,7 +308,7 @@ def read_cpt_table(
     return cpts
 
 
-def read_nlog_cores(file: str | WindowsPath) -> BoreholeCollection:
+def read_nlog_cores(file: str | Path) -> BoreholeCollection:
     """
     Read NLog boreholes from the 'nlog_stratstelsel' Excel file. You can find this
     distribution of borehole data here: https://www.nlog.nl/boringen
@@ -319,7 +319,7 @@ def read_nlog_cores(file: str | WindowsPath) -> BoreholeCollection:
 
     Parameters
     ----------
-    file : str | WindowsPath
+    file : str | Path
         Path to nlog_stratstelsel.xlsx or .parquet
 
     Returns
@@ -383,7 +383,7 @@ def read_nlog_cores(file: str | WindowsPath) -> BoreholeCollection:
 
 
 def read_xml_geotechnical_cores(
-    file_or_folder: str | WindowsPath,
+    file_or_folder: str | Path,
 ) -> BoreholeCollection:
     """
     NOTIMPLEMENTED
@@ -394,7 +394,7 @@ def read_xml_geotechnical_cores(
     pass
 
 
-def read_xml_soil_cores(file_or_folder: str | WindowsPath) -> BoreholeCollection:
+def read_xml_soil_cores(file_or_folder: str | Path) -> BoreholeCollection:
     """
     NOTIMPLEMENTED
     Read xml files of BRO soil boreholes (IMBRO or IMBRO/A quality).
@@ -403,7 +403,7 @@ def read_xml_soil_cores(file_or_folder: str | WindowsPath) -> BoreholeCollection
     pass
 
 
-def read_xml_geological_cores(file_or_folder: str | WindowsPath) -> BoreholeCollection:
+def read_xml_geological_cores(file_or_folder: str | Path) -> BoreholeCollection:
     """
     NOTIMPLEMENTED
     Read xml files of DINO geological boreholes.
@@ -412,7 +412,7 @@ def read_xml_geological_cores(file_or_folder: str | WindowsPath) -> BoreholeColl
     pass
 
 
-def read_gef_cores(file_or_folder: str | WindowsPath) -> BoreholeCollection:
+def read_gef_cores(file_or_folder: str | Path) -> BoreholeCollection:
     """
     NOTIMPLEMENTED
     Read gef files of boreholes.
@@ -421,13 +421,13 @@ def read_gef_cores(file_or_folder: str | WindowsPath) -> BoreholeCollection:
     pass
 
 
-def read_gef_cpts(file_or_folder: str | WindowsPath) -> CptCollection:
+def read_gef_cpts(file_or_folder: str | Path) -> CptCollection:
     """
     Read one or more GEF files of CPT data into a geost CptCollection.
 
     Parameters
     ----------
-    file_or_folder : str | WindowsPath
+    file_or_folder : str | Path
         GEF files to read.
 
     Returns
@@ -442,7 +442,7 @@ def read_gef_cpts(file_or_folder: str | WindowsPath) -> CptCollection:
     return DiscreteData(df).to_collection()
 
 
-def read_xml_cpts(file_or_folder: str | WindowsPath) -> CptCollection:
+def read_xml_cpts(file_or_folder: str | Path) -> CptCollection:
     """
     NOTIMPLEMENTED
     Read xml files of cpts.
@@ -598,8 +598,8 @@ def get_bro_objects_from_geometry(
 
 
 def read_uullg_tables(
-    header_table: str | WindowsPath,
-    data_table: str | WindowsPath,
+    header_table: str | Path,
+    data_table: str | Path,
     horizontal_reference: str | int | CRS = 28992,
     vertical_reference: str | int | CRS = 5709,
     **kwargs,
@@ -613,9 +613,9 @@ def read_uullg_tables(
 
     Parameters
     ----------
-    header_table : str | WindowsPath
+    header_table : str | Path
         Path to file of the UU-LLG header table.
-    data_table : str | WindowsPath
+    data_table : str | Path
         Path to file of the UU-LLG data table.
     horizontal_reference : str | int | CRS, optional
         EPSG of the data's horizontal reference. Takes anything that can be interpreted

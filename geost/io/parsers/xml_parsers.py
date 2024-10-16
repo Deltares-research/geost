@@ -1,5 +1,5 @@
 import re
-from pathlib import Path, WindowsPath
+from pathlib import Path
 from typing import NamedTuple, Union
 
 import pandas as pd
@@ -23,8 +23,8 @@ class LayerSoilCore(NamedTuple):
 
 
 class SoilCore:
-    def __init__(self, xml: Union[str, WindowsPath, etree._Element]):
-        if isinstance(xml, (str, WindowsPath)):
+    def __init__(self, xml: Union[str, Path, etree._Element]):
+        if isinstance(xml, (str, Path)):
             self.root = etree.parse(xml).getroot()
         elif isinstance(xml, etree._Element):
             self.root = xml

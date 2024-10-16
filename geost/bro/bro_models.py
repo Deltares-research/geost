@@ -1,4 +1,4 @@
-from pathlib import WindowsPath
+from pathlib import Path
 from typing import List
 
 import rioxarray as rio
@@ -13,7 +13,7 @@ class GeoTop(VoxelModel):
     @classmethod
     def from_netcdf(
         cls,
-        nc_path: str | WindowsPath,
+        nc_path: str | Path,
         data_vars: List[str] = None,
         bbox: tuple[float, float, float, float] = None,
         lazy: bool = True,
@@ -26,7 +26,7 @@ class GeoTop(VoxelModel):
 
         Parameters
         ----------
-        nc_path : str | WindowsPath
+        nc_path : str | Path
             Path to the netcdf file of GeoTop.
         data_vars : ArrayLike
             List or array-like object specifying which data variables to return.

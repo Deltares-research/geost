@@ -1,6 +1,6 @@
 import logging
 import re
-from pathlib import WindowsPath
+from pathlib import Path
 from typing import NamedTuple, Union
 
 import numpy as np
@@ -136,7 +136,7 @@ class CptGefFile:  # TODO: Break parser down in HeaderParser and DataParser and 
 
     Parameters
     ----------
-    path : str, WindowsPath, optional
+    path : str, Path, optional
         Path to the gef file to parse. If None, an empty class instance is returned.
     sep : str, optional
         Column separator character of the gef file to use when the separator is not
@@ -144,7 +144,7 @@ class CptGefFile:  # TODO: Break parser down in HeaderParser and DataParser and 
 
     """
 
-    def __init__(self, path: str | WindowsPath = None, sep: str = " "):
+    def __init__(self, path: str | Path = None, sep: str = " "):
         self.path = path
         self._header = None
         self._data = None

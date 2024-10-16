@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from pathlib import WindowsPath
+from pathlib import Path
 
 import geopandas as gpd
 import numpy as np
@@ -233,15 +233,13 @@ class VoxelModel(AbstractSpatial, AbstractModel3D):
         selected = self.ds.isel(**xr_kwargs)
         return self.__class__(selected)
 
-    def select_with_points(
-        self, points: str | WindowsPath | gpd.GeoDataFrame
-    ) -> xr.Dataset:
+    def select_with_points(self, points: str | Path | gpd.GeoDataFrame) -> xr.Dataset:
         """
         Select voxel columns at the locations of point geometries.
 
         Parameters
         ----------
-        points : str | WindowsPath | gpd.GeoDataFrame
+        points : str | Path | gpd.GeoDataFrame
             Geodataframe (or file that can be parsed to a geodataframe) to select with.
 
         Returns
