@@ -109,5 +109,5 @@ class GeoTop(VoxelModel):
         return cls.from_netcdf(url, data_vars, bbox, lazy, **xr_kwargs)
 
 
-class Regis(LayerModel):
+class Regis(LayerModel):  # pragma: no cover
     pass

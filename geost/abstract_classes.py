@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 
 
-class AbstractHeader(ABC):
+class AbstractHeader(ABC):  # pragma: no cover
     @property
     @abstractmethod
     def gdf(self):
@@ -63,7 +63,7 @@ class AbstractHeader(ABC):
         pass
 
 
-class AbstractData(ABC):
+class AbstractData(ABC):  # pragma: no cover
     @property
     @abstractmethod
     def df(self):
@@ -126,7 +126,7 @@ class AbstractData(ABC):
         pass
 
 
-class AbstractCollection(ABC):
+class AbstractCollection(ABC):  # pragma: no cover
     @property
     @abstractmethod
     def header(self):

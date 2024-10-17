@@ -384,7 +384,7 @@ def read_nlog_cores(file: str | Path) -> BoreholeCollection:
 
 def read_xml_geotechnical_cores(
     file_or_folder: str | Path,
-) -> BoreholeCollection:
+) -> BoreholeCollection:  # pragma: no cover
     """
     NOTIMPLEMENTED
     Read xml files of BRO geotechnical boreholes (IMBRO or IMBRO/A quality).
@@ -394,7 +394,9 @@ def read_xml_geotechnical_cores(
     pass
 
 
-def read_xml_soil_cores(file_or_folder: str | Path) -> BoreholeCollection:
+def read_xml_soil_cores(
+    file_or_folder: str | Path,
+) -> BoreholeCollection:  # pragma: no cover
     """
     NOTIMPLEMENTED
     Read xml files of BRO soil boreholes (IMBRO or IMBRO/A quality).
@@ -403,7 +405,9 @@ def read_xml_soil_cores(file_or_folder: str | Path) -> BoreholeCollection:
     pass
 
 
-def read_xml_geological_cores(file_or_folder: str | Path) -> BoreholeCollection:
+def read_xml_geological_cores(
+    file_or_folder: str | Path,
+) -> BoreholeCollection:  # pragma: no cover
     """
     NOTIMPLEMENTED
     Read xml files of DINO geological boreholes.
@@ -412,7 +416,9 @@ def read_xml_geological_cores(file_or_folder: str | Path) -> BoreholeCollection:
     pass
 
 
-def read_gef_cores(file_or_folder: str | Path) -> BoreholeCollection:
+def read_gef_cores(
+    file_or_folder: str | Path,
+) -> BoreholeCollection:  # pragma: no cover
     """
     NOTIMPLEMENTED
     Read gef files of boreholes.
@@ -442,7 +448,7 @@ def read_gef_cpts(file_or_folder: str | Path) -> CptCollection:
     return DiscreteData(df).to_collection()
 
 
-def read_xml_cpts(file_or_folder: str | Path) -> CptCollection:
+def read_xml_cpts(file_or_folder: str | Path) -> CptCollection:  # pragma: no cover
     """
     NOTIMPLEMENTED
     Read xml files of cpts.

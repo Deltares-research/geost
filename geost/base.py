@@ -441,7 +441,7 @@ class PointHeader(AbstractHeader, GeopandasExportMixin):
             return area_labels
 
 
-class LineHeader(AbstractHeader, GeopandasExportMixin):
+class LineHeader(AbstractHeader, GeopandasExportMixin):  # pragma: no cover
     def __init__(self, gdf, vertical_reference: str | int | CRS):
         self.gdf = gdf
         self.__vertical_reference = CRS(vertical_reference)
@@ -1371,28 +1371,28 @@ class DiscreteData(AbstractData, PandasExportMixin):
 
         return self.__class__(selected, self.has_inclined)
 
-    def slice_depth_interval(self):
+    def slice_depth_interval(self):  # pragma: no cover
         raise NotImplementedError()
 
-    def slice_by_values(self):
+    def slice_by_values(self):  # pragma: no cover
         raise NotImplementedError()
 
-    def select_by_condition(self):
+    def select_by_condition(self):  # pragma: no cover
         raise NotImplementedError()
 
-    def get_cumulative_layer_thickness(self):
+    def get_cumulative_layer_thickness(self):  # pragma: no cover
         raise NotImplementedError()
 
-    def get_layer_top(self):
+    def get_layer_top(self):  # pragma: no cover
         raise NotImplementedError()
 
-    def to_vtm(self):
+    def to_vtm(self):  # pragma: no cover
         raise NotImplementedError()
 
-    def to_datafusiontools(self):
+    def to_datafusiontools(self):  # pragma: no cover
         raise NotImplementedError()
 
-    def to_multiblock(self):
+    def to_multiblock(self):  # pragma: no cover
         raise NotImplementedError()
 
 
@@ -2471,7 +2471,7 @@ class CptCollection(Collection):
         raise NotImplementedError()
 
 
-class LogCollection(Collection):
+class LogCollection(Collection):  # pragma: no cover
     def get_cumulative_layer_thickness(self):
         raise NotImplementedError()
 
