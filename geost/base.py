@@ -6,7 +6,14 @@ import geopandas as gpd
 import numpy as np
 import pandas as pd
 from pyproj import CRS
-from shapely.geometry import LineString
+from shapely.geometry import (
+    LineString,
+    MultiLineString,
+    MultiPoint,
+    MultiPolygon,
+    Point,
+    Polygon,
+)
 
 from geost import spatial
 from geost.abstract_classes import AbstractCollection, AbstractData, AbstractHeader
@@ -25,6 +32,10 @@ from geost.validate.decorators import validate_data, validate_header
 type DataObject = DiscreteData | LayeredData
 type HeaderObject = LineHeader | PointHeader
 type Coordinate = int | float
+
+type PointGeometries = Point | MultiPoint | Iterable[Point]
+type LineGeometries = LineString | MultiLineString | Iterable[LineString]
+type PolygonGeometries = Polygon | MultiPolygon | Iterable[Polygon]
 
 warn = warn_user(lambda warning_info: print(warning_info))
 
@@ -237,7 +248,7 @@ class PointHeader(AbstractHeader, GeopandasExportMixin):
 
     def select_with_points(
         self,
-        points: str | Path | gpd.GeoDataFrame,
+        points: str | Path | gpd.GeoDataFrame | PointGeometries,
         buffer: float | int,
         invert: bool = False,
     ):
@@ -246,8 +257,10 @@ class PointHeader(AbstractHeader, GeopandasExportMixin):
 
         Parameters
         ----------
-        points : str | Path | gpd.GeoDataFrame
-            Geodataframe (or file that can be parsed to a geodataframe) to select with.
+        points : str | Path | gpd.GeoDataFrame | PointGeometries
+            Any type of point geometries that can be used for the selection: GeoDataFrame
+            containing points or filepath to a shapefile like file, or Shapely Point,
+            MultiPoint or list containing Point objects.
         buffer : float | int
             Buffer distance for selection geometries.
         invert : bool, optional
@@ -258,7 +271,13 @@ class PointHeader(AbstractHeader, GeopandasExportMixin):
         :class:`~geost.base.PointHeader`
             Instance of :class:`~geost.base.PointHeader`containing only selected
             geometries.
+
         """
+        if isinstance(points, (Point, MultiPoint)):
+            points = gpd.GeoDataFrame(geometry=[points])
+        elif isinstance(points, Iterable) and not isinstance(points, gpd.GeoDataFrame):
+            points = gpd.GeoDataFrame(geometry=points)
+
         gdf_selected = spatial.select_points_near_points(
             self.gdf, points, buffer, invert=invert
         )
@@ -266,7 +285,7 @@ class PointHeader(AbstractHeader, GeopandasExportMixin):
 
     def select_with_lines(
         self,
-        lines: str | Path | gpd.GeoDataFrame,
+        lines: str | Path | gpd.GeoDataFrame | LineGeometries,
         buffer: float | int,
         invert: bool = False,
     ):
@@ -275,8 +294,10 @@ class PointHeader(AbstractHeader, GeopandasExportMixin):
 
         Parameters
         ----------
-        lines : str | Path | gpd.GeoDataFrame
-            Geodataframe (or file that can be parsed to a geodataframe) to select with.
+        lines : str | Path | gpd.GeoDataFrame | LineGeometries
+            Any type of line geometries that can be used for the selection: GeoDataFrame
+            containing lines or filepath to a shapefile like file, or Shapely LineString,
+            MultiLineString or list containing LineString objects.
         buffer : float | int
             Buffer distance for selection geometries.
         invert : bool, optional
@@ -287,7 +308,13 @@ class PointHeader(AbstractHeader, GeopandasExportMixin):
         :class:`~geost.base.PointHeader`
             Instance of :class:`~geost.base.PointHeader`containing only selected
             geometries.
+
         """
+        if isinstance(lines, (LineString, MultiLineString)):
+            lines = gpd.GeoDataFrame(geometry=[lines])
+        elif isinstance(lines, Iterable) and not isinstance(lines, gpd.GeoDataFrame):
+            lines = gpd.GeoDataFrame(geometry=lines)
+
         gdf_selected = spatial.select_points_near_lines(
             self.gdf, lines, buffer, invert=invert
         )
@@ -295,7 +322,7 @@ class PointHeader(AbstractHeader, GeopandasExportMixin):
 
     def select_within_polygons(
         self,
-        polygons: str | Path | gpd.GeoDataFrame,
+        polygons: str | Path | gpd.GeoDataFrame | PolygonGeometries,
         buffer: float | int = 0,
         invert: bool = False,
     ):
@@ -304,8 +331,10 @@ class PointHeader(AbstractHeader, GeopandasExportMixin):
 
         Parameters
         ----------
-        polygons : str | Path | gpd.GeoDataFrame
-            Geodataframe (or file that can be parsed to a geodataframe) to select with.
+        polygons : str | Path | gpd.GeoDataFrame | PolygonGeometries
+            Any type of polygon geometries that can be used for the selection: GeoDataFrame
+            containing polygons or filepath to a shapefile like file, or Shapely Polygon,
+            MultiPolygon or list containing Polygon objects.
         buffer : float | int, optional
             Optional buffer distance around the polygon selection geometries, by default
             0.
@@ -317,7 +346,15 @@ class PointHeader(AbstractHeader, GeopandasExportMixin):
         :class:`~geost.base.PointHeader`
             Instance of :class:`~geost.base.PointHeader`containing only selected
             geometries.
+
         """
+        if isinstance(polygons, (Polygon, MultiPolygon)):
+            polygons = gpd.GeoDataFrame(geometry=[polygons])
+        elif isinstance(polygons, Iterable) and not isinstance(
+            polygons, gpd.GeoDataFrame
+        ):
+            polygons = gpd.GeoDataFrame(geometry=polygons)
+
         gdf_selected = spatial.select_points_within_polygons(
             self.gdf, polygons, buffer, invert=invert
         )
@@ -1693,7 +1730,7 @@ class Collection(AbstractCollection):
 
     def select_with_points(
         self,
-        points: str | Path | gpd.GeoDataFrame,
+        points: str | Path | gpd.GeoDataFrame | PointGeometries,
         buffer: float | int,
         invert: bool = False,
     ):
@@ -1702,8 +1739,10 @@ class Collection(AbstractCollection):
 
         Parameters
         ----------
-        points : str | Path | gpd.GeoDataFrame
-            Geodataframe (or file that can be parsed to a geodataframe) to select with.
+        points : str | Path | gpd.GeoDataFrame | PointGeometries
+            Any type of point geometries that can be used for the selection: GeoDataFrame
+            containing points or filepath to a shapefile like file, or Shapely Point,
+            MultiPoint or list containing Point objects.
         buffer : float | int
             Buffer distance for selection geometries.
         invert : bool, optional
@@ -1715,6 +1754,7 @@ class Collection(AbstractCollection):
             New instance of the current object containing only the selection resulting
             from application of this method. e.g. if you are calling this method from a
             Collection, you will get an instance of a Collection back.
+
         """
         header_selected = self.header.select_with_points(points, buffer, invert=invert)
         data_selected = self.data.select_by_values("nr", header_selected["nr"].unique())
@@ -1722,7 +1762,7 @@ class Collection(AbstractCollection):
 
     def select_with_lines(
         self,
-        lines: str | Path | gpd.GeoDataFrame,
+        lines: str | Path | gpd.GeoDataFrame | LineGeometries,
         buffer: float | int,
         invert: bool = False,
     ):
@@ -1731,8 +1771,10 @@ class Collection(AbstractCollection):
 
         Parameters
         ----------
-        lines : str | Path | gpd.GeoDataFrame
-            Geodataframe (or file that can be parsed to a geodataframe) to select with.
+        lines : str | Path | gpd.GeoDataFrame | LineGeometries
+            Any type of line geometries that can be used for the selection: GeoDataFrame
+            containing lines or filepath to a shapefile like file, or Shapely LineString,
+            MultiLineString or list containing LineString objects.
         buffer : float | int
             Buffer distance for selection geometries.
         invert : bool, optional
@@ -1744,6 +1786,7 @@ class Collection(AbstractCollection):
             New instance of the current object containing only the selection resulting
             from application of this method. e.g. if you are calling this method from a
             Collection, you will get an instance of a Collection back.
+
         """
         header_selected = self.header.select_with_lines(lines, buffer, invert=invert)
         data_selected = self.data.select_by_values("nr", header_selected["nr"].unique())
@@ -1751,7 +1794,7 @@ class Collection(AbstractCollection):
 
     def select_within_polygons(
         self,
-        polygons: str | Path | gpd.GeoDataFrame,
+        polygons: str | Path | gpd.GeoDataFrame | PolygonGeometries,
         buffer: float | int = 0,
         invert: bool = False,
     ):
@@ -1760,8 +1803,10 @@ class Collection(AbstractCollection):
 
         Parameters
         ----------
-        polygons : str | Path | gpd.GeoDataFrame
-            Geodataframe (or file that can be parsed to a geodataframe) to select with.
+        polygons : str | Path | gpd.GeoDataFrame | PolygonGeometries
+            Any type of polygon geometries that can be used for the selection: GeoDataFrame
+            containing polygons or filepath to a shapefile like file, or Shapely Polygon,
+            MultiPolygon or list containing Polygon objects.
         buffer : float | int, optional
             Optional buffer distance around the polygon selection geometries, by default
             0.
@@ -1774,6 +1819,7 @@ class Collection(AbstractCollection):
             New instance of the current object containing only the selection resulting
             from application of this method. e.g. if you are calling this method from a
             Collection, you will get an instance of a Collection back.
+
         """
         header_selected = self.header.select_within_polygons(
             polygons, buffer=buffer, invert=invert
