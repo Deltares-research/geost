@@ -1,0 +1,21 @@
+# get_raster_values { #geost.spatial.get_raster_values }
+
+```python
+spatial.get_raster_values(x, y, raster_to_read)
+```
+
+Return sampled values from a raster at the given (x, y) locations.
+
+## Parameters {.doc-section .doc-section-parameters}
+
+| Name           | Type                        | Description                                                                                                                                  | Default    |
+|----------------|-----------------------------|----------------------------------------------------------------------------------------------------------------------------------------------|------------|
+| x              | np.ndarray                  | 1D array of x-coordinates, same length as 'y'.                                                                                               | _required_ |
+| y              | np.ndarray                  | 1D array of y-coordinates, same length as 'x'.                                                                                               | _required_ |
+| raster_to_read | str \| Path \| xr.DataArray | Location of a raster file or an xr.DataArray with dimensions 'x' and 'y'. This raster is used to sample values from at all (x, y) locations. | _required_ |
+
+## Returns {.doc-section .doc-section-returns}
+
+| Name   | Type       | Description                |
+|--------|------------|----------------------------|
+|        | np.ndarray | 1D array of sampled values |

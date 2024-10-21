@@ -1,0 +1,34 @@
+# get_bro_objects_from_bbox { #geost.get_bro_objects_from_bbox }
+
+```python
+get_bro_objects_from_bbox(
+    object_type
+    xmin
+    xmax
+    ymin
+    ymax
+    horizontal_reference=28992
+    vertical_reference=5709
+)
+```
+
+Directly download objects from the BRO to a geost collection object based on the
+given bounding box
+
+## Parameters {.doc-section .doc-section-parameters}
+
+| Name                 | Type              | Description                                                                                                                                                                                                                                                      | Default    |
+|----------------------|-------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|------------|
+| object_type          | str               | BRO object type to retrieve: BHR-GT, BHR-P, BHR-G or BHR-CPT                                                                                                                                                                                                     | _required_ |
+| xmin                 | int \| float      | minimal x-coordinate of the bounding box                                                                                                                                                                                                                         | _required_ |
+| xmax                 | int \| float      | maximal x-coordinate of the bounding box                                                                                                                                                                                                                         | _required_ |
+| ymin                 | int \| float      | minimal y-coordinate of the bounding box                                                                                                                                                                                                                         | _required_ |
+| ymax                 | int \| float      | maximal y-coordinate of the bounding box                                                                                                                                                                                                                         | _required_ |
+| horizontal_reference | str \| int \| CRS | EPSG of the data's horizontal reference. Takes anything that can be interpreted by pyproj.crs.CRS.from_user_input(). The default is 28992.                                                                                                                       | `28992`    |
+| vertical_reference   | str \| int \| CRS | EPSG of the data's vertical datum. Takes anything that can be interpreted by pyproj.crs.CRS.from_user_input(). However, it must be a vertical datum. FYI: "NAP" is EPSG 5709 and The Belgian reference system (Ostend height) is ESPG 5710. The default is 5709. | `5709`     |
+
+## Returns {.doc-section .doc-section-returns}
+
+| Name   | Type               | Description                                                                                                                                               |
+|--------|--------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------|
+|        | BoreholeCollection | Instance of either :class:`~geost.borehole.BoreholeCollection` or :class:`~geost.borehole.CptCollection` containing only objects selected by this method. |

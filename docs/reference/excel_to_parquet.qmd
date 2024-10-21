@@ -1,0 +1,21 @@
+# excel_to_parquet { #geost.utils.excel_to_parquet }
+
+```python
+utils.excel_to_parquet(file, out_file=None, **kwargs)
+```
+
+Convert excel table to parquet.
+
+## Parameters {.doc-section .doc-section-parameters}
+
+| Name     | Type               | Description                                                                         | Default    |
+|----------|--------------------|-------------------------------------------------------------------------------------|------------|
+| file     | Union\[str, Path\] | Path to excel file to convert.                                                      | _required_ |
+| out_file | Union\[str, Path\] | Path to parquet file to be written. If not provided it will use the path of 'file'. | `None`     |
+| **kwargs |                    | pandas.read_excel kwargs. See pandas.read_excel documentation.                      | `{}`       |
+
+## Raises {.doc-section .doc-section-raises}
+
+| Name   | Type      | Description                           |
+|--------|-----------|---------------------------------------|
+|        | TypeError | If 'file' is not an xlsx or xls file. |

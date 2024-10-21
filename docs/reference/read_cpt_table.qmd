@@ -1,0 +1,40 @@
+# read_cpt_table { #geost.read_cpt_table }
+
+```python
+read_cpt_table(
+    file
+    horizontal_reference=28992
+    vertical_reference=5709
+    as_collection=True
+    column_mapper=None
+    **kwargs
+)
+```
+
+Read tabular CPT information. This is a file (parquet, csv or Excel) that includes
+row data for each CPT depth interval and must at least include the following header
+information as columns:
+
+nr      - Object id
+x       - X-coordinates according to the given horizontal_reference
+y       - Y-coordinates according to the given horizontal_reference
+surface - Surface elevation according to the given vertical_reference
+end     - End depth according to the given vertical_reference
+depth   - Depth in meters below the surface
+
+## Parameters {.doc-section .doc-section-parameters}
+
+| Name                 | Type              | Description                                                                                                                                                                                                                                                                                                                  | Default    |
+|----------------------|-------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|------------|
+| file                 | str \| Path       | File with the CPT information to read.                                                                                                                                                                                                                                                                                       | _required_ |
+| horizontal_reference | str \| int \| CRS | EPSG of the data's horizontal reference. Takes anything that can be interpreted by pyproj.crs.CRS.from_user_input(). The default is 28992.                                                                                                                                                                                   | `28992`    |
+| vertical_reference   | str \| int \| CRS | EPSG of the data's vertical datum. Takes anything that can be interpreted by pyproj.crs.CRS.from_user_input(). However, it must be a vertical datum. FYI: "NAP" is EPSG 5709 and The Belgian reference system (Ostend height) is ESPG 5710. The default is 5709.                                                             | `5709`     |
+| as_collection        | bool              | If True, the CPT table will be read as a :class:`~geost.base.Collection` which includes a header object and spatial selection functionality. If False, a :class:`~geost.base.DiscreteData` object is returned. The default is True.                                                                                          | `True`     |
+| column_mapper        | dict              | If the file to be read uses different column names than the ones given in the description above, you can use a dictionary mapping to translate the column names to the required format. column_mapper is None by default, in which case the user is asked for input if not all required columns are encountered in the file. | `None`     |
+| kwargs               |                   | Optional keyword arguments for Pandas.read_parquet, Pandas.read_csv or Pandas.read_excel.                                                                                                                                                                                                                                    | `{}`       |
+
+## Returns {.doc-section .doc-section-returns}
+
+| Name   | Type                              | Description                                     |
+|--------|-----------------------------------|-------------------------------------------------|
+|        | class:`~geost.base.CptCollection` | Instance of :class:`~geost.base.CptCollection`. |

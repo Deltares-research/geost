@@ -22,9 +22,7 @@ ARITHMIC_OPERATORS = {
 }
 
 
-def csv_to_parquet(
-    file: Union[str, Path], out_file: Union[str, Path] = None, **kwargs
-) -> None:
+def csv_to_parquet(file: str | Path, out_file: str | Path = None, **kwargs) -> None:
     """
     Convert csv table to parquet.
 
@@ -54,9 +52,7 @@ def csv_to_parquet(
         df.to_parquet(out_file)
 
 
-def excel_to_parquet(
-    file: Union[str, Path], out_file: Union[str, Path] = None, **kwargs
-) -> None:
+def excel_to_parquet(file: str | Path, out_file: str | Path = None, **kwargs) -> None:
     """
     Convert excel table to parquet.
 

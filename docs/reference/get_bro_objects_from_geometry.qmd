@@ -1,0 +1,30 @@
+# get_bro_objects_from_geometry { #geost.get_bro_objects_from_geometry }
+
+```python
+get_bro_objects_from_geometry(
+    object_type
+    geometry_file
+    buffer=0
+    horizontal_reference=28992
+    vertical_reference=5709
+)
+```
+
+Directly download objects from the BRO to a geost collection object based on given
+geometries such as points, lines or polygons.
+
+## Parameters {.doc-section .doc-section-parameters}
+
+| Name                 | Type              | Description                                                                                                                                                                                                                                                      | Default    |
+|----------------------|-------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|------------|
+| object_type          | str               | BRO object type to retrieve: BHR-GT, BHR-P, BHR-G or BHR-CPT                                                                                                                                                                                                     | _required_ |
+| geometry_file        | Path \| str       | Path to geometry file. i.e a point/line/polygon shapefile/geopackage/geoparquet                                                                                                                                                                                  | _required_ |
+| buffer               | int \| float      | Buffer distance. Required to be larger than 0 for line and point geometries. Adds an extra buffer zone around a polygon to select from, by default 0                                                                                                             | `0`        |
+| horizontal_reference | str \| int \| CRS | EPSG of the data's horizontal reference. Takes anything that can be interpreted by pyproj.crs.CRS.from_user_input(). The default is 28992.                                                                                                                       | `28992`    |
+| vertical_reference   | str \| int \| CRS | EPSG of the data's vertical datum. Takes anything that can be interpreted by pyproj.crs.CRS.from_user_input(). However, it must be a vertical datum. FYI: "NAP" is EPSG 5709 and The Belgian reference system (Ostend height) is ESPG 5710. The default is 5709. | `5709`     |
+
+## Returns {.doc-section .doc-section-returns}
+
+| Name   | Type               | Description                                                                                                                                               |
+|--------|--------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------|
+|        | BoreholeCollection | Instance of either :class:`~geost.borehole.BoreholeCollection` or :class:`~geost.borehole.CptCollection` containing only objects selected by this method. |

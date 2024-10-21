@@ -1,0 +1,37 @@
+# API Reference {.doc .doc-index}
+
+## GeoST reader functions
+
+Functions to read and parse subsurface data to GeoST objects
+
+| | |
+| --- | --- |
+| [read_borehole_table](read_borehole_table.qmd#geost.read_borehole_table) | Read tabular borehole information. This is a file (parquet, csv or Excel) that |
+| [read_cpt_table](read_cpt_table.qmd#geost.read_cpt_table) | Read tabular CPT information. This is a file (parquet, csv or Excel) that includes |
+| [read_nlog_cores](read_nlog_cores.qmd#geost.read_nlog_cores) | Read NLog boreholes from the 'nlog_stratstelsel' Excel file. You can find this |
+| [read_uullg_tables](read_uullg_tables.qmd#geost.read_uullg_tables) | Read the header and data tables from UU-LLG boreholes (see: EasyDans KNAW) from a |
+| [get_bro_objects_from_bbox](get_bro_objects_from_bbox.qmd#geost.get_bro_objects_from_bbox) | Directly download objects from the BRO to a geost collection object based on the |
+| [get_bro_objects_from_geometry](get_bro_objects_from_geometry.qmd#geost.get_bro_objects_from_geometry) | Directly download objects from the BRO to a geost collection object based on given |
+
+## GeoST util functions
+
+Functions to perform various tasks
+
+| | |
+| --- | --- |
+| [csv_to_parquet](csv_to_parquet.qmd#geost.utils.csv_to_parquet) | Convert csv table to parquet. |
+| [excel_to_parquet](excel_to_parquet.qmd#geost.utils.excel_to_parquet) | Convert excel table to parquet. |
+| [dataframe_to_geodataframe](dataframe_to_geodataframe.qmd#geost.utils.dataframe_to_geodataframe) | Take a dataframe with columns that indicate x and y coordinates and use these to |
+
+## GeoST spatial utils
+
+Functions to perform various geospatial tasks
+
+| | |
+| --- | --- |
+| [select_points_within_bbox](select_points_within_bbox.qmd#geost.spatial.select_points_within_bbox) | Make a selection of point geometries based on a user-given bounding box. |
+| [select_points_near_points](select_points_near_points.qmd#geost.spatial.select_points_near_points) | Make a selection of point geometries based on point geometries and a buffer. |
+| [select_points_near_lines](select_points_near_lines.qmd#geost.spatial.select_points_near_lines) | Make a selection of point geometries based on line geometries and a buffer. |
+| [select_points_within_polygons](select_points_within_polygons.qmd#geost.spatial.select_points_within_polygons) | Make a selection of point geometries based on polygon geometries and an optional |
+| [find_area_labels](find_area_labels.qmd#geost.spatial.find_area_labels) | Function to find labels associated with polygon geometries for a series of queried |
+| [get_raster_values](get_raster_values.qmd#geost.spatial.get_raster_values) | Return sampled values from a raster at the given (x, y) locations. |

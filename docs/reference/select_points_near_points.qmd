@@ -1,0 +1,22 @@
+# select_points_near_points { #geost.spatial.select_points_near_points }
+
+```python
+spatial.select_points_near_points(gdf, point_gdf, buffer, invert=False)
+```
+
+Make a selection of point geometries based on point geometries and a buffer.
+
+## Parameters {.doc-section .doc-section-parameters}
+
+| Name      | Type                            | Description                                                                 | Default    |
+|-----------|---------------------------------|-----------------------------------------------------------------------------|------------|
+| gdf       | str \| Path \| gpd.GeoDataFrame | Geodataframe (or file that can be parsed to a geodataframe) to select from. | _required_ |
+| point_gdf | str \| Path \| gpd.GeoDataFrame | Geodataframe (or file that can be parsed to a geodataframe) to select with. | _required_ |
+| buffer    | float \| int                    | Buffer distance for selection geometries.                                   | _required_ |
+| invert    | bool                            | Invert the selection, by default False.                                     | `False`    |
+
+## Returns {.doc-section .doc-section-returns}
+
+| Name   | Type             | Description                                       |
+|--------|------------------|---------------------------------------------------|
+|        | gpd.GeoDataFrame | Geodataframe containing only selected geometries. |

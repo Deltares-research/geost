@@ -1,0 +1,24 @@
+# select_points_within_bbox { #geost.spatial.select_points_within_bbox }
+
+```python
+spatial.select_points_within_bbox(gdf, xmin, ymin, xmax, ymax, invert=False)
+```
+
+Make a selection of point geometries based on a user-given bounding box.
+
+## Parameters {.doc-section .doc-section-parameters}
+
+| Name   | Type                            | Description                                                                                             | Default    |
+|--------|---------------------------------|---------------------------------------------------------------------------------------------------------|------------|
+| gdf    | str \| Path \| gpd.GeoDataFrame | Geodataframe (or file that can be parsed to a geodataframe) to select from.                             | _required_ |
+| xmin   | float \| int                    | Minimum x-coordinate of the bounding box.                                                               | _required_ |
+| ymin   | float \| int                    | Minimum y-coordinate of the bounding box.                                                               | _required_ |
+| xmax   | float \| int                    | Maximum x-coordinate of the bounding box.                                                               | _required_ |
+| ymax   | float \| int                    | Maximum y-coordinate of the bounding box.                                                               | _required_ |
+| invert | bool                            | Invert the selection, so select all objects outside of the bounding box in this case, by default False. | `False`    |
+
+## Returns {.doc-section .doc-section-returns}
+
+| Name   | Type             | Description                                       |
+|--------|------------------|---------------------------------------------------|
+|        | gpd.GeoDataFrame | Geodataframe containing only selected geometries. |

@@ -1,0 +1,30 @@
+# dataframe_to_geodataframe { #geost.utils.dataframe_to_geodataframe }
+
+```python
+utils.dataframe_to_geodataframe(df, x_col_label='x', y_col_label='y', crs=None)
+```
+
+Take a dataframe with columns that indicate x and y coordinates and use these to
+turn the dataframe into a geopandas GeoDataFrame with a geometry column that
+contains shapely Point geometries.
+
+## Parameters {.doc-section .doc-section-parameters}
+
+| Name        | Type         | Description                                                                 | Default    |
+|-------------|--------------|-----------------------------------------------------------------------------|------------|
+| df          | pd.DataFrame | Input dataframe with columns for x and y coordinates.                       | _required_ |
+| x_col_label | str          | Label of the x-coordinate column, default x-coordinate column label is 'x'. | `'x'`      |
+| y_col_label | str          | Label of the y-coordinate column, default y-coordinate column label is 'y'. | `'y'`      |
+| crs         | int          | EPSG number as integer.                                                     | `None`     |
+
+## Returns {.doc-section .doc-section-returns}
+
+| Name   | Type             | Description                                                             |
+|--------|------------------|-------------------------------------------------------------------------|
+|        | gpd.GeoDataFrame | GeoDataFrame with point geometries in addition to input dataframe data. |
+
+## Raises {.doc-section .doc-section-raises}
+
+| Name   | Type       | Description                                                     |
+|--------|------------|-----------------------------------------------------------------|
+|        | IndexError | If input dataframe does not have a valid column for 'x' or 'y'. |

@@ -102,9 +102,16 @@ xlrd = "*"
 [tool.pixi.tasks]
 install = "python -m pip install --no-deps --editable ."
 test = { depends_on = ["install"], cmd = "python -m pytest --verbose --cov=geost --cov-report xml --cov-report term"}
-docs = "sphinx-build -b html docs ./docs/build"
 format = "black ."
 lint = { depends_on = ["install"], cmd = "ruff check --fix ./geost"}
+quartodoc-build = { cmd = "quartodoc build && rm objects.json", cwd = "docs" }
+quarto-preview = { cmd = "export QUARTO_PYTHON=python && quarto preview docs", depends_on = [
+    "quartodoc-build",
+] }
+quarto-check = { cmd = "quarto check all", depends_on = ["quartodoc-build"] }
+quarto-render = { cmd = "export QUARTO_PYTHON=python && quarto render docs --to html --execute", depends_on = [
+    "quartodoc-build",
+] }
 
 [tool.pixi.feature.py312.dependencies]
 python = "3.12.*"

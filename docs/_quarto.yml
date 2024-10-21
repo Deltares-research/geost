@@ -1,0 +1,120 @@
+project:
+  type: website
+  output-dir: _site
+
+website:
+  title: ""
+  description: "The Python interface for subsurface data"
+  repo-url: https://github.com/Deltares-research/geost
+  page-navigation: true
+  favicon: "pages/resources/geost_logo.png"
+  navbar:
+    background: "#fcdcd1"
+    pinned: true
+    logo: "pages/resources/geost_logo.png"
+    search: true
+    left:
+      - text: "User Guide"
+        file: pages/about_user_guide.qmd
+      - text: "Examples"
+        menu:
+          - text: "Predict sand thickness"
+            href: https://github.com/Deltares-research/sst-examples/blob/main/predict_sand_thickness/predict_sand_thickness.ipynb
+      - text: "API Reference"
+        file: reference/index.qmd
+      - text: "Changelog"
+        file: pages/changelog.md
+    right:
+      - icon: github
+        menu:
+          - text: Source code
+            href: https://github.com/Deltares-research/geost
+          - text: Report a bug
+            href: https://github.com/Deltares-research/geost/issues  
+      - icon: boxes
+        menu:
+          - text: GeoST on PyPi
+            href: https://pypi.org/project/geost/
+  
+  page-footer: 
+    left: 
+      - icon: c-circle
+      - text: <pre> Deltares 2024</pre>
+
+  sidebar:
+    - id: user_guide
+      title: "User Guide"
+      style: "docked"
+      search: true
+      background: light
+      collapse-level: 2
+      contents:
+        - href: pages/about_user_guide.qmd
+        - section: "Getting started"
+          contents:
+            - href: pages/installation.qmd
+        - text: "---"
+        - section: "Chapter 2"
+          contents:
+            - href: pages/about_user_guide.qmd
+        - text: "---"
+        - section: "Chapter 3"
+          contents:
+            - href: pages/about_user_guide.qmd          
+
+quartodoc:
+  # the name used to import the package you want to create reference docs for
+  style: pkgdown
+  title: API Reference
+  package: geost
+
+  # write sidebar data to this file
+  sidebar: api_reference_sidebar.yml
+
+  sections:
+    - title: GeoST reader functions
+      desc: Functions to read and parse subsurface data to GeoST objects
+      contents:
+        # the functions being documented in the package.
+        # you can refer to anything: class methods, modules, etc..
+        - read_borehole_table
+        - read_cpt_table
+        - read_nlog_cores
+        - read_uullg_tables
+        - get_bro_objects_from_bbox
+        - get_bro_objects_from_geometry
+    - title: GeoST util functions
+      desc: Functions to perform various tasks
+      package: geost.utils
+      contents:
+        # the functions being documented in the package.
+        # you can refer to anything: class methods, modules, etc..
+        - csv_to_parquet
+        - excel_to_parquet
+        - dataframe_to_geodataframe
+    - title: GeoST spatial utils
+      desc: Functions to perform various geospatial tasks
+      package: geost.spatial
+      contents:
+        # the functions being documented in the package.
+        # you can refer to anything: class methods, modules, etc..
+        - select_points_within_bbox
+        - select_points_near_points
+        - select_points_near_lines
+        - select_points_within_polygons
+        - find_area_labels
+        - get_raster_values
+
+# tell quarto to read the generated sidebar
+metadata-files:
+  - api_reference_sidebar.yml
+
+format:
+  html:
+    theme: yeti
+    max-width: 60em
+    backgroundcolor: "#FAFAFA"
+    monobackgroundcolor: "#FAFAFA"
+    fontsize: 1.1em
+
+      

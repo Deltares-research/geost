@@ -1,0 +1,27 @@
+website:
+  sidebar:
+  - contents:
+    - reference/index.qmd
+    - contents:
+      - reference/read_borehole_table.qmd
+      - reference/read_cpt_table.qmd
+      - reference/read_nlog_cores.qmd
+      - reference/read_uullg_tables.qmd
+      - reference/get_bro_objects_from_bbox.qmd
+      - reference/get_bro_objects_from_geometry.qmd
+      section: GeoST reader functions
+    - contents:
+      - reference/csv_to_parquet.qmd
+      - reference/excel_to_parquet.qmd
+      - reference/dataframe_to_geodataframe.qmd
+      section: GeoST util functions
+    - contents:
+      - reference/select_points_within_bbox.qmd
+      - reference/select_points_near_points.qmd
+      - reference/select_points_near_lines.qmd
+      - reference/select_points_within_polygons.qmd
+      - reference/find_area_labels.qmd
+      - reference/get_raster_values.qmd
+      section: GeoST spatial utils
+    id: reference
+  - id: dummy-sidebar

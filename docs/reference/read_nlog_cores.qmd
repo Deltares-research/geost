@@ -1,0 +1,24 @@
+# read_nlog_cores { #geost.read_nlog_cores }
+
+```python
+read_nlog_cores(file)
+```
+
+Read NLog boreholes from the 'nlog_stratstelsel' Excel file. You can find this
+distribution of borehole data here: https://www.nlog.nl/boringen
+
+Warning: reading this Excel file is really slow (~10 minutes). Converting it to
+parquet using :func:`~geost.utils.excel_to_parquet` once and using that file instead
+allows for much faster reading of nlog data.
+
+## Parameters {.doc-section .doc-section-parameters}
+
+| Name   | Type        | Description                                | Default    |
+|--------|-------------|--------------------------------------------|------------|
+| file   | str \| Path | Path to nlog_stratstelsel.xlsx or .parquet | _required_ |
+
+## Returns {.doc-section .doc-section-returns}
+
+| Name   | Type                                       | Description                                 |
+|--------|--------------------------------------------|---------------------------------------------|
+|        | class:`~geost.borehole.BoreholeCollection` | :class:`~geost.borehole.BoreholeCollection` |

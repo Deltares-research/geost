@@ -1,0 +1,22 @@
+# find_area_labels { #geost.spatial.find_area_labels }
+
+```python
+spatial.find_area_labels(point_geodataframe, polygon_geodataframe, column_name)
+```
+
+Function to find labels associated with polygon geometries for a series of queried
+point geometries. Basically a spatial join between the point and polygon dataframe.
+
+## Parameters {.doc-section .doc-section-parameters}
+
+| Name                 | Type             | Description                                                                                                 | Default    |
+|----------------------|------------------|-------------------------------------------------------------------------------------------------------------|------------|
+| point_geodataframe   | gpd.GeoDataFrame | Geodataframe with point geometries for which you want to find in which polygon geometries they are located. | _required_ |
+| polygon_geodataframe | gpd.GeoDataFrame | Geodataframe with polygon geometries                                                                        | _required_ |
+| column_name          | str              | Label of the polygon geometries to use for assigning to the queried points                                  | _required_ |
+
+## Returns {.doc-section .doc-section-returns}
+
+| Name   | Type          | Description                                                    |
+|--------|---------------|----------------------------------------------------------------|
+|        | pandas.Series | Series with labels from the polygon geometries for each point. |

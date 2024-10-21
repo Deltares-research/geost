@@ -95,8 +95,10 @@ ENV/
 # Rope project settings
 .ropeproject
 
-# mkdocs documentation
+# documentation
 /site
+/.quarto/
+/docs/_site
 
 # mypy
 .mypy_cache/

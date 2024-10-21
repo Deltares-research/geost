@@ -1,0 +1,26 @@
+---
+title: "Installation"
+---
+
+## Installation (user)
+In a Python >= 3.12 environment, install the latest stable release using pip:
+
+    pip install geost
+
+Or the latest (experimental) version of the main branch directly from GitHub using:
+
+    pip install git+https://github.com/Deltares-research/geost.git
+
+## Installation (developer)
+We use [Pixi](https://github.com/prefix-dev/pixi) for package management and workflows.
+
+With pixi installed, navigate to the folder of the cloned repository and run the following 
+to install all GeoST dependencies:
+
+    pixi install
+
+Next install GeoST in editable mode by running the pixi task 'install':
+
+    pixi run install
+
+See the [Pixi documentation](https://pixi.sh/latest/) for more information.
