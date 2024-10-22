@@ -1,0 +1,397 @@
+# PointHeader { #geost.base.PointHeader }
+
+```python
+base.PointHeader(self, gdf, vertical_reference)
+```
+
+
+
+## Attributes
+
+| Name | Description |
+| --- | --- |
+| [gdf](#geost.base.PointHeader.gdf) | Underlying geopandas.GeodataFrame with header data. |
+| [horizontal_reference](#geost.base.PointHeader.horizontal_reference) | Coordinate reference system represented by an instance of pyproj.crs.CRS |
+| [vertical_reference](#geost.base.PointHeader.vertical_reference) | Vertical datum represented by an instance of pyproj.crs.CRS |
+
+## Methods
+
+| Name | Description |
+| --- | --- |
+| [change_horizontal_reference](#geost.base.PointHeader.change_horizontal_reference) | Change the horizontal reference (i.e. coordinate reference system, crs) of the |
+| [change_vertical_reference](#geost.base.PointHeader.change_vertical_reference) | Change the vertical reference of the object's surface levels. |
+| [get](#geost.base.PointHeader.get) | Get a subset of a header through a string or iterable of object id(s). |
+| [get_area_labels](#geost.base.PointHeader.get_area_labels) | Find in which area (polygons) the point data locations fall. e.g. to determine |
+| [select_by_depth](#geost.base.PointHeader.select_by_depth) | Select data from depth constraints. If a keyword argument is not given it will |
+| [select_by_length](#geost.base.PointHeader.select_by_length) | Select data from length constraints: e.g. all boreholes between 50 and 150 m |
+| [select_with_lines](#geost.base.PointHeader.select_with_lines) | Make a selection of the header based on line geometries. |
+| [select_with_points](#geost.base.PointHeader.select_with_points) | Make a selection of the header based on point geometries. |
+| [select_within_bbox](#geost.base.PointHeader.select_within_bbox) | Make a selection of the header based on a bounding box. |
+| [select_within_polygons](#geost.base.PointHeader.select_within_polygons) | Make a selection of the header based on polygon geometries. |
+| [to_csv](#geost.base.PointHeader.to_csv) | Write header to csv file as plain table (no geometries). |
+| [to_geopackage](#geost.base.PointHeader.to_geopackage) | Write header data to geopackage. You can use the resulting file to display |
+| [to_geoparquet](#geost.base.PointHeader.to_geoparquet) | Write header data to geoparquet. You can use the resulting file to display |
+| [to_parquet](#geost.base.PointHeader.to_parquet) | Write header to parquet file as plain table (no geometries). |
+| [to_shape](#geost.base.PointHeader.to_shape) | Write header data to shapefile. You can use the resulting file to display |
+
+### change_horizontal_reference { #geost.base.PointHeader.change_horizontal_reference }
+
+```python
+base.PointHeader.change_horizontal_reference(to_epsg)
+```
+
+Change the horizontal reference (i.e. coordinate reference system, crs) of the
+header to the given target crs.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name    | Type              | Description                                                                                         | Default    |
+|---------|-------------------|-----------------------------------------------------------------------------------------------------|------------|
+| to_epsg | str \| int \| CRS | EPSG of the target crs. Takes anything that can be interpreted by pyproj.crs.CRS.from_user_input(). | _required_ |
+
+#### Examples {.doc-section .doc-section-examples}
+
+To change the header's current horizontal reference to WGS 84 UTM zone 31N:
+
+```python
+>>> self.change_horizontal_reference(32631)
+```
+
+This would be the same as:
+
+```python
+>>> self.change_horizontal_reference("epsg:32631")
+```
+
+As Pyproj is very flexible, you can even use the CRS's full official name:
+
+```python
+>>> self.change_horizontal_reference("WGS 84 / UTM zone 31N")
+```
+
+### change_vertical_reference { #geost.base.PointHeader.change_vertical_reference }
+
+```python
+base.PointHeader.change_vertical_reference(to_epsg)
+```
+
+Change the vertical reference of the object's surface levels.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name    | Type              | Description                                                                                                                                                                                                                                                                                                   | Default    |
+|---------|-------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|------------|
+| to_epsg | str \| int \| CRS | EPSG of the target vertical datum. Takes anything that can be interpreted by pyproj.crs.CRS.from_user_input(). However, it must be a vertical datum.  Some often-used vertical datums are: NAP             : 5709 MSL NL depth    : 9288 LAT NL depth    : 9287 Ostend height   : 5710  See epsg.io for more. | _required_ |
+
+#### Examples {.doc-section .doc-section-examples}
+
+To change the header's current vertical reference to NAP:
+
+```python
+>>> self.change_horizontal_reference(5709)
+```
+
+This would be the same as:
+
+```python
+>>> self.change_horizontal_reference("epsg:5709")
+```
+
+As the Pyproj constructors are very flexible, you can even use the CRS's full
+official name instead of an EPSG number. E.g. for changing to NAP and the
+Belgian Ostend height vertical datums repsectively, you can use:
+
+```python
+>>> self.change_horizontal_reference("NAP")
+>>> self.change_horizontal_reference("Ostend height")
+```
+
+### get { #geost.base.PointHeader.get }
+
+```python
+base.PointHeader.get(selection_values, column='nr')
+```
+
+Get a subset of a header through a string or iterable of object id(s).
+Optionally uses a different column than "nr" (the column with object ids).
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name             | Type            | Description                                                                  | Default    |
+|------------------|-----------------|------------------------------------------------------------------------------|------------|
+| selection_values | str \| Iterable | Values to select.                                                            | _required_ |
+| column           | str             | In which column of the header to look for selection values, by default "nr". | `'nr'`     |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type                                          | Description                                                                                        |
+|--------|-----------------------------------------------|----------------------------------------------------------------------------------------------------|
+|        | Instance of :class:`~geost.base.PointHeader`. | Instance of :class:`~geost.base.PointHeader` containing only objects selected through this method. |
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+>>> self.get(["obj1", "obj2"])
+```
+
+will return a collection with only these objects.
+
+Suppose we have a number of boreholes that we have joined with geological
+map units using the method
+:meth:`~geost.base.PointHeader.get_area_labels`. We have added this data
+to the header table in the column 'geological_unit'. Using:
+
+```python
+>>> self.get(["unit1", "unit2"], column="geological_unit")
+```
+
+will return a :class:`~geost.base.PointHeader` with all boreholes
+that are located in "unit1" and "unit2" geological map areas.
+
+### get_area_labels { #geost.base.PointHeader.get_area_labels }
+
+```python
+base.PointHeader.get_area_labels(
+    polygon_gdf
+    column_name
+    include_in_header=False
+)
+```
+
+Find in which area (polygons) the point data locations fall. e.g. to determine
+in which geomorphological unit points are located.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name              | Type                            | Description                                                                    | Default    |
+|-------------------|---------------------------------|--------------------------------------------------------------------------------|------------|
+| polygon_gdf       | str \| Path \| gpd.GeoDataFrame | GeoDataFrame with polygons.                                                    | _required_ |
+| column_name       | str                             | The column name to find the labels in.                                         | _required_ |
+| include_in_header | bool                            | Whether to add the acquired data to the header table or not, by default False. | `False`    |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type         | Description                                                                                                                                |
+|--------|--------------|--------------------------------------------------------------------------------------------------------------------------------------------|
+|        | pd.DataFrame | Borehole ids and the polygon label they are in. If include_in_header = True, a column containing the generated data will be added inplace. |
+
+### select_by_depth { #geost.base.PointHeader.select_by_depth }
+
+```python
+base.PointHeader.select_by_depth(
+    top_min=None
+    top_max=None
+    end_min=None
+    end_max=None
+)
+```
+
+Select data from depth constraints. If a keyword argument is not given it will
+not be considered. e.g. if you need only boreholes that go deeper than -500 m
+use only end_max = -500.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name    | Type   | Description                                                 | Default   |
+|---------|--------|-------------------------------------------------------------|-----------|
+| top_min | float  | Minimum elevation of the borehole/cpt top, by default None. | `None`    |
+| top_max | float  | Maximum elevation of the borehole/cpt top, by default None. | `None`    |
+| end_min | float  | Minimum elevation of the borehole/cpt end, by default None. | `None`    |
+| end_max | float  | Maximumelevation of the borehole/cpt end, by default None.  | `None`    |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type                                       | Description                                                                                      |
+|--------|--------------------------------------------|--------------------------------------------------------------------------------------------------|
+|        | Child of :class:`~geost.base.PointHeader`. | Instance of :class:`~geost.base.PointHeader` or containing only objects selected by this method. |
+
+### select_by_length { #geost.base.PointHeader.select_by_length }
+
+```python
+base.PointHeader.select_by_length(min_length=None, max_length=None)
+```
+
+Select data from length constraints: e.g. all boreholes between 50 and 150 m
+long. If a keyword argument is not given it will not be considered.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name       | Type   | Description                                      | Default   |
+|------------|--------|--------------------------------------------------|-----------|
+| min_length | float  | Minimum length of borehole/cpt, by default None. | `None`    |
+| max_length | float  | Maximum length of borehole/cpt, by default None. | `None`    |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type                                       | Description                                                                                      |
+|--------|--------------------------------------------|--------------------------------------------------------------------------------------------------|
+|        | Child of :class:`~geost.base.PointHeader`. | Instance of :class:`~geost.base.PointHeader` or containing only objects selected by this method. |
+
+### select_with_lines { #geost.base.PointHeader.select_with_lines }
+
+```python
+base.PointHeader.select_with_lines(lines, buffer, invert=False)
+```
+
+Make a selection of the header based on line geometries.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name   | Type                            | Description                                                                 | Default    |
+|--------|---------------------------------|-----------------------------------------------------------------------------|------------|
+| lines  | str \| Path \| gpd.GeoDataFrame | Geodataframe (or file that can be parsed to a geodataframe) to select with. | _required_ |
+| buffer | float \| int                    | Buffer distance for selection geometries.                                   | _required_ |
+| invert | bool                            | Invert the selection, by default False.                                     | `False`    |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type                            | Description                                                                      |
+|--------|---------------------------------|----------------------------------------------------------------------------------|
+|        | class:`~geost.base.PointHeader` | Instance of :class:`~geost.base.PointHeader`containing only selected geometries. |
+
+### select_with_points { #geost.base.PointHeader.select_with_points }
+
+```python
+base.PointHeader.select_with_points(points, buffer, invert=False)
+```
+
+Make a selection of the header based on point geometries.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name   | Type                            | Description                                                                 | Default    |
+|--------|---------------------------------|-----------------------------------------------------------------------------|------------|
+| points | str \| Path \| gpd.GeoDataFrame | Geodataframe (or file that can be parsed to a geodataframe) to select with. | _required_ |
+| buffer | float \| int                    | Buffer distance for selection geometries.                                   | _required_ |
+| invert | bool                            | Invert the selection, by default False.                                     | `False`    |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type                            | Description                                                                      |
+|--------|---------------------------------|----------------------------------------------------------------------------------|
+|        | class:`~geost.base.PointHeader` | Instance of :class:`~geost.base.PointHeader`containing only selected geometries. |
+
+### select_within_bbox { #geost.base.PointHeader.select_within_bbox }
+
+```python
+base.PointHeader.select_within_bbox(xmin, ymin, xmax, ymax, invert=False)
+```
+
+Make a selection of the header based on a bounding box.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name   | Type         | Description                                                                                             | Default    |
+|--------|--------------|---------------------------------------------------------------------------------------------------------|------------|
+| xmin   | float \| int | Minimum x-coordinate of the bounding box.                                                               | _required_ |
+| ymin   | float \| int | Minimum y-coordinate of the bounding box.                                                               | _required_ |
+| xmax   | float \| int | Maximum x-coordinate of the bounding box.                                                               | _required_ |
+| ymax   | float \| int | Maximum y-coordinate of the bounding box.                                                               | _required_ |
+| invert | bool         | Invert the selection, so select all objects outside of the bounding box in this case, by default False. | `False`    |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type                            | Description                                                                      |
+|--------|---------------------------------|----------------------------------------------------------------------------------|
+|        | class:`~geost.base.PointHeader` | Instance of :class:`~geost.base.PointHeader`containing only selected geometries. |
+
+### select_within_polygons { #geost.base.PointHeader.select_within_polygons }
+
+```python
+base.PointHeader.select_within_polygons(polygons, buffer=0, invert=False)
+```
+
+Make a selection of the header based on polygon geometries.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name     | Type                            | Description                                                                     | Default    |
+|----------|---------------------------------|---------------------------------------------------------------------------------|------------|
+| polygons | str \| Path \| gpd.GeoDataFrame | Geodataframe (or file that can be parsed to a geodataframe) to select with.     | _required_ |
+| buffer   | float \| int                    | Optional buffer distance around the polygon selection geometries, by default 0. | `0`        |
+| invert   | bool                            | Invert the selection, by default False.                                         | `False`    |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type                            | Description                                                                      |
+|--------|---------------------------------|----------------------------------------------------------------------------------|
+|        | class:`~geost.base.PointHeader` | Instance of :class:`~geost.base.PointHeader`containing only selected geometries. |
+
+### to_csv { #geost.base.PointHeader.to_csv }
+
+```python
+base.PointHeader.to_csv(file, **kwargs)
+```
+
+Write header to csv file as plain table (no geometries).
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name     | Type        | Description                                                    | Default    |
+|----------|-------------|----------------------------------------------------------------|------------|
+| file     | str \| Path | Path to csv file to be written.                                | _required_ |
+| **kwargs |             | pd.DataFrame.to_csv kwargs. See relevant Pandas documentation. | `{}`       |
+
+### to_geopackage { #geost.base.PointHeader.to_geopackage }
+
+```python
+base.PointHeader.to_geopackage(file, **kwargs)
+```
+
+Write header data to geopackage. You can use the resulting file to display
+borehole locations in GIS for instance.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name     | Type        | Description                                                            | Default    |
+|----------|-------------|------------------------------------------------------------------------|------------|
+| file     | str \| Path | Path to geopackage to be written.                                      | _required_ |
+| **kwargs |             | gpd.GeoDataFrame.to_file kwargs. See relevant GeoPandas documentation. | `{}`       |
+
+### to_geoparquet { #geost.base.PointHeader.to_geoparquet }
+
+```python
+base.PointHeader.to_geoparquet(file, **kwargs)
+```
+
+Write header data to geoparquet. You can use the resulting file to display
+borehole locations in GIS for instance. Please note that Geoparquet is supported
+by GDAL >= 3.5. For Qgis this means QGis >= 3.26
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name     | Type        | Description                                                            | Default    |
+|----------|-------------|------------------------------------------------------------------------|------------|
+| file     | str \| Path | Path to shapefile to be written.                                       | _required_ |
+| **kwargs |             | gpd.GeoDataFrame.to_parquet kwargs. See relevant Pandas documentation. | `{}`       |
+
+### to_parquet { #geost.base.PointHeader.to_parquet }
+
+```python
+base.PointHeader.to_parquet(file, **kwargs)
+```
+
+Write header to parquet file as plain table (no geometries).
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name     | Type        | Description                                                        | Default    |
+|----------|-------------|--------------------------------------------------------------------|------------|
+| file     | str \| Path | Path to parquet file to be written.                                | _required_ |
+| **kwargs |             | pd.DataFrame.to_parquet kwargs. See relevant Pandas documentation. | `{}`       |
+
+### to_shape { #geost.base.PointHeader.to_shape }
+
+```python
+base.PointHeader.to_shape(file, **kwargs)
+```
+
+Write header data to shapefile. You can use the resulting file to display
+borehole locations in GIS for instance.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name     | Type        | Description                                                            | Default    |
+|----------|-------------|------------------------------------------------------------------------|------------|
+| file     | str \| Path | Path to shapefile to be written.                                       | _required_ |
+| **kwargs |             | gpd.GeoDataFrame.to_file kwargs. See relevant GeoPandas documentation. | `{}`       |

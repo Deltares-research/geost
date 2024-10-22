@@ -9,7 +9,20 @@ website:
       - reference/read_uullg_tables.qmd
       - reference/get_bro_objects_from_bbox.qmd
       - reference/get_bro_objects_from_geometry.qmd
-      section: GeoST reader functions
+      section: GeoST readers
+    - contents:
+      - reference/BoreholeCollection.qmd
+      - reference/CptCollection.qmd
+      - reference/LogCollection.qmd
+      section: GeoST collections
+    - contents:
+      - reference/PointHeader.qmd
+      - reference/LineHeader.qmd
+      section: GeoST header objects
+    - contents:
+      - reference/LayeredData.qmd
+      - reference/DiscreteData.qmd
+      section: GeoST data objects
     - contents:
       - reference/csv_to_parquet.qmd
       - reference/excel_to_parquet.qmd

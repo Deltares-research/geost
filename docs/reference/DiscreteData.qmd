@@ -1,0 +1,100 @@
+# DiscreteData { #geost.base.DiscreteData }
+
+```python
+base.DiscreteData(self, df, has_inclined=False)
+```
+
+
+
+## Methods
+
+| Name | Description |
+| --- | --- |
+| [select_by_values](#geost.base.DiscreteData.select_by_values) | Select data based on the presence of given values in a given column. Can be used |
+| [to_collection](#geost.base.DiscreteData.to_collection) | Create a collection from this instance of DiscreteData. A collection combines |
+| [to_header](#geost.base.DiscreteData.to_header) | Generate a :class:`~geost.base.PointHeader` from this instance of DiscreteData. |
+
+### select_by_values { #geost.base.DiscreteData.select_by_values }
+
+```python
+base.DiscreteData.select_by_values(column, selection_values, how='or')
+```
+
+Select data based on the presence of given values in a given column. Can be used
+for example to select boreholes that contain peat in the lithology column.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name             | Type            | Description                                                                                                                                                                                              | Default    |
+|------------------|-----------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|------------|
+| column           | str             | Name of column that contains categorical data to use when looking for values.                                                                                                                            | _required_ |
+| selection_values | str \| Iterable | Value or values to look for in the column.                                                                                                                                                               | _required_ |
+| how              | str             | Either "and" or "or". "and" requires all selection values to be present in column for selection. "or" will select the core if any one of the selection_values are found in the column. Default is "and". | `'or'`     |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type                             | Description                                                    |
+|--------|----------------------------------|----------------------------------------------------------------|
+|        | class:`~geost.base.DiscreteData` | New instance containing only the data selected by this method. |
+
+#### Examples {.doc-section .doc-section-examples}
+
+To select boreholes where both clay ("K") and peat ("V") are present at the same
+time, use "and" as a selection method:
+
+```python
+>>> boreholes.select_by_values("lith", ["V", "K"], how="and")
+```
+
+To select boreholes that can have one, or both lithologies, use or as the selection
+method:
+
+```python
+>>> boreholes.select_by_values("lith", ["V", "K"], how="and")
+```
+
+### to_collection { #geost.base.DiscreteData.to_collection }
+
+```python
+base.DiscreteData.to_collection(
+    horizontal_reference=28992
+    vertical_reference=5709
+)
+```
+
+Create a collection from this instance of DiscreteData. A collection combines
+header and data and ensures that they remain aligned when applying methods.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name                 | Type              | Description                                                                                                                                                                                                                                                  | Default   |
+|----------------------|-------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-----------|
+| horizontal_reference | str \| int \| CRS | EPSG of the target crs. Takes anything that can be interpreted by pyproj.crs.CRS.from_user_input(), by default 28992.                                                                                                                                        | `28992`   |
+| vertical_reference   | str \| int \| CRS | EPSG of the target vertical datum. Takes anything that can be interpreted by pyproj.crs.CRS.from_user_input(). However, it must be a vertical datum. FYI: "NAP" is EPSG 5709 and The Belgian reference system (Ostend height) is ESPG 5710, by default 5709. | `5709`    |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type                           | Description                                    |
+|--------|--------------------------------|------------------------------------------------|
+|        | class:`~geost.base.Collection` | An instance of :class:`~geost.base.Collection` |
+
+### to_header { #geost.base.DiscreteData.to_header }
+
+```python
+base.DiscreteData.to_header(horizontal_reference=28992, vertical_reference=5709)
+```
+
+Generate a :class:`~geost.base.PointHeader` from this instance of DiscreteData.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name                 | Type              | Description                                                                                                                                                                                                                                                  | Default   |
+|----------------------|-------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-----------|
+| horizontal_reference | str \| int \| CRS | EPSG of the target crs. Takes anything that can be interpreted by pyproj.crs.CRS.from_user_input(), by default 28992.                                                                                                                                        | `28992`   |
+| vertical_reference   | str \| int \| CRS | EPSG of the target vertical datum. Takes anything that can be interpreted by pyproj.crs.CRS.from_user_input(). However, it must be a vertical datum. FYI: "NAP" is EPSG 5709 and The Belgian reference system (Ostend height) is ESPG 5710, by default 5709. | `5709`    |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type                            | Description                                     |
+|--------|---------------------------------|-------------------------------------------------|
+|        | class:`~geost.base.PointHeader` | An instance of :class:`~geost.base.PointHeader` |

@@ -2065,7 +2065,7 @@ class Collection(AbstractCollection):
 
         Parameters
         ----------
-        file : str | Path
+        outfile : str | Path
             Path to shapefile to be written.
         **kwargs
             gpd.GeoDataFrame.to_parquet kwargs. See relevant Pandas documentation.
@@ -2080,7 +2080,7 @@ class Collection(AbstractCollection):
 
         Parameters
         ----------
-        file : str | Path
+        outfile : str | Path
             Path to shapefile to be written.
         **kwargs
             gpd.GeoDataFrame.to_file kwargs. See relevant GeoPandas documentation.
@@ -2095,7 +2095,7 @@ class Collection(AbstractCollection):
 
         Parameters
         ----------
-        file : str | Path
+        outfile : str | Path
             Path to geopackage to be written.
         **kwargs
             gpd.GeoDataFrame.to_file kwargs. See relevant GeoPandas documentation.
@@ -2110,7 +2110,7 @@ class Collection(AbstractCollection):
 
         Parameters
         ----------
-        file : str | Path
+        outfile : str | Path
             Path to parquet file to be written.
         data_table : bool, optional
             If True, the data table is exported. If False, the header table is exported.
@@ -2138,7 +2138,7 @@ class Collection(AbstractCollection):
 
         Parameters
         ----------
-        file : str | Path
+        outfile : str | Path
             Path to csv file to be written.
         data_table : bool, optional
             If True, the data table is exported. If False, the header table is exported.
@@ -2290,14 +2290,16 @@ class Collection(AbstractCollection):
 
 class BoreholeCollection(Collection):
     """
-    A collection combines header and borehole data and ensures that they remain aligned
-    when applying methods.
+    A collection combines header and data while ensuring that they remain aligned
+    when applying methods. A BoreholeCollection is made from the combination of matching
+    [PointHeader](/reference/PointHeader.qmd) and [LayeredData](/reference/LayeredData.qmd)
+    instances.
 
     Parameters
     ----------
-    header : :class:`~geost.base.PointHeader`
+    header : :class:`geost.base.PointHeader`
         Instance of a header class corresponding to the data.
-    data : :class:`~geost.base.LayeredData`
+    data : :class:`geost.base.LayeredData`
         Instance of a data object corresponding to the header.
     """
 
@@ -2451,7 +2453,7 @@ class BoreholeCollection(Collection):
 
         Parameters
         ----------
-        out_file : str | Path
+        outfile : str | Path
             Path to csv file to be written.
         tdstart : int
             startindex for TDchart, default is 1

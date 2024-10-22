@@ -68,27 +68,45 @@ quartodoc:
   title: API Reference
   package: geost
 
-  # write sidebar data to this file
   sidebar: api_reference_sidebar.yml
 
   sections:
-    - title: GeoST reader functions
+    - title: GeoST readers
       desc: Functions to read and parse subsurface data to GeoST objects
       contents:
-        # the functions being documented in the package.
-        # you can refer to anything: class methods, modules, etc..
         - read_borehole_table
         - read_cpt_table
         - read_nlog_cores
         - read_uullg_tables
         - get_bro_objects_from_bbox
         - get_bro_objects_from_geometry
+    - title: GeoST collections
+      desc: GeoST collection objects
+      package: geost.base
+      contents:
+        - BoreholeCollection
+        - CptCollection
+        - LogCollection
+      options:
+          include_inherited: true
+    - title: GeoST header objects
+      desc: GeoST header objects
+      package: geost.base
+      contents:
+        - PointHeader
+        - LineHeader
+      options:
+          include_inherited: true
+    - title: GeoST data objects
+      desc: GeoST data objects
+      package: geost.base
+      contents:
+        - LayeredData
+        - DiscreteData
     - title: GeoST util functions
       desc: Functions to perform various tasks
       package: geost.utils
       contents:
-        # the functions being documented in the package.
-        # you can refer to anything: class methods, modules, etc..
         - csv_to_parquet
         - excel_to_parquet
         - dataframe_to_geodataframe
@@ -96,8 +114,6 @@ quartodoc:
       desc: Functions to perform various geospatial tasks
       package: geost.spatial
       contents:
-        # the functions being documented in the package.
-        # you can refer to anything: class methods, modules, etc..
         - select_points_within_bbox
         - select_points_near_points
         - select_points_near_lines
@@ -105,7 +121,6 @@ quartodoc:
         - find_area_labels
         - get_raster_values
 
-# tell quarto to read the generated sidebar
 metadata-files:
   - api_reference_sidebar.yml
 

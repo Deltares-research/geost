@@ -1,0 +1,96 @@
+# LineHeader { #geost.base.LineHeader }
+
+```python
+base.LineHeader(self, gdf, vertical_reference)
+```
+
+
+
+## Methods
+
+| Name | Description |
+| --- | --- |
+| [to_csv](#geost.base.LineHeader.to_csv) | Write header to csv file as plain table (no geometries). |
+| [to_geopackage](#geost.base.LineHeader.to_geopackage) | Write header data to geopackage. You can use the resulting file to display |
+| [to_geoparquet](#geost.base.LineHeader.to_geoparquet) | Write header data to geoparquet. You can use the resulting file to display |
+| [to_parquet](#geost.base.LineHeader.to_parquet) | Write header to parquet file as plain table (no geometries). |
+| [to_shape](#geost.base.LineHeader.to_shape) | Write header data to shapefile. You can use the resulting file to display |
+
+### to_csv { #geost.base.LineHeader.to_csv }
+
+```python
+base.LineHeader.to_csv(file, **kwargs)
+```
+
+Write header to csv file as plain table (no geometries).
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name     | Type        | Description                                                    | Default    |
+|----------|-------------|----------------------------------------------------------------|------------|
+| file     | str \| Path | Path to csv file to be written.                                | _required_ |
+| **kwargs |             | pd.DataFrame.to_csv kwargs. See relevant Pandas documentation. | `{}`       |
+
+### to_geopackage { #geost.base.LineHeader.to_geopackage }
+
+```python
+base.LineHeader.to_geopackage(file, **kwargs)
+```
+
+Write header data to geopackage. You can use the resulting file to display
+borehole locations in GIS for instance.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name     | Type        | Description                                                            | Default    |
+|----------|-------------|------------------------------------------------------------------------|------------|
+| file     | str \| Path | Path to geopackage to be written.                                      | _required_ |
+| **kwargs |             | gpd.GeoDataFrame.to_file kwargs. See relevant GeoPandas documentation. | `{}`       |
+
+### to_geoparquet { #geost.base.LineHeader.to_geoparquet }
+
+```python
+base.LineHeader.to_geoparquet(file, **kwargs)
+```
+
+Write header data to geoparquet. You can use the resulting file to display
+borehole locations in GIS for instance. Please note that Geoparquet is supported
+by GDAL >= 3.5. For Qgis this means QGis >= 3.26
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name     | Type        | Description                                                            | Default    |
+|----------|-------------|------------------------------------------------------------------------|------------|
+| file     | str \| Path | Path to shapefile to be written.                                       | _required_ |
+| **kwargs |             | gpd.GeoDataFrame.to_parquet kwargs. See relevant Pandas documentation. | `{}`       |
+
+### to_parquet { #geost.base.LineHeader.to_parquet }
+
+```python
+base.LineHeader.to_parquet(file, **kwargs)
+```
+
+Write header to parquet file as plain table (no geometries).
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name     | Type        | Description                                                        | Default    |
+|----------|-------------|--------------------------------------------------------------------|------------|
+| file     | str \| Path | Path to parquet file to be written.                                | _required_ |
+| **kwargs |             | pd.DataFrame.to_parquet kwargs. See relevant Pandas documentation. | `{}`       |
+
+### to_shape { #geost.base.LineHeader.to_shape }
+
+```python
+base.LineHeader.to_shape(file, **kwargs)
+```
+
+Write header data to shapefile. You can use the resulting file to display
+borehole locations in GIS for instance.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name     | Type        | Description                                                            | Default    |
+|----------|-------------|------------------------------------------------------------------------|------------|
+| file     | str \| Path | Path to shapefile to be written.                                       | _required_ |
+| **kwargs |             | gpd.GeoDataFrame.to_file kwargs. See relevant GeoPandas documentation. | `{}`       |

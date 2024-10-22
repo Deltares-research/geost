@@ -1,6 +1,6 @@
 # API Reference {.doc .doc-index}
 
-## GeoST reader functions
+## GeoST readers
 
 Functions to read and parse subsurface data to GeoST objects
 
@@ -12,6 +12,34 @@ Functions to read and parse subsurface data to GeoST objects
 | [read_uullg_tables](read_uullg_tables.qmd#geost.read_uullg_tables) | Read the header and data tables from UU-LLG boreholes (see: EasyDans KNAW) from a |
 | [get_bro_objects_from_bbox](get_bro_objects_from_bbox.qmd#geost.get_bro_objects_from_bbox) | Directly download objects from the BRO to a geost collection object based on the |
 | [get_bro_objects_from_geometry](get_bro_objects_from_geometry.qmd#geost.get_bro_objects_from_geometry) | Directly download objects from the BRO to a geost collection object based on given |
+
+## GeoST collections
+
+GeoST collection objects
+
+| | |
+| --- | --- |
+| [BoreholeCollection](BoreholeCollection.qmd#geost.base.BoreholeCollection) | A collection combines header and data while ensuring that they remain aligned |
+| [CptCollection](CptCollection.qmd#geost.base.CptCollection) |  |
+| [LogCollection](LogCollection.qmd#geost.base.LogCollection) |  |
+
+## GeoST header objects
+
+GeoST header objects
+
+| | |
+| --- | --- |
+| [PointHeader](PointHeader.qmd#geost.base.PointHeader) |  |
+| [LineHeader](LineHeader.qmd#geost.base.LineHeader) |  |
+
+## GeoST data objects
+
+GeoST data objects
+
+| | |
+| --- | --- |
+| [LayeredData](LayeredData.qmd#geost.base.LayeredData) | A class to hold layered data objects (i.e. containing "tops" and "bottoms") like |
+| [DiscreteData](DiscreteData.qmd#geost.base.DiscreteData) |  |
 
 ## GeoST util functions
 
