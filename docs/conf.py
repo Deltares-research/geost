@@ -36,6 +36,7 @@ version = geost.__version__
 extensions = [
     "sphinx.ext.autodoc",
     "sphinx.ext.autosummary",
+    "sphinx.ext.viewcode",
     "pydata_sphinx_theme",
     "sphinx.ext.napoleon",
     "myst_parser",

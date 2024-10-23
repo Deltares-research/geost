@@ -1,18 +1,17 @@
 PointHeader
 ==============
-.. currentmodule:: geost.base
+.. currentmodule:: geost
 
 Constructor
 -----------
 .. autosummary::
    :toctree: api/
 
-    PointHeader
+    base.PointHeader
 
 General methods and attributes
 ------------------------------
 .. autosummary::
    :toctree: api/
 
-    PointHeader
-    PointHeader.change_horizontal_reference
+    base.PointHeader.change_horizontal_reference
