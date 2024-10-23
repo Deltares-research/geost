@@ -20,7 +20,8 @@ Home <self>
 About <about>
 Getting started <getting_started>
 Documentation <documentation>
-API Reference <documentation/api_reference>
+Community <community>
+Changelog <changelog>
 ```
 
 ```{container} button

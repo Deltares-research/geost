@@ -1,10 +1,12 @@
 # API reference
 ```{toctree}
 ---
-maxdepth: 3
+maxdepth: 2
 ---
 
-<api_reference/geost>
+Header <api_reference/header>
+Data <api_reference/header>
+Collection <api_reference/header>
 
 ```
 
