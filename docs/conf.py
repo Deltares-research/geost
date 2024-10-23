@@ -39,6 +39,7 @@ extensions = [
     "sphinx.ext.viewcode",
     "pydata_sphinx_theme",
     "sphinx.ext.napoleon",
+    "sphinx_design",
     "myst_parser",
 ]
 
