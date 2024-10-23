@@ -9,8 +9,8 @@ Constructor
 
     LayeredData
 
-General methods and attributes
-------------------------------
+Methods
+-------
 .. autosummary::
    :toctree: generated/
 
@@ -20,5 +20,20 @@ General methods and attributes
    LayeredData.select_by_values
    LayeredData.slice_by_values
    LayeredData.slice_depth_interval
+   LayeredData.to_collection
+   LayeredData.to_csv
+   LayeredData.to_datafusiontools
+   LayeredData.to_header
+   LayeredData.to_kingdom
+   LayeredData.to_multiblock
+   LayeredData.to_parquet
+   LayeredData.to_qgis3d
+   LayeredData.to_vtm
 
+Attributes
+----------
+.. autosummary::
+   :toctree: generated/
 
+   LayeredData.datatype
+   LayeredData.df
