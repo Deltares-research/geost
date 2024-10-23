@@ -17,3 +17,11 @@ API reference
    :maxdepth: 3
 
    api/geost
+
+Changelog
+---------
+
+.. toctree::
+   :maxdepth: 3
+
+   changelog
