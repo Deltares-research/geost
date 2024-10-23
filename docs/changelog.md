@@ -6,11 +6,11 @@
 
 - **Added** export of BoreholeCollections to the Kingdom seismic interpretation software
 - **Added** option to pass file location (instead of a Geodataframe) to the get_area_labels method
-
-* **Fixed** cumulative thickness returning NaN instead of 0 when queried layer is not present
-* **Fixed** MergeError when calling a method that adds a column to the header object multiple times
-* **Fixed** multiple Pandas setting-on-copy-warnings
-* **Fixed** QGis3D export not using the collection's CRS
+&nsbp;
+- **Fixed** cumulative thickness returning NaN instead of 0 when queried layer is not present
+- **Fixed** MergeError when calling a method that adds a column to the header object multiple times
+- **Fixed** multiple Pandas setting-on-copy-warnings
+- **Fixed** QGis3D export not using the collection's CRS
 
 - **Updated** readme
 - **Removed** requirements.txt
