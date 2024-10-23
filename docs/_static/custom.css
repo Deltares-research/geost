@@ -1,0 +1,26 @@
+html {
+    --pst-font-size-base: 17px;
+    --pst-header-height: 5rem;
+    --pst-header-article-height: calc(var(--pst-header-height) * 2 / 3);
+    --pst-sidebar-secondary: 12rem;
+}
+
+html[data-theme="light"] {
+    --pst-color-primary: rgb(36, 194, 141);
+    --pst-color-secondary: rgb(48, 167, 236);
+}
+
+html[data-theme="dark"] {
+    --pst-color-primary: rgb(36, 194, 141);
+    --pst-color-secondary: rgb(48, 167, 236);
+}
+
+/* Hide the sidebar on the specific page by targeting the body class or URL */
+body[data-document="changelog"] .navbar {
+    display: none;
+}
+
+body[data-document="changelog"] .bd-main {
+    margin-left: 0;
+    /* Adjust the main content area to fill the space */
+}

@@ -24,7 +24,7 @@ author = "Deltares"
 
 # The full version, including alpha/beta/rc tags
 import geost
-release = release = geost.__version__
+release = geost.__version__
 
 
 # -- General configuration ---------------------------------------------------
@@ -36,6 +36,9 @@ extensions = ["sphinx.ext.autodoc",
               "pydata_sphinx_theme", 
               "sphinx.ext.napoleon", 
               "myst_parser"]
+
+def setup(app):
+    app.add_css_file("custom.css")  # may also be an URL
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ["_templates"]
@@ -57,4 +60,31 @@ html_favicon = "_static/geost_logo.png"
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
-html_static_path = []
+
+html_static_path = ["_static"]
+html_css_files = ["custom.css"]
+html_theme_options = {
+    "external_links": [
+    ],
+    "show_toc_level": 1,
+    "show_nav_level": 2,
+    "navbar_align": "left",
+    "use_edit_page_button": False,
+    "header_links_before_dropdown": 6,
+    "pygments_light_style": "tango",
+    "pygments_dark_style": "one-dark",
+    "icon_links": [
+        {
+            "name": "GitHub",
+            "url": "https://github.com/Deltares-research/geost",
+            "icon": "fa-brands fa-square-github",
+            "type": "fontawesome"
+        },
+        {
+            "name": "PyPI",
+            "url": "https://pypi.org/project/geost",
+            "icon": "fa-solid fa-cubes",
+            "type": "fontawesome"
+        },
+    ],
+}
