@@ -2,4 +2,29 @@
 title: "User Guide"
 ---
 
-# This is the user guide
+# General introduction GeoST
+Geost bevat verschillende python objecten om met elke vorm van ondergronddata te werken
+
+- Zandloper figuur erbij
+
+# Design philosophy
+
+
+# Types of subsurface data
+- Begin evt. met tabel
+
+## Point data
+### Geological boreholes
+- Uitleg wat het zijn, soort data, type informatie
+- Welk specifiek Geost object hebben we daarvoor (met verwijzing)
+
+### CPT data
+
+### Well log
+
+## Line data
+
+## Model data
+### GeoTOP
+### etc
+

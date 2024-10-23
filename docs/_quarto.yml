@@ -130,6 +130,6 @@ format:
     max-width: 60em
     backgroundcolor: "#FAFAFA"
     monobackgroundcolor: "#FAFAFA"
-    fontsize: 1.1em
+    fontsize: 1em
 
       
