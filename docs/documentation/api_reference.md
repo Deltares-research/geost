@@ -1,13 +1,15 @@
 # API reference
+
+This is the API reference.
+
 ```{toctree}
 ---
 maxdepth: 2
 ---
 
-Header <api_reference/header>
-Data <api_reference/header>
-Collection <api_reference/header>
+PointHeader <api_reference/header>
+LayeredData <api_reference/data>
+BoreholeCollection <api_reference/collections>
 
 ```
 
-This is the API reference.
