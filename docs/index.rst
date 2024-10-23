@@ -10,22 +10,18 @@ functions around GeoST data objects.
 
 GeoST is a work-in-progress and currently supports a limited number of data sources.
 
-The User guide
---------------
-
 .. toctree::
-   :maxdepth: 3
+   :hidden:
 
-   user_guide/introduction
+   Home <self>
+   About <about>
+   Getting started <getting_started>
+   Documentation <documentation>
 
+.. container:: button
+   :doc:`Getting started <getting_started>` :doc:`Documentation <documentation>`
+   :doc:`About GeoST <about>`
 
-API reference
--------------
-
-.. toctree::
-   :maxdepth: 3
-
-   api/geost
 
 Changelog
 ---------
