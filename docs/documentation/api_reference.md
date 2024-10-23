@@ -7,7 +7,7 @@ This is the API reference.
 maxdepth: 2
 ---
 
-PointHeader <api_reference/header>
+PointHeader <api_reference/point_header>
 
 ```
 
