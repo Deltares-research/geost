@@ -1,4 +1,4 @@
-# GeoST |version|
+# GeoST
 
 
 The Geological Subsurface Toolbox (GeoST) package is designed to be an easy-to-use Python 

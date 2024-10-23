@@ -1,6 +1,6 @@
 PointHeader
 ==============
-.. currentmodule:: geost
+.. currentmodule:: geost.base
 
 Constructor
 -----------
