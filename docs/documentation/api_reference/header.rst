@@ -5,13 +5,13 @@ PointHeader
 Constructor
 -----------
 .. autosummary::
-   :toctree: api/
+   :toctree: generated/
 
     base.PointHeader
 
 General methods and attributes
 ------------------------------
 .. autosummary::
-   :toctree: api/
+   :toctree: generated/
 
     base.PointHeader.change_horizontal_reference
