@@ -5,6 +5,14 @@ PointHeader
 Constructor
 -----------
 .. autosummary::
-    :toctree: base/
+   :toctree: api/
 
     PointHeader
+
+General methods and attributes
+------------------------------
+.. autosummary::
+   :toctree: api/
+
+    PointHeader
+    PointHeader.change_horizontal_reference
