@@ -8,7 +8,11 @@ maxdepth: 2
 ---
 
 PointHeader <api_reference/point_header>
+DiscreteData <api_reference/discrete_data>
 LayeredData <api_reference/layered_data>
+BoreholeCollection <api_reference/borehole_collection>
+CptCollection <api_reference/cpt_collection>
+Input/Output <api_reference/io>
 
 ```
 

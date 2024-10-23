@@ -9,8 +9,8 @@ Constructor
 
     PointHeader
 
-General methods and attributes
-------------------------------
+Methods
+-------
 .. autosummary::
    :toctree: generated/
 
@@ -29,4 +29,13 @@ General methods and attributes
     PointHeader.to_geoparquet
     PointHeader.to_parquet
     PointHeader.to_shape
+
+Attributes
+----------
+.. autosummary::
+   :toctree: generated/
+   
+    PointHeader.gdf
+    PointHeader.horizontal_reference
+    PointHeader.vertical_reference
 
