@@ -1,5 +1,5 @@
-GeoST |version|
-===================
+# GeoST |version|
+
 
 The Geological Subsurface Toolbox (GeoST) package is designed to be an easy-to-use Python 
 interface for working with subsurface data of The Netherlands, allowing you to integrate
@@ -10,27 +10,21 @@ functions around GeoST data objects.
 
 GeoST is a work-in-progress and currently supports a limited number of data sources.
 
-The User guide
---------------
 
-.. toctree::
-   :maxdepth: 3
+```{toctree}
+---
+hidden:
+---
 
-   user_guide/introduction
+Home <self>
+About <about>
+Getting started <getting_started>
+Documentation <documentation>
+Community <community>
+Changelog <changelog>
+```
 
-
-API reference
--------------
-
-.. toctree::
-   :maxdepth: 3
-
-   api/geost
-
-Changelog
----------
-
-.. toctree::
-   :maxdepth: 3
-
-   changelog
+```{container} button
+{doc}`Getting started <getting_started>` {doc}`Documentation <documentation>`
+{doc}`About GeoST <about>`
+```
