@@ -21,6 +21,8 @@ Data in tabular format (e.g. csv, parquet)
    read_cpt_table
    read_nlog_cores
    read_uullg_tables
+   base.Collection.to_csv
+   base.Collection.to_parquet
 
 
 Data from specific file formats
@@ -30,3 +32,12 @@ Data from specific file formats
 
    read_gef_cpts
 
+
+GIS vector files
+----------------
+.. autosummary::
+   :toctree: generated/
+
+   base.Collection.to_geopackage
+   base.Collection.to_geoparquet
+   base.Collection.to_shape
