@@ -38,6 +38,7 @@ extensions = [
     "sphinx.ext.autosummary",
     "pydata_sphinx_theme",
     "sphinx.ext.napoleon",
+    "sphinx_design",
     "myst_parser",
 ]
 
