@@ -24,7 +24,8 @@ author = "Deltares"
 
 # The full version, including alpha/beta/rc tags
 import geost
-release = geost.__version__
+
+version = geost.__version__
 
 
 # -- General configuration ---------------------------------------------------
@@ -32,13 +33,18 @@ release = geost.__version__
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
-extensions = ["sphinx.ext.autodoc", 
-              "pydata_sphinx_theme", 
-              "sphinx.ext.napoleon", 
-              "myst_parser"]
+extensions = [
+    "sphinx.ext.autodoc",
+    "sphinx.ext.autosummary",
+    "pydata_sphinx_theme",
+    "sphinx.ext.napoleon",
+    "myst_parser",
+]
+
 
 def setup(app):
     app.add_css_file("custom.css")  # may also be an URL
+
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ["_templates"]
@@ -64,8 +70,7 @@ html_favicon = "_static/geost_logo.png"
 html_static_path = ["_static"]
 html_css_files = ["custom.css"]
 html_theme_options = {
-    "external_links": [
-    ],
+    "external_links": [],
     "show_toc_level": 1,
     "show_nav_level": 2,
     "navbar_align": "left",
@@ -78,13 +83,13 @@ html_theme_options = {
             "name": "GitHub",
             "url": "https://github.com/Deltares-research/geost",
             "icon": "fa-brands fa-square-github",
-            "type": "fontawesome"
+            "type": "fontawesome",
         },
         {
             "name": "PyPI",
             "url": "https://pypi.org/project/geost",
             "icon": "fa-solid fa-cubes",
-            "type": "fontawesome"
+            "type": "fontawesome",
         },
     ],
 }
