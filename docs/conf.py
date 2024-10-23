@@ -72,7 +72,12 @@ html_favicon = "_static/geost_logo.png"
 html_static_path = ["_static"]
 html_css_files = ["custom.css"]
 html_theme_options = {
-    "external_links": [],
+    "external_links": [        
+        {
+            "url": "https://www.deltares.nl/en",
+            "name": "Deltares website",
+        },
+    ],
     "show_toc_level": 1,
     "show_nav_level": 2,
     "navbar_align": "left",

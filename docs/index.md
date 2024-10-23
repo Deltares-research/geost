@@ -1,3 +1,7 @@
+---
+html_theme.sidebar_secondary.remove:
+---
+
 <p align="center">
     <img src="_static/geost_logo.png" alt="GeoST logo" title="GeoST logo" width="400" />
 </p>
@@ -12,12 +16,17 @@ functions around GeoST data objects.
 GeoST is a work-in-progress and currently supports a limited number of data sources.
 
 ````{grid} 1 2 2 4
-```{grid-item-card}  <i class="fa-solid fa-book-open"></i> [About GeoST](about.md)
+```{grid-item-card}  <i class="fa-solid fa-circle-question"></i>  [About GeoST](about.md)
 :text-align: center
 ```
-```{grid-item-card}  <i class="fa-solid fa-play"></i> [Getting started](getting_started.md)
+```{grid-item-card}  <i class="fa-solid fa-play"></i>  [Getting started](getting_started.md)
 :text-align: center
 ```
+```{grid-item-card}  <i class="fa-solid fa-book"></i>  [Documentation](documentation.md)
+:text-align: center
+```
+```{grid-item-card}  <i class="fa-solid fa-chalkboard-user"></i>  [Examples](examples.md)
+:text-align: center
 ````
 
 ## Package status
@@ -37,6 +46,7 @@ Home <self>
 About <about>
 Getting started <getting_started>
 Documentation <documentation>
+Examples <examples>
 Community <community>
 Changelog <changelog>
 ```
