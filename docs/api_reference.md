@@ -8,6 +8,7 @@ maxdepth: 2
 ---
 
 PointHeader <api_reference/point_header>
+LayeredData <api_reference/layered_data>
 
 ```
 
