@@ -18,12 +18,13 @@ sys.path.insert(0, os.path.abspath(".."))  # isort:skip
 
 # -- Project information -----------------------------------------------------
 
-project = "Python Subsurface Toolbox"
-copyright = "2023, Erik van Onselen"
-author = "Erik van Onselen"
+project = "Geological Subsurface Toolbox"
+copyright = "2024, Deltares"
+author = "Deltares"
 
 # The full version, including alpha/beta/rc tags
-release = "0.1.0"
+import geost
+release = release = geost.__version__
 
 
 # -- General configuration ---------------------------------------------------
@@ -31,7 +32,10 @@ release = "0.1.0"
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
-extensions = ["sphinx.ext.autodoc", "sphinx_rtd_theme", "sphinx.ext.napoleon", "myst_parser"]
+extensions = ["sphinx.ext.autodoc", 
+              "pydata_sphinx_theme", 
+              "sphinx.ext.napoleon", 
+              "myst_parser"]
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ["_templates"]
@@ -46,8 +50,9 @@ exclude_patterns = ["_build", "Thumbs.db", ".DS_Store", "*bro"]
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
-#
-html_theme = "sphinx_rtd_theme"
+html_theme = "pydata_sphinx_theme"
+html_logo = "_static/geost_logo.png"
+html_favicon = "_static/geost_logo.png"
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
