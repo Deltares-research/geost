@@ -15,5 +15,7 @@ CptCollection <api_reference/cpt_collection>
 Input/Output <api_reference/io>
 VoxelModel <api_reference/voxelmodel>
 BRO <api_reference/bro>
+Analysis <api_reference/analysis>
+Util <api_reference/utils>
 ```
 

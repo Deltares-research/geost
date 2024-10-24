@@ -277,7 +277,7 @@ def find_area_labels(
     polygon_geodataframe : gpd.GeoDataFrame
         Geodataframe with polygon geometries
     column_name : str
-        Label of the polygon geometries to use for assigning to the queried points
+        Label of the polygon geometries to use for assigning to the queried points.
 
     Returns
     -------
