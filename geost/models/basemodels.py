@@ -303,7 +303,7 @@ class VoxelModel(AbstractSpatial, AbstractModel3D):
         raise NotImplementedError()
 
 
-class LayerModel(AbstractSpatial, AbstractModel3D):  # pragma: no cover
+class LayerModel(AbstractSpatial, AbstractModel3D):  # pragma: no cover TODO: add to doc
     def __init__(self):
         raise NotImplementedError("No support of LayerModel yet.")
 

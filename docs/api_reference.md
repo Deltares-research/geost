@@ -13,6 +13,7 @@ LayeredData <api_reference/layered_data>
 BoreholeCollection <api_reference/borehole_collection>
 CptCollection <api_reference/cpt_collection>
 Input/Output <api_reference/io>
-
+VoxelModel <api_reference/voxelmodel>
+BRO <api_reference/bro>
 ```
 

@@ -3,7 +3,7 @@ Input/Output
 
 .. currentmodule:: geost
 
-BRO API
+BRO api
 -------
 .. autosummary::
    :toctree: generated/
