@@ -157,18 +157,18 @@ def read_borehole_table(
     includes row data for each (borehole) layer and must at least include the following
     column headers:
 
-    nr      - Object id
-    x       - X-coordinates according to the given horizontal_reference
-    y       - Y-coordinates according to the given horizontal_reference
-    surface - Surface elevation according to the given vertical_reference
-    end     - End depth according to the given vertical_reference
-    top     - Top depth of each layer
-    bottom  - Bottom depth of each layer
+    - **nr** : Object id
+    - **x** : X-coordinates according to the given horizontal_reference
+    - **y** : Y-coordinates according to the given horizontal_reference
+    - **surface** : Surface elevation according to the given vertical_reference
+    - **end** : End depth according to the given vertical_reference
+    - **top** : Top depth of each layer
+    - **bottom** : Bottom depth of each layer
 
     In case there are inclined boreholes in the layer data, you additionally require:
 
-    x_bot   - X-coordinates of the layer bottoms
-    y_bot   - Y-coordinates of the layer bottoms
+    - **x_bot** : X-coordinates of the layer bottoms
+    - **y_bot** : Y-coordinates of the layer bottoms
 
     If you are reading a file that uses different column names, see the optional
     argument "column_mapper" below. There are no further limits or requirements to

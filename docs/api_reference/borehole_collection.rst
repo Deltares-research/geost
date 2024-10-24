@@ -1,5 +1,5 @@
 BoreholeCollection
-==============
+==================
 .. currentmodule:: geost.base
 
 Constructor

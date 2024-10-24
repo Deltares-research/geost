@@ -29,7 +29,7 @@ GeoST is a work-in-progress and currently supports a limited number of data sour
 :text-align: center
 ````
 
-## Package status
+# Package status
 [![PyPI version](https://img.shields.io/pypi/v/geost.svg)](https://pypi.org/project/geost)
 [![License: MIT](https://img.shields.io/pypi/l/imod)](https://choosealicense.com/licenses/mit)
 [![Lifecycle: experimental](https://lifecycle.r-lib.org/articles/figures/lifecycle-experimental.svg)](https://lifecycle.r-lib.org/articles/stages.html)
