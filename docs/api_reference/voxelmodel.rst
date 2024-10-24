@@ -1,5 +1,5 @@
 VoxelModel
-======
+==========
 
 .. currentmodule:: geost.models
 

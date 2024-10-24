@@ -227,7 +227,7 @@ class PointHeader(AbstractHeader, GeopandasExportMixin):
         Returns
         -------
         :class:`~geost.base.PointHeader`
-            Instance of :class:`~geost.base.PointHeader`containing only selected
+            Instance of :class:`~geost.base.PointHeader` containing only selected
             geometries.
         """
         gdf_selected = spatial.select_points_within_bbox(
@@ -256,7 +256,7 @@ class PointHeader(AbstractHeader, GeopandasExportMixin):
         Returns
         -------
         :class:`~geost.base.PointHeader`
-            Instance of :class:`~geost.base.PointHeader`containing only selected
+            Instance of :class:`~geost.base.PointHeader` containing only selected
             geometries.
         """
         gdf_selected = spatial.select_points_near_points(
@@ -285,7 +285,7 @@ class PointHeader(AbstractHeader, GeopandasExportMixin):
         Returns
         -------
         :class:`~geost.base.PointHeader`
-            Instance of :class:`~geost.base.PointHeader`containing only selected
+            Instance of :class:`~geost.base.PointHeader` containing only selected
             geometries.
         """
         gdf_selected = spatial.select_points_near_lines(
@@ -315,7 +315,7 @@ class PointHeader(AbstractHeader, GeopandasExportMixin):
         Returns
         -------
         :class:`~geost.base.PointHeader`
-            Instance of :class:`~geost.base.PointHeader`containing only selected
+            Instance of :class:`~geost.base.PointHeader` containing only selected
             geometries.
         """
         gdf_selected = spatial.select_points_within_polygons(
