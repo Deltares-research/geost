@@ -97,8 +97,10 @@ xarray = ">=2024.9.0,<2024.10"
 netcdf4 = ">=1.7.1,<1.8"
 pydap = ">=3.5,<4"
 
+[tool.pixi.pypi-dependencies]
+geost = { path = ".", editable = true }
+
 [tool.pixi.tasks]
-install = "python -m pip install --no-deps --editable ."
 test = { depends_on = ["install"], cmd = "python -m pytest --verbose --cov=geost --cov-report xml --cov-report term"}
 docs = "sphinx-build -b html docs ./docs/build"
 format = "black ."
