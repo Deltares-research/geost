@@ -247,7 +247,7 @@ def cpt_data():
 def xarray_dataset():
     x = np.arange(4) + 0.5
     y = x[::-1]
-    z = np.arange(0, 2, 0.5) + 0.25
+    z = np.arange(-2, 0, 0.5) + 0.25
 
     strat = [
         [[2, 2, 2, 1], [2, 2, 1, 1], [2, 1, 1, 1], [2, 2, 1, 1]],

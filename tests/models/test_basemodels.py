@@ -32,15 +32,15 @@ class TestVoxelModel:
         assert voxelmodel.shape == (4, 4, 4)
         assert voxelmodel.resolution == (1, 1, 0.5)
         assert voxelmodel.horizontal_bounds == (0, 0, 4, 4)
-        assert voxelmodel.vertical_bounds == (0, 2)
+        assert voxelmodel.vertical_bounds == (-2, 0)
         assert voxelmodel.crs == 28992
         assert_array_equal(voxelmodel.variables, ["strat", "lith"])
         assert voxelmodel.xmin == 0
         assert voxelmodel.ymin == 0
         assert voxelmodel.xmax == 4
         assert voxelmodel.ymax == 4
-        assert voxelmodel.zmin == 0
-        assert voxelmodel.zmax == 2
+        assert voxelmodel.zmin == -2
+        assert voxelmodel.zmax == 0
 
     @pytest.mark.unittest
     def test_select(self, voxelmodel):
