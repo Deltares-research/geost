@@ -9,6 +9,7 @@ from numpy.testing import (
 )
 
 # Local imports
+from geost.analysis.combine import add_voxelmodel_variable
 from geost.analysis.interpret_cpt import calc_ic, calc_lithology
 from geost.analysis.layer_analysis import find_top_sand
 
@@ -92,5 +93,6 @@ class TestAnalysis:
 
 class TestCombine:
     @pytest.mark.unittest
-    def test_add_geotop_info(self, voxelmodel):
+    def test_add_voxelmodel_variable(self, borehole_collection, voxelmodel):
+        add_voxelmodel_variable(borehole_collection, voxelmodel, "strat")
         assert 1 == 1
