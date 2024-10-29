@@ -88,3 +88,9 @@ class TestAnalysis:
         assert_array_equal(
             lith, np.array(["V", "Kh", "Kh", "K", "K", "K", "K", "Kz", "Z", "Z", "Z"])
         )
+
+
+class TestCombine:
+    @pytest.mark.unittest
+    def test_add_geotop_info(self, voxelmodel):
+        assert 1 == 1
