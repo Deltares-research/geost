@@ -18,7 +18,7 @@ def add_voxelmodel_variable(
     var_df['nr'] = nrs.loc[var_df['nr']].values
     data_df = data.data._change_depth_values(data.data.df)
 
-    return
+    return data_df
 
 
 def _reduce_to_top_bottom(da: xr.DataArray, dz: int | float) -> pd.DataFrame:
