@@ -7034,7 +7034,7 @@ packages:
   name: geost
   version: 0.2.5
   path: .
-  sha256: 1279ff9584887e899da75c8ddc0bc42999a39214611b18b6aa3952644cb27000
+  sha256: 435bff1529e6fb6b0c3585c7aadfabb340980e6143f0bfe8176f0d80abca9b73
   requires_dist:
   - numpy
   - pandas>=2.0.1
