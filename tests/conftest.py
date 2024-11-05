@@ -244,6 +244,11 @@ def cpt_data():
 
 
 @pytest.fixture
+def cpt_collection(cpt_data):
+    return cpt_data.to_collection()
+
+
+@pytest.fixture
 def xarray_dataset():
     x = np.arange(4) + 0.5
     y = x[::-1]
