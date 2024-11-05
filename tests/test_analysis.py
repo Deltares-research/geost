@@ -215,4 +215,62 @@ class TestCombine:
     @pytest.mark.unittest
     def test_add_voxelmodel_variable_discrete(self, cpt_collection, voxelmodel):
         result = add_voxelmodel_variable(cpt_collection, voxelmodel, "strat")
-        assert 1 == 1
+        assert isinstance(result, Collection)
+        assert_array_equal(
+            result.data["strat"],
+            [
+                1.0,
+                1.0,
+                1.0,
+                1.0,
+                1.0,
+                2.0,
+                2.0,
+                np.nan,
+                np.nan,
+                np.nan,
+                np.nan,
+                np.nan,
+                1.0,
+                1.0,
+                1.0,
+                1.0,
+                2.0,
+                np.nan,
+                np.nan,
+                np.nan,
+                np.nan,
+                np.nan,
+                np.nan,
+                np.nan,
+            ],
+        )
+        assert_array_equal(
+            result.data["depth"],
+            [
+                0.0,
+                1.0,
+                2.0,
+                3.0,
+                3.6,
+                4.0,
+                4.1,
+                5.0,
+                6.0,
+                7.0,
+                8.0,
+                9.0,
+                0.0,
+                1.0,
+                2.0,
+                2.3,
+                2.8,
+                3.0,
+                4.0,
+                5.0,
+                6.0,
+                7.0,
+                8.0,
+                9.0,
+            ],
+        )
