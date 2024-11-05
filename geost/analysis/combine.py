@@ -110,11 +110,12 @@ def _add_to_layered(data: LayeredData, variable: pd.DataFrame) -> LayeredData:
         depths.
 
     """
-    data_df = data._change_depth_values(data.df.copy())
-    result = pd.concat(_add_layered(data_df, variable), ignore_index=True)
+    variable = variable.merge(
+        data[["nr", "surface"]].drop_duplicates(), on="nr", how="left"
+    )
+    variable["bottom"] = variable["surface"] - variable["bottom"]
 
-    result["top"] = result["surface"] - result["top"]
-    result["bottom"] = data_df["surface"] - result["bottom"]
+    result = pd.concat(_add_layered(data.df, variable), ignore_index=True)
 
     return LayeredData(result)
 
@@ -172,9 +173,9 @@ def _add_layered(data: pd.DataFrame, variable: pd.DataFrame):
 
     """
     data = pd.concat([data, variable], ignore_index=True)
-    data.sort_values(by=["nr", "bottom"], ascending=[True, False], inplace=True)
+    data.sort_values(by=["nr", "bottom"], inplace=True)
     for _, df in data.groupby("nr"):
         df = df.bfill()
         bottom_shift_down = df["bottom"].shift()
-        df.loc[df["top"] > bottom_shift_down, "top"] = bottom_shift_down
+        df.loc[df["top"] < bottom_shift_down, "top"] = bottom_shift_down
         yield df

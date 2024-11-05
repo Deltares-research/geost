@@ -3,7 +3,7 @@ import pandas as pd
 import pytest
 from numpy.testing import (
     assert_allclose,
-    assert_almost_equal,
+    assert_array_almost_equal,
     assert_array_equal,
     assert_equal,
 )
@@ -135,7 +135,7 @@ class TestCombine:
                 np.nan,
             ],
         )
-        assert_array_equal(
+        assert_array_almost_equal(
             result.data["top"],
             [
                 0.0,
@@ -173,7 +173,7 @@ class TestCombine:
                 2.5,
             ],
         )
-        assert_array_equal(
+        assert_array_almost_equal(
             result.data["bottom"],
             [
                 0.8,
