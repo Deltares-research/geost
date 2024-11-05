@@ -12,6 +12,7 @@ from numpy.testing import (
 from geost.analysis.combine import add_voxelmodel_variable
 from geost.analysis.interpret_cpt import calc_ic, calc_lithology
 from geost.analysis.layer_analysis import find_top_sand
+from geost.base import Collection
 
 
 class TestAnalysis:
@@ -93,6 +94,125 @@ class TestAnalysis:
 
 class TestCombine:
     @pytest.mark.unittest
-    def test_add_voxelmodel_variable(self, borehole_collection, voxelmodel):
-        add_voxelmodel_variable(borehole_collection, voxelmodel, "strat")
+    def test_add_voxelmodel_variable_layered(self, borehole_collection, voxelmodel):
+        result = add_voxelmodel_variable(borehole_collection, voxelmodel, "strat")
+        assert isinstance(result, Collection)
+        assert_array_equal(
+            result.data["strat"],
+            [
+                1,
+                1,
+                1,
+                2,
+                np.nan,
+                np.nan,
+                np.nan,
+                1,
+                1,
+                1,
+                2,
+                np.nan,
+                np.nan,
+                np.nan,
+                1,
+                2,
+                2,
+                2,
+                np.nan,
+                np.nan,
+                np.nan,
+                np.nan,
+                np.nan,
+                np.nan,
+                np.nan,
+                np.nan,
+                1,
+                1,
+                1,
+                2,
+                2,
+                np.nan,
+                np.nan,
+            ],
+        )
+        assert_array_equal(
+            result.data["top"],
+            [
+                0.0,
+                0.8,
+                1.5,
+                1.7,
+                2.2,
+                2.5,
+                3.7,
+                0.0,
+                0.6,
+                1.2,
+                1.3,
+                2.3,
+                2.5,
+                3.1,
+                0.0,
+                0.75,
+                1.4,
+                1.8,
+                2.25,
+                2.9,
+                3.8,
+                0.0,
+                0.5,
+                1.2,
+                1.8,
+                2.5,
+                0.0,
+                0.5,
+                1.2,
+                1.4,
+                1.8,
+                1.9,
+                2.5,
+            ],
+        )
+        assert_array_equal(
+            result.data["bottom"],
+            [
+                0.8,
+                1.5,
+                1.7,
+                2.2,
+                2.5,
+                3.7,
+                4.2,
+                0.6,
+                1.2,
+                1.3,
+                2.3,
+                2.5,
+                3.1,
+                3.9,
+                0.75,
+                1.4,
+                1.8,
+                2.25,
+                2.9,
+                3.8,
+                5.5,
+                0.5,
+                1.2,
+                1.8,
+                2.5,
+                3.0,
+                0.5,
+                1.2,
+                1.4,
+                1.8,
+                1.9,
+                2.5,
+                3.0,
+            ],
+        )
+
+    @pytest.mark.unittest
+    def test_add_voxelmodel_variable_discrete(self, cpt_collection, voxelmodel):
+        result = add_voxelmodel_variable(cpt_collection, voxelmodel, "strat")
         assert 1 == 1
