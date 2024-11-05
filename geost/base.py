@@ -130,10 +130,10 @@ class PointHeader(AbstractHeader, GeopandasExportMixin):
             pyproj.crs.CRS.from_user_input(). However, it must be a vertical datum.
 
             Some often-used vertical datums are:
-            NAP             : 5709
-            MSL NL depth    : 9288
-            LAT NL depth    : 9287
-            Ostend height   : 5710
+            - NAP : 5709
+            - MSL NL depth : 9288
+            - LAT NL depth : 9287
+            - Ostend height : 5710
 
             See epsg.io for more.
 
@@ -1624,10 +1624,10 @@ class Collection(AbstractCollection):
             pyproj.crs.CRS.from_user_input(). However, it must be a vertical datum.
 
             Some often-used vertical datums are:
-            NAP             : 5709
-            MSL NL depth    : 9288
-            LAT NL depth    : 9287
-            Ostend height   : 5710
+            - NAP : 5709
+            - MSL NL depth : 9288
+            - LAT NL depth : 9287
+            - Ostend height : 5710
 
             See epsg.io for more.
 
