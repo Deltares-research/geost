@@ -21,10 +21,10 @@ def add_voxelmodel_variable(
     if isinstance(data.data, LayeredData):
         result = _add_to_layered(data.data, var_df)
     elif isinstance(data.data, DiscreteData):
-        pass
+        result = _add_to_discrete(data.data, var_df)
     else:
         raise NotImplementedError(
-            "Other datatypes than LayeredData or DiscreteData not implemented yet"
+            "Other datatypes than LayeredData or DiscreteData not implemented yet."
         )
 
     return result.to_collection()
@@ -50,7 +50,7 @@ def _reduce_to_top_bottom(da: xr.DataArray, dz: int | float) -> pd.DataFrame:
     df = pd.DataFrame(
         {
             "nr": np.repeat(da["idx"], da.sizes["z"]),
-            "bottom": np.tile(da["z"] - (0.5 * dz), da.sizes["z"]),
+            "bottom": np.tile(da["z"] - (0.5 * dz), da.sizes["idx"]),
             "values": da.values.ravel(),
         }
     )
@@ -81,12 +81,28 @@ def _add_to_layered(data: LayeredData, variable: pd.DataFrame) -> LayeredData:
 
     """
     data_df = data._change_depth_values(data.df.copy())
-    data_df = pd.concat(_add_layered(data_df, variable), ignore_index=True)
+    result = pd.concat(_add_layered(data_df, variable), ignore_index=True)
 
-    data_df["top"] = data_df["surface"] - data_df["top"]
-    data_df["bottom"] = data_df["surface"] - data_df["bottom"]
+    result["top"] = result["surface"] - result["top"]
+    result["bottom"] = data_df["surface"] - result["bottom"]
 
-    return LayeredData(data_df)
+    return LayeredData(result)
+
+
+def _add_to_discrete(data: DiscreteData, variable: pd.DataFrame) -> DiscreteData:
+    variable.rename(columns={"bottom": "depth"}, inplace=True)
+    variable = variable.merge(
+        data[["nr", "surface"]].drop_duplicates(), on="nr", how="left"
+    )
+    variable["depth"] = variable["surface"] - variable["depth"]
+
+    result = pd.concat([data.df, variable], ignore_index=True).sort_values(
+        by=["nr", "depth"]
+    )
+    nr = result["nr"]
+    result = result.groupby("nr").bfill()
+
+    return DiscreteData(pd.concat([nr, result], axis=1))
 
 
 def _add_layered(data: pd.DataFrame, variable: pd.DataFrame):
