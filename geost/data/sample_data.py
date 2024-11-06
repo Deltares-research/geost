@@ -7,7 +7,7 @@ from geost.read import read_borehole_table
 
 REGISTRY = pooch.create(
     path=pooch.os_cache("geost"),
-    base_url="https://github.com/Deltares-research/geost/raw/feature/docs/geost/data/",
+    base_url="https://github.com/Deltares-research/geost/raw/feature/docs/data/",  # TODO: Change to 'main' branch
     version=None,
     env="GEOST_DATA_DIR",
 )
@@ -30,7 +30,7 @@ def boreholes_usp(pandas=False):
     :class:`~geost.base.BoreholeCollection`
 
     """
-    filename = REGISTRY.fetch("borehole_usp.parquet")
+    filename = REGISTRY.fetch("boreholes_usp.parquet")
     if pandas:
         return pd.read_parquet(filename)
     else:
