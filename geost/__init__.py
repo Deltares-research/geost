@@ -1,3 +1,4 @@
+from geost import data
 from geost.read import (
     get_bro_objects_from_bbox,
     get_bro_objects_from_geometry,
