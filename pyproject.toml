@@ -38,6 +38,7 @@ dependencies = [
     "pandas>=2.0.1",
     "pyarrow",
     "lxml",
+    "pooch",
     "pyproj",
     "geopandas",
     "xlrd",
@@ -99,6 +100,7 @@ myst-parser = "*"
 pydata-sphinx-theme = "*"
 sphinx-design = "*"
 myst-nb = "*"
+pooch = "*"
 
 [tool.pixi.pypi-dependencies]
 geost = { path = ".", editable = true }
