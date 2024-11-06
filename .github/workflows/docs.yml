@@ -1,0 +1,30 @@
+name: Publish GeoST GH-pages
+
+on:
+  push:
+    tags: ['*testdocs*']
+
+permissions: read-all
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+        name: github-pages
+
+    permissions:
+        id-token: write
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@v4
+      - name: Setup Pixi
+        uses: prefix-dev/setup-pixi@v0.8.1
+        with: 
+          manifest-path: pyproject.toml
+      - name: Build docs
+        run: pixi run docs
+      - name: Deploy to Github Pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./docs/build
