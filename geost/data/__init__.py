@@ -1,1 +1,1 @@
-from .sample_data import boreholes_usp
+from geost.data.sample_data import boreholes_usp
