@@ -4,10 +4,7 @@ on:
   push:
     tags: ['*testdocs*']
 
-permissions:
-  contents: read
-  pages: write
-  id-token: write
+permissions: write-all
 
 concurrency:
   group: "pages"
@@ -18,7 +15,6 @@ jobs:
     runs-on: ubuntu-latest
     environment:
         name: github-pages
-        url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - name: Check out repo
         uses: actions/checkout@v4
