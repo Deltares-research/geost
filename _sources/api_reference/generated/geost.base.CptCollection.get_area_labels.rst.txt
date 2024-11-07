@@ -1,0 +1,6 @@
+﻿geost.base.CptCollection.get\_area\_labels
+==========================================
+
+.. currentmodule:: geost.base
+
+.. automethod:: CptCollection.get_area_labels

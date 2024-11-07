@@ -1,0 +1,6 @@
+﻿geost.bro.GeoTop.horizontal\_bounds
+===================================
+
+.. currentmodule:: geost.bro
+
+.. autoproperty:: GeoTop.horizontal_bounds

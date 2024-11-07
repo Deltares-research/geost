@@ -1,0 +1,6 @@
+﻿geost.base.BoreholeCollection.has\_inclined
+===========================================
+
+.. currentmodule:: geost.base
+
+.. autoproperty:: BoreholeCollection.has_inclined

@@ -1,0 +1,6 @@
+﻿geost.base.CptCollection.get\_layer\_top
+========================================
+
+.. currentmodule:: geost.base
+
+.. automethod:: CptCollection.get_layer_top

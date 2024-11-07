@@ -1,0 +1,6 @@
+﻿geost.base.BoreholeCollection.select\_by\_length
+================================================
+
+.. currentmodule:: geost.base
+
+.. automethod:: BoreholeCollection.select_by_length

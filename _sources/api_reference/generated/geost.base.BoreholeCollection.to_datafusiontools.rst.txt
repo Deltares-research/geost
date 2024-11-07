@@ -1,0 +1,6 @@
+﻿geost.base.BoreholeCollection.to\_datafusiontools
+=================================================
+
+.. currentmodule:: geost.base
+
+.. automethod:: BoreholeCollection.to_datafusiontools

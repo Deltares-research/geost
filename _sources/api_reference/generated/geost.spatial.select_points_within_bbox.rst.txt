@@ -1,0 +1,6 @@
+﻿geost.spatial.select\_points\_within\_bbox
+==========================================
+
+.. currentmodule:: geost.spatial
+
+.. autofunction:: select_points_within_bbox

@@ -1,0 +1,6 @@
+﻿geost.base.CptCollection.change\_horizontal\_reference
+======================================================
+
+.. currentmodule:: geost.base
+
+.. automethod:: CptCollection.change_horizontal_reference

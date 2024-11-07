@@ -1,0 +1,6 @@
+﻿geost.base.Collection.to\_shape
+===============================
+
+.. currentmodule:: geost.base
+
+.. automethod:: Collection.to_shape

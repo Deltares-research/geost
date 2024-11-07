@@ -1,0 +1,6 @@
+﻿geost.base.DiscreteData.to\_parquet
+===================================
+
+.. currentmodule:: geost.base
+
+.. automethod:: DiscreteData.to_parquet

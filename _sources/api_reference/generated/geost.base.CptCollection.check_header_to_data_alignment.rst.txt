@@ -1,0 +1,6 @@
+﻿geost.base.CptCollection.check\_header\_to\_data\_alignment
+===========================================================
+
+.. currentmodule:: geost.base
+
+.. automethod:: CptCollection.check_header_to_data_alignment

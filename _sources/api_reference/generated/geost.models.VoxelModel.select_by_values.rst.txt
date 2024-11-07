@@ -1,0 +1,6 @@
+﻿geost.models.VoxelModel.select\_by\_values
+==========================================
+
+.. currentmodule:: geost.models
+
+.. automethod:: VoxelModel.select_by_values

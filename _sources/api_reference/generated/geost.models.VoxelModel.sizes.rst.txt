@@ -1,0 +1,6 @@
+﻿geost.models.VoxelModel.sizes
+=============================
+
+.. currentmodule:: geost.models
+
+.. autoproperty:: VoxelModel.sizes

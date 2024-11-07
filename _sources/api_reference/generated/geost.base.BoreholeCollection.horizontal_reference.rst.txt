@@ -1,0 +1,6 @@
+﻿geost.base.BoreholeCollection.horizontal\_reference
+===================================================
+
+.. currentmodule:: geost.base
+
+.. autoproperty:: BoreholeCollection.horizontal_reference

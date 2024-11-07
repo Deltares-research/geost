@@ -1,0 +1,6 @@
+﻿geost.base.PointHeader.gdf
+==========================
+
+.. currentmodule:: geost.base
+
+.. autoproperty:: PointHeader.gdf

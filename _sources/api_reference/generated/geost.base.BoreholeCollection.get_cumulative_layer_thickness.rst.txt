@@ -1,0 +1,6 @@
+﻿geost.base.BoreholeCollection.get\_cumulative\_layer\_thickness
+===============================================================
+
+.. currentmodule:: geost.base
+
+.. automethod:: BoreholeCollection.get_cumulative_layer_thickness

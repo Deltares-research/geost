@@ -1,0 +1,6 @@
+﻿geost.base.CptCollection.get
+============================
+
+.. currentmodule:: geost.base
+
+.. automethod:: CptCollection.get

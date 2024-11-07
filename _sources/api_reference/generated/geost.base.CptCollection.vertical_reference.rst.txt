@@ -1,0 +1,6 @@
+﻿geost.base.CptCollection.vertical\_reference
+============================================
+
+.. currentmodule:: geost.base
+
+.. autoproperty:: CptCollection.vertical_reference

@@ -1,0 +1,6 @@
+﻿geost.base.LayeredData.to\_vtm
+==============================
+
+.. currentmodule:: geost.base
+
+.. automethod:: LayeredData.to_vtm

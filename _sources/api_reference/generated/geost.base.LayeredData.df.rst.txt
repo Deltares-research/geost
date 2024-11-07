@@ -1,0 +1,6 @@
+﻿geost.base.LayeredData.df
+=========================
+
+.. currentmodule:: geost.base
+
+.. autoproperty:: LayeredData.df

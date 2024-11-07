@@ -1,0 +1,6 @@
+﻿geost.bro.BroApi.search\_objects\_in\_bbox
+==========================================
+
+.. currentmodule:: geost.bro
+
+.. automethod:: BroApi.search_objects_in_bbox

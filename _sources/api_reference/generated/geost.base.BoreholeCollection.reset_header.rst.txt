@@ -1,0 +1,6 @@
+﻿geost.base.BoreholeCollection.reset\_header
+===========================================
+
+.. currentmodule:: geost.base
+
+.. automethod:: BoreholeCollection.reset_header

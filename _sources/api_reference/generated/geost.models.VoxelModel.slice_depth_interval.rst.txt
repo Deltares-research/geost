@@ -1,0 +1,6 @@
+﻿geost.models.VoxelModel.slice\_depth\_interval
+==============================================
+
+.. currentmodule:: geost.models
+
+.. automethod:: VoxelModel.slice_depth_interval

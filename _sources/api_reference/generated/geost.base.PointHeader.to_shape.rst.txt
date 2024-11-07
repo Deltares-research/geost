@@ -1,0 +1,6 @@
+﻿geost.base.PointHeader.to\_shape
+================================
+
+.. currentmodule:: geost.base
+
+.. automethod:: PointHeader.to_shape

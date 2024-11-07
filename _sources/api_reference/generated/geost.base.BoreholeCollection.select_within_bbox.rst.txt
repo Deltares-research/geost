@@ -1,0 +1,6 @@
+﻿geost.base.BoreholeCollection.select\_within\_bbox
+==================================================
+
+.. currentmodule:: geost.base
+
+.. automethod:: BoreholeCollection.select_within_bbox

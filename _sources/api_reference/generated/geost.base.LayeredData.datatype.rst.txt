@@ -1,0 +1,6 @@
+﻿geost.base.LayeredData.datatype
+===============================
+
+.. currentmodule:: geost.base
+
+.. autoproperty:: LayeredData.datatype

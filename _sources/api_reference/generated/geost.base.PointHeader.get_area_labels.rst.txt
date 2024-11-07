@@ -1,0 +1,6 @@
+﻿geost.base.PointHeader.get\_area\_labels
+========================================
+
+.. currentmodule:: geost.base
+
+.. automethod:: PointHeader.get_area_labels

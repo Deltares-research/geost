@@ -1,0 +1,6 @@
+﻿geost.base.CptCollection.header
+===============================
+
+.. currentmodule:: geost.base
+
+.. autoproperty:: CptCollection.header

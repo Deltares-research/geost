@@ -1,0 +1,6 @@
+﻿geost.base.CptCollection.to\_datafusiontools
+============================================
+
+.. currentmodule:: geost.base
+
+.. automethod:: CptCollection.to_datafusiontools

@@ -1,0 +1,6 @@
+﻿geost.bro.GeoTop.vertical\_bounds
+=================================
+
+.. currentmodule:: geost.bro
+
+.. autoproperty:: GeoTop.vertical_bounds

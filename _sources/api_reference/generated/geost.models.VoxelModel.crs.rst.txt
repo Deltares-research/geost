@@ -1,0 +1,6 @@
+﻿geost.models.VoxelModel.crs
+===========================
+
+.. currentmodule:: geost.models
+
+.. autoproperty:: VoxelModel.crs

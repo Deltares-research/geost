@@ -1,0 +1,6 @@
+﻿geost.base.DiscreteData.to\_csv
+===============================
+
+.. currentmodule:: geost.base
+
+.. automethod:: DiscreteData.to_csv

@@ -1,0 +1,6 @@
+﻿geost.bro.BroApi.get\_objects
+=============================
+
+.. currentmodule:: geost.bro
+
+.. automethod:: BroApi.get_objects

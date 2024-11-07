@@ -1,0 +1,6 @@
+﻿geost.base.LayeredData.select\_by\_condition
+============================================
+
+.. currentmodule:: geost.base
+
+.. automethod:: LayeredData.select_by_condition

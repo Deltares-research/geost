@@ -1,0 +1,6 @@
+﻿geost.base.BoreholeCollection.get\_area\_labels
+===============================================
+
+.. currentmodule:: geost.base
+
+.. automethod:: BoreholeCollection.get_area_labels

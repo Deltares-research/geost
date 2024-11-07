@@ -1,0 +1,6 @@
+﻿geost.base.CptCollection.reset\_header
+======================================
+
+.. currentmodule:: geost.base
+
+.. automethod:: CptCollection.reset_header

@@ -1,0 +1,6 @@
+﻿geost.bro.GeoTop.select\_with\_points
+=====================================
+
+.. currentmodule:: geost.bro
+
+.. automethod:: GeoTop.select_with_points

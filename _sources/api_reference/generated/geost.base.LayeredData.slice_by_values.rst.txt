@@ -1,0 +1,6 @@
+﻿geost.base.LayeredData.slice\_by\_values
+========================================
+
+.. currentmodule:: geost.base
+
+.. automethod:: LayeredData.slice_by_values

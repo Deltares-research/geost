@@ -1,0 +1,6 @@
+﻿geost.models.model\_utils.sample\_along\_line
+=============================================
+
+.. currentmodule:: geost.models.model_utils
+
+.. autofunction:: sample_along_line

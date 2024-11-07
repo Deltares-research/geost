@@ -1,0 +1,6 @@
+﻿geost.base.Collection.to\_geoparquet
+====================================
+
+.. currentmodule:: geost.base
+
+.. automethod:: Collection.to_geoparquet

@@ -1,0 +1,6 @@
+﻿geost.base.BoreholeCollection.get\_layer\_top
+=============================================
+
+.. currentmodule:: geost.base
+
+.. automethod:: BoreholeCollection.get_layer_top

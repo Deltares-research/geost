@@ -1,0 +1,6 @@
+﻿geost.bro.GeoTop.select\_within\_polygons
+=========================================
+
+.. currentmodule:: geost.bro
+
+.. automethod:: GeoTop.select_within_polygons

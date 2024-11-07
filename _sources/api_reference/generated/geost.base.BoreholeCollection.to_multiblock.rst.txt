@@ -1,0 +1,6 @@
+﻿geost.base.BoreholeCollection.to\_multiblock
+============================================
+
+.. currentmodule:: geost.base
+
+.. automethod:: BoreholeCollection.to_multiblock

@@ -1,0 +1,6 @@
+﻿geost.base.CptCollection.select\_within\_polygons
+=================================================
+
+.. currentmodule:: geost.base
+
+.. automethod:: CptCollection.select_within_polygons

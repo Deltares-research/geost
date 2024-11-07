@@ -1,0 +1,6 @@
+﻿geost.base.CptCollection.to\_geopackage
+=======================================
+
+.. currentmodule:: geost.base
+
+.. automethod:: CptCollection.to_geopackage

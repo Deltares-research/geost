@@ -1,0 +1,6 @@
+﻿geost.base.BoreholeCollection.select\_with\_lines
+=================================================
+
+.. currentmodule:: geost.base
+
+.. automethod:: BoreholeCollection.select_with_lines

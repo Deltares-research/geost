@@ -1,0 +1,6 @@
+﻿geost.bro.GeoTop.ymin
+=====================
+
+.. currentmodule:: geost.bro
+
+.. autoproperty:: GeoTop.ymin

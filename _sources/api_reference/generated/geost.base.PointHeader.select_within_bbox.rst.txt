@@ -1,0 +1,6 @@
+﻿geost.base.PointHeader.select\_within\_bbox
+===========================================
+
+.. currentmodule:: geost.base
+
+.. automethod:: PointHeader.select_within_bbox

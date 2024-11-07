@@ -1,0 +1,6 @@
+﻿geost.base.PointHeader.horizontal\_reference
+============================================
+
+.. currentmodule:: geost.base
+
+.. autoproperty:: PointHeader.horizontal_reference

@@ -1,0 +1,6 @@
+﻿geost.models.VoxelModel.variables
+=================================
+
+.. currentmodule:: geost.models
+
+.. autoproperty:: VoxelModel.variables

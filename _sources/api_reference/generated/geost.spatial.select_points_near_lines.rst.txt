@@ -1,0 +1,6 @@
+﻿geost.spatial.select\_points\_near\_lines
+=========================================
+
+.. currentmodule:: geost.spatial
+
+.. autofunction:: select_points_near_lines

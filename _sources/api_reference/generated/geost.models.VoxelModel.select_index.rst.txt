@@ -1,0 +1,6 @@
+﻿geost.models.VoxelModel.select\_index
+=====================================
+
+.. currentmodule:: geost.models
+
+.. automethod:: VoxelModel.select_index

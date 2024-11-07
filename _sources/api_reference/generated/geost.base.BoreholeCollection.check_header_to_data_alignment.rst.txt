@@ -1,0 +1,6 @@
+﻿geost.base.BoreholeCollection.check\_header\_to\_data\_alignment
+================================================================
+
+.. currentmodule:: geost.base
+
+.. automethod:: BoreholeCollection.check_header_to_data_alignment

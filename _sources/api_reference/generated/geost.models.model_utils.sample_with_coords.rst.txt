@@ -1,0 +1,6 @@
+﻿geost.models.model\_utils.sample\_with\_coords
+==============================================
+
+.. currentmodule:: geost.models.model_utils
+
+.. autofunction:: sample_with_coords

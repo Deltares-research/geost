@@ -1,0 +1,6 @@
+﻿geost.base.BoreholeCollection.slice\_by\_values
+===============================================
+
+.. currentmodule:: geost.base
+
+.. automethod:: BoreholeCollection.slice_by_values

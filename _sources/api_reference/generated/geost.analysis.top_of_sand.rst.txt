@@ -1,0 +1,6 @@
+﻿geost.analysis.top\_of\_sand
+============================
+
+.. currentmodule:: geost.analysis
+
+.. autofunction:: top_of_sand

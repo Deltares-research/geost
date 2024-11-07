@@ -1,0 +1,6 @@
+﻿geost.read\_borehole\_table
+===========================
+
+.. currentmodule:: geost
+
+.. autofunction:: read_borehole_table

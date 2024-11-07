@@ -1,0 +1,6 @@
+﻿geost.base.BoreholeCollection.select\_by\_condition
+===================================================
+
+.. currentmodule:: geost.base
+
+.. automethod:: BoreholeCollection.select_by_condition

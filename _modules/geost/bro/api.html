@@ -1,0 +1,721 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>geost.bro.api &#8212; Geological Subsurface Toolbox  documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!-- 
+    this give us a css class that will be invisible only if js is disabled 
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../_static/styles/theme.css?digest=26a4bc78f4c0ddb94549" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=26a4bc78f4c0ddb94549" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=e0654d5c" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=e0654d5c" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../../../_static/scripts/fontawesome.js?digest=26a4bc78f4c0ddb94549"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=26a4bc78f4c0ddb94549" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=26a4bc78f4c0ddb94549" />
+
+    <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
+    <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/geost/bro/api';</script>
+    <link rel="icon" href="../../../_static/geost_logo.png"/>
+    <link rel="author" title="About these documents" href="../../../about.html" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="0.2.5" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class=" navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../../_static/geost_logo.png" class="logo__image only-light" alt="Geological Subsurface Toolbox  documentation - Home"/>
+    <img src="../../../_static/geost_logo.png" class="logo__image only-dark pst-js-only" alt="Geological Subsurface Toolbox  documentation - Home"/>
+  
+  
+</a></div>
+    
+  </div>
+  
+  <div class=" navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../index.html">
+    Home
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../about.html">
+    About
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../getting_started.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../documentation.html">
+    Documentation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../examples.html">
+    Examples
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../community.html">
+    Community
+  </a>
+</li>
+
+            <li class="nav-item dropdown">
+                <button class="btn dropdown-toggle nav-item" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-controls="pst-nav-more-links">
+                    More
+                </button>
+                <ul id="pst-nav-more-links" class="dropdown-menu">
+                    
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../../changelog.html">
+    Changelog
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-external" href="https://www.deltares.nl/en">
+    Deltares website
+  </a>
+</li>
+
+                </ul>
+            </li>
+            
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/Deltares-research/geost" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/geost" title="PyPI" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-solid fa-cubes fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">PyPI</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar hide-on-wide">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../index.html">
+    Home
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../about.html">
+    About
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../getting_started.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../documentation.html">
+    Documentation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../examples.html">
+    Examples
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../community.html">
+    Community
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../changelog.html">
+    Changelog
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-external" href="https://www.deltares.nl/en">
+    Deltares website
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/Deltares-research/geost" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/geost" title="PyPI" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-solid fa-cubes fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">PyPI</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../../index.html" class="nav-link">Module code</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">geost.bro.api</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <h1>Source code for geost.bro.api</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">Iterator</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">TypeVar</span><span class="p">,</span> <span class="n">Union</span>
+
+<span class="kn">import</span> <span class="nn">requests</span>
+<span class="kn">from</span> <span class="nn">lxml</span> <span class="kn">import</span> <span class="n">etree</span>
+
+<span class="kn">from</span> <span class="nn">geost.bro.bro_utils</span> <span class="kn">import</span> <span class="n">get_bbox_criteria</span>
+<span class="kn">from</span> <span class="nn">geost.projections</span> <span class="kn">import</span> <span class="n">xy_to_ll</span>
+
+<span class="n">Coordinate</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s2">&quot;Coordinate&quot;</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="BroApi">
+<a class="viewcode-back" href="../../../api_reference/generated/geost.bro.BroApi.html#geost.bro.BroApi">[docs]</a>
+<span class="k">class</span> <span class="nc">BroApi</span><span class="p">:</span>
+    <span class="n">apis</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;CPT&quot;</span><span class="p">:</span> <span class="s2">&quot;/sr/cpt/v1&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;BHR-P&quot;</span><span class="p">:</span> <span class="s2">&quot;/sr/bhrp/v2&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;BHR-GT&quot;</span><span class="p">:</span> <span class="s2">&quot;/sr/bhrgt/v2&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;BHR-G&quot;</span><span class="p">:</span> <span class="s2">&quot;/sr/bhrg/v2&quot;</span><span class="p">,</span>
+    <span class="p">}</span>
+    <span class="n">document_types</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;CPT&quot;</span><span class="p">:</span> <span class="s2">&quot;CPT_C&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;BHR-P&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;BHR-GT&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;BHR-G&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+    <span class="p">}</span>
+
+<div class="viewcode-block" id="BroApi.__init__">
+<a class="viewcode-back" href="../../../api_reference/generated/geost.bro.BroApi.html#geost.bro.BroApi.__init__">[docs]</a>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">server_url</span><span class="o">=</span><span class="sa">r</span><span class="s2">&quot;https://publiek.broservices.nl&quot;</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">session</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">Session</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">server_url</span> <span class="o">=</span> <span class="n">server_url</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">objects_url</span> <span class="o">=</span> <span class="s2">&quot;/objects&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">search_url</span> <span class="o">=</span> <span class="s2">&quot;/characteristics/searches&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">object_list</span> <span class="o">=</span> <span class="p">[]</span></div>
+
+
+<div class="viewcode-block" id="BroApi.get_objects">
+<a class="viewcode-back" href="../../../api_reference/generated/geost.bro.BroApi.get_objects.html#geost.bro.BroApi.get_objects">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_objects</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">bro_ids</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">],</span> <span class="n">object_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;CPT&quot;</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return BRO objects as a generator containing element trees that can be parsed to</span>
+<span class="sd">        a reader.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        bro_ids : Union[str, Iterable]</span>
+<span class="sd">            Single BRO ID or Iterable of BRO ID&#39;s</span>
+<span class="sd">        object_type : str, optional</span>
+<span class="sd">            BRO object type. Can be CPT (Cone penetration tests), BHR-P (Soil cores),</span>
+<span class="sd">            BHR-GT (Geotechnical cores), or BHR-G (Geological cores). By default &quot;CPT&quot;.</span>
+
+<span class="sd">        Yields</span>
+<span class="sd">        ------</span>
+<span class="sd">        lxml._Element</span>
+<span class="sd">            Element tree containing data of the requested BRO object.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        Warning</span>
+<span class="sd">            When a non-existing BRO ID was given.</span>
+<span class="sd">        Warning</span>
+<span class="sd">            When the server does not respond to the request (40x error).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">bro_ids</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="n">bro_ids</span> <span class="o">=</span> <span class="p">[</span><span class="n">bro_ids</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">bro_id</span> <span class="ow">in</span> <span class="n">bro_ids</span><span class="p">:</span>
+            <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">server_url</span>
+                <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">apis</span><span class="p">[</span><span class="n">object_type</span><span class="p">]</span>
+                <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">objects_url</span>
+                <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot;/</span><span class="si">{</span><span class="n">bro_id</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
+            <span class="k">if</span> <span class="n">response</span><span class="o">.</span><span class="n">status_code</span> <span class="o">==</span> <span class="mi">200</span> <span class="ow">and</span> <span class="s2">&quot;rejection&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">response</span><span class="o">.</span><span class="n">text</span><span class="p">:</span>
+                <span class="n">element</span> <span class="o">=</span> <span class="n">etree</span><span class="o">.</span><span class="n">fromstring</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">))</span>
+                <span class="k">yield</span> <span class="n">element</span>
+            <span class="k">elif</span> <span class="n">response</span><span class="o">.</span><span class="n">status_code</span> <span class="o">!=</span> <span class="mi">200</span> <span class="ow">or</span> <span class="s2">&quot;rejection&quot;</span> <span class="ow">in</span> <span class="n">response</span><span class="o">.</span><span class="n">text</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">Warning</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;Error </span><span class="si">{</span><span class="n">response</span><span class="o">.</span><span class="n">status_code</span><span class="si">}</span><span class="s2">: Unable to request </span><span class="si">{</span><span class="n">bro_id</span><span class="si">}</span><span class="s2"> from &quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;database&quot;</span><span class="p">,</span>
+                <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="BroApi.search_objects_in_bbox">
+<a class="viewcode-back" href="../../../api_reference/generated/geost.bro.BroApi.search_objects_in_bbox.html#geost.bro.BroApi.search_objects_in_bbox">[docs]</a>
+    <span class="k">def</span> <span class="nf">search_objects_in_bbox</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">xmin</span><span class="p">:</span> <span class="n">Coordinate</span><span class="p">,</span>
+        <span class="n">xmax</span><span class="p">:</span> <span class="n">Coordinate</span><span class="p">,</span>
+        <span class="n">ymin</span><span class="p">:</span> <span class="n">Coordinate</span><span class="p">,</span>
+        <span class="n">ymax</span><span class="p">:</span> <span class="n">Coordinate</span><span class="p">,</span>
+        <span class="n">epsg</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;28992&quot;</span><span class="p">,</span>
+        <span class="n">object_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;CPT&quot;</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Search for BRO objects of the given object type within the given bounding box.</span>
+<span class="sd">        Returns a list of BRO objects that can be used to retrieve their data using the</span>
+<span class="sd">        get_objects method.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        xmin : Union[float, int]</span>
+<span class="sd">            x-coordinate of the bbox lower left corner.</span>
+<span class="sd">        xmax : Union[float, int]</span>
+<span class="sd">            x-coordinate of the bbox upper right corner.</span>
+<span class="sd">        ymin : Union[float, int]</span>
+<span class="sd">            y-coordinate of the bbox lower left corner.</span>
+<span class="sd">        ymax : Union[float, int]</span>
+<span class="sd">            y-coordinate of the bbox upper right corner.</span>
+<span class="sd">        epsg : str, optional</span>
+<span class="sd">            Coordinate reference system of the given bbox coordinates, by default</span>
+<span class="sd">            &quot;28992&quot; (= Rijksdriehoek New CRS).</span>
+<span class="sd">        object_type : str, optional</span>
+<span class="sd">            BRO object type. Can be CPT (Cone penetration tests), BHR-P (Soil cores),</span>
+<span class="sd">            BHR-GT (Geotechnical cores), or BHR-G (Geological cores). By default &quot;CPT&quot;.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        List[str]</span>
+<span class="sd">            List containing BRO ID&#39;s of objects found within the bbox.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        Warning</span>
+<span class="sd">            If the server does not respond or the search query was rejected.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__response_to_bbox</span><span class="p">(</span>
+            <span class="n">xmin</span><span class="p">,</span> <span class="n">xmax</span><span class="p">,</span> <span class="n">ymin</span><span class="p">,</span> <span class="n">ymax</span><span class="p">,</span> <span class="n">epsg</span><span class="o">=</span><span class="n">epsg</span><span class="p">,</span> <span class="n">object_type</span><span class="o">=</span><span class="n">object_type</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">response</span><span class="o">.</span><span class="n">status_code</span> <span class="o">==</span> <span class="mi">200</span> <span class="ow">and</span> <span class="s2">&quot;rejection&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">response</span><span class="o">.</span><span class="n">text</span><span class="p">:</span>
+            <span class="n">etree_root</span> <span class="o">=</span> <span class="n">etree</span><span class="o">.</span><span class="n">fromstring</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">object_list</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__objects_from_etree</span><span class="p">(</span><span class="n">etree_root</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">response</span><span class="o">.</span><span class="n">status_code</span> <span class="o">==</span> <span class="mi">400</span> <span class="ow">or</span> <span class="s2">&quot;groter dan 2000&quot;</span> <span class="ow">in</span> <span class="n">response</span><span class="o">.</span><span class="n">text</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__search_objects_in_divided_bbox</span><span class="p">(</span>
+                <span class="n">xmin</span><span class="p">,</span> <span class="n">xmax</span><span class="p">,</span> <span class="n">ymin</span><span class="p">,</span> <span class="n">ymax</span><span class="p">,</span> <span class="n">epsg</span><span class="o">=</span><span class="n">epsg</span><span class="p">,</span> <span class="n">object_type</span><span class="o">=</span><span class="n">object_type</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Warning</span><span class="p">(</span>
+                <span class="s2">&quot;Selection is invalid and could not be retrieved from the database&quot;</span>
+            <span class="p">)</span></div>
+
+
+    <span class="k">def</span> <span class="nf">__search_objects_in_divided_bbox</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">xmin</span><span class="p">:</span> <span class="n">Coordinate</span><span class="p">,</span>
+        <span class="n">xmax</span><span class="p">:</span> <span class="n">Coordinate</span><span class="p">,</span>
+        <span class="n">ymin</span><span class="p">:</span> <span class="n">Coordinate</span><span class="p">,</span>
+        <span class="n">ymax</span><span class="p">:</span> <span class="n">Coordinate</span><span class="p">,</span>
+        <span class="n">epsg</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;28992&quot;</span><span class="p">,</span>
+        <span class="n">object_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;CPT&quot;</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+        <span class="n">division_levels</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(((</span><span class="n">xmax</span> <span class="o">-</span> <span class="n">xmin</span> <span class="o">+</span> <span class="n">ymax</span> <span class="o">-</span> <span class="n">ymin</span><span class="p">))</span> <span class="o">/</span> <span class="mi">1000</span><span class="p">)</span>
+        <span class="n">division_x</span> <span class="o">=</span> <span class="p">(</span><span class="n">xmax</span> <span class="o">-</span> <span class="n">xmin</span><span class="p">)</span> <span class="o">/</span> <span class="n">division_levels</span>
+        <span class="k">for</span> <span class="n">division_level</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">division_levels</span><span class="p">):</span>
+            <span class="nb">print</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;More than 2000 object requests in API call, dividing calls. Current call </span><span class="si">{</span><span class="n">division_level</span><span class="o">+</span><span class="mi">1</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">division_levels</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
+            <span class="n">xmin_divided</span> <span class="o">=</span> <span class="n">xmin</span> <span class="o">+</span> <span class="p">(</span><span class="n">division_level</span> <span class="o">*</span> <span class="n">division_x</span><span class="p">)</span>
+            <span class="n">xmax_divided</span> <span class="o">=</span> <span class="n">xmin</span> <span class="o">+</span> <span class="p">((</span><span class="n">division_level</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">division_x</span><span class="p">)</span>
+            <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__response_to_bbox</span><span class="p">(</span>
+                <span class="n">xmin_divided</span><span class="p">,</span>
+                <span class="n">xmax_divided</span><span class="p">,</span>
+                <span class="n">ymin</span><span class="p">,</span>
+                <span class="n">ymax</span><span class="p">,</span>
+                <span class="n">epsg</span><span class="o">=</span><span class="n">epsg</span><span class="p">,</span>
+                <span class="n">object_type</span><span class="o">=</span><span class="n">object_type</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">etree_root</span> <span class="o">=</span> <span class="n">etree</span><span class="o">.</span><span class="n">fromstring</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">object_list</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__objects_from_etree</span><span class="p">(</span><span class="n">etree_root</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__response_to_bbox</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">xmin</span><span class="p">:</span> <span class="n">Coordinate</span><span class="p">,</span>
+        <span class="n">xmax</span><span class="p">:</span> <span class="n">Coordinate</span><span class="p">,</span>
+        <span class="n">ymin</span><span class="p">:</span> <span class="n">Coordinate</span><span class="p">,</span>
+        <span class="n">ymax</span><span class="p">:</span> <span class="n">Coordinate</span><span class="p">,</span>
+        <span class="n">epsg</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;28992&quot;</span><span class="p">,</span>
+        <span class="n">object_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;CPT&quot;</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="n">ymin_ll</span><span class="p">,</span> <span class="n">xmin_ll</span> <span class="o">=</span> <span class="n">xy_to_ll</span><span class="p">(</span><span class="n">xmin</span><span class="p">,</span> <span class="n">ymin</span><span class="p">,</span> <span class="n">epsg</span><span class="p">)</span>
+        <span class="n">ymax_ll</span><span class="p">,</span> <span class="n">xmax_ll</span> <span class="o">=</span> <span class="n">xy_to_ll</span><span class="p">(</span><span class="n">xmax</span><span class="p">,</span> <span class="n">ymax</span><span class="p">,</span> <span class="n">epsg</span><span class="p">)</span>
+        <span class="n">criteria</span> <span class="o">=</span> <span class="n">get_bbox_criteria</span><span class="p">(</span><span class="n">xmin_ll</span><span class="p">,</span> <span class="n">xmax_ll</span><span class="p">,</span> <span class="n">ymin_ll</span><span class="p">,</span> <span class="n">ymax_ll</span><span class="p">)</span>
+        <span class="n">api_url</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">server_url</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">apis</span><span class="p">[</span><span class="n">object_type</span><span class="p">]</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">search_url</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="n">api_url</span><span class="p">,</span> <span class="n">json</span><span class="o">=</span><span class="n">criteria</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">response</span>
+
+    <span class="k">def</span> <span class="nf">__objects_from_etree</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">etree_root</span><span class="p">):</span>
+        <span class="n">namespace</span> <span class="o">=</span> <span class="n">etree_root</span><span class="o">.</span><span class="n">nsmap</span><span class="p">[</span><span class="s2">&quot;brocom&quot;</span><span class="p">]</span>
+        <span class="n">bro_ids</span> <span class="o">=</span> <span class="n">etree_root</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s2">&quot;.//{&quot;</span> <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">namespace</span><span class="si">}</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="s2">&quot;}broId&quot;</span><span class="p">)</span>
+        <span class="n">bro_objects</span> <span class="o">=</span> <span class="p">[</span><span class="nb">id</span><span class="o">.</span><span class="n">text</span> <span class="k">for</span> <span class="nb">id</span> <span class="ow">in</span> <span class="n">bro_ids</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">bro_objects</span></div>
+
+</pre></div>
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../../_static/scripts/bootstrap.js?digest=26a4bc78f4c0ddb94549"></script>
+<script defer src="../../../_static/scripts/pydata-sphinx-theme.js?digest=26a4bc78f4c0ddb94549"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2024, Deltares.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.0.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

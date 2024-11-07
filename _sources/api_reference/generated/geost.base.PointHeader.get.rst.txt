@@ -1,0 +1,6 @@
+﻿geost.base.PointHeader.get
+==========================
+
+.. currentmodule:: geost.base
+
+.. automethod:: PointHeader.get

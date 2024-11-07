@@ -1,0 +1,6 @@
+﻿geost.base.DiscreteData.to\_header
+==================================
+
+.. currentmodule:: geost.base
+
+.. automethod:: DiscreteData.to_header

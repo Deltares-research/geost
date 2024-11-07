@@ -1,0 +1,6 @@
+﻿geost.bro.GeoTop.select\_surface\_level
+=======================================
+
+.. currentmodule:: geost.bro
+
+.. automethod:: GeoTop.select_surface_level

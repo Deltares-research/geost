@@ -1,0 +1,6 @@
+﻿geost.base.CptCollection.slice\_by\_values
+==========================================
+
+.. currentmodule:: geost.base
+
+.. automethod:: CptCollection.slice_by_values

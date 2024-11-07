@@ -1,0 +1,6 @@
+﻿geost.bro.GeoTop.crs
+====================
+
+.. currentmodule:: geost.bro
+
+.. autoproperty:: GeoTop.crs

@@ -1,0 +1,6 @@
+﻿geost.base.CptCollection.to\_parquet
+====================================
+
+.. currentmodule:: geost.base
+
+.. automethod:: CptCollection.to_parquet

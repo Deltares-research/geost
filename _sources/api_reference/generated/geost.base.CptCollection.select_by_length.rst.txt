@@ -1,0 +1,6 @@
+﻿geost.base.CptCollection.select\_by\_length
+===========================================
+
+.. currentmodule:: geost.base
+
+.. automethod:: CptCollection.select_by_length

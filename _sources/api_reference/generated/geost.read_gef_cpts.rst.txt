@@ -1,0 +1,6 @@
+﻿geost.read\_gef\_cpts
+=====================
+
+.. currentmodule:: geost
+
+.. autofunction:: read_gef_cpts

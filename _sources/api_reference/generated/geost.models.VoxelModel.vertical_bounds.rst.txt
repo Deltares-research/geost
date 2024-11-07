@@ -1,0 +1,6 @@
+﻿geost.models.VoxelModel.vertical\_bounds
+========================================
+
+.. currentmodule:: geost.models
+
+.. autoproperty:: VoxelModel.vertical_bounds

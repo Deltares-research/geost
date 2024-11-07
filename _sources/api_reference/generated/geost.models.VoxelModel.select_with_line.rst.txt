@@ -1,0 +1,6 @@
+﻿geost.models.VoxelModel.select\_with\_line
+==========================================
+
+.. currentmodule:: geost.models
+
+.. automethod:: VoxelModel.select_with_line

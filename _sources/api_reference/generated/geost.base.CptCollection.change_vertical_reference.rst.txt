@@ -1,0 +1,6 @@
+﻿geost.base.CptCollection.change\_vertical\_reference
+====================================================
+
+.. currentmodule:: geost.base
+
+.. automethod:: CptCollection.change_vertical_reference

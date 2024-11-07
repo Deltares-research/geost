@@ -1,0 +1,6 @@
+﻿geost.base.BoreholeCollection.data
+==================================
+
+.. currentmodule:: geost.base
+
+.. autoproperty:: BoreholeCollection.data

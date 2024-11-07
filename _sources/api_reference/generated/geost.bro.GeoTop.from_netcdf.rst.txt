@@ -1,0 +1,6 @@
+﻿geost.bro.GeoTop.from\_netcdf
+=============================
+
+.. currentmodule:: geost.bro
+
+.. automethod:: GeoTop.from_netcdf

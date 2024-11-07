@@ -1,0 +1,6 @@
+﻿geost.base.DiscreteData.to\_vtm
+===============================
+
+.. currentmodule:: geost.base
+
+.. automethod:: DiscreteData.to_vtm

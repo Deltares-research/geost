@@ -1,0 +1,6 @@
+﻿geost.base.BoreholeCollection.to\_qgis3d
+========================================
+
+.. currentmodule:: geost.base
+
+.. automethod:: BoreholeCollection.to_qgis3d

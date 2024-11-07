@@ -1,0 +1,6 @@
+﻿geost.base.LayeredData.to\_parquet
+==================================
+
+.. currentmodule:: geost.base
+
+.. automethod:: LayeredData.to_parquet

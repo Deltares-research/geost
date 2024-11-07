@@ -1,0 +1,6 @@
+﻿geost.bro.GeoTop.xmax
+=====================
+
+.. currentmodule:: geost.bro
+
+.. autoproperty:: GeoTop.xmax

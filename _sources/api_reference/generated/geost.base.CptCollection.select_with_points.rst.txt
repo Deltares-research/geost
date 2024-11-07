@@ -1,0 +1,6 @@
+﻿geost.base.CptCollection.select\_with\_points
+=============================================
+
+.. currentmodule:: geost.base
+
+.. automethod:: CptCollection.select_with_points

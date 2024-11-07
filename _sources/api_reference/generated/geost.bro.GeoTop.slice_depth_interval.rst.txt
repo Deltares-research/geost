@@ -1,0 +1,6 @@
+﻿geost.bro.GeoTop.slice\_depth\_interval
+=======================================
+
+.. currentmodule:: geost.bro
+
+.. automethod:: GeoTop.slice_depth_interval

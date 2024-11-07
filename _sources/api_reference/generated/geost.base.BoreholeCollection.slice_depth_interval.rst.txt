@@ -1,0 +1,6 @@
+﻿geost.base.BoreholeCollection.slice\_depth\_interval
+====================================================
+
+.. currentmodule:: geost.base
+
+.. automethod:: BoreholeCollection.slice_depth_interval

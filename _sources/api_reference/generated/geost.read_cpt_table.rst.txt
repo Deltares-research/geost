@@ -1,0 +1,6 @@
+﻿geost.read\_cpt\_table
+======================
+
+.. currentmodule:: geost
+
+.. autofunction:: read_cpt_table

@@ -1,0 +1,6 @@
+﻿geost.base.DiscreteData.datatype
+================================
+
+.. currentmodule:: geost.base
+
+.. autoproperty:: DiscreteData.datatype

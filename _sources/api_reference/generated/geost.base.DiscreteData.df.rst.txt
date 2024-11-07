@@ -1,0 +1,6 @@
+﻿geost.base.DiscreteData.df
+==========================
+
+.. currentmodule:: geost.base
+
+.. autoproperty:: DiscreteData.df

@@ -1,0 +1,6 @@
+﻿geost.base.Collection.to\_geopackage
+====================================
+
+.. currentmodule:: geost.base
+
+.. automethod:: Collection.to_geopackage

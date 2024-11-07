@@ -1,0 +1,31 @@
+﻿geost.bro.BroApi
+================
+
+.. currentmodule:: geost.bro
+
+.. autoclass:: BroApi
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~BroApi.__init__
+      ~BroApi.get_objects
+      ~BroApi.search_objects_in_bbox
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~BroApi.apis
+      ~BroApi.document_types
+   
+   

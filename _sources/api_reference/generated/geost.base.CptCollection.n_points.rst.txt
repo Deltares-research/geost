@@ -1,0 +1,6 @@
+﻿geost.base.CptCollection.n\_points
+==================================
+
+.. currentmodule:: geost.base
+
+.. autoproperty:: CptCollection.n_points
