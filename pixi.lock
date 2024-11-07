@@ -7112,12 +7112,13 @@ packages:
   name: geost
   version: 0.2.5
   path: .
-  sha256: e6ff93e3feed57761dd229b0289b8eb2ece85a64cc283e321803178b472ff2ff
+  sha256: 7739032220cd7682191e6fd4d97383d9916dcc9cab5bd4616385a9a315dd71ab
   requires_dist:
   - numpy
   - pandas>=2.0.1
   - pyarrow
   - lxml
+  - pooch
   - pyproj
   - geopandas
   - xlrd
