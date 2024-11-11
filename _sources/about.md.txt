@@ -18,7 +18,7 @@ groundwater flow, thermal properties, subsurface resources etc.
 At Deltares, where the development of GeoST was initiated, we realized that using subsurface data
 to solve these real-world and often high-stake problems requires good, reproducible and thoroughly
 tested workflows all the way from subsurface data sources (BRO, GDNR, local files) to the 
-inception of e.g. 3D subsurface models. GeoST is an important part of our answer to this as 
+inception of e.g. 3D subsurface models. GeoST is an important part of our answer to this. 
 
 As Python is most often used for data analysis, statistical and modelling tasks, GeoST is 
 set up to function as a Python interface for subsurface data. As shown in the figure below,
