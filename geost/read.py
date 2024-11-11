@@ -513,8 +513,9 @@ def get_bro_objects_from_bbox(
         try:
             object = SoilCore(bro_object)
         except (TypeError, AttributeError) as err:
-            print("Cant read a soil core")
-            print(err)
+            pass
+            # print("Cant read a soil core")
+            # print(err)
         bro_parsed_objects.append(object.df)
 
     dataframe = pd.concat(bro_parsed_objects).reset_index()
@@ -585,8 +586,9 @@ def get_bro_objects_from_geometry(
             object = SoilCore(bro_object)
             print(i)
         except (TypeError, AttributeError) as err:
-            print("Cant read a soil core")
-            print(err)
+            pass
+            # print("Cant read a soil core")
+            # print(err)
         bro_parsed_objects.append(object.df)
 
     dataframe = pd.concat(bro_parsed_objects).reset_index()
