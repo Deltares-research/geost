@@ -19,7 +19,8 @@ Example of a simple analysis of soil cores that are directly retrieved from the 
 :text-align: center
 :link: ./examples/combine_geotop_with_cpts.html
 :img-bottom: ./_static/cpts_usp.png
-description.
+Example of how information from a voxelmodel (e.g. GeoTOP) can be combined with point data 
+(e.g. CPT data).
 ```
 ```{grid-item-card} GeoST + scikit-learn
 :text-align: center
