@@ -6,6 +6,7 @@ html_theme.sidebar_secondary.remove:
     <img src="_static/geost_logo.png" alt="GeoST logo" title="GeoST logo" width="400" />
 </p>
 
+# A Python interface for subsurface data
 The Geological Subsurface Toolbox (GeoST) package is designed to be an easy-to-use Python 
 interface for working with subsurface data of The Netherlands, allowing you to integrate
 these data in your workflows for data analyses, modelling and visualisation. GeoST readily
@@ -13,7 +14,11 @@ provides commonly used methods for e.g. spatial/conditional selections, conversi
 fusion, but at the same time remains fully flexible for advanced users to develop their own
 functions around GeoST data objects.
 
-GeoST is a work-in-progress and currently supports a limited number of data sources.
+<div class="alert alert-info">
+GeoST is a work-in-progress and currently supports a limited number of data sources. Furthermore, not 
+all documentation pages on this website are finished.
+</div>
+
 
 ````{grid} 1 2 2 4
 ```{grid-item-card}  <i class="fa-solid fa-circle-question"></i>  [About GeoST](about.md)
