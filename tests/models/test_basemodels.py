@@ -19,7 +19,26 @@ def point_parquet(point_header_gdf, tmp_path):
     return parquet
 
 
+@pytest.fixture
+def voxelmodel_netcdf(xarray_dataset, tmp_path):
+    outfile = tmp_path / "voxelmodel.nc"
+    xarray_dataset.to_netcdf(outfile)
+    return outfile
+
+
 class TestVoxelModel:
+    @pytest.mark.unittest
+    def test_from_netcdf(self, voxelmodel_netcdf):
+        model = VoxelModel.from_netcdf(voxelmodel_netcdf)
+        assert isinstance(model, VoxelModel)
+
+        model = VoxelModel.from_netcdf(
+            voxelmodel_netcdf, data_vars=["strat"], bbox=(1, 1, 3, 3), lazy=False
+        )
+        assert isinstance(model, VoxelModel)
+        assert model.horizontal_bounds == (1, 1, 3, 3)
+        assert list(model.variables) == ["strat"]
+
     @pytest.mark.unittest
     def test_initialize(self, xarray_dataset):
         model = VoxelModel(xarray_dataset)
