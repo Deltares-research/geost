@@ -892,7 +892,7 @@ class LayeredData(AbstractData, PandasExportMixin):
             selected = self[condition]
         return self.__class__(selected, self.has_inclined)
 
-    def get_cumulative_layer_thickness(self, column: str, values: str | List[str]):
+    def get_cumulative_thickness(self, column: str, values: str | List[str]):
         """
         Get the cumulative thickness of layers where a column contains a specified search
         value or values.
@@ -914,13 +914,13 @@ class LayeredData(AbstractData, PandasExportMixin):
         Get the cumulative thickness of the layers with lithology "K" in the column "lith"
         use:
 
-        >>> boreholes.get_cumulative_layer_thickness("lith", "K")
+        >>> boreholes.get_cumulative_thickness("lith", "K")
 
         Or get the cumulative thickness for multiple selection values. In this case, a
         Pandas DataFrame is returned with a column per selection value containing the
         cumulative thicknesses:
 
-        >>> boreholes.get_cumulative_layer_thickness("lith", ["K", "Z"])
+        >>> boreholes.get_cumulative_thickness("lith", ["K", "Z"])
 
         """
         selected_layers = self.slice_by_values(column, values)
@@ -1417,7 +1417,7 @@ class DiscreteData(AbstractData, PandasExportMixin):
     def select_by_condition(self):
         raise NotImplementedError()
 
-    def get_cumulative_layer_thickness(self):
+    def get_cumulative_thickness(self):
         raise NotImplementedError()
 
     def get_layer_top(self):
@@ -2347,7 +2347,7 @@ class BoreholeCollection(Collection):
         Instance of a data object corresponding to the header.
     """
 
-    def get_cumulative_layer_thickness(
+    def get_cumulative_thickness(
         self, column: str, values: str | List[str], include_in_header: bool = False
     ):
         """
@@ -2375,21 +2375,21 @@ class BoreholeCollection(Collection):
         Get the cumulative thickness of the layers with lithology "K" in the column "lith"
         use:
 
-        >>> boreholes.get_cumulative_layer_thickness("lith", "K")
+        >>> boreholes.get_cumulative_thickness("lith", "K")
 
         Or get the cumulative thickness for multiple selection values. In this case, a
         Pandas DataFrame is returned with a column per selection value containing the
         cumulative thicknesses:
 
-        >>> boreholes.get_cumulative_layer_thickness("lith", ["K", "Z"])
+        >>> boreholes.get_cumulative_thickness("lith", ["K", "Z"])
 
         To include the result in the header object of the collection, use the
         "include_in_header" option:
 
-        >>> boreholes.get_cumulative_layer_thickness("lith", ["K"], include_in_header=True)
+        >>> boreholes.get_cumulative_thickness("lith", ["K"], include_in_header=True)
 
         """
-        cum_thickness = self.data.get_cumulative_layer_thickness(column, values)
+        cum_thickness = self.data.get_cumulative_thickness(column, values)
 
         if include_in_header:
             columns = [c + "_thickness" for c in cum_thickness.columns]
@@ -2510,7 +2510,7 @@ class BoreholeCollection(Collection):
 
 
 class CptCollection(Collection):
-    def get_cumulative_layer_thickness(self):
+    def get_cumulative_thickness(self):
         raise NotImplementedError()
 
     def get_layer_top(self):
@@ -2518,7 +2518,7 @@ class CptCollection(Collection):
 
 
 class LogCollection(Collection):
-    def get_cumulative_layer_thickness(self):
+    def get_cumulative_thickness(self):
         raise NotImplementedError()
 
     def get_layer_top(self):

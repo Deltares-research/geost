@@ -80,8 +80,8 @@ class TestLayeredData:
         assert len(sliced) == expected_length
 
     @pytest.mark.unittest
-    def test_get_cumulative_layer_thickness(self, borehole_data):
-        result = borehole_data.get_cumulative_layer_thickness("lith", "V")
+    def test_get_cumulative_thickness(self, borehole_data):
+        result = borehole_data.get_cumulative_thickness("lith", "V")
         expected_boreholes_returned = ["B", "D"]
         expected_thickness = [1.9, 1.4]
 
@@ -89,7 +89,7 @@ class TestLayeredData:
         assert_array_equal(result.index, expected_boreholes_returned)
         assert_array_almost_equal(result["V"], expected_thickness)
 
-        result = borehole_data.get_cumulative_layer_thickness("lith", ["Z", "K"])
+        result = borehole_data.get_cumulative_thickness("lith", ["Z", "K"])
         expected_boreholes_returned = ["A", "B", "C", "D", "E"]
         expected_sand_thickness = [2.2, np.nan, 2.6, 0.5, 3.0]
         expected_clay_thickness = [2.0, 2.0, 2.9, 1.1, np.nan]
