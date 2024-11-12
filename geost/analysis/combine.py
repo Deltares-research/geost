@@ -116,7 +116,7 @@ def _add_to_layered(data: LayeredData, variable: pd.DataFrame) -> LayeredData:
     variable["bottom"] = variable["surface"] - variable["bottom"]
 
     result = pd.concat(_add_layered(data.df, variable), ignore_index=True)
-
+    result.dropna(subset=["top"], inplace=True)
     return LayeredData(result)
 
 
@@ -146,13 +146,15 @@ def _add_to_discrete(data: DiscreteData, variable: pd.DataFrame) -> DiscreteData
     )
     variable["depth"] = variable["surface"] - variable["depth"]
 
-    result = pd.concat([data.df, variable], ignore_index=True).sort_values(
-        by=["nr", "depth"]
+    result = (
+        pd.concat([data.df, variable])
+        .sort_values(by=["nr", "depth"])
+        .reset_index(drop=True)
     )
     nr = result["nr"]
-    result = result.groupby("nr").bfill()
-
-    return DiscreteData(pd.concat([nr, result], axis=1))
+    result = pd.concat([nr, result.groupby("nr").bfill()], axis=1)
+    result.dropna(subset=["end"], inplace=True)
+    return DiscreteData(result)
 
 
 def _add_layered(data: pd.DataFrame, variable: pd.DataFrame):
