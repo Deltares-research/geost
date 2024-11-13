@@ -115,9 +115,42 @@ def _add_to_layered(data: LayeredData, variable: pd.DataFrame) -> LayeredData:
     )
     variable["bottom"] = variable["surface"] - variable["bottom"]
 
-    result = pd.concat(_add_layered(data.df, variable), ignore_index=True)
+    result = (
+        pd.concat([data.df, variable])
+        .sort_values(by=["nr", "bottom"])
+        .reset_index(drop=True)
+    )
+    nr = result["nr"]
+    result = pd.concat([nr, result.groupby("nr").bfill()], axis=1)
+    result = _reset_tops(result)
     result.dropna(subset=["top"], inplace=True)
     return LayeredData(result)
+
+
+def _reset_tops(layered_df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Helper function for `_add_to_layered` to reset the top depths after stratigraphic
+    layer boundaries have been added and backfilling has been done. This changes tops into
+    bottoms of the row above in each borehole if tops are lower than bottoms.
+
+    Parameters
+    ----------
+    layered_df : pd.DataFrame
+        Pandas DataFrame with layered data containing tops and bottoms.
+
+    Returns
+    -------
+    pd.DataFrame
+        DataFrame with the tops reset.
+    """
+    bottom_shift_down = layered_df["bottom"].shift()
+    nr_shift_down = layered_df["nr"].shift()
+
+    layered_df.loc[
+        (layered_df["top"] < bottom_shift_down) & (layered_df["nr"] == nr_shift_down),
+        "top",
+    ] = bottom_shift_down
+    return layered_df
 
 
 def _add_to_discrete(data: DiscreteData, variable: pd.DataFrame) -> DiscreteData:
@@ -155,29 +188,3 @@ def _add_to_discrete(data: DiscreteData, variable: pd.DataFrame) -> DiscreteData
     result = pd.concat([nr, result.groupby("nr").bfill()], axis=1)
     result.dropna(subset=["end"], inplace=True)
     return DiscreteData(result)
-
-
-def _add_layered(data: pd.DataFrame, variable: pd.DataFrame):
-    """
-    Helper function to `_add_to_layered` to combine data per individual data object.
-
-    Parameters
-    ----------
-    data : pd.DataFrame
-        DataFrame from LayeredData instance (see docstring `_add_to_layered`).
-    variable : pd.DataFrame
-        DataFrame with the voxelmodel variable to add (see docstring `_add_to_layered`).
-
-    Yields
-    ------
-    pd.DataFrame
-        New DataFrame with the added variable for each individual data object.
-
-    """
-    data = pd.concat([data, variable], ignore_index=True)
-    data.sort_values(by=["nr", "bottom"], inplace=True)
-    for _, df in data.groupby("nr"):
-        df = df.bfill()
-        bottom_shift_down = df["bottom"].shift()
-        df.loc[df["top"] < bottom_shift_down, "top"] = bottom_shift_down
-        yield df
