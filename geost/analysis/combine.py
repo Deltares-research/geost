@@ -117,11 +117,12 @@ def _add_to_layered(data: LayeredData, variable: pd.DataFrame) -> LayeredData:
 
     result = (
         pd.concat([data.df, variable])
-        .sort_values(by=["nr", "bottom"])
+        .sort_values(by=["nr", "bottom", "top"])
         .reset_index(drop=True)
     )
     nr = result["nr"]
     result = pd.concat([nr, result.groupby("nr").bfill()], axis=1)
+    result.drop_duplicates(subset=["nr", "bottom"], inplace=True)
     result = _reset_tops(result)
     result.dropna(subset=["top"], inplace=True)
     return LayeredData(result)
@@ -186,5 +187,6 @@ def _add_to_discrete(data: DiscreteData, variable: pd.DataFrame) -> DiscreteData
     )
     nr = result["nr"]
     result = pd.concat([nr, result.groupby("nr").bfill()], axis=1)
+    result.drop_duplicates(subset=["nr", "depth"], inplace=True)
     result.dropna(subset=["end"], inplace=True)
     return DiscreteData(result)
