@@ -49,7 +49,7 @@ class UnitEnum(IntEnum):
 
     @staticmethod
     def cast_to_list(value):
-        if isinstance(value, str):
+        if isinstance(value, (int, str)):
             value = [value]
         return value
 
