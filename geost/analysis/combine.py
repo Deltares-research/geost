@@ -132,7 +132,9 @@ def _reset_tops(layered_df: pd.DataFrame) -> pd.DataFrame:
     """
     Helper function for `_add_to_layered` to reset the top depths after stratigraphic
     layer boundaries have been added and backfilling has been done. This changes tops into
-    bottoms of the row above in each borehole if tops are lower than bottoms.
+    bottoms of the row above in each borehole if tops are lower than bottoms. It also checks
+    if bottoms are less than 0 and resets these layers to 0. Then it removes layers with
+    a thickness of 0.
 
     Parameters
     ----------
@@ -151,7 +153,12 @@ def _reset_tops(layered_df: pd.DataFrame) -> pd.DataFrame:
         (layered_df["top"] < bottom_shift_down) & (layered_df["nr"] == nr_shift_down),
         "top",
     ] = bottom_shift_down
-    return layered_df
+
+    layered_df.loc[layered_df["bottom"] < 0, "bottom"] = 0
+
+    return layered_df[layered_df["top"] - layered_df["bottom"] != 0].reset_index(
+        drop=True
+    )
 
 
 def _add_to_discrete(data: DiscreteData, variable: pd.DataFrame) -> DiscreteData:
@@ -190,3 +197,18 @@ def _add_to_discrete(data: DiscreteData, variable: pd.DataFrame) -> DiscreteData
     result.drop_duplicates(subset=["nr", "depth"], inplace=True)
     result.dropna(subset=["end"], inplace=True)
     return DiscreteData(result)
+
+
+if __name__ == "__main__":
+    import geost
+    from geost.analysis.combine import add_voxelmodel_variable
+    from geost.bro import GeoTop
+
+    cores = geost.read_borehole_table(
+        r"n:\Projects\11211000\11211044\B. Measurements and calculations\data\cores_with_nan.parquet"
+    )
+
+    geotop = GeoTop.from_opendap(
+        data_vars=["strat"], bbox=cores.header.gdf.buffer(200).total_bounds, lazy=False
+    )
+    cores = add_voxelmodel_variable(cores, geotop, "strat")
