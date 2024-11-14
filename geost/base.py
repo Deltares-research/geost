@@ -2390,6 +2390,7 @@ class BoreholeCollection(Collection):
 
         """
         cum_thickness = self.data.get_cumulative_thickness(column, values)
+        cum_thickness.columns = cum_thickness.columns.astype(str)
 
         if include_in_header:
             columns = [c + "_thickness" for c in cum_thickness.columns]
