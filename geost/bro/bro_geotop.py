@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import List
+from typing import Iterable, List
 
 import rioxarray as rio
 import xarray as xr
@@ -10,7 +10,7 @@ from geost.models import VoxelModel
 from .bro_utils import coordinates_to_cellcenters, flip_ycoordinates
 
 
-class Lithology(UnitEnum):
+class Lithology(UnitEnum):  # pragma: no cover
     anthropogenic = 0
     organic = 1
     clay = 2
@@ -22,7 +22,12 @@ class Lithology(UnitEnum):
     shells = 9
 
 
-class HoloceneUnits(UnitEnum):
+class AntropogenicUnits(UnitEnum):  # pragma: no cover
+    AAOP = 1000
+    AAES = 1005
+
+
+class HoloceneUnits(UnitEnum):  # pragma: no cover
     NIGR = 1010
     NINB = 1045
     NASC = 1020
@@ -49,7 +54,7 @@ class HoloceneUnits(UnitEnum):
     KK = 2030
 
 
-class OlderUnits(UnitEnum):
+class OlderUnits(UnitEnum):  # pragma: no cover
     BXKO = 3000
     BXSI = 3010
     BXSI1 = 3011
@@ -115,7 +120,7 @@ class OlderUnits(UnitEnum):
     AK = 5330
 
 
-class ChannelBeltUnits(UnitEnum):
+class ChannelBeltUnits(UnitEnum):  # pragma: no cover
     AEC = 6000
     ABEOM = 6005
     ANAWA = 6010
@@ -132,6 +137,68 @@ class ChannelBeltUnits(UnitEnum):
     EEC = 6400
     ENAWA = 6410
     ENAWO = 6420
+
+
+class StratGeotop:
+    """
+    Class for making selections of stratigraphic units in GeoTop.
+
+    """
+
+    holocene = HoloceneUnits
+    channel = ChannelBeltUnits
+    older = OlderUnits
+    antropogenic = AntropogenicUnits
+
+    @classmethod
+    def select_units(cls, units: str | Iterable[str]):
+        """
+        Select units by name.
+
+        Parameters
+        ----------
+        units : str | Iterable[str]
+            Name as string or array_like object of strings with names to select.
+
+        Returns
+        -------
+        List[enum]
+            List of the selected units.
+
+        """
+        units = cls.holocene.cast_to_list(units)
+        selection = (
+            cls.holocene.select_units(units)
+            + cls.channel.select_units(units)
+            + cls.older.select_units(units)
+            + cls.antropogenic.select_units(units)
+        )
+        return selection
+
+    @classmethod
+    def select_values(cls, values: int | Iterable[int]):
+        """
+        Select units by value.
+
+        Parameters
+        ----------
+        units : str | Iterable[str]
+            Name as string or array_like object of strings with names to select.
+
+        Returns
+        -------
+        List[enum]
+            List of the selected units.
+
+        """
+        values = cls.holocene.cast_to_list(values)
+        selection = (
+            cls.holocene.select_values(values)
+            + cls.channel.select_values(values)
+            + cls.older.select_values(values)
+            + cls.antropogenic.select_values(values)
+        )
+        return selection
 
 
 class GeoTop(VoxelModel):
