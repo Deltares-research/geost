@@ -13,6 +13,7 @@ from geost import (
     read_gef_cpts,
     read_nlog_cores,
     read_uullg_tables,
+    read_xml_boris,
 )
 from geost.base import BoreholeCollection, CptCollection, DiscreteData, LayeredData
 from geost.read import (
@@ -81,6 +82,7 @@ class TestReaders:
     nlog_stratstelsel_parquet = (
         Path(__file__).parent / "data/test_nlog_stratstelsel_20230807.parquet"
     )
+    boris_xml = Path(__file__).parent / "data/test_boris_xml.xml"
 
     @pytest.fixture
     def table_wrong_columns(self):
@@ -203,6 +205,13 @@ class TestReaders:
         cores_df_adjusted = adjust_z_coordinates(cores_df.copy())
         assert cores_df_adjusted["top"].iloc[0] < cores_df_adjusted["top"].iloc[1]
         assert cores_df_adjusted["bottom"].iloc[0] < cores_df_adjusted["bottom"].iloc[1]
+
+    @pytest.mark.unittest
+    def test_read_boris_xml(self):
+        boris_collection = read_xml_boris(self.boris_xml)
+        assert isinstance(boris_collection, BoreholeCollection)
+        assert boris_collection.n_points == 16
+        assert len(boris_collection.data.df) == 236
 
 
 @pytest.mark.unittest

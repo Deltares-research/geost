@@ -15,7 +15,7 @@ from geost.base import (
 )
 from geost.bro import BroApi
 from geost.io import _parse_cpt_gef_files
-from geost.io.parsers import SoilCore
+from geost.io.parsers import BorisXML, SoilCore
 from geost.utils import dataframe_to_geodataframe
 
 MANDATORY_LAYERED_DATA_COLUMNS = ["nr", "x", "y", "surface", "end", "top", "bottom"]
@@ -380,6 +380,42 @@ def read_nlog_cores(file: str | Path) -> BoreholeCollection:
     collection = LayeredData(nlog_cores, has_inclined=True).to_collection(28992, 5709)
 
     return collection
+
+
+def read_xml_boris(file: str | Path, as_collection: bool = True) -> BoreholeCollection:
+    """
+    Read export XML of the BORIS software. BORIS is software developed by TNO to
+    describe boreholes in the lab. The exported XML-format bears no resemblance to DINO
+    or BRO XML standards
+
+    Parameters
+    ----------
+    file : str | Path
+        File with the borehole information to read.
+    as_collection : bool, optional
+        If True, the CPT table will be read as a :class:`~geost.base.Collection`
+        which includes a header object and spatial selection functionality. If False,
+        a :class:`~geost.base.LayeredData` object is returned. The default is True.
+
+    Returns
+    -------
+    :class:`~geost.base.BoreholeCollection` or :class:`~geost.base.LayeredData`
+        Instance of :class:`~geost.base.BoreholeCollection` or :class:`~geost.base.LayeredData`
+        depending on if the table is read as a collection or not.
+    """
+    boris_data = BorisXML(file)
+    boreholes = LayeredData(boris_data.layer_dataframe, has_inclined=False)
+
+    if as_collection:
+        # Think of a better way to translate non-standard BORIS crs encoding or keep it
+        # user-defined (like we do in other reader functions)
+        if boris_data.horizontal_reference == "RD":
+            boris_data.horizontal_reference = 28992
+        boreholes = boreholes.to_collection(
+            boris_data.horizontal_reference, boris_data.vertical_reference
+        )
+
+    return boreholes
 
 
 def read_xml_geotechnical_cores(
