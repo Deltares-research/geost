@@ -1251,6 +1251,8 @@ class LayeredData(AbstractData, PandasExportMixin):
 
         tdchart.drop("surface", axis=1, inplace=True)
         tdchart.sort_values(by=["id", "MD"], inplace=True)
+        if not isinstance(outfile, Path):
+            outfile = Path(outfile)
         tdchart.to_csv(
             outfile.parent.joinpath(f"{outfile.stem}_TDCHART{outfile.suffix}"),
             index=False,

@@ -1,5 +1,4 @@
 import re
-from collections import ChainMap
 from pathlib import Path
 from typing import NamedTuple, Union
 
@@ -299,13 +298,20 @@ class BorisXML:
 
         for point_survey in self.root.iterchildren():
             self.parse_pointsurvey(point_survey)
-        self.layer_dataframe = pd.concat(self.layer_dataframes, ignore_index=True)
+        self.layer_dataframe = pd.concat(
+            self.layer_dataframes, ignore_index=True
+        ).convert_dtypes(convert_integer=False)
 
     def parse_pointsurvey(self, point_survey: etree._Element) -> None:
         # Get header and layer data as dictionaries
         header_data = self.parse_headerdata(point_survey)
         layer_dataframe = self.parse_layerdata(
             point_survey.findall("borehole/lithoDescr/lithoInterval")
+        )
+        layer_dataframe.insert(
+            1,
+            "top",
+            [header_data["surface"]] + list(layer_dataframe["bottom"].iloc[:-1].values),
         )
 
         # Repeat header data for every described borehole interval
@@ -335,12 +341,12 @@ class BorisXML:
         surface = safe_coerce(elevation_element.get("levelValue"), float)
 
         # Create header data dict
-        header_data = dict(nr=nr, x=x, y=y, surface=surface)
+        header_data = dict(surface=surface, y=y, x=x, nr=nr)
         return header_data
 
     def parse_layerdata(self, borehole_element: etree._Element) -> pd.DataFrame:
         *_, last = borehole_element
-        end = safe_coerce(last.get("baseDepth"), float)
+        end = safe_coerce(last.get("baseDepth"), float) * -1
 
         num_of_layers = len(borehole_element)
         layer_data = list()
@@ -369,6 +375,6 @@ class BorisXML:
         layer_df = pd.DataFrame(columns=unique_tags, index=range(num_of_layers))
         for i, layer in enumerate(layer_data):
             layer_df.update(pd.DataFrame(layer, index=[i]))
-        layer_df.insert(0, "top", [0] + list(layer_df["bottom"].iloc[:-1].values))
+        # layer_df.insert(0, "top", [0] + list(layer_df["bottom"].iloc[:-1].values))
         layer_df.insert(0, "end", np.full(num_of_layers, end))
         return layer_df
