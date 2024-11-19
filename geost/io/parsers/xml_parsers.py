@@ -311,8 +311,9 @@ class BorisXML:
         layer_dataframe.insert(
             1,
             "top",
-            [header_data["surface"]] + list(layer_dataframe["bottom"].iloc[:-1].values),
+            [0] + list(layer_dataframe["bottom"].iloc[:-1].values),
         )
+        layer_dataframe["end"] += header_data["surface"]
 
         # Repeat header data for every described borehole interval
         for key, value in header_data.items():
@@ -328,10 +329,10 @@ class BorisXML:
         elevation_element = point_survey.find("surfaceElevation/elevation")
 
         # Get positional reference system attributes
-        self.horizontal_reference = location_element.find("coordinates").get(
-            "coordSystem"
-        )
-        self.vertical_reference = elevation_element.get("levelReference") or "NAP"
+        # self.horizontal_reference = location_element.find("coordinates").get(
+        #     "coordSystem"
+        # )
+        # self.vertical_reference = elevation_element.get("levelReference") or "NAP"
 
         # Get header data. Note that the 'end' column is later retrieved and added to
         # the header based on the last layer interval.
@@ -375,6 +376,5 @@ class BorisXML:
         layer_df = pd.DataFrame(columns=unique_tags, index=range(num_of_layers))
         for i, layer in enumerate(layer_data):
             layer_df.update(pd.DataFrame(layer, index=[i]))
-        # layer_df.insert(0, "top", [0] + list(layer_df["bottom"].iloc[:-1].values))
         layer_df.insert(0, "end", np.full(num_of_layers, end))
         return layer_df

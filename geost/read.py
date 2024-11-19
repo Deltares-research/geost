@@ -382,7 +382,12 @@ def read_nlog_cores(file: str | Path) -> BoreholeCollection:
     return collection
 
 
-def read_xml_boris(file: str | Path, as_collection: bool = True) -> BoreholeCollection:
+def read_xml_boris(
+    file: str | Path,
+    horizontal_reference: str | int | CRS = 28992,
+    vertical_reference: str | int | CRS = 5709,
+    as_collection: bool = True,
+) -> BoreholeCollection:
     """
     Read export XML of the BORIS software. BORIS is software developed by TNO to
     describe boreholes in the lab. The exported XML-format bears no resemblance to DINO
@@ -392,6 +397,14 @@ def read_xml_boris(file: str | Path, as_collection: bool = True) -> BoreholeColl
     ----------
     file : str | Path
         File with the borehole information to read.
+    horizontal_reference : str | int | CRS, optional
+        EPSG of the data's horizontal reference. Takes anything that can be interpreted
+        by pyproj.crs.CRS.from_user_input(). The default is 28992.
+    vertical_reference : str | int | CRS, optional
+        EPSG of the data's vertical datum. Takes anything that can be interpreted by
+        pyproj.crs.CRS.from_user_input(). However, it must be a vertical datum. FYI:
+        "NAP" is EPSG 5709 and The Belgian reference system (Ostend height) is ESPG
+        5710. The default is 5709.
     as_collection : bool, optional
         If True, the CPT table will be read as a :class:`~geost.base.Collection`
         which includes a header object and spatial selection functionality. If False,
@@ -409,11 +422,7 @@ def read_xml_boris(file: str | Path, as_collection: bool = True) -> BoreholeColl
     if as_collection:
         # Think of a better way to translate non-standard BORIS crs encoding or keep it
         # user-defined (like we do in other reader functions)
-        if boris_data.horizontal_reference == "RD":
-            boris_data.horizontal_reference = 28992
-        boreholes = boreholes.to_collection(
-            boris_data.horizontal_reference, boris_data.vertical_reference
-        )
+        boreholes = boreholes.to_collection(horizontal_reference, vertical_reference)
 
     return boreholes
 
