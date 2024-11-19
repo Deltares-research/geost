@@ -278,6 +278,12 @@ class BorisXML:
     Note that currently only essential items to construct a BoreholeCollection are parsed.
     """
 
+    attr_type_to_dtype = dict(
+        code=str,
+        median=float,
+        percentage=float,
+    )
+
     def __init__(self, xml: str | Path | etree._Element):
         if isinstance(xml, (str, Path)):
             self.root = etree.parse(xml).getroot()
@@ -346,9 +352,17 @@ class BorisXML:
                 if data_element.tag not in unique_tags:
                     unique_tags += [data_element.tag]
                 if data_element.attrib:
-                    interval_dict[data_element.tag] = data_element.attrib.values()[0]
+                    attr_type, attr_value = (
+                        data_element.attrib.keys()[0],
+                        data_element.attrib.values()[0],
+                    )
+                    interval_dict[data_element.tag] = safe_coerce(
+                        attr_value, self.attr_type_to_dtype[attr_type]
+                    )
                 else:
-                    interval_dict[data_element.tag] = data_element.text
+                    interval_dict[data_element.tag] = safe_coerce(
+                        data_element.text, str
+                    )
             layer_data.append(interval_dict)
 
         # Construct final dataframe
