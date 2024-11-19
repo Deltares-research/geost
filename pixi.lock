@@ -7112,7 +7112,7 @@ packages:
   name: geost
   version: 0.2.5
   path: .
-  sha256: 7739032220cd7682191e6fd4d97383d9916dcc9cab5bd4616385a9a315dd71ab
+  sha256: feded7ecd1b204dd43ef39b7a5c62dee8317acdfe193812f991358bd5dc5a355
   requires_dist:
   - numpy
   - pandas>=2.0.1
@@ -7126,13 +7126,6 @@ packages:
   - rioxarray>=0.15.3
   - shapely>=2.0.1
   - pyvista>=0.36.1
-  - pyvista ; extra == 'dev'
-  - black ; extra == 'dev'
-  - pytest ; extra == 'dev'
-  - pytest-cov ; extra == 'dev'
-  - ruff ; extra == 'dev'
-  - sphinx ; extra == 'dev'
-  - sphinx-rtd-theme ; extra == 'dev'
   requires_python: '>=3.12'
   editable: true
 - kind: conda

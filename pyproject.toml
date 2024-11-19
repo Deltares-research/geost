@@ -48,17 +48,6 @@ dependencies = [
     "pyvista>=0.36.1", 
 ]
 
-[project.optional-dependencies]
-dev = [
-    "pyvista",
-    "black",
-    "pytest",
-    "pytest-cov",
-    "ruff",
-    "sphinx",
-    "sphinx-rtd-theme",
-]
-
 [project.urls]
 Homepage = "https://github.com/Deltares-research/geost"
 Repository = "https://github.com/Deltares-research/geost"

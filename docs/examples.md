@@ -22,17 +22,18 @@ Example of a simple analysis of soil cores that are directly retrieved from the 
 Example of how information from a voxelmodel (e.g. GeoTOP) can be combined with point data 
 (e.g. CPT data).
 ```
-```{grid-item-card} GeoST + scikit-learn
+```{grid-item-card} GeoST + scikit-learn (simple)
 :text-align: center
-:link: https://github.com/Deltares-research/sst-examples/blob/main/predict_sand_thickness/predict_sand_thickness.ipynb
+:link: https://github.com/Deltares-research/sst-examples/blob/main/predict_sand_thickness/predict_sand_thickness_simple.ipynb
 :img-bottom: ./_static/example_sand_thickness.png
 Using geological borehole data to predict the thickness of sand using decision tree 
 algorithms provided by scikit-learn.
 ```
-```{grid-item-card} Placeholder
+```{grid-item-card} GeoST + scikit-learn (advanced)
 :text-align: center
-:link: https://github.com/Deltares-research/sst-examples/blob/main/predict_sand_thickness/predict_sand_thickness.ipynb
-:img-bottom: ./_static/geost_logo.png
-description.
+:link: https://github.com/Deltares-research/sst-examples/blob/main/predict_sand_thickness/predict_sand_thickness_advanced.ipynb
+:img-bottom: ./_static/example_sand_thickness.png
+Using geological borehole data to predict the thickness of sand using decision tree 
+algorithms provided by scikit-learn.
 ```
 ````
