@@ -75,15 +75,6 @@ def llg_data_table_duplicate_column(tmp_path):
 
 
 class TestReaders:
-    export_folder = Path(__file__).parent / "data"
-    nlog_stratstelsel_xlsx = (
-        Path(__file__).parent / "data/test_nlog_stratstelsel_20230807.xlsx"
-    )
-    nlog_stratstelsel_parquet = (
-        Path(__file__).parent / "data/test_nlog_stratstelsel_20230807.parquet"
-    )
-    boris_xml = Path(__file__).parent / "data/test_boris_xml.xml"
-
     @pytest.fixture
     def table_wrong_columns(self):
         return pd.DataFrame(
@@ -99,8 +90,8 @@ class TestReaders:
         )
 
     @pytest.mark.unittest
-    def test_nlog_reader_from_excel(self):
-        nlog_cores = read_nlog_cores(self.nlog_stratstelsel_xlsx)
+    def test_nlog_reader_from_excel(self, data_dir):
+        nlog_cores = read_nlog_cores(data_dir / r"test_nlog_stratstelsel_20230807.xlsx")
         desired_df = pd.DataFrame(
             {
                 "nr": ["BA050018", "BA080036", "BA110040"],
@@ -116,8 +107,10 @@ class TestReaders:
         assert nlog_cores.has_inclined
 
     @pytest.mark.unittest
-    def test_nlog_reader_from_parquet(self):
-        nlog_cores = read_nlog_cores(self.nlog_stratstelsel_parquet)
+    def test_nlog_reader_from_parquet(self, data_dir):
+        nlog_cores = read_nlog_cores(
+            data_dir / r"test_nlog_stratstelsel_20230807.parquet"
+        )
         desired_df = pd.DataFrame(
             {
                 "nr": ["BA050018", "BA080036", "BA110040"],
@@ -207,8 +200,8 @@ class TestReaders:
         assert cores_df_adjusted["bottom"].iloc[0] < cores_df_adjusted["bottom"].iloc[1]
 
     @pytest.mark.unittest
-    def test_read_boris_xml(self):
-        boris_collection = read_xml_boris(self.boris_xml)
+    def test_read_boris_xml(self, data_dir):
+        boris_collection = read_xml_boris(data_dir / r"test_boris_xml.xml")
         assert isinstance(boris_collection, BoreholeCollection)
         assert boris_collection.n_points == 16
         assert len(boris_collection.data.df) == 236
