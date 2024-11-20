@@ -11,3 +11,12 @@ class DDCoord(NamedTuple):
     lat: Union[int, float]
     lon: Union[int, float]
     epsg: int
+
+
+def safe_coerce(variable, dtype):
+    try:
+        variable = dtype(variable)
+    except ValueError:
+        Warning(f"Failed to coerce {variable} to {dtype}. Please check parsed data.")
+
+    return variable

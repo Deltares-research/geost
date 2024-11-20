@@ -76,33 +76,36 @@ platforms = ["win-64", "linux-64", "osx-64", "osx-arm64"]
 [tool.pixi.dependencies]
 python = ">=3.12"
 numpy = "*"
-pandas = ">=2.0.1"
+pandas = "*"
 pyarrow = "*"
 lxml = "*"
 pyproj = "*"
 geopandas = "*"
 xlrd = "*"
 openpyxl = "*"
-shapely = ">=2.0.1"
+shapely = "*"
 pyvista = "*"
 black = "*"
-pytest = ">=8.1.1,<8.2"
+pytest = "*"
 pytest-cov = "*"
 ruff = "*"
 sphinx = "*"
 sphinx-rtd-theme = "*"
-pip = ">=24.0,<25"
-rioxarray = ">=0.15.3,<0.16"
-xarray = ">=2024.9.0,<2024.10"
-netcdf4 = ">=1.7.1,<1.8"
-pydap = ">=3.5,<4"
+pip = "*"
+rioxarray = "*"
+xarray = "*"
+netcdf4 = "*"
+pydap = "*"
+dask = "*"
+
+[tool.pixi.pypi-dependencies]
+geost = { path = ".", editable = true }
 
 [tool.pixi.tasks]
-install = "python -m pip install --no-deps --editable ."
-test = { depends_on = ["install"], cmd = "python -m pytest --verbose --cov=geost --cov-report xml --cov-report term"}
+test = "python -m pytest --verbose --cov=geost --cov-report xml --cov-report term"
 docs = "sphinx-build -b html docs ./docs/build"
 format = "black ."
-lint = { depends_on = ["install"], cmd = "ruff check --fix ./geost"}
+lint = "ruff check --fix ./geost"
 
 [tool.pixi.feature.py312.dependencies]
 python = "3.12.*"

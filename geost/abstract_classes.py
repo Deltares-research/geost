@@ -104,7 +104,7 @@ class AbstractData(ABC):  # pragma: no cover
         pass
 
     @abstractmethod
-    def get_cumulative_layer_thickness(self):
+    def get_cumulative_thickness(self):
         # Not sure if this should be here, potentially unsuitable with DiscreteData
         pass
 
@@ -228,7 +228,7 @@ class AbstractCollection(ABC):  # pragma: no cover
         pass
 
     @abstractmethod
-    def get_cumulative_layer_thickness(self):
+    def get_cumulative_thickness(self):
         # Not sure if this should be here, potentially unsuitable with DiscreteData
         # These kind of methods should go to a seperate layer_analysis module with
         # functions to cover such analyses

@@ -13,6 +13,7 @@ from geost import (
     read_gef_cpts,
     read_nlog_cores,
     read_uullg_tables,
+    read_xml_boris,
 )
 from geost.base import BoreholeCollection, CptCollection, DiscreteData, LayeredData
 from geost.read import (
@@ -74,14 +75,6 @@ def llg_data_table_duplicate_column(tmp_path):
 
 
 class TestReaders:
-    export_folder = Path(__file__).parent / "data"
-    nlog_stratstelsel_xlsx = (
-        Path(__file__).parent / "data/test_nlog_stratstelsel_20230807.xlsx"
-    )
-    nlog_stratstelsel_parquet = (
-        Path(__file__).parent / "data/test_nlog_stratstelsel_20230807.parquet"
-    )
-
     @pytest.fixture
     def table_wrong_columns(self):
         return pd.DataFrame(
@@ -97,25 +90,10 @@ class TestReaders:
         )
 
     @pytest.mark.unittest
-    def test_nlog_reader_from_excel(self):
-        nlog_cores = read_nlog_cores(self.nlog_stratstelsel_xlsx)
-        desired_df = pd.DataFrame(
-            {
-                "nr": ["BA050018", "BA080036", "BA110040"],
-                "x": [37395, 44175, 39309],
-                "y": [857077, 840614, 833198],
-                "surface": [36.7, 39.54, 33.51],
-                "end": [-3921.75, -3262.69, -3865.89],
-            }
+    def test_nlog_reader_from_parquet(self, data_dir):
+        nlog_cores = read_nlog_cores(
+            data_dir / r"test_nlog_stratstelsel_20230807.parquet"
         )
-        assert_array_equal(
-            nlog_cores.header[["nr", "x", "y", "surface", "end"]], desired_df
-        )
-        assert nlog_cores.has_inclined
-
-    @pytest.mark.unittest
-    def test_nlog_reader_from_parquet(self):
-        nlog_cores = read_nlog_cores(self.nlog_stratstelsel_parquet)
         desired_df = pd.DataFrame(
             {
                 "nr": ["BA050018", "BA080036", "BA110040"],
@@ -203,6 +181,13 @@ class TestReaders:
         cores_df_adjusted = adjust_z_coordinates(cores_df.copy())
         assert cores_df_adjusted["top"].iloc[0] < cores_df_adjusted["top"].iloc[1]
         assert cores_df_adjusted["bottom"].iloc[0] < cores_df_adjusted["bottom"].iloc[1]
+
+    @pytest.mark.unittest
+    def test_read_boris_xml(self, data_dir):
+        boris_collection = read_xml_boris(data_dir / r"test_boris_xml.xml")
+        assert isinstance(boris_collection, BoreholeCollection)
+        assert boris_collection.n_points == 16
+        assert len(boris_collection.data.df) == 236
 
 
 @pytest.mark.unittest

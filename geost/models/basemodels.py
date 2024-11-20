@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 from pathlib import Path
+from typing import List
 
 import geopandas as gpd
 import numpy as np
@@ -119,6 +120,79 @@ class VoxelModel(AbstractSpatial, AbstractModel3D):
         dimensions = f"Dimensions: {dict(self.ds.sizes)}"
         resolution = f"Resolution (y, x, z): {self.resolution}"
         return f"{instance}\n{layers}\n{dimensions}\n{resolution}"
+
+    @classmethod
+    def from_netcdf(
+        cls,
+        nc_path: str | Path,
+        data_vars: List[str] = None,
+        bbox: tuple[float, float, float, float] = None,
+        lazy: bool = True,
+        **xr_kwargs,
+    ):
+        """
+        Read data from a NetCDF file of a voxelmodel data into a VoxelModel instance.
+
+        This assumes the voxelmodel is according to the following conventions:
+        - The coordinate dimensions of the voxelmodel are: "x", "y" (horizontal) and "z"
+        (depth).
+        - The coordinates in the y-dimension are in descending order.
+
+        Parameters
+        ----------
+        nc_path : str | Path
+            Path to the netcdf file of the voxelmodel.
+        data_vars : ArrayLike
+            List or array-like object specifying which data variables to return.
+        bbox : tuple (xmin, ymin, xmax, ymax), optional
+            Specify a bounding box (xmin, ymin, xmax, ymax) to return a selected area of
+            the voxelmodel. The default is None.
+        lazy : bool, optional
+            If True, netcdf loads lazily. Use False for speed improvements for larger
+            areas but that still fit into memory. The default is False.
+        **xr_kwargs
+            Additional keyword arguments xarray.open_dataset. See relevant documentation
+            for details.
+
+        Returns
+        -------
+        VoxelModel
+            VoxelModel instance of the netcdf file.
+
+        Examples
+        --------
+        Read all model data from a local NetCDF file:
+        >>> VoxelModel.from_netcdf("my_netcdf_file.nc")
+
+        Read specific data variables and the data within a specific area from the NetCDF
+        file:
+        >>> VoxelModel.from_netcdf(
+                "my_netcdf_file.nc",
+                data_vars=["my_var"],
+                bbox=(1, 1, 3, 3) # (xmin, ymin, xmax, ymax)
+            )
+
+        Note that this method assumes the y-coordinates are in descending order. For y-
+        ascending coordinates change ymin and ymax coordinates:
+        >>> VoxelModel.from_netcdf(
+                "my_netcdf_file.nc", bbox=(1, 3, 1, 3) # (xmin, ymax, xmax, ymin)
+            )
+
+        """
+        ds = xr.open_dataset(nc_path, **xr_kwargs)
+
+        if bbox is not None:
+            xmin, ymin, xmax, ymax = bbox
+            ds = ds.sel(x=slice(xmin, xmax), y=slice(ymax, ymin))
+
+        if data_vars is not None:
+            ds = ds[data_vars]
+
+        if not lazy:
+            print("Load data")
+            ds = ds.load()
+
+        return cls(ds)
 
     @property
     def xmin(self) -> float:
