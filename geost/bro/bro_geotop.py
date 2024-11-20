@@ -141,8 +141,16 @@ class ChannelBeltUnits(UnitEnum):  # pragma: no cover
 
 class StratGeotop:
     """
-    Class for making selections of stratigraphic units in GeoTop.
+    Class for making selections of stratigraphic units in GeoTop containing class attributes
+    four main groups of stratigraphic units:
 
+    - holocene : alias of :class:`~geost.bro.bro_geotop.HoloceneUnits`
+    - channel : alias of :class:`~geost.bro.bro_geotop.ChannelBeltUnits`
+    - older : alias of :class:`~geost.bro.bro_geotop.OlderUnits`
+    - antropogenic : alias of :class:`~geost.bro.bro_geotop.AntropogenicUnits`
+
+    Each of these class attributes is a :class:`~geost.enums.UnitEnum` which contains
+    abbreviation (e.g. "NAWA") and corresponding number for geological units.
     """
 
     holocene = HoloceneUnits
@@ -158,12 +166,20 @@ class StratGeotop:
         Parameters
         ----------
         units : str | Iterable[str]
-            Name as string or array_like object of strings with names to select.
+            Name as string or array_like object of strings with units to select.
 
         Returns
         -------
         List[enum]
             List of the selected units.
+
+        Examples
+        --------
+        Select units based on name:
+        >>> nawa = StratGeotop.select_units("NAWA")
+
+        Or select a group of "tidal" units:
+        >>> tidal = StratGeotop.select_units(["NAWA", "ANAWA", "NAWO"])
 
         """
         units = cls.holocene.cast_to_list(units)
@@ -183,12 +199,20 @@ class StratGeotop:
         Parameters
         ----------
         units : str | Iterable[str]
-            Name as string or array_like object of strings with names to select.
+            Number or array_like object of numbers with units to select.
 
         Returns
         -------
         List[enum]
             List of the selected units.
+
+        Examples
+        --------
+        Select units based on value:
+        >>> selection = StratGeotop.select_values(1100)
+
+        Or select a group of values:
+        >>> selection = StratGeotop.select_units([1100, 6010, 6100])
 
         """
         values = cls.holocene.cast_to_list(values)
