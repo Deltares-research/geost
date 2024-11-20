@@ -1,10 +1,10 @@
 BRO GeoTOP
 ==========
 
-.. currentmodule:: geost.bro.bro_geotop
-
 GeoTop
-------
+-------
+
+.. currentmodule:: geost.bro
 
 Constructor
 ~~~~~~~~~~~
@@ -56,7 +56,7 @@ Attributes
 
 
 StratGeotop
------------
+------------
 .. autosummary::
    :toctree: generated/
 
@@ -71,7 +71,7 @@ Attributes
    StratGeotop.holocene
    StratGeotop.channel
    StratGeotop.older
-   StratGeotop.anthropogenic
+   StratGeotop.antropogenic
 
 
 Methods
@@ -84,13 +84,13 @@ Methods
 
 
 UnitEnums
----------
+==========
 `UnitEnum` objects for stratigraphic units and corresponding numbers in GeoTOP for four main groups.
 
 .. autosummary::
    :toctree: generated/
 
-   HoloceneUnits
-   ChannelBeltUnits
-   OlderUnits
-   AntropogenicUnits
+   bro_geotop.HoloceneUnits
+   bro_geotop.ChannelBeltUnits
+   bro_geotop.OlderUnits
+   bro_geotop.AntropogenicUnits
