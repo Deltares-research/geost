@@ -123,6 +123,11 @@ markers = [
 	"integrationtest: test of multiple components",
 ]
 
+[tool.coverage.report]
+exclude_lines = [
+  "pragma: no cover",
+]
+
 [tool.black]
 line-length = 88
 

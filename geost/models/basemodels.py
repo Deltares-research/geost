@@ -12,7 +12,7 @@ from geost.spatial import check_gdf_instance
 from .model_utils import sample_along_line, sample_with_coords
 
 
-class AbstractSpatial(ABC):
+class AbstractSpatial(ABC):  # pragma: no cover
     @property
     @abstractmethod
     def xmin(self):
@@ -72,7 +72,7 @@ class AbstractSpatial(ABC):
         pass
 
 
-class AbstractModel3D(ABC):
+class AbstractModel3D(ABC):  # pragma: no cover
     @property
     @abstractmethod
     def zmin(self):
@@ -349,35 +349,35 @@ class VoxelModel(AbstractSpatial, AbstractModel3D):
 
         return sample_with_coords(self.ds, coords)
 
-    def select_with_line(self):
+    def select_with_line(self):  # pragma: no cover
         raise NotImplementedError()
 
-    def select_within_polygons(self):
+    def select_within_polygons(self):  # pragma: no cover
         raise NotImplementedError()
 
-    def select_within_bbox(self):
+    def select_within_bbox(self):  # pragma: no cover
         raise NotImplementedError()
 
-    def select_by_values(self):
+    def select_by_values(self):  # pragma: no cover
         raise NotImplementedError()
 
-    def select_top(self):
+    def select_top(self):  # pragma: no cover
         raise NotImplementedError()
 
-    def select_bottom(self):
+    def select_bottom(self):  # pragma: no cover
         raise NotImplementedError()
 
-    def slice_depth_interval(self):
+    def slice_depth_interval(self):  # pragma: no cover
         raise NotImplementedError()
 
-    def select_surface_level(self):
+    def select_surface_level(self):  # pragma: no cover
         raise NotImplementedError()
 
-    def zslice_to_tiff(self):
+    def zslice_to_tiff(self):  # pragma: no cover
         raise NotImplementedError()
 
 
-class LayerModel(AbstractSpatial, AbstractModel3D):
+class LayerModel(AbstractSpatial, AbstractModel3D):  # pragma: no cover
     def __init__(self):
         raise NotImplementedError("No support of LayerModel yet.")
 
