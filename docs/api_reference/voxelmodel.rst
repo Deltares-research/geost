@@ -10,6 +10,7 @@ Constructor
    :toctree: generated/
 
    VoxelModel
+   VoxelModel.from_netcdf
 
 
 Methods

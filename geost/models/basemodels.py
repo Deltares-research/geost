@@ -169,17 +169,17 @@ class VoxelModel(AbstractSpatial, AbstractModel3D):
         file:
 
         >>> VoxelModel.from_netcdf(
-                "my_netcdf_file.nc",
-                data_vars=["my_var"],
-                bbox=(1, 1, 3, 3) # (xmin, ymin, xmax, ymax)
-            )
+        ...     "my_netcdf_file.nc",
+        ...     data_vars=["my_var"],
+        ...     bbox=(1, 1, 3, 3) # (xmin, ymin, xmax, ymax)
+        ... )
 
         Note that this method assumes the y-coordinates are in descending order. For y-
         ascending coordinates change ymin and ymax coordinates:
 
         >>> VoxelModel.from_netcdf(
-                "my_netcdf_file.nc", bbox=(1, 3, 1, 3) # (xmin, ymax, xmax, ymin)
-            )
+        ...     "my_netcdf_file.nc", bbox=(1, 3, 1, 3) # (xmin, ymax, xmax, ymin)
+        ... )
 
         """
         ds = xr.open_dataset(nc_path, **xr_kwargs)

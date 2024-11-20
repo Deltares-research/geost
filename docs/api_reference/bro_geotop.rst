@@ -1,10 +1,9 @@
 BRO GeoTOP
 ==========
+.. currentmodule:: geost.bro
 
 GeoTop
 -------
-
-.. currentmodule:: geost.bro
 
 Constructor
 ~~~~~~~~~~~
