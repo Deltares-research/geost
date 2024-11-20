@@ -151,6 +151,17 @@ class StratGeotop:
 
     Each of these class attributes is a :class:`~geost.enums.UnitEnum` which contains
     abbreviation (e.g. "NAWA") and corresponding number for geological units.
+
+    Example usage
+    -------------
+    Select a group of "tidal" units by name:
+
+    >>> tidal = StratGeotop.select_units(["NAWA", "ANAWA", "NAWO"])
+
+    Or select a group of values:
+
+    >>> selection = StratGeotop.select_units([1100, 6010, 6100])
+
     """
 
     holocene = HoloceneUnits
@@ -176,9 +187,11 @@ class StratGeotop:
         Examples
         --------
         Select units based on name:
+
         >>> nawa = StratGeotop.select_units("NAWA")
 
         Or select a group of "tidal" units:
+
         >>> tidal = StratGeotop.select_units(["NAWA", "ANAWA", "NAWO"])
 
         """
@@ -209,9 +222,11 @@ class StratGeotop:
         Examples
         --------
         Select units based on value:
+
         >>> selection = StratGeotop.select_values(1100)
 
         Or select a group of values:
+
         >>> selection = StratGeotop.select_units([1100, 6010, 6100])
 
         """

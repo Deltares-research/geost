@@ -63,17 +63,6 @@ StratGeotop
    StratGeotop
 
 
-Attributes
-~~~~~~~~~~
-.. autosummary::
-   :toctree: generated/
-
-   StratGeotop.holocene
-   StratGeotop.channel
-   StratGeotop.older
-   StratGeotop.antropogenic
-
-
 Methods
 ~~~~~~~
 .. autosummary::
@@ -83,9 +72,9 @@ Methods
    StratGeotop.select_values
 
 
-UnitEnums
+GeoTOP UnitEnums
 ==========
-`UnitEnum` objects for stratigraphic units and corresponding numbers in GeoTOP for four main groups.
+:class:`~geost.enums.UnitEnum` objects for stratigraphic units and corresponding numbers in GeoTOP for four main groups.
 
 .. autosummary::
    :toctree: generated/

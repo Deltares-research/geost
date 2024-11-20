@@ -162,10 +162,12 @@ class VoxelModel(AbstractSpatial, AbstractModel3D):
         Examples
         --------
         Read all model data from a local NetCDF file:
+
         >>> VoxelModel.from_netcdf("my_netcdf_file.nc")
 
         Read specific data variables and the data within a specific area from the NetCDF
         file:
+
         >>> VoxelModel.from_netcdf(
                 "my_netcdf_file.nc",
                 data_vars=["my_var"],
@@ -174,6 +176,7 @@ class VoxelModel(AbstractSpatial, AbstractModel3D):
 
         Note that this method assumes the y-coordinates are in descending order. For y-
         ascending coordinates change ymin and ymax coordinates:
+
         >>> VoxelModel.from_netcdf(
                 "my_netcdf_file.nc", bbox=(1, 3, 1, 3) # (xmin, ymax, xmax, ymin)
             )
@@ -274,12 +277,14 @@ class VoxelModel(AbstractSpatial, AbstractModel3D):
         Examples
         --------
         Select a specified coordinates or slice coordinates from the VoxelModel instance:
+
         >>> selected = voxelmodel.select(x=[1, 2, 3])  # Using keyword arguments
         >>> selected = voxelmodel.select({"x": [1, 2, 3]})  # Using a dictionary
         >>> selected = voxelmodel.select(x=slice(1, 4))  # Using a slice
 
         Using additional options as well. For instance, when the desired coordinates do
         not exactly match the VoxelModel coordinates, select the nearest:
+
         >>> selected = voxelmodel.select(x=[1.1, 2.5, 3.3], method="nearest")
 
         """
@@ -299,6 +304,7 @@ class VoxelModel(AbstractSpatial, AbstractModel3D):
         Examples
         --------
         Select a specified coordinates or slice coordinates from the VoxelModel instance:
+
         >>> selected = voxelmodel.select(x=[1, 2, 3])  # Using keyword arguments
         >>> selected = voxelmodel.select({"x": [1, 2, 3]})  # Using a dictionary
         >>> selected = voxelmodel.select(x=slice(1, 4))  # Using a slice
@@ -327,15 +333,18 @@ class VoxelModel(AbstractSpatial, AbstractModel3D):
         Examples
         --------
         To sample a VoxelModel with a GeoDataFrame containing point geometries:
+
         >>> selected = voxelmodel.select_with_points(point_gdf)
 
         This way, it is easily possible to sample a VoxelModel at point locations using
         GeoST Header or Collection objects by accessing their "gdf" attributes.
 
         Using a Header object:
+
         >>> selected = voxelmodel.select_with_points(Header.gdf)
 
         Using a Collection object:
+
         >>> selected = voxelmodel.select_with_points(Collection.header.gdf)
 
         """
