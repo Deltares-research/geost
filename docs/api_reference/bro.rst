@@ -4,7 +4,7 @@ BRO api
 .. currentmodule:: geost.bro
 
 Constructor
--------
+------------
 .. autosummary::
    :toctree: generated/
 

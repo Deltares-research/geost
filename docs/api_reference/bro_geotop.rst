@@ -72,7 +72,7 @@ Methods
 
 
 GeoTOP UnitEnums
-==========
+=================
 :class:`~geost.enums.UnitEnum` objects for stratigraphic units and corresponding numbers in GeoTOP for four main groups.
 
 .. autosummary::
