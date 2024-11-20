@@ -3,7 +3,7 @@ import importlib
 import pandas as pd
 import pooch
 
-from geost.read import read_borehole_table
+from geost.read import read_borehole_table, read_cpt_table
 
 REGISTRY = pooch.create(
     path=pooch.os_cache("geost"),
@@ -35,3 +35,26 @@ def boreholes_usp(pandas=False):
         return pd.read_parquet(filename)
     else:
         return read_borehole_table(filename)
+
+
+def cpts_usp(pandas=False):
+    """
+    Return a `CptCollection` with a selection of DINOloket boreholes in the area of the
+    Utrecht Science Park to use in GeoST tutorials.
+
+    Parameters
+    ----------
+    pandas : bool, optional
+        If True, read the boreholes into a `Pandas DataFrame`. The default is False, this
+        returns a `CptCollection`.
+
+    Returns
+    -------
+    :class:`~geost.base.CptCollection`
+
+    """
+    filename = REGISTRY.fetch("cpts_usp.parquet")
+    if pandas:
+        return pd.read_parquet(filename)
+    else:
+        return read_cpt_table(filename)
