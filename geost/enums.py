@@ -29,14 +29,14 @@ class UnitEnum(IntEnum):
         return [u for u in cls if u.name in units]
 
     @classmethod
-    def select_values(cls, values: int | Iterable[int]):
+    def select_values(cls, values: int | float | Iterable[int | float]):
         """
         Select units by value.
 
         Parameters
         ----------
-        units : str | Iterable[str]
-            Name as string or array_like object of strings with names to select.
+        units : int | float | Iterable[int | float]
+            Number or array_like object of numbers for units to select.
 
         Returns
         -------
@@ -49,7 +49,7 @@ class UnitEnum(IntEnum):
 
     @staticmethod
     def cast_to_list(value):
-        if isinstance(value, (int, str)):
+        if isinstance(value, (int, float, str)):
             value = [value]
         return value
 
