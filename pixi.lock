@@ -7613,7 +7613,7 @@ packages:
   name: geost
   version: 0.2.5
   path: .
-  sha256: 80479326ab42b1b21889bf32af30c823433a3ee57670fff0909c567f61962170
+  sha256: e6206da3b056e5095428aab30ffbf7deda9e9e7da0875f5caf642063076f2224
   requires_dist:
   - numpy
   - pandas>=2.0.1

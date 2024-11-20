@@ -100,6 +100,9 @@ test = "python -m pytest --verbose --cov=geost --cov-report xml --cov-report ter
 docs = "sphinx-build -b html docs ./docs/build"
 format = "black ."
 lint = "ruff check --fix ./geost"
+rm_jupyter = "rm -r ./docs/jupyter_execute"
+rm_build = "rm -r ./docs/build"
+rebuild_docs = { depends_on = ["rm_jupyter", "rm_build", "docs"] }
 
 [tool.pixi.feature.py312.dependencies]
 python = "3.12.*"
