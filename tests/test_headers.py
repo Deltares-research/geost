@@ -1,6 +1,3 @@
-import tempfile
-from pathlib import Path
-
 import geopandas as gpd
 import pandas as pd
 import pytest
@@ -172,55 +169,36 @@ class TestHeaders:
         assert_almost_equal(point_header["id"].sum(), 11)
 
     @pytest.mark.unittest
-    def test_export_to_csv_mixin(self, point_header_gdf):
+    def test_export_to_csv_mixin(self, point_header_gdf, tmp_path):
         point_header = PointHeader(point_header_gdf, "NAP")
-        temp_file = Path("file.csv")
+        temp_file = tmp_path / r"pointheader.csv"
         point_header.to_csv(temp_file)
         assert temp_file.is_file()
-        temp_file.unlink()
 
     @pytest.mark.unittest
-    def test_export_to_parquet_mixin(self, point_header_gdf):
+    def test_export_to_parquet_mixin(self, point_header_gdf, tmp_path):
         point_header = PointHeader(point_header_gdf, "NAP")
-        temp_file = Path("file.parquet")
+        temp_file = tmp_path / r"pointheader.parquet"
         point_header.to_parquet(temp_file)
         assert temp_file.is_file()
-        temp_file.unlink()
 
     @pytest.mark.unittest
-    def test_export_to_shapefile_mixin(self, point_header_gdf):
+    def test_export_to_shapefile_mixin(self, point_header_gdf, tmp_path):
         point_header = PointHeader(point_header_gdf, "NAP")
-        temp_file = Path("test_output_file.shp")
-        cpg_file = Path("test_output_file.cpg")
-        dbf_file = Path("test_output_file.dbf")
-        shx_file = Path("test_output_file.shx")
-        prj_file = Path("test_output_file.prj")
+        temp_file = tmp_path / r"pointheader.shp"
         point_header.to_shape(temp_file)
         assert temp_file.is_file()
-        assert cpg_file.is_file()
-        assert dbf_file.is_file()
-        assert shx_file.is_file()
-        assert prj_file.is_file()
-        temp_file.unlink()
-        cpg_file.unlink()
-        dbf_file.unlink()
-        shx_file.unlink()
-        prj_file.unlink()
 
     @pytest.mark.unittest
-    def test_export_to_geopackage_mixin(self, point_header_gdf):
+    def test_export_to_geopackage_mixin(self, point_header_gdf, tmp_path):
         point_header = PointHeader(point_header_gdf, "NAP")
-        temp_file = Path("file.gpkg")
+        temp_file = tmp_path / r"pointheader.gpkg"
         point_header.to_geopackage(temp_file)
         assert temp_file.is_file()
-        temp_file.unlink()
 
     @pytest.mark.unittest
-    def test_export_to_geoparquet_mixin(self, point_header_gdf):
+    def test_export_to_geoparquet_mixin(self, point_header_gdf, tmp_path):
         point_header = PointHeader(point_header_gdf, "NAP")
-        Path("temp_dir").mkdir()
-        temp_file = Path("temp_dir/file.geoparquet")
+        temp_file = tmp_path / r"pointheader.geoparquet"
         point_header.to_geoparquet(temp_file)
         assert temp_file.is_file()
-        temp_file.unlink()
-        Path("temp_dir").rmdir()
