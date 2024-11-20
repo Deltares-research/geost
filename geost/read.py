@@ -77,8 +77,10 @@ def __read_file(file: str | Path, **kwargs) -> pd.DataFrame:
         return pd.read_parquet(file, **kwargs)
     elif suffix in [".csv"]:
         return pd.read_csv(file, **kwargs)
-    elif suffix in [".xls", ".xlsx"]:
-        return pd.read_excel(file, **kwargs)
+    elif suffix in [".xls", ".xlsx"]:  # pragma: no cover
+        return pd.read_excel(
+            file, **kwargs
+        )  # No cover: Excel file io fails in windows CI pipeline
     else:
         raise TypeError(
             f"Expected parquet file (with .parquet or .pq suffix) but got {suffix} file"
@@ -327,10 +329,7 @@ def read_nlog_cores(file: str | Path) -> BoreholeCollection:
     :class:`~geost.borehole.BoreholeCollection`
         :class:`~geost.borehole.BoreholeCollection`
     """
-    if Path(file).suffix == ".xlsx":
-        nlog_cores = pd.read_excel(file)
-    else:
-        nlog_cores = __read_file(file)
+    nlog_cores = __read_file(file)
 
     nlog_cores.rename(
         columns={

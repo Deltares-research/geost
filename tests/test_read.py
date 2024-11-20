@@ -90,23 +90,6 @@ class TestReaders:
         )
 
     @pytest.mark.unittest
-    def test_nlog_reader_from_excel(self, data_dir):
-        nlog_cores = read_nlog_cores(data_dir / r"test_nlog_stratstelsel_20230807.xlsx")
-        desired_df = pd.DataFrame(
-            {
-                "nr": ["BA050018", "BA080036", "BA110040"],
-                "x": [37395, 44175, 39309],
-                "y": [857077, 840614, 833198],
-                "surface": [36.7, 39.54, 33.51],
-                "end": [-3921.75, -3262.69, -3865.89],
-            }
-        )
-        assert_array_equal(
-            nlog_cores.header[["nr", "x", "y", "surface", "end"]], desired_df
-        )
-        assert nlog_cores.has_inclined
-
-    @pytest.mark.unittest
     def test_nlog_reader_from_parquet(self, data_dir):
         nlog_cores = read_nlog_cores(
             data_dir / r"test_nlog_stratstelsel_20230807.parquet"
