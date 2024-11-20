@@ -80,28 +80,22 @@ pytest = "*"
 pytest-cov = "*"
 ruff = "*"
 sphinx = "*"
+sphinx-rtd-theme = "*"
 pip = "*"
 rioxarray = "*"
 xarray = "*"
 netcdf4 = "*"
 pydap = "*"
-myst-parser = "*"
-pydata-sphinx-theme = "*"
-sphinx-design = "*"
-myst-nb = "*"
-pooch = "*"
+dask = "*"
 
 [tool.pixi.pypi-dependencies]
 geost = { path = ".", editable = true }
 
 [tool.pixi.tasks]
-test = { depends_on = ["install"], cmd = "python -m pytest --verbose --cov=geost --cov-report xml --cov-report term"}
-docs = "sphinx-build -b html docs --write-all ./docs/build"
+test = "python -m pytest --verbose --cov=geost --cov-report xml --cov-report term"
+docs = "sphinx-build -b html docs ./docs/build"
 format = "black ."
-lint = { depends_on = ["install"], cmd = "ruff check --fix ./geost"}
-rm_jupyter = "rm -r ./docs/jupyter_execute"
-rm_build = "rm -r ./docs/build"
-rebuild_docs = { depends_on = ["rm_jupyter", "rm_build", "docs"] }
+lint = "ruff check --fix ./geost"
 
 [tool.pixi.feature.py312.dependencies]
 python = "3.12.*"

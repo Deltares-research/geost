@@ -15,7 +15,7 @@ from geost.base import (
 )
 from geost.bro import BroApi
 from geost.io import _parse_cpt_gef_files
-from geost.io.parsers import SoilCore
+from geost.io.parsers import BorisXML, SoilCore
 from geost.utils import dataframe_to_geodataframe
 
 MANDATORY_LAYERED_DATA_COLUMNS = ["nr", "x", "y", "surface", "end", "top", "bottom"]
@@ -77,8 +77,10 @@ def __read_file(file: str | Path, **kwargs) -> pd.DataFrame:
         return pd.read_parquet(file, **kwargs)
     elif suffix in [".csv"]:
         return pd.read_csv(file, **kwargs)
-    elif suffix in [".xls", ".xlsx"]:
-        return pd.read_excel(file, **kwargs)
+    elif suffix in [".xls", ".xlsx"]:  # pragma: no cover
+        return pd.read_excel(
+            file, **kwargs
+        )  # No cover: Excel file io fails in windows CI pipeline
     else:
         raise TypeError(
             f"Expected parquet file (with .parquet or .pq suffix) but got {suffix} file"
@@ -327,10 +329,7 @@ def read_nlog_cores(file: str | Path) -> BoreholeCollection:
     :class:`~geost.borehole.BoreholeCollection`
         :class:`~geost.borehole.BoreholeCollection`
     """
-    if Path(file).suffix == ".xlsx":
-        nlog_cores = pd.read_excel(file)
-    else:
-        nlog_cores = __read_file(file)
+    nlog_cores = __read_file(file)
 
     nlog_cores.rename(
         columns={
@@ -380,6 +379,51 @@ def read_nlog_cores(file: str | Path) -> BoreholeCollection:
     collection = LayeredData(nlog_cores, has_inclined=True).to_collection(28992, 5709)
 
     return collection
+
+
+def read_xml_boris(
+    file: str | Path,
+    horizontal_reference: str | int | CRS = 28992,
+    vertical_reference: str | int | CRS = 5709,
+    as_collection: bool = True,
+) -> BoreholeCollection:
+    """
+    Read export XML of the BORIS software. BORIS is software developed by TNO to
+    describe boreholes in the lab. The exported XML-format bears no resemblance to DINO
+    or BRO XML standards
+
+    Parameters
+    ----------
+    file : str | Path
+        File with the borehole information to read.
+    horizontal_reference : str | int | CRS, optional
+        EPSG of the data's horizontal reference. Takes anything that can be interpreted
+        by pyproj.crs.CRS.from_user_input(). The default is 28992.
+    vertical_reference : str | int | CRS, optional
+        EPSG of the data's vertical datum. Takes anything that can be interpreted by
+        pyproj.crs.CRS.from_user_input(). However, it must be a vertical datum. FYI:
+        "NAP" is EPSG 5709 and The Belgian reference system (Ostend height) is ESPG
+        5710. The default is 5709.
+    as_collection : bool, optional
+        If True, the CPT table will be read as a :class:`~geost.base.Collection`
+        which includes a header object and spatial selection functionality. If False,
+        a :class:`~geost.base.LayeredData` object is returned. The default is True.
+
+    Returns
+    -------
+    :class:`~geost.base.BoreholeCollection` or :class:`~geost.base.LayeredData`
+        Instance of :class:`~geost.base.BoreholeCollection` or :class:`~geost.base.LayeredData`
+        depending on if the table is read as a collection or not.
+    """
+    boris_data = BorisXML(file)
+    boreholes = LayeredData(boris_data.layer_dataframe, has_inclined=False)
+
+    if as_collection:
+        # Think of a better way to translate non-standard BORIS crs encoding or keep it
+        # user-defined (like we do in other reader functions)
+        boreholes = boreholes.to_collection(horizontal_reference, vertical_reference)
+
+    return boreholes
 
 
 def read_xml_geotechnical_cores(

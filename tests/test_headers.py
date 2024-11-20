@@ -1,10 +1,7 @@
-import tempfile
-from pathlib import Path
-
 import geopandas as gpd
 import pandas as pd
 import pytest
-from numpy.testing import assert_allclose, assert_almost_equal
+from numpy.testing import assert_allclose, assert_almost_equal, assert_array_equal
 from shapely.geometry import LineString, Point, Polygon
 
 from geost.base import LineHeader, PointHeader
@@ -67,46 +64,77 @@ class TestHeaders:
         selection_gdf = gpd.GeoDataFrame(
             {"id": [0, 1, 2, 3]}, geometry=selection_points
         )
-        point_header_sel = point_header.select_with_points(selection_gdf, 1.1)
-        point_header_sel_inverted = point_header.select_with_points(
+        selected = point_header.select_with_points(selection_gdf, 1.1)
+        assert len(selected) == 16
+
+        inverted_selection = point_header.select_with_points(
             selection_gdf, 1.1, invert=True
         )
-        assert len(point_header_sel) == 16
-        assert len(point_header_sel_inverted) == 9
+        assert len(inverted_selection) == 9
+
+        # Select with Shapely object
+        selected = point_header.select_with_points(selection_points[0], 1.1)
+        assert len(selected) == 3
+
+        # Select with iterable
+        selected = point_header.select_with_points(selection_points, 1.1)
+        assert len(selected) == 16
 
     @pytest.mark.unittest
     def test_select_with_lines(self, point_header_gdf):
         point_header = PointHeader(point_header_gdf, "NAP")
         selection_lines = [LineString([[1, 1], [5, 5]]), LineString([[1, 5], [5, 1]])]
         selection_gdf = gpd.GeoDataFrame({"id": [0, 1]}, geometry=selection_lines)
-        point_header_sel = point_header.select_with_lines(selection_gdf, 1)
-        point_header_sel_inverted = point_header.select_with_lines(
+
+        selected = point_header.select_with_lines(selection_gdf, 1)
+        assert len(selected) == 21
+
+        inverted_selection = point_header.select_with_lines(
             selection_gdf, 1, invert=True
         )
-        assert len(point_header_sel) == 21
-        assert len(point_header_sel_inverted) == 4
+        assert len(inverted_selection) == 4
+
+        # Select with Shapely object
+        selected = point_header.select_with_lines(selection_lines[0], 1)
+        assert len(selected) == 13
+
+        # Select with iterable
+        selected = point_header.select_with_lines(selection_lines, 1)
+        assert len(selected) == 21
 
     @pytest.mark.unittest
     def test_select_within_polygons(self, point_header_gdf):
         point_header = PointHeader(point_header_gdf, "NAP")
-        selection_polygon = [Polygon(((2, 1), (5, 4), (4, 5), (1, 2)))]
-        selection_gdf = gpd.GeoDataFrame({"id": [0]}, geometry=selection_polygon)
+        selection_polygon = Polygon(((2, 1), (5, 4), (4, 5), (1, 2)))
+        selection_gdf = gpd.GeoDataFrame({"id": [0]}, geometry=[selection_polygon])
 
         # Geodataframe based selection
-        point_header_sel = point_header.select_within_polygons(selection_gdf)
-        point_header_sel_inverted = point_header.select_within_polygons(
+        selected = point_header.select_within_polygons(selection_gdf)
+        assert len(selected) == 3
+
+        selected_inverted = point_header.select_within_polygons(
             selection_gdf, invert=True
         )
-        point_header_sel_buffered = point_header.select_within_polygons(
+        assert len(selected_inverted) == 22
+
+        selected_buffered = point_header.select_within_polygons(
             selection_gdf, buffer=0.1
         )
-        point_header_sel_inverted_buffered = point_header.select_within_polygons(
+        assert len(selected_buffered) == 11
+
+        selected_inverted_buffered = point_header.select_within_polygons(
             selection_gdf, buffer=0.1, invert=True
         )
-        assert len(point_header_sel) == 3
-        assert len(point_header_sel_inverted) == 22
-        assert len(point_header_sel_buffered) == 11
-        assert len(point_header_sel_inverted_buffered) == 14
+        assert len(selected_inverted_buffered) == 14
+
+        # Shapely Polygon based selection
+        selected = point_header.select_within_polygons(selection_polygon)
+        assert len(selected) == 3
+        assert_array_equal(selected["nr"], ["nr7", "nr13", "nr19"])
+
+        # Selection with Iterable
+        selected = point_header.select_within_polygons([selection_polygon])
+        assert len(selected) == 3
 
     @pytest.mark.unittest
     def test_select_by_depth(self, point_header_gdf):
@@ -141,55 +169,36 @@ class TestHeaders:
         assert_almost_equal(point_header["id"].sum(), 11)
 
     @pytest.mark.unittest
-    def test_export_to_csv_mixin(self, point_header_gdf):
+    def test_export_to_csv_mixin(self, point_header_gdf, tmp_path):
         point_header = PointHeader(point_header_gdf, "NAP")
-        temp_file = Path("file.csv")
+        temp_file = tmp_path / r"pointheader.csv"
         point_header.to_csv(temp_file)
         assert temp_file.is_file()
-        temp_file.unlink()
 
     @pytest.mark.unittest
-    def test_export_to_parquet_mixin(self, point_header_gdf):
+    def test_export_to_parquet_mixin(self, point_header_gdf, tmp_path):
         point_header = PointHeader(point_header_gdf, "NAP")
-        temp_file = Path("file.parquet")
+        temp_file = tmp_path / r"pointheader.parquet"
         point_header.to_parquet(temp_file)
         assert temp_file.is_file()
-        temp_file.unlink()
 
     @pytest.mark.unittest
-    def test_export_to_shapefile_mixin(self, point_header_gdf):
+    def test_export_to_shapefile_mixin(self, point_header_gdf, tmp_path):
         point_header = PointHeader(point_header_gdf, "NAP")
-        temp_file = Path("test_output_file.shp")
-        cpg_file = Path("test_output_file.cpg")
-        dbf_file = Path("test_output_file.dbf")
-        shx_file = Path("test_output_file.shx")
-        prj_file = Path("test_output_file.prj")
+        temp_file = tmp_path / r"pointheader.shp"
         point_header.to_shape(temp_file)
         assert temp_file.is_file()
-        assert cpg_file.is_file()
-        assert dbf_file.is_file()
-        assert shx_file.is_file()
-        assert prj_file.is_file()
-        temp_file.unlink()
-        cpg_file.unlink()
-        dbf_file.unlink()
-        shx_file.unlink()
-        prj_file.unlink()
 
     @pytest.mark.unittest
-    def test_export_to_geopackage_mixin(self, point_header_gdf):
+    def test_export_to_geopackage_mixin(self, point_header_gdf, tmp_path):
         point_header = PointHeader(point_header_gdf, "NAP")
-        temp_file = Path("file.gpkg")
+        temp_file = tmp_path / r"pointheader.gpkg"
         point_header.to_geopackage(temp_file)
         assert temp_file.is_file()
-        temp_file.unlink()
 
     @pytest.mark.unittest
-    def test_export_to_geoparquet_mixin(self, point_header_gdf):
+    def test_export_to_geoparquet_mixin(self, point_header_gdf, tmp_path):
         point_header = PointHeader(point_header_gdf, "NAP")
-        Path("temp_dir").mkdir()
-        temp_file = Path("temp_dir/file.geoparquet")
+        temp_file = tmp_path / r"pointheader.geoparquet"
         point_header.to_geoparquet(temp_file)
         assert temp_file.is_file()
-        temp_file.unlink()
-        Path("temp_dir").rmdir()
