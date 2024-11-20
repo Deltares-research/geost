@@ -20,7 +20,7 @@ Methods
    BoreholeCollection.check_header_to_data_alignment
    BoreholeCollection.get
    BoreholeCollection.get_area_labels
-   BoreholeCollection.get_cumulative_layer_thickness
+   BoreholeCollection.get_cumulative_thickness
    BoreholeCollection.get_layer_top
    BoreholeCollection.reset_header
    BoreholeCollection.select_by_condition

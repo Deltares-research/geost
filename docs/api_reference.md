@@ -14,7 +14,8 @@ BoreholeCollection <api_reference/borehole_collection>
 CptCollection <api_reference/cpt_collection>
 Input/Output <api_reference/io>
 VoxelModel <api_reference/voxelmodel>
-BRO <api_reference/bro>
+BRO api <api_reference/bro>
+BRO GeoTOP <api_reference/bro_geotop>
 Analysis <api_reference/analysis>
 Utils <api_reference/utils>
 ```
