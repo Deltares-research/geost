@@ -438,3 +438,51 @@ class TestDiscreteData:
         assert isinstance(selected, DiscreteData)
         assert len(selected) == 10
         assert_array_equal(selected["nr"].unique(), "a")
+
+    @pytest.mark.unittest
+    def test_select_by_condition(self, cpt_data):
+        selected = cpt_data.select_by_condition(
+            (cpt_data["qc"] > 0.3) & (cpt_data["qc"] < 0.4)
+        )
+        assert isinstance(selected, DiscreteData)
+        assert len(selected) == 5
+        assert np.all((selected["qc"] > 0.3) & (selected["qc"] < 0.4))
+        assert_array_equal(selected.df.index, [2, 3, 4, 5, 6])
+
+        selected = cpt_data.select_by_condition(
+            (cpt_data["qc"] < 0.35) & (cpt_data["fs"] < 0.2)
+        )
+        assert len(selected) == 3
+        assert np.all(selected["qc"] < 0.35)
+        assert np.all(selected["fs"] < 0.2)
+        assert_array_equal(selected.df.index, [0, 1, 2])
+
+    @pytest.mark.unittest
+    def test_slice_depth_interval(self, cpt_data):
+        # Selection with respect to surface level
+        selected = cpt_data.slice_depth_interval(2, 3)
+        assert isinstance(selected, DiscreteData)
+        assert len(selected) == 4
+        assert_array_equal(selected["depth"], [2, 3, 2, 3])
+
+        # Selection with respect to vertical reference plane
+        selected = cpt_data.slice_depth_interval(
+            1.9, 0.9, relative_to_vertical_reference=True
+        )
+        assert len(selected) == 1
+        assert_array_equal(selected["depth"], [1])
+        assert_array_equal(selected["nr"], ["a"])
+
+        # Selection with respect to surface level using one limit
+        selected = cpt_data.slice_depth_interval(lower_boundary=0.9)
+        assert len(selected) == 2
+        assert_array_equal(selected["depth"], [0, 0])
+        assert_array_equal(selected["nr"], ["a", "b"])
+
+        # Selection with respect to vertical reference plane using one limit
+        selected = cpt_data.slice_depth_interval(
+            lower_boundary=0.9, relative_to_vertical_reference=True
+        )
+        assert len(selected) == 2
+        assert_array_equal(selected["depth"], [0, 1])
+        assert np.all(selected["nr"] == "a")
