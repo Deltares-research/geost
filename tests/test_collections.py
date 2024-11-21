@@ -565,3 +565,22 @@ class TestBoreholeCollection:
         assert tdfile.is_file()
         outfile.unlink()
         tdfile.unlink()
+
+
+class TestCptCollection:
+    @pytest.mark.unittest
+    def test_slice_depth_interval(self, cpt_collection):
+        upper, lower = 0.6, 4.4
+        sliced = cpt_collection.slice_depth_interval(upper, lower)
+
+        assert len(sliced.data) == 8
+        assert sliced.n_points == 2
+        assert sliced.data["depth"].min() >= upper
+        assert sliced.data["depth"].max() <= lower
+
+        upper, lower = 1.9, 0.9  # Elevations in NAP
+        sliced = cpt_collection.slice_depth_interval(
+            upper, lower, relative_to_vertical_reference=True
+        )
+        assert sliced.n_points == 1
+        assert len(sliced.data) == 1

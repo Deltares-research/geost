@@ -1563,6 +1563,9 @@ class Collection(AbstractCollection):
     def __repr__(self):
         return f"{self.__class__.__name__}:\n# header = {self.n_points}"
 
+    def __len__(self):
+        return len(self.header)
+
     @property
     def header(self):
         """
@@ -1582,7 +1585,7 @@ class Collection(AbstractCollection):
         """
         Number of objects in the collection.
         """
-        return len(self.header.gdf)
+        return len(self)
 
     @property
     def horizontal_reference(self):
@@ -2066,20 +2069,20 @@ class Collection(AbstractCollection):
         Usage depends on whether the slicing is done with respect to depth below the
         surface or to a vertical reference plane.
 
-        For example, select layers in boreholes that are between 2 and 3 meters below the
+        For example, select layers in data that are between 2 and 3 meters below the
         surface:
 
-        >>> boreholes.slice_depth_interval(2, 3)
+        >>> data.slice_depth_interval(2, 3)
 
         By default, the method updates the layer boundaries in sliced object according to
         the upper and lower boundaries. To suppress this behaviour use:
 
-        >>> boreholes.slice_depth_interval(2, 3, update_layer_boundaries=False)
+        >>> data.slice_depth_interval(2, 3, update_layer_boundaries=False)
 
         Slicing can also be done with respect to a vertical reference plane like "NAP".
-        For example, to select layers in boreholes that are between -3 and -5 m NAP, use:
+        For example, to select layers in data that are between -3 and -5 m NAP, use:
 
-        >>> boreholes.slice_depth_interval(-3, -5, relative_to_vertical_reference=True)
+        >>> data.slice_depth_interval(-3, -5, relative_to_vertical_reference=True)
 
         """
         data_selected = self.data.slice_depth_interval(
@@ -2615,10 +2618,67 @@ class BoreholeCollection(Collection):
 
 
 class CptCollection(Collection):
-    def get_cumulative_thickness(self):
+    def slice_depth_interval(
+        self,
+        upper_boundary: float | int = None,
+        lower_boundary: float | int = None,
+        relative_to_vertical_reference: bool = False,
+    ):
+        """
+        Slice data based on given upper and lower boundaries. This returns a new object
+        containing only the sliced data.
+
+        Parameters
+        ----------
+        upper_boundary : float | int, optional
+            Every layer that starts above this is removed. The default is None.
+        lower_boundary : float | int, optional
+            Every layer that starts below this is removed. The default is None.
+        relative_to_vertical_reference : bool, optional
+            If True, the slicing is done with respect to any kind of vertical reference
+            plane (e.g. "NAP", "TAW"). If False, the slice is done with respect to depth
+            below the surface. The default is False.
+
+        Returns
+        -------
+        New instance of the current object.
+            New instance of the current object containing only the selection resulting
+            from application of this method. e.g. if you are calling this method from a
+            Collection, you will get an instance of a Collection back.
+
+        Examples
+        --------
+        Usage depends on whether the slicing is done with respect to depth below the
+        surface or to a vertical reference plane.
+
+        For example, select layers in data that are between 2 and 3 meters below the
+        surface:
+
+        >>> data.slice_depth_interval(2, 3)
+
+        By default, the method updates the layer boundaries in sliced object according to
+        the upper and lower boundaries. To suppress this behaviour use:
+
+        >>> data.slice_depth_interval(2, 3, update_layer_boundaries=False)
+
+        Slicing can also be done with respect to a vertical reference plane like "NAP".
+        For example, to select layers in data that are between -3 and -5 m NAP, use:
+
+        >>> data.slice_depth_interval(-3, -5, relative_to_vertical_reference=True)
+
+        """
+        data_selected = self.data.slice_depth_interval(
+            upper_boundary=upper_boundary,
+            lower_boundary=lower_boundary,
+            relative_to_vertical_reference=relative_to_vertical_reference,
+        )
+        collection_selected = data_selected.to_collection()
+        return collection_selected
+
+    def get_cumulative_thickness(self):  # pragma: no cover
         raise NotImplementedError()
 
-    def get_layer_top(self):
+    def get_layer_top(self):  # pragma: no cover
         raise NotImplementedError()
 
 
