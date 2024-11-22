@@ -795,7 +795,7 @@ class LayeredData(AbstractData, PandasExportMixin):
             bounds_are_series = False
 
         sliced = sliced[
-            (sliced["bottom"] >= upper_boundary) & (sliced["top"] <= lower_boundary)
+            (sliced["bottom"] > upper_boundary) & (sliced["top"] < lower_boundary)
         ]
 
         if update_layer_boundaries:
