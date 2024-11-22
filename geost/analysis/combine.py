@@ -17,6 +17,12 @@ def add_voxelmodel_variable(
     relevant layer boundaries of the variable to the data object of the Collection based
     on depth.
 
+    Note
+    ----
+    If the variable name is already present in the columns of the data attribute of the
+    collection, the present column is overwritten. To avoid this, rename the variable
+    before either in collection.data or in the voxelmodel.
+
     Parameters
     ----------
     collection : Collection
@@ -40,6 +46,9 @@ def add_voxelmodel_variable(
         :class:`~geost.base.LineData` (future developments).
 
     """
+    if variable in collection.data.df.columns:
+        collection.data.df.drop(columns=[variable], inplace=True)
+
     var_select = model.select_with_points(collection.header.gdf)[variable]
     nrs = collection.header["nr"].loc[var_select["idx"]]
 
