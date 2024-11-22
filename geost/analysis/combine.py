@@ -4,6 +4,7 @@ import xarray as xr
 
 from geost.base import Collection, DiscreteData, LayeredData
 from geost.models import VoxelModel
+from geost.models.model_utils import label_consecutive_2d
 
 
 def add_voxelmodel_variable(
@@ -77,15 +78,19 @@ def _reduce_to_top_bottom(da: xr.DataArray, dz: int | float) -> pd.DataFrame:
     pd.DataFrame
 
     """
+    layer_ids = label_consecutive_2d(da.values, axis=1)
     df = pd.DataFrame(
         {
             "nr": np.repeat(da["idx"], da.sizes["z"]),
             "bottom": np.tile(da["z"] - (0.5 * dz), da.sizes["idx"]),
+            "layer": layer_ids.ravel(),
             "values": da.values.ravel(),
         }
     )
-    reduced = df.groupby(["nr", "values"])["bottom"].min().reset_index()
-    return reduced
+    reduced = df.pivot_table(
+        index=["nr", "layer", "values"], values="bottom", aggfunc="min"
+    ).reset_index()
+    return reduced.drop(columns=["layer"])
 
 
 def _add_to_layered(data: LayeredData, variable: pd.DataFrame) -> LayeredData:
