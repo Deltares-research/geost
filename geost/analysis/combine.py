@@ -17,6 +17,12 @@ def add_voxelmodel_variable(
     relevant layer boundaries of the variable to the data object of the Collection based
     on depth.
 
+    Note
+    ----
+    If the variable name is already present in the columns of the data attribute of the
+    collection, the present column is overwritten. To avoid this, rename the variable
+    before either in collection.data or in the voxelmodel.
+
     Parameters
     ----------
     collection : Collection
@@ -40,6 +46,9 @@ def add_voxelmodel_variable(
         :class:`~geost.base.LineData` (future developments).
 
     """
+    if variable in collection.data.df.columns:
+        collection.data.df.drop(columns=[variable], inplace=True)
+
     var_select = model.select_with_points(collection.header.gdf)[variable]
     nrs = collection.header["nr"].loc[var_select["idx"]]
 
@@ -202,18 +211,3 @@ def _add_to_discrete(data: DiscreteData, variable: pd.DataFrame) -> DiscreteData
     result.drop_duplicates(subset=["nr", "depth"], inplace=True)
     result.dropna(subset=["end"], inplace=True)
     return DiscreteData(result)
-
-
-if __name__ == "__main__":
-    import geost
-    from geost.analysis.combine import add_voxelmodel_variable
-    from geost.bro import GeoTop
-
-    cores = geost.read_borehole_table(
-        r"n:\Projects\11211000\11211044\B. Measurements and calculations\data\cores_with_nan.parquet"
-    )
-
-    geotop = GeoTop.from_opendap(
-        data_vars=["strat"], bbox=cores.header.gdf.buffer(200).total_bounds, lazy=False
-    )
-    cores = add_voxelmodel_variable(cores, geotop, "strat")

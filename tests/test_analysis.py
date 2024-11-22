@@ -334,3 +334,48 @@ class TestCombine:
         assert_array_almost_equal(
             result["depth"], [0, 1, 2, 3, 3.6, 4, 4.1, 5, 6, 7, 8, 9]
         )
+
+    @pytest.mark.unittest
+    def test_removes_if_column_is_present(self, borehole_collection, voxelmodel):
+        borehole_collection.data["strat"] = 1000
+        result = add_voxelmodel_variable(borehole_collection, voxelmodel, "strat")
+        assert_array_equal(
+            result.data["strat"],
+            [
+                1,
+                1,
+                1,
+                2,
+                np.nan,
+                np.nan,
+                np.nan,
+                1,
+                1,
+                1,
+                2,
+                np.nan,
+                np.nan,
+                np.nan,
+                1,
+                2,
+                1,
+                1,
+                2,
+                2,
+                np.nan,
+                np.nan,
+                np.nan,
+                np.nan,
+                np.nan,
+                np.nan,
+                np.nan,
+                np.nan,
+                1,
+                1,
+                1,
+                2,
+                2,
+                np.nan,
+                np.nan,
+            ],
+        )
