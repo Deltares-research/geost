@@ -41,3 +41,10 @@ GIS vector files
    base.Collection.to_geopackage
    base.Collection.to_geoparquet
    base.Collection.to_shape
+
+Data in binary format (e.g. pickle)
+------------------------------------
+.. autosummary::
+   :toctree: generated/
+
+   read_pickle

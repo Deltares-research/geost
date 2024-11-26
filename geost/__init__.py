@@ -6,6 +6,7 @@ from geost.read import (
     read_cpt_table,
     read_gef_cpts,
     read_nlog_cores,
+    read_pickle,
     read_uullg_tables,
     read_xml_boris,
 )

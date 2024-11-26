@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import Union
+from typing import Any
 
 import geopandas as gpd
 import numpy as np
@@ -702,3 +702,41 @@ def read_uullg_tables(
     header = PointHeader(header, vertical_reference)
     data = LayeredData(data)
     return BoreholeCollection(header, data)
+
+
+def read_pickle(filepath: str | Path, **kwargs) -> Any:
+    """
+    Read pickled GeoST object (or any object) from file.
+
+    Parameters
+    ----------
+    filepath : str | Path
+        Path to pickle file to open.
+    **kwargs
+        pd.read_pickle kwargs. See relevant Pandas documentation.
+
+    Returns
+    -------
+    Any
+        Returns the Python object that was stored in the pickle.
+
+    Examples
+    --------
+    Any GeoST :class:`geost.base.Collection` object can be stored as a pickle file:
+
+    >>> original_collection = geost.data.boreholes_usp()
+    >>> original_collection
+    BoreholeCollection:
+    # header = 67
+    >>> original_collection.to_pickle("./collection.pkl")
+
+    Reading the stored pickle using `geost.read_pickle` returns the stored collection:
+
+    >>> collection = geost.read_pickle("./collection.pkl")
+    >>> collection
+    BoreholeCollection:
+    # header = 67
+
+    """
+    pkl = pd.read_pickle(filepath, **kwargs)
+    return pkl

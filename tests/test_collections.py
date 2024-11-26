@@ -504,6 +504,12 @@ class TestCollection:
         borehole_collection.to_csv(outfile)
         assert outfile.is_file()
 
+    @pytest.mark.unittest
+    def test_to_pickle(self, borehole_collection, tmp_path):
+        outfile = tmp_path / r"test_export.pkl"
+        borehole_collection.to_pickle(outfile)
+        assert outfile.is_file()
+
     # @pytest.mark.integrationtest
     # def test_surface_level_update(self, borehole_collection, update_raster):
     #     borehole_collection.update_surface_level_from_raster(update_raster, how="replace")

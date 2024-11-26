@@ -1,6 +1,6 @@
 import operator
 from pathlib import Path
-from typing import Union
+from typing import Any, Union
 
 import geopandas as gpd
 import pandas as pd
@@ -154,3 +154,20 @@ def dataframe_to_geodataframe(
     points = [Point([x, y]) for x, y in zip(df[x_col_label], df[y_col_label])]
     gdf = gpd.GeoDataFrame(df, geometry=points, crs=crs)
     return gdf
+
+
+def save_pickle(data: Any, path: str | Path, **kwargs) -> None:
+    """
+    Save object as a pickle file (.pkl, .pickle) using Pandas to_pickle.
+
+    Parameters
+    ----------
+    data : Any
+        Object to save.
+    path : str | Path
+        Path to pickle file.
+    **kwargs
+            pd.to_pickle kwargs. See relevant Pandas documentation.
+
+    """
+    pd.to_pickle(data, path, **kwargs)

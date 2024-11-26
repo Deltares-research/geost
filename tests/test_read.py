@@ -12,6 +12,7 @@ from geost import (
     read_cpt_table,
     read_gef_cpts,
     read_nlog_cores,
+    read_pickle,
     read_uullg_tables,
     read_xml_boris,
 )
@@ -71,6 +72,13 @@ def llg_data_table_duplicate_column(tmp_path):
         }
     )
     data.to_parquet(outfile)
+    return outfile
+
+
+@pytest.fixture
+def collection_pickle(borehole_collection, tmp_path):
+    outfile = tmp_path / r"collection.pkl"
+    borehole_collection.to_pickle(outfile)
     return outfile
 
 
@@ -238,3 +246,9 @@ def test_read_cpt_table(data_dir, monkeypatch):
 
     cpts = read_cpt_table(data_dir / r"test_cpts.parquet", as_collection=False)
     assert isinstance(cpts, DiscreteData)
+
+
+@pytest.mark.unittest
+def test_read_pickle(collection_pickle):
+    collection = read_pickle(collection_pickle)
+    assert isinstance(collection, BoreholeCollection)

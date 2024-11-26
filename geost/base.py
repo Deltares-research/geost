@@ -26,7 +26,7 @@ from geost.projections import (
     vertical_reference_transformer,
 )
 from geost.spatial import check_gdf_instance
-from geost.utils import dataframe_to_geodataframe, warn_user
+from geost.utils import dataframe_to_geodataframe, save_pickle, warn_user
 from geost.validate.decorators import validate_data, validate_header
 
 type DataObject = DiscreteData | LayeredData
@@ -1097,8 +1097,7 @@ class LayeredData(AbstractData, PandasExportMixin):
         dftgeodata = export_to_dftgeodata(data, columns, encode=encode)
 
         if outfile:
-            with open(outfile, "wb") as f:
-                pickle.dump(dftgeodata, f)
+            save_pickle(dftgeodata, outfile)
         else:
             return dftgeodata
 
@@ -2311,6 +2310,24 @@ class Collection(AbstractCollection):
             self.data.to_csv(outfile, **kwargs)
         else:
             self.header.to_csv(outfile, **kwargs)
+
+    def to_pickle(self, outfile: str | Path, **kwargs):
+        """
+        Export the complete Collection to a pickle file.
+
+        Parameters
+        ----------
+        file : str | Path
+            Path to pickle file to be written.
+        **kwargs
+            pd.to_pickle kwargs. See relevant Pandas documentation.
+
+        Examples
+        --------
+        >>> collection.to_pickle("example.pkl")
+
+        """
+        save_pickle(self, outfile, **kwargs)
 
     def to_multiblock(
         self,
