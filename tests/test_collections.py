@@ -491,6 +491,9 @@ class TestCollection:
         outfile = tmp_path / r"test_export.gpkg"
         borehole_collection.to_geopackage(outfile)
         assert outfile.is_file()
+        layers = gpd.list_layers(outfile)
+        assert_array_equal(layers['name'], ['header', 'data'])
+        assert_array_equal(layers['geometry_type'], ['Point', None])
 
     @pytest.mark.unittest
     def test_to_parquet(self, borehole_collection, tmp_path):

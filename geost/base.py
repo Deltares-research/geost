@@ -26,7 +26,12 @@ from geost.projections import (
     vertical_reference_transformer,
 )
 from geost.spatial import check_gdf_instance
-from geost.utils import dataframe_to_geodataframe, save_pickle, warn_user
+from geost.utils import (
+    _to_geopackage,
+    dataframe_to_geodataframe,
+    save_pickle,
+    warn_user,
+)
 from geost.validate.decorators import validate_data, validate_header
 
 type DataObject = DiscreteData | LayeredData
@@ -2240,20 +2245,38 @@ class Collection(AbstractCollection):
         """
         self.header.to_shape(outfile, **kwargs)
 
-    def to_geopackage(self, outfile: str | Path, **kwargs):
+    def to_geopackage(self, outfile: str | Path, metadata: dict[str, str] = None):
         """
-        Write header data to geopackage. You can use the resulting file to display
+        Write header and data to a geopackage. You can use the resulting file to display
         borehole locations in GIS for instance.
 
         Parameters
         ----------
         file : str | Path
             Path to geopackage to be written.
-        **kwargs
-            gpd.GeoDataFrame.to_file kwargs. See relevant GeoPandas documentation.
+        metadata : dict[str, str], default None
+            Optional metadata to be stored in the file. Keys and values must be strings.
+            The default is None.
 
         """
-        self.header.to_geopackage(outfile, **kwargs)
+        _to_geopackage(
+            self.header.gdf,
+            outfile,
+            "Header",
+            layer="header",
+            driver="GPKG",
+            index=False,
+            metadata=metadata,
+        )
+        _to_geopackage(
+            gpd.GeoDataFrame(self.data.df),
+            outfile,
+            "Data",
+            layer="data",
+            driver="GPKG",
+            index=False,
+            metadata=metadata,
+        )
 
     def to_parquet(self, outfile: str | Path, data_table: bool = True, **kwargs):
         """

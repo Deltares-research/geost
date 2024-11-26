@@ -4,6 +4,7 @@ from typing import Any, Union
 
 import geopandas as gpd
 import pandas as pd
+from pyogrio.errors import FieldError
 from shapely.geometry import Point
 
 COMPARISON_OPERATORS = {
@@ -171,3 +172,22 @@ def save_pickle(data: Any, path: str | Path, **kwargs) -> None:
 
     """
     pd.to_pickle(data, path, **kwargs)
+
+
+def _to_geopackage(
+    data: gpd.GeoDataFrame, outfile: str | Path, error_note: str, **kwargs
+):
+    """
+    Helper to add GeoST specific information if a Pyogrio error is raised when data is
+    exported to Geopackage but contians invalid column names.
+
+    Raises
+    ------
+    e
+        Pyogrio error with added GeoST information when data has invalid column names.
+    """
+    try:
+        data.to_file(outfile, **kwargs)
+    except FieldError as e:
+        e.add_note(f"Invalid column name in {error_note}, cannot write GPKG.")
+        raise e
