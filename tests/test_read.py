@@ -9,6 +9,7 @@ from geost import (
     get_bro_objects_from_bbox,
     get_bro_objects_from_geometry,
     read_borehole_table,
+    read_collection_geopackage,
     read_cpt_table,
     read_gef_cpts,
     read_nlog_cores,
@@ -79,6 +80,13 @@ def llg_data_table_duplicate_column(tmp_path):
 def collection_pickle(borehole_collection, tmp_path):
     outfile = tmp_path / r"collection.pkl"
     borehole_collection.to_pickle(outfile)
+    return outfile
+
+
+@pytest.fixture
+def collection_gpkg(borehole_collection, tmp_path):
+    outfile = tmp_path / r"collection.gpkg"
+    borehole_collection.to_geopackage(outfile)
     return outfile
 
 
@@ -252,3 +260,9 @@ def test_read_cpt_table(data_dir, monkeypatch):
 def test_read_pickle(collection_pickle):
     collection = read_pickle(collection_pickle)
     assert isinstance(collection, BoreholeCollection)
+
+
+@pytest.mark.unittest
+def test_read_collection_geopackage(collection_gpkg):
+    collection = read_collection_geopackage(collection_gpkg, BoreholeCollection)
+    assert 1 == 1

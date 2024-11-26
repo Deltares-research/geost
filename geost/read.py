@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import Any
+from typing import Any, Callable
 
 import geopandas as gpd
 import numpy as np
@@ -8,6 +8,7 @@ from pyproj import CRS
 
 from geost.base import (
     BoreholeCollection,
+    Collection,
     CptCollection,
     DiscreteData,
     LayeredData,
@@ -702,6 +703,12 @@ def read_uullg_tables(
     header = PointHeader(header, vertical_reference)
     data = LayeredData(data)
     return BoreholeCollection(header, data)
+
+
+def read_collection_geopackage(filepath: str | Path, _collection: Collection):
+    header = gpd.read_file(filepath, layer="header")
+    data = gpd.read_file(filepath, layer="data")
+    return _collection(header, data)
 
 
 def read_pickle(filepath: str | Path, **kwargs) -> Any:
