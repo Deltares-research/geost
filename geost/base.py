@@ -2259,6 +2259,7 @@ class Collection(AbstractCollection):
             The default is None.
 
         """
+        metadata = {"x": "some attribute"}
         _to_geopackage(
             self.header.gdf,
             outfile,

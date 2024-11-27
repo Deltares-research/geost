@@ -17,12 +17,26 @@ from geost import (
     read_uullg_tables,
     read_xml_boris,
 )
-from geost.base import BoreholeCollection, CptCollection, DiscreteData, LayeredData
+from geost.base import (
+    BoreholeCollection,
+    CptCollection,
+    DiscreteData,
+    LayeredData,
+    PointHeader,
+)
 from geost.read import (
     MANDATORY_LAYERED_DATA_COLUMNS,
     _check_mandatory_column_presence,
     adjust_z_coordinates,
 )
+
+
+class InvalidCollection:
+    """
+    Invalid Collection type to raise a ValueError in `read_collection_geopackage`.
+    """
+
+    pass
 
 
 @pytest.fixture
@@ -80,13 +94,6 @@ def llg_data_table_duplicate_column(tmp_path):
 def collection_pickle(borehole_collection, tmp_path):
     outfile = tmp_path / r"collection.pkl"
     borehole_collection.to_pickle(outfile)
-    return outfile
-
-
-@pytest.fixture
-def collection_gpkg(borehole_collection, tmp_path):
-    outfile = tmp_path / r"collection.gpkg"
-    borehole_collection.to_geopackage(outfile)
     return outfile
 
 
@@ -262,7 +269,34 @@ def test_read_pickle(collection_pickle):
     assert isinstance(collection, BoreholeCollection)
 
 
-@pytest.mark.unittest
-def test_read_collection_geopackage(collection_gpkg):
-    collection = read_collection_geopackage(collection_gpkg, BoreholeCollection)
-    assert 1 == 1
+class TestReadCollectionGeopackage:
+    @pytest.fixture
+    def borehole_gpkg(self, borehole_collection, tmp_path):
+        outfile = tmp_path / r"borehole.gpkg"
+        borehole_collection.to_geopackage(outfile)
+        return outfile
+
+    @pytest.fixture
+    def cpt_gpkg(self, cpt_collection, tmp_path):
+        outfile = tmp_path / r"cpt.gpkg"
+        cpt_collection.to_geopackage(outfile)
+        return outfile
+
+    @pytest.mark.unittest
+    def test_read_collection_geopackage_boreholes(self, borehole_gpkg):
+        collection = read_collection_geopackage(borehole_gpkg, BoreholeCollection)
+        assert isinstance(collection, BoreholeCollection)
+        assert isinstance(collection.header, PointHeader)
+        assert isinstance(collection.data, LayeredData)
+
+    @pytest.mark.unittest
+    def test_read_collection_geopackage_cpts(self, cpt_gpkg):
+        collection = read_collection_geopackage(cpt_gpkg, CptCollection)
+        assert isinstance(collection, CptCollection)
+        assert isinstance(collection.header, PointHeader)
+        assert isinstance(collection.data, DiscreteData)
+
+    @pytest.mark.unittest
+    def test_read_collection_geopackage_invalid(self, borehole_gpkg):
+        with pytest.raises(ValueError):
+            read_collection_geopackage(borehole_gpkg, InvalidCollection)

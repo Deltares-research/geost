@@ -38,6 +38,7 @@ GIS vector files
 .. autosummary::
    :toctree: generated/
 
+   read_collection_geopackage
    base.Collection.to_geopackage
    base.Collection.to_geoparquet
    base.Collection.to_shape
