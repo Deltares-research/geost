@@ -62,29 +62,29 @@ class TestVoxelModel:
         assert voxelmodel.zmax == 0
 
     @pytest.mark.unittest
-    def test_select(self, voxelmodel):
+    def test_sel(self, voxelmodel):
         ## Select exact coordinates
-        selected = voxelmodel.select(x=[1.5, 2.5])
+        selected = voxelmodel.sel(x=[1.5, 2.5])
         assert isinstance(selected, VoxelModel)
         assert selected.shape == (4, 2, 4)
 
         ## Other selections
-        selected = voxelmodel.select(x=[1.7, 2.3], method="nearest")
+        selected = voxelmodel.sel(x=[1.7, 2.3], method="nearest")
         assert selected.shape == (4, 2, 4)
         assert_array_equal(selected["x"], [1.5, 2.5])
 
-        selected = voxelmodel.select(x=slice(0.1, 2.5))
+        selected = voxelmodel.sel(x=slice(0.1, 2.5))
         assert selected.shape == (4, 3, 4)
         assert_array_equal(selected["x"], [0.5, 1.5, 2.5])
 
     @pytest.mark.unittest
-    def test_select_index(self, voxelmodel):
-        selected = voxelmodel.select_index(x=[0, 2])
+    def test_isel(self, voxelmodel):
+        selected = voxelmodel.isel(x=[0, 2])
         assert isinstance(selected, VoxelModel)
         assert selected.shape == (4, 2, 4)
         assert_array_equal(selected["x"], [0.5, 2.5])
 
-        selected = voxelmodel.select_index(x=slice(0, 2))
+        selected = voxelmodel.isel(x=slice(0, 2))
         assert selected.shape == (4, 2, 4)
         assert_array_equal(selected["x"], [0.5, 1.5])
 

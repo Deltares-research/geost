@@ -44,11 +44,11 @@ class AbstractSpatial(ABC):  # pragma: no cover
         pass
 
     @abstractmethod
-    def select(self):
+    def sel(self):
         pass
 
     @abstractmethod
-    def select_index(self):
+    def isel(self):
         pass
 
     @abstractmethod
@@ -264,7 +264,7 @@ class VoxelModel(AbstractSpatial, AbstractModel3D):
         self._zmin -= 0.5 * self._dz
         self._zmax += 0.5 * self._dz
 
-    def select(self, **xr_kwargs):
+    def sel(self, **xr_kwargs):
         """
         Use Xarray selection functionality to select indices along specified dimensions.
         This uses the ".sel" method of an Xarray Dataset.
@@ -278,20 +278,20 @@ class VoxelModel(AbstractSpatial, AbstractModel3D):
         --------
         Select a specified coordinates or slice coordinates from the VoxelModel instance:
 
-        >>> selected = voxelmodel.select(x=[1, 2, 3])  # Using keyword arguments
-        >>> selected = voxelmodel.select({"x": [1, 2, 3]})  # Using a dictionary
-        >>> selected = voxelmodel.select(x=slice(1, 4))  # Using a slice
+        >>> selected = voxelmodel.sel(x=[1, 2, 3])  # Using keyword arguments
+        >>> selected = voxelmodel.sel({"x": [1, 2, 3]})  # Using a dictionary
+        >>> selected = voxelmodel.sel(x=slice(1, 4))  # Using a slice
 
         Using additional options as well. For instance, when the desired coordinates do
         not exactly match the VoxelModel coordinates, select the nearest:
 
-        >>> selected = voxelmodel.select(x=[1.1, 2.5, 3.3], method="nearest")
+        >>> selected = voxelmodel.sel(x=[1.1, 2.5, 3.3], method="nearest")
 
         """
         selected = self.ds.sel(**xr_kwargs)
         return self.__class__(selected)
 
-    def select_index(self, **xr_kwargs):
+    def isel(self, **xr_kwargs):
         """
         Use Xarray selection functionality to select indices along specified dimensions.
         This uses the ".isel" method of an Xarray Dataset.
@@ -305,9 +305,9 @@ class VoxelModel(AbstractSpatial, AbstractModel3D):
         --------
         Select a specified coordinates or slice coordinates from the VoxelModel instance:
 
-        >>> selected = voxelmodel.select(x=[1, 2, 3])  # Using keyword arguments
-        >>> selected = voxelmodel.select({"x": [1, 2, 3]})  # Using a dictionary
-        >>> selected = voxelmodel.select(x=slice(1, 4))  # Using a slice
+        >>> selected = voxelmodel.isel(x=[1, 2, 3])  # Using keyword arguments
+        >>> selected = voxelmodel.isel({"x": [1, 2, 3]})  # Using a dictionary
+        >>> selected = voxelmodel.isel(x=slice(1, 4))  # Using a slice
 
         """
         selected = self.ds.isel(**xr_kwargs)
@@ -418,10 +418,10 @@ class LayerModel(AbstractSpatial, AbstractModel3D):  # pragma: no cover TODO: ad
     def crs(self):
         raise NotImplementedError()
 
-    def select(self):
+    def sel(self):
         raise NotImplementedError()
 
-    def select_index(self):
+    def isel(self):
         raise NotImplementedError()
 
     def select_with_line(self):

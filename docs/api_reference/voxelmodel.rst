@@ -18,10 +18,10 @@ Methods
 .. autosummary::
    :toctree: generated/
 
-   VoxelModel.select
+   VoxelModel.isel
+   VoxelModel.sel
    VoxelModel.select_bottom
    VoxelModel.select_by_values
-   VoxelModel.select_index
    VoxelModel.select_surface_level
    VoxelModel.select_top
    VoxelModel.select_with_line

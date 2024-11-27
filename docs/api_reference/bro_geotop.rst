@@ -20,10 +20,10 @@ Methods
 .. autosummary::
    :toctree: generated/
 
-   GeoTop.select
+   GeoTop.isel
+   GeoTop.sel
    GeoTop.select_bottom
    GeoTop.select_by_values
-   GeoTop.select_index
    GeoTop.select_surface_level
    GeoTop.select_top
    GeoTop.select_with_line
