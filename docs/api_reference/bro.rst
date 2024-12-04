@@ -1,4 +1,4 @@
-BRO api
+BroApi
 ========
 
 .. currentmodule:: geost.bro

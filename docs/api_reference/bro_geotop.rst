@@ -1,12 +1,9 @@
-BRO GeoTOP
-==========
-.. currentmodule:: geost.bro
-
 GeoTop
--------
+==========
+.. currentmodule:: geost.bro.bro_geotop
 
 Constructor
-~~~~~~~~~~~
+-------------
 .. autosummary::
    :toctree: generated/
 
@@ -16,7 +13,7 @@ Constructor
 
 
 Methods
-~~~~~~~
+---------
 .. autosummary::
    :toctree: generated/
 
@@ -35,7 +32,7 @@ Methods
 
 
 Attributes
-~~~~~~~~~~
+------------
 .. autosummary::
    :toctree: generated/
 
@@ -52,33 +49,3 @@ Attributes
    GeoTop.ymin
    GeoTop.zmax
    GeoTop.zmin
-
-
-StratGeotop
-------------
-.. autosummary::
-   :toctree: generated/
-
-   StratGeotop
-
-
-Methods
-~~~~~~~
-.. autosummary::
-   :toctree: generated/
-
-   StratGeotop.select_units
-   StratGeotop.select_values
-
-
-GeoTOP UnitEnums
-=================
-:class:`~geost.enums.UnitEnum` objects for stratigraphic units and corresponding numbers in GeoTOP for four main groups.
-
-.. autosummary::
-   :toctree: generated/
-
-   bro_geotop.HoloceneUnits
-   bro_geotop.ChannelBeltUnits
-   bro_geotop.OlderUnits
-   bro_geotop.AntropogenicUnits
