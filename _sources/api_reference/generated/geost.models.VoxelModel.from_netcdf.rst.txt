@@ -1,0 +1,6 @@
+﻿geost.models.VoxelModel.from\_netcdf
+====================================
+
+.. currentmodule:: geost.models
+
+.. automethod:: VoxelModel.from_netcdf

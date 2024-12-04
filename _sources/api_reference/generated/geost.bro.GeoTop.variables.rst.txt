@@ -1,6 +1,0 @@
-﻿geost.bro.GeoTop.variables
-==========================
-
-.. currentmodule:: geost.bro
-
-.. autoproperty:: GeoTop.variables

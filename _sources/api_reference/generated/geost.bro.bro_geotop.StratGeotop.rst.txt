@@ -1,0 +1,25 @@
+﻿geost.bro.bro\_geotop.StratGeotop
+=================================
+
+.. currentmodule:: geost.bro.bro_geotop
+
+.. autoclass:: StratGeotop
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~StratGeotop.__init__
+      ~StratGeotop.select_units
+      ~StratGeotop.select_values
+      ~StratGeotop.to_dict
+   
+   
+
+   
+   
+   

@@ -1,0 +1,6 @@
+﻿geost.enums.UnitEnum.to\_dict
+=============================
+
+.. currentmodule:: geost.enums
+
+.. automethod:: UnitEnum.to_dict

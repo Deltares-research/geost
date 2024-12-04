@@ -1,0 +1,51 @@
+﻿geost.bro.bro\_geotop.Lithology
+===============================
+
+.. currentmodule:: geost.bro.bro_geotop
+
+.. autoclass:: Lithology
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~Lithology.select_units
+      ~Lithology.select_values
+      ~Lithology.to_dict
+      ~Lithology.cast_to_list
+      ~Lithology.conjugate
+      ~Lithology.bit_length
+      ~Lithology.bit_count
+      ~Lithology.to_bytes
+      ~Lithology.from_bytes
+      ~Lithology.as_integer_ratio
+      ~Lithology.is_integer
+      ~Lithology.__init__
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~Lithology.real
+      ~Lithology.imag
+      ~Lithology.numerator
+      ~Lithology.denominator
+      ~Lithology.anthropogenic
+      ~Lithology.organic
+      ~Lithology.clay
+      ~Lithology.loam
+      ~Lithology.fine_sand
+      ~Lithology.medium_sand
+      ~Lithology.coarse_sand
+      ~Lithology.gravel
+      ~Lithology.shells
+   
+   

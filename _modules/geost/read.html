@@ -453,7 +453,7 @@
                   
   <h1>Source code for geost.read</h1><div class="highlight"><pre>
 <span></span><span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Union</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Callable</span>
 
 <span class="kn">import</span> <span class="nn">geopandas</span> <span class="k">as</span> <span class="nn">gpd</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
@@ -462,6 +462,7 @@
 
 <span class="kn">from</span> <span class="nn">geost.base</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">BoreholeCollection</span><span class="p">,</span>
+    <span class="n">Collection</span><span class="p">,</span>
     <span class="n">CptCollection</span><span class="p">,</span>
     <span class="n">DiscreteData</span><span class="p">,</span>
     <span class="n">LayeredData</span><span class="p">,</span>
@@ -469,7 +470,7 @@
 <span class="p">)</span>
 <span class="kn">from</span> <span class="nn">geost.bro</span> <span class="kn">import</span> <span class="n">BroApi</span>
 <span class="kn">from</span> <span class="nn">geost.io</span> <span class="kn">import</span> <span class="n">_parse_cpt_gef_files</span>
-<span class="kn">from</span> <span class="nn">geost.io.parsers</span> <span class="kn">import</span> <span class="n">SoilCore</span>
+<span class="kn">from</span> <span class="nn">geost.io.parsers</span> <span class="kn">import</span> <span class="n">BorisXML</span><span class="p">,</span> <span class="n">SoilCore</span>
 <span class="kn">from</span> <span class="nn">geost.utils</span> <span class="kn">import</span> <span class="n">dataframe_to_geodataframe</span>
 
 <span class="n">MANDATORY_LAYERED_DATA_COLUMNS</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;nr&quot;</span><span class="p">,</span> <span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="s2">&quot;y&quot;</span><span class="p">,</span> <span class="s2">&quot;surface&quot;</span><span class="p">,</span> <span class="s2">&quot;end&quot;</span><span class="p">,</span> <span class="s2">&quot;top&quot;</span><span class="p">,</span> <span class="s2">&quot;bottom&quot;</span><span class="p">]</span>
@@ -531,8 +532,10 @@
         <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_parquet</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
     <span class="k">elif</span> <span class="n">suffix</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;.csv&quot;</span><span class="p">]:</span>
         <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-    <span class="k">elif</span> <span class="n">suffix</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;.xls&quot;</span><span class="p">,</span> <span class="s2">&quot;.xlsx&quot;</span><span class="p">]:</span>
-        <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_excel</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">suffix</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;.xls&quot;</span><span class="p">,</span> <span class="s2">&quot;.xlsx&quot;</span><span class="p">]:</span>  <span class="c1"># pragma: no cover</span>
+        <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_excel</span><span class="p">(</span>
+            <span class="n">file</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
+        <span class="p">)</span>  <span class="c1"># No cover: Excel file io fails in windows CI pipeline</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
             <span class="sa">f</span><span class="s2">&quot;Expected parquet file (with .parquet or .pq suffix) but got </span><span class="si">{</span><span class="n">suffix</span><span class="si">}</span><span class="s2"> file&quot;</span>
@@ -789,10 +792,7 @@
 <span class="sd">    :class:`~geost.borehole.BoreholeCollection`</span>
 <span class="sd">        :class:`~geost.borehole.BoreholeCollection`</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="n">Path</span><span class="p">(</span><span class="n">file</span><span class="p">)</span><span class="o">.</span><span class="n">suffix</span> <span class="o">==</span> <span class="s2">&quot;.xlsx&quot;</span><span class="p">:</span>
-        <span class="n">nlog_cores</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_excel</span><span class="p">(</span><span class="n">file</span><span class="p">)</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="n">nlog_cores</span> <span class="o">=</span> <span class="n">__read_file</span><span class="p">(</span><span class="n">file</span><span class="p">)</span>
+    <span class="n">nlog_cores</span> <span class="o">=</span> <span class="n">__read_file</span><span class="p">(</span><span class="n">file</span><span class="p">)</span>
 
     <span class="n">nlog_cores</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span>
         <span class="n">columns</span><span class="o">=</span><span class="p">{</span>
@@ -843,6 +843,51 @@
 
     <span class="k">return</span> <span class="n">collection</span></div>
 
+
+
+<span class="k">def</span> <span class="nf">read_xml_boris</span><span class="p">(</span>
+    <span class="n">file</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">,</span>
+    <span class="n">horizontal_reference</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">int</span> <span class="o">|</span> <span class="n">CRS</span> <span class="o">=</span> <span class="mi">28992</span><span class="p">,</span>
+    <span class="n">vertical_reference</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">int</span> <span class="o">|</span> <span class="n">CRS</span> <span class="o">=</span> <span class="mi">5709</span><span class="p">,</span>
+    <span class="n">as_collection</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BoreholeCollection</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Read export XML of the BORIS software. BORIS is software developed by TNO to</span>
+<span class="sd">    describe boreholes in the lab. The exported XML-format bears no resemblance to DINO</span>
+<span class="sd">    or BRO XML standards</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    file : str | Path</span>
+<span class="sd">        File with the borehole information to read.</span>
+<span class="sd">    horizontal_reference : str | int | CRS, optional</span>
+<span class="sd">        EPSG of the data&#39;s horizontal reference. Takes anything that can be interpreted</span>
+<span class="sd">        by pyproj.crs.CRS.from_user_input(). The default is 28992.</span>
+<span class="sd">    vertical_reference : str | int | CRS, optional</span>
+<span class="sd">        EPSG of the data&#39;s vertical datum. Takes anything that can be interpreted by</span>
+<span class="sd">        pyproj.crs.CRS.from_user_input(). However, it must be a vertical datum. FYI:</span>
+<span class="sd">        &quot;NAP&quot; is EPSG 5709 and The Belgian reference system (Ostend height) is ESPG</span>
+<span class="sd">        5710. The default is 5709.</span>
+<span class="sd">    as_collection : bool, optional</span>
+<span class="sd">        If True, the CPT table will be read as a :class:`~geost.base.Collection`</span>
+<span class="sd">        which includes a header object and spatial selection functionality. If False,</span>
+<span class="sd">        a :class:`~geost.base.LayeredData` object is returned. The default is True.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    :class:`~geost.base.BoreholeCollection` or :class:`~geost.base.LayeredData`</span>
+<span class="sd">        Instance of :class:`~geost.base.BoreholeCollection` or :class:`~geost.base.LayeredData`</span>
+<span class="sd">        depending on if the table is read as a collection or not.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">boris_data</span> <span class="o">=</span> <span class="n">BorisXML</span><span class="p">(</span><span class="n">file</span><span class="p">)</span>
+    <span class="n">boreholes</span> <span class="o">=</span> <span class="n">LayeredData</span><span class="p">(</span><span class="n">boris_data</span><span class="o">.</span><span class="n">layer_dataframe</span><span class="p">,</span> <span class="n">has_inclined</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">as_collection</span><span class="p">:</span>
+        <span class="c1"># Think of a better way to translate non-standard BORIS crs encoding or keep it</span>
+        <span class="c1"># user-defined (like we do in other reader functions)</span>
+        <span class="n">boreholes</span> <span class="o">=</span> <span class="n">boreholes</span><span class="o">.</span><span class="n">to_collection</span><span class="p">(</span><span class="n">horizontal_reference</span><span class="p">,</span> <span class="n">vertical_reference</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">boreholes</span>
 
 
 <span class="k">def</span> <span class="nf">read_xml_geotechnical_cores</span><span class="p">(</span>
@@ -1132,6 +1177,125 @@
     <span class="n">header</span> <span class="o">=</span> <span class="n">PointHeader</span><span class="p">(</span><span class="n">header</span><span class="p">,</span> <span class="n">vertical_reference</span><span class="p">)</span>
     <span class="n">data</span> <span class="o">=</span> <span class="n">LayeredData</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">BoreholeCollection</span><span class="p">(</span><span class="n">header</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="read_collection_geopackage">
+<a class="viewcode-back" href="../../api_reference/generated/geost.read_collection_geopackage.html#geost.read_collection_geopackage">[docs]</a>
+<span class="k">def</span> <span class="nf">read_collection_geopackage</span><span class="p">(</span>
+    <span class="n">filepath</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">,</span>
+    <span class="n">collection_type</span><span class="p">:</span> <span class="n">Collection</span><span class="p">,</span>
+    <span class="n">horizontal_reference</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">int</span> <span class="o">|</span> <span class="n">CRS</span> <span class="o">=</span> <span class="mi">28992</span><span class="p">,</span>
+    <span class="n">vertical_reference</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">int</span> <span class="o">|</span> <span class="n">CRS</span> <span class="o">=</span> <span class="mi">5709</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Read a GeoST stored Geopackage file of `geost.base.Collection` objects. The</span>
+<span class="sd">    Geopackage contains the Collection&#39;s &quot;header&quot; and &quot;data&quot; attributes as layers which</span>
+<span class="sd">    are read into the specified Collection.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    filepath : str | Path</span>
+<span class="sd">        GeoST stored Geopackage file of a `geost.base.Collection` object.</span>
+<span class="sd">    collection_type : Collection</span>
+<span class="sd">        Type of GeoST Collection object the data needs to be. Subclasses of `Collection`</span>
+<span class="sd">        (e.g. :class:`geost.base.BoreholeCollection`, :class:`geost.base.CptCollection`)</span>
+<span class="sd">        for the available types.</span>
+<span class="sd">    horizontal_reference : str | int | CRS, optional</span>
+<span class="sd">        EPSG of the data&#39;s horizontal reference. Takes anything that can be interpreted</span>
+<span class="sd">        by pyproj.crs.CRS.from_user_input(). The default is 28992.</span>
+<span class="sd">    vertical_reference : str | int | CRS, optional</span>
+<span class="sd">        EPSG of the data&#39;s vertical datum. Takes anything that can be interpreted by</span>
+<span class="sd">        pyproj.crs.CRS.from_user_input(). However, it must be a vertical datum. FYI:</span>
+<span class="sd">        &quot;NAP&quot; is EPSG 5709 and The Belgian reference system (Ostend height) is ESPG</span>
+<span class="sd">        5710. The default is 5709.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    Subclass of `geost.base.Collection`</span>
+<span class="sd">        Subclass which is specified as collection_type.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        Raises ValueError if the collection_type is not supported.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    Any GeoST `Collection` object can be stored as a geopackage file:</span>
+
+<span class="sd">    &gt;&gt;&gt; original_collection = geost.data.boreholes_usp()</span>
+<span class="sd">    &gt;&gt;&gt; original_collection</span>
+<span class="sd">    BoreholeCollection:</span>
+<span class="sd">    # header = 67</span>
+<span class="sd">    &gt;&gt;&gt; original_collection.to_geopackage(&quot;./collection.gpkg&quot;)</span>
+
+<span class="sd">    Reading the stored collection using `geost.read_collection_geopackage` returns the</span>
+<span class="sd">    stored collection:</span>
+
+<span class="sd">    &gt;&gt;&gt; collection = geost.read_collection_geopackage(</span>
+<span class="sd">    ...     &quot;./collection.gpkg&quot;, collection_type=BoreholeCollection</span>
+<span class="sd">    ...     )</span>
+<span class="sd">    &gt;&gt;&gt; collection</span>
+<span class="sd">    BoreholeCollection:</span>
+<span class="sd">    # header = 67</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># TODO: Check collection type inference possibility from geopackage metadata.</span>
+    <span class="k">if</span> <span class="n">collection_type</span> <span class="o">==</span> <span class="n">BoreholeCollection</span><span class="p">:</span>
+        <span class="n">header_type</span> <span class="o">=</span> <span class="n">PointHeader</span>
+        <span class="n">data_type</span> <span class="o">=</span> <span class="n">LayeredData</span>
+    <span class="k">elif</span> <span class="n">collection_type</span> <span class="o">==</span> <span class="n">CptCollection</span><span class="p">:</span>
+        <span class="n">header_type</span> <span class="o">=</span> <span class="n">PointHeader</span>
+        <span class="n">data_type</span> <span class="o">=</span> <span class="n">DiscreteData</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Collection type </span><span class="si">{</span><span class="n">collection_type</span><span class="si">}</span><span class="s2"> not supported.&quot;</span><span class="p">)</span>
+
+    <span class="n">header</span> <span class="o">=</span> <span class="n">gpd</span><span class="o">.</span><span class="n">read_file</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="n">layer</span><span class="o">=</span><span class="s2">&quot;header&quot;</span><span class="p">)</span>
+    <span class="n">header</span><span class="o">.</span><span class="n">set_crs</span><span class="p">(</span><span class="n">horizontal_reference</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">allow_override</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">gpd</span><span class="o">.</span><span class="n">read_file</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="n">layer</span><span class="o">=</span><span class="s2">&quot;data&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">collection_type</span><span class="p">(</span><span class="n">header_type</span><span class="p">(</span><span class="n">header</span><span class="p">,</span> <span class="n">vertical_reference</span><span class="p">),</span> <span class="n">data_type</span><span class="p">(</span><span class="n">data</span><span class="p">))</span></div>
+
+
+
+<div class="viewcode-block" id="read_pickle">
+<a class="viewcode-back" href="../../api_reference/generated/geost.read_pickle.html#geost.read_pickle">[docs]</a>
+<span class="k">def</span> <span class="nf">read_pickle</span><span class="p">(</span><span class="n">filepath</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Read pickled GeoST object (or any object) from file.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    filepath : str | Path</span>
+<span class="sd">        Path to pickle file to open.</span>
+<span class="sd">    **kwargs</span>
+<span class="sd">        pd.read_pickle kwargs. See relevant Pandas documentation.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    Any</span>
+<span class="sd">        Returns the Python object that was stored in the pickle.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    Any GeoST :class:`geost.base.Collection` object can be stored as a pickle file:</span>
+
+<span class="sd">    &gt;&gt;&gt; original_collection = geost.data.boreholes_usp()</span>
+<span class="sd">    &gt;&gt;&gt; original_collection</span>
+<span class="sd">    BoreholeCollection:</span>
+<span class="sd">    # header = 67</span>
+<span class="sd">    &gt;&gt;&gt; original_collection.to_pickle(&quot;./collection.pkl&quot;)</span>
+
+<span class="sd">    Reading the stored pickle using `geost.read_pickle` returns the stored collection:</span>
+
+<span class="sd">    &gt;&gt;&gt; collection = geost.read_pickle(&quot;./collection.pkl&quot;)</span>
+<span class="sd">    &gt;&gt;&gt; collection</span>
+<span class="sd">    BoreholeCollection:</span>
+<span class="sd">    # header = 67</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">pkl</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_pickle</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">pkl</span></div>
 
 </pre></div>
 

@@ -1,0 +1,6 @@
+﻿geost.models.model\_utils.label\_consecutive\_2d
+================================================
+
+.. currentmodule:: geost.models.model_utils
+
+.. autofunction:: label_consecutive_2d

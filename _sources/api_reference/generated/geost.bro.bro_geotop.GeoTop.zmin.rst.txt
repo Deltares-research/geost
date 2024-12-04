@@ -1,0 +1,6 @@
+﻿geost.bro.bro\_geotop.GeoTop.zmin
+=================================
+
+.. currentmodule:: geost.bro.bro_geotop
+
+.. autoproperty:: GeoTop.zmin

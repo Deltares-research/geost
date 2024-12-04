@@ -1,6 +1,0 @@
-﻿geost.bro.GeoTop.select\_with\_line
-===================================
-
-.. currentmodule:: geost.bro
-
-.. automethod:: GeoTop.select_with_line

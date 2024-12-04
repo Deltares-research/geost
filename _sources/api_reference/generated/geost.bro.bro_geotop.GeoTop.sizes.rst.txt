@@ -1,0 +1,6 @@
+﻿geost.bro.bro\_geotop.GeoTop.sizes
+==================================
+
+.. currentmodule:: geost.bro.bro_geotop
+
+.. autoproperty:: GeoTop.sizes

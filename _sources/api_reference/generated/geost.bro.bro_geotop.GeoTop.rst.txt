@@ -1,0 +1,54 @@
+﻿geost.bro.bro\_geotop.GeoTop
+============================
+
+.. currentmodule:: geost.bro.bro_geotop
+
+.. autoclass:: GeoTop
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~GeoTop.__init__
+      ~GeoTop.from_netcdf
+      ~GeoTop.from_opendap
+      ~GeoTop.isel
+      ~GeoTop.sel
+      ~GeoTop.select_bottom
+      ~GeoTop.select_by_values
+      ~GeoTop.select_surface_level
+      ~GeoTop.select_top
+      ~GeoTop.select_with_line
+      ~GeoTop.select_with_points
+      ~GeoTop.select_within_bbox
+      ~GeoTop.select_within_polygons
+      ~GeoTop.slice_depth_interval
+      ~GeoTop.zslice_to_tiff
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~GeoTop.crs
+      ~GeoTop.horizontal_bounds
+      ~GeoTop.resolution
+      ~GeoTop.shape
+      ~GeoTop.sizes
+      ~GeoTop.variables
+      ~GeoTop.vertical_bounds
+      ~GeoTop.xmax
+      ~GeoTop.xmin
+      ~GeoTop.ymax
+      ~GeoTop.ymin
+      ~GeoTop.zmax
+      ~GeoTop.zmin
+   
+   

@@ -1,0 +1,6 @@
+﻿geost.bro.bro\_geotop.Lithology.select\_values
+==============================================
+
+.. currentmodule:: geost.bro.bro_geotop
+
+.. automethod:: Lithology.select_values

@@ -1,0 +1,6 @@
+﻿geost.models.VoxelModel.isel
+============================
+
+.. currentmodule:: geost.models
+
+.. automethod:: VoxelModel.isel

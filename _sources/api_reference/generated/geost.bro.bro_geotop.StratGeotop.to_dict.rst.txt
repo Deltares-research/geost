@@ -1,0 +1,6 @@
+﻿geost.bro.bro\_geotop.StratGeotop.to\_dict
+==========================================
+
+.. currentmodule:: geost.bro.bro_geotop
+
+.. automethod:: StratGeotop.to_dict

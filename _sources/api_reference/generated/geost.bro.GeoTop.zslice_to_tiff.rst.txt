@@ -1,6 +1,0 @@
-﻿geost.bro.GeoTop.zslice\_to\_tiff
-=================================
-
-.. currentmodule:: geost.bro
-
-.. automethod:: GeoTop.zslice_to_tiff

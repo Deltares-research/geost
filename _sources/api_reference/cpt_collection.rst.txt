@@ -21,7 +21,7 @@ Methods
    CptCollection.check_header_to_data_alignment
    CptCollection.get
    CptCollection.get_area_labels
-   CptCollection.get_cumulative_layer_thickness
+   CptCollection.get_cumulative_thickness
    CptCollection.get_layer_top
    CptCollection.reset_header
    CptCollection.select_by_condition

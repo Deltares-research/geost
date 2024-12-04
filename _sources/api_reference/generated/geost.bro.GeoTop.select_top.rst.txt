@@ -1,6 +1,0 @@
-﻿geost.bro.GeoTop.select\_top
-============================
-
-.. currentmodule:: geost.bro
-
-.. automethod:: GeoTop.select_top

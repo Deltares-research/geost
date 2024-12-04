@@ -1,6 +1,0 @@
-﻿geost.bro.GeoTop.select\_by\_values
-===================================
-
-.. currentmodule:: geost.bro
-
-.. automethod:: GeoTop.select_by_values

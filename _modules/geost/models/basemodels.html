@@ -454,6 +454,7 @@
   <h1>Source code for geost.models.basemodels</h1><div class="highlight"><pre>
 <span></span><span class="kn">from</span> <span class="nn">abc</span> <span class="kn">import</span> <span class="n">ABC</span><span class="p">,</span> <span class="n">abstractmethod</span>
 <span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span>
 
 <span class="kn">import</span> <span class="nn">geopandas</span> <span class="k">as</span> <span class="nn">gpd</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
@@ -497,11 +498,11 @@
         <span class="k">pass</span>
 
     <span class="nd">@abstractmethod</span>
-    <span class="k">def</span> <span class="nf">select</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">sel</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">pass</span>
 
     <span class="nd">@abstractmethod</span>
-    <span class="k">def</span> <span class="nf">select_index</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">isel</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">pass</span>
 
     <span class="nd">@abstractmethod</span>
@@ -579,6 +580,85 @@
         <span class="n">resolution</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Resolution (y, x, z): </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">resolution</span><span class="si">}</span><span class="s2">&quot;</span>
         <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">instance</span><span class="si">}</span><span class="se">\n</span><span class="si">{</span><span class="n">layers</span><span class="si">}</span><span class="se">\n</span><span class="si">{</span><span class="n">dimensions</span><span class="si">}</span><span class="se">\n</span><span class="si">{</span><span class="n">resolution</span><span class="si">}</span><span class="s2">&quot;</span>
 
+<div class="viewcode-block" id="VoxelModel.from_netcdf">
+<a class="viewcode-back" href="../../../api_reference/generated/geost.models.VoxelModel.from_netcdf.html#geost.models.VoxelModel.from_netcdf">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_netcdf</span><span class="p">(</span>
+        <span class="bp">cls</span><span class="p">,</span>
+        <span class="n">nc_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">,</span>
+        <span class="n">data_vars</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">bbox</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">lazy</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">xr_kwargs</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Read data from a NetCDF file of a voxelmodel data into a VoxelModel instance.</span>
+
+<span class="sd">        This assumes the voxelmodel is according to the following conventions:</span>
+<span class="sd">        - The coordinate dimensions of the voxelmodel are: &quot;x&quot;, &quot;y&quot; (horizontal) and &quot;z&quot;</span>
+<span class="sd">        (depth).</span>
+<span class="sd">        - The coordinates in the y-dimension are in descending order.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        nc_path : str | Path</span>
+<span class="sd">            Path to the netcdf file of the voxelmodel.</span>
+<span class="sd">        data_vars : ArrayLike</span>
+<span class="sd">            List or array-like object specifying which data variables to return.</span>
+<span class="sd">        bbox : tuple (xmin, ymin, xmax, ymax), optional</span>
+<span class="sd">            Specify a bounding box (xmin, ymin, xmax, ymax) to return a selected area of</span>
+<span class="sd">            the voxelmodel. The default is None.</span>
+<span class="sd">        lazy : bool, optional</span>
+<span class="sd">            If True, netcdf loads lazily. Use False for speed improvements for larger</span>
+<span class="sd">            areas but that still fit into memory. The default is False.</span>
+<span class="sd">        **xr_kwargs</span>
+<span class="sd">            Additional keyword arguments xarray.open_dataset. See relevant documentation</span>
+<span class="sd">            for details.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        VoxelModel</span>
+<span class="sd">            VoxelModel instance of the netcdf file.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        Read all model data from a local NetCDF file:</span>
+
+<span class="sd">        &gt;&gt;&gt; VoxelModel.from_netcdf(&quot;my_netcdf_file.nc&quot;)</span>
+
+<span class="sd">        Read specific data variables and the data within a specific area from the NetCDF</span>
+<span class="sd">        file:</span>
+
+<span class="sd">        &gt;&gt;&gt; VoxelModel.from_netcdf(</span>
+<span class="sd">        ...     &quot;my_netcdf_file.nc&quot;,</span>
+<span class="sd">        ...     data_vars=[&quot;my_var&quot;],</span>
+<span class="sd">        ...     bbox=(1, 1, 3, 3) # (xmin, ymin, xmax, ymax)</span>
+<span class="sd">        ... )</span>
+
+<span class="sd">        Note that this method assumes the y-coordinates are in descending order. For y-</span>
+<span class="sd">        ascending coordinates change ymin and ymax coordinates:</span>
+
+<span class="sd">        &gt;&gt;&gt; VoxelModel.from_netcdf(</span>
+<span class="sd">        ...     &quot;my_netcdf_file.nc&quot;, bbox=(1, 3, 1, 3) # (xmin, ymax, xmax, ymin)</span>
+<span class="sd">        ... )</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">ds</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="n">nc_path</span><span class="p">,</span> <span class="o">**</span><span class="n">xr_kwargs</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">bbox</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">xmin</span><span class="p">,</span> <span class="n">ymin</span><span class="p">,</span> <span class="n">xmax</span><span class="p">,</span> <span class="n">ymax</span> <span class="o">=</span> <span class="n">bbox</span>
+            <span class="n">ds</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="nb">slice</span><span class="p">(</span><span class="n">xmin</span><span class="p">,</span> <span class="n">xmax</span><span class="p">),</span> <span class="n">y</span><span class="o">=</span><span class="nb">slice</span><span class="p">(</span><span class="n">ymax</span><span class="p">,</span> <span class="n">ymin</span><span class="p">))</span>
+
+        <span class="k">if</span> <span class="n">data_vars</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">ds</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="n">data_vars</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">lazy</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Load data&quot;</span><span class="p">)</span>
+            <span class="n">ds</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">load</span><span class="p">()</span>
+
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">ds</span><span class="p">)</span></div>
+
+
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">xmin</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">horizontal_bounds</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
@@ -620,7 +700,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;_dz&quot;</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_get_internal_zbounds</span><span class="p">()</span>
-        <span class="n">dy</span><span class="p">,</span> <span class="n">dx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="o">.</span><span class="n">rio</span><span class="o">.</span><span class="n">resolution</span><span class="p">())</span>
+        <span class="n">dx</span><span class="p">,</span> <span class="n">dy</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="o">.</span><span class="n">rio</span><span class="o">.</span><span class="n">resolution</span><span class="p">())</span>
         <span class="k">return</span> <span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">dy</span><span class="p">),</span> <span class="nb">float</span><span class="p">(</span><span class="n">dx</span><span class="p">),</span> <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_dz</span><span class="p">))</span>
 
     <span class="nd">@property</span>
@@ -646,9 +726,9 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_zmin</span> <span class="o">-=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dz</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_zmax</span> <span class="o">+=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dz</span>
 
-<div class="viewcode-block" id="VoxelModel.select">
-<a class="viewcode-back" href="../../../api_reference/generated/geost.models.VoxelModel.select.html#geost.models.VoxelModel.select">[docs]</a>
-    <span class="k">def</span> <span class="nf">select</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">xr_kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="VoxelModel.sel">
+<a class="viewcode-back" href="../../../api_reference/generated/geost.models.VoxelModel.sel.html#geost.models.VoxelModel.sel">[docs]</a>
+    <span class="k">def</span> <span class="nf">sel</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">xr_kwargs</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Use Xarray selection functionality to select indices along specified dimensions.</span>
 <span class="sd">        This uses the &quot;.sel&quot; method of an Xarray Dataset.</span>
@@ -661,22 +741,24 @@
 <span class="sd">        Examples</span>
 <span class="sd">        --------</span>
 <span class="sd">        Select a specified coordinates or slice coordinates from the VoxelModel instance:</span>
-<span class="sd">        &gt;&gt;&gt; selected = voxelmodel.select(x=[1, 2, 3])  # Using keyword arguments</span>
-<span class="sd">        &gt;&gt;&gt; selected = voxelmodel.select({&quot;x&quot;: [1, 2, 3]})  # Using a dictionary</span>
-<span class="sd">        &gt;&gt;&gt; selected = voxelmodel.select(x=slice(1, 4))  # Using a slice</span>
+
+<span class="sd">        &gt;&gt;&gt; selected = voxelmodel.sel(x=[1, 2, 3])  # Using keyword arguments</span>
+<span class="sd">        &gt;&gt;&gt; selected = voxelmodel.sel({&quot;x&quot;: [1, 2, 3]})  # Using a dictionary</span>
+<span class="sd">        &gt;&gt;&gt; selected = voxelmodel.sel(x=slice(1, 4))  # Using a slice</span>
 
 <span class="sd">        Using additional options as well. For instance, when the desired coordinates do</span>
 <span class="sd">        not exactly match the VoxelModel coordinates, select the nearest:</span>
-<span class="sd">        &gt;&gt;&gt; selected = voxelmodel.select(x=[1.1, 2.5, 3.3], method=&quot;nearest&quot;)</span>
+
+<span class="sd">        &gt;&gt;&gt; selected = voxelmodel.sel(x=[1.1, 2.5, 3.3], method=&quot;nearest&quot;)</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">selected</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="o">**</span><span class="n">xr_kwargs</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="n">selected</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="VoxelModel.select_index">
-<a class="viewcode-back" href="../../../api_reference/generated/geost.models.VoxelModel.select_index.html#geost.models.VoxelModel.select_index">[docs]</a>
-    <span class="k">def</span> <span class="nf">select_index</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">xr_kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="VoxelModel.isel">
+<a class="viewcode-back" href="../../../api_reference/generated/geost.models.VoxelModel.isel.html#geost.models.VoxelModel.isel">[docs]</a>
+    <span class="k">def</span> <span class="nf">isel</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">xr_kwargs</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Use Xarray selection functionality to select indices along specified dimensions.</span>
 <span class="sd">        This uses the &quot;.isel&quot; method of an Xarray Dataset.</span>
@@ -689,9 +771,10 @@
 <span class="sd">        Examples</span>
 <span class="sd">        --------</span>
 <span class="sd">        Select a specified coordinates or slice coordinates from the VoxelModel instance:</span>
-<span class="sd">        &gt;&gt;&gt; selected = voxelmodel.select(x=[1, 2, 3])  # Using keyword arguments</span>
-<span class="sd">        &gt;&gt;&gt; selected = voxelmodel.select({&quot;x&quot;: [1, 2, 3]})  # Using a dictionary</span>
-<span class="sd">        &gt;&gt;&gt; selected = voxelmodel.select(x=slice(1, 4))  # Using a slice</span>
+
+<span class="sd">        &gt;&gt;&gt; selected = voxelmodel.isel(x=[1, 2, 3])  # Using keyword arguments</span>
+<span class="sd">        &gt;&gt;&gt; selected = voxelmodel.isel({&quot;x&quot;: [1, 2, 3]})  # Using a dictionary</span>
+<span class="sd">        &gt;&gt;&gt; selected = voxelmodel.isel(x=slice(1, 4))  # Using a slice</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">selected</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="o">**</span><span class="n">xr_kwargs</span><span class="p">)</span>
@@ -720,15 +803,18 @@
 <span class="sd">        Examples</span>
 <span class="sd">        --------</span>
 <span class="sd">        To sample a VoxelModel with a GeoDataFrame containing point geometries:</span>
+
 <span class="sd">        &gt;&gt;&gt; selected = voxelmodel.select_with_points(point_gdf)</span>
 
 <span class="sd">        This way, it is easily possible to sample a VoxelModel at point locations using</span>
 <span class="sd">        GeoST Header or Collection objects by accessing their &quot;gdf&quot; attributes.</span>
 
 <span class="sd">        Using a Header object:</span>
+
 <span class="sd">        &gt;&gt;&gt; selected = voxelmodel.select_with_points(Header.gdf)</span>
 
 <span class="sd">        Using a Collection object:</span>
+
 <span class="sd">        &gt;&gt;&gt; selected = voxelmodel.select_with_points(Collection.header.gdf)</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -831,10 +917,10 @@
     <span class="k">def</span> <span class="nf">crs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span>
 
-    <span class="k">def</span> <span class="nf">select</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">sel</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span>
 
-    <span class="k">def</span> <span class="nf">select_index</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">isel</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span>
 
     <span class="k">def</span> <span class="nf">select_with_line</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>

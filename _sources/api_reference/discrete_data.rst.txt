@@ -15,7 +15,7 @@ Methods
 .. autosummary::
    :toctree: generated/
 
-   DiscreteData.get_cumulative_layer_thickness
+   DiscreteData.get_cumulative_thickness
    DiscreteData.get_layer_top
    DiscreteData.select_by_condition
    DiscreteData.select_by_values

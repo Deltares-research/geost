@@ -1,6 +1,0 @@
-﻿geost.models.VoxelModel.select
-==============================
-
-.. currentmodule:: geost.models
-
-.. automethod:: VoxelModel.select

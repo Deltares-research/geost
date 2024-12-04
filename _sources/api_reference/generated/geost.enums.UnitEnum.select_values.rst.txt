@@ -1,0 +1,6 @@
+﻿geost.enums.UnitEnum.select\_values
+===================================
+
+.. currentmodule:: geost.enums
+
+.. automethod:: UnitEnum.select_values

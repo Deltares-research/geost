@@ -1,0 +1,6 @@
+﻿geost.base.LayeredData.get\_cumulative\_thickness
+=================================================
+
+.. currentmodule:: geost.base
+
+.. automethod:: LayeredData.get_cumulative_thickness

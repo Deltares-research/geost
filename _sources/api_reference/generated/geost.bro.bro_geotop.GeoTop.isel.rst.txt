@@ -1,0 +1,6 @@
+﻿geost.bro.bro\_geotop.GeoTop.isel
+=================================
+
+.. currentmodule:: geost.bro.bro_geotop
+
+.. automethod:: GeoTop.isel

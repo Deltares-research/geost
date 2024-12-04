@@ -1,6 +1,0 @@
-﻿geost.bro.GeoTop.select\_index
-==============================
-
-.. currentmodule:: geost.bro
-
-.. automethod:: GeoTop.select_index

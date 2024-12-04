@@ -1,0 +1,6 @@
+﻿geost.bro.bro\_geotop.GeoTop.from\_opendap
+==========================================
+
+.. currentmodule:: geost.bro.bro_geotop
+
+.. automethod:: GeoTop.from_opendap

@@ -722,13 +722,13 @@ The function will reduce e.g. “matigSiltigeKlei” to “Klei”.</p>
 </div>
 </div>
 <p>Now we can proceed to compute the total thickness of our main lithologies by applying
-the built-in method “get_cumulative_layer_thickness” on our just created “main_lithology” column.</p>
+the built-in method “get_cumulative_thickness” on our just created “main_lithology” column.</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># By including the &quot;include_in_header=True&quot; argument, the result will be added in-place</span>
 <span class="c1"># to the header table of the BoreholeCollection. If False, the function will only return</span>
 <span class="c1"># a Pandas dataframe with the results.</span>
-<span class="n">bhrp_cores</span><span class="o">.</span><span class="n">get_cumulative_layer_thickness</span><span class="p">(</span>
+<span class="n">bhrp_cores</span><span class="o">.</span><span class="n">get_cumulative_thickness</span><span class="p">(</span>
                                             <span class="s2">&quot;main_lithology&quot;</span><span class="p">,</span>
                                             <span class="p">[</span><span class="s2">&quot;Klei&quot;</span><span class="p">,</span> <span class="s2">&quot;Zand&quot;</span><span class="p">,</span> <span class="s2">&quot;Leem&quot;</span><span class="p">,</span> <span class="s2">&quot;Veen&quot;</span><span class="p">],</span>
                                             <span class="n">include_in_header</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>

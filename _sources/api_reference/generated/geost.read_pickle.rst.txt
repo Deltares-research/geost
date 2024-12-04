@@ -1,0 +1,6 @@
+﻿geost.read\_pickle
+==================
+
+.. currentmodule:: geost
+
+.. autofunction:: read_pickle

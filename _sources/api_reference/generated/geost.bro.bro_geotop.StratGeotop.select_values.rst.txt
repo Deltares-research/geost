@@ -1,0 +1,6 @@
+﻿geost.bro.bro\_geotop.StratGeotop.select\_values
+================================================
+
+.. currentmodule:: geost.bro.bro_geotop
+
+.. automethod:: StratGeotop.select_values
