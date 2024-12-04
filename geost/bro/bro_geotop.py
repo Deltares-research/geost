@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import Iterable, List
+from typing import Iterable, List, Literal
 
 import rioxarray as rio
 import xarray as xr
@@ -238,6 +238,29 @@ class StratGeotop:
             + cls.antropogenic.select_values(values)
         )
         return selection
+
+    @classmethod
+    def to_dict(cls, key: Literal["unit", "value"] = "value") -> dict:
+        """
+        Create a mapping dictionary from StratGeotop with "unit": "value" or "value": "unit"
+        mapping.
+
+        Parameters
+        ----------
+        key : Literal[&quot;unit&quot;, &quot;value&quot;], optional
+            Determine what to use for "key". The default is "value".
+
+        Returns
+        -------
+        dict
+
+        """
+        return (
+            cls.holocene.to_dict(key)
+            | cls.channel.to_dict(key)
+            | cls.older.to_dict(key)
+            | cls.antropogenic.to_dict(key)
+        )
 
 
 class GeoTop(VoxelModel):

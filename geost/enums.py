@@ -1,5 +1,5 @@
 from enum import IntEnum, StrEnum
-from typing import Iterable
+from typing import Iterable, Literal
 
 
 class UnitEnum(IntEnum):
@@ -46,6 +46,29 @@ class UnitEnum(IntEnum):
         """
         values = cls.cast_to_list(values)
         return [n for n in cls if n.value in values]
+
+    @classmethod
+    def to_dict(cls, key: Literal["unit", "value"] = "value") -> dict:
+        """
+        Create a mapping dictionary from UnitEnum with "unit": "value" or "value": "unit"
+        mapping.
+
+        Parameters
+        ----------
+        key : Literal[&quot;unit&quot;, &quot;value&quot;], optional
+            Determine what to use for "key". The default is "value".
+
+        Returns
+        -------
+        dict
+
+        """
+        if key == "value":
+            return {unit.value: unit.name for unit in cls}
+        elif key == "unit":
+            return {unit.name: unit.value for unit in cls}
+        else:
+            raise ValueError("Input for 'key' is wrong, use: 'unit' or 'value'")
 
     @staticmethod
     def cast_to_list(value):

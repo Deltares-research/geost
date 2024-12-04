@@ -19,5 +19,6 @@ GeoTop <api_reference/bro_geotop>
 StratGeotop <api_reference/strat_geotop.rst>
 Analysis <api_reference/analysis>
 Utils <api_reference/utils>
+Enums <api_reference/enums>
 ```
 
