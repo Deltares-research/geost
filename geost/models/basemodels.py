@@ -238,7 +238,7 @@ class VoxelModel(AbstractSpatial, AbstractModel3D):
         """
         if not hasattr(self, "_dz"):
             self._get_internal_zbounds()
-        dy, dx = np.abs(self.ds.rio.resolution())
+        dx, dy = np.abs(self.ds.rio.resolution())
         return (float(dy), float(dx), float(self._dz))
 
     @property

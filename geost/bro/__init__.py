@@ -1,2 +1,2 @@
 from .api import BroApi
-from .bro_geotop import GeoTop, StratGeotop
+from .bro_geotop import GeoTop, Lithology, StratGeotop

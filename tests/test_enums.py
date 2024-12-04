@@ -1,7 +1,7 @@
 import pytest
 from numpy.testing import assert_array_equal
 
-from geost.bro.bro_geotop import Lithology
+from geost.bro import Lithology
 
 
 class TestUnitEnum:
