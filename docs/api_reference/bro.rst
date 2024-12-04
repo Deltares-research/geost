@@ -12,7 +12,7 @@ Constructor
 
 
 Methods
-~~~~~~~
+--------
 .. autosummary::
    :toctree: generated/
 

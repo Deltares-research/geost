@@ -1,10 +1,10 @@
 Analysis
-========
+==========
 
 .. currentmodule:: geost.analysis
 
 Boreholes
----------
+-----------
 .. autosummary::
    :toctree: generated/
 
@@ -15,9 +15,17 @@ Boreholes
 
 
 Cpts
-----
+------
 .. autosummary::
     :toctree: generated/
 
     interpret_cpt.calc_ic
     interpret_cpt.calc_lithology
+
+
+Combine
+--------
+.. autosummary::
+    :toctree: generated/
+
+    combine.add_voxelmodel_variable
