@@ -16,8 +16,9 @@ Input/Output <api_reference/io>
 VoxelModel <api_reference/voxelmodel>
 BroApi <api_reference/bro>
 GeoTop <api_reference/bro_geotop>
-StratGeotop <api_reference/strat_geotop.rst>
+GeoTop selection <api_reference/geotop_selection.rst>
 Analysis <api_reference/analysis>
 Utils <api_reference/utils>
+Enums <api_reference/enums>
 ```
 

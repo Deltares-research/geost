@@ -2,7 +2,9 @@ import importlib
 
 import pandas as pd
 import pooch
+import xarray as xr
 
+from geost.bro import GeoTop
 from geost.read import read_borehole_table, read_cpt_table
 
 REGISTRY = pooch.create(
@@ -16,14 +18,14 @@ REGISTRY.load_registry(importlib.resources.files("geost.data") / "registry.txt")
 
 def boreholes_usp(pandas=False):
     """
-    Return a `BoreholeCollection` with a selection of DINOloket boreholes in the area of
-    the Utrecht Science Park to use in GeoST tutorials.
+    Return a :class:`~geost.base.BoreholeCollection` with a selection of DINOloket boreholes
+    in the area of the Utrecht Science Park to use in GeoST tutorials.
 
     Parameters
     ----------
     pandas : bool, optional
         If True, read the boreholes into a `Pandas DataFrame`. The default is False, this
-        returns a `BoreholeCollection`.
+        returns a :class:`~geost.base.BoreholeCollection`.
 
     Returns
     -------
@@ -39,14 +41,14 @@ def boreholes_usp(pandas=False):
 
 def cpts_usp(pandas=False):
     """
-    Return a `CptCollection` with a selection of DINOloket boreholes in the area of the
-    Utrecht Science Park to use in GeoST tutorials.
+    Return a :class:`~geost.base.CptCollection` with a selection of BROloket CPTs in the
+    area of the Utrecht Science Park to use in GeoST tutorials.
 
     Parameters
     ----------
     pandas : bool, optional
         If True, read the boreholes into a `Pandas DataFrame`. The default is False, this
-        returns a `CptCollection`.
+        returns a :class:`~geost.base.CptCollection`.
 
     Returns
     -------
@@ -58,3 +60,26 @@ def cpts_usp(pandas=False):
         return pd.read_parquet(filename)
     else:
         return read_cpt_table(filename)
+
+
+def geotop_usp(xarray=False):
+    """
+    Return a :class:`~geost.bro.GeoTop` instance in the area of the Utrecht Science Park
+    to use in GeoST tutorials.
+
+    Parameters
+    ----------
+    xarray : bool, optional
+        If True, read the GeoTOP data as an `xarray.Dataset`. The default is False, this
+        returns a :class:`~geost.bro.GeoTop`.
+
+    Returns
+    -------
+    :class:`~geost.bro.GeoTop`
+
+    """
+    filename = REGISTRY.fetch("geotop_usp.nc")
+    if xarray:
+        return xr.open_dataset(filename)
+    else:
+        return GeoTop.from_netcdf(filename)
