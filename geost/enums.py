@@ -55,8 +55,8 @@ class UnitEnum(IntEnum):
 
         Parameters
         ----------
-        key : Literal[&quot;unit&quot;, &quot;value&quot;], optional
-            Determine what to use for "key". The default is "value".
+        key : Literal["unit", "value"], optional
+            Determine what to use for "key" ("unit" or "value"). The default is "value".
 
         Returns
         -------
