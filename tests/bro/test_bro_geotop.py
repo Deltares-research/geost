@@ -20,8 +20,12 @@ class TestGeoTop:
         assert geotop.resolution == (100, 100, 0.5)
         assert geotop["strat"].dims == ("y", "x", "z")
         assert geotop.crs == 28992
-        assert_array_equal(geotop["x"], [115_050, 115_150, 115_250, 115_350, 115_450])
-        assert_array_equal(geotop["y"], [500_450, 500_350, 500_250, 500_150, 500_050])
+        assert_array_equal(
+            geotop["x"], [114_950, 115_050, 115_150, 115_250, 115_350, 115_450, 115_550]
+        )
+        assert_array_equal(
+            geotop["y"], [500_550, 500_450, 500_350, 500_250, 500_150, 500_050, 499_950]
+        )
         assert_array_equal(geotop["z"][:3], [-49.75, -49.25, -48.75])
 
 

@@ -309,7 +309,10 @@ class GeoTop(VoxelModel):
 
         if bbox is not None:
             xmin, ymin, xmax, ymax = bbox
-            ds = ds.sel(x=slice(xmin, xmax), y=slice(ymin, ymax))
+            ds = ds.sel(
+                x=slice(xmin - (0.5 * cellsize), xmax + (0.5 * cellsize)),
+                y=slice(ymin - (0.5 * cellsize), ymax + (0.5 * cellsize)),
+            )
 
         if data_vars is not None:
             ds = ds[data_vars]
