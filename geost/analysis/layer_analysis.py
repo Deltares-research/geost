@@ -38,11 +38,10 @@ def find_top_sand(
 
     """
     is_sand = ("Z" == lith) + ("G" == lith)
-    is_unknown = ("GM" == lith) + ("NBE" == lith)
 
     found_sand = False
-    if np.any(is_sand) and not np.any(is_unknown):
-        idx_sand = np.where(is_sand)[0]
+    if np.any(is_sand):
+        idx_sand = np.flatnonzero(is_sand)
         for idx in idx_sand:
             top_sand = top[idx]
             search_depth = top_sand + min_sand_thickness
@@ -123,3 +122,10 @@ def layer_top(data, column: str, value: str):  # TODO
         except IndexError:
             layer_top = np.nan
         yield (nr, layer_top)
+
+
+if __name__ == "__main__":
+    df = pd.read_parquet(
+        r"c:\Users\knaake\OneDrive - Stichting Deltares\Documents\projects\ark\cpts_select.parquet"
+    )
+    top_of_sand(df, min_sand_thickness=0.5, min_sand_frac=1)
