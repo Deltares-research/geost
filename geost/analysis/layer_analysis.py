@@ -122,3 +122,10 @@ def layer_top(data, column: str, value: str):  # TODO
         except IndexError:
             layer_top = np.nan
         yield (nr, layer_top)
+
+
+if __name__ == "__main__":
+    df = pd.read_parquet(
+        r"c:\Users\knaake\OneDrive - Stichting Deltares\Documents\projects\ark\cpts_select.parquet"
+    )
+    top_of_sand(df, min_sand_thickness=0.5, min_sand_frac=1)
