@@ -38,11 +38,10 @@ def find_top_sand(
 
     """
     is_sand = ("Z" == lith) + ("G" == lith)
-    is_unknown = ("GM" == lith) + ("NBE" == lith)
 
     found_sand = False
-    if np.any(is_sand) and not np.any(is_unknown):
-        idx_sand = np.where(is_sand)[0]
+    if np.any(is_sand):
+        idx_sand = np.flatnonzero(is_sand)
         for idx in idx_sand:
             top_sand = top[idx]
             search_depth = top_sand + min_sand_thickness
