@@ -440,7 +440,7 @@ class PointHeader(AbstractHeader, GeopandasExportMixin):
     def get_area_labels(
         self,
         polygon_gdf: str | Path | gpd.GeoDataFrame,
-        column_name: str,
+        column_name: str | Iterable,
         include_in_header=False,
     ) -> pd.DataFrame:
         """
@@ -451,8 +451,9 @@ class PointHeader(AbstractHeader, GeopandasExportMixin):
         ----------
         polygon_gdf : str | Path | gpd.GeoDataFrame
             GeoDataFrame with polygons.
-        column_name : str
-            The column name to find the labels in.
+        column_name : str | Iterable
+            The column name to find the labels in. Given as a string or iterable of
+            strings in case you'd like to find multiple labels.
         include_in_header : bool, optional
             Whether to add the acquired data to the header table or not, by default
             False.
@@ -2186,7 +2187,7 @@ class Collection(AbstractCollection):
     def get_area_labels(
         self,
         polygon_gdf: str | Path | gpd.GeoDataFrame,
-        column_name: str,
+        column_name: str | Iterable,
         include_in_header=False,
     ) -> pd.DataFrame:
         """
@@ -2198,7 +2199,8 @@ class Collection(AbstractCollection):
         polygon_gdf : str | Path | gpd.GeoDataFrame
             GeoDataFrame with polygons.
         column_name : str
-            The column name to find the labels in.
+            The column name to find the labels in. Given as a string or iterable of
+            strings in case you'd like to find multiple labels.
         include_in_header : bool, optional
             Whether to add the acquired data to the header table or not, by default
             False.
