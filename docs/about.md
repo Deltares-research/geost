@@ -11,10 +11,10 @@ Subsurface data lie at the basis of solving problems on topics of levee safety, 
 of infrastructure, drinking water extraction, (sand) mining, subsurface energy systems,
 archeology, CO2 storage, subsidence, contamination and the list goes on. Subsurface data is used by experts to advice on solutions, to visualize and explain subsurface data in the context of the above-mentioned topics and most importantly to create tailor-made schematizations of the subsurface that directly serve as an input for calculating and mapping stability, subsidence, groundwater flow, thermal properties, subsurface resources etc. 
 
-These, often complex and high-stake problems require good, reproducible and thoroughly
+These often complex and high-stake problems require good, reproducible and thoroughly
 tested workflows all the way from subsurface data sources (BRO, GDNR, local files) to for
 instance 3D subsurface models. Therefore, Deltares started the development of GeoST as a
-tool to support the use of subsurface data in Python. It allows users easy ways and access to working with, and combining many different sources of subsurface data, by providing frequently used (spatial) selection functionalities, analytical solutions and reading and export methods for industry standard third party software.
+tool to support the use of subsurface data in Python. It provides easy ways to access, work with and combining many different sources of subsurface data by providing frequently used (spatial) selection functionalities, analytical solutions and reading and export methods for industry standard third party software.
 
 As shown in the figure below, it is aimed at bridging the gap between subsurface data sources and all the analyses, visualisation and modelling efforts that follow. Simple visualisations and analyses may directly be used to give expert advice or subsurface data can be used to create more advanced schematizations and models that serve as an input for applied models.
 

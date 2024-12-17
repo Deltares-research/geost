@@ -2198,7 +2198,7 @@ class Collection(AbstractCollection):
         ----------
         polygon_gdf : str | Path | gpd.GeoDataFrame
             GeoDataFrame with polygons.
-        column_name : str
+        column_name : str | Iterable
             The column name to find the labels in. Given as a string or iterable of
             strings in case you'd like to find multiple labels.
         include_in_header : bool, optional
