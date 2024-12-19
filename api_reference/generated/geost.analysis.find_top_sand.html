@@ -755,10 +755,10 @@
 <dl class="py function">
 <dt class="sig sig-object py" id="geost.analysis.find_top_sand">
 <span class="sig-prename descclassname"><span class="pre">geost.analysis.</span></span><span class="sig-name descname"><span class="pre">find_top_sand</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lith</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">top</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bottom</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_sand_frac</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_sand_thickness</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="reference internal" href="../../_modules/geost/analysis/layer_analysis.html#find_top_sand"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#geost.analysis.find_top_sand" title="Link to this definition">#</a></dt>
-<dd><p>Find the top of sand depth in a borehole. The top of sand is defined by the
-first layer of a specified thickness that contains a minimum percentage of
-sand. By default: when the first layer of sand is detected, the next 1 meter
-is scanned. Within this meter, if more than 50% of the lenght has a main
+<dd><p>Find the top of sand depth in a borehole described in NEN5104 format. The top of sand
+is defined by the first layer of a specified thickness that contains a minimum
+percentage of sand. By default: when the first layer of sand is detected, the next 1
+meter is scanned. Within this meter, if more than 50% of the lenght has a main
 lithology of sand, the initially detected layer of sand is regarded as the top
 of sand. If not, continue downward until the next layer of sand is detected and
 repeat.</p>

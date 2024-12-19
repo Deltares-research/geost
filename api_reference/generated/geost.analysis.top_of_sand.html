@@ -754,8 +754,27 @@
 <h1>geost.analysis.top_of_sand<a class="headerlink" href="#geost-analysis-top-of-sand" title="Link to this heading">#</a></h1>
 <dl class="py function">
 <dt class="sig sig-object py" id="geost.analysis.top_of_sand">
-<span class="sig-prename descclassname"><span class="pre">geost.analysis.</span></span><span class="sig-name descname"><span class="pre">top_of_sand</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">boreholes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ids</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'nr'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_sand_frac</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_sand_thickness</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/geost/analysis/layer_analysis.html#top_of_sand"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#geost.analysis.top_of_sand" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<span class="sig-prename descclassname"><span class="pre">geost.analysis.</span></span><span class="sig-name descname"><span class="pre">top_of_sand</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">boreholes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ids</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'nr'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_sand_frac</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_sand_thickness</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/geost/analysis/layer_analysis.html#top_of_sand"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#geost.analysis.top_of_sand" title="Link to this definition">#</a></dt>
+<dd><p>Find the top of sand depth in a borehole described in NEN5104 format. The top of sand
+is defined by the first layer of a specified thickness that contains a minimum fraction
+of sand.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>boreholes</strong> (<em>pd.DataFrame</em>) – Boreholes in NEN5104 format with “lith”, “top” and “bottom” columns.</p></li>
+<li><p><strong>ids</strong> (<em>str</em><em>, </em><em>optional</em>) – Column specifying the borehole IDs. The default is “nr”.</p></li>
+<li><p><strong>min_sand_frac</strong> (<em>float</em><em>, </em><em>optional</em>) – Minimum percentage of sand in the sand layer. The default is 0.5 (=50%).</p></li>
+<li><p><strong>min_sand_thickness</strong> (<em>int</em><em> | </em><em>float</em><em>, </em><em>optional</em>) – Minimum thickness of the sand layer to find the top of. The default is 1.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>DataFrame containing the borehole IDs and the top of sand depths.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>pd.DataFrame</p>
+</dd>
+</dl>
+</dd></dl>
 
 </section>
 

@@ -463,6 +463,31 @@
                   
   <section id="release-notes">
 <h1>Release notes<a class="headerlink" href="#release-notes" title="Link to this heading">#</a></h1>
+<section id="v0-2-5">
+<h2>v0.2.5<a class="headerlink" href="#v0-2-5" title="Link to this heading">#</a></h2>
+<p><a class="reference external" href="https://github.com/Deltares-research/geost/compare/0.2.4...0.2.5"><strong>Full Changelog</strong></a></p>
+<p><strong>Added</strong></p>
+<ul class="simple">
+<li><p><strong>Added</strong> GeoST documentation and deployment of these docs on Github pages</p></li>
+<li><p><strong>Added</strong> Voxel model support, including an implementation for GeoTOP (WIP)</p></li>
+<li><p><strong>Added</strong> <em>CptCollection</em>, <em>DiscreteData</em> objects, including i/o and some basic analysis methods (WIP)</p></li>
+<li><p><strong>Added</strong> Function <em>add_voxelmodel_variable</em> to add voxel model data to point data</p></li>
+<li><p><strong>Added</strong> Data folder with example datasets, integrated with pooch</p></li>
+<li><p><strong>Added</strong> Collection geopackage export of header and data</p></li>
+<li><p><strong>Added</strong> Collection pickle export</p></li>
+</ul>
+<p><strong>Fixed</strong></p>
+<ul class="simple">
+<li><p><strong>Fixed</strong> <em>find_top_sand</em> function if no sand is present</p></li>
+<li><p><strong>Fixed</strong> <em>find_area_labels</em> can now return multiple labels when passing an iterable of column names</p></li>
+<li><p><strong>Fixed</strong> Newly added columns to the header are now preserved upon making selections and slices</p></li>
+</ul>
+<p><strong>Other</strong></p>
+<ul class="simple">
+<li><p><strong>Updated</strong> Function docstrings</p></li>
+<li><p><strong>Updated</strong> Pixi tasks for docs management</p></li>
+</ul>
+</section>
 <section id="v0-2-4">
 <h2>v0.2.4<a class="headerlink" href="#v0-2-4" title="Link to this heading">#</a></h2>
 <p><a class="reference external" href="https://github.com/Deltares-research/geost/compare/0.2.2...0.2.4"><strong>Full Changelog</strong></a></p>
@@ -563,6 +588,7 @@
   </div>
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#v0-2-5">v0.2.5</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#v0-2-4">v0.2.4</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#v0-2-2">v0.2.2</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#v0-2-1">v0.2.1</a></li>

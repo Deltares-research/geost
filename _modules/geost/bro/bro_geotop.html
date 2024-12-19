@@ -714,8 +714,8 @@
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        key : Literal[&amp;quot;unit&amp;quot;, &amp;quot;value&amp;quot;], optional</span>
-<span class="sd">            Determine what to use for &quot;key&quot;. The default is &quot;value&quot;.</span>
+<span class="sd">        key : Literal[&quot;unit&quot;, &quot;value&quot;], optional</span>
+<span class="sd">            Determine what to use for &quot;key&quot; (&quot;unit&quot; or &quot;value&quot;). The default is &quot;value&quot;.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
@@ -782,7 +782,10 @@
 
         <span class="k">if</span> <span class="n">bbox</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">xmin</span><span class="p">,</span> <span class="n">ymin</span><span class="p">,</span> <span class="n">xmax</span><span class="p">,</span> <span class="n">ymax</span> <span class="o">=</span> <span class="n">bbox</span>
-            <span class="n">ds</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="nb">slice</span><span class="p">(</span><span class="n">xmin</span><span class="p">,</span> <span class="n">xmax</span><span class="p">),</span> <span class="n">y</span><span class="o">=</span><span class="nb">slice</span><span class="p">(</span><span class="n">ymin</span><span class="p">,</span> <span class="n">ymax</span><span class="p">))</span>
+            <span class="n">ds</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span>
+                <span class="n">x</span><span class="o">=</span><span class="nb">slice</span><span class="p">(</span><span class="n">xmin</span> <span class="o">-</span> <span class="p">(</span><span class="mf">0.5</span> <span class="o">*</span> <span class="n">cellsize</span><span class="p">),</span> <span class="n">xmax</span> <span class="o">+</span> <span class="p">(</span><span class="mf">0.5</span> <span class="o">*</span> <span class="n">cellsize</span><span class="p">)),</span>
+                <span class="n">y</span><span class="o">=</span><span class="nb">slice</span><span class="p">(</span><span class="n">ymin</span> <span class="o">-</span> <span class="p">(</span><span class="mf">0.5</span> <span class="o">*</span> <span class="n">cellsize</span><span class="p">),</span> <span class="n">ymax</span> <span class="o">+</span> <span class="p">(</span><span class="mf">0.5</span> <span class="o">*</span> <span class="n">cellsize</span><span class="p">)),</span>
+            <span class="p">)</span>
 
         <span class="k">if</span> <span class="n">data_vars</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">ds</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="n">data_vars</span><span class="p">]</span>

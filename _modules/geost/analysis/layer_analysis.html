@@ -453,6 +453,7 @@
                   
   <h1>Source code for geost.analysis.layer_analysis</h1><div class="highlight"><pre>
 <span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
 
 
 <div class="viewcode-block" id="find_top_sand">
@@ -465,10 +466,10 @@
     <span class="n">min_sand_thickness</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Find the top of sand depth in a borehole. The top of sand is defined by the</span>
-<span class="sd">    first layer of a specified thickness that contains a minimum percentage of</span>
-<span class="sd">    sand. By default: when the first layer of sand is detected, the next 1 meter</span>
-<span class="sd">    is scanned. Within this meter, if more than 50% of the lenght has a main</span>
+<span class="sd">    Find the top of sand depth in a borehole described in NEN5104 format. The top of sand</span>
+<span class="sd">    is defined by the first layer of a specified thickness that contains a minimum</span>
+<span class="sd">    percentage of sand. By default: when the first layer of sand is detected, the next 1</span>
+<span class="sd">    meter is scanned. Within this meter, if more than 50% of the lenght has a main</span>
 <span class="sd">    lithology of sand, the initially detected layer of sand is regarded as the top</span>
 <span class="sd">    of sand. If not, continue downward until the next layer of sand is detected and</span>
 <span class="sd">    repeat.</span>
@@ -493,28 +494,31 @@
 
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">is_sand</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;Z&quot;</span> <span class="o">==</span> <span class="n">lith</span><span class="p">)</span> <span class="o">+</span> <span class="p">(</span><span class="s2">&quot;G&quot;</span> <span class="o">==</span> <span class="n">lith</span><span class="p">)</span>
-    <span class="n">is_unknown</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;GM&quot;</span> <span class="o">==</span> <span class="n">lith</span><span class="p">)</span> <span class="o">+</span> <span class="p">(</span><span class="s2">&quot;NBE&quot;</span> <span class="o">==</span> <span class="n">lith</span><span class="p">)</span>
 
-    <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">is_sand</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">is_unknown</span><span class="p">):</span>
-        <span class="n">idx_sand</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">is_sand</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">found_sand</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">is_sand</span><span class="p">):</span>
+        <span class="n">idx_sand</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">flatnonzero</span><span class="p">(</span><span class="n">is_sand</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">idx</span> <span class="ow">in</span> <span class="n">idx_sand</span><span class="p">:</span>
             <span class="n">top_sand</span> <span class="o">=</span> <span class="n">top</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span>
-            <span class="n">search_depth</span> <span class="o">=</span> <span class="n">top_sand</span> <span class="o">-</span> <span class="n">min_sand_thickness</span>
+            <span class="n">search_depth</span> <span class="o">=</span> <span class="n">top_sand</span> <span class="o">+</span> <span class="n">min_sand_thickness</span>
 
-            <span class="n">search_mask</span> <span class="o">=</span> <span class="p">(</span><span class="n">top</span> <span class="o">&lt;=</span> <span class="n">top_sand</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">top</span> <span class="o">&gt;</span> <span class="n">search_depth</span><span class="p">)</span>
+            <span class="n">search_mask</span> <span class="o">=</span> <span class="p">(</span><span class="n">top</span> <span class="o">&gt;=</span> <span class="n">top_sand</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">top</span> <span class="o">&lt;</span> <span class="n">search_depth</span><span class="p">)</span>
 
-            <span class="n">tmp_top</span> <span class="o">=</span> <span class="n">top</span><span class="p">[</span><span class="n">search_mask</span><span class="p">]</span>
-            <span class="n">tmp_bottom</span> <span class="o">=</span> <span class="n">bottom</span><span class="p">[</span><span class="n">search_mask</span><span class="p">]</span>
-            <span class="n">tmp_bottom</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">search_depth</span>
+            <span class="n">tmp_top</span> <span class="o">=</span> <span class="n">top</span><span class="p">[</span><span class="n">search_mask</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+            <span class="n">tmp_bottom</span> <span class="o">=</span> <span class="n">bottom</span><span class="p">[</span><span class="n">search_mask</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
 
-            <span class="n">length</span> <span class="o">=</span> <span class="n">tmp_top</span> <span class="o">-</span> <span class="n">tmp_bottom</span>
+            <span class="k">if</span> <span class="n">tmp_bottom</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">search_depth</span><span class="p">:</span>
+                <span class="n">tmp_bottom</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">search_depth</span>
+
+            <span class="n">length</span> <span class="o">=</span> <span class="n">tmp_bottom</span> <span class="o">-</span> <span class="n">tmp_top</span>
 
             <span class="n">sand_frac</span> <span class="o">=</span> <span class="n">length</span><span class="p">[</span><span class="n">is_sand</span><span class="p">[</span><span class="n">search_mask</span><span class="p">]]</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="o">/</span> <span class="n">min_sand_thickness</span>
 
             <span class="k">if</span> <span class="n">sand_frac</span> <span class="o">&gt;=</span> <span class="n">min_sand_frac</span><span class="p">:</span>
+                <span class="n">found_sand</span> <span class="o">=</span> <span class="kc">True</span>
                 <span class="k">break</span>
 
-    <span class="k">else</span><span class="p">:</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">found_sand</span><span class="p">:</span>
         <span class="n">top_sand</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
 
     <span class="k">return</span> <span class="n">top_sand</span></div>
@@ -523,9 +527,37 @@
 
 <div class="viewcode-block" id="top_of_sand">
 <a class="viewcode-back" href="../../../api_reference/generated/geost.analysis.top_of_sand.html#geost.analysis.top_of_sand">[docs]</a>
-<span class="k">def</span> <span class="nf">top_of_sand</span><span class="p">(</span><span class="n">boreholes</span><span class="p">,</span> <span class="n">ids</span><span class="o">=</span><span class="s2">&quot;nr&quot;</span><span class="p">,</span> <span class="n">min_sand_frac</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">min_sand_thickness</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">top_of_sand</span><span class="p">(</span>
+    <span class="n">boreholes</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+    <span class="n">ids</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;nr&quot;</span><span class="p">,</span>
+    <span class="n">min_sand_frac</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.5</span><span class="p">,</span>
+    <span class="n">min_sand_thickness</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Find the top of sand depth in a borehole described in NEN5104 format. The top of sand</span>
+<span class="sd">    is defined by the first layer of a specified thickness that contains a minimum fraction</span>
+<span class="sd">    of sand.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    boreholes : pd.DataFrame</span>
+<span class="sd">        Boreholes in NEN5104 format with &quot;lith&quot;, &quot;top&quot; and &quot;bottom&quot; columns.</span>
+<span class="sd">    ids : str, optional</span>
+<span class="sd">        Column specifying the borehole IDs. The default is &quot;nr&quot;.</span>
+<span class="sd">    min_sand_frac : float, optional</span>
+<span class="sd">        Minimum percentage of sand in the sand layer. The default is 0.5 (=50%).</span>
+<span class="sd">    min_sand_thickness : int | float, optional</span>
+<span class="sd">        Minimum thickness of the sand layer to find the top of. The default is 1.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    ------</span>
+<span class="sd">    pd.DataFrame</span>
+<span class="sd">        DataFrame containing the borehole IDs and the top of sand depths.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">groupby</span> <span class="o">=</span> <span class="n">boreholes</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">ids</span><span class="p">)</span>
 
+    <span class="n">result</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">for</span> <span class="n">nr</span><span class="p">,</span> <span class="n">df</span> <span class="ow">in</span> <span class="n">groupby</span><span class="p">:</span>
         <span class="n">lith</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;lith&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
         <span class="n">top</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;top&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
@@ -533,7 +565,9 @@
 
         <span class="n">top_sand</span> <span class="o">=</span> <span class="n">find_top_sand</span><span class="p">(</span><span class="n">lith</span><span class="p">,</span> <span class="n">top</span><span class="p">,</span> <span class="n">bottom</span><span class="p">,</span> <span class="n">min_sand_frac</span><span class="p">,</span> <span class="n">min_sand_thickness</span><span class="p">)</span>
 
-        <span class="k">yield</span> <span class="p">(</span><span class="n">nr</span><span class="p">,</span> <span class="n">top_sand</span><span class="p">)</span></div>
+        <span class="n">result</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">nr</span><span class="p">,</span> <span class="n">top_sand</span><span class="p">))</span>
+
+    <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;nr&quot;</span><span class="p">,</span> <span class="s2">&quot;top&quot;</span><span class="p">])</span></div>
 
 
 
@@ -546,7 +580,7 @@
 
 <div class="viewcode-block" id="layer_top">
 <a class="viewcode-back" href="../../../api_reference/generated/geost.analysis.layer_top.html#geost.analysis.layer_top">[docs]</a>
-<span class="k">def</span> <span class="nf">layer_top</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">column</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span> <span class="c1"># TODO</span>
+<span class="k">def</span> <span class="nf">layer_top</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">column</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>  <span class="c1"># TODO</span>
     <span class="k">for</span> <span class="n">nr</span><span class="p">,</span> <span class="n">obj</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s2">&quot;nr&quot;</span><span class="p">):</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">layer_top</span> <span class="o">=</span> <span class="n">obj</span><span class="p">[</span><span class="n">obj</span><span class="p">[</span><span class="n">column</span><span class="p">]</span> <span class="o">==</span> <span class="n">value</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;top&quot;</span><span class="p">]</span>
@@ -554,6 +588,13 @@
             <span class="n">layer_top</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
         <span class="k">yield</span> <span class="p">(</span><span class="n">nr</span><span class="p">,</span> <span class="n">layer_top</span><span class="p">)</span></div>
 
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_parquet</span><span class="p">(</span>
+        <span class="sa">r</span><span class="s2">&quot;c:\Users\knaake\OneDrive - Stichting Deltares\Documents\projects\ark\cpts_select.parquet&quot;</span>
+    <span class="p">)</span>
+    <span class="n">top_of_sand</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">min_sand_thickness</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">min_sand_frac</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
 </pre></div>
 
                 </article>

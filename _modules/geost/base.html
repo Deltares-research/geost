@@ -453,6 +453,7 @@
                   
   <h1>Source code for geost.base</h1><div class="highlight"><pre>
 <span></span><span class="kn">import</span> <span class="nn">pickle</span>
+<span class="kn">from</span> <span class="nn">copy</span> <span class="kn">import</span> <span class="n">deepcopy</span>
 <span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">List</span>
 
@@ -928,7 +929,7 @@
     <span class="k">def</span> <span class="nf">get_area_labels</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">polygon_gdf</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span> <span class="o">|</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">,</span>
-        <span class="n">column_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">column_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Iterable</span><span class="p">,</span>
         <span class="n">include_in_header</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -939,8 +940,9 @@
 <span class="sd">        ----------</span>
 <span class="sd">        polygon_gdf : str | Path | gpd.GeoDataFrame</span>
 <span class="sd">            GeoDataFrame with polygons.</span>
-<span class="sd">        column_name : str</span>
-<span class="sd">            The column name to find the labels in.</span>
+<span class="sd">        column_name : str | Iterable</span>
+<span class="sd">            The column name to find the labels in. Given as a string or iterable of</span>
+<span class="sd">            strings in case you&#39;d like to find multiple labels.</span>
 <span class="sd">        include_in_header : bool, optional</span>
 <span class="sd">            Whether to add the acquired data to the header table or not, by default</span>
 <span class="sd">            False.</span>
@@ -2202,6 +2204,31 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">has_inclined</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">check_header_to_data_alignment</span><span class="p">()</span>
 
+    <span class="k">def</span> <span class="nf">_clone_with_attrs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">new_header</span><span class="p">,</span> <span class="n">new_data</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create a deep copy of the current object with new header and data attributes.</span>
+<span class="sd">        This is used to return a new instance of the collection in methods that modify</span>
+<span class="sd">        the number of collection objects through e.g. selection and slicing methods.</span>
+<span class="sd">        Using this method over the self.__class__ constructor ensures that the new</span>
+<span class="sd">        object only has the header and data attributes updated, while keeping all other</span>
+<span class="sd">        attributes intact.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        new_header : Any Header object</span>
+<span class="sd">            The new header to be assigned to the cloned collection.</span>
+<span class="sd">        new_data : Any Data object</span>
+<span class="sd">            The new data to be assigned to the cloned collection.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        new_collection : New instance of self</span>
+<span class="sd">            A deep copy of the current object with updated header and data attributes.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">new_collection</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="n">new_collection</span><span class="o">.</span><span class="n">_header</span><span class="p">,</span> <span class="n">new_collection</span><span class="o">.</span><span class="n">_data</span> <span class="o">=</span> <span class="n">new_header</span><span class="p">,</span> <span class="n">new_data</span>
+        <span class="k">return</span> <span class="n">new_collection</span>
+
     <span class="k">def</span> <span class="nf">add_header_column_to_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">column_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>  <span class="c1"># No change</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Add a column from the header to the data table. Useful if you e.g. add some data</span>
@@ -2404,7 +2431,7 @@
             <span class="n">xmin</span><span class="p">,</span> <span class="n">ymin</span><span class="p">,</span> <span class="n">xmax</span><span class="p">,</span> <span class="n">ymax</span><span class="p">,</span> <span class="n">invert</span><span class="o">=</span><span class="n">invert</span>
         <span class="p">)</span>
         <span class="n">data_selected</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">select_by_values</span><span class="p">(</span><span class="s2">&quot;nr&quot;</span><span class="p">,</span> <span class="n">header_selected</span><span class="p">[</span><span class="s2">&quot;nr&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">())</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="n">header_selected</span><span class="p">,</span> <span class="n">data_selected</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_clone_with_attrs</span><span class="p">(</span><span class="n">header_selected</span><span class="p">,</span> <span class="n">data_selected</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">select_with_points</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -2436,7 +2463,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">header_selected</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">header</span><span class="o">.</span><span class="n">select_with_points</span><span class="p">(</span><span class="n">points</span><span class="p">,</span> <span class="n">buffer</span><span class="p">,</span> <span class="n">invert</span><span class="o">=</span><span class="n">invert</span><span class="p">)</span>
         <span class="n">data_selected</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">select_by_values</span><span class="p">(</span><span class="s2">&quot;nr&quot;</span><span class="p">,</span> <span class="n">header_selected</span><span class="p">[</span><span class="s2">&quot;nr&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">())</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="n">header_selected</span><span class="p">,</span> <span class="n">data_selected</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_clone_with_attrs</span><span class="p">(</span><span class="n">header_selected</span><span class="p">,</span> <span class="n">data_selected</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">select_with_lines</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -2468,7 +2495,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">header_selected</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">header</span><span class="o">.</span><span class="n">select_with_lines</span><span class="p">(</span><span class="n">lines</span><span class="p">,</span> <span class="n">buffer</span><span class="p">,</span> <span class="n">invert</span><span class="o">=</span><span class="n">invert</span><span class="p">)</span>
         <span class="n">data_selected</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">select_by_values</span><span class="p">(</span><span class="s2">&quot;nr&quot;</span><span class="p">,</span> <span class="n">header_selected</span><span class="p">[</span><span class="s2">&quot;nr&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">())</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="n">header_selected</span><span class="p">,</span> <span class="n">data_selected</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_clone_with_attrs</span><span class="p">(</span><span class="n">header_selected</span><span class="p">,</span> <span class="n">data_selected</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">select_within_polygons</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -2503,7 +2530,7 @@
             <span class="n">polygons</span><span class="p">,</span> <span class="n">buffer</span><span class="o">=</span><span class="n">buffer</span><span class="p">,</span> <span class="n">invert</span><span class="o">=</span><span class="n">invert</span>
         <span class="p">)</span>
         <span class="n">data_selected</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">select_by_values</span><span class="p">(</span><span class="s2">&quot;nr&quot;</span><span class="p">,</span> <span class="n">header_selected</span><span class="p">[</span><span class="s2">&quot;nr&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">())</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="n">header_selected</span><span class="p">,</span> <span class="n">data_selected</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_clone_with_attrs</span><span class="p">(</span><span class="n">header_selected</span><span class="p">,</span> <span class="n">data_selected</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">select_by_depth</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -2539,7 +2566,7 @@
             <span class="n">top_min</span><span class="o">=</span><span class="n">top_min</span><span class="p">,</span> <span class="n">top_max</span><span class="o">=</span><span class="n">top_max</span><span class="p">,</span> <span class="n">end_min</span><span class="o">=</span><span class="n">end_min</span><span class="p">,</span> <span class="n">end_max</span><span class="o">=</span><span class="n">end_max</span>
         <span class="p">)</span>
         <span class="n">data_selected</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">select_by_values</span><span class="p">(</span><span class="s2">&quot;nr&quot;</span><span class="p">,</span> <span class="n">header_selected</span><span class="p">[</span><span class="s2">&quot;nr&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">())</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="n">header_selected</span><span class="p">,</span> <span class="n">data_selected</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_clone_with_attrs</span><span class="p">(</span><span class="n">header_selected</span><span class="p">,</span> <span class="n">data_selected</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">select_by_length</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">min_length</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">max_length</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -2564,7 +2591,7 @@
             <span class="n">min_length</span><span class="o">=</span><span class="n">min_length</span><span class="p">,</span> <span class="n">max_length</span><span class="o">=</span><span class="n">max_length</span>
         <span class="p">)</span>
         <span class="n">data_selected</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">select_by_values</span><span class="p">(</span><span class="s2">&quot;nr&quot;</span><span class="p">,</span> <span class="n">header_selected</span><span class="p">[</span><span class="s2">&quot;nr&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">())</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="n">header_selected</span><span class="p">,</span> <span class="n">data_selected</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_clone_with_attrs</span><span class="p">(</span><span class="n">header_selected</span><span class="p">,</span> <span class="n">data_selected</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">select_by_values</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">column</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">selection_values</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">how</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;or&quot;</span>
@@ -2606,8 +2633,8 @@
 
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">data_selected</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">select_by_values</span><span class="p">(</span><span class="n">column</span><span class="p">,</span> <span class="n">selection_values</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="n">how</span><span class="p">)</span>
-        <span class="n">collection_selected</span> <span class="o">=</span> <span class="n">data_selected</span><span class="o">.</span><span class="n">to_collection</span><span class="p">()</span>
-        <span class="k">return</span> <span class="n">collection_selected</span>
+        <span class="n">header_selected</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">header</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">data_selected</span><span class="p">[</span><span class="s2">&quot;nr&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">())</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_clone_with_attrs</span><span class="p">(</span><span class="n">header_selected</span><span class="p">,</span> <span class="n">data_selected</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">slice_depth_interval</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -2669,8 +2696,8 @@
             <span class="n">relative_to_vertical_reference</span><span class="o">=</span><span class="n">relative_to_vertical_reference</span><span class="p">,</span>
             <span class="n">update_layer_boundaries</span><span class="o">=</span><span class="n">update_layer_boundaries</span><span class="p">,</span>
         <span class="p">)</span>
-        <span class="n">collection_selected</span> <span class="o">=</span> <span class="n">data_selected</span><span class="o">.</span><span class="n">to_collection</span><span class="p">()</span>
-        <span class="k">return</span> <span class="n">collection_selected</span>
+        <span class="n">header_selected</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">header</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">data_selected</span><span class="p">[</span><span class="s2">&quot;nr&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">())</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_clone_with_attrs</span><span class="p">(</span><span class="n">header_selected</span><span class="p">,</span> <span class="n">data_selected</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">slice_by_values</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">column</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">selection_values</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">invert</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
@@ -2712,8 +2739,8 @@
         <span class="n">data_selected</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">slice_by_values</span><span class="p">(</span>
             <span class="n">column</span><span class="p">,</span> <span class="n">selection_values</span><span class="p">,</span> <span class="n">invert</span><span class="o">=</span><span class="n">invert</span>
         <span class="p">)</span>
-        <span class="n">collection_selected</span> <span class="o">=</span> <span class="n">data_selected</span><span class="o">.</span><span class="n">to_collection</span><span class="p">()</span>
-        <span class="k">return</span> <span class="n">collection_selected</span>
+        <span class="n">header_selected</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">header</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">data_selected</span><span class="p">[</span><span class="s2">&quot;nr&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">())</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_clone_with_attrs</span><span class="p">(</span><span class="n">header_selected</span><span class="p">,</span> <span class="n">data_selected</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">select_by_condition</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">condition</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">invert</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -2754,13 +2781,14 @@
 <span class="sd">        &gt;&gt;&gt; data.select_by_condition((data[&quot;column1&quot;] &gt; 2) &amp; (data[&quot;column2] &lt; 1))</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">selected</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">select_by_condition</span><span class="p">(</span><span class="n">condition</span><span class="p">,</span> <span class="n">invert</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">selected</span><span class="o">.</span><span class="n">to_collection</span><span class="p">()</span>
+        <span class="n">data_selected</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">select_by_condition</span><span class="p">(</span><span class="n">condition</span><span class="p">,</span> <span class="n">invert</span><span class="p">)</span>
+        <span class="n">header_selected</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">header</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">data_selected</span><span class="p">[</span><span class="s2">&quot;nr&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">())</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_clone_with_attrs</span><span class="p">(</span><span class="n">header_selected</span><span class="p">,</span> <span class="n">data_selected</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">get_area_labels</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">polygon_gdf</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span> <span class="o">|</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">,</span>
-        <span class="n">column_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">column_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Iterable</span><span class="p">,</span>
         <span class="n">include_in_header</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -2771,8 +2799,9 @@
 <span class="sd">        ----------</span>
 <span class="sd">        polygon_gdf : str | Path | gpd.GeoDataFrame</span>
 <span class="sd">            GeoDataFrame with polygons.</span>
-<span class="sd">        column_name : str</span>
-<span class="sd">            The column name to find the labels in.</span>
+<span class="sd">        column_name : str | Iterable</span>
+<span class="sd">            The column name to find the labels in. Given as a string or iterable of</span>
+<span class="sd">            strings in case you&#39;d like to find multiple labels.</span>
 <span class="sd">        include_in_header : bool, optional</span>
 <span class="sd">            Whether to add the acquired data to the header table or not, by default</span>
 <span class="sd">            False.</span>

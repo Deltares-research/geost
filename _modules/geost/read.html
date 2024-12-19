@@ -1026,9 +1026,8 @@
         <span class="k">try</span><span class="p">:</span>
             <span class="nb">object</span> <span class="o">=</span> <span class="n">SoilCore</span><span class="p">(</span><span class="n">bro_object</span><span class="p">)</span>
         <span class="k">except</span> <span class="p">(</span><span class="ne">TypeError</span><span class="p">,</span> <span class="ne">AttributeError</span><span class="p">)</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
-            <span class="k">pass</span>
-            <span class="c1"># print(&quot;Cant read a soil core&quot;)</span>
-            <span class="c1"># print(err)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Cant read a soil core&quot;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">err</span><span class="p">)</span>
         <span class="n">bro_parsed_objects</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">object</span><span class="o">.</span><span class="n">df</span><span class="p">)</span>
 
     <span class="n">dataframe</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">bro_parsed_objects</span><span class="p">)</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span>
@@ -1102,9 +1101,8 @@
             <span class="nb">object</span> <span class="o">=</span> <span class="n">SoilCore</span><span class="p">(</span><span class="n">bro_object</span><span class="p">)</span>
             <span class="nb">print</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
         <span class="k">except</span> <span class="p">(</span><span class="ne">TypeError</span><span class="p">,</span> <span class="ne">AttributeError</span><span class="p">)</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
-            <span class="k">pass</span>
-            <span class="c1"># print(&quot;Cant read a soil core&quot;)</span>
-            <span class="c1"># print(err)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Cant read a soil core&quot;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">err</span><span class="p">)</span>
         <span class="n">bro_parsed_objects</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">object</span><span class="o">.</span><span class="n">df</span><span class="p">)</span>
 
     <span class="n">dataframe</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">bro_parsed_objects</span><span class="p">)</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span>

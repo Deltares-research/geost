@@ -1,7 +1,7 @@
 # Documentation
 
 The documentation of GeoST consists of two parts: [User guide](user_guide.md) with an
-explation of the basic functionality and the [API Reference](api_reference.md)
+explanation of the basic functionality and the [API Reference](api_reference.md)
 detailing every class, method, function and attribute used and implemented in GeoST.
 
 ````{grid} 1 2 2 2

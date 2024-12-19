@@ -453,6 +453,7 @@
                   
   <h1>Source code for geost.spatial</h1><div class="highlight"><pre>
 <span></span><span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Iterable</span>
 
 <span class="kn">import</span> <span class="nn">geopandas</span> <span class="k">as</span> <span class="nn">gpd</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
@@ -731,7 +732,7 @@
 <span class="k">def</span> <span class="nf">find_area_labels</span><span class="p">(</span>
     <span class="n">point_geodataframe</span><span class="p">:</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">,</span>
     <span class="n">polygon_geodataframe</span><span class="p">:</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">,</span>
-    <span class="n">column_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">column_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Iterable</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Function to find labels associated with polygon geometries for a series of queried</span>
@@ -744,14 +745,18 @@
 <span class="sd">        geometries they are located.</span>
 <span class="sd">    polygon_geodataframe : gpd.GeoDataFrame</span>
 <span class="sd">        Geodataframe with polygon geometries</span>
-<span class="sd">    column_name : str</span>
+<span class="sd">    column_name : str | Iterable</span>
 <span class="sd">        Label of the polygon geometries to use for assigning to the queried points.</span>
+<span class="sd">        Given as a string or iterable of strings in case you&#39;d like to find multiple</span>
+<span class="sd">        labels.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    pandas.Series</span>
 <span class="sd">        Series with labels from the polygon geometries for each point.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">column_name</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="n">column_name</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">column_name</span><span class="p">)</span>
     <span class="n">joined</span> <span class="o">=</span> <span class="n">gpd</span><span class="o">.</span><span class="n">sjoin</span><span class="p">(</span><span class="n">point_geodataframe</span><span class="p">,</span> <span class="n">polygon_geodataframe</span><span class="p">)[</span><span class="n">column_name</span><span class="p">]</span>
     <span class="c1"># Remove any duplicated indices, which may sometimes happen</span>
     <span class="n">area_labels</span> <span class="o">=</span> <span class="n">joined</span><span class="p">[</span><span class="o">~</span><span class="n">joined</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">duplicated</span><span class="p">()]</span>
