@@ -2,7 +2,7 @@ name: Publish GeoST GH-pages
 
 on:
   push:
-    tags: ['*testdocs*']
+    tags: ['*']
 
 permissions: write-all
 
