@@ -1,5 +1,5 @@
-import copy
 import pickle
+from copy import deepcopy
 from pathlib import Path
 from typing import Any, Iterable, List
 
@@ -1632,7 +1632,7 @@ class Collection(AbstractCollection):
 
     def _clone_with_attrs(self, new_header, new_data):
         """
-        Create a shallow copy of the current object with new header and data attributes.
+        Create a deep copy of the current object with new header and data attributes.
         This is used to return a new instance of the collection in methods that modify
         the number of collection objects through e.g. selection and slicing methods.
         Using this method over the self.__class__ constructor ensures that the new
@@ -1649,9 +1649,9 @@ class Collection(AbstractCollection):
         Returns
         -------
         new_collection : New instance of self
-            A shallow copy of the current object with updated header and data attributes.
+            A deep copy of the current object with updated header and data attributes.
         """
-        new_collection = copy.copy(self)
+        new_collection = deepcopy(self)
         new_collection._header, new_collection._data = new_header, new_data
         return new_collection
 
