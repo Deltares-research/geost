@@ -440,6 +440,25 @@ class TestCollection:
         assert_almost_equal(borehole_collection.header["id"].sum(), 2)
 
     @pytest.mark.unittest
+    def test_get_area_labels_multiple(self, borehole_collection):
+        label_polygon = [Polygon(((2, 1), (5, 4), (4, 5), (1, 4)))]
+        label_gdf = gpd.GeoDataFrame(
+            {"id": [1], "col2": ["string_data"]}, geometry=label_polygon
+        )
+        # Return variant
+        output = borehole_collection.get_area_labels(label_gdf, ["id", "col2"])
+        assert_almost_equal(output["id"].sum(), 2)
+        assert_equal(output["col2"].value_counts()["string_data"], 2)
+        # In-place variant
+        borehole_collection.get_area_labels(
+            label_gdf, ("id", "col2"), include_in_header=True
+        )
+        assert_almost_equal(borehole_collection.header["id"].sum(), 2)
+        assert_equal(
+            borehole_collection.header["col2"].value_counts()["string_data"], 2
+        )
+
+    @pytest.mark.unittest
     def test_to_multiblock(self, borehole_collection):
         # More detailed tests are in TestLayeredData in test_data_objects.py
         multiblock = borehole_collection.to_multiblock("lith")
@@ -491,6 +510,9 @@ class TestCollection:
         outfile = tmp_path / r"test_export.gpkg"
         borehole_collection.to_geopackage(outfile)
         assert outfile.is_file()
+        layers = gpd.list_layers(outfile)
+        assert_array_equal(layers["name"], ["header", "data"])
+        assert_array_equal(layers["geometry_type"], ["Point", None])
 
     @pytest.mark.unittest
     def test_to_parquet(self, borehole_collection, tmp_path):
@@ -502,6 +524,12 @@ class TestCollection:
     def test_to_csv(self, borehole_collection, tmp_path):
         outfile = tmp_path / r"test_export.gpkg"
         borehole_collection.to_csv(outfile)
+        assert outfile.is_file()
+
+    @pytest.mark.unittest
+    def test_to_pickle(self, borehole_collection, tmp_path):
+        outfile = tmp_path / r"test_export.pkl"
+        borehole_collection.to_pickle(outfile)
         assert outfile.is_file()
 
     # @pytest.mark.integrationtest
@@ -565,3 +593,22 @@ class TestBoreholeCollection:
         assert tdfile.is_file()
         outfile.unlink()
         tdfile.unlink()
+
+
+class TestCptCollection:
+    @pytest.mark.unittest
+    def test_slice_depth_interval(self, cpt_collection):
+        upper, lower = 0.6, 4.4
+        sliced = cpt_collection.slice_depth_interval(upper, lower)
+
+        assert len(sliced.data) == 8
+        assert sliced.n_points == 2
+        assert sliced.data["depth"].min() >= upper
+        assert sliced.data["depth"].max() <= lower
+
+        upper, lower = 1.9, 0.9  # Elevations in NAP
+        sliced = cpt_collection.slice_depth_interval(
+            upper, lower, relative_to_vertical_reference=True
+        )
+        assert sliced.n_points == 1
+        assert len(sliced.data) == 1

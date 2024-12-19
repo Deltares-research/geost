@@ -18,12 +18,14 @@ sys.path.insert(0, os.path.abspath(".."))  # isort:skip
 
 # -- Project information -----------------------------------------------------
 
-project = "Python Subsurface Toolbox"
-copyright = "2023, Erik van Onselen"
-author = "Erik van Onselen"
+project = "Geological Subsurface Toolbox"
+copyright = "2024, Deltares"
+author = "Deltares"
 
 # The full version, including alpha/beta/rc tags
-release = "0.1.0"
+import geost
+
+version = geost.__version__
 
 
 # -- General configuration ---------------------------------------------------
@@ -31,7 +33,20 @@ release = "0.1.0"
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
-extensions = ["sphinx.ext.autodoc", "sphinx_rtd_theme", "sphinx.ext.napoleon"]
+extensions = [
+    "sphinx.ext.autodoc",
+    "sphinx.ext.autosummary",
+    "sphinx.ext.viewcode",
+    "pydata_sphinx_theme",
+    "sphinx.ext.napoleon",
+    "sphinx_design",
+    "myst_nb",
+]
+
+
+def setup(app):
+    app.add_css_file("custom.css")  # may also be an URL
+
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ["_templates"]
@@ -46,10 +61,42 @@ exclude_patterns = ["_build", "Thumbs.db", ".DS_Store", "*bro"]
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
-#
-html_theme = "sphinx_rtd_theme"
+html_theme = "pydata_sphinx_theme"
+html_logo = "_static/geost_logo.png"
+html_favicon = "_static/geost_logo.png"
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
-html_static_path = []
+
+html_static_path = ["_static"]
+html_css_files = ["custom.css"]
+html_theme_options = {
+    "external_links": [
+        {
+            "url": "https://www.deltares.nl/en",
+            "name": "Deltares website",
+        },
+    ],
+    "show_toc_level": 1,
+    "show_nav_level": 2,
+    "navbar_align": "left",
+    "use_edit_page_button": False,
+    "header_links_before_dropdown": 6,
+    "pygments_light_style": "tango",
+    "pygments_dark_style": "one-dark",
+    "icon_links": [
+        {
+            "name": "GitHub",
+            "url": "https://github.com/Deltares-research/geost",
+            "icon": "fa-brands fa-square-github",
+            "type": "fontawesome",
+        },
+        {
+            "name": "PyPI",
+            "url": "https://pypi.org/project/geost",
+            "icon": "fa-solid fa-cubes",
+            "type": "fontawesome",
+        },
+    ],
+}

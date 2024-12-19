@@ -64,6 +64,8 @@ instance/
 
 # Sphinx documentation
 docs/_build/
+docs/api_reference/generated
+docs/jupyter_execute
 
 # PyBuilder
 target/
@@ -107,6 +109,7 @@ ENV/
 *.gml
 *.dbf
 
+!data/*.nc
 
 # data
 #*.xml

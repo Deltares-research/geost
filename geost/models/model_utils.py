@@ -115,3 +115,33 @@ def _interpolate_point(line, loc):
     """
     p = line.interpolate(loc)
     return loc, p.x, p.y
+
+
+def label_consecutive_2d(array: np.ndarray, axis: int = 0) -> np.ndarray:
+    """
+    Label consecutive array elements with unique numbers along a specified axis in a 2D
+    array.
+
+    Parameters
+    ----------
+    array : np.ndarray
+        Array of shape (m, n) to label the elements in.
+    axis : int, optional
+        Axis along to label. The default is 0.
+
+    Returns
+    -------
+    np.ndarray
+        Array with labelled elements with the same shape as the input array.
+
+    """
+    labels = np.cumsum(np.diff(array, axis=axis) != 0, axis=axis)
+
+    if axis == 0:
+        start_labels = np.zeros(array.shape[1], dtype=array.dtype).reshape(1, -1)
+        labels = np.r_[start_labels, labels]
+    else:
+        start_labels = np.zeros(array.shape[0], dtype=array.dtype).reshape(-1, 1)
+        labels = np.c_[start_labels, labels]
+
+    return labels

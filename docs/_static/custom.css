@@ -1,0 +1,26 @@
+html {
+    --pst-font-size-base: 16px;
+    --pst-header-height: 5rem;
+    --pst-header-article-height: calc(var(--pst-header-height) * 2 / 3);
+    --pst-sidebar-secondary: 12rem;
+}
+
+html[data-theme="light"] {
+    --pst-color-primary: rgb(36, 194, 141);
+    --pst-color-secondary: rgb(48, 167, 236);
+}
+
+html[data-theme="dark"] {
+    --pst-color-primary: rgb(36, 194, 141);
+    --pst-color-secondary: rgb(48, 167, 236);
+}
+
+.bd-main .bd-content .bd-article-container {
+    max-width: 90%;
+    /* default is 60em */
+}
+
+.bd-page-width {
+    max-width: 80%;
+    /* default is 88rem */
+}

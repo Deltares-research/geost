@@ -44,11 +44,11 @@ class AbstractSpatial(ABC):  # pragma: no cover
         pass
 
     @abstractmethod
-    def select(self):
+    def sel(self):
         pass
 
     @abstractmethod
-    def select_index(self):
+    def isel(self):
         pass
 
     @abstractmethod
@@ -162,21 +162,24 @@ class VoxelModel(AbstractSpatial, AbstractModel3D):
         Examples
         --------
         Read all model data from a local NetCDF file:
+
         >>> VoxelModel.from_netcdf("my_netcdf_file.nc")
 
         Read specific data variables and the data within a specific area from the NetCDF
         file:
+
         >>> VoxelModel.from_netcdf(
-                "my_netcdf_file.nc",
-                data_vars=["my_var"],
-                bbox=(1, 1, 3, 3) # (xmin, ymin, xmax, ymax)
-            )
+        ...     "my_netcdf_file.nc",
+        ...     data_vars=["my_var"],
+        ...     bbox=(1, 1, 3, 3) # (xmin, ymin, xmax, ymax)
+        ... )
 
         Note that this method assumes the y-coordinates are in descending order. For y-
         ascending coordinates change ymin and ymax coordinates:
+
         >>> VoxelModel.from_netcdf(
-                "my_netcdf_file.nc", bbox=(1, 3, 1, 3) # (xmin, ymax, xmax, ymin)
-            )
+        ...     "my_netcdf_file.nc", bbox=(1, 3, 1, 3) # (xmin, ymax, xmax, ymin)
+        ... )
 
         """
         ds = xr.open_dataset(nc_path, **xr_kwargs)
@@ -235,7 +238,7 @@ class VoxelModel(AbstractSpatial, AbstractModel3D):
         """
         if not hasattr(self, "_dz"):
             self._get_internal_zbounds()
-        dy, dx = np.abs(self.ds.rio.resolution())
+        dx, dy = np.abs(self.ds.rio.resolution())
         return (float(dy), float(dx), float(self._dz))
 
     @property
@@ -261,7 +264,7 @@ class VoxelModel(AbstractSpatial, AbstractModel3D):
         self._zmin -= 0.5 * self._dz
         self._zmax += 0.5 * self._dz
 
-    def select(self, **xr_kwargs):
+    def sel(self, **xr_kwargs):
         """
         Use Xarray selection functionality to select indices along specified dimensions.
         This uses the ".sel" method of an Xarray Dataset.
@@ -274,19 +277,21 @@ class VoxelModel(AbstractSpatial, AbstractModel3D):
         Examples
         --------
         Select a specified coordinates or slice coordinates from the VoxelModel instance:
-        >>> selected = voxelmodel.select(x=[1, 2, 3])  # Using keyword arguments
-        >>> selected = voxelmodel.select({"x": [1, 2, 3]})  # Using a dictionary
-        >>> selected = voxelmodel.select(x=slice(1, 4))  # Using a slice
+
+        >>> selected = voxelmodel.sel(x=[1, 2, 3])  # Using keyword arguments
+        >>> selected = voxelmodel.sel({"x": [1, 2, 3]})  # Using a dictionary
+        >>> selected = voxelmodel.sel(x=slice(1, 4))  # Using a slice
 
         Using additional options as well. For instance, when the desired coordinates do
         not exactly match the VoxelModel coordinates, select the nearest:
-        >>> selected = voxelmodel.select(x=[1.1, 2.5, 3.3], method="nearest")
+
+        >>> selected = voxelmodel.sel(x=[1.1, 2.5, 3.3], method="nearest")
 
         """
         selected = self.ds.sel(**xr_kwargs)
         return self.__class__(selected)
 
-    def select_index(self, **xr_kwargs):
+    def isel(self, **xr_kwargs):
         """
         Use Xarray selection functionality to select indices along specified dimensions.
         This uses the ".isel" method of an Xarray Dataset.
@@ -299,9 +304,10 @@ class VoxelModel(AbstractSpatial, AbstractModel3D):
         Examples
         --------
         Select a specified coordinates or slice coordinates from the VoxelModel instance:
-        >>> selected = voxelmodel.select(x=[1, 2, 3])  # Using keyword arguments
-        >>> selected = voxelmodel.select({"x": [1, 2, 3]})  # Using a dictionary
-        >>> selected = voxelmodel.select(x=slice(1, 4))  # Using a slice
+
+        >>> selected = voxelmodel.isel(x=[1, 2, 3])  # Using keyword arguments
+        >>> selected = voxelmodel.isel({"x": [1, 2, 3]})  # Using a dictionary
+        >>> selected = voxelmodel.isel(x=slice(1, 4))  # Using a slice
 
         """
         selected = self.ds.isel(**xr_kwargs)
@@ -327,15 +333,18 @@ class VoxelModel(AbstractSpatial, AbstractModel3D):
         Examples
         --------
         To sample a VoxelModel with a GeoDataFrame containing point geometries:
+
         >>> selected = voxelmodel.select_with_points(point_gdf)
 
         This way, it is easily possible to sample a VoxelModel at point locations using
         GeoST Header or Collection objects by accessing their "gdf" attributes.
 
         Using a Header object:
+
         >>> selected = voxelmodel.select_with_points(Header.gdf)
 
         Using a Collection object:
+
         >>> selected = voxelmodel.select_with_points(Collection.header.gdf)
 
         """
@@ -377,7 +386,7 @@ class VoxelModel(AbstractSpatial, AbstractModel3D):
         raise NotImplementedError()
 
 
-class LayerModel(AbstractSpatial, AbstractModel3D):  # pragma: no cover
+class LayerModel(AbstractSpatial, AbstractModel3D):  # pragma: no cover TODO: add to doc
     def __init__(self):
         raise NotImplementedError("No support of LayerModel yet.")
 
@@ -409,10 +418,10 @@ class LayerModel(AbstractSpatial, AbstractModel3D):  # pragma: no cover
     def crs(self):
         raise NotImplementedError()
 
-    def select(self):
+    def sel(self):
         raise NotImplementedError()
 
-    def select_index(self):
+    def isel(self):
         raise NotImplementedError()
 
     def select_with_line(self):

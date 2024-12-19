@@ -4,6 +4,7 @@ import xarray as xr
 
 from geost.base import Collection, DiscreteData, LayeredData
 from geost.models import VoxelModel
+from geost.models.model_utils import label_consecutive_2d
 
 
 def add_voxelmodel_variable(
@@ -15,6 +16,12 @@ def add_voxelmodel_variable(
     in the Collection instance in which voxel stack the object is located and adds the
     relevant layer boundaries of the variable to the data object of the Collection based
     on depth.
+
+    Note
+    ----
+    If the variable name is already present in the columns of the data attribute of the
+    collection, the present column is overwritten. To avoid this, rename the variable
+    before either in collection.data or in the voxelmodel.
 
     Parameters
     ----------
@@ -39,6 +46,9 @@ def add_voxelmodel_variable(
         :class:`~geost.base.LineData` (future developments).
 
     """
+    if variable in collection.data.df.columns:
+        collection.data.df.drop(columns=[variable], inplace=True)
+
     var_select = model.select_with_points(collection.header.gdf)[variable]
     nrs = collection.header["nr"].loc[var_select["idx"]]
 
@@ -77,15 +87,19 @@ def _reduce_to_top_bottom(da: xr.DataArray, dz: int | float) -> pd.DataFrame:
     pd.DataFrame
 
     """
+    layer_ids = label_consecutive_2d(da.values, axis=1)
     df = pd.DataFrame(
         {
             "nr": np.repeat(da["idx"], da.sizes["z"]),
             "bottom": np.tile(da["z"] - (0.5 * dz), da.sizes["idx"]),
+            "layer": layer_ids.ravel(),
             "values": da.values.ravel(),
         }
     )
-    reduced = df.groupby(["nr", "values"])["bottom"].min().reset_index()
-    return reduced
+    reduced = df.pivot_table(
+        index=["nr", "layer", "values"], values="bottom", aggfunc="min"
+    ).reset_index()
+    return reduced.drop(columns=["layer"])
 
 
 def _add_to_layered(data: LayeredData, variable: pd.DataFrame) -> LayeredData:
@@ -197,18 +211,3 @@ def _add_to_discrete(data: DiscreteData, variable: pd.DataFrame) -> DiscreteData
     result.drop_duplicates(subset=["nr", "depth"], inplace=True)
     result.dropna(subset=["end"], inplace=True)
     return DiscreteData(result)
-
-
-if __name__ == "__main__":
-    import geost
-    from geost.analysis.combine import add_voxelmodel_variable
-    from geost.bro import GeoTop
-
-    cores = geost.read_borehole_table(
-        r"n:\Projects\11211000\11211044\B. Measurements and calculations\data\cores_with_nan.parquet"
-    )
-
-    geotop = GeoTop.from_opendap(
-        data_vars=["strat"], bbox=cores.header.gdf.buffer(200).total_bounds, lazy=False
-    )
-    cores = add_voxelmodel_variable(cores, geotop, "strat")

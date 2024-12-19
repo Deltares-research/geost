@@ -1,4 +1,5 @@
 import pickle
+from copy import deepcopy
 from pathlib import Path
 from typing import Any, Iterable, List
 
@@ -26,7 +27,12 @@ from geost.projections import (
     vertical_reference_transformer,
 )
 from geost.spatial import check_gdf_instance
-from geost.utils import dataframe_to_geodataframe, warn_user
+from geost.utils import (
+    _to_geopackage,
+    dataframe_to_geodataframe,
+    save_pickle,
+    warn_user,
+)
 from geost.validate.decorators import validate_data, validate_header
 
 type DataObject = DiscreteData | LayeredData
@@ -238,7 +244,7 @@ class PointHeader(AbstractHeader, GeopandasExportMixin):
         Returns
         -------
         :class:`~geost.base.PointHeader`
-            Instance of :class:`~geost.base.PointHeader`containing only selected
+            Instance of :class:`~geost.base.PointHeader` containing only selected
             geometries.
         """
         gdf_selected = spatial.select_points_within_bbox(
@@ -269,7 +275,7 @@ class PointHeader(AbstractHeader, GeopandasExportMixin):
         Returns
         -------
         :class:`~geost.base.PointHeader`
-            Instance of :class:`~geost.base.PointHeader`containing only selected
+            Instance of :class:`~geost.base.PointHeader` containing only selected
             geometries.
 
         """
@@ -306,7 +312,7 @@ class PointHeader(AbstractHeader, GeopandasExportMixin):
         Returns
         -------
         :class:`~geost.base.PointHeader`
-            Instance of :class:`~geost.base.PointHeader`containing only selected
+            Instance of :class:`~geost.base.PointHeader` containing only selected
             geometries.
 
         """
@@ -344,7 +350,7 @@ class PointHeader(AbstractHeader, GeopandasExportMixin):
         Returns
         -------
         :class:`~geost.base.PointHeader`
-            Instance of :class:`~geost.base.PointHeader`containing only selected
+            Instance of :class:`~geost.base.PointHeader` containing only selected
             geometries.
 
         """
@@ -435,7 +441,7 @@ class PointHeader(AbstractHeader, GeopandasExportMixin):
     def get_area_labels(
         self,
         polygon_gdf: str | Path | gpd.GeoDataFrame,
-        column_name: str,
+        column_name: str | Iterable,
         include_in_header=False,
     ) -> pd.DataFrame:
         """
@@ -446,8 +452,9 @@ class PointHeader(AbstractHeader, GeopandasExportMixin):
         ----------
         polygon_gdf : str | Path | gpd.GeoDataFrame
             GeoDataFrame with polygons.
-        column_name : str
-            The column name to find the labels in.
+        column_name : str | Iterable
+            The column name to find the labels in. Given as a string or iterable of
+            strings in case you'd like to find multiple labels.
         include_in_header : bool, optional
             Whether to add the acquired data to the header table or not, by default
             False.
@@ -763,20 +770,20 @@ class LayeredData(AbstractData, PandasExportMixin):
         Usage depends on whether the slicing is done with respect to depth below the
         surface or to a vertical reference plane.
 
-        For example, select layers in boreholes that are between 2 and 3 meters below the
+        For example, select layers in data that are between 2 and 3 meters below the
         surface:
 
-        >>> boreholes.slice_depth_interval(2, 3)
+        >>> data.slice_depth_interval(2, 3)
 
         By default, the method updates the layer boundaries in sliced object according to
         the upper and lower boundaries. To suppress this behaviour use:
 
-        >>> boreholes.slice_depth_interval(2, 3, update_layer_boundaries=False)
+        >>> data.slice_depth_interval(2, 3, update_layer_boundaries=False)
 
         Slicing can also be done with respect to a vertical reference plane like "NAP".
         For example, to select layers in boreholes that are between -3 and -5 m NAP, use:
 
-        >>> boreholes.slice_depth_interval(-3, -5, relative_to_vertical_reference=True)
+        >>> data.slice_depth_interval(-3, -5, relative_to_vertical_reference=True)
 
         """
         if not upper_boundary:
@@ -833,14 +840,14 @@ class LayeredData(AbstractData, PandasExportMixin):
 
         Examples
         --------
-        Return only rows in borehole data contain sand ("Z") as lithology:
+        Return only rows in data contain sand ("Z") as lithology:
 
-        >>> boreholes.slice_by_values("lith", "Z")
+        >>> data.slice_by_values("lith", "Z")
 
         If you want all the rows that may contain everything but sand, use the "invert"
         option:
 
-        >>> boreholes.slice_by_values("lith", "Z", invert=True)
+        >>> data.slice_by_values("lith", "Z", invert=True)
 
         """
         selection_values = self._check_correct_instance(selection_values)
@@ -876,14 +883,13 @@ class LayeredData(AbstractData, PandasExportMixin):
 
         Examples
         --------
-        Select rows in borehole data that contain a specific value:
+        Select rows in data that contain a specific value:
 
-        >>> boreholes.select_by_condition(boreholes["lith"]=="V")
+        >>> data.select_by_condition(data["lith"]=="V")
 
-        Or select rows in the borehole data that contain a specific (part of) string or
-        strings:
+        Or select rows in the data that contain a specific (part of) string or strings:
 
-        >>> boreholes.select_by_condition(boreholes["column"].str.contains("foo|bar"))
+        >>> data.select_by_condition(data["column"].str.contains("foo|bar"))
 
         """
         if invert:
@@ -914,13 +920,13 @@ class LayeredData(AbstractData, PandasExportMixin):
         Get the cumulative thickness of the layers with lithology "K" in the column "lith"
         use:
 
-        >>> boreholes.get_cumulative_thickness("lith", "K")
+        >>> data.get_cumulative_thickness("lith", "K")
 
         Or get the cumulative thickness for multiple selection values. In this case, a
         Pandas DataFrame is returned with a column per selection value containing the
         cumulative thicknesses:
 
-        >>> boreholes.get_cumulative_thickness("lith", ["K", "Z"])
+        >>> data.get_cumulative_thickness("lith", ["K", "Z"])
 
         """
         selected_layers = self.slice_by_values(column, values)
@@ -948,10 +954,10 @@ class LayeredData(AbstractData, PandasExportMixin):
 
         Examples
         --------
-        Get the top depth of layers in boreholes where the lithology in the "lith" column
+        Get the top depth of layers in data where the lithology in the "lith" column
         is sand ("Z"):
 
-        >>> boreholes.get_layer_top("lith", "Z")
+        >>> data.get_layer_top("lith", "Z")
 
         """
         selected_layers = self.slice_by_values(column, values)
@@ -1098,8 +1104,7 @@ class LayeredData(AbstractData, PandasExportMixin):
         dftgeodata = export_to_dftgeodata(data, columns, encode=encode)
 
         if outfile:
-            with open(outfile, "wb") as f:
-                pickle.dump(dftgeodata, f)
+            save_pickle(dftgeodata, outfile)
         else:
             return dftgeodata
 
@@ -1357,8 +1362,9 @@ class DiscreteData(AbstractData, PandasExportMixin):
         self, column: str, selection_values: str | Iterable, how: str = "or"
     ):
         """
-        Select data based on the presence of given values in a given column. Can be used
-        for example to select boreholes that contain peat in the lithology column.
+        Select data based on the presence of given values in a given column containing
+        categorical data. Can be used for example to select points that contain peat in
+        the lithology column.
 
         Parameters
         ----------
@@ -1379,15 +1385,15 @@ class DiscreteData(AbstractData, PandasExportMixin):
 
         Examples
         --------
-        To select boreholes where both clay ("K") and peat ("V") are present at the same
-        time, use "and" as a selection method:
+        To select data where both clay ("K") and peat ("V") are present at the same time,
+        use "and" as a selection method:
 
-        >>> boreholes.select_by_values("lith", ["V", "K"], how="and")
+        >>> data.select_by_values("lith", ["V", "K"], how="and")
 
-        To select boreholes that can have one, or both lithologies, use or as the selection
+        To select data that can have one, or both lithologies, use or as the selection
         method:
 
-        >>> boreholes.select_by_values("lith", ["V", "K"], how="and")
+        >>> data.select_by_values("lith", ["V", "K"], how="and")
 
         """
         if column not in self.df.columns:
@@ -1410,14 +1416,109 @@ class DiscreteData(AbstractData, PandasExportMixin):
 
         return self.__class__(selected, self.has_inclined)
 
-    def slice_depth_interval(self):  # pragma: no cover
-        raise NotImplementedError()
+    def slice_depth_interval(
+        self,
+        upper_boundary: float | int = None,
+        lower_boundary: float | int = None,
+        relative_to_vertical_reference: bool = False,
+    ):
+        """
+        Slice data based on given upper and lower boundaries. This returns a new object
+        containing only the sliced data.
+
+        Parameters
+        ----------
+        upper_boundary : float | int, optional
+            Every layer that starts above this is removed. The default is None.
+        lower_boundary : float | int, optional
+            Every layer that starts below this is removed. The default is None.
+        relative_to_vertical_reference : bool, optional
+            If True, the slicing is done with respect to any kind of vertical reference
+            plane (e.g. "NAP", "TAW"). If False, the slice is done with respect to depth
+            below the surface. The default is False.
+        update_layer_boundaries : bool, optional
+            If True, the layer boundaries in the sliced data are updated according to the
+            upper and lower boundaries used with the slice. If False, the original layer
+            boundaries are kept in the sliced object. The default is False.
+
+        Returns
+        -------
+        :class:`~geost.base.DiscreteData`
+            New instance containing only the data selected by this method.
+
+        Examples
+        --------
+        Usage depends on whether the slicing is done with respect to depth below the
+        surface or to a vertical reference plane.
+
+        For example, select layers in data that are between 2 and 3 meters below the
+        surface:
+
+        >>> data.slice_depth_interval(2, 3)
+
+        Slicing can also be done with respect to a vertical reference plane like "NAP".
+        For example, to select layers in boreholes that are between -3 and -5 m NAP, use:
+
+        >>> data.slice_depth_interval(-3, -5, relative_to_vertical_reference=True)
+
+        """
+        if not upper_boundary:
+            upper_boundary = 1e34 if relative_to_vertical_reference else -1e34
+
+        if not lower_boundary:
+            lower_boundary = -1e34 if relative_to_vertical_reference else 1e34
+
+        sliced = self.df.copy()
+
+        if relative_to_vertical_reference:
+            upper_boundary = self["surface"] - upper_boundary
+            lower_boundary = self["surface"] - lower_boundary
+
+        sliced = sliced[
+            (sliced["depth"] >= upper_boundary) & (sliced["depth"] <= lower_boundary)
+        ]
+
+        return self.__class__(sliced, self.has_inclined)
 
     def slice_by_values(self):  # pragma: no cover
         raise NotImplementedError()
 
-    def select_by_condition(self):  # pragma: no cover
-        raise NotImplementedError()
+    def select_by_condition(self, condition: Any, invert: bool = False):
+        """
+        Select data using a manual condition that results in a boolean mask. Returns the
+        rows in the data where the 'condition' evaluates to True.
+
+        Parameters
+        ----------
+        condition : list, pd.Series or array like
+            Boolean array like object with locations at which the values will be
+            preserved, dtype must be 'bool' and the length must correspond with the
+            length of the data.
+        invert : bool, optional
+            If True, the selection is inverted so rows that evaluate to False will be
+            returned. The default is False.
+
+        Returns
+        -------
+        :class:`~geost.base.DiscreteData`
+            New instance containing only the data objects selected by this method.
+
+        Examples
+        --------
+        Select rows in data where column values are larger than:
+
+        >>> data.select_by_condition(data["column"] > 2)
+
+        Or select rows in the data based on multiple conditions:
+
+        >>> data.select_by_condition((data["column1"] > 2) & (data["column2] < 1))
+
+        """
+        if invert:
+            selected = self[~condition]
+        else:
+            selected = self[condition]
+        return self.__class__(selected, self.has_inclined)
 
     def get_cumulative_thickness(self):  # pragma: no cover
         raise NotImplementedError()
@@ -1468,6 +1569,9 @@ class Collection(AbstractCollection):
     def __repr__(self):
         return f"{self.__class__.__name__}:\n# header = {self.n_points}"
 
+    def __len__(self):
+        return len(self.header)
+
     @property
     def header(self):
         """
@@ -1487,7 +1591,7 @@ class Collection(AbstractCollection):
         """
         Number of objects in the collection.
         """
-        return len(self.header.gdf)
+        return len(self)
 
     @property
     def horizontal_reference(self):
@@ -1525,6 +1629,31 @@ class Collection(AbstractCollection):
         elif "_data" in self.__dict__.keys() and isinstance(data, pd.DataFrame):
             self._data = self._data.__class__(data, self.has_inclined)
         self.check_header_to_data_alignment()
+
+    def _clone_with_attrs(self, new_header, new_data):
+        """
+        Create a deep copy of the current object with new header and data attributes.
+        This is used to return a new instance of the collection in methods that modify
+        the number of collection objects through e.g. selection and slicing methods.
+        Using this method over the self.__class__ constructor ensures that the new
+        object only has the header and data attributes updated, while keeping all other
+        attributes intact.
+
+        Parameters
+        ----------
+        new_header : Any Header object
+            The new header to be assigned to the cloned collection.
+        new_data : Any Data object
+            The new data to be assigned to the cloned collection.
+
+        Returns
+        -------
+        new_collection : New instance of self
+            A deep copy of the current object with updated header and data attributes.
+        """
+        new_collection = deepcopy(self)
+        new_collection._header, new_collection._data = new_header, new_data
+        return new_collection
 
     def add_header_column_to_data(self, column_name: str):  # No change
         """
@@ -1728,7 +1857,7 @@ class Collection(AbstractCollection):
             xmin, ymin, xmax, ymax, invert=invert
         )
         data_selected = self.data.select_by_values("nr", header_selected["nr"].unique())
-        return self.__class__(header_selected, data_selected)
+        return self._clone_with_attrs(header_selected, data_selected)
 
     def select_with_points(
         self,
@@ -1760,7 +1889,7 @@ class Collection(AbstractCollection):
         """
         header_selected = self.header.select_with_points(points, buffer, invert=invert)
         data_selected = self.data.select_by_values("nr", header_selected["nr"].unique())
-        return self.__class__(header_selected, data_selected)
+        return self._clone_with_attrs(header_selected, data_selected)
 
     def select_with_lines(
         self,
@@ -1792,7 +1921,7 @@ class Collection(AbstractCollection):
         """
         header_selected = self.header.select_with_lines(lines, buffer, invert=invert)
         data_selected = self.data.select_by_values("nr", header_selected["nr"].unique())
-        return self.__class__(header_selected, data_selected)
+        return self._clone_with_attrs(header_selected, data_selected)
 
     def select_within_polygons(
         self,
@@ -1827,7 +1956,7 @@ class Collection(AbstractCollection):
             polygons, buffer=buffer, invert=invert
         )
         data_selected = self.data.select_by_values("nr", header_selected["nr"].unique())
-        return self.__class__(header_selected, data_selected)
+        return self._clone_with_attrs(header_selected, data_selected)
 
     def select_by_depth(
         self,
@@ -1863,7 +1992,7 @@ class Collection(AbstractCollection):
             top_min=top_min, top_max=top_max, end_min=end_min, end_max=end_max
         )
         data_selected = self.data.select_by_values("nr", header_selected["nr"].unique())
-        return self.__class__(header_selected, data_selected)
+        return self._clone_with_attrs(header_selected, data_selected)
 
     def select_by_length(self, min_length: float = None, max_length: float = None):
         """
@@ -1888,7 +2017,7 @@ class Collection(AbstractCollection):
             min_length=min_length, max_length=max_length
         )
         data_selected = self.data.select_by_values("nr", header_selected["nr"].unique())
-        return self.__class__(header_selected, data_selected)
+        return self._clone_with_attrs(header_selected, data_selected)
 
     def select_by_values(
         self, column: str, selection_values: str | Iterable, how: str = "or"
@@ -1930,8 +2059,8 @@ class Collection(AbstractCollection):
 
         """
         data_selected = self.data.select_by_values(column, selection_values, how=how)
-        collection_selected = data_selected.to_collection()
-        return collection_selected
+        header_selected = self.header.get(data_selected["nr"].unique())
+        return self._clone_with_attrs(header_selected, data_selected)
 
     def slice_depth_interval(
         self,
@@ -1971,20 +2100,20 @@ class Collection(AbstractCollection):
         Usage depends on whether the slicing is done with respect to depth below the
         surface or to a vertical reference plane.
 
-        For example, select layers in boreholes that are between 2 and 3 meters below the
+        For example, select layers in data that are between 2 and 3 meters below the
         surface:
 
-        >>> boreholes.slice_depth_interval(2, 3)
+        >>> data.slice_depth_interval(2, 3)
 
         By default, the method updates the layer boundaries in sliced object according to
         the upper and lower boundaries. To suppress this behaviour use:
 
-        >>> boreholes.slice_depth_interval(2, 3, update_layer_boundaries=False)
+        >>> data.slice_depth_interval(2, 3, update_layer_boundaries=False)
 
         Slicing can also be done with respect to a vertical reference plane like "NAP".
-        For example, to select layers in boreholes that are between -3 and -5 m NAP, use:
+        For example, to select layers in data that are between -3 and -5 m NAP, use:
 
-        >>> boreholes.slice_depth_interval(-3, -5, relative_to_vertical_reference=True)
+        >>> data.slice_depth_interval(-3, -5, relative_to_vertical_reference=True)
 
         """
         data_selected = self.data.slice_depth_interval(
@@ -1993,8 +2122,8 @@ class Collection(AbstractCollection):
             relative_to_vertical_reference=relative_to_vertical_reference,
             update_layer_boundaries=update_layer_boundaries,
         )
-        collection_selected = data_selected.to_collection()
-        return collection_selected
+        header_selected = self.header.get(data_selected["nr"].unique())
+        return self._clone_with_attrs(header_selected, data_selected)
 
     def slice_by_values(
         self, column: str, selection_values: str | Iterable, invert: bool = False
@@ -2036,8 +2165,8 @@ class Collection(AbstractCollection):
         data_selected = self.data.slice_by_values(
             column, selection_values, invert=invert
         )
-        collection_selected = data_selected.to_collection()
-        return collection_selected
+        header_selected = self.header.get(data_selected["nr"].unique())
+        return self._clone_with_attrs(header_selected, data_selected)
 
     def select_by_condition(self, condition: Any, invert: bool = False):
         """
@@ -2061,23 +2190,31 @@ class Collection(AbstractCollection):
 
         Examples
         --------
-        Select rows in borehole data that contain a specific value:
+        Select rows in data that contain a specific value:
 
-        >>> boreholes.select_by_condition(boreholes["lith"]=="V")
+        >>> data.select_by_condition(data["lith"]=="V")
 
-        Or select rows in the borehole data that contain a specific (part of) string or
-        strings:
+        Select rows in the data that contain a specific (part of) string or strings:
 
         >>> boreholes.select_by_condition(boreholes["column"].str.contains("foo|bar"))
 
+        Select rows in data where column values are larger than:
+
+        >>> data.select_by_condition(data["column"] > 2)
+
+        Or select rows in the data based on multiple conditions:
+
+        >>> data.select_by_condition((data["column1"] > 2) & (data["column2] < 1))
+
         """
-        selected = self.data.select_by_condition(condition, invert)
-        return selected.to_collection()
+        data_selected = self.data.select_by_condition(condition, invert)
+        header_selected = self.header.get(data_selected["nr"].unique())
+        return self._clone_with_attrs(header_selected, data_selected)
 
     def get_area_labels(
         self,
         polygon_gdf: str | Path | gpd.GeoDataFrame,
-        column_name: str,
+        column_name: str | Iterable,
         include_in_header=False,
     ) -> pd.DataFrame:
         """
@@ -2088,8 +2225,9 @@ class Collection(AbstractCollection):
         ----------
         polygon_gdf : str | Path | gpd.GeoDataFrame
             GeoDataFrame with polygons.
-        column_name : str
-            The column name to find the labels in.
+        column_name : str | Iterable
+            The column name to find the labels in. Given as a string or iterable of
+            strings in case you'd like to find multiple labels.
         include_in_header : bool, optional
             Whether to add the acquired data to the header table or not, by default
             False.
@@ -2136,20 +2274,38 @@ class Collection(AbstractCollection):
         """
         self.header.to_shape(outfile, **kwargs)
 
-    def to_geopackage(self, outfile: str | Path, **kwargs):
+    def to_geopackage(self, outfile: str | Path, metadata: dict[str, str] = None):
         """
-        Write header data to geopackage. You can use the resulting file to display
+        Write header and data to a geopackage. You can use the resulting file to display
         borehole locations in GIS for instance.
 
         Parameters
         ----------
         file : str | Path
             Path to geopackage to be written.
-        **kwargs
-            gpd.GeoDataFrame.to_file kwargs. See relevant GeoPandas documentation.
+        metadata : dict[str, str], default None
+            Optional metadata to be stored in the file. Keys and values must be strings.
+            The default is None.
 
         """
-        self.header.to_geopackage(outfile, **kwargs)
+        _to_geopackage(
+            self.header.gdf,
+            outfile,
+            "Header",
+            layer="header",
+            driver="GPKG",
+            index=False,
+            metadata=metadata,
+        )
+        _to_geopackage(
+            gpd.GeoDataFrame(self.data.df),
+            outfile,
+            "Data",
+            layer="data",
+            driver="GPKG",
+            index=False,
+            metadata=metadata,
+        )
 
     def to_parquet(self, outfile: str | Path, data_table: bool = True, **kwargs):
         """
@@ -2206,6 +2362,24 @@ class Collection(AbstractCollection):
             self.data.to_csv(outfile, **kwargs)
         else:
             self.header.to_csv(outfile, **kwargs)
+
+    def to_pickle(self, outfile: str | Path, **kwargs):
+        """
+        Export the complete Collection to a pickle file.
+
+        Parameters
+        ----------
+        file : str | Path
+            Path to pickle file to be written.
+        **kwargs
+            pd.to_pickle kwargs. See relevant Pandas documentation.
+
+        Examples
+        --------
+        >>> collection.to_pickle("example.pkl")
+
+        """
+        save_pickle(self, outfile, **kwargs)
 
     def to_multiblock(
         self,
@@ -2513,10 +2687,67 @@ class BoreholeCollection(Collection):
 
 
 class CptCollection(Collection):
-    def get_cumulative_thickness(self):
+    def slice_depth_interval(
+        self,
+        upper_boundary: float | int = None,
+        lower_boundary: float | int = None,
+        relative_to_vertical_reference: bool = False,
+    ):
+        """
+        Slice data based on given upper and lower boundaries. This returns a new object
+        containing only the sliced data.
+
+        Parameters
+        ----------
+        upper_boundary : float | int, optional
+            Every layer that starts above this is removed. The default is None.
+        lower_boundary : float | int, optional
+            Every layer that starts below this is removed. The default is None.
+        relative_to_vertical_reference : bool, optional
+            If True, the slicing is done with respect to any kind of vertical reference
+            plane (e.g. "NAP", "TAW"). If False, the slice is done with respect to depth
+            below the surface. The default is False.
+
+        Returns
+        -------
+        New instance of the current object.
+            New instance of the current object containing only the selection resulting
+            from application of this method. e.g. if you are calling this method from a
+            Collection, you will get an instance of a Collection back.
+
+        Examples
+        --------
+        Usage depends on whether the slicing is done with respect to depth below the
+        surface or to a vertical reference plane.
+
+        For example, select layers in data that are between 2 and 3 meters below the
+        surface:
+
+        >>> data.slice_depth_interval(2, 3)
+
+        By default, the method updates the layer boundaries in sliced object according to
+        the upper and lower boundaries. To suppress this behaviour use:
+
+        >>> data.slice_depth_interval(2, 3, update_layer_boundaries=False)
+
+        Slicing can also be done with respect to a vertical reference plane like "NAP".
+        For example, to select layers in data that are between -3 and -5 m NAP, use:
+
+        >>> data.slice_depth_interval(-3, -5, relative_to_vertical_reference=True)
+
+        """
+        data_selected = self.data.slice_depth_interval(
+            upper_boundary=upper_boundary,
+            lower_boundary=lower_boundary,
+            relative_to_vertical_reference=relative_to_vertical_reference,
+        )
+        collection_selected = data_selected.to_collection()
+        return collection_selected
+
+    def get_cumulative_thickness(self):  # pragma: no cover
         raise NotImplementedError()
 
-    def get_layer_top(self):
+    def get_layer_top(self):  # pragma: no cover
         raise NotImplementedError()
 
 

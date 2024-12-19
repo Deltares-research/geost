@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import Union
+from typing import Any, Callable
 
 import geopandas as gpd
 import numpy as np
@@ -8,6 +8,7 @@ from pyproj import CRS
 
 from geost.base import (
     BoreholeCollection,
+    Collection,
     CptCollection,
     DiscreteData,
     LayeredData,
@@ -159,18 +160,18 @@ def read_borehole_table(
     includes row data for each (borehole) layer and must at least include the following
     column headers:
 
-    nr      - Object id
-    x       - X-coordinates according to the given horizontal_reference
-    y       - Y-coordinates according to the given horizontal_reference
-    surface - Surface elevation according to the given vertical_reference
-    end     - End depth according to the given vertical_reference
-    top     - Top depth of each layer
-    bottom  - Bottom depth of each layer
+    - **nr** : Object id
+    - **x** : X-coordinates according to the given horizontal_reference
+    - **y** : Y-coordinates according to the given horizontal_reference
+    - **surface** : Surface elevation according to the given vertical_reference
+    - **end** : End depth according to the given vertical_reference
+    - **top** : Top depth of each layer
+    - **bottom** : Bottom depth of each layer
 
     In case there are inclined boreholes in the layer data, you additionally require:
 
-    x_bot   - X-coordinates of the layer bottoms
-    y_bot   - Y-coordinates of the layer bottoms
+    - **x_bot** : X-coordinates of the layer bottoms
+    - **y_bot** : Y-coordinates of the layer bottoms
 
     If you are reading a file that uses different column names, see the optional
     argument "column_mapper" below. There are no further limits or requirements to
@@ -700,3 +701,116 @@ def read_uullg_tables(
     header = PointHeader(header, vertical_reference)
     data = LayeredData(data)
     return BoreholeCollection(header, data)
+
+
+def read_collection_geopackage(
+    filepath: str | Path,
+    collection_type: Collection,
+    horizontal_reference: str | int | CRS = 28992,
+    vertical_reference: str | int | CRS = 5709,
+):
+    """
+    Read a GeoST stored Geopackage file of `geost.base.Collection` objects. The
+    Geopackage contains the Collection's "header" and "data" attributes as layers which
+    are read into the specified Collection.
+
+    Parameters
+    ----------
+    filepath : str | Path
+        GeoST stored Geopackage file of a `geost.base.Collection` object.
+    collection_type : Collection
+        Type of GeoST Collection object the data needs to be. Subclasses of `Collection`
+        (e.g. :class:`geost.base.BoreholeCollection`, :class:`geost.base.CptCollection`)
+        for the available types.
+    horizontal_reference : str | int | CRS, optional
+        EPSG of the data's horizontal reference. Takes anything that can be interpreted
+        by pyproj.crs.CRS.from_user_input(). The default is 28992.
+    vertical_reference : str | int | CRS, optional
+        EPSG of the data's vertical datum. Takes anything that can be interpreted by
+        pyproj.crs.CRS.from_user_input(). However, it must be a vertical datum. FYI:
+        "NAP" is EPSG 5709 and The Belgian reference system (Ostend height) is ESPG
+        5710. The default is 5709.
+
+    Returns
+    -------
+    Subclass of `geost.base.Collection`
+        Subclass which is specified as collection_type.
+
+    Raises
+    ------
+    ValueError
+        Raises ValueError if the collection_type is not supported.
+
+    Examples
+    --------
+    Any GeoST `Collection` object can be stored as a geopackage file:
+
+    >>> original_collection = geost.data.boreholes_usp()
+    >>> original_collection
+    BoreholeCollection:
+    # header = 67
+    >>> original_collection.to_geopackage("./collection.gpkg")
+
+    Reading the stored collection using `geost.read_collection_geopackage` returns the
+    stored collection:
+
+    >>> collection = geost.read_collection_geopackage(
+    ...     "./collection.gpkg", collection_type=BoreholeCollection
+    ...     )
+    >>> collection
+    BoreholeCollection:
+    # header = 67
+
+    """
+    # TODO: Check collection type inference possibility from geopackage metadata.
+    if collection_type == BoreholeCollection:
+        header_type = PointHeader
+        data_type = LayeredData
+    elif collection_type == CptCollection:
+        header_type = PointHeader
+        data_type = DiscreteData
+    else:
+        raise ValueError(f"Collection type {collection_type} not supported.")
+
+    header = gpd.read_file(filepath, layer="header")
+    header.set_crs(horizontal_reference, inplace=True, allow_override=True)
+    data = gpd.read_file(filepath, layer="data")
+    return collection_type(header_type(header, vertical_reference), data_type(data))
+
+
+def read_pickle(filepath: str | Path, **kwargs) -> Any:
+    """
+    Read pickled GeoST object (or any object) from file.
+
+    Parameters
+    ----------
+    filepath : str | Path
+        Path to pickle file to open.
+    **kwargs
+        pd.read_pickle kwargs. See relevant Pandas documentation.
+
+    Returns
+    -------
+    Any
+        Returns the Python object that was stored in the pickle.
+
+    Examples
+    --------
+    Any GeoST :class:`geost.base.Collection` object can be stored as a pickle file:
+
+    >>> original_collection = geost.data.boreholes_usp()
+    >>> original_collection
+    BoreholeCollection:
+    # header = 67
+    >>> original_collection.to_pickle("./collection.pkl")
+
+    Reading the stored pickle using `geost.read_pickle` returns the stored collection:
+
+    >>> collection = geost.read_pickle("./collection.pkl")
+    >>> collection
+    BoreholeCollection:
+    # header = 67
+
+    """
+    pkl = pd.read_pickle(filepath, **kwargs)
+    return pkl
