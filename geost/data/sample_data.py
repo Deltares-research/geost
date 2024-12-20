@@ -9,7 +9,7 @@ from geost.read import read_borehole_table, read_cpt_table
 
 REGISTRY = pooch.create(
     path=pooch.os_cache("geost"),
-    base_url="https://github.com/Deltares-research/geost/raw/feature/docs/data/",  # TODO: Change to 'main' branch
+    base_url="https://github.com/Deltares-research/geost/raw/main/data/",
     version=None,
     env="GEOST_DATA_DIR",
 )
