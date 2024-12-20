@@ -1,6 +1,6 @@
 # Release notes
 
-## v0.2.5
+## v0.2.6
 
 [**Full Changelog**](https://github.com/Deltares-research/geost/compare/0.2.4...0.2.5)
 
