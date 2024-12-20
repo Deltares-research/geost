@@ -1,4 +1,5 @@
 from pathlib import Path
+from typing import Iterable
 
 import geopandas as gpd
 import numpy as np
@@ -263,7 +264,7 @@ def select_points_within_polygons(
 def find_area_labels(
     point_geodataframe: gpd.GeoDataFrame,
     polygon_geodataframe: gpd.GeoDataFrame,
-    column_name: str,
+    column_name: str | Iterable,
 ) -> pd.Series:
     """
     Function to find labels associated with polygon geometries for a series of queried
@@ -276,14 +277,18 @@ def find_area_labels(
         geometries they are located.
     polygon_geodataframe : gpd.GeoDataFrame
         Geodataframe with polygon geometries
-    column_name : str
+    column_name : str | Iterable
         Label of the polygon geometries to use for assigning to the queried points.
+        Given as a string or iterable of strings in case you'd like to find multiple
+        labels.
 
     Returns
     -------
     pandas.Series
         Series with labels from the polygon geometries for each point.
     """
+    if not isinstance(column_name, str):
+        column_name = list(column_name)
     joined = gpd.sjoin(point_geodataframe, polygon_geodataframe)[column_name]
     # Remove any duplicated indices, which may sometimes happen
     area_labels = joined[~joined.index.duplicated()]

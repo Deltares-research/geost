@@ -1,7 +1,12 @@
 import geopandas as gpd
 import pandas as pd
 import pytest
-from numpy.testing import assert_allclose, assert_almost_equal, assert_array_equal
+from numpy.testing import (
+    assert_allclose,
+    assert_almost_equal,
+    assert_array_equal,
+    assert_equal,
+)
 from shapely.geometry import LineString, Point, Polygon
 
 from geost.base import LineHeader, PointHeader
@@ -167,6 +172,22 @@ class TestHeaders:
         # In-place variant
         point_header.get_area_labels(label_gdf, "id", include_in_header=True)
         assert_almost_equal(point_header["id"].sum(), 11)
+
+    @pytest.mark.unittest
+    def test_get_area_labels_multiple(self, point_header_gdf):
+        point_header = PointHeader(point_header_gdf, "NAP")
+        label_polygon = [Polygon(((2, 1), (5, 4), (4, 5), (1, 2)))]
+        label_gdf = gpd.GeoDataFrame(
+            {"id": [1], "col2": ["string_data"]}, geometry=label_polygon
+        )
+        # Return variant
+        output = point_header.get_area_labels(label_gdf, ["id", "col2"])
+        assert_almost_equal(output["id"].sum(), 11)
+        assert_equal(output["col2"].value_counts()["string_data"], 11)
+        # In-place variant
+        point_header.get_area_labels(label_gdf, ("id", "col2"), include_in_header=True)
+        assert_almost_equal(point_header["id"].sum(), 11)
+        assert_equal(point_header["col2"].value_counts()["string_data"], 11)
 
     @pytest.mark.unittest
     def test_export_to_csv_mixin(self, point_header_gdf, tmp_path):

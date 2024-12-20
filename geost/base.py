@@ -1,4 +1,5 @@
 import pickle
+from copy import deepcopy
 from pathlib import Path
 from typing import Any, Iterable, List
 
@@ -440,7 +441,7 @@ class PointHeader(AbstractHeader, GeopandasExportMixin):
     def get_area_labels(
         self,
         polygon_gdf: str | Path | gpd.GeoDataFrame,
-        column_name: str,
+        column_name: str | Iterable,
         include_in_header=False,
     ) -> pd.DataFrame:
         """
@@ -451,8 +452,9 @@ class PointHeader(AbstractHeader, GeopandasExportMixin):
         ----------
         polygon_gdf : str | Path | gpd.GeoDataFrame
             GeoDataFrame with polygons.
-        column_name : str
-            The column name to find the labels in.
+        column_name : str | Iterable
+            The column name to find the labels in. Given as a string or iterable of
+            strings in case you'd like to find multiple labels.
         include_in_header : bool, optional
             Whether to add the acquired data to the header table or not, by default
             False.
@@ -1628,6 +1630,31 @@ class Collection(AbstractCollection):
             self._data = self._data.__class__(data, self.has_inclined)
         self.check_header_to_data_alignment()
 
+    def _clone_with_attrs(self, new_header, new_data):
+        """
+        Create a deep copy of the current object with new header and data attributes.
+        This is used to return a new instance of the collection in methods that modify
+        the number of collection objects through e.g. selection and slicing methods.
+        Using this method over the self.__class__ constructor ensures that the new
+        object only has the header and data attributes updated, while keeping all other
+        attributes intact.
+
+        Parameters
+        ----------
+        new_header : Any Header object
+            The new header to be assigned to the cloned collection.
+        new_data : Any Data object
+            The new data to be assigned to the cloned collection.
+
+        Returns
+        -------
+        new_collection : New instance of self
+            A deep copy of the current object with updated header and data attributes.
+        """
+        new_collection = deepcopy(self)
+        new_collection._header, new_collection._data = new_header, new_data
+        return new_collection
+
     def add_header_column_to_data(self, column_name: str):  # No change
         """
         Add a column from the header to the data table. Useful if you e.g. add some data
@@ -1830,7 +1857,7 @@ class Collection(AbstractCollection):
             xmin, ymin, xmax, ymax, invert=invert
         )
         data_selected = self.data.select_by_values("nr", header_selected["nr"].unique())
-        return self.__class__(header_selected, data_selected)
+        return self._clone_with_attrs(header_selected, data_selected)
 
     def select_with_points(
         self,
@@ -1862,7 +1889,7 @@ class Collection(AbstractCollection):
         """
         header_selected = self.header.select_with_points(points, buffer, invert=invert)
         data_selected = self.data.select_by_values("nr", header_selected["nr"].unique())
-        return self.__class__(header_selected, data_selected)
+        return self._clone_with_attrs(header_selected, data_selected)
 
     def select_with_lines(
         self,
@@ -1894,7 +1921,7 @@ class Collection(AbstractCollection):
         """
         header_selected = self.header.select_with_lines(lines, buffer, invert=invert)
         data_selected = self.data.select_by_values("nr", header_selected["nr"].unique())
-        return self.__class__(header_selected, data_selected)
+        return self._clone_with_attrs(header_selected, data_selected)
 
     def select_within_polygons(
         self,
@@ -1929,7 +1956,7 @@ class Collection(AbstractCollection):
             polygons, buffer=buffer, invert=invert
         )
         data_selected = self.data.select_by_values("nr", header_selected["nr"].unique())
-        return self.__class__(header_selected, data_selected)
+        return self._clone_with_attrs(header_selected, data_selected)
 
     def select_by_depth(
         self,
@@ -1965,7 +1992,7 @@ class Collection(AbstractCollection):
             top_min=top_min, top_max=top_max, end_min=end_min, end_max=end_max
         )
         data_selected = self.data.select_by_values("nr", header_selected["nr"].unique())
-        return self.__class__(header_selected, data_selected)
+        return self._clone_with_attrs(header_selected, data_selected)
 
     def select_by_length(self, min_length: float = None, max_length: float = None):
         """
@@ -1990,7 +2017,7 @@ class Collection(AbstractCollection):
             min_length=min_length, max_length=max_length
         )
         data_selected = self.data.select_by_values("nr", header_selected["nr"].unique())
-        return self.__class__(header_selected, data_selected)
+        return self._clone_with_attrs(header_selected, data_selected)
 
     def select_by_values(
         self, column: str, selection_values: str | Iterable, how: str = "or"
@@ -2032,8 +2059,8 @@ class Collection(AbstractCollection):
 
         """
         data_selected = self.data.select_by_values(column, selection_values, how=how)
-        collection_selected = data_selected.to_collection()
-        return collection_selected
+        header_selected = self.header.get(data_selected["nr"].unique())
+        return self._clone_with_attrs(header_selected, data_selected)
 
     def slice_depth_interval(
         self,
@@ -2095,8 +2122,8 @@ class Collection(AbstractCollection):
             relative_to_vertical_reference=relative_to_vertical_reference,
             update_layer_boundaries=update_layer_boundaries,
         )
-        collection_selected = data_selected.to_collection()
-        return collection_selected
+        header_selected = self.header.get(data_selected["nr"].unique())
+        return self._clone_with_attrs(header_selected, data_selected)
 
     def slice_by_values(
         self, column: str, selection_values: str | Iterable, invert: bool = False
@@ -2138,8 +2165,8 @@ class Collection(AbstractCollection):
         data_selected = self.data.slice_by_values(
             column, selection_values, invert=invert
         )
-        collection_selected = data_selected.to_collection()
-        return collection_selected
+        header_selected = self.header.get(data_selected["nr"].unique())
+        return self._clone_with_attrs(header_selected, data_selected)
 
     def select_by_condition(self, condition: Any, invert: bool = False):
         """
@@ -2180,13 +2207,14 @@ class Collection(AbstractCollection):
         >>> data.select_by_condition((data["column1"] > 2) & (data["column2] < 1))
 
         """
-        selected = self.data.select_by_condition(condition, invert)
-        return selected.to_collection()
+        data_selected = self.data.select_by_condition(condition, invert)
+        header_selected = self.header.get(data_selected["nr"].unique())
+        return self._clone_with_attrs(header_selected, data_selected)
 
     def get_area_labels(
         self,
         polygon_gdf: str | Path | gpd.GeoDataFrame,
-        column_name: str,
+        column_name: str | Iterable,
         include_in_header=False,
     ) -> pd.DataFrame:
         """
@@ -2197,8 +2225,9 @@ class Collection(AbstractCollection):
         ----------
         polygon_gdf : str | Path | gpd.GeoDataFrame
             GeoDataFrame with polygons.
-        column_name : str
-            The column name to find the labels in.
+        column_name : str | Iterable
+            The column name to find the labels in. Given as a string or iterable of
+            strings in case you'd like to find multiple labels.
         include_in_header : bool, optional
             Whether to add the acquired data to the header table or not, by default
             False.

@@ -440,6 +440,25 @@ class TestCollection:
         assert_almost_equal(borehole_collection.header["id"].sum(), 2)
 
     @pytest.mark.unittest
+    def test_get_area_labels_multiple(self, borehole_collection):
+        label_polygon = [Polygon(((2, 1), (5, 4), (4, 5), (1, 4)))]
+        label_gdf = gpd.GeoDataFrame(
+            {"id": [1], "col2": ["string_data"]}, geometry=label_polygon
+        )
+        # Return variant
+        output = borehole_collection.get_area_labels(label_gdf, ["id", "col2"])
+        assert_almost_equal(output["id"].sum(), 2)
+        assert_equal(output["col2"].value_counts()["string_data"], 2)
+        # In-place variant
+        borehole_collection.get_area_labels(
+            label_gdf, ("id", "col2"), include_in_header=True
+        )
+        assert_almost_equal(borehole_collection.header["id"].sum(), 2)
+        assert_equal(
+            borehole_collection.header["col2"].value_counts()["string_data"], 2
+        )
+
+    @pytest.mark.unittest
     def test_to_multiblock(self, borehole_collection):
         # More detailed tests are in TestLayeredData in test_data_objects.py
         multiblock = borehole_collection.to_multiblock("lith")
@@ -492,8 +511,8 @@ class TestCollection:
         borehole_collection.to_geopackage(outfile)
         assert outfile.is_file()
         layers = gpd.list_layers(outfile)
-        assert_array_equal(layers['name'], ['header', 'data'])
-        assert_array_equal(layers['geometry_type'], ['Point', None])
+        assert_array_equal(layers["name"], ["header", "data"])
+        assert_array_equal(layers["geometry_type"], ["Point", None])
 
     @pytest.mark.unittest
     def test_to_parquet(self, borehole_collection, tmp_path):
