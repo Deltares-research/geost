@@ -39,6 +39,7 @@ jobs:
           - windows-latest
         pixi-environment: 
           - py312
+          - py313
     steps:
       - name: Check out repo
         uses: actions/checkout@v4
