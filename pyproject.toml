@@ -103,7 +103,7 @@ lint = "ruff check --fix ./geost"
 rm_jupyter = "rm -r ./docs/jupyter_execute"
 rm_build = "rm -r ./docs/build"
 rm_generated = "rm -r ./docs/api_reference/generated"
-rebuild_docs = { depends_on = ["rm_jupyter", "rm_build", "rm_generated", "docs"] }
+rebuild_docs = { depends-on = ["rm_jupyter", "rm_build", "rm_generated", "docs"] }
 
 [tool.pixi.feature.py312.dependencies]
 python = "3.12.*"
