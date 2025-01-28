@@ -116,14 +116,12 @@ class PointHeader(AbstractHeader, GeopandasExportMixin):
         As Pyproj is very flexible, you can even use the CRS's full official name:
 
         >>> self.change_horizontal_reference("WGS 84 / UTM zone 31N")
+
         """
-        transformer = horizontal_reference_transformer(
-            self.horizontal_reference, to_epsg
-        )
         self._gdf = self.gdf.to_crs(to_epsg)
-        self._gdf.loc[:, "x"], self._gdf.loc[:, "y"] = transformer.transform(
-            self._gdf["x"], self._gdf["y"]
-        )
+        self._gdf[["x", "y"]] = self._gdf[["x", "y"]].astype(float)
+        self._gdf["x"] = self._gdf["geometry"].x
+        self._gdf["y"] = self._gdf["geometry"].y
 
     def change_vertical_reference(self, to_epsg: str | int | CRS):
         """
@@ -163,6 +161,7 @@ class PointHeader(AbstractHeader, GeopandasExportMixin):
         transformer = vertical_reference_transformer(
             self.horizontal_reference, self.vertical_reference, to_epsg
         )
+        self.gdf[["surface", "end"]] = self.gdf[["surface", "end"]].astype(float)
         _, _, new_surface = transformer.transform(
             self.gdf["x"], self.gdf["y"], self.gdf["surface"]
         )
@@ -931,7 +930,7 @@ class LayeredData(AbstractData, PandasExportMixin):
         """
         selected_layers = self.slice_by_values(column, values)
         cum_thickness = selected_layers.df.groupby(["nr", column]).apply(
-            cumulative_thickness
+            cumulative_thickness, include_groups=False
         )
         cum_thickness = cum_thickness.unstack(level=column)
         return cum_thickness
@@ -1734,10 +1733,14 @@ class Collection(AbstractCollection):
         transformer = horizontal_reference_transformer(
             self.horizontal_reference, to_epsg
         )
+        self.data.df[["x", "y"]] = self.data.df[["x", "y"]].astype(float)
         self.data.df.loc[:, "x"], self.data.df.loc[:, "y"] = transformer.transform(
             self.data["x"], self.data["y"]
         )
         if self.data.has_inclined:
+            self.data.df[["x_bot", "y_bot"]] = self.data.df[["x_bot", "y_bot"]].astype(
+                float
+            )
             self.data.df.loc[:, "x_bot"], self.data.df.loc[:, "y_bot"] = (
                 transformer.transform(self.data["x_bot"], self.data["y_bot"])
             )
@@ -1781,6 +1784,9 @@ class Collection(AbstractCollection):
         """
         transformer = vertical_reference_transformer(
             self.horizontal_reference, self.vertical_reference, to_epsg
+        )
+        self.data.df[["surface", "end"]] = self.data.df[["surface", "end"]].astype(
+            float
         )
         _, _, new_surface = transformer.transform(
             self.data["x"], self.data["y"], self.data["surface"]
