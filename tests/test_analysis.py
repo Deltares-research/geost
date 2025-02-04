@@ -48,31 +48,31 @@ class TestAnalysis:
         # sand as well for this first encounter to be regarded as the top of the sand
         # (and all the above the cover layer)
         top = find_top_sand(
-                test_borehole_lith, test_borehole_top, test_borehole_bottom, 0.4, 1
-            )
+            test_borehole_lith, test_borehole_top, test_borehole_bottom, 0.4, 1
+        )
         assert_equal(top, 3.0)
 
         # After the first encounter of sand (Z) > 60% of the next 1 m must consist of
         # sand as well for this first encounter to be regarded as the top of the sand
         # (and all the above the cover layer)
         top = find_top_sand(
-                test_borehole_lith, test_borehole_top, test_borehole_bottom, 0.6, 1
-            )
+            test_borehole_lith, test_borehole_top, test_borehole_bottom, 0.6, 1
+        )
         assert_equal(top, 4.0)
 
         top = find_top_sand(
-                test_borehole_lith, test_borehole_top, test_borehole_bottom, 0.5, 1
-            )
+            test_borehole_lith, test_borehole_top, test_borehole_bottom, 0.5, 1
+        )
         assert_equal(top, 3.0)
 
         top = find_top_sand(
-                test_borehole_lith, test_borehole_top, test_borehole_bottom, 1, 6.5
-            )
+            test_borehole_lith, test_borehole_top, test_borehole_bottom, 1, 6.5
+        )
         assert_equal(top, np.nan)
 
         top = find_top_sand(
-                test_borehole_lith, test_borehole_top, test_borehole_bottom, 0.91, 6.5
-            )
+            test_borehole_lith, test_borehole_top, test_borehole_bottom, 0.91, 6.5
+        )
         assert_equal(top, 3.0)
 
     @pytest.mark.unittest
@@ -135,39 +135,39 @@ class TestCombine:
         assert_array_equal(
             result.data["strat"],
             [
-                1,
-                1,
-                1,
-                2,
+                1.0,
+                1.0,
+                1.0,
+                2.0,
                 np.nan,
                 np.nan,
                 np.nan,
-                1,
-                1,
-                1,
-                2,
+                1.0,
+                1.0,
+                1.0,
+                2.0,
                 np.nan,
                 np.nan,
                 np.nan,
-                1,
-                2,
-                1,
-                1,
-                2,
-                2,
-                np.nan,
-                np.nan,
-                np.nan,
-                np.nan,
+                1.0,
+                2.0,
+                1.0,
+                1.0,
+                2.0,
+                2.0,
                 np.nan,
                 np.nan,
                 np.nan,
                 np.nan,
-                1,
-                1,
-                1,
-                2,
-                2,
+                np.nan,
+                np.nan,
+                np.nan,
+                np.nan,
+                1.0,
+                1.0,
+                1.0,
+                2.0,
+                2.0,
                 np.nan,
                 np.nan,
             ],
@@ -353,39 +353,39 @@ class TestCombine:
         assert_array_equal(
             result.data["strat"],
             [
-                1,
-                1,
-                1,
-                2,
+                1.0,
+                1.0,
+                1.0,
+                2.0,
                 np.nan,
                 np.nan,
                 np.nan,
-                1,
-                1,
-                1,
-                2,
+                1.0,
+                1.0,
+                1.0,
+                2.0,
                 np.nan,
                 np.nan,
                 np.nan,
-                1,
-                2,
-                1,
-                1,
-                2,
-                2,
-                np.nan,
-                np.nan,
-                np.nan,
-                np.nan,
+                1.0,
+                2.0,
+                1.0,
+                1.0,
+                2.0,
+                2.0,
                 np.nan,
                 np.nan,
                 np.nan,
                 np.nan,
-                1,
-                1,
-                1,
-                2,
-                2,
+                np.nan,
+                np.nan,
+                np.nan,
+                np.nan,
+                1.0,
+                1.0,
+                1.0,
+                2.0,
+                2.0,
                 np.nan,
                 np.nan,
             ],
