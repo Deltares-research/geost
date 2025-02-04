@@ -15,8 +15,8 @@
     document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
     document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
   </script>
-  <!-- 
-    this give us a css class that will be invisible only if js is disabled 
+  <!--
+    this give us a css class that will be invisible only if js is disabled
   -->
   <noscript>
     <style>
@@ -26,20 +26,20 @@
   </noscript>
   
   <!-- Loaded before other Sphinx assets -->
-  <link href="../../_static/styles/theme.css?digest=26a4bc78f4c0ddb94549" rel="stylesheet" />
-<link href="../../_static/styles/pydata-sphinx-theme.css?digest=26a4bc78f4c0ddb94549" rel="stylesheet" />
+  <link href="../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
 
-    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="../../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=e0654d5c" />
     <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
     <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=e0654d5c" />
   
   <!-- So that users can add custom icons -->
-  <script src="../../_static/scripts/fontawesome.js?digest=26a4bc78f4c0ddb94549"></script>
+  <script src="../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=26a4bc78f4c0ddb94549" />
-<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=26a4bc78f4c0ddb94549" />
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
     <script src="../../_static/documentation_options.js?v=5929fcd5"></script>
     <script src="../../_static/doctools.js?v=9bcbadda"></script>
@@ -176,7 +176,9 @@
 </li>
 
             <li class="nav-item dropdown">
-                <button class="btn dropdown-toggle nav-item" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-controls="pst-nav-more-links">
+                <button class="btn dropdown-toggle nav-item" type="button"
+                data-bs-toggle="dropdown" aria-expanded="false"
+                aria-controls="pst-nav-more-links">
                     More
                 </button>
                 <ul id="pst-nav-more-links" class="dropdown-menu">
@@ -403,9 +405,14 @@
   
   
   <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
   </div>
-  
-  <div id="rtd-footer-container"></div>
 
 
       </div>
@@ -452,16 +459,16 @@
                 <article class="bd-article">
                   
   <h1>Source code for geost.base</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">pickle</span>
-<span class="kn">from</span> <span class="nn">copy</span> <span class="kn">import</span> <span class="n">deepcopy</span>
-<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">List</span>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">pickle</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">copy</span><span class="w"> </span><span class="kn">import</span> <span class="n">deepcopy</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">List</span>
 
-<span class="kn">import</span> <span class="nn">geopandas</span> <span class="k">as</span> <span class="nn">gpd</span>
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
-<span class="kn">from</span> <span class="nn">pyproj</span> <span class="kn">import</span> <span class="n">CRS</span>
-<span class="kn">from</span> <span class="nn">shapely.geometry</span> <span class="kn">import</span> <span class="p">(</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">geopandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">gpd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pyproj</span><span class="w"> </span><span class="kn">import</span> <span class="n">CRS</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">shapely.geometry</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">LineString</span><span class="p">,</span>
     <span class="n">MultiLineString</span><span class="p">,</span>
     <span class="n">MultiPoint</span><span class="p">,</span>
@@ -470,24 +477,24 @@
     <span class="n">Polygon</span><span class="p">,</span>
 <span class="p">)</span>
 
-<span class="kn">from</span> <span class="nn">geost</span> <span class="kn">import</span> <span class="n">spatial</span>
-<span class="kn">from</span> <span class="nn">geost.abstract_classes</span> <span class="kn">import</span> <span class="n">AbstractCollection</span><span class="p">,</span> <span class="n">AbstractData</span><span class="p">,</span> <span class="n">AbstractHeader</span>
-<span class="kn">from</span> <span class="nn">geost.analysis</span> <span class="kn">import</span> <span class="n">cumulative_thickness</span>
-<span class="kn">from</span> <span class="nn">geost.enums</span> <span class="kn">import</span> <span class="n">VerticalReference</span>
-<span class="kn">from</span> <span class="nn">geost.export</span> <span class="kn">import</span> <span class="n">borehole_to_multiblock</span><span class="p">,</span> <span class="n">export_to_dftgeodata</span>
-<span class="kn">from</span> <span class="nn">geost.mixins</span> <span class="kn">import</span> <span class="n">GeopandasExportMixin</span><span class="p">,</span> <span class="n">PandasExportMixin</span>
-<span class="kn">from</span> <span class="nn">geost.projections</span> <span class="kn">import</span> <span class="p">(</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">geost</span><span class="w"> </span><span class="kn">import</span> <span class="n">spatial</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">geost.abstract_classes</span><span class="w"> </span><span class="kn">import</span> <span class="n">AbstractCollection</span><span class="p">,</span> <span class="n">AbstractData</span><span class="p">,</span> <span class="n">AbstractHeader</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">geost.analysis</span><span class="w"> </span><span class="kn">import</span> <span class="n">cumulative_thickness</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">geost.enums</span><span class="w"> </span><span class="kn">import</span> <span class="n">VerticalReference</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">geost.export</span><span class="w"> </span><span class="kn">import</span> <span class="n">borehole_to_multiblock</span><span class="p">,</span> <span class="n">export_to_dftgeodata</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">geost.mixins</span><span class="w"> </span><span class="kn">import</span> <span class="n">GeopandasExportMixin</span><span class="p">,</span> <span class="n">PandasExportMixin</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">geost.projections</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">horizontal_reference_transformer</span><span class="p">,</span>
     <span class="n">vertical_reference_transformer</span><span class="p">,</span>
 <span class="p">)</span>
-<span class="kn">from</span> <span class="nn">geost.spatial</span> <span class="kn">import</span> <span class="n">check_gdf_instance</span>
-<span class="kn">from</span> <span class="nn">geost.utils</span> <span class="kn">import</span> <span class="p">(</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">geost.spatial</span><span class="w"> </span><span class="kn">import</span> <span class="n">check_gdf_instance</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">geost.utils</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">_to_geopackage</span><span class="p">,</span>
     <span class="n">dataframe_to_geodataframe</span><span class="p">,</span>
     <span class="n">save_pickle</span><span class="p">,</span>
     <span class="n">warn_user</span><span class="p">,</span>
 <span class="p">)</span>
-<span class="kn">from</span> <span class="nn">geost.validate.decorators</span> <span class="kn">import</span> <span class="n">validate_data</span><span class="p">,</span> <span class="n">validate_header</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">geost.validate.decorators</span><span class="w"> </span><span class="kn">import</span> <span class="n">validate_data</span><span class="p">,</span> <span class="n">validate_header</span>
 
 <span class="nb">type</span> <span class="n">DataObject</span> <span class="o">=</span> <span class="n">DiscreteData</span> <span class="o">|</span> <span class="n">LayeredData</span>
 <span class="nb">type</span> <span class="n">HeaderObject</span> <span class="o">=</span> <span class="n">LineHeader</span> <span class="o">|</span> <span class="n">PointHeader</span>
@@ -502,45 +509,45 @@
 
 <div class="viewcode-block" id="PointHeader">
 <a class="viewcode-back" href="../../api_reference/generated/geost.base.PointHeader.html#geost.base.PointHeader">[docs]</a>
-<span class="k">class</span> <span class="nc">PointHeader</span><span class="p">(</span><span class="n">AbstractHeader</span><span class="p">,</span> <span class="n">GeopandasExportMixin</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">PointHeader</span><span class="p">(</span><span class="n">AbstractHeader</span><span class="p">,</span> <span class="n">GeopandasExportMixin</span><span class="p">):</span>
 <div class="viewcode-block" id="PointHeader.__init__">
 <a class="viewcode-back" href="../../api_reference/generated/geost.base.PointHeader.html#geost.base.PointHeader.__init__">[docs]</a>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">gdf</span><span class="p">,</span> <span class="n">vertical_reference</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">int</span> <span class="o">|</span> <span class="n">CRS</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">gdf</span><span class="p">,</span> <span class="n">vertical_reference</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">int</span> <span class="o">|</span> <span class="n">CRS</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">gdf</span> <span class="o">=</span> <span class="n">gdf</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">__vertical_reference</span> <span class="o">=</span> <span class="n">CRS</span><span class="p">(</span><span class="n">vertical_reference</span><span class="p">)</span></div>
 
 
-    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span>
         <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_gdf</span>
         <span class="n">length</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
         <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> instance containing </span><span class="si">{</span><span class="n">length</span><span class="si">}</span><span class="s2"> objects</span><span class="se">\n</span><span class="si">{</span><span class="n">data</span><span class="si">}</span><span class="s2">&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">column</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">column</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">gdf</span><span class="p">[</span><span class="n">column</span><span class="p">]</span>
 
-    <span class="k">def</span> <span class="fm">__setitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">values</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__setitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">values</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">gdf</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">values</span>
 
-    <span class="k">def</span> <span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">gdf</span><span class="p">)</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">gdf</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">gdf</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Underlying geopandas.GeodataFrame with header data.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_gdf</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">horizontal_reference</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">horizontal_reference</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Coordinate reference system represented by an instance of pyproj.crs.CRS</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">gdf</span><span class="o">.</span><span class="n">crs</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">vertical_reference</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">vertical_reference</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Vertical datum represented by an instance of pyproj.crs.CRS</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -548,12 +555,12 @@
 
     <span class="nd">@gdf</span><span class="o">.</span><span class="n">setter</span>
     <span class="nd">@validate_header</span>
-    <span class="k">def</span> <span class="nf">gdf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">gdf</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">gdf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">gdf</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_gdf</span> <span class="o">=</span> <span class="n">gdf</span>
 
 <div class="viewcode-block" id="PointHeader.change_horizontal_reference">
 <a class="viewcode-back" href="../../api_reference/generated/geost.base.PointHeader.change_horizontal_reference.html#geost.base.PointHeader.change_horizontal_reference">[docs]</a>
-    <span class="k">def</span> <span class="nf">change_horizontal_reference</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">to_epsg</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">int</span> <span class="o">|</span> <span class="n">CRS</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">change_horizontal_reference</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">to_epsg</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">int</span> <span class="o">|</span> <span class="n">CRS</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Change the horizontal reference (i.e. coordinate reference system, crs) of the</span>
 <span class="sd">        header to the given target crs.</span>
@@ -577,19 +584,17 @@
 <span class="sd">        As Pyproj is very flexible, you can even use the CRS&#39;s full official name:</span>
 
 <span class="sd">        &gt;&gt;&gt; self.change_horizontal_reference(&quot;WGS 84 / UTM zone 31N&quot;)</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">transformer</span> <span class="o">=</span> <span class="n">horizontal_reference_transformer</span><span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">horizontal_reference</span><span class="p">,</span> <span class="n">to_epsg</span>
-        <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_gdf</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">gdf</span><span class="o">.</span><span class="n">to_crs</span><span class="p">(</span><span class="n">to_epsg</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_gdf</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="s2">&quot;x&quot;</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">_gdf</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="s2">&quot;y&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">transformer</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_gdf</span><span class="p">[</span><span class="s2">&quot;x&quot;</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">_gdf</span><span class="p">[</span><span class="s2">&quot;y&quot;</span><span class="p">]</span>
-        <span class="p">)</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_gdf</span><span class="p">[[</span><span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="s2">&quot;y&quot;</span><span class="p">]]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_gdf</span><span class="p">[[</span><span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="s2">&quot;y&quot;</span><span class="p">]]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_gdf</span><span class="p">[</span><span class="s2">&quot;x&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_gdf</span><span class="p">[</span><span class="s2">&quot;geometry&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">x</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_gdf</span><span class="p">[</span><span class="s2">&quot;y&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_gdf</span><span class="p">[</span><span class="s2">&quot;geometry&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">y</span></div>
 
 
 <div class="viewcode-block" id="PointHeader.change_vertical_reference">
 <a class="viewcode-back" href="../../api_reference/generated/geost.base.PointHeader.change_vertical_reference.html#geost.base.PointHeader.change_vertical_reference">[docs]</a>
-    <span class="k">def</span> <span class="nf">change_vertical_reference</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">to_epsg</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">int</span> <span class="o">|</span> <span class="n">CRS</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">change_vertical_reference</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">to_epsg</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">int</span> <span class="o">|</span> <span class="n">CRS</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Change the vertical reference of the object&#39;s surface levels.</span>
 
@@ -627,6 +632,7 @@
         <span class="n">transformer</span> <span class="o">=</span> <span class="n">vertical_reference_transformer</span><span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">horizontal_reference</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">vertical_reference</span><span class="p">,</span> <span class="n">to_epsg</span>
         <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gdf</span><span class="p">[[</span><span class="s2">&quot;surface&quot;</span><span class="p">,</span> <span class="s2">&quot;end&quot;</span><span class="p">]]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">gdf</span><span class="p">[[</span><span class="s2">&quot;surface&quot;</span><span class="p">,</span> <span class="s2">&quot;end&quot;</span><span class="p">]]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span>
         <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">new_surface</span> <span class="o">=</span> <span class="n">transformer</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">gdf</span><span class="p">[</span><span class="s2">&quot;x&quot;</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">gdf</span><span class="p">[</span><span class="s2">&quot;y&quot;</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">gdf</span><span class="p">[</span><span class="s2">&quot;surface&quot;</span><span class="p">]</span>
         <span class="p">)</span>
@@ -640,7 +646,7 @@
 
 <div class="viewcode-block" id="PointHeader.get">
 <a class="viewcode-back" href="../../api_reference/generated/geost.base.PointHeader.get.html#geost.base.PointHeader.get">[docs]</a>
-    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">selection_values</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">column</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;nr&quot;</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">selection_values</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">column</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;nr&quot;</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get a subset of a header through a string or iterable of object id(s).</span>
 <span class="sd">        Optionally uses a different column than &quot;nr&quot; (the column with object ids).</span>
@@ -686,7 +692,7 @@
 
 <div class="viewcode-block" id="PointHeader.select_within_bbox">
 <a class="viewcode-back" href="../../api_reference/generated/geost.base.PointHeader.select_within_bbox.html#geost.base.PointHeader.select_within_bbox">[docs]</a>
-    <span class="k">def</span> <span class="nf">select_within_bbox</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">select_within_bbox</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">xmin</span><span class="p">:</span> <span class="n">Coordinate</span><span class="p">,</span>
         <span class="n">ymin</span><span class="p">:</span> <span class="n">Coordinate</span><span class="p">,</span>
@@ -725,7 +731,7 @@
 
 <div class="viewcode-block" id="PointHeader.select_with_points">
 <a class="viewcode-back" href="../../api_reference/generated/geost.base.PointHeader.select_with_points.html#geost.base.PointHeader.select_with_points">[docs]</a>
-    <span class="k">def</span> <span class="nf">select_with_points</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">select_with_points</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">points</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span> <span class="o">|</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span> <span class="o">|</span> <span class="n">PointGeometries</span><span class="p">,</span>
         <span class="n">buffer</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="nb">int</span><span class="p">,</span>
@@ -765,7 +771,7 @@
 
 <div class="viewcode-block" id="PointHeader.select_with_lines">
 <a class="viewcode-back" href="../../api_reference/generated/geost.base.PointHeader.select_with_lines.html#geost.base.PointHeader.select_with_lines">[docs]</a>
-    <span class="k">def</span> <span class="nf">select_with_lines</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">select_with_lines</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">lines</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span> <span class="o">|</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span> <span class="o">|</span> <span class="n">LineGeometries</span><span class="p">,</span>
         <span class="n">buffer</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="nb">int</span><span class="p">,</span>
@@ -805,7 +811,7 @@
 
 <div class="viewcode-block" id="PointHeader.select_within_polygons">
 <a class="viewcode-back" href="../../api_reference/generated/geost.base.PointHeader.select_within_polygons.html#geost.base.PointHeader.select_within_polygons">[docs]</a>
-    <span class="k">def</span> <span class="nf">select_within_polygons</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">select_within_polygons</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">polygons</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span> <span class="o">|</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span> <span class="o">|</span> <span class="n">PolygonGeometries</span><span class="p">,</span>
         <span class="n">buffer</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
@@ -848,7 +854,7 @@
 
 <div class="viewcode-block" id="PointHeader.select_by_depth">
 <a class="viewcode-back" href="../../api_reference/generated/geost.base.PointHeader.select_by_depth.html#geost.base.PointHeader.select_by_depth">[docs]</a>
-    <span class="k">def</span> <span class="nf">select_by_depth</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">select_by_depth</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">top_min</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">top_max</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -894,7 +900,7 @@
 
 <div class="viewcode-block" id="PointHeader.select_by_length">
 <a class="viewcode-back" href="../../api_reference/generated/geost.base.PointHeader.select_by_length.html#geost.base.PointHeader.select_by_length">[docs]</a>
-    <span class="k">def</span> <span class="nf">select_by_length</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">min_length</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">max_length</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">select_by_length</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">min_length</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">max_length</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Select data from length constraints: e.g. all boreholes between 50 and 150 m</span>
 <span class="sd">        long. If a keyword argument is not given it will not be considered.</span>
@@ -926,7 +932,7 @@
 
 <div class="viewcode-block" id="PointHeader.get_area_labels">
 <a class="viewcode-back" href="../../api_reference/generated/geost.base.PointHeader.get_area_labels.html#geost.base.PointHeader.get_area_labels">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_area_labels</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_area_labels</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">polygon_gdf</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span> <span class="o">|</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">,</span>
         <span class="n">column_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Iterable</span><span class="p">,</span>
@@ -975,74 +981,74 @@
 
 
 
-<span class="k">class</span> <span class="nc">LineHeader</span><span class="p">(</span><span class="n">AbstractHeader</span><span class="p">,</span> <span class="n">GeopandasExportMixin</span><span class="p">):</span>  <span class="c1"># pragma: no cover</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">gdf</span><span class="p">,</span> <span class="n">vertical_reference</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">int</span> <span class="o">|</span> <span class="n">CRS</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">LineHeader</span><span class="p">(</span><span class="n">AbstractHeader</span><span class="p">,</span> <span class="n">GeopandasExportMixin</span><span class="p">):</span>  <span class="c1"># pragma: no cover</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">gdf</span><span class="p">,</span> <span class="n">vertical_reference</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">int</span> <span class="o">|</span> <span class="n">CRS</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">gdf</span> <span class="o">=</span> <span class="n">gdf</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">__vertical_reference</span> <span class="o">=</span> <span class="n">CRS</span><span class="p">(</span><span class="n">vertical_reference</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"> instance containing </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="si">}</span><span class="s2"> objects&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">column</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">column</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">gdf</span><span class="p">[</span><span class="n">column</span><span class="p">]</span>
 
-    <span class="k">def</span> <span class="fm">__setitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">values</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__setitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">values</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">gdf</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">values</span>
 
-    <span class="k">def</span> <span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">gdf</span><span class="p">)</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">gdf</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">gdf</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_gdf</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">horizontal_reference</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">horizontal_reference</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">gdf</span><span class="o">.</span><span class="n">crs</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">vertical_reference</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">vertical_reference</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__vertical_reference</span>
 
     <span class="nd">@gdf</span><span class="o">.</span><span class="n">setter</span>
     <span class="nd">@validate_header</span>
-    <span class="k">def</span> <span class="nf">gdf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">gdf</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">gdf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">gdf</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_gdf</span> <span class="o">=</span> <span class="n">gdf</span>
 
-    <span class="k">def</span> <span class="nf">change_horizontal_reference</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">to_epsg</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">int</span> <span class="o">|</span> <span class="n">CRS</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">change_horizontal_reference</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">to_epsg</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">int</span> <span class="o">|</span> <span class="n">CRS</span><span class="p">):</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;Add function logic&quot;</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">change_vertical_reference</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">to_epsg</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">int</span> <span class="o">|</span> <span class="n">CRS</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">change_vertical_reference</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">to_epsg</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">int</span> <span class="o">|</span> <span class="n">CRS</span><span class="p">):</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;Add function logic&quot;</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;Add function logic&quot;</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">select_within_bbox</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">select_within_bbox</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;Add function logic&quot;</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">select_with_points</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">select_with_points</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;Add function logic&quot;</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">select_with_lines</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">select_with_lines</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;Add function logic&quot;</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">select_within_polygons</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">select_within_polygons</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;Add function logic&quot;</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">select_by_depth</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">select_by_depth</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;Add function logic&quot;</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">select_by_length</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">select_by_length</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;Add function logic&quot;</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">get_area_labels</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_area_labels</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;Add function logic&quot;</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="LayeredData">
 <a class="viewcode-back" href="../../api_reference/generated/geost.base.LayeredData.html#geost.base.LayeredData">[docs]</a>
-<span class="k">class</span> <span class="nc">LayeredData</span><span class="p">(</span><span class="n">AbstractData</span><span class="p">,</span> <span class="n">PandasExportMixin</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">LayeredData</span><span class="p">(</span><span class="n">AbstractData</span><span class="p">,</span> <span class="n">PandasExportMixin</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    A class to hold layered data objects (i.e. containing &quot;tops&quot; and &quot;bottoms&quot;) like</span>
 <span class="sd">    borehole descriptions which can be used for selections and exports.</span>
@@ -1063,7 +1069,7 @@
 
 <div class="viewcode-block" id="LayeredData.__init__">
 <a class="viewcode-back" href="../../api_reference/generated/geost.base.LayeredData.html#geost.base.LayeredData.__init__">[docs]</a>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
         <span class="n">has_inclined</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
@@ -1072,51 +1078,51 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">df</span> <span class="o">=</span> <span class="n">df</span></div>
 
 
-    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span>
         <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_df</span>
         <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> instance:</span><span class="se">\n</span><span class="si">{</span><span class="n">data</span><span class="si">}</span><span class="s2">&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">column</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">column</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="p">[</span><span class="n">column</span><span class="p">]</span>
 
-    <span class="k">def</span> <span class="fm">__setitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">column</span><span class="p">,</span> <span class="n">item</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__setitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">column</span><span class="p">,</span> <span class="n">item</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="n">column</span><span class="p">]</span> <span class="o">=</span> <span class="n">item</span>
 
-    <span class="k">def</span> <span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="p">)</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">df</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">df</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_df</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">datatype</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">datatype</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__datatype</span>
 
     <span class="nd">@df</span><span class="o">.</span><span class="n">setter</span>
     <span class="nd">@validate_data</span>
-    <span class="k">def</span> <span class="nf">df</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">df</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">df</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">df</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Underlying pandas.DataFrame</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_df</span> <span class="o">=</span> <span class="n">df</span>
 
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">_check_correct_instance</span><span class="p">(</span><span class="n">selection_values</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Iterable</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterable</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_check_correct_instance</span><span class="p">(</span><span class="n">selection_values</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Iterable</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterable</span><span class="p">:</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">selection_values</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
             <span class="n">selection_values</span> <span class="o">=</span> <span class="p">[</span><span class="n">selection_values</span><span class="p">]</span>
         <span class="k">return</span> <span class="n">selection_values</span>
 
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">_change_depth_values</span><span class="p">(</span><span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_change_depth_values</span><span class="p">(</span><span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
         <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="s2">&quot;top&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;surface&quot;</span><span class="p">]</span> <span class="o">-</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;top&quot;</span><span class="p">]</span>
         <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="s2">&quot;bottom&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;surface&quot;</span><span class="p">]</span> <span class="o">-</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;bottom&quot;</span><span class="p">]</span>
         <span class="k">return</span> <span class="n">df</span>
 
 <div class="viewcode-block" id="LayeredData.to_header">
 <a class="viewcode-back" href="../../api_reference/generated/geost.base.LayeredData.to_header.html#geost.base.LayeredData.to_header">[docs]</a>
-    <span class="k">def</span> <span class="nf">to_header</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">to_header</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">horizontal_reference</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">int</span> <span class="o">|</span> <span class="n">CRS</span> <span class="o">=</span> <span class="mi">28992</span><span class="p">,</span>
         <span class="n">vertical_reference</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">int</span> <span class="o">|</span> <span class="n">CRS</span> <span class="o">=</span> <span class="mi">5709</span><span class="p">,</span>
@@ -1148,7 +1154,7 @@
 
 <div class="viewcode-block" id="LayeredData.to_collection">
 <a class="viewcode-back" href="../../api_reference/generated/geost.base.LayeredData.to_collection.html#geost.base.LayeredData.to_collection">[docs]</a>
-    <span class="k">def</span> <span class="nf">to_collection</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">to_collection</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">horizontal_reference</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">int</span> <span class="o">|</span> <span class="n">CRS</span> <span class="o">=</span> <span class="mi">28992</span><span class="p">,</span>
         <span class="n">vertical_reference</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">int</span> <span class="o">|</span> <span class="n">CRS</span> <span class="o">=</span> <span class="mi">5709</span><span class="p">,</span>
@@ -1180,7 +1186,7 @@
 
 <div class="viewcode-block" id="LayeredData.select_by_values">
 <a class="viewcode-back" href="../../api_reference/generated/geost.base.LayeredData.select_by_values.html#geost.base.LayeredData.select_by_values">[docs]</a>
-    <span class="k">def</span> <span class="nf">select_by_values</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">select_by_values</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">column</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">selection_values</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">how</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;or&quot;</span>
     <span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -1240,7 +1246,7 @@
 
 <div class="viewcode-block" id="LayeredData.slice_depth_interval">
 <a class="viewcode-back" href="../../api_reference/generated/geost.base.LayeredData.slice_depth_interval.html#geost.base.LayeredData.slice_depth_interval">[docs]</a>
-    <span class="k">def</span> <span class="nf">slice_depth_interval</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">slice_depth_interval</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">upper_boundary</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">lower_boundary</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -1324,7 +1330,7 @@
 
 <div class="viewcode-block" id="LayeredData.slice_by_values">
 <a class="viewcode-back" href="../../api_reference/generated/geost.base.LayeredData.slice_by_values.html#geost.base.LayeredData.slice_by_values">[docs]</a>
-    <span class="k">def</span> <span class="nf">slice_by_values</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">slice_by_values</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">column</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">selection_values</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">invert</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
     <span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -1373,7 +1379,7 @@
 
 <div class="viewcode-block" id="LayeredData.select_by_condition">
 <a class="viewcode-back" href="../../api_reference/generated/geost.base.LayeredData.select_by_condition.html#geost.base.LayeredData.select_by_condition">[docs]</a>
-    <span class="k">def</span> <span class="nf">select_by_condition</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">condition</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">invert</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">select_by_condition</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">condition</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">invert</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Select data using a manual condition that results in a boolean mask. Returns the</span>
 <span class="sd">        rows in the data where the &#39;condition&#39; evaluates to True.</span>
@@ -1413,7 +1419,7 @@
 
 <div class="viewcode-block" id="LayeredData.get_cumulative_thickness">
 <a class="viewcode-back" href="../../api_reference/generated/geost.base.LayeredData.get_cumulative_thickness.html#geost.base.LayeredData.get_cumulative_thickness">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_cumulative_thickness</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">column</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">values</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_cumulative_thickness</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">column</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">values</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get the cumulative thickness of layers where a column contains a specified search</span>
 <span class="sd">        value or values.</span>
@@ -1446,7 +1452,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">selected_layers</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">slice_by_values</span><span class="p">(</span><span class="n">column</span><span class="p">,</span> <span class="n">values</span><span class="p">)</span>
         <span class="n">cum_thickness</span> <span class="o">=</span> <span class="n">selected_layers</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">groupby</span><span class="p">([</span><span class="s2">&quot;nr&quot;</span><span class="p">,</span> <span class="n">column</span><span class="p">])</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span>
-            <span class="n">cumulative_thickness</span>
+            <span class="n">cumulative_thickness</span><span class="p">,</span> <span class="n">include_groups</span><span class="o">=</span><span class="kc">False</span>
         <span class="p">)</span>
         <span class="n">cum_thickness</span> <span class="o">=</span> <span class="n">cum_thickness</span><span class="o">.</span><span class="n">unstack</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="n">column</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">cum_thickness</span></div>
@@ -1454,7 +1460,7 @@
 
 <div class="viewcode-block" id="LayeredData.get_layer_top">
 <a class="viewcode-back" href="../../api_reference/generated/geost.base.LayeredData.get_layer_top.html#geost.base.LayeredData.get_layer_top">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_layer_top</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">column</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">values</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_layer_top</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">column</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">values</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Find the depth at which a specified layer first occurs.</span>
 
@@ -1485,7 +1491,7 @@
 
 <div class="viewcode-block" id="LayeredData.to_multiblock">
 <a class="viewcode-back" href="../../api_reference/generated/geost.base.LayeredData.to_multiblock.html#geost.base.LayeredData.to_multiblock">[docs]</a>
-    <span class="k">def</span> <span class="nf">to_multiblock</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">to_multiblock</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">data_columns</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
         <span class="n">radius</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
@@ -1533,7 +1539,7 @@
 
 <div class="viewcode-block" id="LayeredData.to_vtm">
 <a class="viewcode-back" href="../../api_reference/generated/geost.base.LayeredData.to_vtm.html#geost.base.LayeredData.to_vtm">[docs]</a>
-    <span class="k">def</span> <span class="nf">to_vtm</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">to_vtm</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">outfile</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">,</span>
         <span class="n">data_columns</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
@@ -1581,7 +1587,7 @@
 
 <div class="viewcode-block" id="LayeredData.to_datafusiontools">
 <a class="viewcode-back" href="../../api_reference/generated/geost.base.LayeredData.to_datafusiontools.html#geost.base.LayeredData.to_datafusiontools">[docs]</a>
-    <span class="k">def</span> <span class="nf">to_datafusiontools</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">to_datafusiontools</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">columns</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
         <span class="n">outfile</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -1636,7 +1642,7 @@
             <span class="k">return</span> <span class="n">dftgeodata</span></div>
 
 
-    <span class="k">def</span> <span class="nf">_create_geodataframe_3d</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_create_geodataframe_3d</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">relative_to_vertical_reference</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">crs</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">int</span> <span class="o">|</span> <span class="n">CRS</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -1706,7 +1712,7 @@
 
 <div class="viewcode-block" id="LayeredData.to_qgis3d">
 <a class="viewcode-back" href="../../api_reference/generated/geost.base.LayeredData.to_qgis3d.html#geost.base.LayeredData.to_qgis3d">[docs]</a>
-    <span class="k">def</span> <span class="nf">to_qgis3d</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">to_qgis3d</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">outfile</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">,</span>
         <span class="n">relative_to_vertical_reference</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
@@ -1740,7 +1746,7 @@
 
 <div class="viewcode-block" id="LayeredData.to_kingdom">
 <a class="viewcode-back" href="../../api_reference/generated/geost.base.LayeredData.to_kingdom.html#geost.base.LayeredData.to_kingdom">[docs]</a>
-    <span class="k">def</span> <span class="nf">to_kingdom</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">to_kingdom</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">outfile</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">,</span>
         <span class="n">tdstart</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
@@ -1801,46 +1807,46 @@
 
 <div class="viewcode-block" id="DiscreteData">
 <a class="viewcode-back" href="../../api_reference/generated/geost.base.DiscreteData.html#geost.base.DiscreteData">[docs]</a>
-<span class="k">class</span> <span class="nc">DiscreteData</span><span class="p">(</span><span class="n">AbstractData</span><span class="p">,</span> <span class="n">PandasExportMixin</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">DiscreteData</span><span class="p">(</span><span class="n">AbstractData</span><span class="p">,</span> <span class="n">PandasExportMixin</span><span class="p">):</span>
     <span class="n">__datatype</span> <span class="o">=</span> <span class="s2">&quot;discrete&quot;</span>
 
 <div class="viewcode-block" id="DiscreteData.__init__">
 <a class="viewcode-back" href="../../api_reference/generated/geost.base.DiscreteData.html#geost.base.DiscreteData.__init__">[docs]</a>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">df</span><span class="p">,</span> <span class="n">has_inclined</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">df</span><span class="p">,</span> <span class="n">has_inclined</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">has_inclined</span> <span class="o">=</span> <span class="n">has_inclined</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">df</span> <span class="o">=</span> <span class="n">df</span></div>
 
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">df</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">df</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_df</span>
 
     <span class="nd">@df</span><span class="o">.</span><span class="n">setter</span>
     <span class="nd">@validate_data</span>
-    <span class="k">def</span> <span class="nf">df</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">df</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">df</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">df</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_df</span> <span class="o">=</span> <span class="n">df</span>
 
-    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span>
         <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_df</span>
         <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> instance:</span><span class="se">\n</span><span class="si">{</span><span class="n">data</span><span class="si">}</span><span class="s2">&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">column</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">column</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="p">[</span><span class="n">column</span><span class="p">]</span>
 
-    <span class="k">def</span> <span class="fm">__setitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">column</span><span class="p">,</span> <span class="n">item</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__setitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">column</span><span class="p">,</span> <span class="n">item</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="n">column</span><span class="p">]</span> <span class="o">=</span> <span class="n">item</span>
 
-    <span class="k">def</span> <span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="p">)</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">datatype</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">datatype</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__datatype</span>
 
 <div class="viewcode-block" id="DiscreteData.to_header">
 <a class="viewcode-back" href="../../api_reference/generated/geost.base.DiscreteData.to_header.html#geost.base.DiscreteData.to_header">[docs]</a>
-    <span class="k">def</span> <span class="nf">to_header</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">to_header</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">horizontal_reference</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">int</span> <span class="o">|</span> <span class="n">CRS</span> <span class="o">=</span> <span class="mi">28992</span><span class="p">,</span>
         <span class="n">vertical_reference</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">int</span> <span class="o">|</span> <span class="n">CRS</span> <span class="o">=</span> <span class="mi">5709</span><span class="p">,</span>
@@ -1873,7 +1879,7 @@
 
 <div class="viewcode-block" id="DiscreteData.to_collection">
 <a class="viewcode-back" href="../../api_reference/generated/geost.base.DiscreteData.to_collection.html#geost.base.DiscreteData.to_collection">[docs]</a>
-    <span class="k">def</span> <span class="nf">to_collection</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">to_collection</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">horizontal_reference</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">int</span> <span class="o">|</span> <span class="n">CRS</span> <span class="o">=</span> <span class="mi">28992</span><span class="p">,</span>
         <span class="n">vertical_reference</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">int</span> <span class="o">|</span> <span class="n">CRS</span> <span class="o">=</span> <span class="mi">5709</span><span class="p">,</span>
@@ -1906,7 +1912,7 @@
 
 <div class="viewcode-block" id="DiscreteData.select_by_values">
 <a class="viewcode-back" href="../../api_reference/generated/geost.base.DiscreteData.select_by_values.html#geost.base.DiscreteData.select_by_values">[docs]</a>
-    <span class="k">def</span> <span class="nf">select_by_values</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">select_by_values</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">column</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">selection_values</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">how</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;or&quot;</span>
     <span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -1967,7 +1973,7 @@
 
 <div class="viewcode-block" id="DiscreteData.slice_depth_interval">
 <a class="viewcode-back" href="../../api_reference/generated/geost.base.DiscreteData.slice_depth_interval.html#geost.base.DiscreteData.slice_depth_interval">[docs]</a>
-    <span class="k">def</span> <span class="nf">slice_depth_interval</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">slice_depth_interval</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">upper_boundary</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">lower_boundary</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -2034,13 +2040,13 @@
 
 <div class="viewcode-block" id="DiscreteData.slice_by_values">
 <a class="viewcode-back" href="../../api_reference/generated/geost.base.DiscreteData.slice_by_values.html#geost.base.DiscreteData.slice_by_values">[docs]</a>
-    <span class="k">def</span> <span class="nf">slice_by_values</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>  <span class="c1"># pragma: no cover</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">slice_by_values</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>  <span class="c1"># pragma: no cover</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span></div>
 
 
 <div class="viewcode-block" id="DiscreteData.select_by_condition">
 <a class="viewcode-back" href="../../api_reference/generated/geost.base.DiscreteData.select_by_condition.html#geost.base.DiscreteData.select_by_condition">[docs]</a>
-    <span class="k">def</span> <span class="nf">select_by_condition</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">condition</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">invert</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">select_by_condition</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">condition</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">invert</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Select data using a manual condition that results in a boolean mask. Returns the</span>
 <span class="sd">        rows in the data where the &#39;condition&#39; evaluates to True.</span>
@@ -2080,37 +2086,37 @@
 
 <div class="viewcode-block" id="DiscreteData.get_cumulative_thickness">
 <a class="viewcode-back" href="../../api_reference/generated/geost.base.DiscreteData.get_cumulative_thickness.html#geost.base.DiscreteData.get_cumulative_thickness">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_cumulative_thickness</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>  <span class="c1"># pragma: no cover</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_cumulative_thickness</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>  <span class="c1"># pragma: no cover</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span></div>
 
 
 <div class="viewcode-block" id="DiscreteData.get_layer_top">
 <a class="viewcode-back" href="../../api_reference/generated/geost.base.DiscreteData.get_layer_top.html#geost.base.DiscreteData.get_layer_top">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_layer_top</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>  <span class="c1"># pragma: no cover</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_layer_top</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>  <span class="c1"># pragma: no cover</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span></div>
 
 
 <div class="viewcode-block" id="DiscreteData.to_vtm">
 <a class="viewcode-back" href="../../api_reference/generated/geost.base.DiscreteData.to_vtm.html#geost.base.DiscreteData.to_vtm">[docs]</a>
-    <span class="k">def</span> <span class="nf">to_vtm</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>  <span class="c1"># pragma: no cover</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">to_vtm</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>  <span class="c1"># pragma: no cover</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span></div>
 
 
 <div class="viewcode-block" id="DiscreteData.to_datafusiontools">
 <a class="viewcode-back" href="../../api_reference/generated/geost.base.DiscreteData.to_datafusiontools.html#geost.base.DiscreteData.to_datafusiontools">[docs]</a>
-    <span class="k">def</span> <span class="nf">to_datafusiontools</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>  <span class="c1"># pragma: no cover</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">to_datafusiontools</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>  <span class="c1"># pragma: no cover</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span></div>
 
 
 <div class="viewcode-block" id="DiscreteData.to_multiblock">
 <a class="viewcode-back" href="../../api_reference/generated/geost.base.DiscreteData.to_multiblock.html#geost.base.DiscreteData.to_multiblock">[docs]</a>
-    <span class="k">def</span> <span class="nf">to_multiblock</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>  <span class="c1"># pragma: no cover</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">to_multiblock</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>  <span class="c1"># pragma: no cover</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span></div>
 </div>
 
 
 
-<span class="k">class</span> <span class="nc">Collection</span><span class="p">(</span><span class="n">AbstractCollection</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Collection</span><span class="p">(</span><span class="n">AbstractCollection</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    A collection combines header and data and ensures that they remain aligned when</span>
 <span class="sd">    applying methods.</span>
@@ -2123,7 +2129,7 @@
 <span class="sd">        Instance of a data object corresponding to the header.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">header</span><span class="p">:</span> <span class="n">HeaderObject</span><span class="p">,</span>
         <span class="n">data</span><span class="p">:</span> <span class="n">DataObject</span><span class="p">,</span>
@@ -2131,7 +2137,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">header</span> <span class="o">=</span> <span class="n">header</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="n">data</span>
 
-    <span class="k">def</span> <span class="fm">__new__</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__new__</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">cls</span> <span class="ow">is</span> <span class="n">Collection</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
                 <span class="sa">f</span><span class="s2">&quot;Cannot construct </span><span class="si">{</span><span class="bp">cls</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"> directly: construct class from its&quot;</span><span class="p">,</span>
@@ -2140,56 +2146,56 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="nb">object</span><span class="o">.</span><span class="fm">__new__</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">:</span><span class="se">\n</span><span class="s2"># header = </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">n_points</span><span class="si">}</span><span class="s2">&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">header</span><span class="p">)</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">header</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">header</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        The collection&#39;s header.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_header</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">data</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">data</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        The collection&#39;s data.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">n_points</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>  <span class="c1"># No change</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">n_points</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>  <span class="c1"># No change</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Number of objects in the collection.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">horizontal_reference</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">horizontal_reference</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Coordinate reference system represented by an instance of pyproj.crs.CRS.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">header</span><span class="o">.</span><span class="n">horizontal_reference</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">vertical_reference</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">vertical_reference</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Vertical datum represented by an instance of pyproj.crs.CRS.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">header</span><span class="o">.</span><span class="n">vertical_reference</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">has_inclined</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">has_inclined</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Boolean indicating whether there are inclined objects within the collection</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">has_inclined</span>
 
     <span class="nd">@header</span><span class="o">.</span><span class="n">setter</span>
-    <span class="k">def</span> <span class="nf">header</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">header</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">header</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">header</span><span class="p">):</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">header</span><span class="p">,</span> <span class="n">LineHeader</span> <span class="o">|</span> <span class="n">PointHeader</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_header</span> <span class="o">=</span> <span class="n">header</span>
         <span class="k">elif</span> <span class="s2">&quot;_header&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">header</span><span class="p">,</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">):</span>
@@ -2197,14 +2203,14 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">check_header_to_data_alignment</span><span class="p">()</span>
 
     <span class="nd">@data</span><span class="o">.</span><span class="n">setter</span>
-    <span class="k">def</span> <span class="nf">data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">LayeredData</span> <span class="o">|</span> <span class="n">DiscreteData</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_data</span> <span class="o">=</span> <span class="n">data</span>
         <span class="k">elif</span> <span class="s2">&quot;_data&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">has_inclined</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">check_header_to_data_alignment</span><span class="p">()</span>
 
-    <span class="k">def</span> <span class="nf">_clone_with_attrs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">new_header</span><span class="p">,</span> <span class="n">new_data</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_clone_with_attrs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">new_header</span><span class="p">,</span> <span class="n">new_data</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Create a deep copy of the current object with new header and data attributes.</span>
 <span class="sd">        This is used to return a new instance of the collection in methods that modify</span>
@@ -2229,7 +2235,7 @@
         <span class="n">new_collection</span><span class="o">.</span><span class="n">_header</span><span class="p">,</span> <span class="n">new_collection</span><span class="o">.</span><span class="n">_data</span> <span class="o">=</span> <span class="n">new_header</span><span class="p">,</span> <span class="n">new_data</span>
         <span class="k">return</span> <span class="n">new_collection</span>
 
-    <span class="k">def</span> <span class="nf">add_header_column_to_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">column_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>  <span class="c1"># No change</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">add_header_column_to_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">column_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>  <span class="c1"># No change</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Add a column from the header to the data table. Useful if you e.g. add some data</span>
 <span class="sd">        to the header table, but would like to add this to each layer (row in the data</span>
@@ -2242,7 +2248,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">df</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">header</span><span class="p">[[</span><span class="s2">&quot;nr&quot;</span><span class="p">,</span> <span class="n">column_name</span><span class="p">]],</span> <span class="n">on</span><span class="o">=</span><span class="s2">&quot;nr&quot;</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">selection_values</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">column</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;nr&quot;</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">selection_values</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">column</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;nr&quot;</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get a subset of a collection through a string or iterable of object id(s).</span>
 <span class="sd">        Optionally uses a different column than &quot;nr&quot; (the column with object ids).</span>
@@ -2280,7 +2286,7 @@
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="n">selected_header</span><span class="p">,</span> <span class="n">selected_data</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">change_horizontal_reference</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">to_epsg</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">int</span> <span class="o">|</span> <span class="n">CRS</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">change_horizontal_reference</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">to_epsg</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">int</span> <span class="o">|</span> <span class="n">CRS</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Change the horizontal reference (i.e. coordinate reference system, crs) of the</span>
 <span class="sd">        collection to the given target crs.</span>
@@ -2308,17 +2314,21 @@
         <span class="n">transformer</span> <span class="o">=</span> <span class="n">horizontal_reference_transformer</span><span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">horizontal_reference</span><span class="p">,</span> <span class="n">to_epsg</span>
         <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">df</span><span class="p">[[</span><span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="s2">&quot;y&quot;</span><span class="p">]]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">df</span><span class="p">[[</span><span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="s2">&quot;y&quot;</span><span class="p">]]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="s2">&quot;x&quot;</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="s2">&quot;y&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">transformer</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;x&quot;</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;y&quot;</span><span class="p">]</span>
         <span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">has_inclined</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">df</span><span class="p">[[</span><span class="s2">&quot;x_bot&quot;</span><span class="p">,</span> <span class="s2">&quot;y_bot&quot;</span><span class="p">]]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">df</span><span class="p">[[</span><span class="s2">&quot;x_bot&quot;</span><span class="p">,</span> <span class="s2">&quot;y_bot&quot;</span><span class="p">]]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span>
+                <span class="nb">float</span>
+            <span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="s2">&quot;x_bot&quot;</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="s2">&quot;y_bot&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
                 <span class="n">transformer</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;x_bot&quot;</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;y_bot&quot;</span><span class="p">])</span>
             <span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">header</span><span class="o">.</span><span class="n">change_horizontal_reference</span><span class="p">(</span><span class="n">to_epsg</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">change_vertical_reference</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">to_epsg</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">int</span> <span class="o">|</span> <span class="n">CRS</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">change_vertical_reference</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">to_epsg</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">int</span> <span class="o">|</span> <span class="n">CRS</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Change the vertical reference of the collection object&#39;s surface levels</span>
 
@@ -2356,6 +2366,9 @@
         <span class="n">transformer</span> <span class="o">=</span> <span class="n">vertical_reference_transformer</span><span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">horizontal_reference</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">vertical_reference</span><span class="p">,</span> <span class="n">to_epsg</span>
         <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">df</span><span class="p">[[</span><span class="s2">&quot;surface&quot;</span><span class="p">,</span> <span class="s2">&quot;end&quot;</span><span class="p">]]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">df</span><span class="p">[[</span><span class="s2">&quot;surface&quot;</span><span class="p">,</span> <span class="s2">&quot;end&quot;</span><span class="p">]]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span>
+            <span class="nb">float</span>
+        <span class="p">)</span>
         <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">new_surface</span> <span class="o">=</span> <span class="n">transformer</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;x&quot;</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;y&quot;</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;surface&quot;</span><span class="p">]</span>
         <span class="p">)</span>
@@ -2366,7 +2379,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="s2">&quot;end&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_end</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">header</span><span class="o">.</span><span class="n">change_vertical_reference</span><span class="p">(</span><span class="n">to_epsg</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">reset_header</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">reset_header</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Refresh the header based on the loaded data in case the header got messed up.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -2374,7 +2387,7 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">horizontal_reference</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">vertical_reference</span>
         <span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">check_header_to_data_alignment</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">check_header_to_data_alignment</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Two-way check to warn of any misalignment between the header and data</span>
 <span class="sd">        attributes. Two way, i.e. if header includes more objects than in the data and</span>
@@ -2395,7 +2408,7 @@
                     <span class="s2">&quot;running the method &#39;reset_header&#39; to update the header.&quot;</span>
                 <span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">select_within_bbox</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">select_within_bbox</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">xmin</span><span class="p">:</span> <span class="n">Coordinate</span><span class="p">,</span>
         <span class="n">ymin</span><span class="p">:</span> <span class="n">Coordinate</span><span class="p">,</span>
@@ -2433,7 +2446,7 @@
         <span class="n">data_selected</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">select_by_values</span><span class="p">(</span><span class="s2">&quot;nr&quot;</span><span class="p">,</span> <span class="n">header_selected</span><span class="p">[</span><span class="s2">&quot;nr&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">())</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_clone_with_attrs</span><span class="p">(</span><span class="n">header_selected</span><span class="p">,</span> <span class="n">data_selected</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">select_with_points</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">select_with_points</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">points</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span> <span class="o">|</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span> <span class="o">|</span> <span class="n">PointGeometries</span><span class="p">,</span>
         <span class="n">buffer</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="nb">int</span><span class="p">,</span>
@@ -2465,7 +2478,7 @@
         <span class="n">data_selected</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">select_by_values</span><span class="p">(</span><span class="s2">&quot;nr&quot;</span><span class="p">,</span> <span class="n">header_selected</span><span class="p">[</span><span class="s2">&quot;nr&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">())</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_clone_with_attrs</span><span class="p">(</span><span class="n">header_selected</span><span class="p">,</span> <span class="n">data_selected</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">select_with_lines</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">select_with_lines</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">lines</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span> <span class="o">|</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span> <span class="o">|</span> <span class="n">LineGeometries</span><span class="p">,</span>
         <span class="n">buffer</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="nb">int</span><span class="p">,</span>
@@ -2497,7 +2510,7 @@
         <span class="n">data_selected</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">select_by_values</span><span class="p">(</span><span class="s2">&quot;nr&quot;</span><span class="p">,</span> <span class="n">header_selected</span><span class="p">[</span><span class="s2">&quot;nr&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">())</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_clone_with_attrs</span><span class="p">(</span><span class="n">header_selected</span><span class="p">,</span> <span class="n">data_selected</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">select_within_polygons</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">select_within_polygons</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">polygons</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span> <span class="o">|</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span> <span class="o">|</span> <span class="n">PolygonGeometries</span><span class="p">,</span>
         <span class="n">buffer</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
@@ -2532,7 +2545,7 @@
         <span class="n">data_selected</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">select_by_values</span><span class="p">(</span><span class="s2">&quot;nr&quot;</span><span class="p">,</span> <span class="n">header_selected</span><span class="p">[</span><span class="s2">&quot;nr&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">())</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_clone_with_attrs</span><span class="p">(</span><span class="n">header_selected</span><span class="p">,</span> <span class="n">data_selected</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">select_by_depth</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">select_by_depth</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">top_min</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">top_max</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -2568,7 +2581,7 @@
         <span class="n">data_selected</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">select_by_values</span><span class="p">(</span><span class="s2">&quot;nr&quot;</span><span class="p">,</span> <span class="n">header_selected</span><span class="p">[</span><span class="s2">&quot;nr&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">())</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_clone_with_attrs</span><span class="p">(</span><span class="n">header_selected</span><span class="p">,</span> <span class="n">data_selected</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">select_by_length</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">min_length</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">max_length</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">select_by_length</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">min_length</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">max_length</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Select data from length constraints: e.g. all boreholes between 50 and 150 m</span>
 <span class="sd">        long. If a keyword argument is not given it will not be considered.</span>
@@ -2593,7 +2606,7 @@
         <span class="n">data_selected</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">select_by_values</span><span class="p">(</span><span class="s2">&quot;nr&quot;</span><span class="p">,</span> <span class="n">header_selected</span><span class="p">[</span><span class="s2">&quot;nr&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">())</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_clone_with_attrs</span><span class="p">(</span><span class="n">header_selected</span><span class="p">,</span> <span class="n">data_selected</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">select_by_values</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">select_by_values</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">column</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">selection_values</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">how</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;or&quot;</span>
     <span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -2636,7 +2649,7 @@
         <span class="n">header_selected</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">header</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">data_selected</span><span class="p">[</span><span class="s2">&quot;nr&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">())</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_clone_with_attrs</span><span class="p">(</span><span class="n">header_selected</span><span class="p">,</span> <span class="n">data_selected</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">slice_depth_interval</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">slice_depth_interval</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">upper_boundary</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">lower_boundary</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -2699,7 +2712,7 @@
         <span class="n">header_selected</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">header</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">data_selected</span><span class="p">[</span><span class="s2">&quot;nr&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">())</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_clone_with_attrs</span><span class="p">(</span><span class="n">header_selected</span><span class="p">,</span> <span class="n">data_selected</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">slice_by_values</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">slice_by_values</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">column</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">selection_values</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">invert</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
     <span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -2742,7 +2755,7 @@
         <span class="n">header_selected</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">header</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">data_selected</span><span class="p">[</span><span class="s2">&quot;nr&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">())</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_clone_with_attrs</span><span class="p">(</span><span class="n">header_selected</span><span class="p">,</span> <span class="n">data_selected</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">select_by_condition</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">condition</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">invert</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">select_by_condition</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">condition</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">invert</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Select from collection.data using a manual condition that results in a boolean</span>
 <span class="sd">        mask. Returns the rows in the data where the &#39;condition&#39; evaluates to True.</span>
@@ -2785,7 +2798,7 @@
         <span class="n">header_selected</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">header</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">data_selected</span><span class="p">[</span><span class="s2">&quot;nr&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">())</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_clone_with_attrs</span><span class="p">(</span><span class="n">header_selected</span><span class="p">,</span> <span class="n">data_selected</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">get_area_labels</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_area_labels</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">polygon_gdf</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span> <span class="o">|</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">,</span>
         <span class="n">column_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Iterable</span><span class="p">,</span>
@@ -2819,7 +2832,7 @@
 
 <div class="viewcode-block" id="Collection.to_geoparquet">
 <a class="viewcode-back" href="../../api_reference/generated/geost.base.Collection.to_geoparquet.html#geost.base.Collection.to_geoparquet">[docs]</a>
-    <span class="k">def</span> <span class="nf">to_geoparquet</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">outfile</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">to_geoparquet</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">outfile</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Write header data to geoparquet. You can use the resulting file to display</span>
 <span class="sd">        borehole locations in GIS for instance. Please note that Geoparquet is supported</span>
@@ -2838,7 +2851,7 @@
 
 <div class="viewcode-block" id="Collection.to_shape">
 <a class="viewcode-back" href="../../api_reference/generated/geost.base.Collection.to_shape.html#geost.base.Collection.to_shape">[docs]</a>
-    <span class="k">def</span> <span class="nf">to_shape</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">outfile</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">to_shape</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">outfile</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Write header data to shapefile. You can use the resulting file to display</span>
 <span class="sd">        borehole locations in GIS for instance.</span>
@@ -2856,7 +2869,7 @@
 
 <div class="viewcode-block" id="Collection.to_geopackage">
 <a class="viewcode-back" href="../../api_reference/generated/geost.base.Collection.to_geopackage.html#geost.base.Collection.to_geopackage">[docs]</a>
-    <span class="k">def</span> <span class="nf">to_geopackage</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">outfile</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">,</span> <span class="n">metadata</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">to_geopackage</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">outfile</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">,</span> <span class="n">metadata</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Write header and data to a geopackage. You can use the resulting file to display</span>
 <span class="sd">        borehole locations in GIS for instance.</span>
@@ -2892,7 +2905,7 @@
 
 <div class="viewcode-block" id="Collection.to_parquet">
 <a class="viewcode-back" href="../../api_reference/generated/geost.base.Collection.to_parquet.html#geost.base.Collection.to_parquet">[docs]</a>
-    <span class="k">def</span> <span class="nf">to_parquet</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">outfile</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">,</span> <span class="n">data_table</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">to_parquet</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">outfile</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">,</span> <span class="n">data_table</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Export the data or header table to a parquet file. By default the data table is</span>
 <span class="sd">        exported.</span>
@@ -2923,7 +2936,7 @@
 
 <div class="viewcode-block" id="Collection.to_csv">
 <a class="viewcode-back" href="../../api_reference/generated/geost.base.Collection.to_csv.html#geost.base.Collection.to_csv">[docs]</a>
-    <span class="k">def</span> <span class="nf">to_csv</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">outfile</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">,</span> <span class="n">data_table</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">to_csv</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">outfile</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">,</span> <span class="n">data_table</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Export the data or header table to a csv file. By default the data table is</span>
 <span class="sd">        exported.</span>
@@ -2952,7 +2965,7 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">header</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">outfile</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
 
-    <span class="k">def</span> <span class="nf">to_pickle</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">outfile</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">to_pickle</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">outfile</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Export the complete Collection to a pickle file.</span>
 
@@ -2970,7 +2983,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">save_pickle</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">outfile</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">to_multiblock</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">to_multiblock</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">data_columns</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
         <span class="n">radius</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
@@ -3008,7 +3021,7 @@
             <span class="n">data_columns</span><span class="p">,</span> <span class="n">radius</span><span class="p">,</span> <span class="n">vertical_factor</span><span class="p">,</span> <span class="n">relative_to_vertical_reference</span>
         <span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">to_vtm</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">to_vtm</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">outfile</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">,</span>
         <span class="n">data_columns</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
@@ -3052,7 +3065,7 @@
             <span class="n">relative_to_vertical_reference</span><span class="p">,</span>
         <span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">to_datafusiontools</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">to_datafusiontools</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">columns</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
         <span class="n">outfile</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -3101,7 +3114,7 @@
 
 <div class="viewcode-block" id="BoreholeCollection">
 <a class="viewcode-back" href="../../api_reference/generated/geost.base.BoreholeCollection.html#geost.base.BoreholeCollection">[docs]</a>
-<span class="k">class</span> <span class="nc">BoreholeCollection</span><span class="p">(</span><span class="n">Collection</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">BoreholeCollection</span><span class="p">(</span><span class="n">Collection</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    A collection combines header and borehole data and ensures that they remain aligned</span>
 <span class="sd">    when applying methods.</span>
@@ -3116,7 +3129,7 @@
 
 <div class="viewcode-block" id="BoreholeCollection.get_cumulative_thickness">
 <a class="viewcode-back" href="../../api_reference/generated/geost.base.BoreholeCollection.get_cumulative_thickness.html#geost.base.BoreholeCollection.get_cumulative_thickness">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_cumulative_thickness</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_cumulative_thickness</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">column</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">values</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">include_in_header</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
     <span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -3178,7 +3191,7 @@
 
 <div class="viewcode-block" id="BoreholeCollection.get_layer_top">
 <a class="viewcode-back" href="../../api_reference/generated/geost.base.BoreholeCollection.get_layer_top.html#geost.base.BoreholeCollection.get_layer_top">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_layer_top</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_layer_top</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">column</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">values</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">include_in_header</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
     <span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -3229,7 +3242,7 @@
 
 <div class="viewcode-block" id="BoreholeCollection.to_qgis3d">
 <a class="viewcode-back" href="../../api_reference/generated/geost.base.BoreholeCollection.to_qgis3d.html#geost.base.BoreholeCollection.to_qgis3d">[docs]</a>
-    <span class="k">def</span> <span class="nf">to_qgis3d</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">to_qgis3d</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">outfile</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">,</span>
         <span class="n">relative_to_vertical_reference</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
@@ -3263,7 +3276,7 @@
 
 <div class="viewcode-block" id="BoreholeCollection.to_kingdom">
 <a class="viewcode-back" href="../../api_reference/generated/geost.base.BoreholeCollection.to_kingdom.html#geost.base.BoreholeCollection.to_kingdom">[docs]</a>
-    <span class="k">def</span> <span class="nf">to_kingdom</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">to_kingdom</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">outfile</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">,</span>
         <span class="n">tdstart</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
@@ -3292,10 +3305,10 @@
 
 <div class="viewcode-block" id="CptCollection">
 <a class="viewcode-back" href="../../api_reference/generated/geost.base.CptCollection.html#geost.base.CptCollection">[docs]</a>
-<span class="k">class</span> <span class="nc">CptCollection</span><span class="p">(</span><span class="n">Collection</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">CptCollection</span><span class="p">(</span><span class="n">Collection</span><span class="p">):</span>
 <div class="viewcode-block" id="CptCollection.slice_depth_interval">
 <a class="viewcode-back" href="../../api_reference/generated/geost.base.CptCollection.slice_depth_interval.html#geost.base.CptCollection.slice_depth_interval">[docs]</a>
-    <span class="k">def</span> <span class="nf">slice_depth_interval</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">slice_depth_interval</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">upper_boundary</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">lower_boundary</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -3355,23 +3368,23 @@
 
 <div class="viewcode-block" id="CptCollection.get_cumulative_thickness">
 <a class="viewcode-back" href="../../api_reference/generated/geost.base.CptCollection.get_cumulative_thickness.html#geost.base.CptCollection.get_cumulative_thickness">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_cumulative_thickness</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>  <span class="c1"># pragma: no cover</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_cumulative_thickness</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>  <span class="c1"># pragma: no cover</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span></div>
 
 
 <div class="viewcode-block" id="CptCollection.get_layer_top">
 <a class="viewcode-back" href="../../api_reference/generated/geost.base.CptCollection.get_layer_top.html#geost.base.CptCollection.get_layer_top">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_layer_top</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>  <span class="c1"># pragma: no cover</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_layer_top</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>  <span class="c1"># pragma: no cover</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span></div>
 </div>
 
 
 
-<span class="k">class</span> <span class="nc">LogCollection</span><span class="p">(</span><span class="n">Collection</span><span class="p">):</span>  <span class="c1"># pragma: no cover</span>
-    <span class="k">def</span> <span class="nf">get_cumulative_thickness</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">LogCollection</span><span class="p">(</span><span class="n">Collection</span><span class="p">):</span>  <span class="c1"># pragma: no cover</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_cumulative_thickness</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span>
 
-    <span class="k">def</span> <span class="nf">get_layer_top</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_layer_top</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span>
 </pre></div>
 
@@ -3402,8 +3415,8 @@
   </div>
   
   <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script defer src="../../_static/scripts/bootstrap.js?digest=26a4bc78f4c0ddb94549"></script>
-<script defer src="../../_static/scripts/pydata-sphinx-theme.js?digest=26a4bc78f4c0ddb94549"></script>
+  <script defer src="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
 
   <footer class="bd-footer">
 <div class="bd-footer__inner bd-page-width">
@@ -3436,7 +3449,8 @@
       
         <div class="footer-item">
 <p class="theme-version">
-  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.0.
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
 </p></div>
       
     </div>

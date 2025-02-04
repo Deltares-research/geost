@@ -15,8 +15,8 @@
     document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
     document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
   </script>
-  <!-- 
-    this give us a css class that will be invisible only if js is disabled 
+  <!--
+    this give us a css class that will be invisible only if js is disabled
   -->
   <noscript>
     <style>
@@ -26,20 +26,20 @@
   </noscript>
   
   <!-- Loaded before other Sphinx assets -->
-  <link href="../../_static/styles/theme.css?digest=26a4bc78f4c0ddb94549" rel="stylesheet" />
-<link href="../../_static/styles/pydata-sphinx-theme.css?digest=26a4bc78f4c0ddb94549" rel="stylesheet" />
+  <link href="../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
 
-    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="../../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=e0654d5c" />
     <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
     <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=e0654d5c" />
   
   <!-- So that users can add custom icons -->
-  <script src="../../_static/scripts/fontawesome.js?digest=26a4bc78f4c0ddb94549"></script>
+  <script src="../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=26a4bc78f4c0ddb94549" />
-<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=26a4bc78f4c0ddb94549" />
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
     <script src="../../_static/documentation_options.js?v=5929fcd5"></script>
     <script src="../../_static/doctools.js?v=9bcbadda"></script>
@@ -176,7 +176,9 @@
 </li>
 
             <li class="nav-item dropdown">
-                <button class="btn dropdown-toggle nav-item" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-controls="pst-nav-more-links">
+                <button class="btn dropdown-toggle nav-item" type="button"
+                data-bs-toggle="dropdown" aria-expanded="false"
+                aria-controls="pst-nav-more-links">
                     More
                 </button>
                 <ul id="pst-nav-more-links" class="dropdown-menu">
@@ -403,9 +405,14 @@
   
   
   <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
   </div>
-  
-  <div id="rtd-footer-container"></div>
 
 
       </div>
@@ -452,15 +459,15 @@
                 <article class="bd-article">
                   
   <h1>Source code for geost.read</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Callable</span>
+<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Callable</span>
 
-<span class="kn">import</span> <span class="nn">geopandas</span> <span class="k">as</span> <span class="nn">gpd</span>
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
-<span class="kn">from</span> <span class="nn">pyproj</span> <span class="kn">import</span> <span class="n">CRS</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">geopandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">gpd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pyproj</span><span class="w"> </span><span class="kn">import</span> <span class="n">CRS</span>
 
-<span class="kn">from</span> <span class="nn">geost.base</span> <span class="kn">import</span> <span class="p">(</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">geost.base</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">BoreholeCollection</span><span class="p">,</span>
     <span class="n">Collection</span><span class="p">,</span>
     <span class="n">CptCollection</span><span class="p">,</span>
@@ -468,10 +475,10 @@
     <span class="n">LayeredData</span><span class="p">,</span>
     <span class="n">PointHeader</span><span class="p">,</span>
 <span class="p">)</span>
-<span class="kn">from</span> <span class="nn">geost.bro</span> <span class="kn">import</span> <span class="n">BroApi</span>
-<span class="kn">from</span> <span class="nn">geost.io</span> <span class="kn">import</span> <span class="n">_parse_cpt_gef_files</span>
-<span class="kn">from</span> <span class="nn">geost.io.parsers</span> <span class="kn">import</span> <span class="n">BorisXML</span><span class="p">,</span> <span class="n">SoilCore</span>
-<span class="kn">from</span> <span class="nn">geost.utils</span> <span class="kn">import</span> <span class="n">dataframe_to_geodataframe</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">geost.bro</span><span class="w"> </span><span class="kn">import</span> <span class="n">BroApi</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">geost.io</span><span class="w"> </span><span class="kn">import</span> <span class="n">_parse_cpt_gef_files</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">geost.io.parsers</span><span class="w"> </span><span class="kn">import</span> <span class="n">BorisXML</span><span class="p">,</span> <span class="n">SoilCore</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">geost.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataframe_to_geodataframe</span>
 
 <span class="n">MANDATORY_LAYERED_DATA_COLUMNS</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;nr&quot;</span><span class="p">,</span> <span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="s2">&quot;y&quot;</span><span class="p">,</span> <span class="s2">&quot;surface&quot;</span><span class="p">,</span> <span class="s2">&quot;end&quot;</span><span class="p">,</span> <span class="s2">&quot;top&quot;</span><span class="p">,</span> <span class="s2">&quot;bottom&quot;</span><span class="p">]</span>
 <span class="n">MANDATORY_DISCRETE_DATA_COLUMNS</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;nr&quot;</span><span class="p">,</span> <span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="s2">&quot;y&quot;</span><span class="p">,</span> <span class="s2">&quot;surface&quot;</span><span class="p">,</span> <span class="s2">&quot;end&quot;</span><span class="p">,</span> <span class="s2">&quot;depth&quot;</span><span class="p">]</span>
@@ -504,7 +511,7 @@
 <span class="p">}</span>
 
 
-<span class="k">def</span> <span class="nf">__read_file</span><span class="p">(</span><span class="n">file</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">__read_file</span><span class="p">(</span><span class="n">file</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Read parquet file.</span>
 
@@ -542,7 +549,7 @@
         <span class="p">)</span>
 
 
-<span class="k">def</span> <span class="nf">adjust_z_coordinates</span><span class="p">(</span><span class="n">data_dataframe</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">adjust_z_coordinates</span><span class="p">(</span><span class="n">data_dataframe</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Interpret data containing elevation or z-coordinates. GeoST data objects require</span>
 <span class="sd">    that layer top/bottom or discrete data point z-coordinates to be increasing</span>
@@ -578,7 +585,7 @@
     <span class="k">return</span> <span class="n">data_dataframe</span>
 
 
-<span class="k">def</span> <span class="nf">_check_mandatory_column_presence</span><span class="p">(</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_check_mandatory_column_presence</span><span class="p">(</span>
     <span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">mandatory_cols</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span> <span class="n">column_mapper</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="kc">None</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
     <span class="n">missing_mandatory</span> <span class="o">=</span> <span class="p">[</span><span class="n">col</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">mandatory_cols</span> <span class="k">if</span> <span class="n">col</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">]</span>
@@ -602,7 +609,7 @@
 
 <div class="viewcode-block" id="read_borehole_table">
 <a class="viewcode-back" href="../../api_reference/generated/geost.read_borehole_table.html#geost.read_borehole_table">[docs]</a>
-<span class="k">def</span> <span class="nf">read_borehole_table</span><span class="p">(</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">read_borehole_table</span><span class="p">(</span>
     <span class="n">file</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">,</span>
     <span class="n">horizontal_reference</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">int</span> <span class="o">|</span> <span class="n">CRS</span> <span class="o">=</span> <span class="mi">28992</span><span class="p">,</span>
     <span class="n">vertical_reference</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">int</span> <span class="o">|</span> <span class="n">CRS</span> <span class="o">=</span> <span class="mi">5709</span><span class="p">,</span>
@@ -705,7 +712,7 @@
 
 <div class="viewcode-block" id="read_cpt_table">
 <a class="viewcode-back" href="../../api_reference/generated/geost.read_cpt_table.html#geost.read_cpt_table">[docs]</a>
-<span class="k">def</span> <span class="nf">read_cpt_table</span><span class="p">(</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">read_cpt_table</span><span class="p">(</span>
     <span class="n">file</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">,</span>
     <span class="n">horizontal_reference</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">int</span> <span class="o">|</span> <span class="n">CRS</span> <span class="o">=</span> <span class="mi">28992</span><span class="p">,</span>
     <span class="n">vertical_reference</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">int</span> <span class="o">|</span> <span class="n">CRS</span> <span class="o">=</span> <span class="mi">5709</span><span class="p">,</span>
@@ -773,7 +780,7 @@
 
 <div class="viewcode-block" id="read_nlog_cores">
 <a class="viewcode-back" href="../../api_reference/generated/geost.read_nlog_cores.html#geost.read_nlog_cores">[docs]</a>
-<span class="k">def</span> <span class="nf">read_nlog_cores</span><span class="p">(</span><span class="n">file</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BoreholeCollection</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">read_nlog_cores</span><span class="p">(</span><span class="n">file</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BoreholeCollection</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Read NLog boreholes from the &#39;nlog_stratstelsel&#39; Excel file. You can find this</span>
 <span class="sd">    distribution of borehole data here: https://www.nlog.nl/boringen</span>
@@ -845,7 +852,7 @@
 
 
 
-<span class="k">def</span> <span class="nf">read_xml_boris</span><span class="p">(</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">read_xml_boris</span><span class="p">(</span>
     <span class="n">file</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">,</span>
     <span class="n">horizontal_reference</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">int</span> <span class="o">|</span> <span class="n">CRS</span> <span class="o">=</span> <span class="mi">28992</span><span class="p">,</span>
     <span class="n">vertical_reference</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">int</span> <span class="o">|</span> <span class="n">CRS</span> <span class="o">=</span> <span class="mi">5709</span><span class="p">,</span>
@@ -890,7 +897,7 @@
     <span class="k">return</span> <span class="n">boreholes</span>
 
 
-<span class="k">def</span> <span class="nf">read_xml_geotechnical_cores</span><span class="p">(</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">read_xml_geotechnical_cores</span><span class="p">(</span>
     <span class="n">file_or_folder</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BoreholeCollection</span><span class="p">:</span>  <span class="c1"># pragma: no cover</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
@@ -902,7 +909,7 @@
     <span class="k">pass</span>
 
 
-<span class="k">def</span> <span class="nf">read_xml_soil_cores</span><span class="p">(</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">read_xml_soil_cores</span><span class="p">(</span>
     <span class="n">file_or_folder</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BoreholeCollection</span><span class="p">:</span>  <span class="c1"># pragma: no cover</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
@@ -913,7 +920,7 @@
     <span class="k">pass</span>
 
 
-<span class="k">def</span> <span class="nf">read_xml_geological_cores</span><span class="p">(</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">read_xml_geological_cores</span><span class="p">(</span>
     <span class="n">file_or_folder</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BoreholeCollection</span><span class="p">:</span>  <span class="c1"># pragma: no cover</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
@@ -924,7 +931,7 @@
     <span class="k">pass</span>
 
 
-<span class="k">def</span> <span class="nf">read_gef_cores</span><span class="p">(</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">read_gef_cores</span><span class="p">(</span>
     <span class="n">file_or_folder</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BoreholeCollection</span><span class="p">:</span>  <span class="c1"># pragma: no cover</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
@@ -937,7 +944,7 @@
 
 <div class="viewcode-block" id="read_gef_cpts">
 <a class="viewcode-back" href="../../api_reference/generated/geost.read_gef_cpts.html#geost.read_gef_cpts">[docs]</a>
-<span class="k">def</span> <span class="nf">read_gef_cpts</span><span class="p">(</span><span class="n">file_or_folder</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CptCollection</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">read_gef_cpts</span><span class="p">(</span><span class="n">file_or_folder</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CptCollection</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Read one or more GEF files of CPT data into a geost CptCollection.</span>
 
@@ -959,7 +966,7 @@
 
 
 
-<span class="k">def</span> <span class="nf">read_xml_cpts</span><span class="p">(</span><span class="n">file_or_folder</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CptCollection</span><span class="p">:</span>  <span class="c1"># pragma: no cover</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">read_xml_cpts</span><span class="p">(</span><span class="n">file_or_folder</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CptCollection</span><span class="p">:</span>  <span class="c1"># pragma: no cover</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    NOTIMPLEMENTED</span>
 <span class="sd">    Read xml files of cpts.</span>
@@ -970,7 +977,7 @@
 
 <div class="viewcode-block" id="get_bro_objects_from_bbox">
 <a class="viewcode-back" href="../../api_reference/generated/geost.get_bro_objects_from_bbox.html#geost.get_bro_objects_from_bbox">[docs]</a>
-<span class="k">def</span> <span class="nf">get_bro_objects_from_bbox</span><span class="p">(</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_bro_objects_from_bbox</span><span class="p">(</span>
     <span class="n">object_type</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">xmin</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="nb">float</span><span class="p">,</span>
     <span class="n">xmax</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="nb">float</span><span class="p">,</span>
@@ -1044,7 +1051,7 @@
 
 <div class="viewcode-block" id="get_bro_objects_from_geometry">
 <a class="viewcode-back" href="../../api_reference/generated/geost.get_bro_objects_from_geometry.html#geost.get_bro_objects_from_geometry">[docs]</a>
-<span class="k">def</span> <span class="nf">get_bro_objects_from_geometry</span><span class="p">(</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_bro_objects_from_geometry</span><span class="p">(</span>
     <span class="n">object_type</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">geometry_file</span><span class="p">:</span> <span class="n">Path</span> <span class="o">|</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">buffer</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
@@ -1086,11 +1093,12 @@
     <span class="k">else</span><span class="p">:</span>
         <span class="n">geometry</span> <span class="o">=</span> <span class="n">gpd</span><span class="o">.</span><span class="n">read_file</span><span class="p">(</span><span class="n">geometry_file</span><span class="p">)</span>
     <span class="n">api</span> <span class="o">=</span> <span class="n">BroApi</span><span class="p">()</span>
+    <span class="n">xmin</span><span class="p">,</span> <span class="n">ymin</span><span class="p">,</span> <span class="n">xmax</span><span class="p">,</span> <span class="n">ymax</span> <span class="o">=</span> <span class="n">geometry</span><span class="o">.</span><span class="n">total_bounds</span>
     <span class="n">api</span><span class="o">.</span><span class="n">search_objects_in_bbox</span><span class="p">(</span>
-        <span class="n">xmin</span><span class="o">=</span><span class="n">geometry</span><span class="o">.</span><span class="n">bounds</span><span class="o">.</span><span class="n">minx</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
-        <span class="n">xmax</span><span class="o">=</span><span class="n">geometry</span><span class="o">.</span><span class="n">bounds</span><span class="o">.</span><span class="n">maxx</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
-        <span class="n">ymin</span><span class="o">=</span><span class="n">geometry</span><span class="o">.</span><span class="n">bounds</span><span class="o">.</span><span class="n">miny</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
-        <span class="n">ymax</span><span class="o">=</span><span class="n">geometry</span><span class="o">.</span><span class="n">bounds</span><span class="o">.</span><span class="n">maxy</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+        <span class="n">xmin</span><span class="o">=</span><span class="n">xmin</span><span class="p">,</span>
+        <span class="n">xmax</span><span class="o">=</span><span class="n">xmax</span><span class="p">,</span>
+        <span class="n">ymin</span><span class="o">=</span><span class="n">ymin</span><span class="p">,</span>
+        <span class="n">ymax</span><span class="o">=</span><span class="n">ymax</span><span class="p">,</span>
         <span class="n">object_type</span><span class="o">=</span><span class="n">object_type</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">bro_objects</span> <span class="o">=</span> <span class="n">api</span><span class="o">.</span><span class="n">get_objects</span><span class="p">(</span><span class="n">api</span><span class="o">.</span><span class="n">object_list</span><span class="p">,</span> <span class="n">object_type</span><span class="o">=</span><span class="n">object_type</span><span class="p">)</span>
@@ -1122,7 +1130,7 @@
 
 <div class="viewcode-block" id="read_uullg_tables">
 <a class="viewcode-back" href="../../api_reference/generated/geost.read_uullg_tables.html#geost.read_uullg_tables">[docs]</a>
-<span class="k">def</span> <span class="nf">read_uullg_tables</span><span class="p">(</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">read_uullg_tables</span><span class="p">(</span>
     <span class="n">header_table</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">,</span>
     <span class="n">data_table</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">,</span>
     <span class="n">horizontal_reference</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">int</span> <span class="o">|</span> <span class="n">CRS</span> <span class="o">=</span> <span class="mi">28992</span><span class="p">,</span>
@@ -1180,7 +1188,7 @@
 
 <div class="viewcode-block" id="read_collection_geopackage">
 <a class="viewcode-back" href="../../api_reference/generated/geost.read_collection_geopackage.html#geost.read_collection_geopackage">[docs]</a>
-<span class="k">def</span> <span class="nf">read_collection_geopackage</span><span class="p">(</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">read_collection_geopackage</span><span class="p">(</span>
     <span class="n">filepath</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">,</span>
     <span class="n">collection_type</span><span class="p">:</span> <span class="n">Collection</span><span class="p">,</span>
     <span class="n">horizontal_reference</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">int</span> <span class="o">|</span> <span class="n">CRS</span> <span class="o">=</span> <span class="mi">28992</span><span class="p">,</span>
@@ -1258,7 +1266,7 @@
 
 <div class="viewcode-block" id="read_pickle">
 <a class="viewcode-back" href="../../api_reference/generated/geost.read_pickle.html#geost.read_pickle">[docs]</a>
-<span class="k">def</span> <span class="nf">read_pickle</span><span class="p">(</span><span class="n">filepath</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">read_pickle</span><span class="p">(</span><span class="n">filepath</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Read pickled GeoST object (or any object) from file.</span>
 
@@ -1324,8 +1332,8 @@
   </div>
   
   <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script defer src="../../_static/scripts/bootstrap.js?digest=26a4bc78f4c0ddb94549"></script>
-<script defer src="../../_static/scripts/pydata-sphinx-theme.js?digest=26a4bc78f4c0ddb94549"></script>
+  <script defer src="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
 
   <footer class="bd-footer">
 <div class="bd-footer__inner bd-page-width">
@@ -1358,7 +1366,8 @@
       
         <div class="footer-item">
 <p class="theme-version">
-  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.0.
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
 </p></div>
       
     </div>
