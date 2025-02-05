@@ -1,3 +1,5 @@
+import sqlite3
+
 import pytest
 from pyogrio.errors import FieldError
 
@@ -18,3 +20,9 @@ def test_to_geopackage(borehole_collection, tmp_path):
     borehole_collection.header[invalid_column] = "test"
     with pytest.raises(FieldError):
         borehole_collection.to_geopackage(outfile)
+
+
+@pytest.mark.unittest
+def test_create_connection(simple_soilmap_gpkg):
+    conn = utils.create_connection(simple_soilmap_gpkg)
+    assert isinstance(conn, sqlite3.Connection)

@@ -1,4 +1,5 @@
 import operator
+import sqlite3
 from pathlib import Path
 from typing import Any, Union
 
@@ -191,3 +192,27 @@ def _to_geopackage(
     except FieldError as e:
         e.add_note(f"Invalid column name in {error_note}, cannot write GPKG.")
         raise e
+
+
+def create_connection(database: str | Path):
+    """
+    Create a database connection to an SQLite database.
+
+    Parameters
+    ----------
+    database: string
+        Path/url/etc. to the database to create the connection to.
+
+    Returns
+    -------
+    conn : sqlite3.Connection
+        Connection object or None.
+
+    """
+    conn = None
+    try:
+        conn = sqlite3.connect(database)
+    except sqlite3.Error as e:
+        print(e)
+
+    return conn
