@@ -33,7 +33,7 @@ class TestGeopackage:
     @pytest.mark.unittest
     def test_get_cursor(self, simple_soilmap_gpkg):
         with Geopackage(simple_soilmap_gpkg) as gp:
-            cursor = gp.get_cursor()
+            cursor = gp._get_cursor()
             assert isinstance(cursor, sqlite3.Cursor)
 
     @pytest.mark.unittest

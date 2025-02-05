@@ -196,7 +196,7 @@ def _to_geopackage(
 
 def create_connection(database: str | Path):
     """
-    Create a database connection to an SQLite database.
+    Create a database connection to a SQLite database.
 
     Parameters
     ----------

@@ -31,6 +31,7 @@ class Geopackage:
 
     >>> gp = Geopackage("my_geopackage.gpkg")
     >>> gp.get_connection()
+    >>> table = gp.read_table("my_table") # Returns a DataFrame of the table.
 
     """
 
@@ -43,8 +44,16 @@ class Geopackage:
         return self
 
     def __exit__(self, exc_type, exc_value, traceback):
-        if self.connection:
-            self.connection = None
+        self.close()
+
+    def _get_cursor(self):
+        """
+        Get a sqlite3 cursor object for the geopackage connection to execute database
+        queries with. This method is used internally to execute queries and should not
+        be used directly.
+
+        """
+        return self.connection.cursor()
 
     def layers(self) -> pd.DataFrame:
         """
@@ -55,10 +64,20 @@ class Geopackage:
         return gpd.list_layers(self.file)
 
     def get_connection(self):
+        """
+        Create a manual sqlite3 connection to the geopackage file. Establishing and closing
+        this connection is automatically handled when the class is used as a context manager.
+
+        """
         self.connection = create_connection(self.file)
 
-    def get_cursor(self):
-        return self.connection.cursor()
+    def close(self):
+        """
+        Close the connection to the geopackage file.
+
+        """
+        if self.connection:
+            self.connection = None
 
     def get_column_names(self, table: str) -> list:
         """
@@ -75,7 +94,7 @@ class Geopackage:
             List of the column names for the table.
 
         """
-        cursor = self.get_cursor()
+        cursor = self._get_cursor()
         cursor.execute(f"SELECT * FROM {table}")
         columns = [col[0] for col in cursor.description]
         return columns
@@ -95,7 +114,7 @@ class Geopackage:
             Pandas DataFrame of the first five records.
 
         """
-        cursor = self.get_cursor()
+        cursor = self._get_cursor()
         cursor.execute(f"SELECT * FROM {table} LIMIT 5")
         data = cursor.fetchall()
         return pd.DataFrame(data, columns=self.get_column_names(table))
@@ -138,7 +157,7 @@ class Geopackage:
             Result DataFrame of the query.
 
         """
-        cursor = self.get_cursor()
+        cursor = self._get_cursor()
         cursor.execute(query)
         data = cursor.fetchall()
         return pd.DataFrame(data, columns=outcolumns)
