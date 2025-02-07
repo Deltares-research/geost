@@ -348,3 +348,8 @@ def simple_soilmap_gpkg(tmp_path):
         table.to_file(outfile, driver="GPKG", layer=layer, index=False)
 
     return outfile
+
+
+@pytest.fixture
+def bro_cpt_gpkg():
+    return Path(__file__).parent / r"data/test_bro_cpt_geopackage.gpkg"
