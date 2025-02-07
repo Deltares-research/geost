@@ -19,7 +19,6 @@ from shapely.geometry import (
 from geost import spatial
 from geost.abstract_classes import AbstractCollection, AbstractData, AbstractHeader
 from geost.analysis import cumulative_thickness
-from geost.enums import VerticalReference
 from geost.export import borehole_to_multiblock, export_to_dftgeodata
 from geost.mixins import GeopandasExportMixin, PandasExportMixin
 from geost.projections import (

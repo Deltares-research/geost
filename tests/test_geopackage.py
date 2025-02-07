@@ -52,3 +52,16 @@ class TestGeopackage:
 
             table = gp.table_head(test_table)
             assert len(table) == 5
+
+    @pytest.mark.unittest
+    def test_query(self, simple_soilmap_gpkg):
+        with Geopackage(simple_soilmap_gpkg) as gp:
+            query = "SELECT * FROM soilarea_soilunit"
+            table = gp.query(query)
+        assert isinstance(table, pd.DataFrame)
+        assert_array_equal(table.columns, ["fid", "maparea_id", "soilunit_code"])
+
+        with Geopackage(simple_soilmap_gpkg) as gp:
+            query = "SELECT * FROM soilarea_soilunit WHERE fid = 1"
+            table = gp.query(query, outcolumns=["A", "B", "C"])
+        assert_array_equal(table.columns, ["A", "B", "C"])

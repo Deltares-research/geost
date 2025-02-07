@@ -160,4 +160,8 @@ class Geopackage:
         cursor = self._get_cursor()
         cursor.execute(query)
         data = cursor.fetchall()
+
+        if outcolumns is None:
+            outcolumns = [col[0] for col in cursor.description]
+
         return pd.DataFrame(data, columns=outcolumns)
