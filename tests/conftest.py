@@ -352,4 +352,11 @@ def simple_soilmap_gpkg(tmp_path):
 
 @pytest.fixture
 def bro_cpt_gpkg():
+    """
+    Small extraction of 4 CPTs from the BRO CPT geopackage for testing purposes. The CPTs
+    were selected from the original BRO CPT geopackage by their primary keys. The selected
+    keys were: 164970, 164971, 164975, 164976. These numbers coincide with the "fid" index
+    in the GeoDataFrame when `geost.bro.BroCptGeopackage` is used to read the geopackage.
+
+    """
     return Path(__file__).parent / r"data/test_bro_cpt_geopackage.gpkg"

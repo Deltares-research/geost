@@ -29,12 +29,48 @@ class CptTables(StrEnum):
 
 
 class BroCptGeopackage:
+    """
+    Class to handle the Bro CPT Geopackage file and facilitate data selections and making
+    combinations between the different data tables in the BRO CPT geopackage.
+
+    Parameters
+    ----------
+    gdf : gpd.GeoDataFrame
+        GeoDataFrame containing the spatial locations of the CPT data. The "find key" per
+        "bro_id" to each related tables in the Geopackage as index (index name: "fid").
+    db : :class:`~geost.io.Geopackage`
+        Geost Geopackage instance to handle the database connections and queries.
+    """
+
     def __init__(self, gdf: gpd.GeoDataFrame, db: Geopackage):
         self.gdf = gdf
         self.db = db
 
     @classmethod
     def from_geopackage(cls, file: str | Path, **gpd_kwargs):
+        """
+        Create an instance of `BroCptGeopackage` from a GeoPackage file.
+
+        Parameters
+        ----------
+        file : str or Path
+            The path to the GeoPackage file.
+        **gpd_kwargs : dict
+            Additional keyword arguments to pass to `gpd.read_file`.
+            The 'fid_as_index' argument is set to True by default to retain the index for database selections.
+            The 'layer' argument should not be passed as it is set internally.
+
+        Returns
+        -------
+        `BroCptGeopackage`
+
+        Raises
+        ------
+        ValueError
+            If the 'layer' argument is passed in `gpd_kwargs`. This argument is set internally
+            to set the `gdf` attribute and cannot be overwritten.
+
+        """
         if "fid_as_index" not in gpd_kwargs:  # Needs to retain index for db selections
             gpd_kwargs["fid_as_index"] = True
 
