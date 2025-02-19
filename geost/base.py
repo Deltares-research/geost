@@ -1402,7 +1402,7 @@ class DiscreteData(AbstractData, PandasExportMixin):
         if isinstance(selection_values, str):
             selection_values = [selection_values]
 
-        selected = self.df
+        selected = self.df.copy()
         if how == "or":
             valid = self["nr"][self[column].isin(selection_values)].unique()
             selected = selected[selected["nr"].isin(valid)]
