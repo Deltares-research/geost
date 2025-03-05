@@ -2,6 +2,7 @@ from enum import StrEnum
 from pathlib import Path
 
 import geopandas as gpd
+import pandas as pd
 
 from geost.io import Geopackage
 
@@ -30,7 +31,7 @@ class CptTables(StrEnum):
 
 class BroCptGeopackage:
     """
-    Class to handle the Bro CPT Geopackage file and facilitate data selections and making
+    Class to handle the Bro CPT Geopackage file for data selections and facilitate making
     combinations between the different data tables in the BRO CPT geopackage.
 
     Parameters
@@ -56,9 +57,10 @@ class BroCptGeopackage:
         file : str or Path
             The path to the GeoPackage file.
         **gpd_kwargs : dict
-            Additional keyword arguments to pass to `gpd.read_file`.
-            The 'fid_as_index' argument is set to True by default to retain the index for database selections.
-            The 'layer' argument should not be passed as it is set internally.
+            Additional keyword arguments to pass to `gpd.read_file`. The 'fid_as_index'
+            argument is set to True by default to retain the index fordatabase selections.
+            The 'layer' argument should not be passed as it is set internally and this will
+            raise a ValueError.
 
         Returns
         -------
@@ -80,3 +82,44 @@ class BroCptGeopackage:
         gdf = gpd.read_file(file, layer=CptTables.geotechnical_cpt_survey, **gpd_kwargs)
         db = Geopackage(file)
         return cls(gdf, db)
+
+    def select_location_info(self) -> pd.DataFrame:
+        """
+        Select the location information from the BRO CPT geopackage.
+
+        Returns
+        -------
+        pd.DataFrame
+            DataFrame containing the location information.
+
+        """
+        gcs = CptTables.geotechnical_cpt_survey
+        dl = CptTables.delivered_location
+        bl = CptTables.bro_location
+        bp = CptTables.bro_point
+
+        query = f"""
+            SELECT
+                GCS.fid,
+                DL.horizontal_positioning_date, DL.horizontal_positioning_method,
+                BL.crs,
+                BP.x_or_lon, BP.y_or_lat
+            FROM {gcs} GCS
+            JOIN {dl} DL ON GCS.fid = DL.{gcs}_fk
+            JOIN {bl} BL ON DL.{dl}_pk = BL.{dl}_fk
+            JOIN {bp} BP ON BL.{bl}_pk = BP.{bl}_fk
+            LIMIT 5
+        """
+        with self.db:
+            a = self.db.query(query)
+        pass
+
+
+if __name__ == "__main__":
+    gpkg = Geopackage(
+        r"c:\Users\knaake\OneDrive - Stichting Deltares\Documents\data\bro_cpt\brocptvolledigeset_v2_0.gpkg"
+    )
+    # gpkg.get_connection()
+    bro_cpts = BroCptGeopackage.from_geopackage(gpkg.file)
+    bro_cpts.select_location_info()
+    print(gpkg.layers())

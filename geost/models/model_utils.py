@@ -97,7 +97,7 @@ def sample_along_line(
     )
     ds_sel = ds_sel.assign_coords(dist=("dist", dist))
 
-    return ds_sel.transpose("z", "dist")
+    return ds_sel
 
 
 def _interpolate_point(line, loc):

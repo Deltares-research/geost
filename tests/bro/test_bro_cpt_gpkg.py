@@ -37,3 +37,8 @@ class TestBroCptGeopackage:
 
         bro_cpt = BroCptGeopackage.from_geopackage(bro_cpt_gpkg, fid_as_index=False)
         assert bro_cpt.gdf.index.name is None
+
+    @pytest.mark.unittest
+    def test_select_location_info(self, bro_cpt_gpkg):
+        bro_cpt = BroCptGeopackage.from_geopackage(bro_cpt_gpkg)
+        location_info = bro_cpt.select_location_info()
