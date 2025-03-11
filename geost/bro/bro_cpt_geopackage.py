@@ -120,6 +120,6 @@ if __name__ == "__main__":
         r"c:\Users\knaake\OneDrive - Stichting Deltares\Documents\data\bro_cpt\brocptvolledigeset_v2_0.gpkg"
     )
     # gpkg.get_connection()
-    bro_cpts = BroCptGeopackage.from_geopackage(gpkg.file)
+    bro_cpts = BroCptGeopackage.from_geopackage(gpkg.file, bbox=(100_000, 440_000, 101_000, 441_000))
     bro_cpts.select_location_info()
-    print(gpkg.layers())
+    # print(gpkg.layers())
