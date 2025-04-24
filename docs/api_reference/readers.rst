@@ -21,9 +21,11 @@ Geopackage
 
 BRO CPT Geopackage (Experimental)
 ------------------------------------------------
+.. currentmodule:: geost.bro
+
 .. autosummary::
     :toctree: generated/
 
-    BRO_CPT_Geopackage
-    BRO_CPT_Geopackage.from_geopackage
-    BRO_CPT_Geopackage.select_location_info
+    BroCptGeopackage
+    BroCptGeopackage.from_geopackage
+    BroCptGeopackage.select_location_info
