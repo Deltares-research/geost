@@ -41,4 +41,5 @@ class TestBroCptGeopackage:
     @pytest.mark.unittest
     def test_select_location_info(self, bro_cpt_gpkg):
         bro_cpt = BroCptGeopackage.from_geopackage(bro_cpt_gpkg)
-        location_info = bro_cpt.select_location_info()
+        with pytest.raises(NotImplementedError):
+            bro_cpt.select_location_info()

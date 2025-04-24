@@ -83,7 +83,7 @@ class BroCptGeopackage:
         db = Geopackage(file)
         return cls(gdf, db)
 
-    def select_location_info(self) -> pd.DataFrame:
+    def select_location_info(self) -> pd.DataFrame:  # pragma: no cover
         """
         Select the location information from the BRO CPT geopackage.
 
@@ -93,6 +93,7 @@ class BroCptGeopackage:
             DataFrame containing the location information.
 
         """
+        raise NotImplementedError("This method is not implemented yet.")
         gcs = CptTables.geotechnical_cpt_survey
         dl = CptTables.delivered_location
         bl = CptTables.bro_location
@@ -111,15 +112,5 @@ class BroCptGeopackage:
             LIMIT 5
         """
         with self.db:
-            a = self.db.query(query)
+            self.db.query(query)
         pass
-
-
-if __name__ == "__main__":
-    gpkg = Geopackage(
-        r"c:\Users\knaake\OneDrive - Stichting Deltares\Documents\data\bro_cpt\brocptvolledigeset_v2_0.gpkg"
-    )
-    # gpkg.get_connection()
-    bro_cpts = BroCptGeopackage.from_geopackage(gpkg.file, bbox=(100_000, 440_000, 101_000, 441_000))
-    bro_cpts.select_location_info()
-    # print(gpkg.layers())
