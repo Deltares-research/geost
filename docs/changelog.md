@@ -1,8 +1,21 @@
 # Release notes
 
-## v0.2.6
+## v0.2.7
 
 [**Full Changelog**](https://github.com/Deltares-research/geost/compare/0.2.4...0.2.5)
+
+**Added**
+- **Added** generic reader for Geopackage files
+- **Added** begin of reader for the "BRO CPT kenset" geopackage
+
+**Fixed**
+- **Fixed** fix unintended loading of data in `GeoTop.from_opendap`
+
+**Other**
+- **Other** remove unnecessary transpose in `sample_along_line` for more generic behaviour
+
+
+## v0.2.6
 
 **Added**
 - **Added** GeoST documentation and deployment of these docs on Github pages
