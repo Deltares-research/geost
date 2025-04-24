@@ -17,3 +17,13 @@ Geopackage
     Geopackage.query
     Geopackage.read_table
     Geopackage.table_head
+
+
+BRO CPT Geopackage (Experimental)
+------------------------------------------------
+.. autosummary::
+    :toctree: generated/
+
+    BRO_CPT_Geopackage
+    BRO_CPT_Geopackage.from_geopackage
+    BRO_CPT_Geopackage.select_location_info

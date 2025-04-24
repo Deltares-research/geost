@@ -7,7 +7,7 @@ import pandas as pd
 from geost.io import Geopackage
 
 
-class CptTables(StrEnum):
+class CptTables(StrEnum):  # pragma: no cover
     geotechnical_cpt_survey = "geotechnical_cpt_survey"
     delivered_location = "delivered_location"
     bro_location = "bro_location"
