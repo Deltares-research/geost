@@ -14,6 +14,7 @@ from geost.base import (
     LayeredData,
     PointHeader,
 )
+from geost.data_objects import Cpt
 from geost.export import geodataclass
 
 
@@ -506,3 +507,25 @@ class TestDiscreteData:
         assert len(selected) == 2
         assert_array_equal(selected["depth"], [0, 1])
         assert np.all(selected["nr"] == "a")
+
+
+class TestDataclasses:
+    @pytest.mark.unittest
+    def test_cpt_dataclass(self):
+        cpt = Cpt()
+        assert isinstance(cpt, Cpt)
+        assert cpt.nr is None
+        assert cpt.x is None
+        assert cpt.y is None
+        assert cpt.z is None
+        assert cpt.enddepth is None
+        assert cpt.gefid is None
+        assert cpt.ncolumns is None
+        assert cpt.columninfo is None
+        assert cpt.companyid is None
+        assert cpt.filedate is None
+        assert cpt.fileowner is None
+        assert cpt.lastscan is None
+        assert cpt.procedurecode is None
+        assert cpt.reportcode is None
+        assert cpt.projectid is None
