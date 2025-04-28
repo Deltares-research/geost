@@ -304,8 +304,8 @@ class GeoTop(VoxelModel):
         dz = 0.5
         crs = 28992
 
-        if lazy and 'chunks' not in xr_kwargs:
-            xr_kwargs['chunks'] = 'auto'
+        if lazy and "chunks" not in xr_kwargs:
+            xr_kwargs["chunks"] = "auto"
 
         ds = xr.open_dataset(nc_path, **xr_kwargs)
         ds = coordinates_to_cellcenters(ds, cellsize, dz)
