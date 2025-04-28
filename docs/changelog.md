@@ -1,8 +1,8 @@
 # Release notes
 
-## v0.2.7
+## v0.2.8
 
-[**Full Changelog**](https://github.com/Deltares-research/geost/compare/0.2.6...0.2.7)
+[**Full Changelog**](https://github.com/Deltares-research/geost/compare/0.2.6...0.2.8)
 
 **Added**
 - **Added** generic reader for Geopackage files
@@ -11,6 +11,7 @@
 
 **Fixed**
 - **Fixed** fix unintended loading of data in `GeoTop.from_opendap`
+- **Fixed** use correct transformation of coordinates between lat,lon and x,y
 
 **Other**
 - **Other** remove unnecessary transpose in `sample_along_line` for more generic behaviour
