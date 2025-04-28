@@ -1,6 +1,0 @@
-﻿geost.projections.xy\_to\_ll
-============================
-
-.. currentmodule:: geost.projections
-
-.. autofunction:: xy_to_ll
