@@ -2,11 +2,12 @@
 
 ## v0.2.7
 
-[**Full Changelog**](https://github.com/Deltares-research/geost/compare/0.2.4...0.2.5)
+[**Full Changelog**](https://github.com/Deltares-research/geost/compare/0.2.6...0.2.7)
 
 **Added**
 - **Added** generic reader for Geopackage files
 - **Added** begin of reader for the "BRO CPT kenset" geopackage
+- **Added** keyword arguments 'min_thickness' and 'min_depth' for method 'get_layer_top'
 
 **Fixed**
 - **Fixed** fix unintended loading of data in `GeoTop.from_opendap`
@@ -16,6 +17,8 @@
 
 
 ## v0.2.6
+
+[**Full Changelog**](https://github.com/Deltares-research/geost/compare/0.2.4...0.2.6)
 
 **Added**
 - **Added** GeoST documentation and deployment of these docs on Github pages
