@@ -81,7 +81,7 @@ class TestBroApi:
         # Note: if test fails, check if BRO database was updated first
         api = BroApi()
         # Find CPTs
-        api.search_objects_in_bbox(112400, 112500, 442750, 442850, object_type="CPT")
+        api.search_objects_in_bbox(112400, 442750, 112500, 442850, object_type="CPT")
         minimum_present_objects = ["CPT000000000787", "CPT000000029403"]
         present_objects = [
             obj for obj in api.object_list if obj in minimum_present_objects
@@ -97,7 +97,7 @@ class TestBroApi:
         # Note: if test fails, check if BRO database was updated first
         api = BroApi()
         # Find CPTs
-        api.search_objects_in_bbox(141500, 141700, 455100, 455300, object_type="BHR-P")
+        api.search_objects_in_bbox(141500, 455100, 141700, 455300, object_type="BHR-P")
         minimum_present_objects = [
             "BHR000000085497",
             "BHR000000247842",
@@ -118,7 +118,7 @@ class TestBroApi:
         # Note: if test fails, check if BRO database was updated first
         api = BroApi()
         # Find CPTs
-        api.search_objects_in_bbox(141300, 142300, 452700, 453500, object_type="BHR-GT")
+        api.search_objects_in_bbox(141300, 452700, 142300, 453500, object_type="BHR-GT")
         minimum_present_objects = [
             "BHR000000353592",
             "BHR000000353583",
@@ -137,6 +137,6 @@ class TestBroApi:
     @pytest.mark.unittest
     def test_get_too_large_volume(self, capsys):
         api = BroApi()
-        cpts = api.search_objects_in_bbox(82000, 90000, 425000, 432000)
+        cpts = api.search_objects_in_bbox(82000, 425000, 90000, 432000)
         captured = capsys.readouterr()
         assert "More than 2000 object requests in API call" in captured.out

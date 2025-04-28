@@ -4,7 +4,7 @@ import requests
 from lxml import etree
 
 from geost.bro.bro_utils import get_bbox_criteria
-from geost.projections import xy_to_ll
+from geost.projections import horizontal_reference_transformer
 
 Coordinate = TypeVar("Coordinate", int, float)
 
@@ -78,8 +78,8 @@ class BroApi:
     def search_objects_in_bbox(
         self,
         xmin: Coordinate,
-        xmax: Coordinate,
         ymin: Coordinate,
+        xmax: Coordinate,
         ymax: Coordinate,
         epsg: str = "28992",
         object_type: str = "CPT",
@@ -93,10 +93,10 @@ class BroApi:
         ----------
         xmin : Union[float, int]
             x-coordinate of the bbox lower left corner.
-        xmax : Union[float, int]
-            x-coordinate of the bbox upper right corner.
         ymin : Union[float, int]
             y-coordinate of the bbox lower left corner.
+        xmax : Union[float, int]
+            x-coordinate of the bbox upper right corner.
         ymax : Union[float, int]
             y-coordinate of the bbox upper right corner.
         epsg : str, optional
@@ -117,14 +117,14 @@ class BroApi:
             If the server does not respond or the search query was rejected.
         """
         response = self.__response_to_bbox(
-            xmin, xmax, ymin, ymax, epsg=epsg, object_type=object_type
+            xmin, ymin, xmax, ymax, epsg=epsg, object_type=object_type
         )
         if response.status_code == 200 and "rejection" not in response.text:
             etree_root = etree.fromstring(response.text.encode("utf-8"))
             self.object_list += self.__objects_from_etree(etree_root)
         elif response.status_code == 400 or "groter dan 2000" in response.text:
             self.__search_objects_in_divided_bbox(
-                xmin, xmax, ymin, ymax, epsg=epsg, object_type=object_type
+                xmin, ymin, xmax, ymax, epsg=epsg, object_type=object_type
             )
         else:
             raise Warning(
@@ -134,8 +134,8 @@ class BroApi:
     def __search_objects_in_divided_bbox(
         self,
         xmin: Coordinate,
-        xmax: Coordinate,
         ymin: Coordinate,
+        xmax: Coordinate,
         ymax: Coordinate,
         epsg: str = "28992",
         object_type: str = "CPT",
@@ -150,8 +150,8 @@ class BroApi:
             xmax_divided = xmin + ((division_level + 1) * division_x)
             response = self.__response_to_bbox(
                 xmin_divided,
-                xmax_divided,
                 ymin,
+                xmax_divided,
                 ymax,
                 epsg=epsg,
                 object_type=object_type,
@@ -162,15 +162,16 @@ class BroApi:
     def __response_to_bbox(
         self,
         xmin: Coordinate,
-        xmax: Coordinate,
         ymin: Coordinate,
+        xmax: Coordinate,
         ymax: Coordinate,
         epsg: str = "28992",
         object_type: str = "CPT",
     ):
-        ymin_ll, xmin_ll = xy_to_ll(xmin, ymin, epsg)
-        ymax_ll, xmax_ll = xy_to_ll(xmax, ymax, epsg)
-        criteria = get_bbox_criteria(xmin_ll, xmax_ll, ymin_ll, ymax_ll)
+        transformer = horizontal_reference_transformer(epsg, 4326)
+        xmin, ymin = transformer.transform(xmin, ymin)
+        xmax, ymax = transformer.transform(xmax, ymax)
+        criteria = get_bbox_criteria(xmin, ymin, xmax, ymax)
         api_url = self.server_url + self.apis[object_type] + self.search_url
         response = self.session.post(api_url, json=criteria)
         return response

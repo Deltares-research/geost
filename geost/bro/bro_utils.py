@@ -2,7 +2,7 @@ import numpy as np
 import xarray as xr
 
 
-def get_bbox_criteria(xmin, xmax, ymin, ymax):
+def get_bbox_criteria(xmin, ymin, xmax, ymax):
     json_line = {
         "area": {
             "boundingBox": {

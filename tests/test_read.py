@@ -134,7 +134,7 @@ class TestReaders:
     @pytest.mark.unittest
     def test_get_bro_soil_cores_from_bbox(self):
         soilcores = get_bro_objects_from_bbox(
-            "BHR-P", xmin=87000, xmax=87500, ymin=444000, ymax=444500
+            "BHR-P", xmin=87000, ymin=444000, xmax=87500, ymax=444500
         )
         assert soilcores.n_points == 7
 

@@ -5,7 +5,9 @@ from pyproj.crs import CompoundCRS
 def horizontal_reference_transformer(
     epsg_from: str | int | CRS, epsg_to: str | int | CRS
 ):
-    transformer = Transformer.from_crs(CRS(epsg_from), CRS(epsg_to), accuracy=1.0)
+    transformer = Transformer.from_crs(
+        CRS(epsg_from), CRS(epsg_to), always_xy=True, accuracy=1.0
+    )
     return transformer
 
 
@@ -24,9 +26,3 @@ def vertical_reference_transformer(
             "Given EPSG numbers must be known vertical datums, see spatialreference.org"
         )
     return transformer
-
-
-def xy_to_ll(x, y, epsg):
-    t = horizontal_reference_transformer(epsg, 4326)
-    transformed = t.transform(x, y)
-    return transformed
