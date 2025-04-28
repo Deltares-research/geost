@@ -109,6 +109,26 @@ class TestLayeredData:
         assert_array_equal(result.index, expected_boreholes_returned)
         assert_array_almost_equal(result["V"], expected_tops)
 
+        # Test with a minimum depth to start the search for the top of the layer.
+        result = borehole_data.get_layer_top("lith", "V", min_depth=2)
+        expected_boreholes_returned = ["B", "D"]
+        expected_tops = [2.0, 2.0]
+
+        assert len(result) == 2
+        assert_array_equal(result.index, expected_boreholes_returned)
+        assert_array_almost_equal(result["V"], expected_tops)
+
+        # Test with a minimum depth and minimum thickness
+        result = borehole_data.get_layer_top(
+            "lith", "V", min_depth=2, min_thickness=0.6
+        )
+        expected_boreholes_returned = ["B"]
+        expected_tops = [2.5]
+
+        assert len(result) == 1
+        assert_array_equal(result.index, expected_boreholes_returned)
+        assert_array_almost_equal(result["V"], expected_tops)
+
         result = borehole_data.get_layer_top("lith", ["Z", "K"])
         expected_boreholes_returned = ["A", "B", "C", "D", "E"]
         expected_sand_top = [1.5, np.nan, 2.9, 2.5, 0.0]
