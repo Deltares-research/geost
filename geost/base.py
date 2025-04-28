@@ -19,7 +19,6 @@ from shapely.geometry import (
 from geost import spatial
 from geost.abstract_classes import AbstractCollection, AbstractData, AbstractHeader
 from geost.analysis import cumulative_thickness
-from geost.enums import VerticalReference
 from geost.export import borehole_to_multiblock, export_to_dftgeodata
 from geost.mixins import GeopandasExportMixin, PandasExportMixin
 from geost.projections import (
@@ -935,9 +934,17 @@ class LayeredData(AbstractData, PandasExportMixin):
         cum_thickness = cum_thickness.unstack(level=column)
         return cum_thickness
 
-    def get_layer_top(self, column: str, values: str | List[str]):
+    def get_layer_top(
+        self,
+        column: str,
+        values: str | List[str],
+        min_thickness: float = 0,
+        min_depth: float = 0,
+    ):
         """
-        Find the depth at which a specified layer first occurs.
+        Find the depth at which a specified layer first occurs, starting at min_depth
+        and looking downwards until the first layer of min_thickness is found of the
+        specified layer.
 
         Parameters
         ----------
@@ -945,6 +952,10 @@ class LayeredData(AbstractData, PandasExportMixin):
             Name of column that contains categorical data.
         values : str | List[str]
             Value or values of entries in the column that you want to find top of.
+        min_thickness : float, optional
+            Minimal thickness of the layer to be considered. The default is 0.
+        min_depth : float, optional
+            Minimal depth of the layer to be considered. The default is 0.
 
         Returns
         -------
@@ -960,6 +971,10 @@ class LayeredData(AbstractData, PandasExportMixin):
 
         """
         selected_layers = self.slice_by_values(column, values)
+        selected_layers = selected_layers.slice_depth_interval(upper_boundary=min_depth)
+        selected_layers = selected_layers.select_by_condition(
+            selected_layers["bottom"] - selected_layers["top"] >= min_thickness
+        )
         layer_top = selected_layers.df.groupby(["nr", column])["top"].first()
         return layer_top.unstack(level=column)
 
@@ -1403,7 +1418,7 @@ class DiscreteData(AbstractData, PandasExportMixin):
         if isinstance(selection_values, str):
             selection_values = [selection_values]
 
-        selected = self.df
+        selected = self.df.copy()
         if how == "or":
             valid = self["nr"][self[column].isin(selection_values)].unique()
             selected = selected[selected["nr"].isin(valid)]
@@ -2589,10 +2604,17 @@ class BoreholeCollection(Collection):
             return cum_thickness
 
     def get_layer_top(
-        self, column: str, values: str | List[str], include_in_header: bool = False
+        self,
+        column: str,
+        values: str | List[str],
+        min_thickness: float = 0,
+        min_depth: float = 0,
+        include_in_header: bool = False,
     ):
         """
-        Find the depth at which a specified layer first occurs.
+        Find the depth at which a specified layer first occurs, starting at min_depth
+        and looking downwards until the first layer of min_thickness is found of the
+        specified layer.
 
         Parameters
         ----------
@@ -2600,6 +2622,10 @@ class BoreholeCollection(Collection):
             Name of column that contains categorical data.
         values : str | List[str]
             Value or values of entries in the column that you want to find top of.
+        min_thickness : float, optional
+            Minimal thickness of the layer to be considered. The default is 0.
+        min_depth : float, optional
+            Minimal depth of the layer to be considered. The default is 0.
         include_in_header : bool, optional
             If True, include the result in the header table of the collection. In this
             case, the method does not return a DataFrame. The default is False.
@@ -2622,7 +2648,9 @@ class BoreholeCollection(Collection):
         >>> boreholes.get_layer_top("lith", "Z", include_in_header=True)
 
         """
-        tops = self.data.get_layer_top(column, values)
+        tops = self.data.get_layer_top(
+            column, values, min_thickness=min_thickness, min_depth=min_depth
+        )
 
         if include_in_header:
             self.header.gdf.drop(

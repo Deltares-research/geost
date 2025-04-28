@@ -14,6 +14,15 @@ class TestGeoTop:
         return (115_000, 500_000, 115_500, 500_500)
 
     @pytest.mark.unittest
+    def test_lazy_load_from_opendap(self):
+        geotop = GeoTop.from_opendap(lazy=True)
+        assert geotop.ds.chunks == {
+            "y": (75, 684, 684, 684, 684),
+            "x": (643, 643, 643, 643, 74),
+            "z": (76, 76, 76, 76, 9),
+        }
+
+    @pytest.mark.unittest
     def test_from_opendap(self, test_area):
         geotop = GeoTop.from_opendap(bbox=test_area)
         assert isinstance(geotop, GeoTop)

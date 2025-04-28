@@ -259,12 +259,12 @@ def read_cpt_table(
     row data for each CPT depth interval and must at least include the following header
     information as columns:
 
-    nr      - Object id
-    x       - X-coordinates according to the given horizontal_reference
-    y       - Y-coordinates according to the given horizontal_reference
-    surface - Surface elevation according to the given vertical_reference
-    end     - End depth according to the given vertical_reference
-    depth   - Depth in meters below the surface
+    - **nr** : Object id
+    - **x** : X-coordinates according to the given horizontal_reference
+    - **y** : Y-coordinates according to the given horizontal_reference
+    - **surface** : Surface elevation according to the given vertical_reference
+    - **end** : End depth according to the given vertical_reference
+    - **depth** : Depth in meters below the surface
 
     Parameters
     ----------

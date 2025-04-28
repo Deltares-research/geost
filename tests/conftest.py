@@ -6,7 +6,7 @@ import numpy as np
 import pandas as pd
 import pytest
 import xarray as xr
-from shapely.geometry import Point
+from shapely import geometry as gmt
 
 from geost import read_borehole_table, read_nlog_cores
 from geost.base import DiscreteData, LayeredData
@@ -166,7 +166,7 @@ def point_header_gdf():
     nrs = ["nr" + str(i + 1) for i in range(len(coordinates))]
     mvs = np.arange(1, 26)
     ends = np.arange(-1, -26, -1)
-    geometries = [Point(c) for c in coordinates]
+    geometries = [gmt.Point(c) for c in coordinates]
     gdf = gpd.GeoDataFrame(
         {
             "nr": nrs,
@@ -277,3 +277,86 @@ def xarray_dataset():
 @pytest.fixture
 def voxelmodel(xarray_dataset):
     return VoxelModel(xarray_dataset)
+
+
+def create_polygons() -> gpd.GeoDataFrame:
+    """
+    Helper function to create a GeoDataFrame with 10 random irregular shaped polygons to
+    create test fixtures with.
+
+    Returns
+    -------
+    gpd.GeoDataFrame
+        GeoDataFrame with only a "geometry" column containing the polygons.
+
+    """
+    points = [
+        [0, 0],
+        [0, 4],
+        [4, 4],
+        [4, 0],
+        [0.5, 0.5],
+        [0.7, 3],
+        [1, 1.5],
+        [2.1, 2.3],
+        [2.7, 0.8],
+        [3.1, 3.1],
+        [3.3, 1.9],
+        [1.8, 3.5],
+        [1.5, 0.8],
+        [1.4, 1.0],
+    ]
+    points = gpd.GeoDataFrame(geometry=[gmt.Point(p) for p in points], crs=28992)
+    points["geometry"] = points.voronoi_polygons()
+    points = points.clip((0, 0, 4, 4), sort=True)
+    return points
+
+
+@pytest.fixture
+def simple_soilmap_gpkg(tmp_path):
+    """
+    Fixture to create a tmp geopackage file that contains relevant BRO soilmap information
+    to test.
+
+    """
+    polygons = create_polygons()
+    maparea_id = np.arange(len(polygons))
+    soilunits = [
+        "pVc",  # Peat type
+        "hVk",  # Peat type
+        "kVc",  # Peat type
+        "Vc",  # Peat type
+        "AAP",  # Peat type
+        "vWp",  # Moerig type
+        "iWp",  # Moerig type
+        "kWz",  # Moerig type
+        "AWv",  # Moerig type
+        "Rv01C",  # Buried type
+        "pRv81",  # Buried type
+        "Mv51A",  # Buried type
+        "Mv81A",  # Buried type
+        "bEZ23",  # Other type
+    ]
+    polygons["maparea_id"] = maparea_id
+    soilcodes = gpd.GeoDataFrame({"maparea_id": maparea_id, "soilunit_code": soilunits})
+
+    layers = ["soilarea", "soilarea_soilunit"]
+    tables = [polygons, soilcodes]
+
+    outfile = tmp_path / "soilmap.gpkg"
+    for layer, table in zip(layers, tables):
+        table.to_file(outfile, driver="GPKG", layer=layer, index=False)
+
+    return outfile
+
+
+@pytest.fixture
+def bro_cpt_gpkg():
+    """
+    Small extraction of 4 CPTs from the BRO CPT geopackage for testing purposes. The CPTs
+    were selected from the original BRO CPT geopackage by their primary keys. The selected
+    keys were: 164970, 164971, 164975, 164976. These numbers coincide with the "fid" index
+    in the GeoDataFrame when `geost.bro.BroCptGeopackage` is used to read the geopackage.
+
+    """
+    return Path(__file__).parent / r"data/test_bro_cpt_geopackage.gpkg"
