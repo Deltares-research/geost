@@ -55,7 +55,7 @@
     <link rel="prev" title="Reading data" href="reading_data.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="0.2.6" />
+  <meta name="docsearch:version" content="0.2.7" />
   </head>
   
   
@@ -574,6 +574,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.Collection.to_geopackage.html">geost.base.Collection.to_geopackage</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.Collection.to_geoparquet.html">geost.base.Collection.to_geoparquet</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.Collection.to_shape.html">geost.base.Collection.to_shape</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.io.Geopackage.html">geost.io.Geopackage</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.read_pickle.html">geost.read_pickle</a></li>
 </ul>
 </details></li>
@@ -665,6 +666,20 @@
 <li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.analysis.interpret_cpt.calc_ic.html">geost.analysis.interpret_cpt.calc_ic</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.analysis.interpret_cpt.calc_lithology.html">geost.analysis.interpret_cpt.calc_lithology</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.analysis.combine.add_voxelmodel_variable.html">geost.analysis.combine.add_voxelmodel_variable</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../api_reference/readers.html">Readers</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.io.Geopackage.html">geost.io.Geopackage</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.io.Geopackage.close.html">geost.io.Geopackage.close</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.io.Geopackage.get_column_names.html">geost.io.Geopackage.get_column_names</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.io.Geopackage.get_connection.html">geost.io.Geopackage.get_connection</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.io.Geopackage.layers.html">geost.io.Geopackage.layers</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.io.Geopackage.query.html">geost.io.Geopackage.query</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.io.Geopackage.read_table.html">geost.io.Geopackage.read_table</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.io.Geopackage.table_head.html">geost.io.Geopackage.table_head</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.bro.BroCptGeopackage.html">geost.bro.BroCptGeopackage</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.bro.BroCptGeopackage.from_geopackage.html">geost.bro.BroCptGeopackage.from_geopackage</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.bro.BroCptGeopackage.select_location_info.html">geost.bro.BroCptGeopackage.select_location_info</a></li>
 </ul>
 </details></li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../api_reference/utils.html">Utils</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -779,19 +794,19 @@
 </div>
 <div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>GeoTop
 Data variables:
-    strat    (y, x, z) float32 357kB ...
-    lithok   (y, x, z) float32 357kB ...
-    kans_1   (y, x, z) float32 357kB ...
-    kans_2   (y, x, z) float32 357kB ...
-    kans_3   (y, x, z) float32 357kB ...
-    kans_4   (y, x, z) float32 357kB ...
-    kans_5   (y, x, z) float32 357kB ...
-    kans_6   (y, x, z) float32 357kB ...
-    kans_7   (y, x, z) float32 357kB ...
-    kans_8   (y, x, z) float32 357kB ...
-    kans_9   (y, x, z) float32 357kB ...
-    onz_lk   (y, x, z) float32 357kB ...
-    onz_ls   (y, x, z) float32 357kB ...
+    strat    (y, x, z) float32 357kB dask.array&lt;chunksize=(15, 19, 313), meta=np.ndarray&gt;
+    lithok   (y, x, z) float32 357kB dask.array&lt;chunksize=(15, 19, 313), meta=np.ndarray&gt;
+    kans_1   (y, x, z) float32 357kB dask.array&lt;chunksize=(15, 19, 313), meta=np.ndarray&gt;
+    kans_2   (y, x, z) float32 357kB dask.array&lt;chunksize=(15, 19, 313), meta=np.ndarray&gt;
+    kans_3   (y, x, z) float32 357kB dask.array&lt;chunksize=(15, 19, 313), meta=np.ndarray&gt;
+    kans_4   (y, x, z) float32 357kB dask.array&lt;chunksize=(15, 19, 313), meta=np.ndarray&gt;
+    kans_5   (y, x, z) float32 357kB dask.array&lt;chunksize=(15, 19, 313), meta=np.ndarray&gt;
+    kans_6   (y, x, z) float32 357kB dask.array&lt;chunksize=(15, 19, 313), meta=np.ndarray&gt;
+    kans_7   (y, x, z) float32 357kB dask.array&lt;chunksize=(15, 19, 313), meta=np.ndarray&gt;
+    kans_8   (y, x, z) float32 357kB dask.array&lt;chunksize=(15, 19, 313), meta=np.ndarray&gt;
+    kans_9   (y, x, z) float32 357kB dask.array&lt;chunksize=(15, 19, 313), meta=np.ndarray&gt;
+    onz_lk   (y, x, z) float32 357kB dask.array&lt;chunksize=(15, 19, 313), meta=np.ndarray&gt;
+    onz_ls   (y, x, z) float32 357kB dask.array&lt;chunksize=(15, 19, 313), meta=np.ndarray&gt;
 Dimensions: {&#39;x&#39;: 19, &#39;y&#39;: 15, &#39;z&#39;: 313}
 Resolution (y, x, z): (100.0, 100.0, 0.5)
 </pre></div>
@@ -830,19 +845,19 @@ Resolution (y, x, z): (100.0, 100.0, 0.5)
 <div class="cell_output docutils container">
 <div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>GeoTop
 Data variables:
-    strat    (y, x, z) float32 38kB ...
-    lithok   (y, x, z) float32 38kB ...
-    kans_1   (y, x, z) float32 38kB ...
-    kans_2   (y, x, z) float32 38kB ...
-    kans_3   (y, x, z) float32 38kB ...
-    kans_4   (y, x, z) float32 38kB ...
-    kans_5   (y, x, z) float32 38kB ...
-    kans_6   (y, x, z) float32 38kB ...
-    kans_7   (y, x, z) float32 38kB ...
-    kans_8   (y, x, z) float32 38kB ...
-    kans_9   (y, x, z) float32 38kB ...
-    onz_lk   (y, x, z) float32 38kB ...
-    onz_ls   (y, x, z) float32 38kB ...
+    strat    (y, x, z) float32 38kB dask.array&lt;chunksize=(15, 2, 313), meta=np.ndarray&gt;
+    lithok   (y, x, z) float32 38kB dask.array&lt;chunksize=(15, 2, 313), meta=np.ndarray&gt;
+    kans_1   (y, x, z) float32 38kB dask.array&lt;chunksize=(15, 2, 313), meta=np.ndarray&gt;
+    kans_2   (y, x, z) float32 38kB dask.array&lt;chunksize=(15, 2, 313), meta=np.ndarray&gt;
+    kans_3   (y, x, z) float32 38kB dask.array&lt;chunksize=(15, 2, 313), meta=np.ndarray&gt;
+    kans_4   (y, x, z) float32 38kB dask.array&lt;chunksize=(15, 2, 313), meta=np.ndarray&gt;
+    kans_5   (y, x, z) float32 38kB dask.array&lt;chunksize=(15, 2, 313), meta=np.ndarray&gt;
+    kans_6   (y, x, z) float32 38kB dask.array&lt;chunksize=(15, 2, 313), meta=np.ndarray&gt;
+    kans_7   (y, x, z) float32 38kB dask.array&lt;chunksize=(15, 2, 313), meta=np.ndarray&gt;
+    kans_8   (y, x, z) float32 38kB dask.array&lt;chunksize=(15, 2, 313), meta=np.ndarray&gt;
+    kans_9   (y, x, z) float32 38kB dask.array&lt;chunksize=(15, 2, 313), meta=np.ndarray&gt;
+    onz_lk   (y, x, z) float32 38kB dask.array&lt;chunksize=(15, 2, 313), meta=np.ndarray&gt;
+    onz_ls   (y, x, z) float32 38kB dask.array&lt;chunksize=(15, 2, 313), meta=np.ndarray&gt;
 Dimensions: {&#39;x&#39;: 2, &#39;y&#39;: 15, &#39;z&#39;: 313}
 Resolution (y, x, z): (100.0, 300.0, 0.5)
 </pre></div>
@@ -872,19 +887,19 @@ Coordinates:
     spatial_ref  int64 8B 0
   * idx          (idx) int64 536B 0 1 2 3 4 5 6 7 8 ... 59 60 61 62 63 64 65 66
 Data variables: (12/13)
-    strat        (idx, z) float32 84kB ...
-    lithok       (idx, z) float32 84kB ...
-    kans_1       (idx, z) float32 84kB ...
-    kans_2       (idx, z) float32 84kB ...
-    kans_3       (idx, z) float32 84kB ...
-    kans_4       (idx, z) float32 84kB ...
+    strat        (idx, z) float32 84kB dask.array&lt;chunksize=(67, 313), meta=np.ndarray&gt;
+    lithok       (idx, z) float32 84kB dask.array&lt;chunksize=(67, 313), meta=np.ndarray&gt;
+    kans_1       (idx, z) float32 84kB dask.array&lt;chunksize=(67, 313), meta=np.ndarray&gt;
+    kans_2       (idx, z) float32 84kB dask.array&lt;chunksize=(67, 313), meta=np.ndarray&gt;
+    kans_3       (idx, z) float32 84kB dask.array&lt;chunksize=(67, 313), meta=np.ndarray&gt;
+    kans_4       (idx, z) float32 84kB dask.array&lt;chunksize=(67, 313), meta=np.ndarray&gt;
     ...           ...
-    kans_6       (idx, z) float32 84kB ...
-    kans_7       (idx, z) float32 84kB ...
-    kans_8       (idx, z) float32 84kB ...
-    kans_9       (idx, z) float32 84kB ...
-    onz_lk       (idx, z) float32 84kB ...
-    onz_ls       (idx, z) float32 84kB ...
+    kans_6       (idx, z) float32 84kB dask.array&lt;chunksize=(67, 313), meta=np.ndarray&gt;
+    kans_7       (idx, z) float32 84kB dask.array&lt;chunksize=(67, 313), meta=np.ndarray&gt;
+    kans_8       (idx, z) float32 84kB dask.array&lt;chunksize=(67, 313), meta=np.ndarray&gt;
+    kans_9       (idx, z) float32 84kB dask.array&lt;chunksize=(67, 313), meta=np.ndarray&gt;
+    onz_lk       (idx, z) float32 84kB dask.array&lt;chunksize=(67, 313), meta=np.ndarray&gt;
+    onz_ls       (idx, z) float32 84kB dask.array&lt;chunksize=(67, 313), meta=np.ndarray&gt;
 Attributes:
     title:         geotop v01r6 (100.0m * 100.0m * 0.5m
     references:    http://www.dinoloket.nl/detaillering-van-de-bovenste-lagen...

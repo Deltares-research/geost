@@ -1,0 +1,6 @@
+﻿geost.io.Geopackage.close
+=========================
+
+.. currentmodule:: geost.io
+
+.. automethod:: Geopackage.close

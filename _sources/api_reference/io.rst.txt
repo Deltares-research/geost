@@ -42,6 +42,7 @@ GIS vector files
    base.Collection.to_geopackage
    base.Collection.to_geoparquet
    base.Collection.to_shape
+   io.Geopackage
 
 Data in binary format (e.g. pickle)
 ------------------------------------

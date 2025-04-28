@@ -1,0 +1,6 @@
+﻿geost.bro.BroCptGeopackage.select\_location\_info
+=================================================
+
+.. currentmodule:: geost.bro
+
+.. automethod:: BroCptGeopackage.select_location_info

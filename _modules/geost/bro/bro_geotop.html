@@ -52,7 +52,7 @@
     <link rel="search" title="Search" href="../../../search.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="0.2.6" />
+  <meta name="docsearch:version" content="0.2.7" />
   </head>
   
   
@@ -783,6 +783,9 @@
         <span class="n">cellsize</span> <span class="o">=</span> <span class="mi">100</span>
         <span class="n">dz</span> <span class="o">=</span> <span class="mf">0.5</span>
         <span class="n">crs</span> <span class="o">=</span> <span class="mi">28992</span>
+
+        <span class="k">if</span> <span class="n">lazy</span> <span class="ow">and</span> <span class="s2">&quot;chunks&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">xr_kwargs</span><span class="p">:</span>
+            <span class="n">xr_kwargs</span><span class="p">[</span><span class="s2">&quot;chunks&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;auto&quot;</span>
 
         <span class="n">ds</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="n">nc_path</span><span class="p">,</span> <span class="o">**</span><span class="n">xr_kwargs</span><span class="p">)</span>
         <span class="n">ds</span> <span class="o">=</span> <span class="n">coordinates_to_cellcenters</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">cellsize</span><span class="p">,</span> <span class="n">dz</span><span class="p">)</span>

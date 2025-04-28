@@ -1,0 +1,6 @@
+﻿geost.io.Geopackage.read\_table
+===============================
+
+.. currentmodule:: geost.io
+
+.. automethod:: Geopackage.read_table

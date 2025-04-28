@@ -1,0 +1,29 @@
+﻿geost.io.Geopackage
+===================
+
+.. currentmodule:: geost.io
+
+.. autoclass:: Geopackage
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~Geopackage.__init__
+      ~Geopackage.close
+      ~Geopackage.get_column_names
+      ~Geopackage.get_connection
+      ~Geopackage.layers
+      ~Geopackage.query
+      ~Geopackage.read_table
+      ~Geopackage.table_head
+   
+   
+
+   
+   
+   

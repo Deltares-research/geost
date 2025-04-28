@@ -1,0 +1,6 @@
+﻿geost.io.Geopackage.query
+=========================
+
+.. currentmodule:: geost.io
+
+.. automethod:: Geopackage.query

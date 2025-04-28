@@ -1,0 +1,6 @@
+﻿geost.io.Geopackage.get\_connection
+===================================
+
+.. currentmodule:: geost.io
+
+.. automethod:: Geopackage.get_connection

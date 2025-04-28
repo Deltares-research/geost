@@ -55,7 +55,7 @@
     <link rel="prev" title="geost.base.BoreholeCollection.get_cumulative_thickness" href="geost.base.BoreholeCollection.get_cumulative_thickness.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="0.2.6" />
+  <meta name="docsearch:version" content="0.2.7" />
   </head>
   
   
@@ -574,6 +574,7 @@
 <li class="toctree-l3"><a class="reference internal" href="geost.base.Collection.to_geopackage.html">geost.base.Collection.to_geopackage</a></li>
 <li class="toctree-l3"><a class="reference internal" href="geost.base.Collection.to_geoparquet.html">geost.base.Collection.to_geoparquet</a></li>
 <li class="toctree-l3"><a class="reference internal" href="geost.base.Collection.to_shape.html">geost.base.Collection.to_shape</a></li>
+<li class="toctree-l3"><a class="reference internal" href="geost.io.Geopackage.html">geost.io.Geopackage</a></li>
 <li class="toctree-l3"><a class="reference internal" href="geost.read_pickle.html">geost.read_pickle</a></li>
 </ul>
 </details></li>
@@ -665,6 +666,20 @@
 <li class="toctree-l3"><a class="reference internal" href="geost.analysis.interpret_cpt.calc_ic.html">geost.analysis.interpret_cpt.calc_ic</a></li>
 <li class="toctree-l3"><a class="reference internal" href="geost.analysis.interpret_cpt.calc_lithology.html">geost.analysis.interpret_cpt.calc_lithology</a></li>
 <li class="toctree-l3"><a class="reference internal" href="geost.analysis.combine.add_voxelmodel_variable.html">geost.analysis.combine.add_voxelmodel_variable</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../readers.html">Readers</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="geost.io.Geopackage.html">geost.io.Geopackage</a></li>
+<li class="toctree-l3"><a class="reference internal" href="geost.io.Geopackage.close.html">geost.io.Geopackage.close</a></li>
+<li class="toctree-l3"><a class="reference internal" href="geost.io.Geopackage.get_column_names.html">geost.io.Geopackage.get_column_names</a></li>
+<li class="toctree-l3"><a class="reference internal" href="geost.io.Geopackage.get_connection.html">geost.io.Geopackage.get_connection</a></li>
+<li class="toctree-l3"><a class="reference internal" href="geost.io.Geopackage.layers.html">geost.io.Geopackage.layers</a></li>
+<li class="toctree-l3"><a class="reference internal" href="geost.io.Geopackage.query.html">geost.io.Geopackage.query</a></li>
+<li class="toctree-l3"><a class="reference internal" href="geost.io.Geopackage.read_table.html">geost.io.Geopackage.read_table</a></li>
+<li class="toctree-l3"><a class="reference internal" href="geost.io.Geopackage.table_head.html">geost.io.Geopackage.table_head</a></li>
+<li class="toctree-l3"><a class="reference internal" href="geost.bro.BroCptGeopackage.html">geost.bro.BroCptGeopackage</a></li>
+<li class="toctree-l3"><a class="reference internal" href="geost.bro.BroCptGeopackage.from_geopackage.html">geost.bro.BroCptGeopackage.from_geopackage</a></li>
+<li class="toctree-l3"><a class="reference internal" href="geost.bro.BroCptGeopackage.select_location_info.html">geost.bro.BroCptGeopackage.select_location_info</a></li>
 </ul>
 </details></li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../utils.html">Utils</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -761,13 +776,17 @@
 <h1>geost.base.BoreholeCollection.get_layer_top<a class="headerlink" href="#geost-base-boreholecollection-get-layer-top" title="Link to this heading">#</a></h1>
 <dl class="py method">
 <dt class="sig sig-object py" id="geost.base.BoreholeCollection.get_layer_top">
-<span class="sig-prename descclassname"><span class="pre">BoreholeCollection.</span></span><span class="sig-name descname"><span class="pre">get_layer_top</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">column</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">values</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">include_in_header</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/geost/base.html#BoreholeCollection.get_layer_top"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#geost.base.BoreholeCollection.get_layer_top" title="Link to this definition">#</a></dt>
-<dd><p>Find the depth at which a specified layer first occurs.</p>
+<span class="sig-prename descclassname"><span class="pre">BoreholeCollection.</span></span><span class="sig-name descname"><span class="pre">get_layer_top</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">column</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">values</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_thickness</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_depth</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">include_in_header</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/geost/base.html#BoreholeCollection.get_layer_top"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#geost.base.BoreholeCollection.get_layer_top" title="Link to this definition">#</a></dt>
+<dd><p>Find the depth at which a specified layer first occurs, starting at min_depth
+and looking downwards until the first layer of min_thickness is found of the
+specified layer.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>column</strong> (<em>str</em>) – Name of column that contains categorical data.</p></li>
 <li><p><strong>values</strong> (<em>str</em><em> | </em><em>List</em><em>[</em><em>str</em><em>]</em>) – Value or values of entries in the column that you want to find top of.</p></li>
+<li><p><strong>min_thickness</strong> (<em>float</em><em>, </em><em>optional</em>) – Minimal thickness of the layer to be considered. The default is 0.</p></li>
+<li><p><strong>min_depth</strong> (<em>float</em><em>, </em><em>optional</em>) – Minimal depth of the layer to be considered. The default is 0.</p></li>
 <li><p><strong>include_in_header</strong> (<em>bool</em><em>, </em><em>optional</em>) – If True, include the result in the header table of the collection. In this
 case, the method does not return a DataFrame. The default is False.</p></li>
 </ul>

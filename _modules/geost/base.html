@@ -52,7 +52,7 @@
     <link rel="search" title="Search" href="../../search.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="0.2.6" />
+  <meta name="docsearch:version" content="0.2.7" />
   </head>
   
   
@@ -480,7 +480,6 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">geost</span><span class="w"> </span><span class="kn">import</span> <span class="n">spatial</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">geost.abstract_classes</span><span class="w"> </span><span class="kn">import</span> <span class="n">AbstractCollection</span><span class="p">,</span> <span class="n">AbstractData</span><span class="p">,</span> <span class="n">AbstractHeader</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">geost.analysis</span><span class="w"> </span><span class="kn">import</span> <span class="n">cumulative_thickness</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">geost.enums</span><span class="w"> </span><span class="kn">import</span> <span class="n">VerticalReference</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">geost.export</span><span class="w"> </span><span class="kn">import</span> <span class="n">borehole_to_multiblock</span><span class="p">,</span> <span class="n">export_to_dftgeodata</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">geost.mixins</span><span class="w"> </span><span class="kn">import</span> <span class="n">GeopandasExportMixin</span><span class="p">,</span> <span class="n">PandasExportMixin</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">geost.projections</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
@@ -1460,9 +1459,17 @@
 
 <div class="viewcode-block" id="LayeredData.get_layer_top">
 <a class="viewcode-back" href="../../api_reference/generated/geost.base.LayeredData.get_layer_top.html#geost.base.LayeredData.get_layer_top">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">get_layer_top</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">column</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">values</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_layer_top</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">column</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">values</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+        <span class="n">min_thickness</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+        <span class="n">min_depth</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+    <span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Find the depth at which a specified layer first occurs.</span>
+<span class="sd">        Find the depth at which a specified layer first occurs, starting at min_depth</span>
+<span class="sd">        and looking downwards until the first layer of min_thickness is found of the</span>
+<span class="sd">        specified layer.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -1470,6 +1477,10 @@
 <span class="sd">            Name of column that contains categorical data.</span>
 <span class="sd">        values : str | List[str]</span>
 <span class="sd">            Value or values of entries in the column that you want to find top of.</span>
+<span class="sd">        min_thickness : float, optional</span>
+<span class="sd">            Minimal thickness of the layer to be considered. The default is 0.</span>
+<span class="sd">        min_depth : float, optional</span>
+<span class="sd">            Minimal depth of the layer to be considered. The default is 0.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
@@ -1485,6 +1496,10 @@
 
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">selected_layers</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">slice_by_values</span><span class="p">(</span><span class="n">column</span><span class="p">,</span> <span class="n">values</span><span class="p">)</span>
+        <span class="n">selected_layers</span> <span class="o">=</span> <span class="n">selected_layers</span><span class="o">.</span><span class="n">slice_depth_interval</span><span class="p">(</span><span class="n">upper_boundary</span><span class="o">=</span><span class="n">min_depth</span><span class="p">)</span>
+        <span class="n">selected_layers</span> <span class="o">=</span> <span class="n">selected_layers</span><span class="o">.</span><span class="n">select_by_condition</span><span class="p">(</span>
+            <span class="n">selected_layers</span><span class="p">[</span><span class="s2">&quot;bottom&quot;</span><span class="p">]</span> <span class="o">-</span> <span class="n">selected_layers</span><span class="p">[</span><span class="s2">&quot;top&quot;</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">min_thickness</span>
+        <span class="p">)</span>
         <span class="n">layer_top</span> <span class="o">=</span> <span class="n">selected_layers</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">groupby</span><span class="p">([</span><span class="s2">&quot;nr&quot;</span><span class="p">,</span> <span class="n">column</span><span class="p">])[</span><span class="s2">&quot;top&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">first</span><span class="p">()</span>
         <span class="k">return</span> <span class="n">layer_top</span><span class="o">.</span><span class="n">unstack</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="n">column</span><span class="p">)</span></div>
 
@@ -1958,7 +1973,7 @@
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">selection_values</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
             <span class="n">selection_values</span> <span class="o">=</span> <span class="p">[</span><span class="n">selection_values</span><span class="p">]</span>
 
-        <span class="n">selected</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">df</span>
+        <span class="n">selected</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">how</span> <span class="o">==</span> <span class="s2">&quot;or&quot;</span><span class="p">:</span>
             <span class="n">valid</span> <span class="o">=</span> <span class="bp">self</span><span class="p">[</span><span class="s2">&quot;nr&quot;</span><span class="p">][</span><span class="bp">self</span><span class="p">[</span><span class="n">column</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">selection_values</span><span class="p">)]</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span>
             <span class="n">selected</span> <span class="o">=</span> <span class="n">selected</span><span class="p">[</span><span class="n">selected</span><span class="p">[</span><span class="s2">&quot;nr&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">valid</span><span class="p">)]</span>
@@ -3192,10 +3207,17 @@
 <div class="viewcode-block" id="BoreholeCollection.get_layer_top">
 <a class="viewcode-back" href="../../api_reference/generated/geost.base.BoreholeCollection.get_layer_top.html#geost.base.BoreholeCollection.get_layer_top">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_layer_top</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">column</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">values</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">include_in_header</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">column</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">values</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+        <span class="n">min_thickness</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+        <span class="n">min_depth</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+        <span class="n">include_in_header</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Find the depth at which a specified layer first occurs.</span>
+<span class="sd">        Find the depth at which a specified layer first occurs, starting at min_depth</span>
+<span class="sd">        and looking downwards until the first layer of min_thickness is found of the</span>
+<span class="sd">        specified layer.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -3203,6 +3225,10 @@
 <span class="sd">            Name of column that contains categorical data.</span>
 <span class="sd">        values : str | List[str]</span>
 <span class="sd">            Value or values of entries in the column that you want to find top of.</span>
+<span class="sd">        min_thickness : float, optional</span>
+<span class="sd">            Minimal thickness of the layer to be considered. The default is 0.</span>
+<span class="sd">        min_depth : float, optional</span>
+<span class="sd">            Minimal depth of the layer to be considered. The default is 0.</span>
 <span class="sd">        include_in_header : bool, optional</span>
 <span class="sd">            If True, include the result in the header table of the collection. In this</span>
 <span class="sd">            case, the method does not return a DataFrame. The default is False.</span>
@@ -3225,7 +3251,9 @@
 <span class="sd">        &gt;&gt;&gt; boreholes.get_layer_top(&quot;lith&quot;, &quot;Z&quot;, include_in_header=True)</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">tops</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">get_layer_top</span><span class="p">(</span><span class="n">column</span><span class="p">,</span> <span class="n">values</span><span class="p">)</span>
+        <span class="n">tops</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">get_layer_top</span><span class="p">(</span>
+            <span class="n">column</span><span class="p">,</span> <span class="n">values</span><span class="p">,</span> <span class="n">min_thickness</span><span class="o">=</span><span class="n">min_thickness</span><span class="p">,</span> <span class="n">min_depth</span><span class="o">=</span><span class="n">min_depth</span>
+        <span class="p">)</span>
 
         <span class="k">if</span> <span class="n">include_in_header</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">header</span><span class="o">.</span><span class="n">gdf</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span>
