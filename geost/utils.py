@@ -106,24 +106,6 @@ def safe_float(number):
         return None
 
 
-def warn_user(func):
-    def inner(*args, **kwargs):
-        print("WARNING:\n--------")
-        func(*args, **kwargs)
-        print("--------\n>> CONTINUING MAY LEAD TO UNEXPECTED RESULTS\n")
-
-    return inner
-
-
-def inform_user(func):
-    def inner(*args, **kwargs):
-        print("PLEASE NOTICE:\n--------")
-        func(*args, **kwargs)
-        print("--------\n")
-
-    return inner
-
-
 def dataframe_to_geodataframe(
     df: pd.DataFrame, x_col_label: str = "x", y_col_label: str = "y", crs: int = None
 ) -> gpd.GeoDataFrame:

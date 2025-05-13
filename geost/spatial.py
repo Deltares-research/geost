@@ -1,3 +1,4 @@
+import warnings
 from pathlib import Path
 from typing import Iterable
 
@@ -6,11 +7,6 @@ import numpy as np
 import pandas as pd
 import rioxarray
 import xarray as xr
-
-from geost.utils import inform_user, warn_user
-
-warn = warn_user(lambda warning_info: print(warning_info))
-inform = inform_user(lambda info: print(info))
 
 
 def check_gdf_instance(
@@ -70,17 +66,19 @@ def check_and_coerce_crs(gdf: gpd.GeoDataFrame, to_crs: int):
     """
     if gdf.crs is None:
         gdf.crs = to_crs
-        warn(
+        warnings.warn(
             "The selection geometry has no crs! Assuming it is the same as the "
             + f"horizontal_reference (epsg:{to_crs}) of this "
             + "collection. PLEASE CHECK WHETHER THIS IS CORRECT!",
+            UserWarning,
         )
     elif gdf.crs != to_crs:
         gdf = gdf.to_crs(to_crs)
-        inform(
+        warnings.warn(
             "The crs of the selection geometry does not match the horizontal "
             + "reference of the collection. The selection geometry was coerced "
-            + f"to epsg:{to_crs} automatically"
+            + f"to epsg:{to_crs} automatically",
+            UserWarning,
         )
     return gdf
 

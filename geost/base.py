@@ -1,4 +1,4 @@
-import pickle
+import warnings
 from copy import deepcopy
 from pathlib import Path
 from typing import Any, Iterable, List
@@ -17,6 +17,7 @@ from shapely.geometry import (
 )
 
 from geost import spatial
+from geost._warnings import AlignmentWarning
 from geost.abstract_classes import AbstractCollection, AbstractData, AbstractHeader
 from geost.analysis import cumulative_thickness
 from geost.export import borehole_to_multiblock, export_to_dftgeodata
@@ -30,7 +31,6 @@ from geost.utils import (
     _to_geopackage,
     dataframe_to_geodataframe,
     save_pickle,
-    warn_user,
 )
 from geost.validate.decorators import validate_data, validate_header
 
@@ -42,7 +42,6 @@ type PointGeometries = Point | MultiPoint | Iterable[Point]
 type LineGeometries = LineString | MultiLineString | Iterable[LineString]
 type PolygonGeometries = Polygon | MultiPolygon | Iterable[Polygon]
 
-warn = warn_user(lambda warning_info: print(warning_info))
 
 
 class PointHeader(AbstractHeader, GeopandasExportMixin):
@@ -1832,14 +1831,16 @@ class Collection(AbstractCollection):
         """
         if hasattr(self, "_header") and hasattr(self, "_data"):
             if any(~self.header["nr"].isin(self.data["nr"].unique())):
-                warn(
+                warnings.warn(
                     "Header covers more/other objects than present in the data table, "
-                    "consider running the method 'reset_header' to update the header."
+                    "consider running the method 'reset_header' to update the header.",
+                    AlignmentWarning,
                 )
             if not set(self.data["nr"].unique()).issubset(set(self.header["nr"])):
-                warn(
+                warnings.warn(
                     "Header does not cover all unique objects in data, consider "
-                    "running the method 'reset_header' to update the header."
+                    "running the method 'reset_header' to update the header.",
+                    AlignmentWarning,
                 )
 
     def select_within_bbox(
