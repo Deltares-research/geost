@@ -26,6 +26,7 @@
       ~VoxelModel.select_within_bbox
       ~VoxelModel.select_within_polygons
       ~VoxelModel.slice_depth_interval
+      ~VoxelModel.to_vtk
       ~VoxelModel.zslice_to_tiff
    
    

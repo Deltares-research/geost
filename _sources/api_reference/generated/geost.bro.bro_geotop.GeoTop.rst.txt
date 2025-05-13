@@ -27,6 +27,7 @@
       ~GeoTop.select_within_bbox
       ~GeoTop.select_within_polygons
       ~GeoTop.slice_depth_interval
+      ~GeoTop.to_vtk
       ~GeoTop.zslice_to_tiff
    
    

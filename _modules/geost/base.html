@@ -459,7 +459,7 @@
                 <article class="bd-article">
                   
   <h1>Source code for geost.base</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">pickle</span>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">warnings</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">copy</span><span class="w"> </span><span class="kn">import</span> <span class="n">deepcopy</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">List</span>
@@ -478,6 +478,7 @@
 <span class="p">)</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">geost</span><span class="w"> </span><span class="kn">import</span> <span class="n">spatial</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">geost._warnings</span><span class="w"> </span><span class="kn">import</span> <span class="n">AlignmentWarning</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">geost.abstract_classes</span><span class="w"> </span><span class="kn">import</span> <span class="n">AbstractCollection</span><span class="p">,</span> <span class="n">AbstractData</span><span class="p">,</span> <span class="n">AbstractHeader</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">geost.analysis</span><span class="w"> </span><span class="kn">import</span> <span class="n">cumulative_thickness</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">geost.export</span><span class="w"> </span><span class="kn">import</span> <span class="n">borehole_to_multiblock</span><span class="p">,</span> <span class="n">export_to_dftgeodata</span>
@@ -491,7 +492,6 @@
     <span class="n">_to_geopackage</span><span class="p">,</span>
     <span class="n">dataframe_to_geodataframe</span><span class="p">,</span>
     <span class="n">save_pickle</span><span class="p">,</span>
-    <span class="n">warn_user</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">geost.validate.decorators</span><span class="w"> </span><span class="kn">import</span> <span class="n">validate_data</span><span class="p">,</span> <span class="n">validate_header</span>
 
@@ -503,7 +503,6 @@
 <span class="nb">type</span> <span class="n">LineGeometries</span> <span class="o">=</span> <span class="n">LineString</span> <span class="o">|</span> <span class="n">MultiLineString</span> <span class="o">|</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">LineString</span><span class="p">]</span>
 <span class="nb">type</span> <span class="n">PolygonGeometries</span> <span class="o">=</span> <span class="n">Polygon</span> <span class="o">|</span> <span class="n">MultiPolygon</span> <span class="o">|</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">Polygon</span><span class="p">]</span>
 
-<span class="n">warn</span> <span class="o">=</span> <span class="n">warn_user</span><span class="p">(</span><span class="k">lambda</span> <span class="n">warning_info</span><span class="p">:</span> <span class="nb">print</span><span class="p">(</span><span class="n">warning_info</span><span class="p">))</span>
 
 
 <div class="viewcode-block" id="PointHeader">
@@ -2413,14 +2412,16 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;_header&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;_data&quot;</span><span class="p">):</span>
             <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="o">~</span><span class="bp">self</span><span class="o">.</span><span class="n">header</span><span class="p">[</span><span class="s2">&quot;nr&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;nr&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">())):</span>
-                <span class="n">warn</span><span class="p">(</span>
+                <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
                     <span class="s2">&quot;Header covers more/other objects than present in the data table, &quot;</span>
-                    <span class="s2">&quot;consider running the method &#39;reset_header&#39; to update the header.&quot;</span>
+                    <span class="s2">&quot;consider running the method &#39;reset_header&#39; to update the header.&quot;</span><span class="p">,</span>
+                    <span class="n">AlignmentWarning</span><span class="p">,</span>
                 <span class="p">)</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;nr&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">())</span><span class="o">.</span><span class="n">issubset</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">header</span><span class="p">[</span><span class="s2">&quot;nr&quot;</span><span class="p">])):</span>
-                <span class="n">warn</span><span class="p">(</span>
+                <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
                     <span class="s2">&quot;Header does not cover all unique objects in data, consider &quot;</span>
-                    <span class="s2">&quot;running the method &#39;reset_header&#39; to update the header.&quot;</span>
+                    <span class="s2">&quot;running the method &#39;reset_header&#39; to update the header.&quot;</span><span class="p">,</span>
+                    <span class="n">AlignmentWarning</span><span class="p">,</span>
                 <span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">select_within_bbox</span><span class="p">(</span>

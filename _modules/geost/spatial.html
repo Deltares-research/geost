@@ -459,7 +459,8 @@
                 <article class="bd-article">
                   
   <h1>Source code for geost.spatial</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">warnings</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Iterable</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">geopandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">gpd</span>
@@ -467,11 +468,6 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">rioxarray</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
-
-<span class="kn">from</span><span class="w"> </span><span class="nn">geost.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">inform_user</span><span class="p">,</span> <span class="n">warn_user</span>
-
-<span class="n">warn</span> <span class="o">=</span> <span class="n">warn_user</span><span class="p">(</span><span class="k">lambda</span> <span class="n">warning_info</span><span class="p">:</span> <span class="nb">print</span><span class="p">(</span><span class="n">warning_info</span><span class="p">))</span>
-<span class="n">inform</span> <span class="o">=</span> <span class="n">inform_user</span><span class="p">(</span><span class="k">lambda</span> <span class="n">info</span><span class="p">:</span> <span class="nb">print</span><span class="p">(</span><span class="n">info</span><span class="p">))</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">check_gdf_instance</span><span class="p">(</span>
@@ -531,17 +527,19 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">gdf</span><span class="o">.</span><span class="n">crs</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">gdf</span><span class="o">.</span><span class="n">crs</span> <span class="o">=</span> <span class="n">to_crs</span>
-        <span class="n">warn</span><span class="p">(</span>
+        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
             <span class="s2">&quot;The selection geometry has no crs! Assuming it is the same as the &quot;</span>
             <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot;horizontal_reference (epsg:</span><span class="si">{</span><span class="n">to_crs</span><span class="si">}</span><span class="s2">) of this &quot;</span>
             <span class="o">+</span> <span class="s2">&quot;collection. PLEASE CHECK WHETHER THIS IS CORRECT!&quot;</span><span class="p">,</span>
+            <span class="ne">UserWarning</span><span class="p">,</span>
         <span class="p">)</span>
     <span class="k">elif</span> <span class="n">gdf</span><span class="o">.</span><span class="n">crs</span> <span class="o">!=</span> <span class="n">to_crs</span><span class="p">:</span>
         <span class="n">gdf</span> <span class="o">=</span> <span class="n">gdf</span><span class="o">.</span><span class="n">to_crs</span><span class="p">(</span><span class="n">to_crs</span><span class="p">)</span>
-        <span class="n">inform</span><span class="p">(</span>
+        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
             <span class="s2">&quot;The crs of the selection geometry does not match the horizontal &quot;</span>
             <span class="o">+</span> <span class="s2">&quot;reference of the collection. The selection geometry was coerced &quot;</span>
-            <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot;to epsg:</span><span class="si">{</span><span class="n">to_crs</span><span class="si">}</span><span class="s2"> automatically&quot;</span>
+            <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot;to epsg:</span><span class="si">{</span><span class="n">to_crs</span><span class="si">}</span><span class="s2"> automatically&quot;</span><span class="p">,</span>
+            <span class="ne">UserWarning</span><span class="p">,</span>
         <span class="p">)</span>
     <span class="k">return</span> <span class="n">gdf</span>
 
