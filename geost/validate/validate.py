@@ -18,7 +18,10 @@ calling schema.validate(dataframe_to_be_validated) will print warnings for missi
 columns, wrong datatypes and failed custom checks.
 """
 
-from geost.utils import COMPARISON_OPERATORS, warn_user
+import warnings
+
+from geost._warnings import ValidationWarning
+from geost.utils import COMPARISON_OPERATORS
 
 raise_error = False
 
@@ -106,15 +109,21 @@ class DataFrameSchema:
                 if passed_dtype_check and self.column_validation_parameters.checks:
                     self._validate_checks()
 
-        if len(self.validationerrors) >= 1:
+        if self.validationerrors:
             if raise_error:
                 raise ValidationError(("\n").join(self.validationerrors))
             else:
                 self.warn_user()
 
-    @warn_user
     def warn_user(self):
-        print(("\n").join(self.validationerrors))
+        warning_ = ("\n").join(self.validationerrors)
+        warnings.warn(
+            (
+                f"Validation failed for {self.name}:\n{warning_}\n"
+                "Continuing may lead to unexpected results."
+            ),
+            ValidationWarning,
+        )
 
 
 class Check:

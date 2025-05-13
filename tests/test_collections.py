@@ -1,3 +1,4 @@
+import warnings
 from pathlib import Path
 
 import geopandas as gpd
@@ -9,13 +10,13 @@ import xarray as xr
 from numpy.testing import (
     assert_allclose,
     assert_almost_equal,
-    assert_array_almost_equal,
     assert_array_equal,
     assert_equal,
 )
 from pyvista import MultiBlock
 from shapely.geometry import LineString, Point, Polygon
 
+from geost._warnings import AlignmentWarning, ValidationWarning
 from geost.base import BoreholeCollection, LayeredData, PointHeader
 from geost.export import geodataclass
 
@@ -26,7 +27,7 @@ class TestCollection:
     )
 
     @pytest.fixture
-    def borehole_df_ok(self):
+    def valid_boreholes(self):
         nr = np.full(10, "B-01")
         x = np.full(10, 139370)
         y = np.full(10, 455540)
@@ -40,7 +41,7 @@ class TestCollection:
         data_int = np.arange(0, 10, dtype=np.int64)
         data_float = np.arange(0, 5, 0.5, dtype=np.float64)
 
-        dataframe = pd.DataFrame(
+        df = pd.DataFrame(
             {
                 "nr": nr,
                 "x": x,
@@ -55,10 +56,10 @@ class TestCollection:
             }
         )
 
-        return dataframe
+        return LayeredData(df)
 
     @pytest.fixture
-    def borehole_df_bad_validation(self):
+    def invalid_borehole_table(self):
         nr = np.full(10, 1)
         x = np.full(10, 139370)
         y = np.full(10, 455540)
@@ -72,7 +73,7 @@ class TestCollection:
         data_int = np.arange(0, 10, dtype=np.int64)
         data_float = np.arange(0, 5, 0.5, dtype=np.float64)
 
-        dataframe = pd.DataFrame(
+        return pd.DataFrame(
             {
                 "nr": nr,
                 "x": x,
@@ -87,11 +88,9 @@ class TestCollection:
             }
         )
 
-        return dataframe
-
     @pytest.fixture
-    def header_missing_object(self):
-        dataframe = pd.DataFrame(
+    def misaligned_header(self):
+        df = pd.DataFrame(
             {
                 "nr": ["B-02"],
                 "x": [100000],
@@ -101,21 +100,7 @@ class TestCollection:
             }
         )
 
-        return dataframe
-
-    @pytest.fixture
-    def header_surplus_objects(self):
-        dataframe = pd.DataFrame(
-            {
-                "nr": ["B-01", "B-02", "B-03"],
-                "x": [139370, 100000, 110000],
-                "y": [455540, 400000, 410000],
-                "surface": [1, 0, -1],
-                "end": [-4, -8, -9],
-            }
-        )
-
-        return dataframe
+        return PointHeader(df, 28992)
 
     @pytest.fixture
     def update_raster(self):
@@ -394,39 +379,40 @@ class TestCollection:
         assert selected.n_points == 2
 
     @pytest.mark.integrationtest
-    def test_validation_pass(self, capfd, borehole_df_ok):
-        LayeredData(borehole_df_ok).to_collection()
-        out, err = capfd.readouterr()
-        # Since no warning line was printed, the length of out must be 0
-        assert_equal(len(out), 0)
+    def test_validation_pass(self, valid_boreholes):
+        with warnings.catch_warnings():
+            warnings.simplefilter("error")
+            valid_boreholes.to_collection()
 
     @pytest.mark.integrationtest
-    def test_validation_fail(self, capfd, borehole_df_bad_validation):
-        LayeredData(borehole_df_bad_validation).to_collection()
-        out, err = capfd.readouterr()
-        # Check if required warnings are printed. Note that changing warning messages
-        # will make this test fail.
-        assert 'but is required to be "stringlike type"' in out
-        assert 'data in column "bottom" failed check "> top" for 1 rows: [1]' in out
-        assert 'data in column "end" failed check "< surface" for 1 rows: [1]' in out
+    def test_validation_fail(self, invalid_borehole_table):
+        with pytest.warns(ValidationWarning) as record:
+            LayeredData(invalid_borehole_table).to_collection()
+
+        assert len(record) == 2
+
+        data_result, header_result = record
+        assert 'but is required to be "stringlike type"' in str(data_result.message)
+        assert 'data in column "bottom" failed check "> top" for 1 rows: [1]' in str(
+            data_result.message
+        )
+
+        assert 'but is required to be "stringlike type"' in str(header_result.message)
+        assert 'data in column "end" failed check "< surface" for 1 rows: [1]' in str(
+            header_result.message
+        )
 
     @pytest.mark.integrationtest
-    def test_header_mismatch(
-        self, capfd, borehole_df_ok, header_missing_object, header_surplus_objects
-    ):
-        # Situation #1: More unique objects in data table than listed in header
-        BoreholeCollection(
-            PointHeader(header_missing_object, 28992), LayeredData(borehole_df_ok)
+    def test_header_mismatch(self, valid_boreholes, misaligned_header):
+        with pytest.warns(AlignmentWarning) as record:
+            BoreholeCollection(misaligned_header, valid_boreholes)
+        assert len(record) == 2
+        assert "Header covers more/other objects than present in the data table" in str(
+            record[0].message
         )
-        out, err = capfd.readouterr()
-        assert "Header does not cover all unique objects in data" in out
-
-        # Situation #2: More objects in header table than in data table
-        BoreholeCollection(
-            PointHeader(header_surplus_objects, 28992), LayeredData(borehole_df_ok)
+        assert "Header does not cover all unique objects in data" in str(
+            record[1].message
         )
-        out, err = capfd.readouterr()
-        assert "Header covers more/other objects than present in the data table" in out
 
     @pytest.mark.unittest
     def test_get_area_labels(self, borehole_collection):

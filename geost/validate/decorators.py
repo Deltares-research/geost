@@ -11,7 +11,7 @@ def validate_header(f):
     def wrapper(*args):
         dataframe_to_validate = args[1]
         validation_instance = DataFrameSchema(
-            "Header validation", validationschemas.headerschema_point
+            "Header", validationschemas.headerschema_point
         )
         validation_instance.validate(dataframe_to_validate)
         return f(*args)
@@ -36,7 +36,7 @@ def validate_data(f):
             schema_to_use = schema_to_use | validationschemas.dataschema_inclined_point
 
         # Use the acquired validation conditions for validation
-        validation_instance = DataFrameSchema("Data validation", schema_to_use)
+        validation_instance = DataFrameSchema("Data", schema_to_use)
         validation_instance.validate(dataframe_to_validate)
 
         return f(*args)
