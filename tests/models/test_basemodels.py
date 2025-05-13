@@ -1,3 +1,5 @@
+import re
+
 import pytest
 import xarray as xr
 from numpy.testing import assert_array_equal
@@ -103,3 +105,34 @@ class TestVoxelModel:
         file = request.getfixturevalue(file)
         select = voxelmodel.select_with_points(file)
         assert isinstance(select, xr.Dataset)
+
+    @pytest.mark.unittest
+    def test_to_vtk(self, voxelmodel, tmp_path):
+        outfile_single_var = tmp_path / r"test_vtk_model_single.vtk"
+        outfile_multi_var = tmp_path / r"test_vtk_model_multi.vtk"
+        voxelmodel.to_vtk(outfile_single_var, data_vars=["strat"])
+        voxelmodel.to_vtk(outfile_multi_var)
+        assert outfile_single_var.is_file()
+        assert outfile_multi_var.is_file()
+
+    @pytest.mark.unittest
+    def test_to_vtk_problematic_dims(self, voxelmodel, tmp_path):
+        outfile_wrong_order = tmp_path / r"test_vtk_model_wrong_order.vtk"
+        outfile_missing_dims = tmp_path / r"test_vtk_model_missing_dims.vtk"
+
+        # Wrong order of dimensions leads to automatic transposing, not an error!
+        voxelmodel.to_vtk(outfile_wrong_order)
+        assert outfile_wrong_order.is_file()
+
+        # Missing z-dimension leads to an error and no file is created.
+        voxelmodel.ds = voxelmodel.ds.drop_vars("z")
+        with pytest.raises(Exception) as error_info:
+            voxelmodel.to_vtk(outfile_wrong_order)
+        assert error_info.errisinstance(ValueError)
+        assert error_info.match(
+            re.escape(
+                "Dataset must contain 'z' dimension. Use xarray.Dataset.rename() to rename "
+                + "the corresponding dimension to 'z' if applicable."
+            )
+        )
+        assert not outfile_missing_dims.is_file()

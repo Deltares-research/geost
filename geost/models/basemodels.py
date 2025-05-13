@@ -7,6 +7,7 @@ import numpy as np
 import rioxarray as rio
 import xarray as xr
 
+from geost.export import vtk
 from geost.spatial import check_gdf_instance
 
 from .model_utils import sample_along_line, sample_with_coords
@@ -125,7 +126,7 @@ class VoxelModel(AbstractSpatial, AbstractModel3D):
     def from_netcdf(
         cls,
         nc_path: str | Path,
-        data_vars: List[str] = None,
+        data_vars: list[str] = None,
         bbox: tuple[float, float, float, float] = None,
         lazy: bool = True,
         **xr_kwargs,
@@ -384,6 +385,30 @@ class VoxelModel(AbstractSpatial, AbstractModel3D):
 
     def zslice_to_tiff(self):  # pragma: no cover
         raise NotImplementedError()
+
+    def to_vtk(self, output_path: str | Path, data_vars: list[str] = None):
+        """
+        Export the VoxelModel to a VTK file.
+
+        Parameters
+        ----------
+        output_path : str | Path
+            Path to the output VTK file.
+
+        Returns
+        -------
+        None
+        """
+        # if user gives data_vars, use those. If not, use all data_vars.
+        if data_vars is None:
+            data_vars = self.ds.data_vars
+
+        grid = vtk.voxelmodel_to_pyvista_unstructured(
+            self.ds,
+            self.resolution,
+            displayed_variables=data_vars,
+        )
+        grid.save(output_path, binary=True)
 
 
 class LayerModel(AbstractSpatial, AbstractModel3D):  # pragma: no cover TODO: add to doc
