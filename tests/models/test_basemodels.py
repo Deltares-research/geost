@@ -107,7 +107,7 @@ class TestVoxelModel:
         assert isinstance(select, xr.Dataset)
 
     @pytest.mark.unittest
-    def test_to_vtk(self, voxelmodel, tmp_path):
+    def test_to_vtk_structured(self, voxelmodel, tmp_path):
         outfile_single_var = tmp_path / r"test_vtk_model_single.vtk"
         outfile_multi_var = tmp_path / r"test_vtk_model_multi.vtk"
         voxelmodel.to_vtk(outfile_single_var, data_vars=["strat"])
@@ -116,12 +116,21 @@ class TestVoxelModel:
         assert outfile_multi_var.is_file()
 
     @pytest.mark.unittest
-    def test_to_vtk_problematic_dims(self, voxelmodel, tmp_path):
+    def test_to_vtk_unstructured(self, voxelmodel, tmp_path):
+        outfile_single_var = tmp_path / r"test_vtk_model_single.vtk"
+        outfile_multi_var = tmp_path / r"test_vtk_model_multi.vtk"
+        voxelmodel.to_vtk(outfile_single_var, data_vars=["strat"], structured=False)
+        voxelmodel.to_vtk(outfile_multi_var, structured=False)
+        assert outfile_single_var.is_file()
+        assert outfile_multi_var.is_file()
+
+    @pytest.mark.unittest
+    def test_to_vtk_unstructured_problematic_dims(self, voxelmodel, tmp_path):
         outfile_wrong_order = tmp_path / r"test_vtk_model_wrong_order.vtk"
         outfile_missing_dims = tmp_path / r"test_vtk_model_missing_dims.vtk"
 
         # Wrong order of dimensions leads to automatic transposing, not an error!
-        voxelmodel.to_vtk(outfile_wrong_order)
+        voxelmodel.to_vtk(outfile_wrong_order, structured=False)
         assert outfile_wrong_order.is_file()
 
         # Missing z-dimension leads to an error and no file is created.
@@ -131,8 +140,10 @@ class TestVoxelModel:
         assert error_info.errisinstance(ValueError)
         assert error_info.match(
             re.escape(
-                "Dataset must contain 'z' dimension. Use xarray.Dataset.rename() to rename "
-                + "the corresponding dimension to 'z' if applicable."
+                "Dataset must contain 'z' dimension. Make sure that this "
+                "spatial dimension exists in the dataset or if it has a different "
+                "name use xarray.Dataset.rename() to rename the corresponding "
+                "dimension to 'z'."
             )
         )
         assert not outfile_missing_dims.is_file()

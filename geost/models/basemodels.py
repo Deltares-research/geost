@@ -386,7 +386,12 @@ class VoxelModel(AbstractSpatial, AbstractModel3D):
     def zslice_to_tiff(self):  # pragma: no cover
         raise NotImplementedError()
 
-    def to_vtk(self, output_path: str | Path, data_vars: list[str] = None):
+    def to_vtk(
+        self,
+        output_path: str | Path,
+        data_vars: list[str] = None,
+        structured: bool = True,
+    ):
         """
         Export the VoxelModel to a VTK file.
 
@@ -394,6 +399,12 @@ class VoxelModel(AbstractSpatial, AbstractModel3D):
         ----------
         output_path : str | Path
             Path to the output VTK file.
+        data_vars : list[str], optional
+            List of data variables to include in the VTK file. If None, all data
+            variables are included. The default is None.
+        structured : bool, optional
+            If True, export as a structured grid. If False, export as an unstructured
+            grid. The default is True.
 
         Returns
         -------
@@ -403,11 +414,18 @@ class VoxelModel(AbstractSpatial, AbstractModel3D):
         if data_vars is None:
             data_vars = self.ds.data_vars
 
-        grid = vtk.voxelmodel_to_pyvista_unstructured(
-            self.ds,
-            self.resolution,
-            displayed_variables=data_vars,
-        )
+        if structured:
+            grid = vtk.voxelmodel_to_pyvista_structured(
+                self.ds,
+                self.resolution,
+                displayed_variables=data_vars,
+            )
+        else:
+            grid = vtk.voxelmodel_to_pyvista_unstructured(
+                self.ds,
+                self.resolution,
+                displayed_variables=data_vars,
+            )
         grid.save(output_path, binary=True)
 
 
