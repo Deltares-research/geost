@@ -71,6 +71,65 @@ def borehole_to_multiblock(
     return cylinders_multiblock
 
 
+def layerdata_to_pyvista_unstructured(
+    layerdata: pd.DataFrame,
+    displayed_variables: list[str],
+    radius: float = 1.0,
+) -> pv.UnstructuredGrid:
+    """
+    Convert a layerdata object to a PyVista UnstructuredGrid.
+
+    Parameters
+    ----------
+    layerdata : LayerData
+        The input layerdata object containing 3D grid data with coordinates 'x', 'y',
+        and 'z'.
+
+    Returns
+    -------
+    grid : pyvista.UnstructuredGrid
+        The resulting voxel model as a PyVista UnstructuredGrid.
+    """
+    # Get the data from the layerdata object
+    x = layerdata["x"].values
+    y = layerdata["y"].values
+    top = layerdata["surface"].values - layerdata["top"].values
+    bottom = layerdata["surface"].values - layerdata["bottom"].values
+
+    # Define all cell corner coordinates in the required order
+    voxels = np.array(
+        [
+            [x - radius, y - radius, bottom],
+            [x + radius, y - radius, bottom],
+            [x - radius, y + radius, bottom],
+            [x + radius, y + radius, bottom],
+            [x - radius, y - radius, top],
+            [x + radius, y - radius, top],
+            [x - radius, y + radius, top],
+            [x + radius, y + radius, top],
+        ]
+    )
+    voxels = np.rollaxis(voxels, -1, 0)
+    points = voxels.reshape(-1, 3)
+
+    # Create the cells array
+    n_voxels = len(x)
+    cells_voxel = np.arange(n_voxels * 8).reshape((n_voxels, 8))
+
+    # Create unstructured grid and assign data variables
+    grid = pv.UnstructuredGrid({CellType.VOXEL: cells_voxel}, points)
+    for var in displayed_variables:
+        if var not in layerdata.columns:
+            print(
+                f"Variable '{var}' is unavailable in the layerdata. Skipping this variable."
+            )
+            continue
+        data = layerdata[var].values
+        grid.cell_data[var] = data.flatten(order="C")
+
+    return grid
+
+
 def voxelmodel_to_pyvista_structured(
     dataset: xr.Dataset,
     resolution: tuple[float, float, float],

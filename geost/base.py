@@ -20,7 +20,11 @@ from geost import spatial
 from geost._warnings import AlignmentWarning
 from geost.abstract_classes import AbstractCollection, AbstractData, AbstractHeader
 from geost.analysis import cumulative_thickness
-from geost.export import borehole_to_multiblock, export_to_dftgeodata
+from geost.export import (
+    borehole_to_multiblock,
+    export_to_dftgeodata,
+    layerdata_to_pyvista_unstructured,
+)
 from geost.mixins import GeopandasExportMixin, PandasExportMixin
 from geost.projections import (
     horizontal_reference_transformer,
@@ -41,7 +45,6 @@ type Coordinate = int | float
 type PointGeometries = Point | MultiPoint | Iterable[Point]
 type LineGeometries = LineString | MultiLineString | Iterable[LineString]
 type PolygonGeometries = Polygon | MultiPolygon | Iterable[Polygon]
-
 
 
 class PointHeader(AbstractHeader, GeopandasExportMixin):
@@ -1021,6 +1024,37 @@ class LayeredData(AbstractData, PandasExportMixin):
             data["surface"] = 0
 
         return borehole_to_multiblock(data, data_columns, radius, vertical_factor)
+
+    def to_vtk(
+        self,
+        outfile: str | Path,
+        displayed_variables: str | list[str],
+        radius: float = 1,
+        **kwargs,
+    ):
+        """
+        Save data as VTK (XML VTK file) for viewing in external GUI software like ParaView
+        or other VTK viewers.
+
+        Parameters
+        ----------
+        outfile : str | Path
+            Path to vtk file to be written.
+        data_columns : str | list[str]
+            Name or names of data columns to include for visualisation. Can be columns that
+            contain an array of floats, ints and strings.
+        radius : float, optional
+            Radius cells in m, by default 1.
+
+        **kwargs :
+            pyvista.UnstructuredGrid.save kwargs. See relevant Pyvista documentation.
+
+        """
+        displayed_variables = self._check_correct_instance(displayed_variables)
+        vtk_object = layerdata_to_pyvista_unstructured(
+            self.df, displayed_variables, radius=radius
+        )
+        vtk_object.save(outfile, **kwargs)
 
     def to_vtm(
         self,

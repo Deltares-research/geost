@@ -4,7 +4,7 @@ import numpy as np
 import pandas as pd
 import pytest
 from numpy.testing import assert_array_almost_equal, assert_array_equal
-from pyvista import MultiBlock
+from pyvista import MultiBlock, UnstructuredGrid
 from shapely import get_coordinates
 
 from geost.base import (
@@ -295,6 +295,11 @@ class TestLayeredData:
         assert_array_almost_equal(
             dft[0].independent_variable.value, expected_independent_value
         )
+
+    @pytest.mark.unittest
+    def test_to_vtk(self, borehole_data, tmp_path):
+        borehole_data.to_vtk(tmp_path / r"test_boreholes.vtk", ["lith"], radius=0.1)
+        assert Path.is_file(tmp_path / r"test_boreholes.vtk")
 
     @pytest.mark.unittest
     def test_to_vtm_with_file(self, borehole_data):
