@@ -314,7 +314,9 @@ def check_voxelmodel_dims(
     # Also transpose all data_vars to match the required order. You have to do this
     # because the above dataset.transpose() call will not transpose the data_vars.
     for var in dataset.data_vars:
-        if tuple(dataset[var].dims) != dim_order:
+        if tuple(dataset[var].dims) != dim_order and all(
+            [dim in dataset[var].dims for dim in dim_order]
+        ):
             dataset[var] = dataset[var].transpose(*dim_order)
 
     # Ensure all coordinates are increasing and sort the data if needed.
