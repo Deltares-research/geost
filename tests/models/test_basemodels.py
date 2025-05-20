@@ -109,9 +109,9 @@ class TestVoxelModel:
 
     @pytest.mark.unittest
     def test_thickness_map_single_condition(self, voxelmodel):
-        thickness_lith1 = voxelmodel.thickness_map(voxelmodel["lith"] == 1)
-        thickness_lith2 = voxelmodel.thickness_map(voxelmodel["lith"] == 2)
-        thickness_lith3 = voxelmodel.thickness_map(voxelmodel["lith"] == 3)
+        thickness_lith1 = voxelmodel.get_thickness(voxelmodel["lith"] == 1)
+        thickness_lith2 = voxelmodel.get_thickness(voxelmodel["lith"] == 2)
+        thickness_lith3 = voxelmodel.get_thickness(voxelmodel["lith"] == 3)
         assert isinstance(thickness_lith1, xr.DataArray)
         assert isinstance(thickness_lith2, xr.DataArray)
         assert isinstance(thickness_lith3, xr.DataArray)
@@ -151,10 +151,10 @@ class TestVoxelModel:
 
     @pytest.mark.unittest
     def test_thickness_map_extra_conditions(self, voxelmodel):
-        thickness_lith2_strat2 = voxelmodel.thickness_map(
-            voxelmodel["lith"] == 2, extra_conditions=[voxelmodel["strat"] == 2]
+        thickness_lith2_strat2 = voxelmodel.get_thickness(
+            ((voxelmodel["lith"] == 2) & (voxelmodel["strat"] == 2))
         )
-        thickness_lith2_zrange = voxelmodel.thickness_map(
+        thickness_lith2_zrange = voxelmodel.get_thickness(
             voxelmodel["lith"] == 2, depth_range=(-1, 0)
         )
         assert isinstance(thickness_lith2_strat2, xr.DataArray)

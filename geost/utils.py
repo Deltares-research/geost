@@ -1,6 +1,5 @@
 import operator
 import sqlite3
-import re
 from pathlib import Path
 from typing import Any, Union
 
@@ -105,46 +104,6 @@ def safe_float(number):
         return float(number)
     except ValueError:
         return None
-
-
-def string_to_evaluable(
-    condition: str, left_operand_indexed_object: str = None
-) -> tuple[str, str, Any]:
-    """
-    Convert a string to an evaluable expression.
-
-    Parameters
-    ----------
-    string : str
-        String that represents an evaluation of the form "variable <operator> value" to
-        convert to an evaluable string that can be passed to eval().
-    left_operand_indexed_object : str
-        Name of the object that is indexed by the left operand. e.g. if the left operand
-        is an Xarray DataArray named 'da', passing 'da' will return the evaluable string
-        as "da[variable] <operator> value".
-
-    Example
-    -------
-    >>> string_to_evaluable("a > 5", left_operand_indexed_object="da")
-    >>> "da['a'] > 5"
-
-    Returns
-    -------
-    str
-        Evaluable string that can be passed to eval().
-    """
-    match = re.match(r"(.+?)\s*(==|!=|<=|>=|<|>)\s*(.+)", condition)
-    if not match:
-        raise ValueError("Condition must be of the form 'variable <operator> value'")
-    var, op, val = match.groups()
-
-    if left_operand_indexed_object:
-        var_indexed = f"{left_operand_indexed_object}['{var}']"
-        evaluable_string = f"{var_indexed} {op} {val}"
-    else:
-        evaluable_string = f"{var} {op} {val}"
-
-    return evaluable_string, var, val
 
 
 def dataframe_to_geodataframe(

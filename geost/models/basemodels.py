@@ -10,7 +10,6 @@ import xarray as xr
 
 from geost.export import vtk
 from geost.spatial import check_gdf_instance
-from geost.utils import string_to_evaluable
 
 from .model_utils import sample_along_line, sample_with_coords
 
@@ -388,29 +387,24 @@ class VoxelModel(AbstractSpatial, AbstractModel3D):
     def zslice_to_tiff(self):  # pragma: no cover
         raise NotImplementedError()
 
-    def thickness_map(
+    def get_thickness(
         self,
         condition: xr.Dataset,
         depth_range: tuple[float, float] = None,
-        extra_conditions: List[str] = None,
     ) -> xr.DataArray:
         """
-        Generate a map of the VoxelModel based on specified conditions. For example,
-        this can be used to create a map of the lithology or other properties.
+        Generate a thickness array of voxels in the VoxelModel that meet one or more conditions. For example,
+        determine the thickness of a specific lithology within a stratigraphic unit (see example usage below).
 
         Parameters
         ----------
-        condition : xr.DataArray (of bools)
-            An xr.DataArray containing boolean values that follow from an evaluation of
-            self.ds. e.g. self.ds["lith"] == 1.
+        condition : xr.DataArray
+            Boolean DataArray containing that evaluate to True for the desired condition.
+            For example: `voxelmodel["lith"] == 1`.
         depth_range : tuple[float, float], optional
-            The depth range to consider for generating the map. This should be a tuple
+            Search for the condition with a specified depth range of the `VoxelModel`. This should be a tuple
             containing the minimum and maximum depth values (in this order!). The default
             is None, which means the entire depth range of the VoxelModel will be used.
-        extra_conditions : List[xr.DataArray], optional
-            List of extra conditions to apply to the selection. Each condition should be an
-            xr.DataArray containing boolean values. The default is None, which means no
-            extra conditions will be applied.
 
         Returns
         -------
@@ -421,23 +415,23 @@ class VoxelModel(AbstractSpatial, AbstractModel3D):
 
         Examples
         --------
-        Generate a map of the lithology with a specific condition. For example, to create
-        a map of the lithology where the lithology is equal to 1:
+        Determine the thickness where the lithology in the `VoxelModel` is equal to 1:
 
-        >>> lith_map = voxelmodel.thickness_map(voxelmodel["lithology"] == 1)
+        >>> lith_map = voxelmodel.get_thickness(voxelmodel["lithology"] == 1)
+
+        Or generate an array on more conditions:
+
+        >>> thickness = voxelmodel.get_thickness((voxelmodel["lithology"] == 1) & (voxelmodel["strat"] == 1100))
+
+        Search for the condition or conditions within a specific depth window:
+
+        >>> thickness = voxelmodel.get_thickness((voxelmodel["lithology"] == 1) & (voxelmodel["strat"] == 1100), depth_range=(-10, -20))
         """
-        # Apply extra conditions by multiplying the condition boolean array with each
-        # extra condition's boolean array
-        if extra_conditions:
-            for cond in extra_conditions:
-                condition *= cond
-
-        # Apply depth range filter
         if depth_range:
             zmin, zmax = depth_range
             condition = condition.sel(z=slice(zmin, zmax))
 
-        # Calculate thickness
+        # Calculate thickness: sum non-NaN values along the z-axis and multiply by dz
         thickness = xr.where(condition, self.resolution[-1], np.nan).sum(dim="z")
 
         return thickness
