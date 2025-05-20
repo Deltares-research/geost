@@ -1,5 +1,6 @@
 import re
 
+import numpy as np
 import pytest
 import xarray as xr
 from numpy.testing import assert_array_equal
@@ -105,6 +106,81 @@ class TestVoxelModel:
         file = request.getfixturevalue(file)
         select = voxelmodel.select_with_points(file)
         assert isinstance(select, xr.Dataset)
+
+    @pytest.mark.unittest
+    def test_thickness_map_single_condition(self, voxelmodel):
+        thickness_lith1 = voxelmodel.thickness_map("lith==1")
+        thickness_lith2 = voxelmodel.thickness_map("lith==2")
+        thickness_lith3 = voxelmodel.thickness_map("lith==3")
+        assert isinstance(thickness_lith1, xr.DataArray)
+        assert isinstance(thickness_lith2, xr.DataArray)
+        assert isinstance(thickness_lith3, xr.DataArray)
+        assert_array_equal(
+            thickness_lith1,
+            np.array(
+                [
+                    [0.5, 1.0, 1.5, 1.0],
+                    [1.0, 1.0, 1.5, 0.5],
+                    [0.5, 1.0, 1.0, 0.5],
+                    [0.5, 1.5, 0.5, 0.5],
+                ]
+            ),
+        )
+        assert_array_equal(
+            thickness_lith2,
+            np.array(
+                [
+                    [1.0, 0.5, 0.5, 0.5],
+                    [1.0, 1.0, 0.5, 1.0],
+                    [1.0, 0.5, 1.0, 1.5],
+                    [1.5, 0.5, 1.0, 1.0],
+                ]
+            ),
+        )
+        assert_array_equal(
+            thickness_lith3,
+            np.array(
+                [
+                    [0.5, 0.5, 0.0, 0.5],
+                    [0.0, 0.0, 0.0, 0.5],
+                    [0.5, 0.5, 0.0, 0.0],
+                    [0.0, 0.0, 0.5, 0.5],
+                ]
+            ),
+        )
+
+    @pytest.mark.unittest
+    def test_thickness_map_extra_conditions(self, voxelmodel):
+        thickness_lith2_strat2 = voxelmodel.thickness_map(
+            "lith==2", extra_conditions=["strat==2"]
+        )
+        thickness_lith2_zrange = voxelmodel.thickness_map(
+            "lith==2", depth_range=(-1, 0)
+        )
+        assert isinstance(thickness_lith2_strat2, xr.DataArray)
+        assert isinstance(thickness_lith2_zrange, xr.DataArray)
+        assert_array_equal(
+            thickness_lith2_strat2,
+            np.array(
+                [
+                    [1.0, 0.5, 0.5, 0.5],
+                    [1.0, 1.0, 0.5, 1.0],
+                    [1.0, 0.5, 1.0, 1.5],
+                    [1.5, 0.5, 1.0, 1.0],
+                ]
+            ),
+        )
+        assert_array_equal(
+            thickness_lith2_zrange,
+            np.array(
+                [
+                    [0.5, 0.0, 0.0, 0.0],
+                    [0.0, 0.0, 0.0, 0.5],
+                    [0.5, 0.0, 0.0, 0.5],
+                    [0.5, 0.0, 0.0, 0.5],
+                ]
+            ),
+        )
 
     @pytest.mark.unittest
     def test_to_vtk_structured(self, voxelmodel, tmp_path):

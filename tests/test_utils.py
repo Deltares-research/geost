@@ -26,3 +26,35 @@ def test_to_geopackage(borehole_collection, tmp_path):
 def test_create_connection(simple_soilmap_gpkg):
     conn = utils.create_connection(simple_soilmap_gpkg)
     assert isinstance(conn, sqlite3.Connection)
+
+
+@pytest.mark.unittest
+@pytest.mark.parametrize(
+    "condition,left_operand_indexed_object,expected",
+    [
+        ("var1 < 10", None, "var1 < 10"),
+        ("foo == 'bar'", None, "foo == 'bar'"),
+        ("x!=42", None, "x != 42"),
+        ("temp >= 0", "da", "da['temp'] >= 0"),
+        ("y <= 5", "arr", "arr['y'] <= 5"),
+    ],
+)
+def test_string_to_evaluable_valid(condition, left_operand_indexed_object, expected):
+    result, var, val = utils.string_to_evaluable(condition, left_operand_indexed_object)
+    assert result == expected
+
+
+@pytest.mark.unittest
+@pytest.mark.parametrize(
+    "condition",
+    [
+        "invalid",
+        "foo 10",
+        "x <",
+        "",
+        "== 5",
+    ],
+)
+def test_string_to_evaluable_invalid(condition):
+    with pytest.raises(ValueError):
+        utils.string_to_evaluable(condition)

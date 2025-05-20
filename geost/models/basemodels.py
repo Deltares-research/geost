@@ -1,3 +1,4 @@
+import re
 from abc import ABC, abstractmethod
 from pathlib import Path
 from typing import List
@@ -9,6 +10,7 @@ import xarray as xr
 
 from geost.export import vtk
 from geost.spatial import check_gdf_instance
+from geost.utils import string_to_evaluable
 
 from .model_utils import sample_along_line, sample_with_coords
 
@@ -385,6 +387,59 @@ class VoxelModel(AbstractSpatial, AbstractModel3D):
 
     def zslice_to_tiff(self):  # pragma: no cover
         raise NotImplementedError()
+
+    def thickness_map(
+        self,
+        condition: str,
+        depth_range: tuple[float, float] = None,
+        extra_conditions: List[str] = None,
+    ) -> xr.DataArray:
+        """
+        Generate a map of the VoxelModel based on specified conditions. For example,
+        this can be used to create a map of the lithology or other properties.
+
+        Parameters
+        ----------
+        condition : str
+            The data variable and condition to apply for generating the thickness map.
+            This should be a string of the form "data_variable <comparison operator>
+            value" (e.g., "lithology == 1", where lithology is a data_var in the
+            VoxelModel and 1 is an existing value that represents a lithology).
+        depth_range : tuple[float, float], optional
+            The depth range to consider for generating the map. This should be a tuple
+            containing the minimum and maximum depth values (in this order!). The default
+            is None, which means the entire depth range of the VoxelModel will be used.
+        extra_conditions : List[str]
+            List of exytra conditions to generate the map. Each condition should be a
+            string representing a valid expression that can be evaluated on the VoxelModel
+            instance.
+
+        Returns
+        -------
+        xr.DataArray
+            A DataArray containing the generated map based on the specified conditions.
+            The DataArray will have dimensions "y" and "x". The values in the DataArray
+            represent the thickness of the selected data variable at each location.
+        """
+        expression, var, _ = string_to_evaluable(condition, "self.ds")
+        data = self.ds.where(eval(expression), drop=False)
+
+        # Split condition into variable, operator, value
+        if extra_conditions:
+            for cond in extra_conditions:
+                extra_expression, _, _ = string_to_evaluable(cond, "data")
+                data = data.where(eval(extra_expression), drop=False)
+
+        if depth_range:
+            zmin, zmax = depth_range
+            data = data.sel(z=slice(zmin, zmax))
+
+        # Calculate thickness: sum non-NaN values along the z-axis and multiply by dz
+        mask = ~np.isnan(data[var])
+        z_dim_idx = data[var].dims.index("z")
+        thickness = mask.sum(axis=z_dim_idx) * self.resolution[z_dim_idx]
+
+        return thickness
 
     def to_vtk(
         self,
