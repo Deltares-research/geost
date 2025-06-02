@@ -30,7 +30,7 @@ Methods
    VoxelModel.select_within_polygons
    VoxelModel.slice_depth_interval
    VoxelModel.zslice_to_tiff
-   VoxelModel.thickness_map
+   VoxelModel.get_thickness
    VoxelModel.to_vtk
 
 
