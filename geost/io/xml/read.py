@@ -51,9 +51,11 @@ def _read_xml(
 
 
 def read_bhrgt(file: str | Path, company: str = None, schema: dict[str, Any] = None):
+    company = company or "BRO"
+
     if schema is None:
         try:
-            schema = bhrgt.SCHEMA["BRO"] if company is None else bhrgt.SCHEMA[company]
+            schema = bhrgt.SCHEMA[company]
         except KeyError as e:
             raise ValueError(
                 f"No predefined schema for '{company}'. Supported companies are: "

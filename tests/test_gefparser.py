@@ -39,7 +39,7 @@ class CptInfo(NamedTuple):
 
 
 class TestCptGefParser:
-    filepath = Path(Path(__file__).parent, "data", "cpt")
+    filepath = Path(Path(__file__).parent, "data", "gef")
 
     @pytest.fixture
     def test_cpt_files(self):

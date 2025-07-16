@@ -44,6 +44,6 @@ def parse_coordinates(coords: str, **_) -> tuple[float, float]:
     elif ";" in coords:
         splitter = ";"
     else:
-        raise ValueError(f"pygef does not know how to parse '{coords}' coordsition")
-    parts = coords.split(splitter)
-    return float(parts[0]), float(parts[1])
+        raise ValueError(f"Cannot parse coordinates: '{coords}'")
+    x, y = coords.split(splitter)
+    return float(x), float(y)
