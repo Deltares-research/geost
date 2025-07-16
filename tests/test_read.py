@@ -207,7 +207,7 @@ class TestReaders:
 
     @pytest.mark.unittest
     def test_read_boris_xml(self, data_dir):
-        boris_collection = read_xml_boris(data_dir / r"test_boris_xml.xml")
+        boris_collection = read_xml_boris(data_dir / r"xml/test_boris_xml.xml")
         assert isinstance(boris_collection, BoreholeCollection)
         assert boris_collection.n_points == 16
         assert len(boris_collection.data.df) == 236
@@ -238,13 +238,14 @@ def test_read_uullg_table(
 
 @pytest.mark.unittest
 def test_read_gef_cpts(data_dir):
-    files = sorted(Path(data_dir / "cpt").glob("*.gef"))
+    files = sorted(Path(data_dir / "gef").glob("*.gef"))
     cpts = read_gef_cpts(files)
     assert isinstance(cpts, CptCollection)
 
     expected_cpts_present = [
         "DKMP_D03",
         "AZZ158",
+        "CPT000000038871",
         "CPT000000157983",
         "YANGTZEHAVEN CPT 10",
     ]
