@@ -50,7 +50,65 @@ def _read_xml(
     return output
 
 
-def read_bhrgt(file: str | Path, company: str = None, schema: dict[str, Any] = None):
+def read_bhrgt(
+    file: bytes | str | Path, company: str = None, schema: dict[str, Any] = None
+) -> list[dict]:
+    """
+    Read Geotechnical borehole data (BHR-GT) from an XML file or bytestring and extract
+    relevant data based on a predefined or custom schema that describes the XML structure.
+
+    Parameters
+    ----------
+    file : bytes | str | Path
+        XML filepath-like or bytestring containing the XML data to read.
+    company : str, optional
+        Specify a company name to use a predefined schema for that company if available.
+        See `bhrgt.SCHEMA` for available companies. The default is None, then company will
+        default to "BRO" and the predefined BRO schema will be used if no custom schema
+        is defined.
+    schema : dict[str, Any], optional
+        Custom schema used to parse the XML structure.
+
+    Returns
+    -------
+    list[dict]
+        List of dictionaries containing the extracted data from the XML file. If the XML
+        file contains data for a single
+
+    Raises
+    ------
+    ValueError
+        Will raise a ValueError if no custom `schema` is defined and no predefined schema
+        is available for the company.
+    SyntaxError
+        Raises a SyntaxError if the XML file does not conform to the expected schema. For
+        example, with incorrect namespaces in the schema.
+
+    Examples
+    --------
+    Read a BHR-GT XML for a specific company:
+    >>> data = read_bhrgt("bhrgt_file.xml", company="Wiertsema") # Read for specific company
+
+    Read a BHR-GT XML using a custom schema:
+    >>> custom_schema = {
+    ...     "payload_root": "dispatchDocument",
+    ...     "bro_id": {"xpath": "brocom:broId"},
+    ...     "date": {"xpath": "reportHistory/reportStartDate/brocom:date"}
+    ...     "coordinates": {
+    ...         "xpath": "./deliveredLocation/bhrgtcom:location/gml:Point/gml:pos",
+    ...         "resolver": resolvers.parse_coordinates, # Add a custom function to parse coordinates
+    ...         "el-attr": "text"  # Use the text attribute of the element
+    ...     }
+    ... }
+    >>> data = read_bhrgt("bhrgt_file.xml", schema=custom_schema)  # Use custom schema
+
+    Read a BHR-GT XML directly via a BRO API response:
+    >>> from geost.bro import BroApi
+    >>> api = BroApi()
+    >>> response = api.get_objects("BHR000000449853", "BHR-GT") # Returns a list of XML strings
+    >>> data = read_bhrgt(response[0])
+
+    """
     company = company or "BRO"
 
     if schema is None:
@@ -62,9 +120,17 @@ def read_bhrgt(file: str | Path, company: str = None, schema: dict[str, Any] = N
                 f"{bhrgt.SCHEMA.keys()}. Define a custom schema or use a supported company."
             ) from e
 
-    if isinstance(file, str) and not Path(file).exists():
-        root = etree.fromstring(file, parser=_BaseParser).getroot()
+    if isinstance(file, bytes):
+        root = etree.fromstring(file, parser=_BaseParser)
     else:
         root = etree.parse(file, parser=_BaseParser).getroot()
 
-    return _read_xml(root, schema, schema.get("payload_root", None))
+    try:
+        result = _read_xml(root, schema, schema.get("payload_root", None))
+    except SyntaxError as e:
+        raise SyntaxError(
+            f"Invalid xml schema for XML file: {file}. Cannot use predefined schema "
+            f"for company '{company}'. Specify correct company or use a custom schema."
+        ) from e
+
+    return result

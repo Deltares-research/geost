@@ -6,6 +6,7 @@ BRO = {
     "location": {
         "xpath": "./deliveredLocation/bhrgtcom:location/gml:Point/gml:pos",
         "resolver": resolvers.parse_coordinates,
+        "el-attr": "text",
     },
 }
 
