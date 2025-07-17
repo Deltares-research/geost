@@ -35,7 +35,7 @@ classifiers = [
 requires-python = ">=3.12"
 dependencies = [
     "numpy",
-    "pandas>=2.0.1",
+    "pandas",
     "pyarrow",
     "lxml",
     "pooch",
@@ -43,9 +43,9 @@ dependencies = [
     "geopandas",
     "xlrd",
     "openpyxl",
-	"rioxarray>=0.15.3",
-    "shapely>=2.0.1",
-    "pyvista>=0.36.1", 
+	"rioxarray",
+    "shapely",
+    "pyvista", 
 ]
 
 [project.urls]

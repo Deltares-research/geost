@@ -13,7 +13,7 @@ from numpy.testing import (
     assert_array_equal,
     assert_equal,
 )
-from pyvista import MultiBlock
+from pyvista import MultiBlock, UnstructuredGrid
 from shapely.geometry import LineString, Point, Polygon
 
 from geost._warnings import AlignmentWarning, ValidationWarning
@@ -443,23 +443,6 @@ class TestCollection:
         assert_equal(
             borehole_collection.header["col2"].value_counts()["string_data"], 2
         )
-
-    @pytest.mark.unittest
-    def test_to_multiblock(self, borehole_collection):
-        # More detailed tests are in TestLayeredData in test_data_objects.py
-        multiblock = borehole_collection.to_multiblock("lith")
-        assert isinstance(multiblock, MultiBlock)
-
-    @pytest.mark.unittest
-    def test_to_vtm(self, borehole_collection):
-        outfile = Path("temp.vtm")
-        outfolder = outfile.parent / r"temp"
-        borehole_collection.to_vtm(outfile, "lith")
-        assert outfile.is_file()
-        outfile.unlink()
-        for f in outfolder.glob("*.vtp"):
-            f.unlink()
-        outfolder.rmdir()
 
     @pytest.mark.unittest
     def test_to_datafusiontools(self, borehole_collection):

@@ -105,6 +105,14 @@ class AbstractModel3D(ABC):  # pragma: no cover
     def zslice_to_tiff(self):
         pass
 
+    @abstractmethod
+    def get_thickness(self):
+        pass
+
+    @abstractmethod
+    def to_pyvista_grid(self):
+        pass
+
 
 class VoxelModel(AbstractSpatial, AbstractModel3D):
     def __init__(self, ds: xr.Dataset):
@@ -436,47 +444,44 @@ class VoxelModel(AbstractSpatial, AbstractModel3D):
 
         return thickness
 
-    def to_vtk(
-        self,
-        output_path: str | Path,
-        data_vars: list[str] = None,
-        structured: bool = True,
+    def to_pyvista_grid(
+        self, data_vars: str | list[str] = None, structured: bool = True
     ):
         """
-        Export the VoxelModel to a VTK file.
+        Convert the VoxelModel to a PyVista grid.
 
         Parameters
         ----------
-        output_path : str | Path
-            Path to the output VTK file.
-        data_vars : list[str], optional
-            List of data variables to include in the VTK file. If None, all data
-            variables are included. The default is None.
+        data_vars : str | list[str], optional
+            String representing one data variable or list of data variables to include
+            in the PyVista grid. If None, all data variables are included. The default
+            is None.
         structured : bool, optional
-            If True, export as a structured grid. If False, export as an unstructured
+            If True, convert to a structured grid. If False, convert to an unstructured
             grid. The default is True.
 
         Returns
         -------
-        None
+        pyvista.UnstructuredGrid or pyvista.StructuredGrid
+            PyVista grid representation of the VoxelModel.
         """
-        # if user gives data_vars, use those. If not, use all data_vars.
         if data_vars is None:
             data_vars = self.ds.data_vars
+        elif isinstance(data_vars, str):
+            data_vars = [data_vars]
 
         if structured:
-            grid = vtk.voxelmodel_to_pyvista_structured(
+            return vtk.voxelmodel_to_pyvista_structured(
                 self.ds,
                 self.resolution,
                 displayed_variables=data_vars,
             )
         else:
-            grid = vtk.voxelmodel_to_pyvista_unstructured(
+            return vtk.voxelmodel_to_pyvista_unstructured(
                 self.ds,
                 self.resolution,
                 displayed_variables=data_vars,
             )
-        grid.save(output_path, binary=True)
 
 
 class LayerModel(AbstractSpatial, AbstractModel3D):  # pragma: no cover TODO: add to doc

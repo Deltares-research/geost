@@ -2,6 +2,7 @@ import re
 
 import numpy as np
 import pytest
+import pyvista as pv
 import xarray as xr
 from numpy.testing import assert_array_equal
 
@@ -183,36 +184,46 @@ class TestVoxelModel:
         )
 
     @pytest.mark.unittest
-    def test_to_vtk_structured(self, voxelmodel, tmp_path):
-        outfile_single_var = tmp_path / r"test_vtk_model_single.vtk"
-        outfile_multi_var = tmp_path / r"test_vtk_model_multi.vtk"
-        voxelmodel.to_vtk(outfile_single_var, data_vars=["strat"])
-        voxelmodel.to_vtk(outfile_multi_var)
-        assert outfile_single_var.is_file()
-        assert outfile_multi_var.is_file()
+    def test_to_pyvista_structured(self, voxelmodel):
+        vms_single_var = voxelmodel.to_pyvista_grid(data_vars=["strat"])
+        vms_multi_var = voxelmodel.to_pyvista_grid()
+        assert isinstance(vms_single_var, pv.ImageData)
+        assert isinstance(vms_multi_var, pv.ImageData)
+        assert vms_single_var.n_points == 125
+        assert vms_single_var.n_cells == 64
+        assert vms_single_var.n_arrays == 1
+        assert vms_multi_var.n_points == 125
+        assert vms_multi_var.n_cells == 64
+        assert vms_multi_var.n_arrays == 2
 
     @pytest.mark.unittest
-    def test_to_vtk_unstructured(self, voxelmodel, tmp_path):
-        outfile_single_var = tmp_path / r"test_vtk_model_single.vtk"
-        outfile_multi_var = tmp_path / r"test_vtk_model_multi.vtk"
-        voxelmodel.to_vtk(outfile_single_var, data_vars=["strat"], structured=False)
-        voxelmodel.to_vtk(outfile_multi_var, structured=False)
-        assert outfile_single_var.is_file()
-        assert outfile_multi_var.is_file()
+    def test_to_pyvista_unstructured(self, voxelmodel):
+        vmu_single_var = voxelmodel.to_pyvista_grid(
+            data_vars=["strat"], structured=False
+        )
+        vmu_multi_var = voxelmodel.to_pyvista_grid(structured=False)
+        assert isinstance(vmu_single_var, pv.UnstructuredGrid)
+        assert isinstance(vmu_multi_var, pv.UnstructuredGrid)
+        assert vmu_single_var.n_points == 512
+        assert vmu_single_var.n_cells == 64
+        assert vmu_single_var.n_arrays == 1
+        assert vmu_multi_var.n_points == 512
+        assert vmu_multi_var.n_cells == 64
+        assert vmu_multi_var.n_arrays == 2
 
     @pytest.mark.unittest
-    def test_to_vtk_unstructured_problematic_dims(self, voxelmodel, tmp_path):
-        outfile_wrong_order = tmp_path / r"test_vtk_model_wrong_order.vtk"
-        outfile_missing_dims = tmp_path / r"test_vtk_model_missing_dims.vtk"
-
+    def test_to_pyvista_unstructured_problematic_dims(self, voxelmodel):
         # Wrong order of dimensions leads to automatic transposing, not an error!
-        voxelmodel.to_vtk(outfile_wrong_order, structured=False)
-        assert outfile_wrong_order.is_file()
+        vmu_wrong_order = voxelmodel.to_pyvista_grid(structured=False)
+        assert isinstance(vmu_wrong_order, pv.UnstructuredGrid)
+        assert vmu_wrong_order.n_points == 512
+        assert vmu_wrong_order.n_cells == 64
+        assert vmu_wrong_order.n_arrays == 2
 
         # Missing z-dimension leads to an error and no file is created.
         voxelmodel.ds = voxelmodel.ds.drop_vars("z")
         with pytest.raises(Exception) as error_info:
-            voxelmodel.to_vtk(outfile_wrong_order)
+            voxelmodel.to_pyvista_grid()
         assert error_info.errisinstance(ValueError)
         assert error_info.match(
             re.escape(
@@ -222,4 +233,3 @@ class TestVoxelModel:
                 "dimension to 'z'."
             )
         )
-        assert not outfile_missing_dims.is_file()

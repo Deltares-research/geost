@@ -113,16 +113,7 @@ class AbstractData(ABC):  # pragma: no cover
         pass
 
     @abstractmethod
-    def to_multiblock(self):
-        pass
-
-    @abstractmethod
-    def to_vtm(self):
-        pass
-
-    @abstractmethod
     def to_datafusiontools(self):
-        # supporting this is low priority, perhaps even deprecate
         pass
 
 
@@ -241,14 +232,13 @@ class AbstractCollection(ABC):  # pragma: no cover
         pass
 
     @abstractmethod
-    def to_multiblock(self):
+    def to_pyvista_cylinders(self):
         pass
 
     @abstractmethod
-    def to_vtm(self):
+    def to_pyvista_grid(self):
         pass
 
     @abstractmethod
     def to_datafusiontools(self):
-        # supporting this is low priority, perhaps even deprecate
         pass

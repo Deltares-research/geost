@@ -7,10 +7,6 @@ html_theme.sidebar_secondary.remove:
 On this page you will find links to examples and projects that ultilize GeoST for 
 managing subsurface data.
 
-## Basic examples
-
-Explore basic GeoST functionality.
-
 ````{grid} 1 2 2 4
 ```{grid-item-card} BRO soil cores
 :text-align: center
@@ -22,7 +18,7 @@ Example of a simple analysis of soil cores that are directly retrieved from the 
 ```{grid-item-card} Thickness maps from GeoTOP
 :text-align: center
 :link: ./examples/geotop_thickness_maps.html
-:img-bottom: ./_static/example_sand_thickness.png
+:img-bottom: ./_static/geotop_thickness_example.png
 Create thickness maps of GeoTOP units with only a few lines of code.
 ```
 ```{grid-item-card} Combine GeoTOP and CPT data
@@ -32,19 +28,17 @@ Create thickness maps of GeoTOP units with only a few lines of code.
 Example of how information from a voxelmodel (e.g. GeoTOP) can be combined with point data 
 (e.g. CPT data).
 ```
-```{grid-item-card} GeoST + scikit-learn (simple)
+```{grid-item-card} GeoST + PyVista
 :text-align: center
-:link: https://github.com/Deltares-research/sst-examples/blob/main/predict_sand_thickness/predict_sand_thickness_simple.ipynb
-:img-bottom: ./_static/example_sand_thickness.png
-Using geological borehole data to predict the thickness of sand using decision tree 
-algorithms provided by scikit-learn.
+:link: ./examples/boreholes_geotop_3d.html
+:img-bottom: ./_static/geotop_cpt_ic_model.png
+Using GeoST an PyVista VTK and 3D viewing features 
 ```
 ````
 
-## Advanced examples
+## External examples
 
-Explore the use of GeoST as part of more advanced analysis and subsurface modelling 
-workflows
+Explore the use of GeoST subsurface modelling and data analysis workflows
 
 ````{grid} 1 2 2 4
 ```{grid-item-card} GeoST + scikit-learn (simple)

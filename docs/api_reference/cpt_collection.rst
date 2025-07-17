@@ -38,10 +38,10 @@ Methods
    CptCollection.to_datafusiontools
    CptCollection.to_geopackage
    CptCollection.to_geoparquet
-   CptCollection.to_multiblock
+   CptCollection.to_pyvista_cylinders
+   CptCollection.to_pyvista_grid
    CptCollection.to_parquet
    CptCollection.to_shape
-   CptCollection.to_vtm
 
 
 Attributes

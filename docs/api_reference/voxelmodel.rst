@@ -31,7 +31,7 @@ Methods
    VoxelModel.slice_depth_interval
    VoxelModel.zslice_to_tiff
    VoxelModel.get_thickness
-   VoxelModel.to_vtk
+   VoxelModel.to_pyvista_grid
 
 
 Attributes
