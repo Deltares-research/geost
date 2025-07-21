@@ -25,9 +25,9 @@ Methods
    DiscreteData.to_csv
    DiscreteData.to_datafusiontools
    DiscreteData.to_header
-   DiscreteData.to_multiblock
+   DiscreteData.to_pyvista_cylinders
+   DiscreteData.to_pyvista_grid
    DiscreteData.to_parquet
-   DiscreteData.to_vtm
 
 Attributes
 ----------

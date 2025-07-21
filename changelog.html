@@ -31,7 +31,7 @@
 <link href="_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
 
     <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=8f2a1f02" />
-    <link rel="stylesheet" type="text/css" href="_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
+    <link rel="stylesheet" type="text/css" href="_static/mystnb.8ecb98da25f57f5357bf6f572d296f466b2cfe2517ffebfabe82451661e28f02.css" />
     <link rel="stylesheet" type="text/css" href="_static/custom.css?v=e0654d5c" />
     <link rel="stylesheet" type="text/css" href="_static/sphinx-design.min.css?v=95c83b7e" />
     <link rel="stylesheet" type="text/css" href="_static/custom.css?v=e0654d5c" />
@@ -54,7 +54,7 @@
     <link rel="prev" title="Community" href="community.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="0.2.9" />
+  <meta name="docsearch:version" content="0.3.0" />
   </head>
   
   
@@ -470,6 +470,22 @@
                   
   <section id="release-notes">
 <h1>Release notes<a class="headerlink" href="#release-notes" title="Link to this heading">#</a></h1>
+<section id="v0-3-0">
+<h2>v0.3.0<a class="headerlink" href="#v0-3-0" title="Link to this heading">#</a></h2>
+<p><a class="reference external" href="https://github.com/Deltares-research/geost/compare/0.2.9...0.3.0"><strong>Full Changelog</strong></a></p>
+<p><strong>Added</strong></p>
+<ul class="simple">
+<li><p><strong>Added</strong> <code class="docutils literal notranslate"><span class="pre">VoxelModel.get_thickness</span></code> method</p></li>
+<li><p><strong>Added</strong> <code class="docutils literal notranslate"><span class="pre">LayeredData.to_pyvista_grid</span></code>, <code class="docutils literal notranslate"><span class="pre">DiscrteData.to_pyvista_grid</span></code> methods</p></li>
+<li><p><strong>Added</strong> Example that showcases creating thickness maps based on Voxel models</p></li>
+<li><p><strong>Added</strong> Example that showcases new PyVista/VTK/3D export and viewing features</p></li>
+</ul>
+<p><strong>Other</strong></p>
+<ul class="simple">
+<li><p><strong>Other</strong> renamed <code class="docutils literal notranslate"><span class="pre">VoxelModel.to_vtk</span></code> method to <code class="docutils literal notranslate"><span class="pre">VoxelModel.to_pyvista_grid</span></code> and changed behaviour (returns PyVista objects instead of writing a VTK file)</p></li>
+<li><p><strong>Other</strong> renamed <code class="docutils literal notranslate"><span class="pre">to_vtk</span></code> and <code class="docutils literal notranslate"><span class="pre">to_vtm</span></code> methods of LayeredData, DiscreteData and Collections to <code class="docutils literal notranslate"><span class="pre">to_pyvista_cylinders</span></code> and changed behaviour (returns PyVista objects instead of writing a VTK file)</p></li>
+</ul>
+</section>
 <section id="v0-2-9">
 <h2>v0.2.9<a class="headerlink" href="#v0-2-9" title="Link to this heading">#</a></h2>
 <p><a class="reference external" href="https://github.com/Deltares-research/geost/compare/0.2.8...0.2.9"><strong>Full Changelog</strong></a></p>
@@ -626,6 +642,7 @@
   </div>
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#v0-3-0">v0.3.0</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#v0-2-9">v0.2.9</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#v0-2-8">v0.2.8</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#v0-2-6">v0.2.6</a></li>
@@ -679,7 +696,7 @@
         <div class="footer-item">
 
   <p class="sphinx-version">
-    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3.
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.2.3.
     <br/>
   </p>
 </div>

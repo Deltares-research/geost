@@ -1,6 +1,0 @@
-﻿geost.base.CptCollection.to\_multiblock
-=======================================
-
-.. currentmodule:: geost.base
-
-.. automethod:: CptCollection.to_multiblock

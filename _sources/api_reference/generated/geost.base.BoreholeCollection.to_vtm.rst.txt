@@ -1,6 +1,0 @@
-﻿geost.base.BoreholeCollection.to\_vtm
-=====================================
-
-.. currentmodule:: geost.base
-
-.. automethod:: BoreholeCollection.to_vtm

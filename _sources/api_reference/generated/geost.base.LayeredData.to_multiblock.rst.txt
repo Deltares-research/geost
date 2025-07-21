@@ -1,6 +1,0 @@
-﻿geost.base.LayeredData.to\_multiblock
-=====================================
-
-.. currentmodule:: geost.base
-
-.. automethod:: LayeredData.to_multiblock

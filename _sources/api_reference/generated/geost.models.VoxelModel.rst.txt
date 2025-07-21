@@ -15,6 +15,7 @@
    
       ~VoxelModel.__init__
       ~VoxelModel.from_netcdf
+      ~VoxelModel.get_thickness
       ~VoxelModel.isel
       ~VoxelModel.sel
       ~VoxelModel.select_bottom
@@ -26,7 +27,7 @@
       ~VoxelModel.select_within_bbox
       ~VoxelModel.select_within_polygons
       ~VoxelModel.slice_depth_interval
-      ~VoxelModel.to_vtk
+      ~VoxelModel.to_pyvista_grid
       ~VoxelModel.zslice_to_tiff
    
    

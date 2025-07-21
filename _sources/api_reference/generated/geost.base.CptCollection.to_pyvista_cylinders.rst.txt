@@ -1,0 +1,6 @@
+﻿geost.base.CptCollection.to\_pyvista\_cylinders
+===============================================
+
+.. currentmodule:: geost.base
+
+.. automethod:: CptCollection.to_pyvista_cylinders

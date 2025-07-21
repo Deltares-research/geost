@@ -25,10 +25,10 @@
       ~LayeredData.to_datafusiontools
       ~LayeredData.to_header
       ~LayeredData.to_kingdom
-      ~LayeredData.to_multiblock
       ~LayeredData.to_parquet
+      ~LayeredData.to_pyvista_cylinders
+      ~LayeredData.to_pyvista_grid
       ~LayeredData.to_qgis3d
-      ~LayeredData.to_vtm
    
    
 

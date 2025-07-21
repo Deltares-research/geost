@@ -1,6 +1,0 @@
-﻿geost.models.VoxelModel.to\_vtk
-===============================
-
-.. currentmodule:: geost.models
-
-.. automethod:: VoxelModel.to_vtk

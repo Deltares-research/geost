@@ -30,7 +30,7 @@
 <link href="../../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
 
     <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=8f2a1f02" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/mystnb.8ecb98da25f57f5357bf6f572d296f466b2cfe2517ffebfabe82451661e28f02.css" />
     <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=e0654d5c" />
     <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-design.min.css?v=95c83b7e" />
     <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=e0654d5c" />
@@ -52,7 +52,7 @@
     <link rel="search" title="Search" href="../../../search.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="0.2.9" />
+  <meta name="docsearch:version" content="0.3.0" />
   </head>
   
   
@@ -459,7 +459,8 @@
                 <article class="bd-article">
                   
   <h1>Source code for geost.models.basemodels</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">ABC</span><span class="p">,</span> <span class="n">abstractmethod</span>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">ABC</span><span class="p">,</span> <span class="n">abstractmethod</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">List</span>
 
@@ -563,6 +564,14 @@
 
     <span class="nd">@abstractmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">zslice_to_tiff</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">pass</span>
+
+    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_thickness</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">pass</span>
+
+    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">to_pyvista_grid</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">pass</span>
 
 
@@ -891,31 +900,98 @@
         <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span></div>
 
 
-<div class="viewcode-block" id="VoxelModel.to_vtk">
-<a class="viewcode-back" href="../../../api_reference/generated/geost.models.VoxelModel.to_vtk.html#geost.models.VoxelModel.to_vtk">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">to_vtk</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">output_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">,</span> <span class="n">data_vars</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="VoxelModel.get_thickness">
+<a class="viewcode-back" href="../../../api_reference/generated/geost.models.VoxelModel.get_thickness.html#geost.models.VoxelModel.get_thickness">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_thickness</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">condition</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span>
+        <span class="n">depth_range</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Export the VoxelModel to a VTK file.</span>
+<span class="sd">        Generate a thickness array of voxels in the VoxelModel that meet one or more conditions. For example,</span>
+<span class="sd">        determine the thickness of a specific lithology within a stratigraphic unit (see example usage below).</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        output_path : str | Path</span>
-<span class="sd">            Path to the output VTK file.</span>
+<span class="sd">        condition : xr.DataArray</span>
+<span class="sd">            Boolean DataArray containing that evaluate to True for the desired condition.</span>
+<span class="sd">            For example: `voxelmodel[&quot;lith&quot;] == 1`.</span>
+<span class="sd">        depth_range : tuple[float, float], optional</span>
+<span class="sd">            Search for the condition with a specified depth range of the `VoxelModel`. This should be a tuple</span>
+<span class="sd">            containing the minimum and maximum depth values (in this order!). The default</span>
+<span class="sd">            is None, which means the entire depth range of the VoxelModel will be used.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        None</span>
+<span class="sd">        xr.DataArray</span>
+<span class="sd">            A DataArray containing the generated map based on the specified conditions.</span>
+<span class="sd">            The DataArray will have dimensions &quot;y&quot; and &quot;x&quot;. The values in the DataArray</span>
+<span class="sd">            represent the thickness of the selected data variable at each location.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        Determine the thickness where the lithology in the `VoxelModel` is equal to 1:</span>
+
+<span class="sd">        &gt;&gt;&gt; lith_map = voxelmodel.get_thickness(voxelmodel[&quot;lithology&quot;] == 1)</span>
+
+<span class="sd">        Or generate an array on more conditions:</span>
+
+<span class="sd">        &gt;&gt;&gt; thickness = voxelmodel.get_thickness((voxelmodel[&quot;lithology&quot;] == 1) &amp; (voxelmodel[&quot;strat&quot;] == 1100))</span>
+
+<span class="sd">        Search for the condition or conditions within a specific depth window:</span>
+
+<span class="sd">        &gt;&gt;&gt; thickness = voxelmodel.get_thickness((voxelmodel[&quot;lithology&quot;] == 1) &amp; (voxelmodel[&quot;strat&quot;] == 1100), depth_range=(-10, -20))</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="c1"># if user gives data_vars, use those. If not, use all data_vars.</span>
+        <span class="k">if</span> <span class="n">depth_range</span><span class="p">:</span>
+            <span class="n">zmin</span><span class="p">,</span> <span class="n">zmax</span> <span class="o">=</span> <span class="n">depth_range</span>
+            <span class="n">condition</span> <span class="o">=</span> <span class="n">condition</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">z</span><span class="o">=</span><span class="nb">slice</span><span class="p">(</span><span class="n">zmin</span><span class="p">,</span> <span class="n">zmax</span><span class="p">))</span>
+
+        <span class="c1"># Calculate thickness: sum non-NaN values along the z-axis and multiply by dz</span>
+        <span class="n">thickness</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">condition</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">resolution</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s2">&quot;z&quot;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">thickness</span></div>
+
+
+<div class="viewcode-block" id="VoxelModel.to_pyvista_grid">
+<a class="viewcode-back" href="../../../api_reference/generated/geost.models.VoxelModel.to_pyvista_grid.html#geost.models.VoxelModel.to_pyvista_grid">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">to_pyvista_grid</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">data_vars</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">structured</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Convert the VoxelModel to a PyVista grid.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        data_vars : str | list[str], optional</span>
+<span class="sd">            String representing one data variable or list of data variables to include</span>
+<span class="sd">            in the PyVista grid. If None, all data variables are included. The default</span>
+<span class="sd">            is None.</span>
+<span class="sd">        structured : bool, optional</span>
+<span class="sd">            If True, convert to a structured grid. If False, convert to an unstructured</span>
+<span class="sd">            grid. The default is True.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        pyvista.UnstructuredGrid or pyvista.StructuredGrid</span>
+<span class="sd">            PyVista grid representation of the VoxelModel.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">data_vars</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">data_vars</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="o">.</span><span class="n">data_vars</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data_vars</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="n">data_vars</span> <span class="o">=</span> <span class="p">[</span><span class="n">data_vars</span><span class="p">]</span>
 
-        <span class="n">grid</span> <span class="o">=</span> <span class="n">vtk</span><span class="o">.</span><span class="n">voxelmodel_to_pyvista_unstructured</span><span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="p">,</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">resolution</span><span class="p">,</span>
-            <span class="n">displayed_variables</span><span class="o">=</span><span class="n">data_vars</span><span class="p">,</span>
-        <span class="p">)</span>
-        <span class="n">grid</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">output_path</span><span class="p">,</span> <span class="n">binary</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
+        <span class="k">if</span> <span class="n">structured</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">vtk</span><span class="o">.</span><span class="n">voxelmodel_to_pyvista_structured</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">resolution</span><span class="p">,</span>
+                <span class="n">displayed_variables</span><span class="o">=</span><span class="n">data_vars</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">vtk</span><span class="o">.</span><span class="n">voxelmodel_to_pyvista_unstructured</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">ds</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">resolution</span><span class="p">,</span>
+                <span class="n">displayed_variables</span><span class="o">=</span><span class="n">data_vars</span><span class="p">,</span>
+            <span class="p">)</span></div>
 </div>
 
 
@@ -1045,7 +1121,7 @@
         <div class="footer-item">
 
   <p class="sphinx-version">
-    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3.
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.2.3.
     <br/>
   </p>
 </div>
