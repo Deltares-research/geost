@@ -8,12 +8,12 @@ On this page you will find links to examples and projects that ultilize GeoST fo
 managing subsurface data.
 
 ````{grid} 1 2 2 4
-```{grid-item-card} BRO soil cores
+```{grid-item-card} BRO soil cores using the BRO API
 :text-align: center
 :link: ./examples/bro_soil_cores.html
 :link-type: url
 :img-bottom: ./_static/example_bro_soil.png
-Example of a simple analysis of soil cores that are directly retrieved from the BRO.
+A simple analysis of soil cores that are directly retrieved from the BRO.
 ```
 ```{grid-item-card} Thickness maps from GeoTOP
 :text-align: center
@@ -21,18 +21,17 @@ Example of a simple analysis of soil cores that are directly retrieved from the 
 :img-bottom: ./_static/geotop_thickness_example.png
 Create thickness maps of GeoTOP units with only a few lines of code.
 ```
-```{grid-item-card} Combine GeoTOP and CPT data
+```{grid-item-card} Combining GeoTOP and CPTs
 :text-align: center
 :link: ./examples/combine_geotop_with_cpts.html
 :img-bottom: ./_static/cpts_usp.png
-Example of how information from a voxelmodel (e.g. GeoTOP) can be combined with point data 
-(e.g. CPT data).
+Combining information from a voxelmodel (GeoTOP) with point data (CPTs).
 ```
-```{grid-item-card} GeoST + PyVista
+```{grid-item-card} GeoST + PyVista: 3D export features
 :text-align: center
 :link: ./examples/boreholes_geotop_3d.html
 :img-bottom: ./_static/geotop_cpt_ic_model.png
-Using GeoST an PyVista VTK and 3D viewing features 
+Showcasing GeoST's VTK export and 3D viewing features powered by PyVista.
 ```
 ````
 

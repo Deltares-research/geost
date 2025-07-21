@@ -1,5 +1,20 @@
 # Release notes
 
+## v0.3.0
+
+[**Full Changelog**](https://github.com/Deltares-research/geost/compare/0.2.9...0.3.0)
+
+**Added**
+- **Added** `VoxelModel.get_thickness` method
+- **Added** `LayeredData.to_pyvista_grid`, `DiscrteData.to_pyvista_grid` methods
+- **Added** Example that showcases creating thickness maps based on Voxel models
+- **Added** Example that showcases new PyVista/VTK/3D export and viewing features
+
+**Other**
+- **Other** renamed `VoxelModel.to_vtk` method to `VoxelModel.to_pyvista_grid` and changed behaviour (returns PyVista objects instead of writing a VTK file)
+- **Other** renamed `to_vtk` and `to_vtm` methods of LayeredData, DiscreteData and Collections to `to_pyvista_cylinders` and changed behaviour (returns PyVista objects instead of writing a VTK file)
+
+
 ## v0.2.9
 
 [**Full Changelog**](https://github.com/Deltares-research/geost/compare/0.2.8...0.2.9)
