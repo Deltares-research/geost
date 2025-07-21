@@ -22,6 +22,30 @@ WIERTSEMA = {
         "xpath": "ns1:deliveredLocation/ns3:location/ns2:Point",
         "resolver": resolvers.parse_crs,
     },
+    "surface_level": {
+        "xpath": "ns1:deliveredVerticalPosition/ns3:offset",
+        "resolver": resolvers.safe_float,
+        "el-attr": "text",
+    },
+    "vertical_datum": {
+        "xpath": "ns1:deliveredVerticalPosition/ns3:verticalDatum",
+        "el-attr": "text",
+    },
+    "groundwater_level": {
+        "xpath": "ns1:boring/ns3:groundwaterLevel",
+        "resolver": resolvers.safe_float,
+        "el-attr": "text",
+    },
+    "final_depth": {
+        "xpath": "ns1:boring/ns3:finalDepthSampling",
+        "resolver": resolvers.safe_float,
+        "el-attr": "text",
+    },
+    "data": {
+        "xpath": "ns1:boreholeSampleDescription/ns3:descriptiveBoreholeLog",
+        "resolver": resolvers.process_bhrgt_data,
+        "layer-attributes": ["upperBoundary", "lowerBoundary", "geotechnicalSoilName"],
+    },
 }
 
 SCHEMA = {"BRO": BRO, "Wiertsema": WIERTSEMA}
