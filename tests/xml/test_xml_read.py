@@ -1,4 +1,5 @@
 from pathlib import Path
+from typing import Any
 
 import pytest
 
@@ -11,7 +12,7 @@ def xml_dir():
 
 
 @pytest.fixture
-def xml_string(xml_dir):
+def xml_string(xml_dir: Path):
     with open(xml_dir / "bhrgt_bro.xml", "rb") as file:
         string = file.read()
     return string
@@ -27,7 +28,7 @@ def custom_bhrgt_schema():
 
 
 @pytest.mark.unittest
-def test_read_bhrgt(xml_dir):
+def test_read_bhrgt(xml_dir: Path):
     bro_xml = xml_dir / "bhrgt_bro.xml"
 
     data = xml.read_bhrgt(bro_xml)
@@ -47,21 +48,23 @@ def test_read_bhrgt(xml_dir):
 
 
 @pytest.mark.unittest
-def test_read_bhrgt_with_custom_schema(xml_dir, custom_bhrgt_schema):
+def test_read_bhrgt_with_custom_schema(
+    xml_dir: Path, custom_bhrgt_schema: dict[str, Any]
+):
     data = xml.read_bhrgt(xml_dir / "bhrgt_bro.xml", schema=custom_bhrgt_schema)
     assert isinstance(data, list)
     assert data[0] == {"bro_id": "BHR000000336600", "date": "2020-04-15"}
 
 
 @pytest.mark.unittest
-def test_read_bhrgt_from_string(xml_string):
+def test_read_bhrgt_from_string(xml_string: bytes):
     data = xml.read_bhrgt(xml_string)
     assert isinstance(data, list)
     assert data[0]["nr"] == "BHR000000336600"
 
 
 @pytest.mark.unittest
-def test_read_bhrgt_with_custom_schema_no_payload_root(xml_dir):
+def test_read_bhrgt_with_custom_schema_no_payload_root(xml_dir: Path):
     """
     Test reading an xml string without a payload root. This can lead to unexpected results
     as the XML root can contain multiple elements with additional information besides the

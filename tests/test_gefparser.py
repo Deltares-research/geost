@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import NamedTuple
+from typing import Literal, NamedTuple
 
 import numpy as np
 import pytest
@@ -127,14 +127,20 @@ class TestCptGefParser:
         return cpt
 
     @pytest.mark.unittest
-    def test_read_files(self, test_cpt_files):
+    def test_read_files(self, test_cpt_files: list[Path]):
         for f in test_cpt_files:
             cpt = CptGefFile(f)
             assert isinstance(cpt, CptGefFile)
 
     @pytest.mark.integrationtest
     @pytest.mark.parametrize("cpt_test", ["cpt_a", "cpt_b", "cpt_c", "cpt_d"])
-    def test_cpt_parsing_result(self, cpt_test, request):
+    def test_cpt_parsing_result(
+        self,
+        cpt_test: (
+            Literal["cpt_a"] | Literal["cpt_b"] | Literal["cpt_c"] | Literal["cpt_d"]
+        ),
+        request: pytest.FixtureRequest,
+    ):
         cpt, test_info = request.getfixturevalue(cpt_test)
 
         assert cpt.nr == test_info.nr
@@ -152,7 +158,7 @@ class TestCptGefParser:
         assert len(cpt.df) == test_info.nrecords
 
     @pytest.mark.unittest
-    def test_to_dataframe(self, dummy_cpt_with_rf):
+    def test_to_dataframe(self, dummy_cpt_with_rf: CptGefFile):
         dummy_cpt_with_rf.to_df()
 
         target_columns = ["length", "qc", "fs", "rf", "depth"]
