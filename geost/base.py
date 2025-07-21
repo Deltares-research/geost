@@ -20,7 +20,11 @@ from geost import spatial
 from geost._warnings import AlignmentWarning
 from geost.abstract_classes import AbstractCollection, AbstractData, AbstractHeader
 from geost.analysis import cumulative_thickness
-from geost.export import borehole_to_multiblock, export_to_dftgeodata
+from geost.export import (
+    borehole_to_multiblock,
+    export_to_dftgeodata,
+    layerdata_to_pyvista_unstructured,
+)
 from geost.mixins import GeopandasExportMixin, PandasExportMixin
 from geost.projections import (
     horizontal_reference_transformer,
@@ -41,7 +45,6 @@ type Coordinate = int | float
 type PointGeometries = Point | MultiPoint | Iterable[Point]
 type LineGeometries = LineString | MultiLineString | Iterable[LineString]
 type PolygonGeometries = Polygon | MultiPolygon | Iterable[Polygon]
-
 
 
 class PointHeader(AbstractHeader, GeopandasExportMixin):
@@ -977,20 +980,22 @@ class LayeredData(AbstractData, PandasExportMixin):
         layer_top = selected_layers.df.groupby(["nr", column])["top"].first()
         return layer_top.unstack(level=column)
 
-    def to_multiblock(
+    def to_pyvista_cylinders(
         self,
-        data_columns: str | List[str],
+        displayed_variables: str | List[str],
         radius: float = 1,
         vertical_factor: float = 1.0,
         relative_to_vertical_reference: bool = True,
     ):
         """
-        Create a Pyvista MultiBlock object from the data that can be used for 3D plotting
-        and other spatial analyses.
+        Create a Pyvista MultiBlock object of cylinder-shaped geometries to represent
+        boreholes. Although cylinders are prettier when visualized, they are quite costly
+        to render in large numbers. Consider using
+        :meth:`~geost.base.LayeredData.to_pyvista_grid` instead for large datasets.
 
         Parameters
         ----------
-        data_columns : str | List[str]
+        displayed_variables : str | List[str]
             Name or names of data columns to include for visualisation. Can be columns that
             contain an array of floats, ints and strings.
         radius : float, optional
@@ -1007,11 +1012,11 @@ class LayeredData(AbstractData, PandasExportMixin):
 
         Returns
         -------
-        MultiBlock
+        pyvista.MultiBlock
             A composite class holding the data which can be iterated over.
 
         """
-        data_columns = self._check_correct_instance(data_columns)
+        data_columns = self._check_correct_instance(displayed_variables)
 
         data = self.df.copy()
 
@@ -1020,52 +1025,39 @@ class LayeredData(AbstractData, PandasExportMixin):
         else:
             data["surface"] = 0
 
-        return borehole_to_multiblock(data, data_columns, radius, vertical_factor)
+        vtk_object = borehole_to_multiblock(data, data_columns, radius, vertical_factor)
+        return vtk_object
 
-    def to_vtm(
+    def to_pyvista_grid(
         self,
-        outfile: str | Path,
-        data_columns: str | List[str],
+        displayed_variables: str | list[str],
         radius: float = 1,
-        vertical_factor: float = 1.0,
-        relative_to_vertical_reference: bool = True,
-        **kwargs,
     ):
         """
-        Save data as VTM (Multiblock file, an XML VTK file pointing to multiple other
-        VTK files) for viewing in external GUI software like ParaView or other VTK viewers.
+        Create a PyVista UnstructuredGrid object of the data in this instance. This
+        method is more efficient than :meth:`~geost.base.LayeredData.to_pyvista_cylinders`
+        for large datasets, as it uses a grid representation instead of cylinders.
 
         Parameters
         ----------
-        outfile : str | Path
-            Path to vtm file to be written.
-        data_columns : str | List[str]
+        data_columns : str | list[str]
             Name or names of data columns to include for visualisation. Can be columns that
             contain an array of floats, ints and strings.
         radius : float, optional
-            Radius of the cylinders in m, by default 1.
-        vertical_factor : float, optional
-            Factor to correct vertical scale. For example, when layer boundaries are given
-            in cm, use 0.01 to convert to m. The default is 1.0, so no correction is applied.
-            It is not recommended to use this for vertical exaggeration, use viewer functionality
-            for that instead.
-        relative_to_vertical_reference : bool, optional
-            If True, the depth of the objects in the vtm file will be with respect to a
-            reference plane (e.g. "NAP", "TAW"). If False, the depth will be with respect
-            to 0.0. The default is True.
+            Radius cells in m, by default 1.
 
-        **kwargs :
-            pyvista.MultiBlock.save kwargs. See relevant Pyvista documentation.
+        Returns
+        -------
+        pyvista.UnstructuredGrid
+            A PyVista UnstructuredGrid object containing the data that can be used for
+            3D visualisation in PyVista or other VTK viewers.
 
         """
-        vtk_object = self.to_multiblock(
-            data_columns,
-            radius,
-            vertical_factor,
-            relative_to_vertical_reference,
-            **kwargs,
+        displayed_variables = self._check_correct_instance(displayed_variables)
+        vtk_object = layerdata_to_pyvista_unstructured(
+            self.df, displayed_variables, radius=radius
         )
-        vtk_object.save(outfile, **kwargs)
+        return vtk_object
 
     def to_datafusiontools(
         self,
@@ -1539,13 +1531,13 @@ class DiscreteData(AbstractData, PandasExportMixin):
     def get_layer_top(self):  # pragma: no cover
         raise NotImplementedError()
 
-    def to_vtm(self):  # pragma: no cover
+    def to_pyvista_cylinders(self):  # pragma: no cover
+        raise NotImplementedError()
+
+    def to_pyvista_grid(self):  # pragma: no cover
         raise NotImplementedError()
 
     def to_datafusiontools(self):  # pragma: no cover
-        raise NotImplementedError()
-
-    def to_multiblock(self):  # pragma: no cover
         raise NotImplementedError()
 
 
@@ -2403,20 +2395,22 @@ class Collection(AbstractCollection):
         """
         save_pickle(self, outfile, **kwargs)
 
-    def to_multiblock(
+    def to_pyvista_cylinders(
         self,
-        data_columns: str | List[str],
+        displayed_variables: str | List[str],
         radius: float = 1,
         vertical_factor: float = 1.0,
         relative_to_vertical_reference: bool = True,
     ):
         """
-        Create a Pyvista MultiBlock object from the data that can be used for 3D plotting
-        and other spatial analyses.
+        Create a Pyvista MultiBlock object of cylinder-shaped geometries to represent
+        boreholes. Although cylinders are prettier when visualized, they are quite costly
+        to render in large numbers. Consider using
+        :meth:`~geost.base.Collection.to_pyvista_grid` instead for large datasets.
 
         Parameters
         ----------
-        data_columns : str | List[str]
+        displayed_variables : str | List[str]
             Name or names of data columns to include for visualisation. Can be columns that
             contain an array of floats, ints and strings.
         radius : float, optional
@@ -2428,62 +2422,44 @@ class Collection(AbstractCollection):
             for that instead.
         relative_to_vertical_reference : bool, optional
             If True, the depth of the objects in the vtm file will be with respect to a
-            reference plane (e.g. "NAP", "Ostend height"). If False, the depth will be
-            with respect to 0.0. The default is True.
+            reference plane (e.g. "NAP", "TAW"). If False, the depth will be with respect
+            to 0.0. The default is True.
 
         Returns
         -------
-        MultiBlock
+        pyvista.MultiBlock
             A composite class holding the data which can be iterated over.
 
         """
-        return self.data.to_multiblock(
-            data_columns, radius, vertical_factor, relative_to_vertical_reference
+        return self.data.to_pyvista_cylinders(
+            displayed_variables, radius, vertical_factor, relative_to_vertical_reference
         )
 
-    def to_vtm(
+    def to_pyvista_grid(
         self,
-        outfile: str | Path,
-        data_columns: str | List[str],
-        radius: float = 1,
-        vertical_factor: float = 1.0,
-        relative_to_vertical_reference: bool = True,
-        **kwargs,
+        displayed_variables: str | List[str],
+        radius: float = 1.0,
     ):
         """
-        Save data as VTM (Multiblock file, an XML VTK file pointing to multiple other
-        VTK files) for viewing in external GUI software like ParaView or other VTK viewers.
+        Create a Pyvista UnstructuredGrid object to represent boreholes. This is more efficient
+        than :meth:`~geost.base.Collection.to_pyvista_cylinders` for large datasets, but
+        less visually appealing.
 
         Parameters
         ----------
-        outfile : str | Path
-            Path to vtm file to be written.
-        data_columns : str | List[str]
+        displayed_variables : str | List[str]
             Name or names of data columns to include for visualisation. Can be columns that
             contain an array of floats, ints and strings.
         radius : float, optional
-            Radius of the cylinders in m, by default 1.
-        vertical_factor : float, optional
-            Factor to correct vertical scale. For example, when layer boundaries are given
-            in cm, use 0.01 to convert to m. The default is 1.0, so no correction is applied.
-            It is not recommended to use this for vertical exaggeration, use viewer functionality
-            for that instead.
-        relative_to_vertical_reference : bool, optional
-            If True, the depth of the objects in the vtm file will be with respect to a
-            reference plane (e.g. "NAP", "Ostend height"). If False, the depth will be
-            with respect to 0.0. The default is True.
+            Radius of the cylinders in m in the MultiBlock. The default is 1.
 
-        **kwargs :
-            pyvista.MultiBlock.save kwargs. See relevant Pyvista documentation.
+        Returns
+        -------
+        pyvista.UniformGrid
+            A grid class holding the data which can be iterated over.
 
         """
-        self.data.to_vtm(
-            outfile,
-            data_columns,
-            radius,
-            vertical_factor,
-            relative_to_vertical_reference,
-        )
+        return self.data.to_pyvista_grid(displayed_variables, radius)
 
     def to_datafusiontools(
         self,
