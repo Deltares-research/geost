@@ -78,3 +78,34 @@ def test_read_bhrgt_with_custom_schema_no_payload_root(xml_dir: Path):
     assert data[1] == {"bro_id": None}
     assert data[2] == {"bro_id": None}
     assert data[3] == {"bro_id": "BHR000000336600"}
+
+
+@pytest.mark.unittest
+def test_read_bhrgt_bro():
+    pass
+
+
+@pytest.mark.unittest
+def test_read_bhrgt_wiertsema(xml_dir: Path):
+    data = xml.read_bhrgt(xml_dir / "bhrgt_wiertsema.xml", company="Wiertsema")
+
+    core = data[0]
+    assert isinstance(core, dict)
+    assert core["nr"] == "_87078_HB001"
+    assert core["location"] == (182243.9, 335073.8)
+    assert core["crs"] == "urn:ogc:def:crs:EPSG::28992"
+    assert core["surface_level"] == 37.74
+    assert core["vertical_datum"] == "NAP"
+    assert core["groundwater_level"] == 1.1
+    assert core["final_depth"] == 2.2
+    assert core["data"] == {
+        "upperBoundary": ["0.00", "0.10", "0.40", "0.70", "1.70"],
+        "lowerBoundary": ["0.10", "0.40", "0.70", "1.70", "2.20"],
+        "geotechnicalSoilName": [
+            "zwakZandigSilt",
+            "zwakZandigGrind",
+            "klei",
+            "zand",
+            "zand",
+        ],
+    }

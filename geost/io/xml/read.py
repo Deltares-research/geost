@@ -39,7 +39,7 @@ def _read_xml(
                     if "el-attr" in d:
                         el = getattr(el, d["el-attr"])
 
-                    data[key] = func(el, namespaces=payload.nsmap)
+                    data[key] = func(el, attributes=d.get("layer-attributes", ""))
                 else:
                     data[key] = el.text
             else:

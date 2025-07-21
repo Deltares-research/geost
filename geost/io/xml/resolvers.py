@@ -1,4 +1,7 @@
 import re
+from collections import defaultdict
+from contextlib import suppress
+from typing import Any
 
 from lxml import etree
 
@@ -45,5 +48,69 @@ def parse_coordinates(coords: str, **_) -> tuple[float, float]:
         splitter = ";"
     else:
         raise ValueError(f"Cannot parse coordinates: '{coords}'")
-    x, y = re.split(splitter)
+    x, y = re.split(splitter, coords)
     return float(x), float(y)
+
+
+def safe_float(value: Any, **_) -> float | None:
+    """
+    Try to cast a value to a float dtype. Returns None if the value cannot be casted.
+
+    Parameters
+    ----------
+    value : Any
+        The value to cast.
+
+    Returns
+    -------
+    float | None
+        Value as a float type or None if the value cannot be casted into a float.
+
+    """
+    with suppress(TypeError, ValueError):
+        return float(value)
+
+
+def safe_get(el: etree.Element):
+    """
+    Safely get the text from an `etree.Element` instance. Returns `None` if it would raise
+    an `AttributeError`. This occurs for example when `el` is a NoneType.
+
+    """
+    with suppress(AttributeError):
+        return el.text
+
+
+def process_bhrgt_data(el: etree.Element, attributes: list | None) -> dict:
+    """
+    Process an XML element containing the layer descriptions in BHR-GT data objects.
+
+    Parameters
+    ----------
+    el : etree.Element
+        Element containing the layer descriptions.
+    attributes : list[str] | None
+        List with string names of the attributes to retrieve from each layer. If the input
+        is None, it will be attempted to at least retrieve "upperBoundary", "lowerBoundary"
+        and "geotechnicalSoilName" from each layer.
+
+    Returns
+    -------
+    dict
+        Dictionary with the searched layer attributes as keys and lists of each value per
+        layer.
+
+    """
+    if attributes is None:
+        attributes = ["upperBoundary", "lowerBoundary", "geotechnicalSoilName"]
+
+    layers = el.xpath(".//*[local-name() = 'layer']")
+
+    data = defaultdict(list)
+    for layer in layers:
+        for attr in attributes:
+            attribute = layer.xpath(f".//*[local-name() = '{attr}']")
+            value = safe_get(attribute[0]) if attribute else None
+            data[attr].append(value)
+
+    return data
