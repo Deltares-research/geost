@@ -1,8 +1,18 @@
 # Release notes
 
-## v0.2.8
+## v0.2.9
 
-[**Full Changelog**](https://github.com/Deltares-research/geost/compare/0.2.6...0.2.8)
+[**Full Changelog**](https://github.com/Deltares-research/geost/compare/0.2.8...0.2.9)
+
+**Added**
+- **Added** `VoxelModel.to_vtk` method
+- **Added** `vtk.voxelmodel_to_pyvista_unstructured`
+
+**Fixed**
+- **Fixed** replace validation decorators with print statements by dedicated UserWarnings in data validation and other functions
+
+
+## v0.2.8
 
 **Added**
 - **Added** generic reader for Geopackage files
