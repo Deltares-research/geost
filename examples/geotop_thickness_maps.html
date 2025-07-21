@@ -471,9 +471,10 @@ bounding box.</p>
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">geost.bro</span><span class="w"> </span><span class="kn">import</span> <span class="n">GeoTop</span>
 
-<span class="n">geotop_delft</span> <span class="o">=</span> <span class="n">GeoTop</span><span class="o">.</span><span class="n">from_opendap</span><span class="p">(</span><span class="n">bbox</span><span class="o">=</span><span class="p">(</span><span class="mi">80000</span><span class="p">,</span> <span class="mi">442000</span><span class="p">,</span> <span class="mi">89000</span><span class="p">,</span> <span class="mi">450000</span><span class="p">))</span>
+<span class="c1"># Load the GeoTOP model for the Delft area</span>
+<span class="n">geotop</span> <span class="o">=</span> <span class="n">GeoTop</span><span class="o">.</span><span class="n">from_opendap</span><span class="p">(</span><span class="n">bbox</span><span class="o">=</span><span class="p">(</span><span class="mi">80000</span><span class="p">,</span> <span class="mi">442000</span><span class="p">,</span> <span class="mi">89000</span><span class="p">,</span> <span class="mi">450000</span><span class="p">))</span>
 
-<span class="nb">print</span><span class="p">(</span><span class="n">geotop_delft</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">geotop</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -508,31 +509,42 @@ class or through downloading the reference list from the <a class="reference ext
 The code for ‘Clay’ in GeoTOP is 2, so we will use that in the get_thickness method as follows:</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">thickness_clay</span> <span class="o">=</span> <span class="n">geotop_delft</span><span class="o">.</span><span class="n">get_thickness</span><span class="p">(</span><span class="n">geotop_delft</span><span class="p">[</span><span class="s2">&quot;lithok&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">2</span><span class="p">)</span>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Import the Lithology class to access GeoTOP lithological types</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">geost.bro</span><span class="w"> </span><span class="kn">import</span> <span class="n">Lithology</span>
+
+<span class="c1"># Get the thickness of clay layers in the GeoTOP model and plot it</span>
+<span class="n">thickness_clay</span> <span class="o">=</span> <span class="n">geotop</span><span class="o">.</span><span class="n">get_thickness</span><span class="p">(</span><span class="n">geotop</span><span class="p">[</span><span class="s2">&quot;lithok&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">Lithology</span><span class="o">.</span><span class="n">clay</span><span class="p">)</span>
 <span class="n">thickness_clay</span><span class="o">.</span><span class="n">plot</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">vmin</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">vmax</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>&lt;matplotlib.image.AxesImage at 0x7f58a824ee40&gt;
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>&lt;matplotlib.image.AxesImage at 0x7f68d5657230&gt;
 </pre></div>
 </div>
-<img alt="../_images/f2b125a393e01072783d8d37149d1f05abc174de72b85c73484ef8ff45745b89.png" src="../_images/f2b125a393e01072783d8d37149d1f05abc174de72b85c73484ef8ff45745b89.png" />
+<img alt="../_images/e9cd35b79af3f2026257fc25535fbda940300973dcb60e991d7ae308a97b57a3.png" src="../_images/e9cd35b79af3f2026257fc25535fbda940300973dcb60e991d7ae308a97b57a3.png" />
 </div>
 </div>
 <p>This shows the total thickness of all clay layers combined in the GeoTOP model. However,
-we are only interested in Holocene clay layers. The Holocene stratigraphic units are encoded
-between 0 and 2030, so we can add this as a condition:</p>
+we are only interested in Holocene clay layers. The stratigraphic units defined in the
+<a class="reference internal" href="../api_reference/geotop_selection.html"><span class="std std-doc"><code class="docutils literal notranslate"><span class="pre">StratGeotop</span></code></span></a> class can be used to refine the selection. Alternatively,
+you can also reference the <a class="reference external" href="https://basisregistratieondergrond.nl/inhoud-bro/registratieobjecten/modellen/geotop-gtm/">GeoTOP documentation</a> and use the stratigraphic units numbering
+directly. We will use the <code class="docutils literal notranslate"><span class="pre">StratGeotop</span></code> class in this example:</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Get the total thickness of clay in the Holocene stratigraphic units (&lt;= 2030)</span>
-<span class="n">thickness_clay_holocene</span> <span class="o">=</span> <span class="n">geotop_delft</span><span class="o">.</span><span class="n">get_thickness</span><span class="p">((</span><span class="n">geotop_delft</span><span class="p">[</span><span class="s2">&quot;lithok&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">2</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">geotop_delft</span><span class="p">[</span><span class="s2">&quot;strat&quot;</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="mi">2030</span><span class="p">))</span>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Import the StratGeotop class to access GeoTOP stratigraphic units</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">geost.bro</span><span class="w"> </span><span class="kn">import</span> <span class="n">StratGeotop</span>
+
+<span class="c1"># Get the total thickness of clay in the Holocene stratigraphic units</span>
+<span class="n">thickness_clay_holocene</span> <span class="o">=</span> <span class="n">geotop</span><span class="o">.</span><span class="n">get_thickness</span><span class="p">(</span>
+    <span class="p">(</span><span class="n">geotop</span><span class="p">[</span><span class="s2">&quot;lithok&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">Lithology</span><span class="o">.</span><span class="n">clay</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">geotop</span><span class="p">[</span><span class="s2">&quot;strat&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">StratGeotop</span><span class="o">.</span><span class="n">holocene</span><span class="p">))</span>
+<span class="p">)</span>
 <span class="n">thickness_clay_holocene</span><span class="o">.</span><span class="n">plot</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">vmin</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">vmax</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>&lt;matplotlib.image.AxesImage at 0x7f589af85310&gt;
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>&lt;matplotlib.image.AxesImage at 0x7f68d5381310&gt;
 </pre></div>
 </div>
 <img alt="../_images/aa695a1b14c731904cf59ee67fbdd51ec386092bd2e91fc67488310d728c8403.png" src="../_images/aa695a1b14c731904cf59ee67fbdd51ec386092bd2e91fc67488310d728c8403.png" />
@@ -544,13 +556,16 @@ which is encoded as 1130.</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Get the thickness of basal peat</span>
-<span class="n">thickness_basal_peat</span> <span class="o">=</span> <span class="n">geotop_delft</span><span class="o">.</span><span class="n">get_thickness</span><span class="p">((</span><span class="n">geotop_delft</span><span class="p">[</span><span class="s2">&quot;lithok&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">geotop_delft</span><span class="p">[</span><span class="s2">&quot;strat&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1130</span><span class="p">))</span>
+<span class="n">thickness_basal_peat</span> <span class="o">=</span> <span class="n">geotop</span><span class="o">.</span><span class="n">get_thickness</span><span class="p">(</span>
+            <span class="p">(</span><span class="n">geotop</span><span class="p">[</span><span class="s2">&quot;lithok&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">Lithology</span><span class="o">.</span><span class="n">organic</span><span class="p">)</span> <span class="o">&amp;</span>
+            <span class="p">(</span><span class="n">geotop</span><span class="p">[</span><span class="s2">&quot;strat&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">StratGeotop</span><span class="o">.</span><span class="n">select_units</span><span class="p">(</span><span class="s2">&quot;NIBA&quot;</span><span class="p">))</span>
+        <span class="p">)</span>
 <span class="n">thickness_basal_peat</span><span class="o">.</span><span class="n">plot</span><span class="o">.</span><span class="n">imshow</span><span class="p">()</span>
 </pre></div>
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>&lt;matplotlib.image.AxesImage at 0x7f5898e2f9d0&gt;
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>&lt;matplotlib.image.AxesImage at 0x7f68d42039d0&gt;
 </pre></div>
 </div>
 <img alt="../_images/c4a2cc3b5948485aa47d2a5345dccd76203a45b3b6fc49af01a4a25699a35b4c.png" src="../_images/c4a2cc3b5948485aa47d2a5345dccd76203a45b3b6fc49af01a4a25699a35b4c.png" />
