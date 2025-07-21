@@ -1,3 +1,5 @@
+from pathlib import Path
+
 import geopandas as gpd
 import pytest
 from numpy.testing import assert_array_equal
@@ -8,7 +10,7 @@ from geost.io import Geopackage
 
 class TestBroCptGeopackage:
     @pytest.mark.unittest
-    def test_from_geopackage(self, bro_cpt_gpkg):
+    def test_from_geopackage(self, bro_cpt_gpkg: Path):
         bro_cpt = BroCptGeopackage.from_geopackage(bro_cpt_gpkg)
 
         assert isinstance(bro_cpt.gdf, gpd.GeoDataFrame)
@@ -39,7 +41,7 @@ class TestBroCptGeopackage:
         assert bro_cpt.gdf.index.name is None
 
     @pytest.mark.unittest
-    def test_select_location_info(self, bro_cpt_gpkg):
+    def test_select_location_info(self, bro_cpt_gpkg: Path):
         bro_cpt = BroCptGeopackage.from_geopackage(bro_cpt_gpkg)
         with pytest.raises(NotImplementedError):
             bro_cpt.select_location_info()

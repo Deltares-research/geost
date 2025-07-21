@@ -27,6 +27,8 @@ class SoilCore:
     def __init__(self, xml: str | Path | etree._Element):
         if isinstance(xml, (str, Path)):
             self.root = etree.parse(xml).getroot()
+        elif isinstance(xml, bytes):
+            self.root = etree.fromstring(xml)
         elif isinstance(xml, etree._Element):
             self.root = xml
         else:

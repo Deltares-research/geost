@@ -17,7 +17,7 @@ def dataset():
 
 
 @pytest.mark.unittest
-def test_coordinates_to_cellcenters(dataset):
+def test_coordinates_to_cellcenters(dataset: xr.DataArray):
     cellsize, dz = 1, 1
     dataset = coordinates_to_cellcenters(dataset, cellsize, dz)
     assert_array_equal(dataset["x"], [0.5, 1.5, 2.5])
@@ -26,7 +26,7 @@ def test_coordinates_to_cellcenters(dataset):
 
 
 @pytest.mark.unittest
-def test_flip_ycoordinates(dataset):
+def test_flip_ycoordinates(dataset: xr.DataArray):
     dataset = flip_ycoordinates(dataset)
     assert_array_equal(dataset["y"], [2, 1, 0])
     assert dataset.dims == ("y", "x", "z")
