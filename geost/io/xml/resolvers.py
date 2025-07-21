@@ -1,4 +1,4 @@
-from typing import Any
+import re
 
 from lxml import etree
 
@@ -38,12 +38,12 @@ def parse_coordinates(coords: str, **_) -> tuple[float, float]:
 
     """
     if " " in coords:
-        splitter = " "
+        splitter = r"\s+"
     elif "," in coords:
         splitter = ","
     elif ";" in coords:
         splitter = ";"
     else:
         raise ValueError(f"Cannot parse coordinates: '{coords}'")
-    x, y = coords.split(splitter)
+    x, y = re.split(splitter)
     return float(x), float(y)
