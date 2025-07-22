@@ -7,13 +7,8 @@ from geost.io import xml
 
 
 @pytest.fixture
-def xml_dir():
-    return Path(__file__).parents[1] / "data" / "xml"
-
-
-@pytest.fixture
-def xml_string(xml_dir: Path):
-    with open(xml_dir / "bhrgt_bro.xml", "rb") as file:
+def xml_string(testdatadir: Path):
+    with open(testdatadir / r"xml/bhrgt_bro.xml", "rb") as file:
         string = file.read()
     return string
 
@@ -28,8 +23,8 @@ def custom_bhrgt_schema():
 
 
 @pytest.mark.unittest
-def test_read_bhrgt(xml_dir: Path):
-    bro_xml = xml_dir / "bhrgt_bro.xml"
+def test_read_bhrgt(testdatadir: Path):
+    bro_xml = testdatadir / r"xml/bhrgt_bro.xml"
 
     data = xml.read_bhrgt(bro_xml)
 
@@ -49,9 +44,11 @@ def test_read_bhrgt(xml_dir: Path):
 
 @pytest.mark.unittest
 def test_read_bhrgt_with_custom_schema(
-    xml_dir: Path, custom_bhrgt_schema: dict[str, Any]
+    testdatadir: Path, custom_bhrgt_schema: dict[str, Any]
 ):
-    data = xml.read_bhrgt(xml_dir / "bhrgt_bro.xml", schema=custom_bhrgt_schema)
+    data = xml.read_bhrgt(
+        testdatadir / r"xml/bhrgt_bro.xml", schema=custom_bhrgt_schema
+    )
     assert isinstance(data, list)
     assert data[0] == {"bro_id": "BHR000000336600", "date": "2020-04-15"}
 
@@ -64,7 +61,7 @@ def test_read_bhrgt_from_string(xml_string: bytes):
 
 
 @pytest.mark.unittest
-def test_read_bhrgt_with_custom_schema_no_payload_root(xml_dir: Path):
+def test_read_bhrgt_with_custom_schema_no_payload_root(testdatadir: Path):
     """
     Test reading an xml string without a payload root. This can lead to unexpected results
     as the XML root can contain multiple elements with additional information besides the
@@ -72,7 +69,7 @@ def test_read_bhrgt_with_custom_schema_no_payload_root(xml_dir: Path):
 
     """
     schema = {"bro_id": {"xpath": "BHR_GT_O/brocom:broId"}}
-    data = xml.read_bhrgt(xml_dir / "bhrgt_bro.xml", schema=schema)
+    data = xml.read_bhrgt(testdatadir / r"xml/bhrgt_bro.xml", schema=schema)
     assert isinstance(data, list)
     assert data[0] == {"bro_id": None}
     assert data[1] == {"bro_id": None}
@@ -86,8 +83,8 @@ def test_read_bhrgt_bro():
 
 
 @pytest.mark.unittest
-def test_read_bhrgt_wiertsema(xml_dir: Path):
-    data = xml.read_bhrgt(xml_dir / "bhrgt_wiertsema.xml", company="Wiertsema")
+def test_read_bhrgt_wiertsema(testdatadir: Path):
+    data = xml.read_bhrgt(testdatadir / r"xml/bhrgt_wiertsema.xml", company="Wiertsema")
 
     core = data[0]
     assert isinstance(core, dict)

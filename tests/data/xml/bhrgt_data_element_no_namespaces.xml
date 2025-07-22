@@ -1,0 +1,24 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<descriptiveBoreholeLog>
+  <layer>
+    <upperBoundary>0.0</upperBoundary>
+    <lowerBoundary>1.2</lowerBoundary>
+    <soil>
+      <geotechnicalSoilName>zand</geotechnicalSoilName>
+    </soil>
+  </layer>
+  <layer>
+    <upperBoundary>1.2</upperBoundary>
+    <lowerBoundary>2.1</lowerBoundary>
+    <soil>
+      <geotechnicalSoilName>klei</geotechnicalSoilName>
+    </soil>
+  </layer>
+  <layer>
+    <upperBoundary>2.1</upperBoundary>
+    <lowerBoundary>2.5</lowerBoundary>
+    <soil>
+      <geotechnicalSoilName>silt</geotechnicalSoilName>
+    </soil>
+  </layer>
+</descriptiveBoreholeLog>

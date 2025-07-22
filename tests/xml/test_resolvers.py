@@ -1,3 +1,4 @@
+from pathlib import Path
 from typing import Any
 
 import pytest
@@ -16,31 +17,9 @@ def empty_crs_element():
     return el
 
 
-def create_layer_element(root: etree.Element, top: float, bot: float, lith: str):
-    el = etree.SubElement(root, "layer")
-
-    top_ = etree.SubElement(el, "upperBoundary")
-    top_.text = top
-
-    bot_ = etree.SubElement(el, "lowerBoundary")
-    bot_.text = bot
-
-    soil = etree.SubElement(el, "soil")
-    name = etree.SubElement(soil, "geotechnicalSoilName")
-    name.text = lith
-    return el
-
-
 @pytest.fixture
-def bhrgt_no_namespaces():
-    root = etree.Element("descriptiveBoreholeLog")
-
-    tops = [0.0, 1.2, 2.1]
-    bottoms = [1.2, 2.1, 2.5]
-    lithologies = ["zand", "klei", "silt"]
-
-    for top, bot, lith in zip(tops, bottoms, lithologies):
-        create_layer_element(root, str(top), str(bot), lith)
+def bhrgt_no_namespace(testdatadir: Path):
+    root = etree.parse(testdatadir / r"xml/bhrgt_data_element_no_namespaces.xml")
     return root
 
 
@@ -96,16 +75,16 @@ def test_safe_float(value: Any, expected: float | None):
     assert result == expected
 
 
-@pytest.mark.skip(reason="Test appears to break testing suite, check fixture value.")
-def test_process_bhrgt_data(bhrgt_no_namespaces):
+@pytest.mark.unittest
+def test_process_bhrgt_data(bhrgt_no_namespace):
     """
-    Tests `resolvers.process_bhrgt_data` for an XML element without namespaces. Behaviour
-    for "real" BRO-like elements with data in namespaces is tested in `test_xml_read`
+    Tests resolvers.process_bhrgt_data for an XML element without namespaces. Behaviour
+    for "real" BRO-like elements with data in namespaces is tested in test_xml_read
     module.
 
     """
     result = resolvers.process_bhrgt_data(
-        bhrgt_no_namespaces,
+        bhrgt_no_namespace.getroot(),
         [
             "upperBoundary",
             "lowerBoundary",
@@ -122,7 +101,7 @@ def test_process_bhrgt_data(bhrgt_no_namespaces):
 
     # Test that at least "upperBoundary", "lowerBoundary" and "geotechnicalSoilName" are
     # retrieved.
-    result = resolvers.process_bhrgt_data(bhrgt_no_namespaces, None)
+    result = resolvers.process_bhrgt_data(bhrgt_no_namespace.getroot(), None)
     assert result == {
         "upperBoundary": ["0.0", "1.2", "2.1"],
         "lowerBoundary": ["1.2", "2.1", "2.5"],
