@@ -11,7 +11,9 @@ class HeaderFactory:
     @staticmethod
     def get_geometry_type(gdf):
         geometry_type = gdf.geom_type.unique()
-        if len(geometry_type) > 1:
+        if len(geometry_type) == 0:
+            return None
+        elif len(geometry_type) > 1:
             return "Multiple geometries"
         else:
             return geometry_type[0]

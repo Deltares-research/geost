@@ -4,7 +4,7 @@ import numpy as np
 import pandas as pd
 import pytest
 from numpy.testing import assert_array_almost_equal, assert_array_equal
-from pyvista import MultiBlock
+from pyvista import MultiBlock, UnstructuredGrid
 from shapely import get_coordinates
 
 from geost.base import (
@@ -232,9 +232,9 @@ class TestLayeredData:
         assert ~np.all(selected["lith"] == "V")
 
     @pytest.mark.unittest
-    def test_to_multiblock(self, borehole_data):
+    def test_to_pyvista_cylinders(self, borehole_data):
         # Test normal to multiblock.
-        multiblock = borehole_data.to_multiblock("lith")
+        multiblock = borehole_data.to_pyvista_cylinders("lith")
         expected_bounds = (0.0, 5.0, 0.0, 6.0, -5.25, 0.3)
         assert isinstance(multiblock, MultiBlock)
         assert multiblock.n_blocks == 5
@@ -244,13 +244,13 @@ class TestLayeredData:
         assert multiblock[0].n_points == 160
 
         # Test with vertical exageration.
-        multiblock = borehole_data.to_multiblock("lith", vertical_factor=10)
+        multiblock = borehole_data.to_pyvista_cylinders("lith", vertical_factor=10)
         expected_bounds = (0.0, 5.0, 0.0, 6.0, -52.5, 3.0)
         assert multiblock.n_blocks == 5
         assert multiblock.bounds == expected_bounds
 
         # Test to multiblock with respect to depth below the surface.
-        multiblock = borehole_data.to_multiblock(
+        multiblock = borehole_data.to_pyvista_cylinders(
             "lith", relative_to_vertical_reference=False
         )
         expected_bounds = (0.0, 5.0, 0.0, 6.0, 0.0, 5.5)
@@ -258,12 +258,19 @@ class TestLayeredData:
         assert multiblock.bounds == expected_bounds
 
         # Test with both options.
-        multiblock = borehole_data.to_multiblock(
+        multiblock = borehole_data.to_pyvista_cylinders(
             "lith", vertical_factor=10, relative_to_vertical_reference=False
         )
         expected_bounds = (0.0, 5.0, 0.0, 6.0, 0.0, 55.0)
         assert multiblock.n_blocks == 5
         assert multiblock.bounds == expected_bounds
+
+    @pytest.mark.unittest
+    def test_to_pyvista_grid(self, borehole_data):
+        grid = borehole_data.to_pyvista_grid(["lith"], radius=0.1)
+        assert isinstance(grid, UnstructuredGrid)
+        assert grid.n_cells > 0
+        assert "lith" in grid.array_names
 
     @pytest.mark.unittest
     def test_to_datafusiontools(self, borehole_data):
@@ -295,18 +302,6 @@ class TestLayeredData:
         assert_array_almost_equal(
             dft[0].independent_variable.value, expected_independent_value
         )
-
-    @pytest.mark.unittest
-    def test_to_vtm_with_file(self, borehole_data):
-        outfile = Path("temp.vtm")
-        outfolder = outfile.parent / r"temp"
-        borehole_data.to_vtm(outfile, "lith")
-        assert outfile.is_file()
-        outfile.unlink()
-        for f in outfolder.glob("*.vtp"):
-            f.unlink()
-        outfolder.rmdir()
-        pass
 
     @pytest.mark.unittest
     def test_to_datafusiontools_with_file(self, borehole_data):

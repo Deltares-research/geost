@@ -30,7 +30,8 @@ Methods
    VoxelModel.select_within_polygons
    VoxelModel.slice_depth_interval
    VoxelModel.zslice_to_tiff
-   VoxelModel.to_vtk
+   VoxelModel.get_thickness
+   VoxelModel.to_pyvista_grid
 
 
 Attributes

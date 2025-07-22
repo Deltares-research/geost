@@ -38,11 +38,12 @@ Methods
    BoreholeCollection.to_geopackage
    BoreholeCollection.to_geoparquet
    BoreholeCollection.to_kingdom
-   BoreholeCollection.to_multiblock
+   BoreholeCollection.to_pyvista_cylinders
+   BoreholeCollection.to_pyvista_grid
    BoreholeCollection.to_parquet
    BoreholeCollection.to_qgis3d
    BoreholeCollection.to_shape
-   BoreholeCollection.to_vtm
+
 
 
 Attributes

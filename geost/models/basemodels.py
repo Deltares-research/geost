@@ -1,3 +1,4 @@
+import re
 from abc import ABC, abstractmethod
 from pathlib import Path
 from typing import List
@@ -102,6 +103,14 @@ class AbstractModel3D(ABC):  # pragma: no cover
 
     @abstractmethod
     def zslice_to_tiff(self):
+        pass
+
+    @abstractmethod
+    def get_thickness(self):
+        pass
+
+    @abstractmethod
+    def to_pyvista_grid(self):
         pass
 
 
@@ -386,29 +395,93 @@ class VoxelModel(AbstractSpatial, AbstractModel3D):
     def zslice_to_tiff(self):  # pragma: no cover
         raise NotImplementedError()
 
-    def to_vtk(self, output_path: str | Path, data_vars: list[str] = None):
+    def get_thickness(
+        self,
+        condition: xr.Dataset,
+        depth_range: tuple[float, float] = None,
+    ) -> xr.DataArray:
         """
-        Export the VoxelModel to a VTK file.
+        Generate a thickness array of voxels in the VoxelModel that meet one or more conditions. For example,
+        determine the thickness of a specific lithology within a stratigraphic unit (see example usage below).
 
         Parameters
         ----------
-        output_path : str | Path
-            Path to the output VTK file.
+        condition : xr.DataArray
+            Boolean DataArray containing that evaluate to True for the desired condition.
+            For example: `voxelmodel["lith"] == 1`.
+        depth_range : tuple[float, float], optional
+            Search for the condition with a specified depth range of the `VoxelModel`. This should be a tuple
+            containing the minimum and maximum depth values (in this order!). The default
+            is None, which means the entire depth range of the VoxelModel will be used.
 
         Returns
         -------
-        None
+        xr.DataArray
+            A DataArray containing the generated map based on the specified conditions.
+            The DataArray will have dimensions "y" and "x". The values in the DataArray
+            represent the thickness of the selected data variable at each location.
+
+        Examples
+        --------
+        Determine the thickness where the lithology in the `VoxelModel` is equal to 1:
+
+        >>> lith_map = voxelmodel.get_thickness(voxelmodel["lithology"] == 1)
+
+        Or generate an array on more conditions:
+
+        >>> thickness = voxelmodel.get_thickness((voxelmodel["lithology"] == 1) & (voxelmodel["strat"] == 1100))
+
+        Search for the condition or conditions within a specific depth window:
+
+        >>> thickness = voxelmodel.get_thickness((voxelmodel["lithology"] == 1) & (voxelmodel["strat"] == 1100), depth_range=(-10, -20))
         """
-        # if user gives data_vars, use those. If not, use all data_vars.
+        if depth_range:
+            zmin, zmax = depth_range
+            condition = condition.sel(z=slice(zmin, zmax))
+
+        # Calculate thickness: sum non-NaN values along the z-axis and multiply by dz
+        thickness = xr.where(condition, self.resolution[-1], np.nan).sum(dim="z")
+
+        return thickness
+
+    def to_pyvista_grid(
+        self, data_vars: str | list[str] = None, structured: bool = True
+    ):
+        """
+        Convert the VoxelModel to a PyVista grid.
+
+        Parameters
+        ----------
+        data_vars : str | list[str], optional
+            String representing one data variable or list of data variables to include
+            in the PyVista grid. If None, all data variables are included. The default
+            is None.
+        structured : bool, optional
+            If True, convert to a structured grid. If False, convert to an unstructured
+            grid. The default is True.
+
+        Returns
+        -------
+        pyvista.UnstructuredGrid or pyvista.StructuredGrid
+            PyVista grid representation of the VoxelModel.
+        """
         if data_vars is None:
             data_vars = self.ds.data_vars
+        elif isinstance(data_vars, str):
+            data_vars = [data_vars]
 
-        grid = vtk.voxelmodel_to_pyvista_unstructured(
-            self.ds,
-            self.resolution,
-            displayed_variables=data_vars,
-        )
-        grid.save(output_path, binary=True)
+        if structured:
+            return vtk.voxelmodel_to_pyvista_structured(
+                self.ds,
+                self.resolution,
+                displayed_variables=data_vars,
+            )
+        else:
+            return vtk.voxelmodel_to_pyvista_unstructured(
+                self.ds,
+                self.resolution,
+                displayed_variables=data_vars,
+            )
 
 
 class LayerModel(AbstractSpatial, AbstractModel3D):  # pragma: no cover TODO: add to doc
