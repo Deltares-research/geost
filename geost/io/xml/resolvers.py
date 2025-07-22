@@ -48,7 +48,12 @@ def parse_coordinates(coords: str, **_) -> tuple[float, float]:
         splitter = ";"
     else:
         raise ValueError(f"Cannot parse coordinates: '{coords}'")
-    x, y = re.split(splitter, coords)
+
+    try:
+        x, y = re.split(splitter, coords)
+    except ValueError as e:
+        raise ValueError(f"Cannot parse coordinates: '{coords}'") from e
+
     return float(x), float(y)
 
 
@@ -71,6 +76,24 @@ def safe_float(value: Any, **_) -> float | None:
         return float(value)
 
 
+def clean_string(val: str) -> str:
+    """
+    Clean a string to keep only letters, numbers and punctuation.
+
+    Parameters
+    ----------
+    val : str
+        The input string to clean.
+
+    Returns
+    -------
+    str
+        The cleaned string with unwanted characters removed.
+
+    """
+    return re.sub(r"[^\w.,:;!?()-]", "", val)
+
+
 def safe_get(el: etree.Element):
     """
     Safely get the text from an `etree.Element` instance. Returns `None` if it would raise
@@ -78,7 +101,11 @@ def safe_get(el: etree.Element):
 
     """
     with suppress(AttributeError):
-        return el.text
+        value = el.text
+        if value is None:
+            return None
+        else:
+            return clean_string(value)
 
 
 def process_bhrgt_data(el: etree.Element, attributes: list | None) -> dict:

@@ -4,9 +4,37 @@ BRO = {
     "payload_root": "dispatchDocument",
     "nr": {"xpath": "brocom:broId"},
     "location": {
-        "xpath": "./deliveredLocation/bhrgtcom:location/gml:Point/gml:pos",
+        "xpath": "deliveredLocation/bhrgtcom:location/gml:Point/gml:pos",
         "resolver": resolvers.parse_coordinates,
         "el-attr": "text",
+    },
+    "crs": {
+        "xpath": "deliveredLocation/bhrgtcom:location/gml:Point",
+        "resolver": resolvers.parse_crs,
+    },
+    "surface_level": {
+        "xpath": "deliveredVerticalPosition/bhrgtcom:offset",
+        "resolver": resolvers.safe_float,
+        "el-attr": "text",
+    },
+    "vertical_datum": {
+        "xpath": "deliveredVerticalPosition/bhrgtcom:verticalDatum",
+        "el-attr": "text",
+    },
+    "groundwater_level": {
+        "xpath": "boring/bhrgtcom:groundwaterLevel",
+        "resolver": resolvers.safe_float,
+        "el-attr": "text",
+    },
+    "final_depth": {
+        "xpath": "boring/bhrgtcom:finalDepthSampling",
+        "resolver": resolvers.safe_float,
+        "el-attr": "text",
+    },
+    "data": {
+        "xpath": "boreholeSampleDescription/bhrgtcom:descriptiveBoreholeLog",
+        "resolver": resolvers.process_bhrgt_data,
+        "layer-attributes": ["upperBoundary", "lowerBoundary", "geotechnicalSoilName"],
     },
 }
 

@@ -49,7 +49,6 @@ def test_parse_coordinates(coordinates: str, expected: tuple[float, float]):
     assert result == expected
 
 
-@pytest.mark.xfail(reason="Double ',,' or ';;' does not lead to expected error.")
 @pytest.mark.parametrize(
     "invalid_coordinates",
     ["5.1|1.0", "1.0,,2.3", "1.0;;2.3"],
