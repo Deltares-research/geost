@@ -22,10 +22,6 @@ from geost.export import geodataclass
 
 
 class TestCollection:
-    nlog_stratstelsel_parquet = (
-        Path(__file__).parent / "data/test_nlog_stratstelsel_20230807.parquet"
-    )
-
     @pytest.fixture
     def valid_boreholes(self):
         nr = np.full(10, "B-01")

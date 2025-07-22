@@ -40,11 +40,6 @@ class InvalidCollection:
 
 
 @pytest.fixture
-def data_dir():
-    return Path(__file__).parent / "data"
-
-
-@pytest.fixture
 def llg_header_table(tmp_path):
     outfile = tmp_path / r"llg_header.parquet"
     header = pd.DataFrame(
@@ -113,9 +108,9 @@ class TestReaders:
         )
 
     @pytest.mark.unittest
-    def test_nlog_reader_from_parquet(self, data_dir):
+    def test_nlog_reader_from_parquet(self, testdatadir):
         nlog_cores = read_nlog_cores(
-            data_dir / r"test_nlog_stratstelsel_20230807.parquet"
+            testdatadir / r"test_nlog_stratstelsel_20230807.parquet"
         )
         desired_df = pd.DataFrame(
             {
@@ -139,16 +134,16 @@ class TestReaders:
         assert soilcores.n_points == 7
 
     @pytest.mark.unittest
-    def test_get_bro_soil_cores_from_geometry(self, data_dir):
+    def test_get_bro_soil_cores_from_geometry(self, testdatadir):
         soilcores = get_bro_objects_from_geometry(
-            "BHR-P", data_dir / "test_polygon.parquet"
+            "BHR-P", testdatadir / "test_polygon.parquet"
         )
         assert soilcores.n_points == 1
 
     @pytest.mark.unittest
-    def test_read_borehole_table(self, data_dir):
-        file_pq = data_dir / r"test_borehole_table.parquet"
-        file_csv = data_dir / r"test_borehole_table.csv"
+    def test_read_borehole_table(self, testdatadir):
+        file_pq = testdatadir / r"test_borehole_table.parquet"
+        file_csv = testdatadir / r"test_borehole_table.csv"
         cores_pq = read_borehole_table(file_pq)
         cores_csv = read_borehole_table(file_csv)
         assert isinstance(cores_pq, BoreholeCollection)
@@ -160,8 +155,8 @@ class TestReaders:
         assert isinstance(cores_csv, LayeredData)
 
     @pytest.mark.unittest
-    def test_read_inclined_borehole_table(self, data_dir):
-        file_pq = data_dir / r"test_inclined_borehole_table.parquet"
+    def test_read_inclined_borehole_table(self, testdatadir):
+        file_pq = testdatadir / r"test_inclined_borehole_table.parquet"
         cores_pq = read_borehole_table(file_pq, has_inclined=True)
         assert isinstance(cores_pq, BoreholeCollection)
 
@@ -187,8 +182,8 @@ class TestReaders:
         assert_array_equal(table_wrong_columns.columns, MANDATORY_LAYERED_DATA_COLUMNS)
 
     @pytest.mark.unittest
-    def test_adjust_z_coordinates(self, data_dir):
-        file = data_dir / r"test_borehole_table.parquet"
+    def test_adjust_z_coordinates(self, testdatadir):
+        file = testdatadir / r"test_borehole_table.parquet"
         cores = read_borehole_table(file, as_collection=False)
         cores_df = cores.df.copy()
 
@@ -206,8 +201,8 @@ class TestReaders:
         assert cores_df_adjusted["bottom"].iloc[0] < cores_df_adjusted["bottom"].iloc[1]
 
     @pytest.mark.unittest
-    def test_read_boris_xml(self, data_dir):
-        boris_collection = read_xml_boris(data_dir / r"xml/test_boris_xml.xml")
+    def test_read_boris_xml(self, testdatadir):
+        boris_collection = read_xml_boris(testdatadir / r"xml/test_boris_xml.xml")
         assert isinstance(boris_collection, BoreholeCollection)
         assert boris_collection.n_points == 16
         assert len(boris_collection.data.df) == 236
@@ -237,8 +232,8 @@ def test_read_uullg_table(
 
 
 @pytest.mark.unittest
-def test_read_gef_cpts(data_dir):
-    files = sorted(Path(data_dir / "gef").glob("*.gef"))
+def test_read_gef_cpts(testdatadir):
+    files = sorted(Path(testdatadir / "gef").glob("*.gef"))
     cpts = read_gef_cpts(files)
     assert isinstance(cpts, CptCollection)
 
@@ -253,14 +248,14 @@ def test_read_gef_cpts(data_dir):
 
 
 @pytest.mark.unittest
-def test_read_cpt_table(data_dir, monkeypatch):
+def test_read_cpt_table(testdatadir, monkeypatch):
     monkeypatch.setattr("builtins.input", lambda _: "mv")
-    cpts = read_cpt_table(data_dir / r"test_cpts.parquet")
+    cpts = read_cpt_table(testdatadir / r"test_cpts.parquet")
     assert isinstance(cpts, CptCollection)
     assert cpts.horizontal_reference == 28992
     assert cpts.vertical_reference == 5709
 
-    cpts = read_cpt_table(data_dir / r"test_cpts.parquet", as_collection=False)
+    cpts = read_cpt_table(testdatadir / r"test_cpts.parquet", as_collection=False)
     assert isinstance(cpts, DiscreteData)
 
 

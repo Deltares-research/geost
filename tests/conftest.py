@@ -114,13 +114,18 @@ def borehole_e():
 
 
 @pytest.fixture
-def borehole_file():
-    return Path(__file__).parent / "data" / "test_boreholes.parquet"
+def testdatadir():
+    return Path(__file__).parent / "data"
 
 
 @pytest.fixture
-def nlog_borehole_file():
-    return Path(__file__).parent / "data/test_nlog_stratstelsel_20230807.parquet"
+def borehole_file(testdatadir):
+    return testdatadir / r"test_boreholes.parquet"
+
+
+@pytest.fixture
+def nlog_borehole_file(testdatadir):
+    return testdatadir / r"test_nlog_stratstelsel_20230807.parquet"
 
 
 @pytest.fixture
@@ -351,7 +356,7 @@ def simple_soilmap_gpkg(tmp_path):
 
 
 @pytest.fixture
-def bro_cpt_gpkg():
+def bro_cpt_gpkg(testdatadir):
     """
     Small extraction of 4 CPTs from the BRO CPT geopackage for testing purposes. The CPTs
     were selected from the original BRO CPT geopackage by their primary keys. The selected
@@ -359,4 +364,4 @@ def bro_cpt_gpkg():
     in the GeoDataFrame when `geost.bro.BroCptGeopackage` is used to read the geopackage.
 
     """
-    return Path(__file__).parent / r"data/test_bro_cpt_geopackage.gpkg"
+    return testdatadir / r"test_bro_cpt_geopackage.gpkg"

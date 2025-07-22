@@ -39,16 +39,14 @@ class CptInfo(NamedTuple):
 
 
 class TestCptGefParser:
-    filepath = Path(Path(__file__).parent, "data", "gef")
-
     @pytest.fixture
-    def test_cpt_files(self):
-        test_cpt_files = list(self.filepath.glob("*.gef"))
+    def test_cpt_files(self, testdatadir):
+        test_cpt_files = list(testdatadir.glob("gef/*.gef"))
         return test_cpt_files
 
     @pytest.fixture
-    def cpt_a(self):
-        cpt = CptGefFile(self.filepath / r"83268_DKMP003_wiertsema.gef")
+    def cpt_a(self, testdatadir):
+        cpt = CptGefFile(testdatadir / r"gef/83268_DKMP003_wiertsema.gef")
         info_to_test = CptInfo(
             "DKMP_D03",
             176161.1,
@@ -64,8 +62,8 @@ class TestCptGefParser:
         return cpt, info_to_test
 
     @pytest.fixture
-    def cpt_b(self):
-        cpt = CptGefFile(self.filepath / r"AZZ158_gem_rotterdam.gef")
+    def cpt_b(self, testdatadir):
+        cpt = CptGefFile(testdatadir / r"gef/AZZ158_gem_rotterdam.gef")
         info_to_test = CptInfo(
             "AZZ158",
             0.0,
@@ -81,8 +79,8 @@ class TestCptGefParser:
         return cpt, info_to_test
 
     @pytest.fixture
-    def cpt_c(self):
-        cpt = CptGefFile(self.filepath / r"CPT000000157983_IMBRO.gef")
+    def cpt_c(self, testdatadir):
+        cpt = CptGefFile(testdatadir / r"gef/CPT000000157983_IMBRO.gef")
         info_to_test = CptInfo(
             "CPT000000157983",
             176416.1,
@@ -98,8 +96,8 @@ class TestCptGefParser:
         return cpt, info_to_test
 
     @pytest.fixture
-    def cpt_d(self):
-        cpt = CptGefFile(self.filepath / r"CPT10.gef")
+    def cpt_d(self, testdatadir):
+        cpt = CptGefFile(testdatadir / r"gef/CPT10.gef")
         info_to_test = CptInfo(
             "YANGTZEHAVEN CPT 10",
             61949.0,
