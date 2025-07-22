@@ -1,3 +1,11 @@
+"""
+The XML parsing design in this module is based on Pygef's approach but the aim of this module
+is to provide a more flexible and extensible approach to parsing XML files.
+
+See: https://github.com/cemsbv/pygef/tree/master/src/pygef/broxml for the original design.
+
+"""
+
 from pathlib import Path
 from typing import Any
 
