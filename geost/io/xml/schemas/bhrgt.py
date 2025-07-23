@@ -27,7 +27,7 @@ BRO = {
         "el-attr": "text",
     },
     "final_depth": {
-        "xpath": "boring/bhrgtcom:finalDepthSampling",
+        "xpath": "boring/bhrgtcom:finalDepthBoring",
         "resolver": resolvers.safe_float,
         "el-attr": "text",
     },
@@ -65,7 +65,7 @@ WIERTSEMA = {
         "el-attr": "text",
     },
     "final_depth": {
-        "xpath": "ns1:boring/ns3:finalDepthSampling",
+        "xpath": "ns1:boring/ns3:finalDepthBoring",
         "resolver": resolvers.safe_float,
         "el-attr": "text",
     },
