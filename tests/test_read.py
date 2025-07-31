@@ -24,7 +24,7 @@ from geost.base import (
     LayeredData,
     PointHeader,
 )
-from geost.read import (
+from geost.io.read import (
     MANDATORY_LAYERED_DATA_COLUMNS,
     _check_mandatory_column_presence,
     adjust_z_coordinates,
