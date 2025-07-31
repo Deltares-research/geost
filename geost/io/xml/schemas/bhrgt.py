@@ -50,7 +50,7 @@ WIERTSEMA = {
         "xpath": "ns1:deliveredLocation/ns3:location/ns2:Point",
         "resolver": resolvers.parse_crs,
     },
-    "surface_level": {
+    "surface": {
         "xpath": "ns1:deliveredVerticalPosition/ns3:offset",
         "resolver": resolvers.safe_float,
         "el-attr": "text",
@@ -64,7 +64,7 @@ WIERTSEMA = {
         "resolver": resolvers.safe_float,
         "el-attr": "text",
     },
-    "final_depth": {
+    "end": {
         "xpath": "ns1:boring/ns3:finalDepthBoring",
         "resolver": resolvers.safe_float,
         "el-attr": "text",

@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import Any, Literal
+from typing import Any, Literal, Iterable
 
 import geopandas as gpd
 import pandas as pd
@@ -38,8 +38,6 @@ GEOMETRY_TO_SELECTION_FUNCTION = {
     "Line": "select_with_lines",
     "Point": "select_with_points",
 }
-
-
 LLG_COLUMN_MAPPING = {
     "BOORP": "nr",
     "XCO": "x",
@@ -48,6 +46,12 @@ LLG_COLUMN_MAPPING = {
     "BoringEinddiepteNAP": "end",
     "BEGIN_DIEPTE": "top",
     "EIND_DIEPTE": "bottom",
+}
+BRO_READER_FUNC = {
+    "BHR-GT": xml.read_bhrgt,
+    "BHR-P": xml.read_bhrp,
+    "BHR-G": xml.read_bhrg,
+    "CPT": xml.read_cpt,
 }
 
 
@@ -390,8 +394,8 @@ def read_xml_boris(
     return boreholes
 
 
-def read_xml_geotechnical_cores(
-    file_or_folder: str | Path,
+def read_bhrgt(
+    files: str | Path | Iterable[str | Path], company: str | None = None
 ) -> BoreholeCollection:  # pragma: no cover
     """
     NOTIMPLEMENTED
@@ -399,10 +403,35 @@ def read_xml_geotechnical_cores(
     Decribed in NEN14688 standards
 
     """
-    pass
+    header = []
+    data = []
+    for file in files:
+        xml_data = xml.read_bhrgt(file, company)
+
+        xml_data["x"], xml_data["y"] = xml_data.pop("location")
+
+        df = pd.DataFrame(xml_data.pop("data"))
+
+        insert_attributes = ["nr", "x", "y", "surface", "end"]
+        for ii, attr in enumerate(insert_attributes):
+            df.insert(ii, attr, xml_data[attr])
+
+        header.append(xml_data)
+        data.append(df)
+
+    header = pd.DataFrame(header)
+    header = PointHeader(
+        gpd.GeoDataFrame(
+            header, geometry=gpd.points_from_xy(header.x, header.y), crs=28992
+        ),
+        vertical_reference=5709,
+    )
+    data = LayeredData(pd.concat(data, ignore_index=True))
+
+    return BoreholeCollection(header, data)
 
 
-def read_xml_soil_cores(
+def read_bhrp(
     file_or_folder: str | Path,
 ) -> BoreholeCollection:  # pragma: no cover
     """
@@ -413,23 +442,12 @@ def read_xml_soil_cores(
     pass
 
 
-def read_xml_geological_cores(
+def read_bhrg(
     file_or_folder: str | Path,
 ) -> BoreholeCollection:  # pragma: no cover
     """
     NOTIMPLEMENTED
     Read xml files of DINO geological boreholes.
-
-    """
-    pass
-
-
-def read_gef_cores(
-    file_or_folder: str | Path,
-) -> BoreholeCollection:  # pragma: no cover
-    """
-    NOTIMPLEMENTED
-    Read gef files of boreholes.
 
     """
     pass
@@ -465,15 +483,37 @@ def read_xml_cpts(file_or_folder: str | Path) -> CptCollection:  # pragma: no co
     pass
 
 
-def bro_api_read(
+def bro_api_read(  # pragma: no cover
     object_type: BroObject,
     *,
-    bro_ids: str | list[str] | None = None,
-    bbox: tuple[float, float, float, float] | None = None,
-    geometry: gpd.GeoDataFrame | None = None,
-    buffer: int | float = 0,
+    bro_ids: str | list[str] = None,
+    bbox: tuple[float, float, float, float] = None,
+    geometry: gpd.GeoDataFrame = None,
+    buffer: int | float = None,
+    horizontal_reference: str | int | CRS = 28992,
+    vertical_reference: str | int | CRS = 5709,
 ):
-    pass
+    api = BroApi()
+
+    if bro_ids is not None:
+        bro_data = api.get_objects(bro_ids, object_type=object_type)
+    else:
+        if bbox is not None:
+            xmin, ymin, xmax, ymax = bbox
+        elif geometry is not None:
+            geometry = utils.check_geometry_instance(geometry)
+            if buffer is not None:
+                geometry = geometry.buffer(buffer)
+            xmin, ymin, xmax, ymax = geometry.total_bounds
+        api.search_objects_in_bbox(xmin, ymin, xmax, ymax, object_type)
+        bro_data = api.get_objects(api.object_list, object_type=object_type)
+
+    parser = BRO_READER_FUNC[object_type]
+    data = []
+    for bro in bro_data:
+        data.append(parser(bro))
+
+    return data
 
 
 def get_bro_objects_from_bbox(

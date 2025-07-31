@@ -167,13 +167,19 @@ def read_bhrgt(
     return result
 
 
-def read_bhrp(file: bytes | str | Path, schema: dict[str, Any] = None) -> list[dict]:
-    pass
+def read_bhrp(
+    file: bytes | str | Path, schema: dict[str, Any] = None
+) -> list[dict]:  # pragma: no cover
+    raise NotImplementedError("BHR-P XML reading is not implemented yet.")
 
 
-def read_cpt(file: bytes | str | Path, schema: dict[str, Any] = None) -> list[dict]:
-    pass
+def read_cpt(
+    file: bytes | str | Path, schema: dict[str, Any] = None
+) -> list[dict]:  # pragma: no cover
+    raise NotImplementedError("CPT XML reading is not implemented yet.")
 
 
-def read_bhrg(file: bytes | str | Path, schema: dict[str, Any] = None) -> list[dict]:
-    pass
+def read_bhrg(
+    file: bytes | str | Path, schema: dict[str, Any] = None
+) -> list[dict]:  # pragma: no cover
+    raise NotImplementedError("BHR-G XML reading is not implemented yet.")
