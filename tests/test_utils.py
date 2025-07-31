@@ -1,7 +1,10 @@
 import sqlite3
 
+import geopandas as gpd
+import pandas as pd
 import pytest
 from pyogrio.errors import FieldError
+from shapely import geometry as gmt
 
 from geost import utils
 
@@ -77,3 +80,69 @@ def test_get_path_iterable_invalid(tmp_path):
     invalid_path = tmp_path / "does_not_exist"
     with pytest.raises(TypeError):
         utils.get_path_iterable(invalid_path)
+
+
+@pytest.mark.parametrize(
+    "geometry, expected_length",
+    [
+        (gpd.GeoDataFrame(geometry=[gmt.Point(1, 2)]), 1),
+        (gmt.Point(1, 2), 1),
+        (gmt.LineString([(0, 0), (1, 1)]), 1),
+        (gmt.Polygon([(0, 0), (1, 1), (1, 0), (0, 0)]), 1),
+        (gmt.MultiPoint([gmt.Point(1, 2), gmt.Point(3, 4)]), 1),
+        ([gmt.Point(1, 2), gmt.Point(3, 4)], 2),
+    ],
+)
+def test_check_geometry_instance(geometry, expected_length):
+    geom = utils.check_geometry_instance(geometry)
+    assert isinstance(geom, gpd.GeoDataFrame)
+    assert len(geom) == expected_length
+
+
+@pytest.mark.unittest
+def test_check_geometry_instance_from_file(tmp_path, point_header_gdf):
+    outfile = tmp_path / "test.geoparquet"
+    point_header_gdf.to_parquet(outfile)
+    gdf = utils.check_geometry_instance(outfile)
+    assert isinstance(gdf, gpd.GeoDataFrame)
+
+
+@pytest.mark.parametrize("extension", [".geoparquet", ".parquet", ".gpkg", ".shp"])
+def test_geopandas_read(tmp_path, point_header_gdf, extension):
+    outfile = tmp_path / f"test{extension}"
+
+    if extension in {".geoparquet", ".parquet"}:
+        point_header_gdf.to_parquet(outfile)
+    elif extension in {".gpkg", ".shp"}:
+        point_header_gdf.to_file(outfile)
+
+    gdf = utils._geopandas_read(outfile)
+    assert isinstance(gdf, gpd.GeoDataFrame)
+
+
+@pytest.mark.unittest
+def test_geopandas_read_invalid_file(tmp_path):
+    invalid_file = tmp_path / "invalid.txt"
+    invalid_file.write_text("This is not a valid geopandas file.")
+
+    with pytest.raises(
+        ValueError, match="File type .txt is not supported by geopandas."
+    ):
+        utils._geopandas_read(invalid_file)
+
+
+@pytest.mark.parametrize(
+    "extension", [".pq", ".parquet", ".csv", ".txt", ".tsv", ".xls", ".xlsx"]
+)
+def test_pandas_read(tmp_path, point_header_gdf, extension):
+    outfile = tmp_path / f"test{extension}"
+
+    if extension in {".pq", ".parquet"}:
+        point_header_gdf.to_parquet(outfile)
+    elif extension in {".csv", ".txt", ".tsv"}:
+        point_header_gdf.to_csv(outfile)
+    elif extension in {".xls", ".xlsx"}:
+        point_header_gdf.to_excel(outfile)
+
+    df = utils._pandas_read(outfile)
+    assert isinstance(df, pd.DataFrame)

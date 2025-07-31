@@ -8,38 +8,7 @@ import pandas as pd
 import rioxarray
 import xarray as xr
 
-
-def check_gdf_instance(
-    gdf_or_path: str | Path | gpd.GeoDataFrame,
-) -> gpd.GeoDataFrame:
-    """
-    Check if the argument is already a geodataframe or pointing to a file
-    containing geometries
-
-    Parameters
-    ----------
-    gdf_or_path : str | Path | gpd.GeoDataFrame
-        The geodataframe or file that can be read and parsed to a geodataframe
-
-    Returns
-    -------
-    gpd.GeoDataFrame
-        An instance of a geopandas geodataframe
-    """
-    if isinstance(gdf_or_path, str | Path):
-        gdf_or_path = Path(gdf_or_path)
-        filetype = gdf_or_path.suffix
-        if filetype in (".parquet", ".geoparquet"):
-            gdf = gpd.read_parquet(gdf_or_path)
-        else:
-            gdf = gpd.read_file(gdf_or_path)
-    elif isinstance(gdf_or_path, gpd.GeoDataFrame):
-        gdf = gdf_or_path
-
-    # Make sure you don't get a view of gdf returned
-    gdf = gdf.copy()
-
-    return gdf
+from geost import utils
 
 
 def check_and_coerce_crs(gdf: gpd.GeoDataFrame, to_crs: int):
@@ -116,7 +85,7 @@ def select_points_within_bbox(
         Geodataframe containing only selected geometries.
     """
     # Instance checks and coerce to geodataframe if required
-    gdf = check_gdf_instance(gdf)
+    gdf = utils.check_geometry_instance(gdf)
 
     # Selection logic
     x = gdf["geometry"].x
@@ -154,8 +123,8 @@ def select_points_near_points(
         Geodataframe containing only selected geometries.
     """
     # Instance checks and coerce to geodataframe if required
-    gdf = check_gdf_instance(gdf)
-    point_gdf = check_gdf_instance(point_gdf)
+    gdf = utils.check_geometry_instance(gdf)
+    point_gdf = utils.check_geometry_instance(point_gdf)
 
     # Selection logic
     data_points = np.array([gdf["geometry"].x, gdf["geometry"].y]).transpose()
@@ -202,8 +171,8 @@ def select_points_near_lines(
         Geodataframe containing only selected geometries.
     """
     # Instance checks and coerce to geodataframe if required
-    gdf = check_gdf_instance(gdf)
-    line_gdf = check_gdf_instance(line_gdf)
+    gdf = utils.check_geometry_instance(gdf)
+    line_gdf = utils.check_geometry_instance(line_gdf)
 
     # Selection logic
     line_gdf["geometry"] = line_gdf.buffer(distance=buffer)
@@ -241,8 +210,8 @@ def select_points_within_polygons(
         Geodataframe containing only selected geometries.
     """
     # Instance checks and coerce to geodataframe if required
-    gdf = check_gdf_instance(gdf)
-    polygon_gdf = check_gdf_instance(polygon_gdf)
+    gdf = utils.check_geometry_instance(gdf)
+    polygon_gdf = utils.check_geometry_instance(polygon_gdf)
 
     # Selection logic
     if buffer > 0:

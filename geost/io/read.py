@@ -1,10 +1,11 @@
 from pathlib import Path
-from typing import Any
+from typing import Any, Literal
 
 import geopandas as gpd
 import pandas as pd
 from pyproj import CRS
 
+from geost import utils
 from geost.base import (
     BoreholeCollection,
     Collection,
@@ -14,9 +15,10 @@ from geost.base import (
     PointHeader,
 )
 from geost.bro import BroApi
-from geost.io import _parse_cpt_gef_files
+from geost.io import _parse_cpt_gef_files, xml
 from geost.io.parsers import BorisXML, SoilCore
-from geost.utils import dataframe_to_geodataframe
+
+type BroObject = Literal["BHR-GT", "BHR-P", "BHR-G", "CPT"]
 
 MANDATORY_LAYERED_DATA_COLUMNS = ["nr", "x", "y", "surface", "end", "top", "bottom"]
 MANDATORY_DISCRETE_DATA_COLUMNS = ["nr", "x", "y", "surface", "end", "depth"]
@@ -47,44 +49,6 @@ LLG_COLUMN_MAPPING = {
     "BEGIN_DIEPTE": "top",
     "EIND_DIEPTE": "bottom",
 }
-
-
-def __read_file(file: str | Path, **kwargs) -> pd.DataFrame:
-    """
-    Read parquet file.
-
-    Parameters
-    ----------
-    file : Path
-        Path to file to be read.
-    kwargs : optional
-        Kwargs to pass to the read function
-
-    Returns
-    -------
-    pd.DataFrame
-        Dataframe with contents of 'file'.
-
-    Raises
-    ------
-    TypeError
-        if 'file' has no valid suffix.
-
-    """
-    file = Path(file)
-    suffix = file.suffix
-    if suffix in [".parquet", ".pq"]:
-        return pd.read_parquet(file, **kwargs)
-    elif suffix in [".csv"]:
-        return pd.read_csv(file, **kwargs)
-    elif suffix in [".xls", ".xlsx"]:  # pragma: no cover
-        return pd.read_excel(
-            file, **kwargs
-        )  # No cover: Excel file io fails in windows CI pipeline
-    else:
-        raise TypeError(
-            f"Expected parquet file (with .parquet or .pq suffix) but got {suffix} file"
-        )
 
 
 def adjust_z_coordinates(data_dataframe: pd.DataFrame) -> pd.DataFrame:
@@ -224,7 +188,7 @@ def read_borehole_table(
     >>> read_borehole_table(file, 32631, 'Ostend height', column_mapper={'maaiveld': 'surface'})
 
     """
-    boreholes = __read_file(file, **kwargs)
+    boreholes = utils._pandas_read(file, **kwargs)
 
     if has_inclined:
         boreholes = _check_mandatory_column_presence(
@@ -297,7 +261,7 @@ def read_cpt_table(
         Instance of :class:`~geost.base.CptCollection`.
 
     """
-    cpts = __read_file(file, **kwargs)
+    cpts = utils._pandas_read(file, **kwargs)
 
     cpts = _check_mandatory_column_presence(
         cpts, MANDATORY_DISCRETE_DATA_COLUMNS, column_mapper
@@ -329,7 +293,7 @@ def read_nlog_cores(file: str | Path) -> BoreholeCollection:
     :class:`~geost.borehole.BoreholeCollection`
         :class:`~geost.borehole.BoreholeCollection`
     """
-    nlog_cores = __read_file(file)
+    nlog_cores = utils._pandas_read(file)
 
     nlog_cores.rename(
         columns={
@@ -501,8 +465,19 @@ def read_xml_cpts(file_or_folder: str | Path) -> CptCollection:  # pragma: no co
     pass
 
 
+def bro_api_read(
+    object_type: BroObject,
+    *,
+    bro_ids: str | list[str] | None = None,
+    bbox: tuple[float, float, float, float] | None = None,
+    geometry: gpd.GeoDataFrame | None = None,
+    buffer: int | float = 0,
+):
+    pass
+
+
 def get_bro_objects_from_bbox(
-    object_type: str,
+    object_type: BroObject,
     xmin: int | float,
     xmax: int | float,
     ymin: int | float,
@@ -573,7 +548,7 @@ def get_bro_objects_from_bbox(
 
 
 def get_bro_objects_from_geometry(
-    object_type: str,
+    object_type: BroObject,
     geometry_file: Path | str,
     buffer: int | float = 0,
     horizontal_reference: str | int | CRS = 28992,
@@ -683,8 +658,8 @@ def read_uullg_tables(
         Instance of :class:`~geost.base.BoreholeCollection` of the UU-LLG data.
 
     """
-    header = __read_file(header_table, **kwargs)
-    data = __read_file(data_table, **kwargs)
+    header = utils._pandas_read(header_table, **kwargs)
+    data = utils._pandas_read(data_table, **kwargs)
 
     header.rename(columns=LLG_COLUMN_MAPPING, inplace=True)
     data.rename(columns=LLG_COLUMN_MAPPING, inplace=True)
@@ -692,7 +667,7 @@ def read_uullg_tables(
     header = header.astype({"nr": str})
     data = data.astype({"nr": str})
 
-    header = dataframe_to_geodataframe(header).set_crs(horizontal_reference)
+    header = utils.dataframe_to_geodataframe(header).set_crs(horizontal_reference)
 
     add_header_cols = [c for c in ["x", "y", "surface", "end"] if c not in data.columns]
     if add_header_cols:
