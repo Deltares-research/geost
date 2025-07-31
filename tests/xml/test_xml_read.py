@@ -28,12 +28,8 @@ def test_read_bhrgt(testdatadir: Path):
 
     data = xml.read_bhrgt(bro_xml)
 
-    assert isinstance(data, list)
-    assert len(data) == 1
-
-    core = data[0]
-    assert isinstance(core, dict)
-    assert core["nr"] == "BHR000000336600"
+    assert isinstance(data, dict)
+    assert data["nr"] == "BHR000000336600"
 
     with pytest.raises(SyntaxError, match="Invalid xml schema"):
         xml.read_bhrgt(bro_xml, company="Wiertsema")
@@ -49,15 +45,15 @@ def test_read_bhrgt_with_custom_schema(
     data = xml.read_bhrgt(
         testdatadir / r"xml/bhrgt_bro.xml", schema=custom_bhrgt_schema
     )
-    assert isinstance(data, list)
-    assert data[0] == {"bro_id": "BHR000000336600", "date": "2020-04-15"}
+    assert isinstance(data, dict)
+    assert data == {"bro_id": "BHR000000336600", "date": "2020-04-15"}
 
 
 @pytest.mark.unittest
 def test_read_bhrgt_from_string(xml_string: bytes):
     data = xml.read_bhrgt(xml_string)
-    assert isinstance(data, list)
-    assert data[0]["nr"] == "BHR000000336600"
+    assert isinstance(data, dict)
+    assert data["nr"] == "BHR000000336600"
 
 
 @pytest.mark.unittest
@@ -69,7 +65,15 @@ def test_read_bhrgt_with_custom_schema_no_payload_root(testdatadir: Path):
 
     """
     schema = {"bro_id": {"xpath": "BHR_GT_O/brocom:broId"}}
-    data = xml.read_bhrgt(testdatadir / r"xml/bhrgt_bro.xml", schema=schema)
+    with pytest.warns(UserWarning, match="Multiple payloads found in XML"):
+        data = xml.read_bhrgt(
+            testdatadir / r"xml/bhrgt_bro.xml", schema=schema, read_all=False
+        )
+        assert isinstance(data, dict)
+
+    data = xml.read_bhrgt(
+        testdatadir / r"xml/bhrgt_bro.xml", schema=schema, read_all=True
+    )
     assert isinstance(data, list)
     assert data[0] == {"bro_id": None}
     assert data[1] == {"bro_id": None}
@@ -81,16 +85,15 @@ def test_read_bhrgt_with_custom_schema_no_payload_root(testdatadir: Path):
 def test_read_bhrgt_bro(testdatadir: Path):
     data = xml.read_bhrgt(testdatadir / r"xml/bhrgt_bro.xml")
 
-    core = data[0]
-    assert isinstance(core, dict)
-    assert core["nr"] == "BHR000000336600"
-    assert core["location"] == (132781.327, 448031.1)
-    assert core["crs"] == "urn:ogc:def:crs:EPSG::28992"
-    assert core["surface_level"] == 0.09
-    assert core["vertical_datum"] == "NAP"
-    assert core["groundwater_level"] == 1.6
-    assert core["final_depth"] == 7.0
-    assert core["data"] == {
+    assert isinstance(data, dict)
+    assert data["nr"] == "BHR000000336600"
+    assert data["location"] == (132781.327, 448031.1)
+    assert data["crs"] == "urn:ogc:def:crs:EPSG::28992"
+    assert data["surface_level"] == 0.09
+    assert data["vertical_datum"] == "NAP"
+    assert data["groundwater_level"] == 1.6
+    assert data["final_depth"] == 7.0
+    assert data["data"] == {
         "upperBoundary": [
             "0.00",
             "1.00",
@@ -131,16 +134,15 @@ def test_read_bhrgt_bro(testdatadir: Path):
 def test_read_bhrgt_wiertsema(testdatadir: Path):
     data = xml.read_bhrgt(testdatadir / r"xml/bhrgt_wiertsema.xml", company="Wiertsema")
 
-    core = data[0]
-    assert isinstance(core, dict)
-    assert core["nr"] == "_87078_HB001"
-    assert core["location"] == (182243.9, 335073.8)
-    assert core["crs"] == "urn:ogc:def:crs:EPSG::28992"
-    assert core["surface_level"] == 37.74
-    assert core["vertical_datum"] == "NAP"
-    assert core["groundwater_level"] == 1.1
-    assert core["final_depth"] == 2.2
-    assert core["data"] == {
+    assert isinstance(data, dict)
+    assert data["nr"] == "_87078_HB001"
+    assert data["location"] == (182243.9, 335073.8)
+    assert data["crs"] == "urn:ogc:def:crs:EPSG::28992"
+    assert data["surface_level"] == 37.74
+    assert data["vertical_datum"] == "NAP"
+    assert data["groundwater_level"] == 1.1
+    assert data["final_depth"] == 2.2
+    assert data["data"] == {
         "upperBoundary": ["0.00", "0.10", "0.40", "0.70", "1.70"],
         "lowerBoundary": ["0.10", "0.40", "0.70", "1.70", "2.20"],
         "geotechnicalSoilName": [

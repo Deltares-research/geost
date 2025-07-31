@@ -6,6 +6,7 @@ See: https://github.com/cemsbv/pygef/tree/master/src/pygef/broxml for the origin
 
 """
 
+import warnings
 from pathlib import Path
 from typing import Any
 
@@ -19,8 +20,11 @@ _BaseParser = etree.XMLParser(
 
 
 def _read_xml(
-    root: etree.Element, schema: dict[str, Any], payload_root: str = None
-) -> list[dict]:
+    root: etree.Element,
+    schema: dict[str, Any],
+    payload_root: str = None,
+    read_all: bool = False,
+) -> dict | list[dict]:
     if payload_root is not None:
         xmldata = root.find(payload_root, root.nsmap)
 
@@ -53,14 +57,25 @@ def _read_xml(
             else:
                 data[key] = None
 
-        output.append(data)
+        if read_all:
+            output.append(data)
+        else:
+            if len(payloads) > 1:
+                warnings.warn(
+                    "Multiple payloads found in XML but 'read_all' is set to False. "
+                    "Set 'read_all' to True to read all payloads."
+                )
+            return data
 
     return output
 
 
 def read_bhrgt(
-    file: bytes | str | Path, company: str = None, schema: dict[str, Any] = None
-) -> list[dict]:
+    file: bytes | str | Path,
+    company: str = None,
+    schema: dict[str, Any] = None,
+    read_all: bool = False,
+) -> dict | list[dict]:
     """
     Read Geotechnical borehole data (BHR-GT) from an XML file or bytestring and extract
     relevant data based on a predefined or custom schema that describes the XML structure.
@@ -76,12 +91,20 @@ def read_bhrgt(
         is defined.
     schema : dict[str, Any], optional
         Custom schema used to parse the XML structure.
+    read_all : bool, optional
+        Generally, each XML file contains data for a single borehole but in some cases
+        multiple boreholes can be present in the XML file. If set to True, all boreholes
+        will be read from the XML file. The default is False, which reads only the first.
+        A warning will be raised if multiple boreholes are found in the XML file and
+        read_all is False.
 
     Returns
     -------
-    list[dict]
-        List of dictionaries containing the extracted data from the XML file. If the XML
-        file contains data for a single
+    dict | list[dict]
+        Dict or list of dictionaries containing the extracted data from the XML file. If
+        the XML file contains data for a single borehole, a dictionary will be returned.
+        If multiple boreholes are found and `read_all` is True, a list of dictionaries
+        will be returned.
 
     Raises
     ------
@@ -134,7 +157,7 @@ def read_bhrgt(
         root = etree.parse(file, parser=_BaseParser).getroot()
 
     try:
-        result = _read_xml(root, schema, schema.get("payload_root", None))
+        result = _read_xml(root, schema, schema.get("payload_root", None), read_all)
     except SyntaxError as e:
         raise SyntaxError(
             f"Invalid xml schema for XML file: {file}. Cannot use predefined schema "
@@ -142,3 +165,15 @@ def read_bhrgt(
         ) from e
 
     return result
+
+
+def read_bhrp(file: bytes | str | Path, schema: dict[str, Any] = None) -> list[dict]:
+    pass
+
+
+def read_cpt(file: bytes | str | Path, schema: dict[str, Any] = None) -> list[dict]:
+    pass
+
+
+def read_bhrg(file: bytes | str | Path, schema: dict[str, Any] = None) -> list[dict]:
+    pass
