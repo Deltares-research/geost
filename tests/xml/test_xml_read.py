@@ -3,6 +3,7 @@ from typing import Any, Callable
 
 import pandas as pd
 import pytest
+from numpy.testing import assert_array_equal
 
 from geost.io import xml
 
@@ -34,6 +35,8 @@ def test_read(testdatadir: Path, file: str, reader: Callable, expected: Any):
         header, data = xml.read(bro_xml, reader)
         assert isinstance(header, expected)
         assert isinstance(data, expected)
+        expected_columns_present = ["nr", "x", "y", "surface", "end", "top", "bottom"]
+        assert all(c in data.columns for c in expected_columns_present)
 
 
 class TestBhrgt:

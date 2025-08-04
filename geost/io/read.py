@@ -395,9 +395,7 @@ def read_bhrgt(
     read_all: bool = False,
 ) -> BoreholeCollection:  # pragma: no cover
     """
-    NOTIMPLEMENTED
-    Read xml files of BRO geotechnical boreholes (IMBRO or IMBRO/A quality).
-    Decribed in NEN14688 standards
+    Read Geotechnical borehole data (BHR-GT) from one or more XML files and extract
 
     """
     header, data = xml.read(
@@ -465,41 +463,6 @@ def read_xml_cpts(file_or_folder: str | Path) -> CptCollection:  # pragma: no co
 
     """
     pass
-
-
-def bro_api_read(  # pragma: no cover
-    object_type: BroObject,
-    *,
-    bro_ids: str | list[str] = None,
-    bbox: tuple[float, float, float, float] = None,
-    geometry: gpd.GeoDataFrame = None,
-    buffer: int | float = None,
-    horizontal_reference: str | int | CRS = 28992,
-    vertical_reference: str | int | CRS = 5709,
-):
-    api = BroApi()
-
-    if bro_ids is not None:
-        bro_data = api.get_objects(bro_ids, object_type=object_type)
-    else:
-        if bbox is not None:
-            xmin, ymin, xmax, ymax = bbox
-        elif geometry is not None:
-            geometry = utils.check_geometry_instance(geometry)
-            if buffer is not None:
-                geometry = geometry.buffer(buffer)
-            xmin, ymin, xmax, ymax = geometry.total_bounds
-        api.search_objects_in_bbox(xmin, ymin, xmax, ymax, object_type)
-        bro_data = api.get_objects(api.object_list, object_type=object_type)
-
-    reader = xml.READERS[object_type]
-
-    header = []
-    data = []
-    for bro in bro_data:
-        bro = reader(bro)
-
-    return data
 
 
 def get_bro_objects_from_bbox(
@@ -815,3 +778,39 @@ def read_pickle(filepath: str | Path, **kwargs) -> Any:
     """
     pkl = pd.read_pickle(filepath, **kwargs)
     return pkl
+
+
+def bro_api_read(  # pragma: no cover
+    object_type: BroObject,
+    *,
+    bro_ids: str | list[str] = None,
+    bbox: tuple[float, float, float, float] = None,
+    geometry: gpd.GeoDataFrame = None,
+    buffer: int | float = None,
+    schema: dict[str, Any] = None,
+):
+    api = BroApi()
+
+    if bro_ids is not None:
+        bro_data = api.get_objects(bro_ids, object_type=object_type)
+    else:
+        if bbox is not None:
+            xmin, ymin, xmax, ymax = bbox
+        elif geometry is not None:
+            geometry = utils.check_geometry_instance(geometry)
+            if buffer is not None:
+                geometry = geometry.buffer(buffer)
+            xmin, ymin, xmax, ymax = geometry.total_bounds
+        api.search_objects_in_bbox(xmin, ymin, xmax, ymax, object_type)
+        bro_data = api.get_objects(api.object_list, object_type=object_type)
+
+    readers = {
+        "BHR-GT": read_bhrgt,
+        "BHR-P": read_bhrp,
+        "BHR-G": read_bhrg,
+        "CPT": read_gef_cpts,
+    }
+    reader = readers[object_type]
+    collection = reader(bro_data, schema=schema)
+
+    return collection

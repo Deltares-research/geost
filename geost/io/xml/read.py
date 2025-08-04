@@ -65,16 +65,25 @@ def read(
     attributes_for_data = ["nr", "x", "y", "surface", "end"]
     header_data = header.loc[header.index.repeat(lengths), attributes_for_data]
     data = pd.concat([header_data.reset_index(drop=True), data], axis=1)
+    data.rename(
+        columns={"upperBoundary": "top", "lowerBoundary": "bottom"}, inplace=True
+    )
 
     return header, data
 
 
 def _read_xml(
-    root: etree.Element,
+    file: bytes | str | Path,
     schema: dict[str, Any],
     payload_root: str = None,
     read_all: bool = False,
 ) -> dict | list[dict]:
+
+    if isinstance(file, bytes):
+        root = etree.fromstring(file, parser=_BaseParser)
+    else:
+        root = etree.parse(file, parser=_BaseParser).getroot()
+
     if payload_root is not None:
         xmldata = root.find(payload_root, root.nsmap)
 
@@ -201,13 +210,8 @@ def read_bhrgt(
                 f"{bhrgt.SCHEMA.keys()}. Define a custom schema or use a supported company."
             ) from e
 
-    if isinstance(file, bytes):
-        root = etree.fromstring(file, parser=_BaseParser)
-    else:
-        root = etree.parse(file, parser=_BaseParser).getroot()
-
     try:
-        result = _read_xml(root, schema, schema.get("payload_root", None), read_all)
+        result = _read_xml(file, schema, schema.get("payload_root", None), read_all)
     except SyntaxError as e:
         raise SyntaxError(
             f"Invalid xml schema for XML file: {file}. Cannot use predefined schema "
