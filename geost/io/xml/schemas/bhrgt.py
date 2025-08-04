@@ -12,7 +12,7 @@ BRO = {
         "xpath": "deliveredLocation/bhrgtcom:location/gml:Point",
         "resolver": resolvers.parse_crs,
     },
-    "surface_level": {
+    "surface": {
         "xpath": "deliveredVerticalPosition/bhrgtcom:offset",
         "resolver": resolvers.safe_float,
         "el-attr": "text",
@@ -26,7 +26,7 @@ BRO = {
         "resolver": resolvers.safe_float,
         "el-attr": "text",
     },
-    "final_depth": {
+    "end": {
         "xpath": "boring/bhrgtcom:finalDepthBoring",
         "resolver": resolvers.safe_float,
         "el-attr": "text",
