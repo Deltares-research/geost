@@ -1,6 +1,7 @@
 from pathlib import Path
-from typing import Any
+from typing import Any, Callable
 
+import pandas as pd
 import pytest
 
 from geost.io import xml
@@ -11,6 +12,28 @@ def xml_string(testdatadir: Path):
     with open(testdatadir / r"xml/bhrgt_bro.xml", "rb") as file:
         string = file.read()
     return string
+
+
+@pytest.mark.parametrize(
+    "file, reader, expected",
+    [
+        ("bhrgt_bro.xml", xml.read_bhrgt, pd.DataFrame),
+        ("bhrg_bro.xml", xml.read_bhrg, pytest.raises(NotImplementedError)),
+        ("bhrp_bro.xml", xml.read_bhrp, pytest.raises(NotImplementedError)),
+        ("cpt_bro.xml", xml.read_cpt, pytest.raises(NotImplementedError)),
+        ("sfr_bro.xml", xml.read_sfr, pytest.raises(NotImplementedError)),
+    ],
+)
+def test_read(testdatadir: Path, file: str, reader: Callable, expected: Any):
+    bro_xml = testdatadir / r"xml" / file
+
+    if isinstance(expected, type(pytest.raises(Exception))):
+        with expected:
+            xml.read(bro_xml, reader)
+    else:
+        header, data = xml.read(bro_xml, reader)
+        assert isinstance(header, expected)
+        assert isinstance(data, expected)
 
 
 class TestBhrgt:

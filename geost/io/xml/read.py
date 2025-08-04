@@ -42,6 +42,9 @@ def read(
         Tuple containing the header DataFrame and the data DataFrame.
 
     """
+    if not isinstance(files, Iterable):
+        files = [files]
+
     header = []
     data = []
     lengths = []
@@ -58,6 +61,7 @@ def read(
     header = pd.DataFrame(header)
     data = pd.concat(data, ignore_index=True)
 
+    # Add relevant header attributes to the data DataFrame
     attributes_for_data = ["nr", "x", "y", "surface", "end"]
     header_data = header.loc[header.index.repeat(lengths), attributes_for_data]
     data = pd.concat([header_data.reset_index(drop=True), data], axis=1)
@@ -231,9 +235,16 @@ def read_bhrg(
     raise NotImplementedError("BHR-G XML reading is not implemented yet.")
 
 
+def read_sfr(
+    file: bytes | str | Path, schema: dict[str, Any] = None
+) -> list[dict]:  # pragma: no cover
+    raise NotImplementedError("SFR XML reading is not implemented yet.")
+
+
 READERS = {
     "BHR-GT": read_bhrgt,
     "BHR-P": read_bhrp,
     "CPT": read_cpt,
     "BHR-G": read_bhrg,
+    "SFR": read_sfr,
 }

@@ -400,9 +400,6 @@ def read_bhrgt(
     Decribed in NEN14688 standards
 
     """
-    if not isinstance(files, Iterable):
-        files = [files]
-
     header, data = xml.read(
         files, xml.read_bhrgt, company=company, schema=schema, read_all=read_all
     )
