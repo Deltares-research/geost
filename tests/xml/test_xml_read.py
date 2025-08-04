@@ -3,7 +3,6 @@ from typing import Any, Callable
 
 import pandas as pd
 import pytest
-from numpy.testing import assert_array_equal
 
 from geost.io import xml
 
@@ -16,27 +15,30 @@ def xml_string(testdatadir: Path):
 
 
 @pytest.mark.parametrize(
-    "file, reader, expected",
+    "file, reader, expected_error",
     [
-        ("bhrgt_bro.xml", xml.read_bhrgt, pd.DataFrame),
+        ("bhrgt_bro.xml", xml.read_bhrgt, None),
         ("bhrg_bro.xml", xml.read_bhrg, pytest.raises(NotImplementedError)),
-        ("bhrp_bro.xml", xml.read_bhrp, pytest.raises(NotImplementedError)),
+        ("bhrp_bro.xml", xml.read_bhrp, None),
         ("cpt_bro.xml", xml.read_cpt, pytest.raises(NotImplementedError)),
         ("sfr_bro.xml", xml.read_sfr, pytest.raises(NotImplementedError)),
     ],
 )
-def test_read(testdatadir: Path, file: str, reader: Callable, expected: Any):
+def test_read(
+    testdatadir: Path, file: str, reader: Callable, expected_error: Exception
+):
     bro_xml = testdatadir / r"xml" / file
 
-    if isinstance(expected, type(pytest.raises(Exception))):
-        with expected:
+    if isinstance(expected_error, type(pytest.raises(Exception))):
+        with expected_error:
             xml.read(bro_xml, reader)
     else:
         header, data = xml.read(bro_xml, reader)
-        assert isinstance(header, expected)
-        assert isinstance(data, expected)
+        assert isinstance(header, pd.DataFrame)
+        assert isinstance(data, pd.DataFrame)
         expected_columns_present = ["nr", "x", "y", "surface", "end", "top", "bottom"]
         assert all(c in data.columns for c in expected_columns_present)
+        assert data["top"].dtype == data["bottom"].dtype == float
 
 
 class TestBhrgt:
@@ -189,4 +191,46 @@ class TestCpt:
 
 
 class TestBhrp:
-    pass
+    @pytest.mark.unittest
+    def test_read_bhrp(self, testdatadir: Path):
+        from geost.io.xml.schemas import bhrgt
+
+        data = xml.read_bhrp(testdatadir / r"xml/bhrp_bro.xml")
+        assert isinstance(data, dict)
+
+        with pytest.raises(
+            ValueError, match="No predefined schema for 'UnknownCompany'"
+        ):
+            xml.read_bhrp(testdatadir / r"xml/bhrp_bro.xml", company="UnknownCompany")
+
+        invalid_schema = bhrgt.SCHEMA.get("Wiertsema", None)
+        with pytest.raises(SyntaxError, match="Invalid xml schema"):
+            xml.read_bhrp(testdatadir / r"xml/bhrp_bro.xml", schema=invalid_schema)
+
+    @pytest.mark.unittest
+    def test_read_bhrp_bro(self, testdatadir: Path):
+        data = xml.read_bhrp(testdatadir / r"xml/bhrp_bro.xml")
+
+        assert isinstance(data, dict)
+        assert data["nr"] == "BHR000000108193"
+        assert data["location"] == (129491.0, 452255.0)
+        assert data["crs"] == "urn:ogc:def:crs:EPSG::28992"
+        assert data["surface"] == 0.21
+        assert data["vertical_datum"] == "NAP"
+        assert data["begin_depth"] == 0.0
+        assert data["end"] == 1.5
+        assert data["ghg"] == 0.55
+        assert data["glg"] == 1.6
+        assert data["landuse"] == "graslandBlijvend"
+        assert data["data"] == {
+            "upperBoundary": ["0.000", "0.600", "0.900", "1.200", "1.300", "1.400"],
+            "lowerBoundary": ["0.600", "0.900", "1.200", "1.300", "1.400", "1.500"],
+            "standardSoilName": [
+                "sterkSiltigeKlei",
+                "sterkSiltigeKlei",
+                "sterkSiltigeKlei",
+                "uiterstSiltigeKlei",
+                "zwakSiltigZand",
+                "zwakSiltigZand",
+            ],
+        }

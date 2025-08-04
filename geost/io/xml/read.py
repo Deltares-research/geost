@@ -13,7 +13,7 @@ from typing import Any, Callable, Iterable
 import pandas as pd
 from lxml import etree
 
-from .schemas import bhrgt
+from .schemas import bhrgt, bhrp
 
 _BaseParser = etree.XMLParser(
     resolve_entities=False, dtd_validation=False
@@ -42,7 +42,7 @@ def read(
         Tuple containing the header DataFrame and the data DataFrame.
 
     """
-    if not isinstance(files, Iterable):
+    if isinstance(files, (str, Path)):
         files = [files]
 
     header = []
@@ -68,7 +68,7 @@ def read(
     data.rename(
         columns={"upperBoundary": "top", "lowerBoundary": "bottom"}, inplace=True
     )
-
+    data[["top", "bottom"]] = data[["top", "bottom"]].astype(float)
     return header, data
 
 
@@ -206,49 +206,103 @@ def read_bhrgt(
             schema = bhrgt.SCHEMA[company]
         except KeyError as e:
             raise ValueError(
-                f"No predefined schema for '{company}'. Supported companies are: "
+                f"No predefined schema for '{company}' in BHR-GT. Supported companies are: "
                 f"{bhrgt.SCHEMA.keys()}. Define a custom schema or use a supported company."
             ) from e
 
     try:
         result = _read_xml(file, schema, schema.get("payload_root", None), read_all)
     except SyntaxError as e:
-        raise SyntaxError(
-            f"Invalid xml schema for XML file: {file}. Cannot use predefined schema "
-            f"for company '{company}'. Specify correct company or use a custom schema."
-        ) from e
+        raise SyntaxError(f"Invalid xml schema for XML file: {file}.") from e
 
     return result
 
 
 def read_bhrp(
-    file: bytes | str | Path, schema: dict[str, Any] = None
-) -> list[dict]:  # pragma: no cover
-    raise NotImplementedError("BHR-P XML reading is not implemented yet.")
+    file: bytes | str | Path,
+    company: str = None,
+    schema: dict[str, Any] = None,
+    read_all: bool = False,
+) -> dict | list[dict]:  # pragma: no cover
+    """
+    Read borehole data (BHR-P) from an XML file or bytestring and extract relevant data
+    based on a predefined or custom schema that describes the XML structure.
+
+    Parameters
+    ----------
+    file : bytes | str | Path
+        XML filepath-like or bytestring containing the XML data to read.
+    company : str, optional
+        Specify a company name to use a predefined schema for that company if available.
+        See `bhrp.SCHEMA` for available companies. The default is None, then company will
+        default to "BRO" and the predefined BRO schema will be used if no custom schema
+        is defined.
+    schema : dict[str, Any], optional
+        Custom schema used to parse the XML structure.
+    read_all : bool, optional
+        Generally, each XML file contains data for a single borehole but in some cases
+        multiple boreholes can be present in the XML file. If set to True, all boreholes
+        will be read from the XML file. The default is False, which reads only the first.
+        A warning will be raised if multiple boreholes are found in the XML file and
+        read_all is False.
+
+    Returns
+    -------
+    dict | list[dict]
+        Dict or list of dictionaries containing the extracted data from the XML file. If
+        the XML file contains data for a single borehole, a dictionary will be returned.
+        If multiple boreholes are found and `read_all` is True, a list of dictionaries
+        will be returned.
+
+    Raises
+    ------
+    ValueError
+        If no predefined schema is found for the specified company.
+    SyntaxError
+        If the XML file does not conform to the expected schema.
+
+    """
+    company = company or "BRO"
+
+    if schema is None:
+        try:
+            schema = bhrp.SCHEMA[company]
+        except KeyError as e:
+            raise ValueError(
+                f"No predefined schema for '{company}' in BHR-GT. Supported companies are: "
+                f"{bhrgt.SCHEMA.keys()}. Define a custom schema or use a supported company."
+            ) from e
+
+    try:
+        result = _read_xml(file, schema, schema.get("payload_root", None), read_all)
+    except SyntaxError as e:
+        raise SyntaxError(f"Invalid xml schema for XML file: {file}.") from e
+
+    return result
 
 
 def read_cpt(
-    file: bytes | str | Path, schema: dict[str, Any] = None
-) -> list[dict]:  # pragma: no cover
+    file: bytes | str | Path,
+    company: str = None,
+    schema: dict[str, Any] = None,
+    read_all: bool = False,
+) -> dict | list[dict]:  # pragma: no cover
     raise NotImplementedError("CPT XML reading is not implemented yet.")
 
 
 def read_bhrg(
-    file: bytes | str | Path, schema: dict[str, Any] = None
-) -> list[dict]:  # pragma: no cover
+    file: bytes | str | Path,
+    company: str = None,
+    schema: dict[str, Any] = None,
+    read_all: bool = False,
+) -> dict | list[dict]:  # pragma: no cover
     raise NotImplementedError("BHR-G XML reading is not implemented yet.")
 
 
 def read_sfr(
-    file: bytes | str | Path, schema: dict[str, Any] = None
-) -> list[dict]:  # pragma: no cover
+    file: bytes | str | Path,
+    company: str = None,
+    schema: dict[str, Any] = None,
+    read_all: bool = False,
+) -> dict | list[dict]:  # pragma: no cover
     raise NotImplementedError("SFR XML reading is not implemented yet.")
-
-
-READERS = {
-    "BHR-GT": read_bhrgt,
-    "BHR-P": read_bhrp,
-    "CPT": read_cpt,
-    "BHR-G": read_bhrg,
-    "SFR": read_sfr,
-}

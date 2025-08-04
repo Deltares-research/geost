@@ -112,3 +112,52 @@ def test_process_bhrgt_data(bhrgt_no_namespace):
 def test_safe_get(element):
     result = resolvers.safe_get(element)
     assert result is None
+
+
+@pytest.mark.unittest
+def test_process_bhrp_data(testdatadir: Path):
+    xml = etree.parse(testdatadir / r"xml/bhrp_bro.xml").getroot()
+    layer_element = xml.find(
+        "dispatchDocument/BHR_O/boreholeSampleDescription/bhrcommon:result",
+        xml.nsmap,
+    )
+    result = resolvers.process_bhrp_data(layer_element, None)
+    assert result == {
+        "upperBoundary": ["0.000", "0.600", "0.900", "1.200", "1.300", "1.400"],
+        "lowerBoundary": ["0.600", "0.900", "1.200", "1.300", "1.400", "1.500"],
+        "standardSoilName": [
+            "sterkSiltigeKlei",
+            "sterkSiltigeKlei",
+            "sterkSiltigeKlei",
+            "uiterstSiltigeKlei",
+            "zwakSiltigZand",
+            "zwakSiltigZand",
+        ],
+    }
+
+    result = resolvers.process_bhrp_data(
+        layer_element,
+        [
+            "upperBoundary",
+            "lowerBoundary",
+            "standardSoilName",
+            "containsGravel",
+            "clayContent",
+            "nonexistingAttribute",  # Make sure non-existing attributes does not raise error
+        ],
+    )
+    assert result == {
+        "upperBoundary": ["0.000", "0.600", "0.900", "1.200", "1.300", "1.400"],
+        "lowerBoundary": ["0.600", "0.900", "1.200", "1.300", "1.400", "1.500"],
+        "standardSoilName": [
+            "sterkSiltigeKlei",
+            "sterkSiltigeKlei",
+            "sterkSiltigeKlei",
+            "uiterstSiltigeKlei",
+            "zwakSiltigZand",
+            "zwakSiltigZand",
+        ],
+        "containsGravel": ["nee", "nee", "nee", "nee", "nee", "nee"],
+        "clayContent": ["30.0", "30.0", "32.0", "20.0", "4.0", "4.0"],
+        "nonexistingAttribute": [None, None, None, None, None, None],
+    }

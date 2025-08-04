@@ -414,14 +414,27 @@ def read_bhrgt(
 
 
 def read_bhrp(
-    file_or_folder: str | Path,
+    files: str | Path | Iterable[str | Path],
+    company: str | None = None,
+    schema: dict[str, Any] = None,
+    read_all: bool = False,
 ) -> BoreholeCollection:  # pragma: no cover
     """
-    NOTIMPLEMENTED
-    Read xml files of BRO soil boreholes (IMBRO or IMBRO/A quality).
+    Read xml files of BHR-P boreholes.
 
     """
-    raise NotImplementedError("BHR-P XML reading is not implemented yet.")
+    header, data = xml.read(
+        files, xml.read_bhrp, company=company, schema=schema, read_all=read_all
+    )
+    header = PointHeader(
+        gpd.GeoDataFrame(
+            header, geometry=gpd.points_from_xy(header.x, header.y), crs=28992
+        ),
+        vertical_reference=5709,
+    )
+    data = LayeredData(data)
+
+    return BoreholeCollection(header, data)
 
 
 def read_bhrg(
@@ -801,7 +814,7 @@ def bro_api_read(  # pragma: no cover
             if buffer is not None:
                 geometry = geometry.buffer(buffer)
             xmin, ymin, xmax, ymax = geometry.total_bounds
-        api.search_objects_in_bbox(xmin, ymin, xmax, ymax, object_type)
+        api.search_objects_in_bbox(xmin, ymin, xmax, ymax, object_type=object_type)
         bro_data = api.get_objects(api.object_list, object_type=object_type)
 
     readers = {
