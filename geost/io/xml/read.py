@@ -8,8 +8,9 @@ See: https://github.com/cemsbv/pygef/tree/master/src/pygef/broxml for the origin
 
 import warnings
 from pathlib import Path
-from typing import Any
+from typing import Any, Callable, Iterable
 
+import pandas as pd
 from lxml import etree
 
 from .schemas import bhrgt
@@ -17,6 +18,51 @@ from .schemas import bhrgt
 _BaseParser = etree.XMLParser(
     resolve_entities=False, dtd_validation=False
 )  # Speeds up parsing by not resolving entities or validating DTDs.
+
+
+def read(
+    files: str | Path | Iterable[str | Path], reader: Callable, **kwargs: dict[str, Any]
+) -> tuple[pd.DataFrame, pd.DataFrame]:
+    """
+    Read one or multiple XML files or string objects and create `geost` compatible separate
+    `header` and `data` DataFrames.
+
+    Parameters
+    ----------
+    files : str | Path | Iterable[str | Path]
+        List of XML files to process.
+    reader : Callable
+        Function to read the XML data. See `geost.io.xml.READERS` for available XML readers.
+    **kwargs : dict[str, Any]
+        Additional keyword arguments to pass to the reader function.
+
+    Returns
+    -------
+    tuple of pandas.DataFrame
+        Tuple containing the header DataFrame and the data DataFrame.
+
+    """
+    header = []
+    data = []
+    lengths = []
+
+    for file in files:
+        xml_data = reader(file, **kwargs)
+        xml_data["x"], xml_data["y"] = xml_data.pop("location")
+        df = pd.DataFrame(xml_data.pop("data"))
+
+        header.append(xml_data)
+        data.append(df)
+        lengths.append(len(df))
+
+    header = pd.DataFrame(header)
+    data = pd.concat(data, ignore_index=True)
+
+    attributes_for_data = ["nr", "x", "y", "surface", "end"]
+    header_data = header.loc[header.index.repeat(lengths), attributes_for_data]
+    data = pd.concat([header_data.reset_index(drop=True), data], axis=1)
+
+    return header, data
 
 
 def _read_xml(
@@ -183,3 +229,11 @@ def read_bhrg(
     file: bytes | str | Path, schema: dict[str, Any] = None
 ) -> list[dict]:  # pragma: no cover
     raise NotImplementedError("BHR-G XML reading is not implemented yet.")
+
+
+READERS = {
+    "BHR-GT": read_bhrgt,
+    "BHR-P": read_bhrp,
+    "CPT": read_cpt,
+    "BHR-G": read_bhrg,
+}

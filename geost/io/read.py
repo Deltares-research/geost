@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import Any, Literal, Iterable
+from typing import Any, Iterable, Literal
 
 import geopandas as gpd
 import pandas as pd
@@ -46,12 +46,6 @@ LLG_COLUMN_MAPPING = {
     "BoringEinddiepteNAP": "end",
     "BEGIN_DIEPTE": "top",
     "EIND_DIEPTE": "bottom",
-}
-BRO_READER_FUNC = {
-    "BHR-GT": xml.read_bhrgt,
-    "BHR-P": xml.read_bhrp,
-    "BHR-G": xml.read_bhrg,
-    "CPT": xml.read_cpt,
 }
 
 
@@ -395,7 +389,10 @@ def read_xml_boris(
 
 
 def read_bhrgt(
-    files: str | Path | Iterable[str | Path], company: str | None = None
+    files: str | Path | Iterable[str | Path],
+    company: str | None = None,
+    schema: dict[str, Any] = None,
+    read_all: bool = False,
 ) -> BoreholeCollection:  # pragma: no cover
     """
     NOTIMPLEMENTED
@@ -403,30 +400,20 @@ def read_bhrgt(
     Decribed in NEN14688 standards
 
     """
-    header = []
-    data = []
-    for file in files:
-        xml_data = xml.read_bhrgt(file, company)
+    if not isinstance(files, Iterable):
+        files = [files]
 
-        xml_data["x"], xml_data["y"] = xml_data.pop("location")
+    header, data = xml.read(
+        files, xml.read_bhrgt, company=company, schema=schema, read_all=read_all
+    )
 
-        df = pd.DataFrame(xml_data.pop("data"))
-
-        insert_attributes = ["nr", "x", "y", "surface", "end"]
-        for ii, attr in enumerate(insert_attributes):
-            df.insert(ii, attr, xml_data[attr])
-
-        header.append(xml_data)
-        data.append(df)
-
-    header = pd.DataFrame(header)
     header = PointHeader(
         gpd.GeoDataFrame(
             header, geometry=gpd.points_from_xy(header.x, header.y), crs=28992
         ),
         vertical_reference=5709,
     )
-    data = LayeredData(pd.concat(data, ignore_index=True))
+    data = LayeredData(data)
 
     return BoreholeCollection(header, data)
 
@@ -439,7 +426,7 @@ def read_bhrp(
     Read xml files of BRO soil boreholes (IMBRO or IMBRO/A quality).
 
     """
-    pass
+    raise NotImplementedError("BHR-P XML reading is not implemented yet.")
 
 
 def read_bhrg(
@@ -450,7 +437,7 @@ def read_bhrg(
     Read xml files of DINO geological boreholes.
 
     """
-    pass
+    raise NotImplementedError("BHR-G XML reading is not implemented yet.")
 
 
 def read_gef_cpts(file_or_folder: str | Path) -> CptCollection:
@@ -508,10 +495,12 @@ def bro_api_read(  # pragma: no cover
         api.search_objects_in_bbox(xmin, ymin, xmax, ymax, object_type)
         bro_data = api.get_objects(api.object_list, object_type=object_type)
 
-    parser = BRO_READER_FUNC[object_type]
+    reader = xml.READERS[object_type]
+
+    header = []
     data = []
     for bro in bro_data:
-        data.append(parser(bro))
+        bro = reader(bro)
 
     return data
 
