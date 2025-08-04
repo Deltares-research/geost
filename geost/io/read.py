@@ -478,153 +478,6 @@ def read_xml_cpts(file_or_folder: str | Path) -> CptCollection:  # pragma: no co
     pass
 
 
-def get_bro_objects_from_bbox(
-    object_type: BroObject,
-    xmin: int | float,
-    xmax: int | float,
-    ymin: int | float,
-    ymax: int | float,
-    horizontal_reference: str | int | CRS = 28992,
-    vertical_reference: str | int | CRS = 5709,
-) -> BoreholeCollection:
-    """
-    Directly download objects from the BRO to a geost collection object based on the
-    given bounding box
-
-    Parameters
-    ----------
-    object_type : str
-        BRO object type to retrieve: BHR-GT, BHR-P, BHR-G or BHR-CPT
-    xmin : int | float
-        minimal x-coordinate of the bounding box
-    xmax : int | float
-        maximal x-coordinate of the bounding box
-    ymin : int | float
-        minimal y-coordinate of the bounding box
-    ymax : int | float
-        maximal y-coordinate of the bounding box
-    horizontal_reference : str | int | CRS, optional
-        EPSG of the data's horizontal reference. Takes anything that can be interpreted
-        by pyproj.crs.CRS.from_user_input(). The default is 28992.
-    vertical_reference : str | int | CRS, optional
-        EPSG of the data's vertical datum. Takes anything that can be interpreted by
-        pyproj.crs.CRS.from_user_input(). However, it must be a vertical datum. FYI:
-        "NAP" is EPSG 5709 and The Belgian reference system (Ostend height) is ESPG
-        5710. The default is 5709.
-
-    Returns
-    -------
-    BoreholeCollection
-        Instance of either :class:`~geost.borehole.BoreholeCollection` or
-        :class:`~geost.borehole.CptCollection` containing only objects selected by
-        this method.
-    """
-    api = BroApi()
-    api.search_objects_in_bbox(
-        xmin=xmin,
-        xmax=xmax,
-        ymin=ymin,
-        ymax=ymax,
-        object_type=object_type,
-    )
-    bro_objects = api.get_objects(api.object_list, object_type=object_type)
-    bro_parsed_objects = []
-    # TODO: The below has to be adjusted for different BRO objects
-    for bro_object in bro_objects:
-        try:
-            object = SoilCore(bro_object)
-        except (TypeError, AttributeError) as err:
-            print("Cant read a soil core")
-            print(err)
-        bro_parsed_objects.append(object.df)
-
-    dataframe = pd.concat(bro_parsed_objects).reset_index()
-
-    collection = LayeredData(dataframe, has_inclined=False).to_collection(
-        horizontal_reference=28992, vertical_reference=5709
-    )
-    collection.change_horizontal_reference(horizontal_reference)
-    collection.change_vertical_reference(vertical_reference)
-
-    return collection
-
-
-def get_bro_objects_from_geometry(
-    object_type: BroObject,
-    geometry_file: Path | str,
-    buffer: int | float = 0,
-    horizontal_reference: str | int | CRS = 28992,
-    vertical_reference: str | int | CRS = 5709,
-) -> BoreholeCollection:
-    """
-    Directly download objects from the BRO to a geost collection object based on given
-    geometries such as points, lines or polygons.
-
-    Parameters
-    ----------
-    object_type : str
-        BRO object type to retrieve: BHR-GT, BHR-P, BHR-G or BHR-CPT
-    geometry_file : Path | str
-        Path to geometry file. i.e a point/line/polygon shapefile/geopackage/geoparquet
-    buffer : int | float, optional
-        Buffer distance. Required to be larger than 0 for line and point geometries.
-        Adds an extra buffer zone around a polygon to select from, by default 0
-    horizontal_reference : str | int | CRS, optional
-        EPSG of the data's horizontal reference. Takes anything that can be interpreted
-        by pyproj.crs.CRS.from_user_input(). The default is 28992.
-    vertical_reference : str | int | CRS, optional
-        EPSG of the data's vertical datum. Takes anything that can be interpreted by
-        pyproj.crs.CRS.from_user_input(). However, it must be a vertical datum. FYI:
-        "NAP" is EPSG 5709 and The Belgian reference system (Ostend height) is ESPG
-        5710. The default is 5709.
-
-    Returns
-    -------
-    BoreholeCollection
-        Instance of either :class:`~geost.borehole.BoreholeCollection` or
-        :class:`~geost.borehole.CptCollection` containing only objects selected by
-        this method.
-    """
-    file = Path(geometry_file)
-    if file.suffix == ".parquet":
-        geometry = gpd.read_parquet(geometry_file)
-    else:
-        geometry = gpd.read_file(geometry_file)
-    api = BroApi()
-    xmin, ymin, xmax, ymax = geometry.total_bounds
-    api.search_objects_in_bbox(
-        xmin=xmin,
-        xmax=xmax,
-        ymin=ymin,
-        ymax=ymax,
-        object_type=object_type,
-    )
-    bro_objects = api.get_objects(api.object_list, object_type=object_type)
-    bro_parsed_objects = []
-    # TODO: The below has to be adjusted for different BRO objects
-    for i, bro_object in enumerate(bro_objects):
-        try:
-            object = SoilCore(bro_object)
-            print(i)
-        except (TypeError, AttributeError) as err:
-            print("Cant read a soil core")
-            print(err)
-        bro_parsed_objects.append(object.df)
-
-    dataframe = pd.concat(bro_parsed_objects).reset_index()
-
-    collection = LayeredData(dataframe, has_inclined=False).to_collection(
-        horizontal_reference=28992, vertical_reference=5709
-    )
-    collection = getattr(collection, GEOMETRY_TO_SELECTION_FUNCTION[geometry.type[0]])(
-        geometry, buffer
-    )
-    collection.change_horizontal_reference(horizontal_reference)
-    collection.change_vertical_reference(vertical_reference)
-
-    return collection
-
-
 def read_uullg_tables(
     header_table: str | Path,
     data_table: str | Path,
@@ -793,7 +646,7 @@ def read_pickle(filepath: str | Path, **kwargs) -> Any:
     return pkl
 
 
-def bro_api_read(  # pragma: no cover
+def bro_api_read(
     object_type: BroObject,
     *,
     bro_ids: str | list[str] = None,
@@ -802,6 +655,38 @@ def bro_api_read(  # pragma: no cover
     buffer: int | float = None,
     schema: dict[str, Any] = None,
 ):
+    """
+    Read data directly from the BRO API. This allows to read BHR-GT, BHR-P, BHR-G and
+    CPT data from the BRO API into `geost` objects without having to download the data
+    first. Note, API requests are relatively slow, so this function is not meant for bulk
+    downloads. Also, the API is limited to 2000 objects per request, so if you request
+    more than 2000 objects, the API will return an error.
+
+    Parameters
+    ----------
+    bro_ids : str | list[str], optional
+        List of BRO object ids to read. If not given, the bbox or geometry must be
+        provided to select the objects to read. If given, bbox and geometry are ignored.
+    bbox : tuple[float, float, float, float], optional
+        The bounding box to search within. The default is None.
+    geometry : gpd.GeoDataFrame, optional
+        The geometry to search within. The default is None.
+    buffer : int | float, optional
+        The buffer distance to apply to the geometry. The default is None.
+    schema : dict[str, Any], optional
+        XML schema to use for reading the data which describes the structure of the XML
+        data. If not given, the function will use the default schema for the specified
+        object_type provided by Geost (see `geost.io.xml.schemas`). Note that predefined
+        schemas only retrieve the attributes that are defined in the schema but more data
+        may be available in the requested objects. To retrieve desired attributes, you can
+        modify the schema accordingly (see usage examples).
+
+    Returns
+    -------
+    Subclass of `geost.base.Collection`
+        Returns a subclass of `geost.base.Collection` depending on the object_type.
+
+    """
     api = BroApi()
 
     if bro_ids is not None:

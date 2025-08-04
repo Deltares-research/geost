@@ -3,6 +3,7 @@ from pathlib import Path
 import pandas as pd
 import pytest
 from numpy.testing import assert_array_equal
+from shapely import geometry as gmt
 
 import geost
 from geost.base import (
@@ -113,22 +114,6 @@ def test_nlog_reader_from_parquet(testdatadir):
         nlog_cores.header[["nr", "x", "y", "surface", "end"]], desired_df
     )
     assert nlog_cores.data.has_inclined
-
-
-@pytest.mark.unittest
-def test_get_bro_soil_cores_from_bbox():
-    soilcores = geost.get_bro_objects_from_bbox(
-        "BHR-P", xmin=87000, ymin=444000, xmax=87500, ymax=444500
-    )
-    assert soilcores.n_points == 7
-
-
-@pytest.mark.unittest
-def test_get_bro_soil_cores_from_geometry(testdatadir):
-    soilcores = geost.get_bro_objects_from_geometry(
-        "BHR-P", testdatadir / "test_polygon.parquet"
-    )
-    assert soilcores.n_points == 1
 
 
 @pytest.mark.unittest
@@ -294,9 +279,24 @@ class TestReadCollectionGeopackage:
             geost.read_collection_geopackage(borehole_gpkg, InvalidCollection)
 
 
-@pytest.mark.unittest
-def test_bro_api_read():
-    response = geost.bro_api_read(
-        "BHR-GT", bro_ids=["BHR000000374004", "BHR000000373990"]
-    )
-    assert isinstance(response, list)
+@pytest.mark.parametrize(
+    "object_type, options, expected_length",
+    [
+        ("BHR-GT", {"bro_ids": ["BHR000000339682", "BHR000000339733"]}, 2),
+        ("BHR-P", {"bro_ids": "BHR000000108193"}, 1),
+        ("BHR-P", {"bbox": (129490, 452254, 129492, 452256)}, 1),
+        ("BHR-P", {"geometry": gmt.box(129490, 452254, 129492, 452256)}, 1),
+        ("BHR-P", {"geometry": gmt.Point(129491, 452255), "buffer": 2}, 1),
+    ],
+)
+def test_bro_api_read(object_type, options, expected_length):
+    collection = geost.bro_api_read(object_type, **options)
+    assert isinstance(collection, geost.base.Collection)
+    assert len(collection) == expected_length
+
+    if object_type == "BHR-P":
+        assert_array_equal(collection.header["nr"], ["BHR000000108193"])
+    if object_type == "BHR-GT":
+        assert_array_equal(
+            collection.header["nr"], ["BHR000000339682", "BHR000000339733"]
+        )
