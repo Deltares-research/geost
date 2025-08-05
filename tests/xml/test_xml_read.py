@@ -18,32 +18,27 @@ def xml_string(testdatadir: Path):
 
 
 @pytest.mark.parametrize(
-    "file, reader, expected_error",
+    "file, reader",
     [
-        ("bhrgt_bro.xml", xml.read_bhrgt, None),
-        ("bhrg_bro.xml", xml.read_bhrg, None),
-        ("bhrp_bro.xml", xml.read_bhrp, None),
-        ("cpt_bro.xml", xml.read_cpt, None),
-        ("sfr_bro.xml", xml.read_sfr, pytest.raises(NotImplementedError)),
+        ("bhrgt_bro.xml", xml.read_bhrgt),
+        ("bhrg_bro.xml", xml.read_bhrg),
+        ("bhrp_bro.xml", xml.read_bhrp),
+        ("cpt_bro.xml", xml.read_cpt),
+        ("sfr_bro.xml", xml.read_sfr),
     ],
 )
 def test_read(
-    testdatadir: Path, file: str, reader: Callable, expected_error: Exception
+    testdatadir: Path, file: str, reader: Callable
 ):
     bro_xml = testdatadir / r"xml" / file
+    header, data = xml.read(bro_xml, reader)
+    assert isinstance(header, pd.DataFrame)
+    assert isinstance(data, pd.DataFrame)
+    expected_columns_present = ["nr", "x", "y", "surface", "end"]
+    assert all(c in data.columns for c in expected_columns_present)
 
-    if isinstance(expected_error, type(pytest.raises(Exception))):
-        with expected_error:
-            xml.read(bro_xml, reader)
-    else:
-        header, data = xml.read(bro_xml, reader)
-        assert isinstance(header, pd.DataFrame)
-        assert isinstance(data, pd.DataFrame)
-        expected_columns_present = ["nr", "x", "y", "surface", "end"]
-        assert all(c in data.columns for c in expected_columns_present)
-
-        if "top" in data.columns and "bottom" in data.columns:
-            assert data["top"].dtype == data["bottom"].dtype == float
+    if "top" in data.columns and "bottom" in data.columns:
+        assert data["top"].dtype == data["bottom"].dtype == float
 
 
 class TestBhrgt:
@@ -336,4 +331,59 @@ class TestBhrp:
 
 
 class TestSfr:
-    pass
+    @pytest.mark.unittest
+    def test_read_sfr(self, testdatadir: Path):
+        data = xml.read_sfr(testdatadir / r"xml/sfr_bro.xml")
+        assert isinstance(data, dict)
+
+        with pytest.raises(
+            ValueError, match="No predefined schema for 'UnknownCompany'"
+        ):
+            xml.read_sfr(testdatadir / r"xml/sfr_bro.xml", company="UnknownCompany")
+
+        invalid_schema = schemas.bhrgt.get("Wiertsema", None)
+        with pytest.raises(SyntaxError, match="Invalid xml schema"):
+            xml.read_sfr(testdatadir / r"xml/sfr_bro.xml", schema=invalid_schema)
+
+    @pytest.mark.unittest
+    def test_read_sfr_bro(self, testdatadir: Path):
+        data = xml.read_sfr(testdatadir / r"xml/sfr_bro.xml")
+
+        assert isinstance(data, dict)
+        assert data["nr"] == "SFR000000000687"
+        assert data["location"] == (132250.0, 451075.0)
+        assert data["crs"] == "urn:ogc:def:crs:EPSG::28992"
+        assert data["surface"] == 0.87
+        assert data["vertical_datum"] == "NAP"
+        assert data["landuse"] == "grasland"
+        assert data["outcrop_type"] == "profielkuil"
+        assert data["end"] == 1.6
+        assert data["data"] == {
+            "upperBoundary": [
+                "0.000",
+                "0.070",
+                "0.250",
+                "0.550",
+                "0.830",
+                "1.200",
+                "1.400",
+            ],
+            "lowerBoundary": [
+                "0.070",
+                "0.250",
+                "0.550",
+                "0.830",
+                "1.200",
+                "1.400",
+                "1.600",
+            ],
+            "soilNameNEN5104": [
+                "sterkSiltigeKlei",
+                "sterkSiltigeKlei",
+                "matigSiltigeKlei",
+                "sterkSiltigeKlei",
+                "uiterstSiltigeKlei",
+                "matigZandigeKlei",
+                "sterkZandigeKlei",
+            ],
+        }

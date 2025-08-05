@@ -285,3 +285,94 @@ def test_process_bhrg_data(testdatadir: Path):
         "constituentType": ["puin", None, None, None, None],
         "nonexistingAttribute": [None, None, None, None, None],
     }
+
+
+@pytest.mark.unittest
+def test_process_bhrg_data(testdatadir: Path):
+    xml = etree.parse(testdatadir / r"xml/sfr_bro.xml").getroot()
+    layer_element = xml.find(
+        "dispatchDocument/SFR_O/soilFaceDescription/sfrcom:SoilFaceDescription/sfrcom:soilProfile/sfrcom:SoilProfile",
+        xml.nsmap,
+    )
+    result = resolvers.process_sfr_data(layer_element, None)
+    assert result == {
+        "upperBoundary": [
+            "0.000",
+            "0.070",
+            "0.250",
+            "0.550",
+            "0.830",
+            "1.200",
+            "1.400",
+        ],
+        "lowerBoundary": [
+            "0.070",
+            "0.250",
+            "0.550",
+            "0.830",
+            "1.200",
+            "1.400",
+            "1.600",
+        ],
+        "soilNameNEN5104": [
+            "sterkSiltigeKlei",
+            "sterkSiltigeKlei",
+            "matigSiltigeKlei",
+            "sterkSiltigeKlei",
+            "uiterstSiltigeKlei",
+            "matigZandigeKlei",
+            "sterkZandigeKlei",
+        ],
+    }
+
+    result = resolvers.process_sfr_data(
+        layer_element,
+        [
+            "upperBoundary",
+            "lowerBoundary",
+            "soilNameNEN5104",
+            "colour",
+            "estimatedClayContent",
+            "nonexistingAttribute",  # Make sure non-existing attributes does not raise error
+        ],
+    )
+    assert result == {
+        "upperBoundary": [
+            "0.000",
+            "0.070",
+            "0.250",
+            "0.550",
+            "0.830",
+            "1.200",
+            "1.400",
+        ],
+        "lowerBoundary": [
+            "0.070",
+            "0.250",
+            "0.550",
+            "0.830",
+            "1.200",
+            "1.400",
+            "1.600",
+        ],
+        "soilNameNEN5104": [
+            "sterkSiltigeKlei",
+            "sterkSiltigeKlei",
+            "matigSiltigeKlei",
+            "sterkSiltigeKlei",
+            "uiterstSiltigeKlei",
+            "matigZandigeKlei",
+            "sterkZandigeKlei",
+        ],
+        "colour": [
+            "zwartBruin",
+            "donkergrijs",
+            "donkergrijs",
+            "grijs",
+            "grijs",
+            None,
+            None,
+        ],
+        "estimatedClayContent": ["28", "32", "48", "25", "20", "12", "8"],
+        "nonexistingAttribute": [None, None, None, None, None, None, None],
+    }

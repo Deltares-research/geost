@@ -449,6 +449,26 @@ def read_bhrg(
     return BoreholeCollection(header, data)
 
 
+def read_sfr(
+    files: str | Path | Iterable[str | Path],
+    company: str | None = None,
+    schema: dict[str, Any] = None,
+    read_all: bool = False,
+) -> BoreholeCollection:  # pragma: no cover
+    header, data = xml.read(
+        files, xml.read_sfr, company=company, schema=schema, read_all=read_all
+    )
+    header = PointHeader(
+        gpd.GeoDataFrame(
+            header, geometry=gpd.points_from_xy(header.x, header.y), crs=28992
+        ),
+        vertical_reference=5709,
+    )
+    data = LayeredData(data)
+
+    return BoreholeCollection(header, data)
+
+
 def read_gef_cpts(file_or_folder: str | Path) -> CptCollection:
     """
     Read one or more GEF files of CPT data into a geost CptCollection.
@@ -719,6 +739,7 @@ def bro_api_read(
         "BHR-P": read_bhrp,
         "BHR-G": read_bhrg,
         "CPT": read_cpt,
+        "SFR": read_sfr,
     }
     reader = readers[object_type]
     collection = reader(bro_data, schema=schema)

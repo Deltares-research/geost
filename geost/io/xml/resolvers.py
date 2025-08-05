@@ -109,6 +109,34 @@ def safe_get(el: etree.Element):
             return clean_string(value)
 
 
+def _process_layers(layers: list[etree.Element], attributes: list[str]) -> dict:
+    """
+    Process a list of XML elements representing layers and extract specified attributes.
+
+    Parameters
+    ----------
+    layers : list[etree.Element]
+        List of XML elements representing layers.
+    attributes : list[str]
+        List of attribute names to extract from each layer.
+
+    Returns
+    -------
+    dict
+        Dictionary with the searched layer attributes as keys and lists of each value per
+        layer.
+
+    """
+    data = defaultdict(list)
+    for layer in layers:
+        for attr in attributes:
+            attribute = layer.xpath(f".//*[local-name() = '{attr}']")
+            value = safe_get(attribute[0]) if attribute else None
+            data[attr].append(value)
+
+    return data
+
+
 def process_bhrgt_data(el: etree.Element, attributes: list | None) -> dict:
     """
     Process an XML element containing the layer descriptions in BHR-GT data objects.
@@ -134,14 +162,7 @@ def process_bhrgt_data(el: etree.Element, attributes: list | None) -> dict:
 
     layers = el.xpath(".//*[local-name() = 'layer']")
 
-    data = defaultdict(list)
-    for layer in layers:
-        for attr in attributes:
-            attribute = layer.xpath(f".//*[local-name() = '{attr}']")
-            value = safe_get(attribute[0]) if attribute else None
-            data[attr].append(value)
-
-    return data
+    return _process_layers(layers, attributes)
 
 
 def process_bhrg_data(el: etree.Element, attributes: list | None) -> dict:
@@ -155,7 +176,7 @@ def process_bhrg_data(el: etree.Element, attributes: list | None) -> dict:
     attributes : list[str] | None
         List with string names of the attributes to retrieve from each layer. If the input
         is None, it will be attempted to at least retrieve "upperBoundary", "lowerBoundary"
-        and "geotechnicalSoilName" from each layer.
+        and "soilNameNEN5104" from each layer.
 
     Returns
     -------
@@ -169,14 +190,7 @@ def process_bhrg_data(el: etree.Element, attributes: list | None) -> dict:
 
     layers = el.xpath(".//*[local-name() = 'layer']")
 
-    data = defaultdict(list)
-    for layer in layers:
-        for attr in attributes:
-            attribute = layer.xpath(f".//*[local-name() = '{attr}']")
-            value = safe_get(attribute[0]) if attribute else None
-            data[attr].append(value)
-
-    return data
+    return _process_layers(layers, attributes)
 
 
 def process_bhrp_data(el: etree.Element, attributes: list | None) -> dict:
@@ -190,7 +204,7 @@ def process_bhrp_data(el: etree.Element, attributes: list | None) -> dict:
     attributes : list[str] | None
         List with string names of the attributes to retrieve from each layer. If the input
         is None, it will be attempted to at least retrieve "upperBoundary", "lowerBoundary"
-        and "geotechnicalSoilName" from each layer.
+        and "standardSoilName" from each layer.
 
     Returns
     -------
@@ -204,14 +218,7 @@ def process_bhrp_data(el: etree.Element, attributes: list | None) -> dict:
 
     layers = el.xpath(".//*[local-name() = 'soilLayer']")
 
-    data = defaultdict(list)
-    for layer in layers:
-        for attr in attributes:
-            attribute = layer.xpath(f".//*[local-name() = '{attr}']")
-            value = safe_get(attribute[0]) if attribute else None
-            data[attr].append(value)
-
-    return data
+    return _process_layers(layers, attributes)
 
 
 def process_cpt_data(el: etree.Element, **_) -> dict:
@@ -247,6 +254,34 @@ def process_cpt_data(el: etree.Element, **_) -> dict:
         data[strip_tag(param)] = values[:, ii]
 
     return data
+
+
+def process_sfr_data(el: etree.Element, attributes: list | None) -> dict:
+    """
+    Process an XML element containing the layer descriptions in SFR data objects.
+
+    Parameters
+    ----------
+    el : etree.Element
+        Element containing the layer descriptions.
+    attributes : list[str] | None
+        List with string names of the attributes to retrieve from each layer. If the input
+        is None, it will be attempted to at least retrieve "upperBoundary", "lowerBoundary"
+        and "soilNameNEN5104" from each layer.
+
+    Returns
+    -------
+    dict
+        Dictionary with the searched layer attributes as keys and lists of each value per
+        layer.
+
+    """
+    if attributes is None:
+        attributes = ["upperBoundary", "lowerBoundary", "soilNameNEN5104"]
+
+    layers = el.xpath(".//*[local-name() = 'SoilLayer']")
+
+    return _process_layers(layers, attributes)
 
 
 def strip_tag(el: etree.Element) -> str:
