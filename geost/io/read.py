@@ -16,7 +16,7 @@ from geost.base import (
 )
 from geost.bro import BroApi
 from geost.io import _parse_cpt_gef_files, xml
-from geost.io.parsers import BorisXML, SoilCore
+from geost.io.parsers import BorisXML
 
 type BroObject = Literal["BHR-GT", "BHR-P", "BHR-G", "CPT"]
 
