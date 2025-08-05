@@ -144,6 +144,41 @@ def process_bhrgt_data(el: etree.Element, attributes: list | None) -> dict:
     return data
 
 
+def process_bhrg_data(el: etree.Element, attributes: list | None) -> dict:
+    """
+    Process an XML element containing the layer descriptions in BHR-G data objects.
+
+    Parameters
+    ----------
+    el : etree.Element
+        Element containing the layer descriptions.
+    attributes : list[str] | None
+        List with string names of the attributes to retrieve from each layer. If the input
+        is None, it will be attempted to at least retrieve "upperBoundary", "lowerBoundary"
+        and "geotechnicalSoilName" from each layer.
+
+    Returns
+    -------
+    dict
+        Dictionary with the searched layer attributes as keys and lists of each value per
+        layer.
+
+    """
+    if attributes is None:
+        attributes = ["upperBoundary", "lowerBoundary", "soilNameNEN5104"]
+
+    layers = el.xpath(".//*[local-name() = 'layer']")
+
+    data = defaultdict(list)
+    for layer in layers:
+        for attr in attributes:
+            attribute = layer.xpath(f".//*[local-name() = '{attr}']")
+            value = safe_get(attribute[0]) if attribute else None
+            data[attr].append(value)
+
+    return data
+
+
 def process_bhrp_data(el: etree.Element, attributes: list | None) -> dict:
     """
     Process an XML element containing the layer descriptions in BHR-P data objects.

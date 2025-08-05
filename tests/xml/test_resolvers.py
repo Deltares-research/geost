@@ -232,3 +232,56 @@ def test_textvalues_to_array(text, column_sep, row_sep):
     assert isinstance(result, np.ndarray)
     assert result.dtype == float
     assert_array_equal(result, [[1.0, 2.0], [3.0, 4.0]])
+
+
+@pytest.mark.unittest
+def test_process_bhrg_data(testdatadir: Path):
+    xml = etree.parse(testdatadir / r"xml/bhrg_bro.xml").getroot()
+    layer_element = xml.find(
+        "dispatchDocument/BHR_G_O/boreholeSampleDescription/bhrgcom:BoreholeSampleDescription/bhrgcom:descriptiveBoreholeLog/bhrgcom:DescriptiveBoreholeLog",
+        xml.nsmap,
+    )
+    result = resolvers.process_bhrg_data(layer_element, None)
+    assert result == {
+        "upperBoundary": ["0.000", "0.250", "1.600", "2.000", "2.500"],
+        "lowerBoundary": ["0.250", "1.600", "2.000", "2.500", "3.000"],
+        "soilNameNEN5104": [
+            "zwakZandigeKlei",
+            "sterkSiltigeKlei",
+            "zwakZandigeKlei",
+            "sterkZandigeKlei",
+            "zwakSiltigZand",
+        ],
+    }
+
+    result = resolvers.process_bhrg_data(
+        layer_element,
+        [
+            "upperBoundary",
+            "lowerBoundary",
+            "soilNameNEN5104",
+            "carbonateContentClass",
+            "constituentType",
+            "nonexistingAttribute",  # Make sure non-existing attributes does not raise error
+        ],
+    )
+    assert result == {
+        "upperBoundary": ["0.000", "0.250", "1.600", "2.000", "2.500"],
+        "lowerBoundary": ["0.250", "1.600", "2.000", "2.500", "3.000"],
+        "soilNameNEN5104": [
+            "zwakZandigeKlei",
+            "sterkSiltigeKlei",
+            "zwakZandigeKlei",
+            "sterkZandigeKlei",
+            "zwakSiltigZand",
+        ],
+        "carbonateContentClass": [
+            "onbekend",
+            "onbekend",
+            "onbekend",
+            "onbekend",
+            "onbekend",
+        ],
+        "constituentType": ["puin", None, None, None, None],
+        "nonexistingAttribute": [None, None, None, None, None],
+    }

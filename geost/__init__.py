@@ -1,6 +1,7 @@
 from geost import data
 from geost.io.read import (
     bro_api_read,
+    read_bhrg,
     read_bhrgt,
     read_bhrp,
     read_borehole_table,

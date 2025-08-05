@@ -14,19 +14,13 @@ class BroApi:
         "CPT": "/sr/cpt/v1",
         "BHR-P": "/sr/bhrp/v2",
         "BHR-GT": "/sr/bhrgt/v2",
-        "BHR-G": "/sr/bhrg/v2",
-    }
-    document_types = {
-        "CPT": "CPT_C",
-        "BHR-P": "",
-        "BHR-GT": "",
-        "BHR-G": "",
+        "BHR-G": "/sr/bhrg/v3",
+        "SFR": "/sr/sfr/v2",
     }
 
     def __init__(self, server_url=r"https://publiek.broservices.nl"):
         self.session = requests.Session()
         self.server_url = server_url
-        self.objects_url = "/objects"
         self.search_url = "/characteristics/searches"
         self.object_list = []
 
@@ -62,10 +56,7 @@ class BroApi:
         api_response = []
         for bro_id in bro_ids:
             response = self.session.get(
-                self.server_url
-                + self.apis[object_type]
-                + self.objects_url
-                + f"/{bro_id}"
+                f"{self.server_url}{self.apis[object_type]}/objects/{bro_id}"
             )
             if response.status_code == 200 and "rejection" not in response.text:
                 api_response.append(response.text.encode("utf-8"))

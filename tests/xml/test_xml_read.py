@@ -21,7 +21,7 @@ def xml_string(testdatadir: Path):
     "file, reader, expected_error",
     [
         ("bhrgt_bro.xml", xml.read_bhrgt, None),
-        ("bhrg_bro.xml", xml.read_bhrg, pytest.raises(NotImplementedError)),
+        ("bhrg_bro.xml", xml.read_bhrg, None),
         ("bhrp_bro.xml", xml.read_bhrp, None),
         ("cpt_bro.xml", xml.read_cpt, None),
         ("sfr_bro.xml", xml.read_sfr, pytest.raises(NotImplementedError)),
@@ -188,7 +188,44 @@ class TestBhrgt:
 
 
 class TestBhrg:
-    pass
+    @pytest.mark.unittest
+    def test_read_bhrg(self, testdatadir: Path):
+        bro_xml = testdatadir / r"xml/bhrg_bro.xml"
+
+        data = xml.read_bhrg(bro_xml)
+        assert isinstance(data, dict)
+
+        with pytest.raises(
+            ValueError, match="No predefined schema for 'UnknownCompany'"
+        ):
+            xml.read_bhrg(bro_xml, company="UnknownCompany")
+
+        invalid_schema = schemas.bhrgt.get("Wiertsema", None)
+        with pytest.raises(SyntaxError, match="Invalid xml schema"):
+            xml.read_bhrg(bro_xml, schema=invalid_schema)
+
+    @pytest.mark.unittest
+    def test_read_bhrg_bro(self, testdatadir: Path):
+        data = xml.read_bhrg(testdatadir / r"xml/bhrg_bro.xml")
+
+        assert isinstance(data, dict)
+        assert data["nr"] == "BHR000000396406"
+        assert data["location"] == (126149.0, 452162.0)
+        assert data["crs"] == "urn:ogc:def:crs:EPSG::28992"
+        assert data["surface"] == 0.69
+        assert data["vertical_datum"] == "NAP"
+        assert data["end"] == 3.0
+        assert data["data"] == {
+            "upperBoundary": ["0.000", "0.250", "1.600", "2.000", "2.500"],
+            "lowerBoundary": ["0.250", "1.600", "2.000", "2.500", "3.000"],
+            "soilNameNEN5104": [
+                "zwakZandigeKlei",
+                "sterkSiltigeKlei",
+                "zwakZandigeKlei",
+                "sterkZandigeKlei",
+                "zwakSiltigZand",
+            ],
+        }
 
 
 class TestCpt:
@@ -296,3 +333,7 @@ class TestBhrp:
                 "zwakSiltigZand",
             ],
         }
+
+
+class TestSfr:
+    pass

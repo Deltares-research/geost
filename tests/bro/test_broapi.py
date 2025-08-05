@@ -18,49 +18,24 @@ class TestBroApi:
                     api.session.get(api.server_url + api.apis[key]).status_code == 200
                 )
 
-    @pytest.mark.unittest
-    def test_get_valid_cpts(self):
+    @pytest.mark.parametrize(
+        "objects, object_type",
+        (
+            (["CPT000000038771", "CPT000000000787", "CPT000000125133"], "CPT"),
+            (["BHR000000342629", "BHR000000195688", "BHR000000206176"], "BHR-P"),
+            (["BHR000000347437", "BHR000000347438", "BHR000000347434"], "BHR-GT"),
+            (["BHR000000396339", "BHR000000396340", "BHR000000396341"], "BHR-G"),
+            (["SFR000000002177", "SFR000000002172", "SFR000000002655"], "SFR"),
+        ),
+        ids=["CPT", "BHR-P", "BHR-GT", "BHR-G", "SFR"],
+    )
+    def test_get_valid_objects(self, objects, object_type):
         api = BroApi()
-        cpt_objects = api.get_objects(
-            ["CPT000000038771", "CPT000000000787", "CPT000000125133"], object_type="CPT"
-        )
-        assert isinstance(cpt_objects, list)
-        assert len(cpt_objects) == 3
-        for cpt in cpt_objects:
-            assert isinstance(cpt, bytes)
-
-    @pytest.mark.unittest
-    def test_get_valid_bhrps(self):
-        api = BroApi()
-        bhrp_objects = api.get_objects(
-            ["BHR000000342629", "BHR000000195688", "BHR000000206176"],
-            object_type="BHR-P",
-        )
-        assert len(bhrp_objects) == 3
-        for bhrp in bhrp_objects:
-            assert isinstance(bhrp, bytes)
-
-    @pytest.mark.unittest
-    def test_get_valid_bhrgts(self):
-        api = BroApi()
-        bhrgt_objects = api.get_objects(
-            ["BHR000000347437", "BHR000000347438", "BHR000000347434"],
-            object_type="BHR-GT",
-        )
-        assert len(bhrgt_objects) == 3
-        for bhrgt in bhrgt_objects:
-            assert isinstance(bhrgt, bytes)
-
-    @pytest.mark.xfail(reason="BRO Geological boreholes not yet available from API")
-    def test_get_valid_bhrgs(self):
-        api = BroApi()
-        bhrg_objects = api.get_objects(
-            ["BHR000000342629", "BHR000000195688", "BHR000000206176"],
-            object_type="BHR-G",
-        )
-        assert len(bhrg_objects) == 3
-        for bhr_data in bhrg_objects:
-            assert isinstance(bhr_data, _Element)
+        objects = api.get_objects(objects, object_type=object_type)
+        assert isinstance(objects, list)
+        assert len(objects) == 3
+        for obj in objects:
+            assert isinstance(obj, bytes)
 
     @pytest.mark.parametrize(
         "bro_id, object_type, expected_exception",
