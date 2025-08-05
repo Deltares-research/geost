@@ -280,23 +280,112 @@ class TestReadCollectionGeopackage:
 
 
 @pytest.mark.parametrize(
-    "object_type, options, expected_length",
+    "object_type, options, expected_bro_ids",
     [
-        ("BHR-GT", {"bro_ids": ["BHR000000339682", "BHR000000339733"]}, 2),
-        ("BHR-P", {"bro_ids": "BHR000000108193"}, 1),
-        ("BHR-P", {"bbox": (129490, 452254, 129492, 452256)}, 1),
-        ("BHR-P", {"geometry": gmt.box(129490, 452254, 129492, 452256)}, 1),
-        ("BHR-P", {"geometry": gmt.Point(129491, 452255), "buffer": 2}, 1),
+        (
+            "BHR-GT",
+            {"bro_ids": ["BHR000000339682", "BHR000000339733"]},
+            ["BHR000000339682", "BHR000000339733"],
+        ),
+        (
+            "BHR-GT",
+            {"bbox": (132780.327, 448030.0, 132782.327, 448032.1)},
+            ["BHR000000336600"],
+        ),
+        (
+            "BHR-GT",
+            {"geometry": gmt.box(132780.327, 448030.0, 132782.327, 448032.1)},
+            ["BHR000000336600"],
+        ),
+        (
+            "BHR-GT",
+            {"geometry": gmt.Point(132781.327, 448031.1), "buffer": 2},
+            ["BHR000000336600"],
+        ),
+        (
+            "BHR-P",
+            {"bro_ids": "BHR000000108193"},
+            ["BHR000000108193"],
+        ),
+        (
+            "BHR-P",
+            {"bbox": (129490, 452254, 129492, 452256)},
+            ["BHR000000108193"],
+        ),
+        (
+            "BHR-P",
+            {"geometry": gmt.box(129490, 452254, 129492, 452256)},
+            ["BHR000000108193"],
+        ),
+        (
+            "BHR-P",
+            {"geometry": gmt.Point(129491, 452255), "buffer": 2},
+            ["BHR000000108193"],
+        ),
+        (
+            "BHR-G",
+            {"bro_ids": "BHR000000396406"},
+            ["BHR000000396406"],
+        ),
+        (
+            "BHR-G",
+            {"bbox": (126148, 452161, 126150, 452163)},
+            ["BHR000000396406"],
+        ),
+        (
+            "BHR-G",
+            {"geometry": gmt.box(126148, 452161, 126150, 452163)},
+            ["BHR000000396406"],
+        ),
+        (
+            "BHR-G",
+            {"geometry": gmt.Point(126149, 452162), "buffer": 2},
+            ["BHR000000396406"],
+        ),
+        (
+            "CPT",
+            {"bro_ids": "CPT000000155283"},
+            ["CPT000000155283"],
+        ),
+        (
+            "CPT",
+            {"bbox": (132781.52, 448029.34, 132783.52, 448031.34)},
+            ["CPT000000155283"],
+        ),
+        (
+            "CPT",
+            {"geometry": gmt.box(132781.52, 448029.34, 132783.52, 448031.34)},
+            ["CPT000000155283"],
+        ),
+        (
+            "CPT",
+            {"geometry": gmt.Point(132782.52, 448030.34), "buffer": 2},
+            ["CPT000000155283"],
+        ),
+        (
+            "SFR",
+            {"bro_ids": "SFR000000000687"},
+            ["SFR000000000687"],
+        ),
+        (
+            "SFR",
+            {"bbox": (132249, 451074, 132251, 451076)},
+            ["SFR000000000687"],
+        ),
+        (
+            "SFR",
+            {"geometry": gmt.box(132249, 451074, 132251, 451076)},
+            ["SFR000000000687"],
+        ),
+        (
+            "SFR",
+            {"geometry": gmt.Point(132250, 451075), "buffer": 2},
+            ["SFR000000000687"],
+        ),
     ],
 )
-def test_bro_api_read(object_type, options, expected_length):
+def test_bro_api_read(object_type, options, expected_bro_ids):
     collection = geost.bro_api_read(object_type, **options)
     assert isinstance(collection, geost.base.Collection)
-    assert len(collection) == expected_length
-
-    if object_type == "BHR-P":
-        assert_array_equal(collection.header["nr"], ["BHR000000108193"])
-    if object_type == "BHR-GT":
-        assert_array_equal(
-            collection.header["nr"], ["BHR000000339682", "BHR000000339733"]
-        )
+    assert len(collection) == len(expected_bro_ids)
+    assert_array_equal(collection.header["nr"], expected_bro_ids)
