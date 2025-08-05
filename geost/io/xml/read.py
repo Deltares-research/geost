@@ -68,10 +68,13 @@ def read(
     attributes_for_data = ["nr", "x", "y", "surface", "end"]
     header_data = header.loc[header.index.repeat(lengths), attributes_for_data]
     data = pd.concat([header_data.reset_index(drop=True), data], axis=1)
-    data.rename(
-        columns={"upperBoundary": "top", "lowerBoundary": "bottom"}, inplace=True
-    )
-    data[["top", "bottom"]] = data[["top", "bottom"]].astype(float)
+
+    if "upperBoundary" in data.columns or "lowerBoundary" in data.columns:
+        data.rename(
+            columns={"upperBoundary": "top", "lowerBoundary": "bottom"}, inplace=True
+        )
+        data[["top", "bottom"]] = data[["top", "bottom"]].astype(float)
+
     return header, data
 
 

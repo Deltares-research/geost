@@ -394,10 +394,6 @@ def read_bhrgt(
     schema: dict[str, Any] = None,
     read_all: bool = False,
 ) -> BoreholeCollection:  # pragma: no cover
-    """
-    Read Geotechnical borehole data (BHR-GT) from one or more XML files and extract
-
-    """
     header, data = xml.read(
         files, xml.read_bhrgt, company=company, schema=schema, read_all=read_all
     )
@@ -419,10 +415,6 @@ def read_bhrp(
     schema: dict[str, Any] = None,
     read_all: bool = False,
 ) -> BoreholeCollection:  # pragma: no cover
-    """
-    Read xml files of BHR-P boreholes.
-
-    """
     header, data = xml.read(
         files, xml.read_bhrp, company=company, schema=schema, read_all=read_all
     )
@@ -440,11 +432,6 @@ def read_bhrp(
 def read_bhrg(
     file_or_folder: str | Path,
 ) -> BoreholeCollection:  # pragma: no cover
-    """
-    NOTIMPLEMENTED
-    Read xml files of DINO geological boreholes.
-
-    """
     raise NotImplementedError("BHR-G XML reading is not implemented yet.")
 
 
@@ -469,13 +456,24 @@ def read_gef_cpts(file_or_folder: str | Path) -> CptCollection:
     return DiscreteData(df).to_collection()
 
 
-def read_cpts(
+def read_cpt(
     files: str | Path | Iterable[str | Path],
     company: str | None = None,
     schema: dict[str, Any] = None,
     read_all: bool = False,
 ) -> CptCollection:  # pragma: no cover
-    pass
+    header, data = xml.read(
+        files, xml.read_cpt, company=company, schema=schema, read_all=read_all
+    )
+    header = PointHeader(
+        gpd.GeoDataFrame(
+            header, geometry=gpd.points_from_xy(header.x, header.y), crs=28992
+        ),
+        vertical_reference=5709,
+    )
+    data = DiscreteData(data)
+
+    return CptCollection(header, data)
 
 
 def read_uullg_tables(
@@ -706,7 +704,7 @@ def bro_api_read(
         "BHR-GT": read_bhrgt,
         "BHR-P": read_bhrp,
         "BHR-G": read_bhrg,
-        "CPT": read_gef_cpts,
+        "CPT": read_cpt,
     }
     reader = readers[object_type]
     collection = reader(bro_data, schema=schema)

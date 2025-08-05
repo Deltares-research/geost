@@ -5,6 +5,7 @@ from geost.io.read import (
     read_bhrp,
     read_borehole_table,
     read_collection_geopackage,
+    read_cpt,
     read_cpt_table,
     read_gef_cpts,
     read_nlog_cores,

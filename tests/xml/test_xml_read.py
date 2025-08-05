@@ -23,7 +23,7 @@ def xml_string(testdatadir: Path):
         ("bhrgt_bro.xml", xml.read_bhrgt, None),
         ("bhrg_bro.xml", xml.read_bhrg, pytest.raises(NotImplementedError)),
         ("bhrp_bro.xml", xml.read_bhrp, None),
-        ("cpt_bro.xml", xml.read_cpt, pytest.raises(NotImplementedError)),
+        ("cpt_bro.xml", xml.read_cpt, None),
         ("sfr_bro.xml", xml.read_sfr, pytest.raises(NotImplementedError)),
     ],
 )
@@ -39,9 +39,11 @@ def test_read(
         header, data = xml.read(bro_xml, reader)
         assert isinstance(header, pd.DataFrame)
         assert isinstance(data, pd.DataFrame)
-        expected_columns_present = ["nr", "x", "y", "surface", "end", "top", "bottom"]
+        expected_columns_present = ["nr", "x", "y", "surface", "end"]
         assert all(c in data.columns for c in expected_columns_present)
-        assert data["top"].dtype == data["bottom"].dtype == float
+
+        if "top" in data.columns and "bottom" in data.columns:
+            assert data["top"].dtype == data["bottom"].dtype == float
 
 
 class TestBhrgt:
