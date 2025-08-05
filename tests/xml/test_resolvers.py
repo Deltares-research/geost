@@ -1,8 +1,10 @@
 from pathlib import Path
 from typing import Any
 
+import numpy as np
 import pytest
 from lxml import etree
+from numpy.testing import assert_array_equal
 
 from geost.io.xml import resolvers
 
@@ -161,3 +163,72 @@ def test_process_bhrp_data(testdatadir: Path):
         "clayContent": ["30.0", "30.0", "32.0", "20.0", "4.0", "4.0"],
         "nonexistingAttribute": [None, None, None, None, None, None],
     }
+
+
+@pytest.mark.unittest
+def test_process_cpt_data(testdatadir: Path):
+    xml = etree.parse(testdatadir / r"xml/cpt_bro.xml").getroot()
+    layer_element = xml.find("dispatchDocument/CPT_O/conePenetrometerSurvey", xml.nsmap)
+    result = resolvers.process_cpt_data(layer_element)
+    assert isinstance(result, dict)
+    assert_array_equal(
+        list(result.keys()),
+        [
+            "penetrationlength",
+            "depth",
+            "elapsedtime",
+            "coneresistance",
+            "correctedconeresistance",
+            "netconeresistance",
+            "magneticfieldstrengthx",
+            "magneticfieldstrengthy",
+            "magneticfieldstrengthz",
+            "magneticfieldstrengthtotal",
+            "electricalconductivity",
+            "inclinationew",
+            "inclinationns",
+            "inclinationx",
+            "inclinationy",
+            "inclinationresultant",
+            "magneticinclination",
+            "magneticdeclination",
+            "localfriction",
+            "poreratio",
+            "temperature",
+            "porepressureu1",
+            "porepressureu2",
+            "porepressureu3",
+            "frictionratio",
+        ],
+    )
+
+
+@pytest.mark.unittest
+def test_strip_tag():
+    el = etree.Element("{http://www.opengis.net/gml}Point")
+    assert resolvers.strip_tag(el) == "point"
+
+    el = etree.Element("Point")
+    assert resolvers.strip_tag(el) == "point"
+
+    el = etree.Element(
+        "{http://www.opengis.net/gml}Point", nsmap={"gml": "http://www.opengis.net/gml"}
+    )
+    assert resolvers.strip_tag(el) == "point"
+
+
+@pytest.mark.parametrize(
+    "text, column_sep, row_sep",
+    [
+        ("1,2;3,4", ",", ";"),
+        ("1 2,3 4", " ", ","),
+        ("1;2:3:4", ";", ":"),
+        ("1.2,3.4", ".", ","),
+        ("1\t2\n3\t4", "\t", "\n"),
+    ],
+)
+def test_textvalues_to_array(text, column_sep, row_sep):
+    result = resolvers.textvalues_to_array(text, column_sep, row_sep)
+    assert isinstance(result, np.ndarray)
+    assert result.dtype == float
+    assert_array_equal(result, [[1.0, 2.0], [3.0, 4.0]])

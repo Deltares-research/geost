@@ -469,12 +469,12 @@ def read_gef_cpts(file_or_folder: str | Path) -> CptCollection:
     return DiscreteData(df).to_collection()
 
 
-def read_xml_cpts(file_or_folder: str | Path) -> CptCollection:  # pragma: no cover
-    """
-    NOTIMPLEMENTED
-    Read xml files of cpts.
-
-    """
+def read_cpts(
+    files: str | Path | Iterable[str | Path],
+    company: str | None = None,
+    schema: dict[str, Any] = None,
+    read_all: bool = False,
+) -> CptCollection:  # pragma: no cover
     pass
 
 

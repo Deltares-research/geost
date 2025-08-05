@@ -1,10 +1,13 @@
 from pathlib import Path
 from typing import Any, Callable
 
+import numpy as np
 import pandas as pd
 import pytest
+from numpy.testing import assert_array_equal
 
 from geost.io import xml
+from geost.io.xml import schemas
 
 
 @pytest.fixture
@@ -189,15 +192,69 @@ class TestBhrg:
 class TestCpt:
     @pytest.mark.unittest
     def test_read_cpt(self, testdatadir: Path):
-        bro_xml = testdatadir / r"xml/cpt_bro.xml"
-        xml.read_cpt(bro_xml)
+        data = xml.read_cpt(testdatadir / r"xml/cpt_bro.xml")
+
+        assert isinstance(data, dict)
+
+        with pytest.raises(
+            ValueError, match="No predefined schema for 'UnknownCompany'"
+        ):
+            xml.read_cpt(testdatadir / r"xml/cpt_bro.xml", company="UnknownCompany")
+
+        invalid_schema = schemas.bhrgt.get("Wiertsema", None)
+        with pytest.raises(SyntaxError, match="Invalid xml schema"):
+            xml.read_cpt(testdatadir / r"xml/cpt_bro.xml", schema=invalid_schema)
+
+    @pytest.mark.unittest
+    def test_read_cpt_bro(self, testdatadir: Path):
+        data = xml.read_cpt(testdatadir / r"xml/cpt_bro.xml")
+
+        assert isinstance(data, dict)
+        assert data["nr"] == "CPT000000155283"
+        assert data["location"] == (132782.52, 448030.34)
+        assert data["crs"] == "urn:ogc:def:crs:EPSG::28992"
+        assert data["surface"] == 0.09
+        assert data["vertical_datum"] == "NAP"
+        assert data["predrilled_depth"] == 0.5
+        assert data["end"] == 6.57
+        assert_array_equal(
+            list(data["data"].keys()),
+            [
+                "penetrationlength",
+                "depth",
+                "elapsedtime",
+                "coneresistance",
+                "correctedconeresistance",
+                "netconeresistance",
+                "magneticfieldstrengthx",
+                "magneticfieldstrengthy",
+                "magneticfieldstrengthz",
+                "magneticfieldstrengthtotal",
+                "electricalconductivity",
+                "inclinationew",
+                "inclinationns",
+                "inclinationx",
+                "inclinationy",
+                "inclinationresultant",
+                "magneticinclination",
+                "magneticdeclination",
+                "localfriction",
+                "poreratio",
+                "temperature",
+                "porepressureu1",
+                "porepressureu2",
+                "porepressureu3",
+                "frictionratio",
+            ],
+        )
+        original_missing_value = -999999
+        processed_data = np.array(list(data["data"].values()))
+        assert not np.any(processed_data == original_missing_value)
 
 
 class TestBhrp:
     @pytest.mark.unittest
     def test_read_bhrp(self, testdatadir: Path):
-        from geost.io.xml import schemas
-
         data = xml.read_bhrp(testdatadir / r"xml/bhrp_bro.xml")
         assert isinstance(data, dict)
 

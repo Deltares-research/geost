@@ -3,6 +3,7 @@ from collections import defaultdict
 from contextlib import suppress
 from typing import Any
 
+import numpy as np
 from lxml import etree
 
 
@@ -176,3 +177,91 @@ def process_bhrp_data(el: etree.Element, attributes: list | None) -> dict:
             data[attr].append(value)
 
     return data
+
+
+def process_cpt_data(el: etree.Element, **_) -> dict:
+    """
+    Process an XML element containing the data in CPT data objects.
+
+    Parameters
+    ----------
+    el : etree.Element
+        Element containing the CPT data.
+
+    Returns
+    -------
+    dict
+        Dictionary with the processed CPT data.
+
+    """
+    cpt_data = el.xpath(".//*[local-name() = 'cptResult']")[0]
+    parameters = el.xpath(".//*[local-name() = 'parameters']")[0]
+
+    encoding = cpt_data.xpath(".//*[local-name() = 'TextEncoding']")[0]
+    row_sep = encoding.attrib.get("blockSeparator", ",")
+    column_sep = encoding.attrib.get("tokenSeparator", ";")
+
+    values = cpt_data.xpath(".//*[local-name() = 'values']")[0]
+    values = textvalues_to_array(values.text, column_sep, row_sep)
+
+    missing_value = -999999
+    values[values == missing_value] = np.nan
+
+    data = {}
+    for ii, param in enumerate(parameters.iterchildren()):
+        data[strip_tag(param)] = values[:, ii]
+
+    return data
+
+
+def strip_tag(el: etree.Element) -> str:
+    """
+    Strip namespaces from the tag name of an XML element, returning only the local name.
+
+    Parameters
+    ----------
+    el : etree.Element
+        The XML element to strip.
+
+    Returns
+    -------
+    str
+        The local name of the element without any namespace prefix.
+
+    """
+    tag = el.tag.split("}")[-1] if "}" in el.tag else el.tag
+    return tag.lower()
+
+
+def textvalues_to_array(text: str, column_sep: str, row_sep: str) -> list:
+    """
+    Convert a string of text values into a list of lists, splitting by column and row
+    separators.
+
+    Parameters
+    ----------
+    text : str
+        The input string containing text values.
+    column_sep : str, optional
+        The separator for columns (default is ',').
+    row_sep : str, optional
+        The separator for rows (default is ';').
+
+    Returns
+    -------
+    list
+        A list of lists containing the split text values.
+
+    """
+    ncols = text.split(row_sep)[0].count(column_sep) + 1
+
+    if column_sep == ".":  # np.fromstring does not support '.' as a separator
+        text = text.replace(column_sep, row_sep)
+        sep = row_sep
+    else:
+        text = text.replace(row_sep, column_sep)
+        sep = column_sep
+
+    array = np.fromstring(text, sep=sep, dtype=float)
+
+    return array.reshape(-1, ncols)

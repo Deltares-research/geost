@@ -272,8 +272,8 @@ def read_bhrp(
             schema = schemas.bhrp[company]
         except KeyError as e:
             raise ValueError(
-                f"No predefined schema for '{company}' in BHR-GT. Supported companies are: "
-                f"{schemas.bhrgt.keys()}. Define a custom schema or use a supported company."
+                f"No predefined schema for '{company}' in BHR-P. Supported companies are: "
+                f"{schemas.bhrp.keys()}. Define a custom schema or use a supported company."
             ) from e
 
     try:
@@ -289,8 +289,62 @@ def read_cpt(
     company: str = None,
     schema: dict[str, Any] = None,
     read_all: bool = False,
-) -> dict | list[dict]:  # pragma: no cover
-    raise NotImplementedError("CPT XML reading is not implemented yet.")
+) -> dict | list[dict]:
+    """
+    Read Cone Penetration Test (CPT) data from an XML file or bytestring and extract
+    relevant data based on a predefined or custom schema that describes the XML structure.
+
+    Parameters
+    ----------
+    file : bytes | str | Path
+        XML filepath-like or bytestring containing the XML data to read.
+    company : str, optional
+        Specify a company name to use a predefined schema for that company if available.
+        See `cpt.SCHEMA` for available companies. The default is None, then company will
+        default to "BRO" and the predefined BRO schema will be used if no custom schema
+        is defined.
+    schema : dict[str, Any], optional
+        Custom schema used to parse the XML structure.
+    read_all : bool, optional
+        Generally, each XML file contains data for a single CPT but in some cases
+        multiple CPTs can be present in the XML file. If set to True, all CPTs will be
+        read from the XML file. The default is False, which reads only the first.
+        A warning will be raised if multiple CPTs are found in the XML file and
+        read_all is False.
+
+    Returns
+    -------
+    dict | list[dict]
+        Dict or list of dictionaries containing the extracted data from the XML file. If
+        the XML file contains data for a single CPT, a dictionary will be returned.
+        If multiple CPTs are found and `read_all` is True, a list of dictionaries
+        will be returned.
+
+    Raises
+    ------
+    ValueError
+        If no predefined schema is found for the specified company.
+    SyntaxError
+        If the XML file does not conform to the expected schema.
+
+    """
+    company = company or "BRO"
+
+    if schema is None:
+        try:
+            schema = schemas.cpt[company]
+        except KeyError as e:
+            raise ValueError(
+                f"No predefined schema for '{company}' in CPT. Supported companies are: "
+                f"{schemas.cpt.keys()}. Define a custom schema or use a supported company."
+            ) from e
+
+    try:
+        result = _read_xml(file, schema, schema.get("payload_root", None), read_all)
+    except SyntaxError as e:
+        raise SyntaxError(f"Invalid xml schema for XML file: {file}.") from e
+
+    return result
 
 
 def read_bhrg(
