@@ -6,6 +6,7 @@ See: https://github.com/cemsbv/pygef/tree/master/src/pygef/broxml for the origin
 
 """
 
+import io
 import warnings
 from pathlib import Path
 from typing import Any, Callable, Iterable
@@ -13,7 +14,7 @@ from typing import Any, Callable, Iterable
 import pandas as pd
 from lxml import etree
 
-from .schemas import bhrgt, bhrp
+from . import schemas
 
 _BaseParser = etree.XMLParser(
     resolve_entities=False, dtd_validation=False
@@ -21,7 +22,9 @@ _BaseParser = etree.XMLParser(
 
 
 def read(
-    files: str | Path | Iterable[str | Path], reader: Callable, **kwargs: dict[str, Any]
+    files: str | Path | io.StringIO | Iterable[str | Path],
+    reader: Callable,
+    **kwargs: dict[str, Any],
 ) -> tuple[pd.DataFrame, pd.DataFrame]:
     """
     Read one or multiple XML files or string objects and create `geost` compatible separate
@@ -29,7 +32,7 @@ def read(
 
     Parameters
     ----------
-    files : str | Path | Iterable[str | Path]
+    files : str | Path | io.StringIO | Iterable[str | Path]
         List of XML files to process.
     reader : Callable
         Function to read the XML data. See `geost.io.xml.READERS` for available XML readers.
@@ -42,7 +45,7 @@ def read(
         Tuple containing the header DataFrame and the data DataFrame.
 
     """
-    if isinstance(files, (str, Path)):
+    if isinstance(files, (str, Path, io.StringIO)):
         files = [files]
 
     header = []
@@ -203,11 +206,11 @@ def read_bhrgt(
 
     if schema is None:
         try:
-            schema = bhrgt.SCHEMA[company]
+            schema = schemas.bhrgt[company]
         except KeyError as e:
             raise ValueError(
                 f"No predefined schema for '{company}' in BHR-GT. Supported companies are: "
-                f"{bhrgt.SCHEMA.keys()}. Define a custom schema or use a supported company."
+                f"{schemas.bhrgt.keys()}. Define a custom schema or use a supported company."
             ) from e
 
     try:
@@ -266,11 +269,11 @@ def read_bhrp(
 
     if schema is None:
         try:
-            schema = bhrp.SCHEMA[company]
+            schema = schemas.bhrp[company]
         except KeyError as e:
             raise ValueError(
                 f"No predefined schema for '{company}' in BHR-GT. Supported companies are: "
-                f"{bhrgt.SCHEMA.keys()}. Define a custom schema or use a supported company."
+                f"{schemas.bhrgt.keys()}. Define a custom schema or use a supported company."
             ) from e
 
     try:

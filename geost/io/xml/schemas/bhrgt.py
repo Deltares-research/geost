@@ -76,4 +76,4 @@ WIERTSEMA = {
     },
 }
 
-SCHEMA = {"BRO": BRO, "Wiertsema": WIERTSEMA}
+schemas = {"BRO": BRO, "Wiertsema": WIERTSEMA}

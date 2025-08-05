@@ -49,4 +49,4 @@ BRO = {
     },
 }
 
-SCHEMA = {"BRO": BRO}
+schemas = {"BRO": BRO}

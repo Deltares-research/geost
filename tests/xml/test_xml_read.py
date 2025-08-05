@@ -187,13 +187,16 @@ class TestBhrg:
 
 
 class TestCpt:
-    pass
+    @pytest.mark.unittest
+    def test_read_cpt(self, testdatadir: Path):
+        bro_xml = testdatadir / r"xml/cpt_bro.xml"
+        xml.read_cpt(bro_xml)
 
 
 class TestBhrp:
     @pytest.mark.unittest
     def test_read_bhrp(self, testdatadir: Path):
-        from geost.io.xml.schemas import bhrgt
+        from geost.io.xml import schemas
 
         data = xml.read_bhrp(testdatadir / r"xml/bhrp_bro.xml")
         assert isinstance(data, dict)
@@ -203,7 +206,7 @@ class TestBhrp:
         ):
             xml.read_bhrp(testdatadir / r"xml/bhrp_bro.xml", company="UnknownCompany")
 
-        invalid_schema = bhrgt.SCHEMA.get("Wiertsema", None)
+        invalid_schema = schemas.bhrgt.get("Wiertsema", None)
         with pytest.raises(SyntaxError, match="Invalid xml schema"):
             xml.read_bhrp(testdatadir / r"xml/bhrp_bro.xml", schema=invalid_schema)
 
