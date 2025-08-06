@@ -389,3 +389,46 @@ def test_bro_api_read(object_type, options, expected_bro_ids):
     assert isinstance(collection, geost.base.Collection)
     assert len(collection) == len(expected_bro_ids)
     assert_array_equal(collection.header["nr"], expected_bro_ids)
+
+
+@pytest.mark.unittest
+def test_bro_api_read_invalid_object_type():
+    with pytest.raises(
+        ValueError, match="Object type 'INVALID' is not supported for reading."
+    ):
+        geost.bro_api_read("INVALID", bro_ids=["BHR000000339682"])
+
+
+@pytest.mark.unittest
+def test_read_bhrp(testdatadir):
+    file = testdatadir / r"xml/bhrp_bro.xml"
+    collection = geost.read_bhrp(file)
+    assert isinstance(collection, BoreholeCollection)
+
+
+@pytest.mark.unittest
+def test_read_bhrgt(testdatadir):
+    file = testdatadir / r"xml/bhrgt_bro.xml"
+    collection = geost.read_bhrgt(file)
+    assert isinstance(collection, BoreholeCollection)
+
+
+@pytest.mark.unittest
+def test_read_bhrg(testdatadir):
+    file = testdatadir / r"xml/bhrg_bro.xml"
+    collection = geost.read_bhrg(file)
+    assert isinstance(collection, BoreholeCollection)
+
+
+@pytest.mark.unittest
+def test_read_cpt(testdatadir):
+    file = testdatadir / r"xml/cpt_bro.xml"
+    collection = geost.read_cpt(file)
+    assert isinstance(collection, CptCollection)
+
+
+@pytest.mark.unittest
+def test_read_sfr(testdatadir):
+    file = testdatadir / r"xml/sfr_bro.xml"
+    collection = geost.read_sfr(file)
+    assert isinstance(collection, BoreholeCollection)

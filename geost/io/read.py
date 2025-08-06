@@ -18,7 +18,7 @@ from geost.bro import BroApi
 from geost.io import _parse_cpt_gef_files, xml
 from geost.io.parsers import BorisXML
 
-type BroObject = Literal["BHR-GT", "BHR-P", "BHR-G", "CPT"]
+type BroObject = Literal["BHR-GT", "BHR-P", "BHR-G", "CPT", "SFR"]
 
 MANDATORY_LAYERED_DATA_COLUMNS = ["nr", "x", "y", "surface", "end", "top", "bottom"]
 MANDATORY_DISCRETE_DATA_COLUMNS = ["nr", "x", "y", "surface", "end", "depth"]
@@ -393,7 +393,45 @@ def read_bhrgt(
     company: str | None = None,
     schema: dict[str, Any] = None,
     read_all: bool = False,
-) -> BoreholeCollection:  # pragma: no cover
+) -> BoreholeCollection:
+    """
+    Read Geotechnical borehole (BHR-GT) XML file or files into a `BoreholeCollection`. This
+    reads the XML files according to a `schema` that describes the structure of the of the
+    XML data to find the relevant borehole data. Geost provides predefined schemas for the
+    BHR-GT XML files that are used in the Netherlands from the Dutch national BRO database.
+    A predefined schema may also be present for a specific company, which can be specified
+    using the `company` parameter. Predefined schemas from Geost can be used and extended
+    or you can provide your own schema to extract relevant attributes (see example link
+    below).
+
+    Parameters
+    ----------
+    files : str | Path | Iterable[str  |  Path]
+        File or files to read.
+    company : str | None, optional
+        Company name to use a predefined schema for. See :mod:`geost.io.xml.schemas` for
+        available schemas. If None, the predefined schema for BRO BHR-GT XML files is used
+        by default to read the data. The default is None.
+    schema : dict[str, Any], optional
+        Schema to use for reading the data which describes the structure of the XML data.
+        If not given and `company` is None, the predefined schema for BRO BHR-GT XML files
+        is used.
+    read_all : bool, optional
+        XML files may contain multiple borehole elements per XML file. If True, the function
+        will attempt to read all available data. Otherwise, only the first borehole element
+        is read. The default is False.
+
+    Returns
+    -------
+    :class:`~geost.base.BoreholeCollection`
+        BoreholeCollection containing the header and data attributes of the BHR-GT data.
+
+    Examples
+    --------
+    A full example of reading XML files can be found here:
+    https://geost.readthedocs.io/en/latest/examples/bhrgt.html
+
+    """
     header, data = xml.read(
         files, xml.read_bhrgt, company=company, schema=schema, read_all=read_all
     )
@@ -414,7 +452,45 @@ def read_bhrp(
     company: str | None = None,
     schema: dict[str, Any] = None,
     read_all: bool = False,
-) -> BoreholeCollection:  # pragma: no cover
+) -> BoreholeCollection:
+    """
+    Read Pedological borehole (BHR-P) XML file or files into a `BoreholeCollection`. This
+    reads the XML files according to a `schema` that describes the structure of the of the
+    XML data to find the relevant borehole data. Geost provides predefined schemas for the
+    BHR-P XML files that are used in the Netherlands from the Dutch national BRO database.
+    A predefined schema may also be present for a specific company, which can be specified
+    using the `company` parameter. Predefined schemas from Geost can be used and extended
+    or you can provide your own schema to extract relevant attributes (see example link
+    below).
+
+    Parameters
+    ----------
+    files : str | Path | Iterable[str  |  Path]
+        File or files to read.
+    company : str | None, optional
+        Company name to use a predefined schema for. See :mod:`geost.io.xml.schemas` for
+        available schemas. If None, the predefined schema for BRO BHR-P XML files is used
+        by default to read the data. The default is None.
+    schema : dict[str, Any], optional
+        Schema to use for reading the data which describes the structure of the XML data.
+        If not given and `company` is None, the predefined schema for BRO BHR-P XML files
+        is used.
+    read_all : bool, optional
+        XML files may contain multiple borehole elements per XML file. If True, the function
+        will attempt to read all available data. Otherwise, only the first borehole element
+        is read. The default is False.
+
+    Returns
+    -------
+    :class:`~geost.base.BoreholeCollection`
+        BoreholeCollection containing the header and data attributes of the BHR-P data.
+
+    Examples
+    --------
+    A full example of reading XML files can be found here:
+    https://geost.readthedocs.io/en/latest/examples/bhrp.html
+
+    """
     header, data = xml.read(
         files, xml.read_bhrp, company=company, schema=schema, read_all=read_all
     )
@@ -434,7 +510,46 @@ def read_bhrg(
     company: str | None = None,
     schema: dict[str, Any] = None,
     read_all: bool = False,
-) -> BoreholeCollection:  # pragma: no cover
+) -> BoreholeCollection:
+    """
+    Read Geological borehole (BHR-G) XML file or files into a `BoreholeCollection`. This
+    reads the XML files according to a `schema` that describes the structure of the of the
+    XML data to find the relevant borehole data. Geost provides predefined schemas for the
+    BHR-G) XML file or files into a BoreholeCollection. This XML files that are used in the
+    Netherlands from the Dutch national BRO database. A predefined schema may also be present
+    for a specific company, which can be specified using the `company` parameter. Predefined
+    schemas from Geost can be used and extended or you can provide your own schema to extract
+    relevant attributes (see example link below).
+
+    Parameters
+    ----------
+    files : str | Path | Iterable[str  |  Path]
+        File or files to read.
+    company : str | None, optional
+        Company name to use a predefined schema for. See :mod:`geost.io.xml.schemas` for
+        available schemas. If None, the predefined schema for BRO BHR-G) XML file or files
+        into a BoreholeCollection. This XML files is used by default to read the data. The
+        default is None.
+    schema : dict[str, Any], optional
+        Schema to use for reading the data which describes the structure of the XML data.
+        If not given and `company` is None, the predefined schema for BRO BHR-G) XML file
+        or files into a BoreholeCollection. This XML files is used.
+    read_all : bool, optional
+        XML files may contain multiple borehole elements per XML file. If True, the function
+        will attempt to read all available data. Otherwise, only the first borehole element
+        is read. The default is False.
+
+    Returns
+    -------
+    :class:`~geost.base.BoreholeCollection`
+        BoreholeCollection containing the header and data attributes of the BHR-G data.
+
+    Examples
+    --------
+    A full example of reading XML files can be found here:
+    https://geost.readthedocs.io/en/latest/examples/bhrgt.html
+
+    """
     header, data = xml.read(
         files, xml.read_bhrg, company=company, schema=schema, read_all=read_all
     )
@@ -454,7 +569,46 @@ def read_sfr(
     company: str | None = None,
     schema: dict[str, Any] = None,
     read_all: bool = False,
-) -> BoreholeCollection:  # pragma: no cover
+) -> BoreholeCollection:
+    """
+    Read Pedological wall description (SFR) XML file or files into a `BoreholeCollection`.
+    This reads the XML files according to a `schema` that describes the structure of the of
+    the XML data to find the relevant borehole data. Geost provides predefined schemas for
+    the SFR XML file or files into a BoreholeCollection. This XML files that are used in the
+    Netherlands from the Dutch national BRO database. A predefined schema may also be present
+    for a specific company, which can be specified using the `company` parameter. Predefined
+    schemas from Geost can be used and extended or you can provide your own schema to extract
+    relevant attributes (see example link below).
+
+    Parameters
+    ----------
+    files : str | Path | Iterable[str  |  Path]
+        File or files to read.
+    company : str | None, optional
+        Company name to use a predefined schema for. See :mod:`geost.io.xml.schemas` for
+        available schemas. If None, the predefined schema for BRO SFR XML file or files
+        into a BoreholeCollection. This XML files is used by default to read the data. The
+        default is None.
+    schema : dict[str, Any], optional
+        Schema to use for reading the data which describes the structure of the XML data.
+        If not given and `company` is None, the predefined schema for BRO SFR XML file or
+        files into a BoreholeCollection. This XML files is used.
+    read_all : bool, optional
+        XML files may contain multiple borehole elements per XML file. If True, the function
+        will attempt to read all available data. Otherwise, only the first borehole element
+        is read. The default is False.
+
+    Returns
+    -------
+    :class:`~geost.base.BoreholeCollection`
+        BoreholeCollection containing the header and data attributes of the SFR data.
+
+    Examples
+    --------
+    A full example of reading XML files can be found here:
+    https://geost.readthedocs.io/en/latest/examples/bhrgt.html
+
+    """
     header, data = xml.read(
         files, xml.read_sfr, company=company, schema=schema, read_all=read_all
     )
@@ -495,7 +649,46 @@ def read_cpt(
     company: str | None = None,
     schema: dict[str, Any] = None,
     read_all: bool = False,
-) -> CptCollection:  # pragma: no cover
+) -> CptCollection:
+    """
+    Read Cone Penetration Test (CPT) XML file or files into a `CptCollection`. This reads
+    the XML files according to a `schema` that describes the structure of the of the XML
+    data to find the relevant CPT data. Geost provides predefined schemas for the CPT XML
+    file or files into a CptCollection. This XML files that are used in the Netherlands
+    from the Dutch national BRO database. A predefined schema may also be present for a
+    specific company, which can be specified using the `company` parameter. Predefined
+    schemas from Geost can be used and extended or you can provide your own schema to
+    extract relevant attributes (see example link below).
+
+    Parameters
+    ----------
+    files : str | Path | Iterable[str  |  Path]
+        File or files to read.
+    company : str | None, optional
+        Company name to use a predefined schema for. See :mod:`geost.io.xml.schemas` for
+        available schemas. If None, the predefined schema for BRO CPT XML file or files
+        into a CptCollection. This XML files is used by default to read the data. The
+        default is None.
+    schema : dict[str, Any], optional
+        Schema to use for reading the data which describes the structure of the XML data.
+        If not given and `company` is None, the predefined schema for BRO CPT XML file or
+        files into a CptCollection. This XML files is used.
+    read_all : bool, optional
+        XML files may contain multiple CPT elements per XML file. If True, the function
+        will attempt to read all available data. Otherwise, only the first CPT element
+        is read. The default is False.
+
+    Returns
+    -------
+    :class:`~geost.base.CptCollection`
+        CptCollection containing the header and data attributes of the CPT data.
+
+    Examples
+    --------
+    A full example of reading XML files can be found here:
+    https://geost.readthedocs.io/en/latest/examples/bhrgt.html
+
+    """
     header, data = xml.read(
         files, xml.read_cpt, company=company, schema=schema, read_all=read_all
     )
@@ -696,16 +889,24 @@ def bro_api_read(
 
     Parameters
     ----------
-    bro_ids : str | list[str], optional
+    object_type : BroObject
+        Type of BRO object to read. This can be one of the following: "BHR-GT", "BHR-P",
+        "BHR-G", "CPT", "SFR".
+    bro_ids : str | list[str], optional (keyword only)
         List of BRO object ids to read. If not given, the bbox or geometry must be
         provided to select the objects to read. If given, bbox and geometry are ignored.
     bbox : tuple[float, float, float, float], optional
-        The bounding box to search within. The default is None.
-    geometry : gpd.GeoDataFrame, optional
-        The geometry to search within. The default is None.
-    buffer : int | float, optional
-        The buffer distance to apply to the geometry. The default is None.
-    schema : dict[str, Any], optional
+        Bounding box (xmin, ymin, xmax, ymax) to search BRO objects within. The default is
+        None.
+    geometry : gpd.GeoDataFrame, optional (keyword only)
+        Geometry to search within. Can be any Shapely geometry object (Point, Line, Polygon),
+        Geopandas GeoDataFrame of path to a geometry file. The function retrieve the BRO objects
+        that are within the outermost bounds (i.e. bounding box) of the input geometry. The
+        default is None.
+    buffer : int | float, optional (keyword only)
+        Buffer distance to apply to the geometry. This increases the bounding box of the the
+        input geometry. The default is None.
+    schema : dict[str, Any], optional (keyword only)
         XML schema to use for reading the data which describes the structure of the XML
         data. If not given, the function will use the default schema for the specified
         object_type provided by Geost (see `geost.io.xml.schemas`). Note that predefined
@@ -718,7 +919,47 @@ def bro_api_read(
     Subclass of `geost.base.Collection`
         Returns a subclass of `geost.base.Collection` depending on the object_type.
 
+    Examples
+    --------
+    Read a list of specific borehole ids from the BRO API (max 2000 objects):
+    >>> import geost
+    ... bhrgt = geost.bro_api_read("BHR-GT", bro_ids=["BHR000000339725", "BHR000000339735"])
+    ... bhrgt
+    BoreholeCollection:
+    # header = 2
+
+    Or read geological boreholes (BHR-G) within a bounding box:
+    >>> import geost
+    ... bbox = (126_800, 448_000, 127_800, 449_000)  # xmin, ymin, xmax, ymax
+    ... bhrg = geost.bro_api_read("BHR-G", bbox=bbox)
+    BoreholeCollection:
+    # header = 3
+
+    Or within shapefile containing a Polygon geometry of the same bounding box of the
+    previous example (Point or Line geometries are also supported):
+    >>> import geost
+    ... bhrg = geost.bro_api_read("BHR-G", geometry="my_polygon.shp")
+    BoreholeCollection:
+    # header = 3
+
+    Or within the shapefile and applying a buffer:
+    >>> import geost
+    ... bhrg = geost.bro_api_read("BHR-G", geometry="my_polygon.shp", buffer=500)
+    BoreholeCollection:
+    # header = 5
+
     """
+    readers = {
+        "BHR-GT": read_bhrgt,
+        "BHR-P": read_bhrp,
+        "BHR-G": read_bhrg,
+        "CPT": read_cpt,
+        "SFR": read_sfr,
+    }
+    reader = readers.get(object_type, None)
+    if reader is None:
+        raise ValueError(f"Object type '{object_type}' is not supported for reading.")
+
     api = BroApi()
 
     if bro_ids is not None:
@@ -734,14 +975,6 @@ def bro_api_read(
         api.search_objects_in_bbox(xmin, ymin, xmax, ymax, object_type=object_type)
         bro_data = api.get_objects(api.object_list, object_type=object_type)
 
-    readers = {
-        "BHR-GT": read_bhrgt,
-        "BHR-P": read_bhrp,
-        "BHR-G": read_bhrg,
-        "CPT": read_cpt,
-        "SFR": read_sfr,
-    }
-    reader = readers[object_type]
     collection = reader(bro_data, schema=schema)
 
     return collection

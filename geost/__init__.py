@@ -11,6 +11,7 @@ from geost.io.read import (
     read_gef_cpts,
     read_nlog_cores,
     read_pickle,
+    read_sfr,
     read_uullg_tables,
     read_xml_boris,
 )
