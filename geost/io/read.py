@@ -571,7 +571,7 @@ def read_sfr(
     read_all: bool = False,
 ) -> BoreholeCollection:
     """
-    Read Pedological wall description (SFR) XML file or files into a `BoreholeCollection`.
+    Read Pedological soilprofile description (SFR) XML file or files into a `BoreholeCollection`.
     This reads the XML files according to a `schema` that describes the structure of the of
     the XML data to find the relevant borehole data. Geost provides predefined schemas for
     the SFR XML file or files into a BoreholeCollection. This XML files that are used in the
