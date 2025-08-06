@@ -63,6 +63,7 @@ def read(
         lengths.append(len(df))
 
     header = pd.DataFrame(header)
+    header["end"] = header["surface"] - header["end"]
     data = pd.concat(data, ignore_index=True)
 
     # Add relevant header attributes to the data DataFrame

@@ -4,7 +4,7 @@ from typing import Any, Callable
 import numpy as np
 import pandas as pd
 import pytest
-from numpy.testing import assert_array_equal
+from numpy.testing import assert_array_almost_equal, assert_array_equal
 
 from geost.io import xml
 from geost.io.xml import schemas
@@ -18,18 +18,17 @@ def xml_string(testdatadir: Path):
 
 
 @pytest.mark.parametrize(
-    "file, reader",
+    "file, reader, expected_end_nap",
     [
-        ("bhrgt_bro.xml", xml.read_bhrgt),
-        ("bhrg_bro.xml", xml.read_bhrg),
-        ("bhrp_bro.xml", xml.read_bhrp),
-        ("cpt_bro.xml", xml.read_cpt),
-        ("sfr_bro.xml", xml.read_sfr),
+        ("bhrgt_bro.xml", xml.read_bhrgt, -6.91),
+        ("bhrg_bro.xml", xml.read_bhrg, -2.31),
+        ("bhrp_bro.xml", xml.read_bhrp, -1.29),
+        ("cpt_bro.xml", xml.read_cpt, -6.48),
+        ("sfr_bro.xml", xml.read_sfr, -0.73),
     ],
+    ids=["bhrgt", "bhrg", "bhrp", "cpt", "sfr"],
 )
-def test_read(
-    testdatadir: Path, file: str, reader: Callable
-):
+def test_read(testdatadir: Path, file: str, reader: Callable, expected_end_nap: float):
     bro_xml = testdatadir / r"xml" / file
     header, data = xml.read(bro_xml, reader)
     assert isinstance(header, pd.DataFrame)
@@ -39,6 +38,9 @@ def test_read(
 
     if "top" in data.columns and "bottom" in data.columns:
         assert data["top"].dtype == data["bottom"].dtype == float
+
+    assert_array_almost_equal(header["end"], expected_end_nap)
+    assert_array_almost_equal(data["end"], expected_end_nap)
 
 
 class TestBhrgt:
