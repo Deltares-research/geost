@@ -8,6 +8,14 @@ On this page you will find links to examples and projects that ultilize GeoST fo
 managing subsurface data.
 
 ````{grid} 1 2 2 4
+:gutter: 3
+```{grid-item-card} Read XML files
+:text-align: center
+:link: ./examples/read_xml.html
+:link-type: url
+:img-bottom: ./_static/example_bro_soil.png
+Extracting data from XML files from BRO or other sources.
+```
 ```{grid-item-card} BRO soil cores using the BRO API
 :text-align: center
 :link: ./examples/bro_soil_cores.html

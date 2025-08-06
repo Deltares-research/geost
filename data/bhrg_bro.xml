@@ -1,0 +1,212 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<dispatchDataResponse xmlns:bhrgcom="http://www.broservices.nl/xsd/bhrgcommon/3.1" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:brocom="http://www.broservices.nl/xsd/brocommon/3.0" xmlns="http://www.broservices.nl/xsd/dsbhrg/3.1" xmlns:gml="http://www.opengis.net/gml/3.2">
+  <brocom:responseType>dispatch</brocom:responseType>
+  <brocom:requestReference>-</brocom:requestReference>
+  <brocom:dispatchTime>2025-08-04T11:36:40+02:00</brocom:dispatchTime>
+  <dispatchDocument>
+    <BHR_G_O gml:id="BRO_0013">
+      <brocom:broId>BHR000000396406</brocom:broId>
+      <brocom:deliveryAccountableParty>50200097</brocom:deliveryAccountableParty>
+      <brocom:qualityRegime>IMBRO/A</brocom:qualityRegime>
+      <deliveryContext codeSpace="urn:bro:bhrg:DeliveryContext">archiefoverdracht</deliveryContext>
+      <surveyPurpose codeSpace="urn:bro:bhrg:SurveyPurpose">onbekend</surveyPurpose>
+      <discipline codeSpace="urn:bro:bhrg:Discipline">geologie</discipline>
+      <surveyProcedure codeSpace="urn:bro:bhrg:SurveyProcedure">geen</surveyProcedure>
+      <researchReportDate>
+        <brocom:date>2004-09-22</brocom:date>
+      </researchReportDate>
+      <registrationHistory>
+        <brocom:objectRegistrationTime>2025-02-04T17:41:43+01:00</brocom:objectRegistrationTime>
+        <brocom:registrationStatus codeSpace="urn:bro:RegistrationStatus">voltooid</brocom:registrationStatus>
+        <brocom:registrationCompletionTime>2025-02-04T17:41:43+01:00</brocom:registrationCompletionTime>
+        <brocom:corrected>nee</brocom:corrected>
+        <brocom:underReview>nee</brocom:underReview>
+        <brocom:deregistered>nee</brocom:deregistered>
+        <brocom:reregistered>nee</brocom:reregistered>
+      </registrationHistory>
+      <NITGCode>B31G2129</NITGCode>
+      <reportHistory>
+        <bhrgcom:event>
+          <bhrgcom:date>
+            <brocom:date>2004-09-22</brocom:date>
+          </bhrgcom:date>
+          <bhrgcom:name codeSpace="urn:bro:bhrg:EventName">volledigGerapporteerd</bhrgcom:name>
+        </bhrgcom:event>
+      </reportHistory>
+      <deliveredLocation>
+        <bhrgcom:location>
+          <gml:Point srsName="urn:ogc:def:crs:EPSG::28992" gml:id="BRO_0001">
+            <gml:pos>126149.000 452162.000</gml:pos>
+          </gml:Point>
+        </bhrgcom:location>
+        <bhrgcom:horizontalPositioningDate>
+          <brocom:date>2004-09-22</brocom:date>
+        </bhrgcom:horizontalPositioningDate>
+        <bhrgcom:horizontalPositioningMethod codeSpace="urn:bro:bhrg:HorizontalPositioningMethod">onbekend</bhrgcom:horizontalPositioningMethod>
+      </deliveredLocation>
+      <deliveredVerticalPosition>
+        <bhrgcom:localVerticalReferencePoint codeSpace="urn:bro:bhrg:LocalVerticalReferencePoint">maaiveld</bhrgcom:localVerticalReferencePoint>
+        <bhrgcom:offset uom="m">0.690</bhrgcom:offset>
+        <bhrgcom:verticalDatum codeSpace="urn:bro:bhrg:VerticalDatum">NAP</bhrgcom:verticalDatum>
+        <bhrgcom:verticalPositioningDate>
+          <brocom:date>2004-09-22</brocom:date>
+        </bhrgcom:verticalPositioningDate>
+        <bhrgcom:verticalPositioningMethod codeSpace="urn:bro:bhrg:VerticalPositioningMethod">onbekend</bhrgcom:verticalPositioningMethod>
+      </deliveredVerticalPosition>
+      <standardizedLocation>
+        <brocom:location srsName="urn:ogc:def:crs:EPSG::4258" gml:id="BRO_0002">
+          <gml:pos>52.057009967 4.966538731</gml:pos>
+        </brocom:location>
+        <brocom:coordinateTransformation codeSpace="urn:bro:CoordinateTransformation">RDNAPTRANS2018</brocom:coordinateTransformation>
+      </standardizedLocation>
+      <boring>
+        <bhrgcom:Boring gml:id="BRO_0005">
+          <bhrgcom:boringStartDate>
+            <brocom:date>2004-09-22</brocom:date>
+          </bhrgcom:boringStartDate>
+          <bhrgcom:boringEndDate>
+            <brocom:voidReason>onbekend</brocom:voidReason>
+          </bhrgcom:boringEndDate>
+          <bhrgcom:preparation xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" codeSpace="urn:bro:bhrg:Preparation" xsi:nil="true"/>
+          <bhrgcom:trajectoryExcavated>nee</bhrgcom:trajectoryExcavated>
+          <bhrgcom:rockReached>nee</bhrgcom:rockReached>
+          <bhrgcom:boringProcedure codeSpace="urn:bro:bhrg:BoringProcedure">onbekend</bhrgcom:boringProcedure>
+          <bhrgcom:finalDepthBoring uom="m">3.00</bhrgcom:finalDepthBoring>
+          <bhrgcom:stopCriterion codeSpace="urn:bro:bhrg:StopCriterionField">onbekend</bhrgcom:stopCriterion>
+          <bhrgcom:samplingProcedure codeSpace="urn:bro:bhrg:SamplingProcedure">onbekend</bhrgcom:samplingProcedure>
+          <bhrgcom:finalDepthSampling xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" uom="m" xsi:nil="true"/>
+          <bhrgcom:subsurfaceContaminated xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true"/>
+          <bhrgcom:boreholeCompleted>onbekend</bhrgcom:boreholeCompleted>
+          <bhrgcom:boredInterval>
+            <bhrgcom:BoredInterval gml:id="BRO_0003">
+              <bhrgcom:beginDepth uom="m">0.00</bhrgcom:beginDepth>
+              <bhrgcom:endDepth uom="m">3.00</bhrgcom:endDepth>
+              <bhrgcom:boringTechnique codeSpace="urn:bro:bhrg:BoringTechnique">handDraaien</bhrgcom:boringTechnique>
+              <bhrgcom:boredDiameter xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" uom="mm" xsi:nil="true"/>
+            </bhrgcom:BoredInterval>
+          </bhrgcom:boredInterval>
+          <bhrgcom:sampledInterval>
+            <bhrgcom:SampledInterval gml:id="BRO_0004">
+              <bhrgcom:beginDepth uom="m">0.00</bhrgcom:beginDepth>
+              <bhrgcom:endDepth uom="m">3.00</bhrgcom:endDepth>
+              <bhrgcom:preTreatment codeSpace="urn:bro:bhrg:PreTreatment">onbekend</bhrgcom:preTreatment>
+              <bhrgcom:samplingMethod codeSpace="urn:bro:bhrg:SamplingMethod">opDiepteLosroeren</bhrgcom:samplingMethod>
+              <bhrgcom:samplingQuality codeSpace="urn:bro:bhrg:SamplingQuality">geroerd</bhrgcom:samplingQuality>
+            </bhrgcom:SampledInterval>
+          </bhrgcom:sampledInterval>
+        </bhrgcom:Boring>
+      </boring>
+      <boreholeSampleDescription>
+        <bhrgcom:BoreholeSampleDescription gml:id="BRO_0012">
+          <bhrgcom:descriptionReportDate>
+            <brocom:date>2004-09-22</brocom:date>
+          </bhrgcom:descriptionReportDate>
+          <bhrgcom:descriptionProcedure codeSpace="urn:bro:bhrg:DescriptionProcedure">NEN5104plusOnbekend</bhrgcom:descriptionProcedure>
+          <bhrgcom:descriptiveBoreholeLog>
+            <bhrgcom:DescriptiveBoreholeLog gml:id="BRO_0011">
+              <bhrgcom:descriptionQuality codeSpace="urn:bro:bhrg:DescriptionQuality">geologischNEN5104Archief</bhrgcom:descriptionQuality>
+              <bhrgcom:describedSamplesQuality codeSpace="urn:bro:bhrg:DescribedSamplesQuality">geroerd</bhrgcom:describedSamplesQuality>
+              <bhrgcom:continuouslySampled>ja</bhrgcom:continuouslySampled>
+              <bhrgcom:descriptionLocation codeSpace="urn:bro:bhrg:DescriptionLocation">veld</bhrgcom:descriptionLocation>
+              <bhrgcom:describedMaterial codeSpace="urn:bro:bhrg:DescribedMaterial">grond</bhrgcom:describedMaterial>
+              <bhrgcom:sampleMoistness codeSpace="urn:bro:bhrg:SampleMoistness">onbekend</bhrgcom:sampleMoistness>
+              <bhrgcom:layer>
+                <bhrgcom:Layer gml:id="BRO_0006">
+                  <bhrgcom:upperBoundary uom="m">0.000</bhrgcom:upperBoundary>
+                  <bhrgcom:upperBoundaryDetermination codeSpace="urn:bro:bhrg:BoundaryPositioningMethod">waargenomen</bhrgcom:upperBoundaryDetermination>
+                  <bhrgcom:lowerBoundary uom="m">0.250</bhrgcom:lowerBoundary>
+                  <bhrgcom:lowerBoundaryDetermination codeSpace="urn:bro:bhrg:BoundaryPositioningMethod">onbekend</bhrgcom:lowerBoundaryDetermination>
+                  <bhrgcom:anthropogenic>onbekend</bhrgcom:anthropogenic>
+                  <bhrgcom:rooted>onbekend</bhrgcom:rooted>
+                  <bhrgcom:soil>
+                    <bhrgcom:soilNameNEN5104 codeSpace="urn:bro:bhrg:SoilNameNEN5104">zwakZandigeKlei</bhrgcom:soilNameNEN5104>
+                    <bhrgcom:gravelContentClass codeSpace="urn:bro:bhrg:GravelContentClass">onbekend</bhrgcom:gravelContentClass>
+                    <bhrgcom:organicMatterContentClassNEN5104 codeSpace="urn:bro:bhrg:OrganicMatterContentClassNEN5104">matigHumeus</bhrgcom:organicMatterContentClassNEN5104>
+                    <bhrgcom:carbonateContentClass codeSpace="urn:bro:bhrg:CarbonateContentClass">onbekend</bhrgcom:carbonateContentClass>
+                    <bhrgcom:colour codeSpace="urn:bro:bhrg:Colour">onbekend</bhrgcom:colour>
+                    <bhrgcom:particularConstituent>
+                      <bhrgcom:constituentType codeSpace="urn:bro:bhrg:ParticularConstituentType">puin</bhrgcom:constituentType>
+                      <bhrgcom:archiveClass codeSpace="urn:bro:bhrg:ArchiveClass">onbekend</bhrgcom:archiveClass>
+                    </bhrgcom:particularConstituent>
+                  </bhrgcom:soil>
+                </bhrgcom:Layer>
+              </bhrgcom:layer>
+              <bhrgcom:layer>
+                <bhrgcom:Layer gml:id="BRO_0007">
+                  <bhrgcom:upperBoundary uom="m">0.250</bhrgcom:upperBoundary>
+                  <bhrgcom:upperBoundaryDetermination codeSpace="urn:bro:bhrg:BoundaryPositioningMethod">onbekend</bhrgcom:upperBoundaryDetermination>
+                  <bhrgcom:lowerBoundary uom="m">1.600</bhrgcom:lowerBoundary>
+                  <bhrgcom:lowerBoundaryDetermination codeSpace="urn:bro:bhrg:BoundaryPositioningMethod">onbekend</bhrgcom:lowerBoundaryDetermination>
+                  <bhrgcom:anthropogenic>onbekend</bhrgcom:anthropogenic>
+                  <bhrgcom:rooted>onbekend</bhrgcom:rooted>
+                  <bhrgcom:soil>
+                    <bhrgcom:soilNameNEN5104 codeSpace="urn:bro:bhrg:SoilNameNEN5104">sterkSiltigeKlei</bhrgcom:soilNameNEN5104>
+                    <bhrgcom:gravelContentClass codeSpace="urn:bro:bhrg:GravelContentClass">onbekend</bhrgcom:gravelContentClass>
+                    <bhrgcom:organicMatterContentClassNEN5104 codeSpace="urn:bro:bhrg:OrganicMatterContentClassNEN5104">zwakHumeus</bhrgcom:organicMatterContentClassNEN5104>
+                    <bhrgcom:carbonateContentClass codeSpace="urn:bro:bhrg:CarbonateContentClass">onbekend</bhrgcom:carbonateContentClass>
+                    <bhrgcom:colour codeSpace="urn:bro:bhrg:Colour">onbekend</bhrgcom:colour>
+                  </bhrgcom:soil>
+                </bhrgcom:Layer>
+              </bhrgcom:layer>
+              <bhrgcom:layer>
+                <bhrgcom:Layer gml:id="BRO_0008">
+                  <bhrgcom:upperBoundary uom="m">1.600</bhrgcom:upperBoundary>
+                  <bhrgcom:upperBoundaryDetermination codeSpace="urn:bro:bhrg:BoundaryPositioningMethod">onbekend</bhrgcom:upperBoundaryDetermination>
+                  <bhrgcom:lowerBoundary uom="m">2.000</bhrgcom:lowerBoundary>
+                  <bhrgcom:lowerBoundaryDetermination codeSpace="urn:bro:bhrg:BoundaryPositioningMethod">onbekend</bhrgcom:lowerBoundaryDetermination>
+                  <bhrgcom:anthropogenic>onbekend</bhrgcom:anthropogenic>
+                  <bhrgcom:rooted>onbekend</bhrgcom:rooted>
+                  <bhrgcom:soil>
+                    <bhrgcom:soilNameNEN5104 codeSpace="urn:bro:bhrg:SoilNameNEN5104">zwakZandigeKlei</bhrgcom:soilNameNEN5104>
+                    <bhrgcom:gravelContentClass codeSpace="urn:bro:bhrg:GravelContentClass">onbekend</bhrgcom:gravelContentClass>
+                    <bhrgcom:organicMatterContentClassNEN5104 codeSpace="urn:bro:bhrg:OrganicMatterContentClassNEN5104">zwakHumeus</bhrgcom:organicMatterContentClassNEN5104>
+                    <bhrgcom:carbonateContentClass codeSpace="urn:bro:bhrg:CarbonateContentClass">onbekend</bhrgcom:carbonateContentClass>
+                    <bhrgcom:colour codeSpace="urn:bro:bhrg:Colour">onbekend</bhrgcom:colour>
+                  </bhrgcom:soil>
+                </bhrgcom:Layer>
+              </bhrgcom:layer>
+              <bhrgcom:layer>
+                <bhrgcom:Layer gml:id="BRO_0009">
+                  <bhrgcom:upperBoundary uom="m">2.000</bhrgcom:upperBoundary>
+                  <bhrgcom:upperBoundaryDetermination codeSpace="urn:bro:bhrg:BoundaryPositioningMethod">onbekend</bhrgcom:upperBoundaryDetermination>
+                  <bhrgcom:lowerBoundary uom="m">2.500</bhrgcom:lowerBoundary>
+                  <bhrgcom:lowerBoundaryDetermination codeSpace="urn:bro:bhrg:BoundaryPositioningMethod">onbekend</bhrgcom:lowerBoundaryDetermination>
+                  <bhrgcom:anthropogenic>onbekend</bhrgcom:anthropogenic>
+                  <bhrgcom:rooted>onbekend</bhrgcom:rooted>
+                  <bhrgcom:soil>
+                    <bhrgcom:soilNameNEN5104 codeSpace="urn:bro:bhrg:SoilNameNEN5104">sterkZandigeKlei</bhrgcom:soilNameNEN5104>
+                    <bhrgcom:gravelContentClass codeSpace="urn:bro:bhrg:GravelContentClass">onbekend</bhrgcom:gravelContentClass>
+                    <bhrgcom:organicMatterContentClassNEN5104 codeSpace="urn:bro:bhrg:OrganicMatterContentClassNEN5104">zwakHumeus</bhrgcom:organicMatterContentClassNEN5104>
+                    <bhrgcom:carbonateContentClass codeSpace="urn:bro:bhrg:CarbonateContentClass">onbekend</bhrgcom:carbonateContentClass>
+                    <bhrgcom:colour codeSpace="urn:bro:bhrg:Colour">onbekend</bhrgcom:colour>
+                  </bhrgcom:soil>
+                </bhrgcom:Layer>
+              </bhrgcom:layer>
+              <bhrgcom:layer>
+                <bhrgcom:Layer gml:id="BRO_0010">
+                  <bhrgcom:upperBoundary uom="m">2.500</bhrgcom:upperBoundary>
+                  <bhrgcom:upperBoundaryDetermination codeSpace="urn:bro:bhrg:BoundaryPositioningMethod">onbekend</bhrgcom:upperBoundaryDetermination>
+                  <bhrgcom:lowerBoundary uom="m">3.000</bhrgcom:lowerBoundary>
+                  <bhrgcom:lowerBoundaryDetermination codeSpace="urn:bro:bhrg:BoundaryPositioningMethod">voorbepaald</bhrgcom:lowerBoundaryDetermination>
+                  <bhrgcom:anthropogenic>onbekend</bhrgcom:anthropogenic>
+                  <bhrgcom:rooted>onbekend</bhrgcom:rooted>
+                  <bhrgcom:soil>
+                    <bhrgcom:soilNameNEN5104 codeSpace="urn:bro:bhrg:SoilNameNEN5104">zwakSiltigZand</bhrgcom:soilNameNEN5104>
+                    <bhrgcom:gravelContentClass codeSpace="urn:bro:bhrg:GravelContentClass">onbekend</bhrgcom:gravelContentClass>
+                    <bhrgcom:organicMatterContentClassNEN5104 codeSpace="urn:bro:bhrg:OrganicMatterContentClassNEN5104">onbekend</bhrgcom:organicMatterContentClassNEN5104>
+                    <bhrgcom:carbonateContentClass codeSpace="urn:bro:bhrg:CarbonateContentClass">onbekend</bhrgcom:carbonateContentClass>
+                    <bhrgcom:colour codeSpace="urn:bro:bhrg:Colour">onbekend</bhrgcom:colour>
+                    <bhrgcom:sandFraction>
+                      <bhrgcom:sandMedianClass codeSpace="urn:bro:bhrg:SandMedianClass">matigFijnNEN5104</bhrgcom:sandMedianClass>
+                      <bhrgcom:sandSorting codeSpace="urn:bro:bhrg:SandSorting">onbekend</bhrgcom:sandSorting>
+                    </bhrgcom:sandFraction>
+                  </bhrgcom:soil>
+                </bhrgcom:Layer>
+              </bhrgcom:layer>
+            </bhrgcom:DescriptiveBoreholeLog>
+          </bhrgcom:descriptiveBoreholeLog>
+        </bhrgcom:BoreholeSampleDescription>
+      </boreholeSampleDescription>
+    </BHR_G_O>
+  </dispatchDocument>
+</dispatchDataResponse>
