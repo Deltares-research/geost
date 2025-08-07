@@ -118,7 +118,10 @@ def _read_xml(
                     if "el-attr" in d:
                         el = getattr(el, d["el-attr"])
 
-                    data[key] = func(el, attributes=d.get("layer-attributes", ""))
+                    if attributes := d.get("layer-attributes", ""):
+                        data[key] = func(el, attributes=attributes)
+                    else:
+                        data[key] = func(el)
                 else:
                     data[key] = el.text
             else:

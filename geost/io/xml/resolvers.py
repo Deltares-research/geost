@@ -7,7 +7,7 @@ import numpy as np
 from lxml import etree
 
 
-def parse_crs(el: etree.Element, **_) -> str:
+def parse_crs(el: etree.Element) -> str:
     """
     Retrieve the coordinate reference system (CRS) from an XML element.
 
@@ -26,7 +26,7 @@ def parse_crs(el: etree.Element, **_) -> str:
     return el.attrib.get("srsName", "unknown")
 
 
-def parse_coordinates(coords: str, **_) -> tuple[float, float]:
+def parse_coordinates(coords: str) -> tuple[float, float]:
     """
     Parse a string containing coordinates as a tuple of floats.
 
@@ -58,7 +58,7 @@ def parse_coordinates(coords: str, **_) -> tuple[float, float]:
     return float(x), float(y)
 
 
-def safe_float(value: Any, **_) -> float | None:
+def safe_float(value: Any) -> float | None:
     """
     Try to cast a value to a float dtype. Returns None if the value cannot be casted.
 
@@ -221,7 +221,7 @@ def process_bhrp_data(el: etree.Element, attributes: list | None) -> dict:
     return _process_layers(layers, attributes)
 
 
-def process_cpt_data(el: etree.Element, **_) -> dict:
+def process_cpt_data(el: etree.Element) -> dict:
     """
     Process an XML element containing the data in CPT data objects.
 
