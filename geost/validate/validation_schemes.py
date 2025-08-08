@@ -32,6 +32,17 @@ class ValidationSchemas(NamedTuple):
         "x_bot": Column(numeric),
         "y_bot": Column(numeric),
     }
+    dataschema_grainsize_data = {
+        "sample_nr": Column(stringlike),
+        "nr": Column(stringlike),
+        "x": Column(numeric),
+        "y": Column(numeric),
+        "top": Column(numeric),
+        "bottom": Column(numeric, checks=Check(">", "top", report_by="sample_nr")),
+        "d_low": Column(numeric),
+        "d_high": Column(numeric, checks=Check(">", "d_low", report_by="sample_nr")),
+        "percentage": Column(numeric, checks=Check(">=", 0, report_by="sample_nr")),
+    }
 
     # Below schemas are not yet in use
     boreholeschema = {

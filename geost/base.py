@@ -23,7 +23,17 @@ from geost.projections import (
     horizontal_reference_transformer,
     vertical_reference_transformer,
 )
-from geost.validate.decorators import validate_data, validate_header
+from geost.spatial import check_gdf_instance
+from geost.utils import (
+    _to_geopackage,
+    dataframe_to_geodataframe,
+    save_pickle,
+)
+from geost.validate.decorators import (
+    validate_data,
+    validate_grainsize_data,
+    validate_header,
+)
 
 type DataObject = DiscreteData | LayeredData
 type HeaderObject = LineHeader | PointHeader
@@ -2487,6 +2497,25 @@ class BoreholeCollection(Collection):
     data : :class:`~geost.base.LayeredData`
         Instance of a data object corresponding to the header.
     """
+
+    @validate_grainsize_data
+    def add_grainsize_data(self, sample_data: pd.DataFrame):
+        """
+        Add grain size data to the borehole collection.
+
+        Parameters
+        ----------
+        sample_data : pd.DataFrame
+            DataFrame containing sample data with a column "nr" that contains borehole ids.
+
+        """
+        sample_data["nr"].unique()
+        warnings.warn(
+            "Header covers more/other objects than present in the data table, "
+            "consider running the method 'reset_header' to update the header.",
+            AlignmentWarning,
+        )
+        self.sample_data = sample_data
 
     def get_cumulative_thickness(
         self, column: str, values: str | List[str], include_in_header: bool = False

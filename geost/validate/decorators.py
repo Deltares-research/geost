@@ -42,3 +42,16 @@ def validate_data(f):
         return f(*args)
 
     return wrapper
+
+
+def validate_grainsize_data(f):
+    @wraps(f)
+    def wrapper(*args):
+        dataframe_to_validate = args[1]
+        validation_instance = DataFrameSchema(
+            "Grainsize Data", validationschemas.dataschema_grainsize_data
+        )
+        validation_instance.validate(dataframe_to_validate)
+        return f(*args)
+
+    return wrapper
