@@ -45,27 +45,27 @@ We collect additional examples that make use of GeoST and other Subsurface Toolb
 the [Deltares sst-examples repository](https://github.com/Deltares-research/sst-examples).
 
 ## Supported data and file formats
-- From local files
-    - Tabular data of borehole, CPT, etc. (.parquet, .csv)
-    - Geological boreholes (BHR-G) xml
-    - Geotechnical boreholes (BHR-GT) xml
-    - Pedological boreholes (BHR-P) xml
-    - Cone Penetration Test (CPT) xml/gef
-    - Pedological soilprofile descriptions (SFR) xml
-    - BORIS (TNO borehole description software) xml
-- Directly from the [BRO REST-API](https://www.bro-productomgeving.nl/bpo/latest/url-s-publieke-rest-services)
-    - BHR-G
-    - BHR-GT
-    - BHR-P
-    - CPT
-    - SFR
-- BRO models
-    - GeoTOP: from local NetCDF or directly via [OPeNDAP server](https://dinodata.nl/opendap/)
+**From local files**:
+- Tabular data of borehole, CPT, etc. (.parquet, .csv)
+- Geological boreholes xml (BHR-G)
+- Geotechnical boreholes xml (BHR-GT)
+- Pedological boreholes xml (BHR-P)
+- Cone Penetration Test xml/gef (CPT)
+- Pedological soilprofile descriptions xml (SFR)
 
-Planned:
-- BRO/PDOK geopackage [BHR-G](https://service.pdok.nl/bzk/bro-geologisch-booronderzoek/atom/index.xml), [BHR-GT](https://service.pdok.nl/bzk/bro-geotechnischbooronderzoek/atom/v1_0/index.xml), [BHR-P](https://service.pdok.nl/bzk/brobhrpvolledigeset/atom/v1_1/index.xml), [CPT](https://service.pdok.nl/bzk/brocptvolledigeset/atom/v1_0/index.xml), [SFR](https://service.pdok.nl/bzk/bodem/bro-wandonderzoek/atom/index.xml)
-- Well log LAS files
-- Well log ASCII files
+**Directly from the [BRO REST-API](https://www.bro-productomgeving.nl/bpo/latest/url-s-publieke-rest-services)**:
+- BHR-G
+- BHR-GT
+- BHR-P
+- CPT
+- SFR
+
+**BRO models**:
+- GeoTOP: from local NetCDF or directly via [OPeNDAP server](https://dinodata.nl/opendap/)
+
+*Planned*:
+- BRO/PDOK geopackages: [BHR-G](https://service.pdok.nl/bzk/bro-geologisch-booronderzoek/atom/index.xml), [BHR-GT](https://service.pdok.nl/bzk/bro-geotechnischbooronderzoek/atom/v1_0/index.xml), [BHR-P](https://service.pdok.nl/bzk/brobhrpvolledigeset/atom/v1_1/index.xml), [CPT](https://service.pdok.nl/bzk/brocptvolledigeset/atom/v1_0/index.xml), [SFR](https://service.pdok.nl/bzk/bodem/bro-wandonderzoek/atom/index.xml)
+- Well logs LAS/ASCII
 - REGIS II
 - Dino xml geological boreholes
 - BHR-G gef
@@ -87,9 +87,9 @@ For a better overview of basic functionality, see the [Basics Tutorial](https://
 You can contribute by testing, raising issues and making pull requests. Some general guidelines:
 
 - Use new branches for developing new features or bugfixes. Use prefixes such as feature/ bugfix/ experimental/ to indicate the type of branch
-- Add unit tests (and test data) for new methods and functions. We use pytest.
+- Add unit tests (and test data) for new methods and functions using pytest.
 - Add Numpy-style docstrings
-- Use Black formatting with default line lenght (88 characters)
+- Use Black formatting with default line length (88 characters)
 - Update requirement.txt en environment.yml files if required
 
 ## License
