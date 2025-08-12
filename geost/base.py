@@ -23,12 +23,12 @@ from geost.projections import (
     horizontal_reference_transformer,
     vertical_reference_transformer,
 )
-from geost.spatial import check_gdf_instance
 from geost.utils import (
     _to_geopackage,
     dataframe_to_geodataframe,
     save_pickle,
 )
+from geost.validate import schemas
 from geost.validate.decorators import (
     validate_data,
     validate_grainsize_data,
@@ -577,12 +577,12 @@ class LayeredData(AbstractData, PandasExportMixin):
         return self.__datatype
 
     @df.setter
-    @validate_data
+    #@validate_data
     def df(self, df):
         """
         Underlying pandas.DataFrame
         """
-        self._df = df
+        self._df = schemas.ValidationSchemas.layerdata.validate(df)
 
     @staticmethod
     def _check_correct_instance(selection_values: str | Iterable) -> Iterable:

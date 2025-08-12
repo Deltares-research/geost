@@ -91,6 +91,7 @@ pydata-sphinx-theme = "*"
 sphinx-design = "*"
 myst-nb = "*"
 pooch = "*"
+pandera = "*"
 
 [tool.pixi.pypi-dependencies]
 geost = { path = ".", editable = true }
