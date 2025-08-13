@@ -698,6 +698,7 @@ def read_cpt(
         ),
         vertical_reference=5709,
     )
+    data.fillna({"depth": data["penetrationlength"]}, inplace=True)
     data = DiscreteData(data)
 
     return CptCollection(header, data)

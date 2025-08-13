@@ -52,7 +52,7 @@ class TestCptGefParser:
             176161.1,
             557162.1,
             -0.06,
-            37.317295,
+            -0.06 - 37.317295,
             11,
             "31000",
             "NAP",
@@ -69,7 +69,7 @@ class TestCptGefParser:
             0.0,
             0.0,
             5.05,
-            59.5,
+            5.05 - 59.5,
             6,
             "0",
             "NAP",
@@ -86,7 +86,7 @@ class TestCptGefParser:
             176416.1,
             557021.9,
             -5.5,
-            28.84,
+            -5.5 - 28.84,
             9,
             "28992",
             "NAP",
@@ -103,7 +103,7 @@ class TestCptGefParser:
             61949.0,
             443624.0,
             -17.69,
-            5.75,
+            -17.69 - 5.75,
             4,
             "31000",
             "NAP",
@@ -160,7 +160,7 @@ class TestCptGefParser:
         dummy_cpt_with_rf.to_df()
 
         target_columns = ["length", "qc", "fs", "rf", "depth"]
-        target_depth = [-1.80, -1.82, -1.84, -1.86, -1.88]
+        target_depth = [1.30, 1.32, 1.34, 1.36, 1.38]
 
         df = dummy_cpt_with_rf._df
         nancount = np.sum(np.isnan(df.values))
