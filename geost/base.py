@@ -2514,14 +2514,15 @@ class BoreholeCollection(Collection):
             DataFrame containing sample data with a column "nr" that contains borehole ids.
 
         """
-        safe_validate(DataSchemas.grainsize_data, sample_data, inplace=True)
-        sample_data["nr"].unique()
-        warnings.warn(
-            "Header covers more/other objects than present in the data table, "
-            "consider running the method 'reset_header' to update the header.",
-            AlignmentWarning,
-        )
-        self.sample_data = sample_data
+        # safe_validate(DataSchemas.grainsize_data, sample_data, inplace=True)
+        # sample_data["nr"].unique()
+        # warnings.warn(
+        #     "Header covers more/other objects than present in the data table, "
+        #     "consider running the method 'reset_header' to update the header.",
+        #     AlignmentWarning,
+        # )
+        # self.sample_data = sample_data
+        raise NotImplementedError
 
     def get_cumulative_thickness(
         self, column: str, values: str | List[str], include_in_header: bool = False
