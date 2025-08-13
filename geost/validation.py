@@ -41,13 +41,12 @@ def safe_validate(schema: DataFrameSchema, df: pd.DataFrame, **kwargs) -> pd.Dat
     kwargs["lazy"] = True if config.validation.DROP_INVALID else False
 
     try:
-        # Check if 'inplace' is in kwargs and warn that it will be ignored
         validated_df = schema.validate(df, **kwargs)
         if config.validation.DROP_INVALID:
             dropped = df.index.difference(validated_df.index)
             if len(dropped) > 0 and config.validation.VERBOSE:
                 warnings.warn(
-                    f"\nValidation dropped {len(dropped)} row(s) for schema '{schema.title}'.\n"
+                    f"\nValidation dropped {len(dropped)} row(s) for schema '{schema.name}'.\n"
                     f"Dropped indices: {list(dropped)}\n",
                     category=ValidationWarning,
                 )
@@ -55,7 +54,7 @@ def safe_validate(schema: DataFrameSchema, df: pd.DataFrame, **kwargs) -> pd.Dat
     except (SchemaError, SchemaErrors) as e:
         if config.validation.VERBOSE:
             warnings.warn(
-                f"\nValidation failed for schema '{schema.title}'.\nDetails:\n{str(e)}\n",
+                f"\nValidation failed for schema '{schema.name}'.\nDetails:\n{str(e)}\n",
                 category=ValidationWarning,
             )
         return df
@@ -76,7 +75,7 @@ class DataSchemas(NamedTuple):
         coerce=True,
         strict=False,
         drop_invalid_rows=config.validation.DROP_INVALID,
-        title="Point header",
+        name="Point header",
         description="Schema for validating point header data",
     )
 
@@ -89,7 +88,7 @@ class DataSchemas(NamedTuple):
         coerce=True,
         strict=False,
         drop_invalid_rows=config.validation.DROP_INVALID,
-        title="Line header",
+        name="Line header",
         description="Schema for validating line header data",
     )
 
@@ -108,7 +107,7 @@ class DataSchemas(NamedTuple):
         coerce=True,
         strict=False,
         drop_invalid_rows=config.validation.DROP_INVALID,
-        title="Layer data non-inclined",
+        name="Layer data non-inclined",
         description="Schema for validating generic layer data that is not inclined",
     )
 
@@ -129,7 +128,7 @@ class DataSchemas(NamedTuple):
         coerce=True,
         strict=False,
         drop_invalid_rows=config.validation.DROP_INVALID,
-        title="Layer data inclined",
+        name="Layer data inclined",
         description="Schema for validating generic layer data that is inclined",
     )
 
@@ -147,7 +146,7 @@ class DataSchemas(NamedTuple):
         coerce=True,
         strict=False,
         drop_invalid_rows=config.validation.DROP_INVALID,
-        title="Discrete data non-inclined",
+        name="Discrete data non-inclined",
         description="Schema for validating generic discrete data that is not inclined",
     )
 
@@ -167,7 +166,7 @@ class DataSchemas(NamedTuple):
         coerce=True,
         strict=False,
         drop_invalid_rows=config.validation.DROP_INVALID,
-        title="Discrete data inclined",
+        name="Discrete data inclined",
         description="Schema for validating generic discrete data that is inclined",
     )
 
@@ -195,6 +194,6 @@ class DataSchemas(NamedTuple):
         coerce=True,
         strict=False,
         drop_invalid_rows=config.validation.DROP_INVALID,
-        title="Grain size data",
+        name="Grain size data",
         description="Schema for validating grain size data",
     )

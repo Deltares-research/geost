@@ -59,8 +59,11 @@ class TestSpatialUtils:
 
     @pytest.mark.unittest
     def test_check_and_coerce_crs(self, point_header_gdf):
-        referenced_gdf = spatial.check_and_coerce_crs(point_header_gdf, 28992)
-        converted_referenced_gdf = spatial.check_and_coerce_crs(referenced_gdf, 32631)
+        with pytest.warns(UserWarning):
+            referenced_gdf = spatial.check_and_coerce_crs(point_header_gdf, 28992)
+            converted_referenced_gdf = spatial.check_and_coerce_crs(
+                referenced_gdf, 32631
+            )
         assert referenced_gdf.crs == "epsg:28992"
         assert converted_referenced_gdf.crs == "epsg:32631"
 

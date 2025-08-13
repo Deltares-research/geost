@@ -1811,12 +1811,12 @@ class Collection(AbstractCollection):
                 )
                 warning_given = True
 
-        if config.validation.AUTO_ALIGN and warning_given:
-            self.reset_header()
-            print(
-                "\nNOTE: Header has been reset to align with data because AUTO_ALIGN"
-                "is enabled in the GeoST configuration.",
-            )
+            if config.validation.AUTO_ALIGN and warning_given:
+                self.reset_header()
+                print(
+                    "\nNOTE: Header has been reset to align with data because AUTO_ALIGN"
+                    " is enabled in the GeoST configuration.",
+                )
 
     def select_within_bbox(
         self,
