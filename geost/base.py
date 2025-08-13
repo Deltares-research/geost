@@ -6,10 +6,11 @@ from typing import Any, Iterable, List
 import geopandas as gpd
 import numpy as np
 import pandas as pd
+from pandera.decorators import check_input, check_types
 from pyproj import CRS
 from shapely import geometry as gmt
 
-from geost import spatial, utils
+from geost import config, spatial, utils
 from geost._warnings import AlignmentWarning
 from geost.abstract_classes import AbstractCollection, AbstractData, AbstractHeader
 from geost.analysis import cumulative_thickness
@@ -23,17 +24,7 @@ from geost.projections import (
     horizontal_reference_transformer,
     vertical_reference_transformer,
 )
-from geost.utils import (
-    _to_geopackage,
-    dataframe_to_geodataframe,
-    save_pickle,
-)
-from geost.validate import schemas
-from geost.validate.decorators import (
-    validate_data,
-    validate_grainsize_data,
-    validate_header,
-)
+from geost.validation import DataSchemas, safe_validate
 
 type DataObject = DiscreteData | LayeredData
 type HeaderObject = LineHeader | PointHeader
@@ -83,9 +74,8 @@ class PointHeader(AbstractHeader, GeopandasExportMixin):
         return self.__vertical_reference
 
     @gdf.setter
-    @validate_header
     def gdf(self, gdf):
-        self._gdf = gdf
+        self._gdf = safe_validate(DataSchemas.pointheader, gdf)
 
     def change_horizontal_reference(self, to_epsg: str | int | CRS):
         """
@@ -492,9 +482,8 @@ class LineHeader(AbstractHeader, GeopandasExportMixin):  # pragma: no cover
         return self.__vertical_reference
 
     @gdf.setter
-    @validate_header
     def gdf(self, gdf):
-        self._gdf = gdf
+        self._gdf = safe_validate(DataSchemas.lineheader, gdf)
 
     def change_horizontal_reference(self, to_epsg: str | int | CRS):
         raise NotImplementedError("Add function logic")
@@ -577,12 +566,15 @@ class LayeredData(AbstractData, PandasExportMixin):
         return self.__datatype
 
     @df.setter
-    #@validate_data
     def df(self, df):
         """
-        Underlying pandas.DataFrame
+        Underlying pandas.DataFrame, validated upon setting the attr.
         """
-        self._df = schemas.ValidationSchemas.layerdata.validate(df)
+        self._df = (
+            safe_validate(DataSchemas.layerdata_inclined, df)
+            if self.has_inclined
+            else safe_validate(DataSchemas.layerdata, df)
+        )
 
     @staticmethod
     def _check_correct_instance(selection_values: str | Iterable) -> Iterable:
@@ -1258,9 +1250,12 @@ class DiscreteData(AbstractData, PandasExportMixin):
         return self._df
 
     @df.setter
-    @validate_data
     def df(self, df):
-        self._df = df
+        self._df = (
+            safe_validate(DataSchemas.discretedata_inclined, df)
+            if self.has_inclined
+            else safe_validate(DataSchemas.discretedata, df)
+        )
 
     def __repr__(self):
         name = self.__class__.__name__
@@ -1798,19 +1793,30 @@ class Collection(AbstractCollection):
         This check is performed everytime the object is instantiated AND if any change
         is made to either the header or data attributes (see their respective setters).
         """
+        warning_given = False
         if hasattr(self, "_header") and hasattr(self, "_data"):
             if any(~self.header["nr"].isin(self.data["nr"].unique())):
                 warnings.warn(
-                    "Header covers more/other objects than present in the data table, "
+                    "Header covers more/other objects than present in the data table. "
                     "consider running the method 'reset_header' to update the header.",
-                    AlignmentWarning,
+                    category=AlignmentWarning,
                 )
+                warning_given = True
+
             if not set(self.data["nr"].unique()).issubset(set(self.header["nr"])):
                 warnings.warn(
-                    "Header does not cover all unique objects in data, consider "
-                    "running the method 'reset_header' to update the header.",
-                    AlignmentWarning,
+                    "Header does not cover all unique objects in data. "
+                    "consider running the method 'reset_header' to update the header.",
+                    category=AlignmentWarning,
                 )
+                warning_given = True
+
+        if config.validation.AUTO_ALIGN and warning_given:
+            self.reset_header()
+            print(
+                "\nNOTE: Header has been reset to align with data because AUTO_ALIGN"
+                "is enabled in the GeoST configuration.",
+            )
 
     def select_within_bbox(
         self,
@@ -2498,7 +2504,6 @@ class BoreholeCollection(Collection):
         Instance of a data object corresponding to the header.
     """
 
-    @validate_grainsize_data
     def add_grainsize_data(self, sample_data: pd.DataFrame):
         """
         Add grain size data to the borehole collection.
@@ -2509,6 +2514,7 @@ class BoreholeCollection(Collection):
             DataFrame containing sample data with a column "nr" that contains borehole ids.
 
         """
+        safe_validate(DataSchemas.grainsize_data, sample_data, inplace=True)
         sample_data["nr"].unique()
         warnings.warn(
             "Header covers more/other objects than present in the data table, "
