@@ -9,11 +9,11 @@ managing subsurface data.
 
 ````{grid} 1 2 2 4
 :gutter: 3
-```{grid-item-card} Read XML files
+```{grid-item-card} Retrieve BRO data
 :text-align: center
-:link: ./examples/read_xml.html
+:link: ./examples/retrieve_bro_data.html
 :link-type: url
-:img-bottom: ./_static/example_bro_soil.png
+:img-bottom: ./_static/dike_section.png
 Extracting data from XML files from BRO or other sources.
 ```
 ```{grid-item-card} BRO soil cores using the BRO API

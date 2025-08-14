@@ -7,6 +7,7 @@ caption: User guide
 
 Data structures <user_guide/data_structures>
 Reading data <user_guide/reading_data>
+Reading XML files <user_guide/read_xml>
 BRO GeoTOP <user_guide/bro_geotop.ipynb>
 ```
 
