@@ -19,6 +19,7 @@ GeoTop <api_reference/bro_geotop>
 GeoTop selection <api_reference/geotop_selection.rst>
 Analysis <api_reference/analysis>
 Readers <api_reference/readers>
+Validation <api_reference/validation>
 Utils <api_reference/utils>
 Enums <api_reference/enums>
 ```

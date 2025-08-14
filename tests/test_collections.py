@@ -16,16 +16,13 @@ from numpy.testing import (
 from pyvista import MultiBlock, UnstructuredGrid
 from shapely.geometry import LineString, Point, Polygon
 
+from geost import config
 from geost._warnings import AlignmentWarning, ValidationWarning
 from geost.base import BoreholeCollection, LayeredData, PointHeader
 from geost.export import geodataclass
 
 
 class TestCollection:
-    nlog_stratstelsel_parquet = (
-        Path(__file__).parent / "data/test_nlog_stratstelsel_20230807.parquet"
-    )
-
     @pytest.fixture
     def valid_boreholes(self):
         nr = np.full(10, "B-01")
@@ -90,14 +87,15 @@ class TestCollection:
 
     @pytest.fixture
     def misaligned_header(self):
-        df = pd.DataFrame(
+        df = gpd.GeoDataFrame(
             {
                 "nr": ["B-02"],
                 "x": [100000],
                 "y": [400000],
                 "surface": [0],
                 "end": [-8],
-            }
+            },
+            geometry=[Point(100000, 400000)],
         )
 
         return PointHeader(df, 28992)
@@ -378,32 +376,96 @@ class TestCollection:
         assert isinstance(selected, BoreholeCollection)
         assert selected.n_points == 2
 
-    @pytest.mark.integrationtest
+    @pytest.mark.unittest
     def test_validation_pass(self, valid_boreholes):
         with warnings.catch_warnings():
             warnings.simplefilter("error")
             valid_boreholes.to_collection()
 
-    @pytest.mark.integrationtest
+    @pytest.mark.unittest
     def test_validation_fail(self, invalid_borehole_table):
+        config.validation.VERBOSE = True
+        config.validation.DROP_INVALID = False
+        config.validation.FLAG_INVALID = False
         with pytest.warns(ValidationWarning) as record:
             LayeredData(invalid_borehole_table).to_collection()
 
         assert len(record) == 2
 
         data_result, header_result = record
-        assert 'but is required to be "stringlike type"' in str(data_result.message)
-        assert 'data in column "bottom" failed check "> top" for 1 rows: [1]' in str(
+        assert "Validation failed for schema 'Layer data non-inclined'" in str(
             data_result.message
         )
-
-        assert 'but is required to be "stringlike type"' in str(header_result.message)
-        assert 'data in column "end" failed check "< surface" for 1 rows: [1]' in str(
+        assert (
+            "DataFrameSchema 'Layer data non-inclined' failed element-wise validator number 0:"
+            in str(data_result.message)
+        )
+        assert "Validation failed for schema 'Point header'" in str(
             header_result.message
         )
+        assert (
+            "DataFrameSchema 'Point header' failed element-wise validator number 0:"
+            in str(header_result.message)
+        )
 
-    @pytest.mark.integrationtest
-    def test_header_mismatch(self, valid_boreholes, misaligned_header):
+    @pytest.mark.unittest
+    def test_validation_fail_drop_invalid(self, invalid_borehole_table):
+        config.validation.VERBOSE = True
+        config.validation.DROP_INVALID = True
+        config.validation.FLAG_INVALID = False
+        with pytest.warns(ValidationWarning) as record:
+            LayeredData(invalid_borehole_table).to_collection()
+
+        assert len(record) == 1
+
+        assert "Validation dropped 10 row(s) for schema 'Layer data non-inclined'" in str(
+            record[0].message
+        )
+
+    @pytest.mark.unittest
+    def test_validation_fail_flag_invalid(self, invalid_borehole_table):
+        config.validation.VERBOSE = True
+        config.validation.DROP_INVALID = False
+        config.validation.FLAG_INVALID = True
+        with pytest.warns(ValidationWarning) as record:
+            collection_flagged = LayeredData(invalid_borehole_table).to_collection()
+
+        assert len(record) == 2
+        assert not collection_flagged.header.gdf.loc[0, "is_valid"]
+        assert not collection_flagged.data.df.loc[9, "is_valid"]
+
+        data_result, header_result = record
+        assert "Validation failed for schema 'Layer data non-inclined'" in str(
+            data_result.message
+        )
+        assert (
+            "DataFrameSchema 'Layer data non-inclined' failed element-wise validator number 0:"
+            in str(data_result.message)
+        )
+        assert "Validation failed for schema 'Point header'" in str(
+            header_result.message
+        )
+        assert (
+            "DataFrameSchema 'Point header' failed element-wise validator number 0:"
+            in str(header_result.message)
+        )
+
+    @pytest.mark.unittest
+    def test_header_mismatch_auto_align(self, valid_boreholes, misaligned_header):
+        config.validation.AUTO_ALIGN = True
+        with pytest.warns(AlignmentWarning) as record:
+            BoreholeCollection(misaligned_header, valid_boreholes)
+        assert len(record) == 2
+        assert "Header covers more/other objects than present in the data table" in str(
+            record[0].message
+        )
+        assert "Header does not cover all unique objects in data" in str(
+            record[1].message
+        )
+
+    @pytest.mark.unittest
+    def test_header_mismatch_no_auto_align(self, valid_boreholes, misaligned_header):
+        config.validation.AUTO_ALIGN = False
         with pytest.warns(AlignmentWarning) as record:
             BoreholeCollection(misaligned_header, valid_boreholes)
         assert len(record) == 2
@@ -417,7 +479,7 @@ class TestCollection:
     @pytest.mark.unittest
     def test_get_area_labels(self, borehole_collection):
         label_polygon = [Polygon(((2, 1), (5, 4), (4, 5), (1, 4)))]
-        label_gdf = gpd.GeoDataFrame({"id": [1]}, geometry=label_polygon)
+        label_gdf = gpd.GeoDataFrame({"id": [1]}, geometry=label_polygon, crs=28992)
         # Return variant
         output = borehole_collection.get_area_labels(label_gdf, "id")
         assert_almost_equal(output["id"].sum(), 2)
@@ -429,7 +491,7 @@ class TestCollection:
     def test_get_area_labels_multiple(self, borehole_collection):
         label_polygon = [Polygon(((2, 1), (5, 4), (4, 5), (1, 4)))]
         label_gdf = gpd.GeoDataFrame(
-            {"id": [1], "col2": ["string_data"]}, geometry=label_polygon
+            {"id": [1], "col2": ["string_data"]}, geometry=label_polygon, crs=28992
         )
         # Return variant
         output = borehole_collection.get_area_labels(label_gdf, ["id", "col2"])

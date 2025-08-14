@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import NamedTuple
+from typing import Literal, NamedTuple
 
 import numpy as np
 import pytest
@@ -39,22 +39,20 @@ class CptInfo(NamedTuple):
 
 
 class TestCptGefParser:
-    filepath = Path(Path(__file__).parent, "data", "cpt")
-
     @pytest.fixture
-    def test_cpt_files(self):
-        test_cpt_files = list(self.filepath.glob("*.gef"))
+    def test_cpt_files(self, testdatadir):
+        test_cpt_files = list(testdatadir.glob("gef/*.gef"))
         return test_cpt_files
 
     @pytest.fixture
-    def cpt_a(self):
-        cpt = CptGefFile(self.filepath / r"83268_DKMP003_wiertsema.gef")
+    def cpt_a(self, testdatadir):
+        cpt = CptGefFile(testdatadir / r"gef/83268_DKMP003_wiertsema.gef")
         info_to_test = CptInfo(
             "DKMP_D03",
             176161.1,
             557162.1,
             -0.06,
-            37.317295,
+            -0.06 - 37.317295,
             11,
             "31000",
             "NAP",
@@ -64,14 +62,14 @@ class TestCptGefParser:
         return cpt, info_to_test
 
     @pytest.fixture
-    def cpt_b(self):
-        cpt = CptGefFile(self.filepath / r"AZZ158_gem_rotterdam.gef")
+    def cpt_b(self, testdatadir):
+        cpt = CptGefFile(testdatadir / r"gef/AZZ158_gem_rotterdam.gef")
         info_to_test = CptInfo(
             "AZZ158",
             0.0,
             0.0,
             5.05,
-            59.5,
+            5.05 - 59.5,
             6,
             "0",
             "NAP",
@@ -81,14 +79,14 @@ class TestCptGefParser:
         return cpt, info_to_test
 
     @pytest.fixture
-    def cpt_c(self):
-        cpt = CptGefFile(self.filepath / r"CPT000000157983_IMBRO.gef")
+    def cpt_c(self, testdatadir):
+        cpt = CptGefFile(testdatadir / r"gef/CPT000000157983_IMBRO.gef")
         info_to_test = CptInfo(
             "CPT000000157983",
             176416.1,
             557021.9,
             -5.5,
-            28.84,
+            -5.5 - 28.84,
             9,
             "28992",
             "NAP",
@@ -98,14 +96,14 @@ class TestCptGefParser:
         return cpt, info_to_test
 
     @pytest.fixture
-    def cpt_d(self):
-        cpt = CptGefFile(self.filepath / r"CPT10.gef")
+    def cpt_d(self, testdatadir):
+        cpt = CptGefFile(testdatadir / r"gef/CPT10.gef")
         info_to_test = CptInfo(
             "YANGTZEHAVEN CPT 10",
             61949.0,
             443624.0,
             -17.69,
-            5.75,
+            -17.69 - 5.75,
             4,
             "31000",
             "NAP",
@@ -127,14 +125,20 @@ class TestCptGefParser:
         return cpt
 
     @pytest.mark.unittest
-    def test_read_files(self, test_cpt_files):
+    def test_read_files(self, test_cpt_files: list[Path]):
         for f in test_cpt_files:
             cpt = CptGefFile(f)
             assert isinstance(cpt, CptGefFile)
 
     @pytest.mark.integrationtest
     @pytest.mark.parametrize("cpt_test", ["cpt_a", "cpt_b", "cpt_c", "cpt_d"])
-    def test_cpt_parsing_result(self, cpt_test, request):
+    def test_cpt_parsing_result(
+        self,
+        cpt_test: (
+            Literal["cpt_a"] | Literal["cpt_b"] | Literal["cpt_c"] | Literal["cpt_d"]
+        ),
+        request: pytest.FixtureRequest,
+    ):
         cpt, test_info = request.getfixturevalue(cpt_test)
 
         assert cpt.nr == test_info.nr
@@ -152,11 +156,11 @@ class TestCptGefParser:
         assert len(cpt.df) == test_info.nrecords
 
     @pytest.mark.unittest
-    def test_to_dataframe(self, dummy_cpt_with_rf):
+    def test_to_dataframe(self, dummy_cpt_with_rf: CptGefFile):
         dummy_cpt_with_rf.to_df()
 
         target_columns = ["length", "qc", "fs", "rf", "depth"]
-        target_depth = [-1.80, -1.82, -1.84, -1.86, -1.88]
+        target_depth = [1.30, 1.32, 1.34, 1.36, 1.38]
 
         df = dummy_cpt_with_rf._df
         nancount = np.sum(np.isnan(df.values))

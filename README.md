@@ -10,7 +10,7 @@ The Geological Subsurface Toolbox (GeoST) package is designed to be an easy-to-u
 
 The internal BoreholeCollection, LogCollection and CptCollection classes use [Pandas](https://pandas.pydata.org/) for storing data and header information. It utilizes a custom, lightweight validation module inspired by the [Pandera](https://pandera.readthedocs.io/en/stable/) API. For spatial functions [Geopandas](https://geopandas.org/en/stable/) is used. The package also supports reading/writing parquet and geoparquet files through Pandas and Geopandas respectively. 
 
-GeoST is a work-in-progress and currently supports a limited number of data sources.
+GeoST is a work-in-progress and aims to support an increasing number of data sources.
 
 ## Installation (user)
 In a Python >= 3.12 environment, install the latest stable release using pip:
@@ -39,24 +39,30 @@ See the [Pixi documentation](https://pixi.sh/latest/) for more information.
 We collect examples that make use of GeoST and other Subsurface Toolbox developments in 
 the [Deltares sst-examples repository](https://github.com/Deltares-research/sst-examples). 
 
-## Supported borehole and CPT formats
+## Supported data and file formats
 - From local files
-    - geost .parquet file (complete)
-    - Dino csv geological boreholes (complete)
-    - Dino XML geological boreholes (planned)
-    - BRO XML geotechnical boreholes (planned)
-    - BRO XML soil boreholes (planned)
-    - GEF boreholes (planned)
-    - GEF CPT's (complete)
-    - BRO XML CPT's (planned)
-    - BRO geopackage CPT's (planned)
-    - Well log LAS files (planned)
-    - Well log ASCII files (planned)
-- Directly from the BRO (REST API) (all planned)
-    - CPT
-    - BHR-P
-    - BHR-GT
+    - Tabular data of borehole, CPT, etc. (.parquet, .csv)
+    - Geological boreholes (BHR-G) xml
+    - Geotechnical boreholes (BHR-GT) xml
+    - Pedological boreholes (BHR-P) xml
+    - Cone Penetration Test (CPT) xml/gef
+    - Pedological soilprofile descriptions (SFR) xml
+- Directly from the [BRO REST-API](https://www.bro-productomgeving.nl/bpo/latest/url-s-publieke-rest-services)
     - BHR-G
+    - BHR-GT
+    - BHR-P
+    - CPT
+    - SFR
+- BRO models 
+    - GeoTOP: from local NetCDF or directly via [OPeNDAP server](https://dinodata.nl/opendap/)
+
+Planned:
+- BRO/PDOK geopackage [BHR-G](https://service.pdok.nl/bzk/bro-geologisch-booronderzoek/atom/index.xml), [BHR-GT](https://service.pdok.nl/bzk/bro-geotechnischbooronderzoek/atom/v1_0/index.xml), [BHR-P](https://service.pdok.nl/bzk/brobhrpvolledigeset/atom/v1_1/index.xml), [CPT](https://service.pdok.nl/bzk/brocptvolledigeset/atom/v1_0/index.xml), [SFR](https://service.pdok.nl/bzk/bodem/bro-wandonderzoek/atom/index.xml)
+- Well log LAS files 
+- Well log ASCII files
+- REGIS II
+- Dino xml geological boreholes 
+- BHR-G gef 
 
 ## Features
 After loading data from one of the supported formats it will automatically be validated. If the validation is succesful, a Collection object will be returned depending on your input data type (mixed CPT/well log/borehole collections are not allowed). A collection object consists of two main attributes: the **header** and **data**. The header contains a table with one entry per object and provides information about the name, location, surface level, and borehole/log/cpt start and end depths. The data attribute is a table that includes the data for every described layer (boreholes) or measurement (well logs, cpt's).

@@ -130,3 +130,5 @@ ENV/
 # pixi environments
 .pixi
 
+# working scripts
+dev/

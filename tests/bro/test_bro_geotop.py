@@ -1,3 +1,5 @@
+from typing import Literal
+
 import pytest
 from numpy.testing import assert_array_equal
 
@@ -23,7 +25,12 @@ class TestGeoTop:
         }
 
     @pytest.mark.unittest
-    def test_from_opendap(self, test_area):
+    def test_from_opendap(
+        self,
+        test_area: tuple[
+            Literal[115000], Literal[500000], Literal[115500], Literal[500500]
+        ],
+    ):
         geotop = GeoTop.from_opendap(bbox=test_area)
         assert isinstance(geotop, GeoTop)
         assert geotop.resolution == (100, 100, 0.5)

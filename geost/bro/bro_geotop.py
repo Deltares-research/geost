@@ -160,7 +160,7 @@ class StratGeotop:
 
     Or select a group of values:
 
-    >>> selection = StratGeotop.select_units([1100, 6010, 6100])
+    >>> selection = StratGeotop.select_values([1100, 6010, 6100])
 
     """
 

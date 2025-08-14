@@ -5,7 +5,7 @@ import pooch
 import xarray as xr
 
 from geost.bro import GeoTop
-from geost.read import read_borehole_table, read_cpt_table
+from geost.io.read import read_borehole_table, read_cpt_table
 
 REGISTRY = pooch.create(
     path=pooch.os_cache("geost"),

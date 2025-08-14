@@ -7,16 +7,9 @@ import geopandas as gpd
 import numpy as np
 import pandas as pd
 from pyproj import CRS
-from shapely.geometry import (
-    LineString,
-    MultiLineString,
-    MultiPoint,
-    MultiPolygon,
-    Point,
-    Polygon,
-)
+from shapely import geometry as gmt
 
-from geost import spatial
+from geost import config, spatial, utils
 from geost._warnings import AlignmentWarning
 from geost.abstract_classes import AbstractCollection, AbstractData, AbstractHeader
 from geost.analysis import cumulative_thickness
@@ -30,21 +23,12 @@ from geost.projections import (
     horizontal_reference_transformer,
     vertical_reference_transformer,
 )
-from geost.spatial import check_gdf_instance
-from geost.utils import (
-    _to_geopackage,
-    dataframe_to_geodataframe,
-    save_pickle,
-)
-from geost.validate.decorators import validate_data, validate_header
+from geost.validation import safe_validate, schemas
 
 type DataObject = DiscreteData | LayeredData
 type HeaderObject = LineHeader | PointHeader
 type Coordinate = int | float
-
-type PointGeometries = Point | MultiPoint | Iterable[Point]
-type LineGeometries = LineString | MultiLineString | Iterable[LineString]
-type PolygonGeometries = Polygon | MultiPolygon | Iterable[Polygon]
+type GeometryType = gmt.base.BaseGeometry | list[gmt.base.BaseGeometry]
 
 
 class PointHeader(AbstractHeader, GeopandasExportMixin):
@@ -89,9 +73,8 @@ class PointHeader(AbstractHeader, GeopandasExportMixin):
         return self.__vertical_reference
 
     @gdf.setter
-    @validate_header
     def gdf(self, gdf):
-        self._gdf = gdf
+        self._gdf = safe_validate(schemas.pointheader, gdf)
 
     def change_horizontal_reference(self, to_epsg: str | int | CRS):
         """
@@ -254,7 +237,7 @@ class PointHeader(AbstractHeader, GeopandasExportMixin):
 
     def select_with_points(
         self,
-        points: str | Path | gpd.GeoDataFrame | PointGeometries,
+        points: str | Path | gpd.GeoDataFrame | GeometryType,
         buffer: float | int,
         invert: bool = False,
     ):
@@ -263,7 +246,7 @@ class PointHeader(AbstractHeader, GeopandasExportMixin):
 
         Parameters
         ----------
-        points : str | Path | gpd.GeoDataFrame | PointGeometries
+        points : str | Path | gpd.GeoDataFrame | GeometryType
             Any type of point geometries that can be used for the selection: GeoDataFrame
             containing points or filepath to a shapefile like file, or Shapely Point,
             MultiPoint or list containing Point objects.
@@ -279,11 +262,6 @@ class PointHeader(AbstractHeader, GeopandasExportMixin):
             geometries.
 
         """
-        if isinstance(points, (Point, MultiPoint)):
-            points = gpd.GeoDataFrame(geometry=[points])
-        elif isinstance(points, Iterable) and not isinstance(points, gpd.GeoDataFrame):
-            points = gpd.GeoDataFrame(geometry=points)
-
         gdf_selected = spatial.select_points_near_points(
             self.gdf, points, buffer, invert=invert
         )
@@ -291,7 +269,7 @@ class PointHeader(AbstractHeader, GeopandasExportMixin):
 
     def select_with_lines(
         self,
-        lines: str | Path | gpd.GeoDataFrame | LineGeometries,
+        lines: str | Path | gpd.GeoDataFrame | GeometryType,
         buffer: float | int,
         invert: bool = False,
     ):
@@ -300,7 +278,7 @@ class PointHeader(AbstractHeader, GeopandasExportMixin):
 
         Parameters
         ----------
-        lines : str | Path | gpd.GeoDataFrame | LineGeometries
+        lines : str | Path | gpd.GeoDataFrame | GeometryType
             Any type of line geometries that can be used for the selection: GeoDataFrame
             containing lines or filepath to a shapefile like file, or Shapely LineString,
             MultiLineString or list containing LineString objects.
@@ -316,11 +294,6 @@ class PointHeader(AbstractHeader, GeopandasExportMixin):
             geometries.
 
         """
-        if isinstance(lines, (LineString, MultiLineString)):
-            lines = gpd.GeoDataFrame(geometry=[lines])
-        elif isinstance(lines, Iterable) and not isinstance(lines, gpd.GeoDataFrame):
-            lines = gpd.GeoDataFrame(geometry=lines)
-
         gdf_selected = spatial.select_points_near_lines(
             self.gdf, lines, buffer, invert=invert
         )
@@ -328,7 +301,7 @@ class PointHeader(AbstractHeader, GeopandasExportMixin):
 
     def select_within_polygons(
         self,
-        polygons: str | Path | gpd.GeoDataFrame | PolygonGeometries,
+        polygons: str | Path | gpd.GeoDataFrame | GeometryType,
         buffer: float | int = 0,
         invert: bool = False,
     ):
@@ -337,7 +310,7 @@ class PointHeader(AbstractHeader, GeopandasExportMixin):
 
         Parameters
         ----------
-        polygons : str | Path | gpd.GeoDataFrame | PolygonGeometries
+        polygons : str | Path | gpd.GeoDataFrame | GeometryType
             Any type of polygon geometries that can be used for the selection: GeoDataFrame
             containing polygons or filepath to a shapefile like file, or Shapely Polygon,
             MultiPolygon or list containing Polygon objects.
@@ -354,13 +327,6 @@ class PointHeader(AbstractHeader, GeopandasExportMixin):
             geometries.
 
         """
-        if isinstance(polygons, (Polygon, MultiPolygon)):
-            polygons = gpd.GeoDataFrame(geometry=[polygons])
-        elif isinstance(polygons, Iterable) and not isinstance(
-            polygons, gpd.GeoDataFrame
-        ):
-            polygons = gpd.GeoDataFrame(geometry=polygons)
-
         gdf_selected = spatial.select_points_within_polygons(
             self.gdf, polygons, buffer, invert=invert
         )
@@ -465,7 +431,7 @@ class PointHeader(AbstractHeader, GeopandasExportMixin):
             Borehole ids and the polygon label they are in. If include_in_header = True,
             a column containing the generated data will be added inplace.
         """
-        polygon_gdf = check_gdf_instance(polygon_gdf)
+        polygon_gdf = utils.check_geometry_instance(polygon_gdf)
         polygon_gdf = spatial.check_and_coerce_crs(
             polygon_gdf, self.horizontal_reference
         )
@@ -515,9 +481,8 @@ class LineHeader(AbstractHeader, GeopandasExportMixin):  # pragma: no cover
         return self.__vertical_reference
 
     @gdf.setter
-    @validate_header
     def gdf(self, gdf):
-        self._gdf = gdf
+        self._gdf = safe_validate(schemas.lineheader, gdf)
 
     def change_horizontal_reference(self, to_epsg: str | int | CRS):
         raise NotImplementedError("Add function logic")
@@ -600,12 +565,15 @@ class LayeredData(AbstractData, PandasExportMixin):
         return self.__datatype
 
     @df.setter
-    @validate_data
     def df(self, df):
         """
-        Underlying pandas.DataFrame
+        Underlying pandas.DataFrame, validated upon setting the attr.
         """
-        self._df = df
+        self._df = (
+            safe_validate(schemas.layerdata_inclined, df)
+            if self.has_inclined
+            else safe_validate(schemas.layerdata, df)
+        )
 
     @staticmethod
     def _check_correct_instance(selection_values: str | Iterable) -> Iterable:
@@ -645,7 +613,7 @@ class LayeredData(AbstractData, PandasExportMixin):
         """
         header_columns = ["nr", "x", "y", "surface", "end"]
         header = self[header_columns].drop_duplicates("nr").reset_index(drop=True)
-        header = dataframe_to_geodataframe(header).set_crs(horizontal_reference)
+        header = utils.dataframe_to_geodataframe(header).set_crs(horizontal_reference)
         return PointHeader(header, vertical_reference)
 
     def to_collection(
@@ -1109,7 +1077,7 @@ class LayeredData(AbstractData, PandasExportMixin):
         dftgeodata = export_to_dftgeodata(data, columns, encode=encode)
 
         if outfile:
-            save_pickle(dftgeodata, outfile)
+            utils.save_pickle(dftgeodata, outfile)
         else:
             return dftgeodata
 
@@ -1153,7 +1121,7 @@ class LayeredData(AbstractData, PandasExportMixin):
 
         if self.has_inclined:
             geometries = [
-                LineString([[x, y, top + 0.01], [x_bot, y_bot, bottom + 0.01]])
+                gmt.LineString([[x, y, top + 0.01], [x_bot, y_bot, bottom + 0.01]])
                 for x, y, x_bot, y_bot, top, bottom in zip(
                     data["x"].values.astype(float),
                     data["y"].values.astype(float),
@@ -1165,7 +1133,7 @@ class LayeredData(AbstractData, PandasExportMixin):
             ]
         else:  # NOTE: Doesn't it need to be "top - 0.01" to create overlap?
             geometries = [
-                LineString([[x, y, top + 0.01], [x, y, bottom + 0.01]])
+                gmt.LineString([[x, y, top + 0.01], [x, y, bottom + 0.01]])
                 for x, y, top, bottom in zip(
                     data["x"].values.astype(float),
                     data["y"].values.astype(float),
@@ -1281,9 +1249,12 @@ class DiscreteData(AbstractData, PandasExportMixin):
         return self._df
 
     @df.setter
-    @validate_data
     def df(self, df):
-        self._df = df
+        self._df = (
+            safe_validate(schemas.discretedata_inclined, df)
+            if self.has_inclined
+            else safe_validate(schemas.discretedata, df)
+        )
 
     def __repr__(self):
         name = self.__class__.__name__
@@ -1330,7 +1301,7 @@ class DiscreteData(AbstractData, PandasExportMixin):
         """
         header_columns = ["nr", "x", "y", "surface", "end"]
         header = self[header_columns].drop_duplicates("nr").reset_index(drop=True)
-        header = dataframe_to_geodataframe(header).set_crs(horizontal_reference)
+        header = utils.dataframe_to_geodataframe(header).set_crs(horizontal_reference)
         return PointHeader(header, vertical_reference)
 
     def to_collection(
@@ -1821,18 +1792,29 @@ class Collection(AbstractCollection):
         This check is performed everytime the object is instantiated AND if any change
         is made to either the header or data attributes (see their respective setters).
         """
+        warning_given = False
         if hasattr(self, "_header") and hasattr(self, "_data"):
             if any(~self.header["nr"].isin(self.data["nr"].unique())):
                 warnings.warn(
-                    "Header covers more/other objects than present in the data table, "
+                    "Header covers more/other objects than present in the data table. "
                     "consider running the method 'reset_header' to update the header.",
-                    AlignmentWarning,
+                    category=AlignmentWarning,
                 )
+                warning_given = True
+
             if not set(self.data["nr"].unique()).issubset(set(self.header["nr"])):
                 warnings.warn(
-                    "Header does not cover all unique objects in data, consider "
-                    "running the method 'reset_header' to update the header.",
-                    AlignmentWarning,
+                    "Header does not cover all unique objects in data. "
+                    "consider running the method 'reset_header' to update the header.",
+                    category=AlignmentWarning,
+                )
+                warning_given = True
+
+            if config.validation.AUTO_ALIGN and warning_given:
+                self.reset_header()
+                print(
+                    "\nNOTE: Header has been reset to align with data because AUTO_ALIGN"
+                    " is enabled in the GeoST configuration.",
                 )
 
     def select_within_bbox(
@@ -1875,7 +1857,7 @@ class Collection(AbstractCollection):
 
     def select_with_points(
         self,
-        points: str | Path | gpd.GeoDataFrame | PointGeometries,
+        points: str | Path | gpd.GeoDataFrame | GeometryType,
         buffer: float | int,
         invert: bool = False,
     ):
@@ -1884,7 +1866,7 @@ class Collection(AbstractCollection):
 
         Parameters
         ----------
-        points : str | Path | gpd.GeoDataFrame | PointGeometries
+        points : str | Path | gpd.GeoDataFrame | GeometryType
             Any type of point geometries that can be used for the selection: GeoDataFrame
             containing points or filepath to a shapefile like file, or Shapely Point,
             MultiPoint or list containing Point objects.
@@ -1907,7 +1889,7 @@ class Collection(AbstractCollection):
 
     def select_with_lines(
         self,
-        lines: str | Path | gpd.GeoDataFrame | LineGeometries,
+        lines: str | Path | gpd.GeoDataFrame | GeometryType,
         buffer: float | int,
         invert: bool = False,
     ):
@@ -1916,7 +1898,7 @@ class Collection(AbstractCollection):
 
         Parameters
         ----------
-        lines : str | Path | gpd.GeoDataFrame | LineGeometries
+        lines : str | Path | gpd.GeoDataFrame | GeometryType
             Any type of line geometries that can be used for the selection: GeoDataFrame
             containing lines or filepath to a shapefile like file, or Shapely LineString,
             MultiLineString or list containing LineString objects.
@@ -1939,7 +1921,7 @@ class Collection(AbstractCollection):
 
     def select_within_polygons(
         self,
-        polygons: str | Path | gpd.GeoDataFrame | PolygonGeometries,
+        polygons: str | Path | gpd.GeoDataFrame | GeometryType,
         buffer: float | int = 0,
         invert: bool = False,
     ):
@@ -2302,7 +2284,7 @@ class Collection(AbstractCollection):
             The default is None.
 
         """
-        _to_geopackage(
+        utils._to_geopackage(
             self.header.gdf,
             outfile,
             "Header",
@@ -2311,7 +2293,7 @@ class Collection(AbstractCollection):
             index=False,
             metadata=metadata,
         )
-        _to_geopackage(
+        utils._to_geopackage(
             gpd.GeoDataFrame(self.data.df),
             outfile,
             "Data",
@@ -2393,7 +2375,7 @@ class Collection(AbstractCollection):
         >>> collection.to_pickle("example.pkl")
 
         """
-        save_pickle(self, outfile, **kwargs)
+        utils.save_pickle(self, outfile, **kwargs)
 
     def to_pyvista_cylinders(
         self,
@@ -2520,6 +2502,26 @@ class BoreholeCollection(Collection):
     data : :class:`~geost.base.LayeredData`
         Instance of a data object corresponding to the header.
     """
+
+    def add_grainsize_data(self, sample_data: pd.DataFrame):
+        """
+        Add grain size data to the borehole collection.
+
+        Parameters
+        ----------
+        sample_data : pd.DataFrame
+            DataFrame containing sample data with a column "nr" that contains borehole ids.
+
+        """
+        # safe_validate(DataSchemas.grainsize_data, sample_data, inplace=True)
+        # sample_data["nr"].unique()
+        # warnings.warn(
+        #     "Header covers more/other objects than present in the data table, "
+        #     "consider running the method 'reset_header' to update the header.",
+        #     AlignmentWarning,
+        # )
+        # self.sample_data = sample_data
+        raise NotImplementedError
 
     def get_cumulative_thickness(
         self, column: str, values: str | List[str], include_in_header: bool = False

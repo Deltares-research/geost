@@ -7,7 +7,8 @@ caption: User guide
 
 Data structures <user_guide/data_structures>
 Reading data <user_guide/reading_data>
-BRO GeoTOP <user_guide/bro_geotop.ipynb>
+Data validation <user_guide/validation>
+BRO GeoTOP <user_guide/bro_geotop>
 ```
 
 This is the user guide.

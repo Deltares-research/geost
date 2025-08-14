@@ -296,9 +296,9 @@ class CptGefFile:  # TODO: Break parser down in HeaderParser and DataParser and 
         if (
             "corrected_depth" in df.columns
         ):  # TODO: implement calc corrected depth from inclination if not in columns  # noqa: E501
-            df["depth"] = self.z - df["corrected_depth"]
+            df["depth"] = df["corrected_depth"]
         else:
-            df["depth"] = self.z - df["length"]
+            df["depth"] = df["length"]
 
         self._df = df
 
@@ -460,7 +460,7 @@ class CptGefFile:  # TODO: Break parser down in HeaderParser and DataParser and 
         else:
             d = self.df["length"].max()
 
-        self.enddepth = d
+        self.enddepth = self.z - d
 
 
 def safe_float(number):

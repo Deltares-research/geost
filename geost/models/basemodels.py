@@ -9,7 +9,7 @@ import rioxarray as rio
 import xarray as xr
 
 from geost.export import vtk
-from geost.spatial import check_gdf_instance
+from geost.utils import check_geometry_instance
 
 from .model_utils import sample_along_line, sample_with_coords
 
@@ -358,7 +358,7 @@ class VoxelModel(AbstractSpatial, AbstractModel3D):
         >>> selected = voxelmodel.select_with_points(Collection.header.gdf)
 
         """
-        points = check_gdf_instance(points)
+        points = check_geometry_instance(points)
 
         if "x" in points.columns and "y" in points.columns:
             coords = points[["x", "y"]].values

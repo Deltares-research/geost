@@ -165,7 +165,7 @@ class TestHeaders:
     def test_get_area_labels(self, point_header_gdf):
         point_header = PointHeader(point_header_gdf, "NAP")
         label_polygon = [Polygon(((2, 1), (5, 4), (4, 5), (1, 2)))]
-        label_gdf = gpd.GeoDataFrame({"id": [1]}, geometry=label_polygon)
+        label_gdf = gpd.GeoDataFrame({"id": [1]}, geometry=label_polygon, crs=28992)
         # Return variant
         output = point_header.get_area_labels(label_gdf, "id")
         assert_almost_equal(output["id"].sum(), 11)
@@ -178,7 +178,7 @@ class TestHeaders:
         point_header = PointHeader(point_header_gdf, "NAP")
         label_polygon = [Polygon(((2, 1), (5, 4), (4, 5), (1, 2)))]
         label_gdf = gpd.GeoDataFrame(
-            {"id": [1], "col2": ["string_data"]}, geometry=label_polygon
+            {"id": [1], "col2": ["string_data"]}, geometry=label_polygon, crs=28992
         )
         # Return variant
         output = point_header.get_area_labels(label_gdf, ["id", "col2"])
