@@ -376,20 +376,63 @@ class TestCollection:
         assert isinstance(selected, BoreholeCollection)
         assert selected.n_points == 2
 
-    @pytest.mark.integrationtest
+    @pytest.mark.unittest
     def test_validation_pass(self, valid_boreholes):
         with warnings.catch_warnings():
             warnings.simplefilter("error")
             valid_boreholes.to_collection()
 
-    @pytest.mark.integrationtest
+    @pytest.mark.unittest
     def test_validation_fail(self, invalid_borehole_table):
         config.validation.VERBOSE = True
         config.validation.DROP_INVALID = False
+        config.validation.FLAG_INVALID = False
         with pytest.warns(ValidationWarning) as record:
             LayeredData(invalid_borehole_table).to_collection()
 
         assert len(record) == 2
+
+        data_result, header_result = record
+        assert "Validation failed for schema 'Layer data non-inclined'" in str(
+            data_result.message
+        )
+        assert (
+            "DataFrameSchema 'Layer data non-inclined' failed element-wise validator number 0:"
+            in str(data_result.message)
+        )
+        assert "Validation failed for schema 'Point header'" in str(
+            header_result.message
+        )
+        assert (
+            "DataFrameSchema 'Point header' failed element-wise validator number 0:"
+            in str(header_result.message)
+        )
+
+    @pytest.mark.unittest
+    def test_validation_fail_drop_invalid(self, invalid_borehole_table):
+        config.validation.VERBOSE = True
+        config.validation.DROP_INVALID = True
+        config.validation.FLAG_INVALID = False
+        with pytest.warns(ValidationWarning) as record:
+            LayeredData(invalid_borehole_table).to_collection()
+
+        assert len(record) == 1
+
+        assert "Validation dropped 10 row(s) for schema 'Layer data non-inclined'" in str(
+            record[0].message
+        )
+
+    @pytest.mark.unittest
+    def test_validation_fail_flag_invalid(self, invalid_borehole_table):
+        config.validation.VERBOSE = True
+        config.validation.DROP_INVALID = False
+        config.validation.FLAG_INVALID = True
+        with pytest.warns(ValidationWarning) as record:
+            collection_flagged = LayeredData(invalid_borehole_table).to_collection()
+
+        assert len(record) == 2
+        assert not collection_flagged.header.gdf.loc[0, "is_valid"]
+        assert not collection_flagged.data.df.loc[9, "is_valid"]
 
         data_result, header_result = record
         assert "Validation failed for schema 'Layer data non-inclined'" in str(

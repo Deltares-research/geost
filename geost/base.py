@@ -6,7 +6,6 @@ from typing import Any, Iterable, List
 import geopandas as gpd
 import numpy as np
 import pandas as pd
-from pandera.decorators import check_input, check_types
 from pyproj import CRS
 from shapely import geometry as gmt
 
@@ -24,7 +23,7 @@ from geost.projections import (
     horizontal_reference_transformer,
     vertical_reference_transformer,
 )
-from geost.validation import DataSchemas, safe_validate
+from geost.validation import safe_validate, schemas
 
 type DataObject = DiscreteData | LayeredData
 type HeaderObject = LineHeader | PointHeader
@@ -75,7 +74,7 @@ class PointHeader(AbstractHeader, GeopandasExportMixin):
 
     @gdf.setter
     def gdf(self, gdf):
-        self._gdf = safe_validate(DataSchemas.pointheader, gdf)
+        self._gdf = safe_validate(schemas.pointheader, gdf)
 
     def change_horizontal_reference(self, to_epsg: str | int | CRS):
         """
@@ -483,7 +482,7 @@ class LineHeader(AbstractHeader, GeopandasExportMixin):  # pragma: no cover
 
     @gdf.setter
     def gdf(self, gdf):
-        self._gdf = safe_validate(DataSchemas.lineheader, gdf)
+        self._gdf = safe_validate(schemas.lineheader, gdf)
 
     def change_horizontal_reference(self, to_epsg: str | int | CRS):
         raise NotImplementedError("Add function logic")
@@ -571,9 +570,9 @@ class LayeredData(AbstractData, PandasExportMixin):
         Underlying pandas.DataFrame, validated upon setting the attr.
         """
         self._df = (
-            safe_validate(DataSchemas.layerdata_inclined, df)
+            safe_validate(schemas.layerdata_inclined, df)
             if self.has_inclined
-            else safe_validate(DataSchemas.layerdata, df)
+            else safe_validate(schemas.layerdata, df)
         )
 
     @staticmethod
@@ -1252,9 +1251,9 @@ class DiscreteData(AbstractData, PandasExportMixin):
     @df.setter
     def df(self, df):
         self._df = (
-            safe_validate(DataSchemas.discretedata_inclined, df)
+            safe_validate(schemas.discretedata_inclined, df)
             if self.has_inclined
-            else safe_validate(DataSchemas.discretedata, df)
+            else safe_validate(schemas.discretedata, df)
         )
 
     def __repr__(self):
