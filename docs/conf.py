@@ -19,7 +19,7 @@ sys.path.insert(0, os.path.abspath(".."))  # isort:skip
 # -- Project information -----------------------------------------------------
 
 project = "Geological Subsurface Toolbox"
-copyright = "2024, Deltares"
+copyright = "2025, Deltares"
 author = "Deltares"
 
 # The full version, including alpha/beta/rc tags
