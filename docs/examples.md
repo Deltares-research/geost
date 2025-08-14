@@ -23,17 +23,17 @@ Extracting data from XML files from BRO or other sources.
 :img-bottom: ./_static/example_bro_soil.png
 A simple analysis of soil cores that are directly retrieved from the BRO.
 ```
-```{grid-item-card} Thickness maps from GeoTOP
-:text-align: center
-:link: ./examples/geotop_thickness_maps.html
-:img-bottom: ./_static/geotop_thickness_example.png
-Create thickness maps of GeoTOP units with only a few lines of code.
-```
 ```{grid-item-card} Combining GeoTOP and CPTs
 :text-align: center
 :link: ./examples/combine_geotop_with_cpts.html
 :img-bottom: ./_static/cpts_usp.png
 Combining information from a voxelmodel (GeoTOP) with point data (CPTs).
+```
+```{grid-item-card} Thickness maps from GeoTOP
+:text-align: center
+:link: ./examples/geotop_thickness_maps.html
+:img-bottom: ./_static/geotop_thickness_example.png
+Create thickness maps of GeoTOP units with only a few lines of code.
 ```
 ```{grid-item-card} GeoST + PyVista: 3D export features
 :text-align: center
