@@ -1,7 +1,6 @@
 [run]
-omit = 
+omit =
         tests/*
         *__init__*
         docs/*
         tutorials/*
-

@@ -4,7 +4,7 @@ html_theme.sidebar_secondary.remove:
 
 # Examples
 
-On this page you will find links to examples and projects that ultilize GeoST for 
+On this page you will find links to examples and projects that ultilize GeoST for
 managing subsurface data.
 
 ````{grid} 1 2 2 4
@@ -52,14 +52,14 @@ Explore the use of GeoST subsurface modelling and data analysis workflows
 :text-align: center
 :link: https://github.com/Deltares-research/sst-examples/blob/main/predict_sand_thickness/predict_sand_thickness_simple.ipynb
 :img-bottom: ./_static/example_sand_thickness.png
-Using geological borehole data to predict the thickness of sand using decision tree 
+Using geological borehole data to predict the thickness of sand using decision tree
 algorithms provided by scikit-learn.
 ```
 ```{grid-item-card} GeoST + scikit-learn (advanced)
 :text-align: center
 :link: https://github.com/Deltares-research/sst-examples/blob/main/predict_sand_thickness/predict_sand_thickness_advanced.ipynb
 :img-bottom: ./_static/example_sand_thickness.png
-Using geological borehole data to predict the thickness of sand using decision tree 
+Using geological borehole data to predict the thickness of sand using decision tree
 algorithms provided by scikit-learn.
 ```
 ````

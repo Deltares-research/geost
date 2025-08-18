@@ -8,7 +8,7 @@
 
 The Geological Subsurface Toolbox (GeoST) package is designed to be an easy-to-use Python interface for working with subsurface point data in The Netherlands (boreholes, well logs and CPT's). It provides selection, analysis and export methods that can be applied generically to the loaded data. It is designed to connect with other Deltares developments such as [iMod](https://github.com/Deltares/imod-python) and [DataFusionTools](https://publicwiki.deltares.nl/display/TKIP/Data+Fusion+Tools).
 
-The internal BoreholeCollection, LogCollection and CptCollection classes use [Pandas](https://pandas.pydata.org/) for storing data and header information. It utilizes a custom, lightweight validation module inspired by the [Pandera](https://pandera.readthedocs.io/en/stable/) API. For spatial functions [Geopandas](https://geopandas.org/en/stable/) is used. The package also supports reading/writing parquet and geoparquet files through Pandas and Geopandas respectively. 
+The internal BoreholeCollection, LogCollection and CptCollection classes use [Pandas](https://pandas.pydata.org/) for storing data and header information. It utilizes a custom, lightweight validation module inspired by the [Pandera](https://pandera.readthedocs.io/en/stable/) API. For spatial functions [Geopandas](https://geopandas.org/en/stable/) is used. The package also supports reading/writing parquet and geoparquet files through Pandas and Geopandas respectively.
 
 GeoST is a work-in-progress and aims to support an increasing number of data sources.
 
@@ -24,7 +24,7 @@ Or the latest (experimental) version of the main branch directly from GitHub usi
 ## Installation (developer)
 We use [Pixi](https://github.com/prefix-dev/pixi) for package management and workflows.
 
-With pixi installed, navigate to the folder of the cloned repository and run the following 
+With pixi installed, navigate to the folder of the cloned repository and run the following
 to install all GeoST dependencies:
 
     pixi install
@@ -36,8 +36,8 @@ Next install GeoST in editable mode by running the pixi task 'install':
 See the [Pixi documentation](https://pixi.sh/latest/) for more information.
 
 ## Examples
-We collect examples that make use of GeoST and other Subsurface Toolbox developments in 
-the [Deltares sst-examples repository](https://github.com/Deltares-research/sst-examples). 
+We collect examples that make use of GeoST and other Subsurface Toolbox developments in
+the [Deltares sst-examples repository](https://github.com/Deltares-research/sst-examples).
 
 ## Supported data and file formats
 - From local files
@@ -53,23 +53,23 @@ the [Deltares sst-examples repository](https://github.com/Deltares-research/sst-
     - BHR-P
     - CPT
     - SFR
-- BRO models 
+- BRO models
     - GeoTOP: from local NetCDF or directly via [OPeNDAP server](https://dinodata.nl/opendap/)
 
 Planned:
 - BRO/PDOK geopackage [BHR-G](https://service.pdok.nl/bzk/bro-geologisch-booronderzoek/atom/index.xml), [BHR-GT](https://service.pdok.nl/bzk/bro-geotechnischbooronderzoek/atom/v1_0/index.xml), [BHR-P](https://service.pdok.nl/bzk/brobhrpvolledigeset/atom/v1_1/index.xml), [CPT](https://service.pdok.nl/bzk/brocptvolledigeset/atom/v1_0/index.xml), [SFR](https://service.pdok.nl/bzk/bodem/bro-wandonderzoek/atom/index.xml)
-- Well log LAS files 
+- Well log LAS files
 - Well log ASCII files
 - REGIS II
-- Dino xml geological boreholes 
-- BHR-G gef 
+- Dino xml geological boreholes
+- BHR-G gef
 
 ## Features
 After loading data from one of the supported formats it will automatically be validated. If the validation is succesful, a Collection object will be returned depending on your input data type (mixed CPT/well log/borehole collections are not allowed). A collection object consists of two main attributes: the **header** and **data**. The header contains a table with one entry per object and provides information about the name, location, surface level, and borehole/log/cpt start and end depths. The data attribute is a table that includes the data for every described layer (boreholes) or measurement (well logs, cpt's).
 
 The collection object comes with a comprehensive set of methods that can be applied generically while ensuring that the header and data remain synchronized:
 
-- Selection/slicing methods (e.g., objects within bounding box, within or close to geometries, based on depth and other conditions)   
+- Selection/slicing methods (e.g., objects within bounding box, within or close to geometries, based on depth and other conditions)
 - Export methods (e.g. to csv, parquet, geopackage, VTK, DataFusionTools, Kingdom* , etc)
 - Datafusion methods (e.g. combining collections*, combining with data from maps, conversion of description protocols*)
 - Miscellaneous methods (e.g. changing vertical/horizontal position reference system)
@@ -88,4 +88,3 @@ You can contribute by testing, raising issues and making pull requests. Some gen
 
 ## License
 MIT license (Note: may change to a copyleft license in the future, depending on Deltares management decisions)
-

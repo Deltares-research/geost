@@ -12,4 +12,3 @@ BRO GeoTOP <user_guide/bro_geotop>
 ```
 
 This is the user guide.
-    

@@ -86,7 +86,6 @@ def _read_xml(
     payload_root: str = None,
     read_all: bool = False,
 ) -> dict | list[dict]:
-
     if isinstance(file, bytes):
         root = etree.fromstring(file, parser=_BaseParser)
     else:

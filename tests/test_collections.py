@@ -418,8 +418,9 @@ class TestCollection:
 
         assert len(record) == 1
 
-        assert "Validation dropped 10 row(s) for schema 'Layer data non-inclined'" in str(
-            record[0].message
+        assert (
+            "Validation dropped 10 row(s) for schema 'Layer data non-inclined'"
+            in str(record[0].message)
         )
 
     @pytest.mark.unittest

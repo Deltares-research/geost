@@ -34,8 +34,7 @@ Attributes
 ----------
 .. autosummary::
    :toctree: generated/
-   
+
     PointHeader.gdf
     PointHeader.horizontal_reference
     PointHeader.vertical_reference
-

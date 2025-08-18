@@ -20,7 +20,7 @@ keywords = [
     "cpt",
     "geology",
     "subsurface toolbox",
-    "deltares", 
+    "deltares",
 ]
 classifiers = [
     "Development Status :: 2 - Pre-Alpha",
@@ -45,7 +45,7 @@ dependencies = [
     "openpyxl",
 	"rioxarray",
     "shapely",
-    "pyvista", 
+    "pyvista",
 ]
 
 [project.urls]
@@ -92,6 +92,7 @@ sphinx-design = "*"
 myst-nb = "*"
 pooch = "*"
 pandera = "*"
+pre-commit = "*"
 
 [tool.pixi.pypi-dependencies]
 geost = { path = ".", editable = true }
@@ -140,6 +141,6 @@ target-version = "py313"
 
 [tool.ruff.lint]
 select = ["F", "E", "W", "N", "I001", "NPY201"]
-ignore = ["F401", "E501", "F811"]
+ignore = ["F401", "E402", "E501", "F811"]
 unfixable = ["F401"]
 pydocstyle.convention = "numpy"

@@ -167,7 +167,9 @@ def voxelmodel_to_pyvista_structured(
     grid.spacing = resolution[1], resolution[0], resolution[2]
     grid.origin = dataset.x.values[0], dataset.y.values[0], dataset.z.values[0]
     grid.dimensions = (
-        np.array([dataset.sizes["x"], dataset.sizes["y"], dataset.sizes["z"]], dtype=int)
+        np.array(
+            [dataset.sizes["x"], dataset.sizes["y"], dataset.sizes["z"]], dtype=int
+        )
         + 1
     )
 

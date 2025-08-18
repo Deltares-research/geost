@@ -24,5 +24,5 @@ Attributes
 -----------
 .. autosummary::
    :toctree: generated/
-   
+
    BroApi.apis

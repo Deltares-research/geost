@@ -132,11 +132,11 @@ class BroApi:
         epsg: str = "28992",
         object_type: str = "CPT",
     ) -> List[str]:
-        division_levels = int(((xmax - xmin + ymax - ymin)) / 1000)
+        division_levels = int((xmax - xmin + ymax - ymin) / 1000)
         division_x = (xmax - xmin) / division_levels
         for division_level in range(division_levels):
             print(
-                f"More than 2000 object requests in API call, dividing calls. Current call {division_level+1}/{division_levels}"
+                f"More than 2000 object requests in API call, dividing calls. Current call {division_level + 1}/{division_levels}"
             )
             xmin_divided = xmin + (division_level * division_x)
             xmax_divided = xmin + ((division_level + 1) * division_x)
