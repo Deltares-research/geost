@@ -14,6 +14,7 @@ from geost.analysis.combine import (
     _add_to_layered,
     add_voxelmodel_variable,
 )
+from geost.analysis.grainsize import calculate_dnumber
 from geost.analysis.interpret_cpt import calc_ic, calc_lithology
 from geost.analysis.layer_analysis import find_top_sand
 from geost.base import Collection
@@ -105,6 +106,15 @@ class TestAnalysis:
         assert_array_equal(
             lith, np.array(["V", "Kh", "Kh", "K", "K", "K", "K", "Kz", "Z", "Z", "Z"])
         )
+
+    @pytest.mark.unittest
+    def test_grainsize_dnumber(self, testdatadir):
+        grainsize_data = pd.read_parquet(testdatadir / r"test_grainsize_data.parquet")
+        d10_data = calculate_dnumber(grainsize_data, percentile=10)
+        d50_data = calculate_dnumber(grainsize_data, percentile=50)
+        d90_data = calculate_dnumber(grainsize_data, percentile=90)
+        d_data_merged = pd.concat([d10_data, d50_data["d50"], d90_data["d90"]], axis=1)
+        assert d_data_merged is not None  # WIP TODO: Add proper assertions
 
 
 class TestCombine:
