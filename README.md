@@ -22,21 +22,26 @@ Or the latest (experimental) version of the main branch directly from GitHub usi
     pip install git+https://github.com/Deltares-research/geost.git
 
 ## Installation (developer)
-We use [Pixi](https://github.com/prefix-dev/pixi) for package management and workflows.
+GeoST uses [Pixi](https://github.com/prefix-dev/pixi) for package management and workflows.
 
-With pixi installed, navigate to the folder of the cloned repository and run the following
-to install all GeoST dependencies:
+With pixi installed, navigate to the folder of the cloned repository and run the following to install all GeoST dependencies and the package itself in editable mode:
 
     pixi install
 
-Next install GeoST in editable mode by running the pixi task 'install':
+See the [Pixi documentation](https://pixi.sh/latest/) for more information. Next open
+the Pixi shell by running:
 
-    pixi run install
+    pixi shell
 
-See the [Pixi documentation](https://pixi.sh/latest/) for more information.
+Finally install the pre-commit hooks that enable automatic checks upon committing changes:
+
+    pre-commit install
+
 
 ## Examples
-We collect examples that make use of GeoST and other Subsurface Toolbox developments in
+For an overview of examples, see the [examples on our GitHub pages](https://deltares-research.github.io/geost/examples.html).
+
+We collect additional examples that make use of GeoST and other Subsurface Toolbox developments in
 the [Deltares sst-examples repository](https://github.com/Deltares-research/sst-examples).
 
 ## Supported data and file formats
@@ -47,6 +52,7 @@ the [Deltares sst-examples repository](https://github.com/Deltares-research/sst-
     - Pedological boreholes (BHR-P) xml
     - Cone Penetration Test (CPT) xml/gef
     - Pedological soilprofile descriptions (SFR) xml
+    - BORIS (TNO borehole description software) xml
 - Directly from the [BRO REST-API](https://www.bro-productomgeving.nl/bpo/latest/url-s-publieke-rest-services)
     - BHR-G
     - BHR-GT

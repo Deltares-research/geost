@@ -34,4 +34,15 @@ to install all GeoST dependencies and the package itself in editable mode:
 pixi install
 ```
 
-See the [Pixi documentation](https://pixi.sh/latest/) for more information.
+See the [Pixi documentation](https://pixi.sh/latest/) for more information. Next open
+the Pixi shell by running:
+
+```
+pixi shell
+```
+
+Finally install the pre-commit hooks that enable automatic checks upon committing changes:
+
+```
+pre-commit install
+```
