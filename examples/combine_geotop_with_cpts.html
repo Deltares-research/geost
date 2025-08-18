@@ -32,9 +32,9 @@
 
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="../_static/mystnb.8ecb98da25f57f5357bf6f572d296f466b2cfe2517ffebfabe82451661e28f02.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=70497fbb" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=6e1425e8" />
     <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
-    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=70497fbb" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=6e1425e8" />
   
   <!-- So that users can add custom icons -->
   <script src="../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
@@ -659,7 +659,7 @@
 <p>Any information from voxelmodels can be added. For this example we show how to add the stratigraphy from GeoTOP to the CPTs. First we read GeoTOP directly from the OpenDaP server for the USP area.</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">geotop</span> <span class="o">=</span> <span class="n">GeoTop</span><span class="o">.</span><span class="n">from_opendap</span><span class="p">(</span><span class="n">data_vars</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;strat&#39;</span><span class="p">],</span> <span class="n">bbox</span><span class="o">=</span><span class="n">cpts</span><span class="o">.</span><span class="n">header</span><span class="o">.</span><span class="n">gdf</span><span class="o">.</span><span class="n">total_bounds</span><span class="p">)</span>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">geotop</span> <span class="o">=</span> <span class="n">GeoTop</span><span class="o">.</span><span class="n">from_opendap</span><span class="p">(</span><span class="n">data_vars</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;strat&quot;</span><span class="p">],</span> <span class="n">bbox</span><span class="o">=</span><span class="n">cpts</span><span class="o">.</span><span class="n">header</span><span class="o">.</span><span class="n">gdf</span><span class="o">.</span><span class="n">total_bounds</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">geotop</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -677,9 +677,9 @@ Resolution (y, x, z): (100.0, 100.0, 0.5)
 <p>As you can see, this prints a <a class="reference internal" href="../api_reference/bro_geotop.html"><span class="std std-doc"><code class="docutils literal notranslate"><span class="pre">GeoTop</span></code></span></a> instance along with the dimensions and resolution of GeoTOP. We can use this GeoTop instance to add the variable “strat” to the CPT data. This adds a column “strat” to the data object of the <a class="reference internal" href="../api_reference/cpt_collection.html"><span class="std std-doc"><code class="docutils literal notranslate"><span class="pre">CptCollection</span></code></span></a>. First, we must create a “depth” column in the CPT data because this is expected to be present in the data. We can use the column “penetration_length” for this. Below we add the variable and print the resulting column:</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">cpts</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;depth&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">cpts</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;depth&quot;</span><span class="p">]</span> 
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">cpts</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;depth&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">cpts</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;depth&quot;</span><span class="p">]</span>
 <span class="n">cpts</span> <span class="o">=</span> <span class="n">add_voxelmodel_variable</span><span class="p">(</span><span class="n">cpts</span><span class="p">,</span> <span class="n">geotop</span><span class="p">,</span> <span class="s2">&quot;strat&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">cpts</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;strat&#39;</span><span class="p">])</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">cpts</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;strat&quot;</span><span class="p">])</span>
 </pre></div>
 </div>
 </div>
@@ -705,7 +705,7 @@ Name: strat, Length: 53994, dtype: float32
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
 <span class="n">sns</span><span class="o">.</span><span class="n">boxplot</span><span class="p">(</span><span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">cpts</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">df</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="s2">&quot;strat&quot;</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="s2">&quot;cone_resistance&quot;</span><span class="p">,</span> <span class="n">showfliers</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-<span class="n">ax</span><span class="o">.</span><span class="n">tick_params</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="s1">&#39;x&#39;</span><span class="p">,</span> <span class="n">rotation</span><span class="o">=</span><span class="mi">45</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">tick_params</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="n">rotation</span><span class="o">=</span><span class="mi">45</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -747,7 +747,7 @@ Name: strat, Length: 53994, dtype: float32
 
 <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
 <span class="n">sns</span><span class="o">.</span><span class="n">boxplot</span><span class="p">(</span><span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">cpts</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">df</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="s2">&quot;strat&quot;</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="s2">&quot;cone_resistance&quot;</span><span class="p">,</span> <span class="n">showfliers</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-<span class="n">ax</span><span class="o">.</span><span class="n">tick_params</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="s1">&#39;x&#39;</span><span class="p">,</span> <span class="n">rotation</span><span class="o">=</span><span class="mi">45</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">tick_params</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="n">rotation</span><span class="o">=</span><span class="mi">45</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>

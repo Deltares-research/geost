@@ -32,9 +32,9 @@
 
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="../_static/mystnb.8ecb98da25f57f5357bf6f572d296f466b2cfe2517ffebfabe82451661e28f02.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=70497fbb" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=6e1425e8" />
     <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
-    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=70497fbb" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=6e1425e8" />
   
   <!-- So that users can add custom icons -->
   <script src="../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
@@ -841,13 +841,15 @@ Resolution (y, x, z): (100.0, 100.0, 0.5)
 <p>This prints the “xmin, ymin, xmax, ymax” bounding box and the “zmin, zmax” of the data. <a class="reference internal" href="../api_reference/bro_geotop.html"><span class="std std-doc"><code class="docutils literal notranslate"><span class="pre">GeoTop</span></code></span></a> depends strongly on <a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.html">xarray.Dataset</a> and therefore provides familiar selection methods <code class="docutils literal notranslate"><span class="pre">.sel</span></code> and <code class="docutils literal notranslate"><span class="pre">.isel</span></code> to select specific coordinates or indices, or slices of coordinates or indices:</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">sel</span> <span class="o">=</span> <span class="n">geotop</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="p">[</span><span class="mi">139_650</span><span class="p">,</span> <span class="mi">139_750</span><span class="p">])</span> <span class="c1"># Select specific x-coordinates</span>
-<span class="n">sel</span> <span class="o">=</span> <span class="n">geotop</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">5</span><span class="p">])</span> <span class="c1"># Select specific x-indices</span>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">sel</span> <span class="o">=</span> <span class="n">geotop</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="p">[</span><span class="mi">139_650</span><span class="p">,</span> <span class="mi">139_750</span><span class="p">])</span>  <span class="c1"># Select specific x-coordinates</span>
+<span class="n">sel</span> <span class="o">=</span> <span class="n">geotop</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">5</span><span class="p">])</span>  <span class="c1"># Select specific x-indices</span>
 
-<span class="n">sel</span> <span class="o">=</span> <span class="n">geotop</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="nb">slice</span><span class="p">(</span><span class="mi">140_000</span><span class="p">,</span> <span class="mi">140_500</span><span class="p">))</span> <span class="c1"># Select a slice of x-coordinates</span>
-<span class="n">sel</span> <span class="o">=</span> <span class="n">geotop</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="nb">slice</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">5</span><span class="p">))</span> <span class="c1"># Select a slice of x-indices</span>
+<span class="n">sel</span> <span class="o">=</span> <span class="n">geotop</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="nb">slice</span><span class="p">(</span><span class="mi">140_000</span><span class="p">,</span> <span class="mi">140_500</span><span class="p">))</span>  <span class="c1"># Select a slice of x-coordinates</span>
+<span class="n">sel</span> <span class="o">=</span> <span class="n">geotop</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="nb">slice</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">5</span><span class="p">))</span>  <span class="c1"># Select a slice of x-indices</span>
 
-<span class="n">sel</span> <span class="o">=</span> <span class="n">geotop</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="p">[</span><span class="mf">140_013.23</span><span class="p">,</span> <span class="mf">140_333.14</span><span class="p">],</span> <span class="n">method</span><span class="o">=</span><span class="s1">&#39;nearest&#39;</span><span class="p">)</span> <span class="c1"># Select the nearest x-coordinates</span>
+<span class="n">sel</span> <span class="o">=</span> <span class="n">geotop</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span>
+    <span class="n">x</span><span class="o">=</span><span class="p">[</span><span class="mf">140_013.23</span><span class="p">,</span> <span class="mf">140_333.14</span><span class="p">],</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;nearest&quot;</span>
+<span class="p">)</span>  <span class="c1"># Select the nearest x-coordinates</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">sel</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -880,7 +882,7 @@ Resolution (y, x, z): (100.0, 300.0, 0.5)
 <p>Often it can be necessary to select GeoTop at specific locations, such as borehole locations, to compare the borehole data with GeoTop. We can easily select GeoTop at the locations of boreholes using the <a class="reference internal" href="../api_reference/bro_geotop.html"><span class="std std-doc"><code class="docutils literal notranslate"><span class="pre">GeoTop.select_with_points</span></code></span></a> method. Let’s load a <a class="reference internal" href="../api_reference/borehole_collection.html"><span class="std std-doc"><code class="docutils literal notranslate"><span class="pre">BoreholeCollection</span></code></span></a> with borehole data for the Utrecht Science Park to see what happens:</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">boreholes</span> <span class="o">=</span> <span class="n">geost</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">boreholes_usp</span><span class="p">()</span> <span class="c1"># BoreholeCollection</span>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">boreholes</span> <span class="o">=</span> <span class="n">geost</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">boreholes_usp</span><span class="p">()</span>  <span class="c1"># BoreholeCollection</span>
 
 <span class="n">geotop_at_locations</span> <span class="o">=</span> <span class="n">geotop</span><span class="o">.</span><span class="n">select_with_points</span><span class="p">(</span><span class="n">boreholes</span><span class="o">.</span><span class="n">header</span><span class="o">.</span><span class="n">gdf</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">geotop_at_locations</span><span class="p">)</span>
@@ -957,8 +959,10 @@ Attributes:
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Increase zmin and zmax by a little to make sure the complete depth of the borehole is covered</span>
 <span class="n">voxel_column</span> <span class="o">=</span> <span class="n">geotop_at_locations</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">idx</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">z</span><span class="o">=</span><span class="nb">slice</span><span class="p">(</span><span class="o">-</span><span class="mf">10.5</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">))</span>
-<span class="n">voxel_column</span> <span class="o">=</span> <span class="n">voxel_column</span><span class="o">.</span><span class="n">to_dataframe</span><span class="p">()</span><span class="o">.</span><span class="n">sort_index</span><span class="p">(</span><span class="n">ascending</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="c1"># Make depth increase from top to bottom</span>
-<span class="n">voxel_column</span> <span class="c1"># Check out the result</span>
+<span class="n">voxel_column</span> <span class="o">=</span> <span class="n">voxel_column</span><span class="o">.</span><span class="n">to_dataframe</span><span class="p">()</span><span class="o">.</span><span class="n">sort_index</span><span class="p">(</span>
+    <span class="n">ascending</span><span class="o">=</span><span class="kc">False</span>
+<span class="p">)</span>  <span class="c1"># Make depth increase from top to bottom</span>
+<span class="n">voxel_column</span>  <span class="c1"># Check out the result</span>
 </pre></div>
 </div>
 </div>
@@ -1539,7 +1543,7 @@ Attributes:
 
 <span class="n">voxel_column</span><span class="p">[</span><span class="s2">&quot;strat&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">voxel_column</span><span class="p">[</span><span class="s2">&quot;strat&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">strat_dict</span><span class="p">)</span>
 <span class="n">voxel_column</span><span class="p">[</span><span class="s2">&quot;lithok&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">voxel_column</span><span class="p">[</span><span class="s2">&quot;lithok&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">lith_dict</span><span class="p">)</span>
-<span class="n">voxel_column</span> <span class="c1"># See the result</span>
+<span class="n">voxel_column</span>  <span class="c1"># See the result</span>
 </pre></div>
 </div>
 </div>
@@ -2091,7 +2095,7 @@ Attributes:
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">borehole</span> <span class="o">=</span> <span class="n">boreholes</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;B31H0541&quot;</span><span class="p">)</span>
 <span class="c1"># Check out relevant information in the borehole data</span>
-<span class="n">borehole</span><span class="o">.</span><span class="n">data</span><span class="p">[[</span><span class="s1">&#39;nr&#39;</span><span class="p">,</span> <span class="s1">&#39;surface&#39;</span><span class="p">,</span> <span class="s1">&#39;end&#39;</span><span class="p">,</span> <span class="s1">&#39;top&#39;</span><span class="p">,</span> <span class="s1">&#39;bottom&#39;</span><span class="p">,</span> <span class="s1">&#39;lith&#39;</span><span class="p">,</span> <span class="s1">&#39;strat_2003&#39;</span><span class="p">]]</span>
+<span class="n">borehole</span><span class="o">.</span><span class="n">data</span><span class="p">[[</span><span class="s2">&quot;nr&quot;</span><span class="p">,</span> <span class="s2">&quot;surface&quot;</span><span class="p">,</span> <span class="s2">&quot;end&quot;</span><span class="p">,</span> <span class="s2">&quot;top&quot;</span><span class="p">,</span> <span class="s2">&quot;bottom&quot;</span><span class="p">,</span> <span class="s2">&quot;lith&quot;</span><span class="p">,</span> <span class="s2">&quot;strat_2003&quot;</span><span class="p">]]</span>
 </pre></div>
 </div>
 </div>

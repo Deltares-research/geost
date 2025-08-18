@@ -59,7 +59,7 @@
     "\n",
     "usp_boreholes = geost.data.boreholes_usp()\n",
     "print(usp_boreholes)\n",
-    "usp_boreholes.header.gdf.explore() # Interactive plot of the borehole locations."
+    "usp_boreholes.header.gdf.explore()  # Interactive plot of the borehole locations."
    ]
   },
   {
@@ -131,7 +131,7 @@
    "metadata": {},
    "outputs": [],
    "source": [
-    "usp_boreholes.change_horizontal_reference(4326) # Change from RD to WGS 84\n",
+    "usp_boreholes.change_horizontal_reference(4326)  # Change from RD to WGS 84\n",
     "print(usp_boreholes.header, usp_boreholes.horizontal_reference, sep=\"\\n\")"
    ]
   },

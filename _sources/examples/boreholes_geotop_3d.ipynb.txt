@@ -66,7 +66,7 @@
     "# Let's see what we've got\n",
     "print(\"Boreholes:\\n\", boreholes_usp)\n",
     "print(\"\\n\")\n",
-    "print(\"Voxel model:\\n\", geotop_usp)\n"
+    "print(\"Voxel model:\\n\", geotop_usp)"
    ]
   },
   {
@@ -124,10 +124,10 @@
    "source": [
     "# The boreholes are converted to an unstructured grid of the lithology data. The borehole\n",
     "# geometries are given a radius of 10 meters.\n",
-    "boreholes_usp_pyvista = boreholes_usp.to_pyvista_grid('lith', radius=10)\n",
+    "boreholes_usp_pyvista = boreholes_usp.to_pyvista_grid(\"lith\", radius=10)\n",
     "\n",
     "# The GeoTOP model is converted to an structured grid of the stratigraphy data\n",
-    "geotop_usp_pyvista = geotop_usp.to_pyvista_grid('strat')\n",
+    "geotop_usp_pyvista = geotop_usp.to_pyvista_grid(\"strat\")\n",
     "\n",
     "# Let's see what we've got\n",
     "print(\"Boreholes PyVista grid:\\n\", boreholes_usp_pyvista)\n",
@@ -171,21 +171,17 @@
    "source": [
     "# Create a simple 3D plot using PyVista\n",
     "plotter = pv.Plotter()\n",
-    "plotter.add_mesh(boreholes_usp_pyvista, scalars='lith')\n",
+    "plotter.add_mesh(boreholes_usp_pyvista, scalars=\"lith\")\n",
     "plotter.add_mesh(\n",
     "    geotop_usp_pyvista,\n",
     "    opacity=0.7,\n",
-    "    scalars='strat',\n",
+    "    scalars=\"strat\",\n",
     "    nan_opacity=0,\n",
-    "    cmap='jet',\n",
+    "    cmap=\"jet\",\n",
     ")\n",
     "plotter.set_scale(zscale=10)\n",
-    "plotter.camera_position = [\n",
-    "    (142800, 457600, 1100),\n",
-    "    (140400, 455400, -300),\n",
-    "    (0, 0, 1)\n",
-    "]\n",
-    "plotter.show(jupyter_backend='static')"
+    "plotter.camera_position = [(142800, 457600, 1100), (140400, 455400, -300), (0, 0, 1)]\n",
+    "plotter.show(jupyter_backend=\"static\")"
    ]
   }
  ],

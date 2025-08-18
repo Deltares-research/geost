@@ -32,9 +32,9 @@
 
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="../_static/mystnb.8ecb98da25f57f5357bf6f572d296f466b2cfe2517ffebfabe82451661e28f02.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=70497fbb" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=6e1425e8" />
     <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
-    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=70497fbb" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=6e1425e8" />
   
   <!-- So that users can add custom icons -->
   <script src="../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
@@ -851,11 +851,11 @@ create some problems to show what to expect from the validation and the differen
         <span class="s2">&quot;end&quot;</span><span class="p">:</span> <span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">],</span>
         <span class="s2">&quot;top&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">],</span>
         <span class="s2">&quot;bottom&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mf">0.5</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
-        <span class="s2">&quot;lithoclass&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;K&#39;</span><span class="p">,</span> <span class="s1">&#39;Z&#39;</span><span class="p">]</span>
+        <span class="s2">&quot;lithoclass&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;K&quot;</span><span class="p">,</span> <span class="s2">&quot;Z&quot;</span><span class="p">],</span>
     <span class="p">}</span>
 <span class="p">)</span>
 
-<span class="c1"># Creating a LayeredData object from this table triggers validation. </span>
+<span class="c1"># Creating a LayeredData object from this table triggers validation.</span>
 <span class="c1"># -&gt; All good, no warnings!</span>
 <span class="n">layered_data</span> <span class="o">=</span> <span class="n">LayeredData</span><span class="p">(</span><span class="n">df_correct</span><span class="p">)</span>
 
@@ -878,7 +878,7 @@ of this layer is 1. We therefore expect a <code class="docutils literal notransl
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Create an invalid layer in the example dataframe</span>
 <span class="n">df_invalid</span> <span class="o">=</span> <span class="n">df_correct</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-<span class="n">df_invalid</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;top&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1.1</span>
+<span class="n">df_invalid</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;top&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1.1</span>
 
 <span class="c1"># Validation setting VERBOSE on to show warning details</span>
 <span class="n">config</span><span class="o">.</span><span class="n">validation</span><span class="o">.</span><span class="n">VERBOSE</span> <span class="o">=</span> <span class="kc">True</span>

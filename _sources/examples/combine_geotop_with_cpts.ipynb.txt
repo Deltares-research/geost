@@ -241,7 +241,7 @@
     }
    ],
    "source": [
-    "geotop = GeoTop.from_opendap(data_vars=['strat'], bbox=cpts.header.gdf.total_bounds)\n",
+    "geotop = GeoTop.from_opendap(data_vars=[\"strat\"], bbox=cpts.header.gdf.total_bounds)\n",
     "print(geotop)"
    ]
   },
@@ -277,9 +277,9 @@
     }
    ],
    "source": [
-    "cpts.data[\"depth\"] = cpts.data[\"depth\"] \n",
+    "cpts.data[\"depth\"] = cpts.data[\"depth\"]\n",
     "cpts = add_voxelmodel_variable(cpts, geotop, \"strat\")\n",
-    "print(cpts.data['strat'])"
+    "print(cpts.data[\"strat\"])"
    ]
   },
   {
@@ -308,7 +308,7 @@
    "source": [
     "fig, ax = plt.subplots()\n",
     "sns.boxplot(ax=ax, data=cpts.data.df, x=\"strat\", y=\"cone_resistance\", showfliers=False)\n",
-    "ax.tick_params(axis='x', rotation=45)"
+    "ax.tick_params(axis=\"x\", rotation=45)"
    ]
   },
   {
@@ -399,7 +399,7 @@
     "\n",
     "fig, ax = plt.subplots()\n",
     "sns.boxplot(ax=ax, data=cpts.data.df, x=\"strat\", y=\"cone_resistance\", showfliers=False)\n",
-    "ax.tick_params(axis='x', rotation=45)"
+    "ax.tick_params(axis=\"x\", rotation=45)"
    ]
   },
   {

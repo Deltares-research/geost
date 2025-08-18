@@ -81,15 +81,15 @@
     "        \"end\": [-1, -1],\n",
     "        \"top\": [0, 0.5],\n",
     "        \"bottom\": [0.5, 1],\n",
-    "        \"lithoclass\": ['K', 'Z']\n",
+    "        \"lithoclass\": [\"K\", \"Z\"],\n",
     "    }\n",
     ")\n",
     "\n",
-    "# Creating a LayeredData object from this table triggers validation. \n",
+    "# Creating a LayeredData object from this table triggers validation.\n",
     "# -> All good, no warnings!\n",
     "layered_data = LayeredData(df_correct)\n",
     "\n",
-    "print(layered_data)\n"
+    "print(layered_data)"
    ]
   },
   {
@@ -129,7 +129,7 @@
    "source": [
     "# Create an invalid layer in the example dataframe\n",
     "df_invalid = df_correct.copy()\n",
-    "df_invalid.loc[1, 'top'] = 1.1\n",
+    "df_invalid.loc[1, \"top\"] = 1.1\n",
     "\n",
     "# Validation setting VERBOSE on to show warning details\n",
     "config.validation.VERBOSE = True\n",
@@ -139,7 +139,7 @@
     "layered_data = LayeredData(df_invalid)\n",
     "\n",
     "# Because the setting DROP_INVALID is turned on, the invalid layer is dropped\n",
-    "print(layered_data)\n"
+    "print(layered_data)"
    ]
   },
   {

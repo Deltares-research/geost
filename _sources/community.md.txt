@@ -9,7 +9,7 @@ hidden:
 
 Our vision for GeoST is to grow it into a widely-used open-source software package for those
 who work with subsurface data and Python in whatever role or capacity. This we cannot do alone
-and we therefore invite you to join us in using and developing GeoST. Contributions can be 
+and we therefore invite you to join us in using and developing GeoST. Contributions can be
 as simple as giving feedback and reporting bugs!
 
 ````{grid} 1 2 3 3
@@ -38,5 +38,3 @@ This section is under construction...
 
 ### Developing GeoST
 This section is under construction...
-
-

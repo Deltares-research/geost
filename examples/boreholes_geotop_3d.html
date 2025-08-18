@@ -32,9 +32,9 @@
 
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="../_static/mystnb.8ecb98da25f57f5357bf6f572d296f466b2cfe2517ffebfabe82451661e28f02.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=70497fbb" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=6e1425e8" />
     <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
-    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=70497fbb" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=6e1425e8" />
   
   <!-- So that users can add custom icons -->
   <script src="../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
@@ -550,10 +550,10 @@ Resolution (y, x, z): (100.0, 100.0, 0.5)
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># The boreholes are converted to an unstructured grid of the lithology data. The borehole</span>
 <span class="c1"># geometries are given a radius of 10 meters.</span>
-<span class="n">boreholes_usp_pyvista</span> <span class="o">=</span> <span class="n">boreholes_usp</span><span class="o">.</span><span class="n">to_pyvista_grid</span><span class="p">(</span><span class="s1">&#39;lith&#39;</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+<span class="n">boreholes_usp_pyvista</span> <span class="o">=</span> <span class="n">boreholes_usp</span><span class="o">.</span><span class="n">to_pyvista_grid</span><span class="p">(</span><span class="s2">&quot;lith&quot;</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
 
 <span class="c1"># The GeoTOP model is converted to an structured grid of the stratigraphy data</span>
-<span class="n">geotop_usp_pyvista</span> <span class="o">=</span> <span class="n">geotop_usp</span><span class="o">.</span><span class="n">to_pyvista_grid</span><span class="p">(</span><span class="s1">&#39;strat&#39;</span><span class="p">)</span>
+<span class="n">geotop_usp_pyvista</span> <span class="o">=</span> <span class="n">geotop_usp</span><span class="o">.</span><span class="n">to_pyvista_grid</span><span class="p">(</span><span class="s2">&quot;strat&quot;</span><span class="p">)</span>
 
 <span class="c1"># Let&#39;s see what we&#39;ve got</span>
 <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Boreholes PyVista grid:</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">boreholes_usp_pyvista</span><span class="p">)</span>
@@ -597,21 +597,17 @@ to VTK and use <a class="reference external" href="https://www.paraview.org/">Pa
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Create a simple 3D plot using PyVista</span>
 <span class="n">plotter</span> <span class="o">=</span> <span class="n">pv</span><span class="o">.</span><span class="n">Plotter</span><span class="p">()</span>
-<span class="n">plotter</span><span class="o">.</span><span class="n">add_mesh</span><span class="p">(</span><span class="n">boreholes_usp_pyvista</span><span class="p">,</span> <span class="n">scalars</span><span class="o">=</span><span class="s1">&#39;lith&#39;</span><span class="p">)</span>
+<span class="n">plotter</span><span class="o">.</span><span class="n">add_mesh</span><span class="p">(</span><span class="n">boreholes_usp_pyvista</span><span class="p">,</span> <span class="n">scalars</span><span class="o">=</span><span class="s2">&quot;lith&quot;</span><span class="p">)</span>
 <span class="n">plotter</span><span class="o">.</span><span class="n">add_mesh</span><span class="p">(</span>
     <span class="n">geotop_usp_pyvista</span><span class="p">,</span>
     <span class="n">opacity</span><span class="o">=</span><span class="mf">0.7</span><span class="p">,</span>
-    <span class="n">scalars</span><span class="o">=</span><span class="s1">&#39;strat&#39;</span><span class="p">,</span>
+    <span class="n">scalars</span><span class="o">=</span><span class="s2">&quot;strat&quot;</span><span class="p">,</span>
     <span class="n">nan_opacity</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
-    <span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;jet&#39;</span><span class="p">,</span>
+    <span class="n">cmap</span><span class="o">=</span><span class="s2">&quot;jet&quot;</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="n">plotter</span><span class="o">.</span><span class="n">set_scale</span><span class="p">(</span><span class="n">zscale</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
-<span class="n">plotter</span><span class="o">.</span><span class="n">camera_position</span> <span class="o">=</span> <span class="p">[</span>
-    <span class="p">(</span><span class="mi">142800</span><span class="p">,</span> <span class="mi">457600</span><span class="p">,</span> <span class="mi">1100</span><span class="p">),</span>
-    <span class="p">(</span><span class="mi">140400</span><span class="p">,</span> <span class="mi">455400</span><span class="p">,</span> <span class="o">-</span><span class="mi">300</span><span class="p">),</span>
-    <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-<span class="p">]</span>
-<span class="n">plotter</span><span class="o">.</span><span class="n">show</span><span class="p">(</span><span class="n">jupyter_backend</span><span class="o">=</span><span class="s1">&#39;static&#39;</span><span class="p">)</span>
+<span class="n">plotter</span><span class="o">.</span><span class="n">camera_position</span> <span class="o">=</span> <span class="p">[(</span><span class="mi">142800</span><span class="p">,</span> <span class="mi">457600</span><span class="p">,</span> <span class="mi">1100</span><span class="p">),</span> <span class="p">(</span><span class="mi">140400</span><span class="p">,</span> <span class="mi">455400</span><span class="p">,</span> <span class="o">-</span><span class="mi">300</span><span class="p">),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)]</span>
+<span class="n">plotter</span><span class="o">.</span><span class="n">show</span><span class="p">(</span><span class="n">jupyter_backend</span><span class="o">=</span><span class="s2">&quot;static&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
