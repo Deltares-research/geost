@@ -167,13 +167,13 @@ def voxelmodel_to_pyvista_structured(
     grid.spacing = resolution[1], resolution[0], resolution[2]
     grid.origin = dataset.x.values[0], dataset.y.values[0], dataset.z.values[0]
     grid.dimensions = (
-        np.array([dataset.dims["x"], dataset.dims["y"], dataset.dims["z"]], dtype=int)
+        np.array([dataset.sizes["x"], dataset.sizes["y"], dataset.sizes["z"]], dtype=int)
         + 1
     )
 
     # Add the variables to the grid
     for var in displayed_variables:
-        if not all(dim in dataset[var].dims for dim in ["x", "y", "z"]):
+        if not all(dim in dataset[var].sizes for dim in ["x", "y", "z"]):
             print(
                 f"Variable '{var}' does not have the required dimensions 'x', 'y', and "
                 "'z'. Skipping this variable."
@@ -309,13 +309,13 @@ def check_voxelmodel_dims(
             )
 
     # Order dataset dimensions to match required order.
-    if tuple(dataset.dims.keys()) != dim_order:
+    if tuple(dataset.sizes.keys()) != dim_order:
         dataset = dataset.transpose(*dim_order)
     # Also transpose all data_vars to match the required order. You have to do this
     # because the above dataset.transpose() call will not transpose the data_vars.
     for var in dataset.data_vars:
-        if tuple(dataset[var].dims) != dim_order and all(
-            [dim in dataset[var].dims for dim in dim_order]
+        if tuple(dataset[var].sizes) != dim_order and all(
+            [dim in dataset[var].sizes for dim in dim_order]
         ):
             dataset[var] = dataset[var].transpose(*dim_order)
 

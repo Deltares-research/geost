@@ -18,5 +18,11 @@ Methods
 
    BroApi.get_objects
    BroApi.search_objects_in_bbox
+
+
+Attributes
+-----------
+.. autosummary::
+   :toctree: generated/
+   
    BroApi.apis
-   BroApi.document_types

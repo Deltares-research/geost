@@ -14,41 +14,34 @@ class BroApi:
         "CPT": "/sr/cpt/v1",
         "BHR-P": "/sr/bhrp/v2",
         "BHR-GT": "/sr/bhrgt/v2",
-        "BHR-G": "/sr/bhrg/v2",
-    }
-    document_types = {
-        "CPT": "CPT_C",
-        "BHR-P": "",
-        "BHR-GT": "",
-        "BHR-G": "",
+        "BHR-G": "/sr/bhrg/v3",
+        "SFR": "/sr/sfr/v2",
     }
 
     def __init__(self, server_url=r"https://publiek.broservices.nl"):
         self.session = requests.Session()
         self.server_url = server_url
-        self.objects_url = "/objects"
         self.search_url = "/characteristics/searches"
         self.object_list = []
 
     def get_objects(
-        self, bro_ids: Union[str, Iterable], object_type: str = "CPT"
-    ) -> Iterator:
+        self, bro_ids: str | Iterable, object_type: str = "CPT"
+    ) -> list[bytes]:
         """
-        Return BRO objects as a generator containing element trees that can be parsed to
-        a reader.
+        Retrieve BRO objects via API requests to the public BRO REST-API.
 
         Parameters
         ----------
-        bro_ids : Union[str, Iterable]
+        bro_ids : str | Iterable
             Single BRO ID or Iterable of BRO ID's
         object_type : str, optional
             BRO object type. Can be CPT (Cone penetration tests), BHR-P (Soil cores),
             BHR-GT (Geotechnical cores), or BHR-G (Geological cores). By default "CPT".
 
-        Yields
-        ------
-        lxml._Element
-            Element tree containing data of the requested BRO object.
+        Returns
+        -------
+        list[bytes]
+            List of bytestrings containing the XML data of the requested BRO objects.
 
         Raises
         ------
@@ -59,21 +52,20 @@ class BroApi:
         """
         if isinstance(bro_ids, str):
             bro_ids = [bro_ids]
+
+        api_response = []
         for bro_id in bro_ids:
             response = self.session.get(
-                self.server_url
-                + self.apis[object_type]
-                + self.objects_url
-                + f"/{bro_id}"
+                f"{self.server_url}{self.apis[object_type]}/objects/{bro_id}"
             )
             if response.status_code == 200 and "rejection" not in response.text:
-                element = etree.fromstring(response.text.encode("utf-8"))
-                yield element
+                api_response.append(response.text.encode("utf-8"))
             elif response.status_code != 200 or "rejection" in response.text:
                 raise Warning(
                     f"Error {response.status_code}: Unable to request {bro_id} from ",
                     "database",
                 )
+        return api_response
 
     def search_objects_in_bbox(
         self,

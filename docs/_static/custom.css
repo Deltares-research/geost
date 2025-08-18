@@ -24,3 +24,11 @@ html[data-theme="dark"] {
     max-width: 80%;
     /* default is 88rem */
 }
+
+/* Maak alle notebook output scrollbaar als ze te lang zijn */
+div.output pre {
+    max-height: 500px;
+    overflow: auto;
+    padding: 0.5em;
+    box-sizing: border-box;
+}

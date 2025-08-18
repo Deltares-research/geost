@@ -6,7 +6,9 @@ from typing import Any, Union
 import geopandas as gpd
 import pandas as pd
 from pyogrio.errors import FieldError
-from shapely.geometry import Point
+from shapely import geometry as gmt
+
+type Geometry = gmt.base.BaseGeometry
 
 COMPARISON_OPERATORS = {
     "<": operator.lt,
@@ -22,6 +24,76 @@ ARITHMIC_OPERATORS = {
     "-": operator.sub,
     "*": operator.mul,
 }
+
+
+def _pandas_read(file: str | Path, **kwargs) -> pd.DataFrame:
+    """
+    Read parquet file.
+
+    Parameters
+    ----------
+    file : Path
+        Path to file to be read.
+    kwargs : optional
+        Kwargs to pass to the read function
+
+    Returns
+    -------
+    pd.DataFrame
+        Dataframe with contents of 'file'.
+
+    Raises
+    ------
+    TypeError
+        if 'file' has no valid suffix.
+
+    """
+    file = Path(file)
+    suffix = file.suffix
+    if suffix in [".parquet", ".pq"]:
+        return pd.read_parquet(file, **kwargs)
+    elif suffix in [".csv", ".txt", ".tsv"]:
+        return pd.read_csv(file, **kwargs)
+    elif suffix in [".xls", ".xlsx"]:  # pragma: no cover
+        return pd.read_excel(
+            file, **kwargs
+        )  # No cover: Excel file io fails in windows CI pipeline
+    else:
+        raise TypeError(
+            f"Expected parquet file (with .parquet or .pq suffix) but got {suffix} file"
+        )
+
+
+def _geopandas_read(file: str | Path, **kwargs) -> gpd.GeoDataFrame:
+    """
+    Read a geospatial file into a GeoDataFrame.
+
+    Parameters
+    ----------
+    file : str | Path
+        Path to the geospatial file to be read.
+    kwargs : optional
+        Additional keyword arguments to pass to the geopandas read function. See relevant
+        documentation for details.
+
+    Returns
+    -------
+    gpd.GeoDataFrame
+        GeoDataFrame containing the data from the file.
+
+    Raises
+    ------
+    ValueError
+        If the file type is not supported.
+
+    """
+    file = Path(file)
+    if file.suffix in {".shp", ".gpkg"}:
+        return gpd.read_file(file, **kwargs)
+    elif file.suffix in {".parquet", ".geoparquet"}:
+        return gpd.read_parquet(file, **kwargs)
+    else:
+        raise ValueError(f"File type {file.suffix} is not supported by geopandas.")
 
 
 def csv_to_parquet(
@@ -135,7 +207,7 @@ def dataframe_to_geodataframe(
     IndexError
         If input dataframe does not have a valid column for 'x' or 'y'.
     """
-    points = [Point([x, y]) for x, y in zip(df[x_col_label], df[y_col_label])]
+    points = [gmt.Point([x, y]) for x, y in zip(df[x_col_label], df[y_col_label])]
     gdf = gpd.GeoDataFrame(df, geometry=points, crs=crs)
     return gdf
 
@@ -198,3 +270,35 @@ def create_connection(database: str | Path):
         print(e)
 
     return conn
+
+
+def check_geometry_instance(
+    geometry: str | Path | gpd.GeoDataFrame | Geometry | list[Geometry],
+) -> gpd.GeoDataFrame:
+    """
+    Check if the input geometry is a valid type and convert it to a GeoDataFrame if
+    necessary.
+
+    Parameters
+    ----------
+    geometry : str | Path | gpd.GeoDataFrame | Geometry | list[Geometry]
+        The geometry to check.
+
+    Returns
+    -------
+    gpd.GeoDataFrame
+        An instance of a geopandas geodataframe
+    """
+    if isinstance(geometry, str | Path):
+        gdf = _geopandas_read(Path(geometry))
+    elif isinstance(geometry, gpd.GeoDataFrame):
+        gdf = geometry
+    elif isinstance(geometry, gmt.base.BaseGeometry):
+        gdf = gpd.GeoDataFrame(geometry=[geometry])
+    elif isinstance(geometry, list):
+        gdf = gpd.GeoDataFrame(geometry=geometry)
+
+    # Make sure you don't get a view of gdf returned
+    gdf = gdf.copy()
+
+    return gdf

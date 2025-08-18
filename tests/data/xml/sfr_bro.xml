@@ -1,0 +1,450 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<dispatchDataResponse xmlns="http://www.broservices.nl/xsd/dssfr/2.0" xmlns:srcom="http://www.broservices.nl/xsd/srcommon/1.0" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:brocom="http://www.broservices.nl/xsd/brocommon/3.0" xmlns:sfrcom="http://www.broservices.nl/xsd/sfrcommon/2.0" xmlns:gml="http://www.opengis.net/gml/3.2" xmlns:ns7="http://www.opengis.net/swe/2.0">
+  <brocom:responseType>dispatch</brocom:responseType>
+  <brocom:requestReference>-</brocom:requestReference>
+  <brocom:dispatchTime>2025-08-04T11:37:40+02:00</brocom:dispatchTime>
+  <dispatchDocument>
+    <SFR_O gml:id="BRO_0015">
+      <brocom:broId>SFR000000000687</brocom:broId>
+      <brocom:deliveryAccountableParty>27378529</brocom:deliveryAccountableParty>
+      <brocom:qualityRegime>IMBRO/A</brocom:qualityRegime>
+      <deliveryContext codeSpace="urn:bro:sfr:DeliveryContext">archiefoverdracht</deliveryContext>
+      <surveyPurpose codeSpace="urn:bro:sfr:SurveyPurpose">bodemkaartNederlandEenheidType</surveyPurpose>
+      <discipline codeSpace="urn:bro:sfr:Discipline">bodemkunde</discipline>
+      <researchReportDate>
+        <brocom:yearMonth>1965-07</brocom:yearMonth>
+      </researchReportDate>
+      <fieldworkDate>
+        <brocom:yearMonth>1965-07</brocom:yearMonth>
+      </fieldworkDate>
+      <litterLayerInvestigated>nee</litterLayerInvestigated>
+      <registrationHistory>
+        <brocom:objectRegistrationTime>2020-03-23T11:19:36+01:00</brocom:objectRegistrationTime>
+        <brocom:registrationStatus codeSpace="urn:bro:RegistrationStatus">voltooid</brocom:registrationStatus>
+        <brocom:registrationCompletionTime>2020-03-23T11:19:36+01:00</brocom:registrationCompletionTime>
+        <brocom:corrected>nee</brocom:corrected>
+        <brocom:underReview>nee</brocom:underReview>
+        <brocom:deregistered>nee</brocom:deregistered>
+        <brocom:reregistered>nee</brocom:reregistered>
+      </registrationHistory>
+      <reportHistory>
+        <reportStartDate>
+          <brocom:yearMonth>1965-07</brocom:yearMonth>
+        </reportStartDate>
+        <reportEndDate>
+          <brocom:yearMonth>1965-07</brocom:yearMonth>
+        </reportEndDate>
+      </reportHistory>
+      <deliveredLocation>
+        <sfrcom:location>
+          <gml:Point srsName="urn:ogc:def:crs:EPSG::28992" gml:id="BRO_0001">
+            <gml:pos>132250.000 451075.000</gml:pos>
+          </gml:Point>
+        </sfrcom:location>
+        <sfrcom:horizontalPositioningDate>
+          <brocom:yearMonth>1965-07</brocom:yearMonth>
+        </sfrcom:horizontalPositioningDate>
+        <sfrcom:horizontalPositioningMethod codeSpace="urn:bro:sfr:HorizontalPositioningMethod">kaartKleinschalig</sfrcom:horizontalPositioningMethod>
+      </deliveredLocation>
+      <deliveredVerticalPosition>
+        <sfrcom:localVerticalReferencePoint codeSpace="urn:bro:sfr:LocalVerticalReferencePoint">maaiveld</sfrcom:localVerticalReferencePoint>
+        <sfrcom:offset uom="m">0.870</sfrcom:offset>
+        <sfrcom:verticalDatum codeSpace="urn:bro:sfr:VerticalDatum">NAP</sfrcom:verticalDatum>
+        <sfrcom:verticalPositioningDate>
+          <brocom:yearMonth>2000-01</brocom:yearMonth>
+        </sfrcom:verticalPositioningDate>
+        <sfrcom:verticalPositioningMethod codeSpace="urn:bro:sfr:VerticalPositioningMethod">AHN1</sfrcom:verticalPositioningMethod>
+      </deliveredVerticalPosition>
+      <standardizedLocation>
+        <brocom:location srsName="urn:ogc:def:crs:EPSG::4258" gml:id="BRO_0002">
+          <gml:pos>52.047523960 5.055565520</gml:pos>
+        </brocom:location>
+        <brocom:coordinateTransformation codeSpace="urn:bro:CoordinateTransformation">RDNAPTRANS2008</brocom:coordinateTransformation>
+      </standardizedLocation>
+      <siteCharacteristic>
+        <sfrcom:SiteCharacteristic gml:id="BRO_0003">
+          <sfrcom:soilUse codeSpace="urn:bro:sfr:SoilUse">grasland</sfrcom:soilUse>
+          <sfrcom:artificialDrainage codeSpace="urn:bro:sfr:ArtificialDrainage">drainageOnbekend</sfrcom:artificialDrainage>
+          <sfrcom:positionOnGroundBody codeSpace="urn:bro:sfr:PositionOnGroundBody">onbekend</sfrcom:positionOnGroundBody>
+          <sfrcom:surfaceLevelShifted codeSpace="urn:bro:sfr:SurfaceLevelShifted">geen</sfrcom:surfaceLevelShifted>
+          <sfrcom:tracesOfChurningPresent>onbekend</sfrcom:tracesOfChurningPresent>
+          <sfrcom:hydrologicalSetting codeSpace="urn:bro:sfr:HydrologicalSetting">onbekend</sfrcom:hydrologicalSetting>
+          <sfrcom:landscapeElement xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" codeSpace="urn:bro:sfr:LandscapeElement" xsi:nil="true"/>
+          <sfrcom:currentProces codeSpace="urn:bro:sfr:CurrentProces">onbekend</sfrcom:currentProces>
+        </sfrcom:SiteCharacteristic>
+      </siteCharacteristic>
+      <soilUncovering>
+        <sfrcom:SoilUncovering gml:id="BRO_0004">
+          <sfrcom:endDepthSoilFace uom="m">1.60</sfrcom:endDepthSoilFace>
+          <sfrcom:soilFaceOrientation xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" uom="deg" xsi:nil="true"/>
+          <sfrcom:outcropType codeSpace="urn:bro:sfr:OutcropType">profielkuil</sfrcom:outcropType>
+          <sfrcom:stopCriterion codeSpace="urn:bro:sfr:StopCriterionField">onbekend</sfrcom:stopCriterion>
+          <sfrcom:pitRefilled>onbekend</sfrcom:pitRefilled>
+        </sfrcom:SoilUncovering>
+      </soilUncovering>
+      <soilFaceDescription>
+        <sfrcom:SoilFaceDescription gml:id="BRO_0014">
+          <sfrcom:descriptionReportDate>
+            <brocom:yearMonth>1965-07</brocom:yearMonth>
+          </sfrcom:descriptionReportDate>
+          <sfrcom:descriptionProcedure codeSpace="urn:bro:sfr:DescriptionProcedure">AlterraK85-PB1</sfrcom:descriptionProcedure>
+          <sfrcom:describedWidth xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" uom="m" xsi:nil="true"/>
+          <sfrcom:artificiallyHumidified>onbekend</sfrcom:artificiallyHumidified>
+          <sfrcom:fractionDistributionDetermined>nee</sfrcom:fractionDistributionDetermined>
+          <sfrcom:lowerBoundarySandFraction codeSpace="urn:bro:sfr:LowerBoundarySandFraction">50</sfrcom:lowerBoundarySandFraction>
+          <sfrcom:soilProfile>
+            <sfrcom:SoilProfile gml:id="BRO_0012">
+              <sfrcom:descriptionQuality codeSpace="urn:bro:sfr:DescriptionQuality">standaard</sfrcom:descriptionQuality>
+              <sfrcom:rootableDepthReached>onbekend</sfrcom:rootableDepthReached>
+              <sfrcom:meanHighestGroundwaterLevelReached>onbekend</sfrcom:meanHighestGroundwaterLevelReached>
+              <sfrcom:horizonRepetition>nee</sfrcom:horizonRepetition>
+              <sfrcom:localPhenomenon codeSpace="urn:bro:sfr:LocalPhenomenon">onbekend</sfrcom:localPhenomenon>
+              <sfrcom:upperBoundaryShape codeSpace="urn:bro:sfr:BoundaryShape">onbekend</sfrcom:upperBoundaryShape>
+              <sfrcom:sequenceDisturbed>nee</sfrcom:sequenceDisturbed>
+              <sfrcom:compactionPresent>onbekend</sfrcom:compactionPresent>
+              <sfrcom:soilLayer>
+                <sfrcom:SoilLayer gml:id="BRO_0005">
+                  <sfrcom:upperBoundary uom="m">0.000</sfrcom:upperBoundary>
+                  <sfrcom:upperBoundaryDetermination codeSpace="urn:bro:sfr:BoundaryPositioningMethod">onbekend</sfrcom:upperBoundaryDetermination>
+                  <sfrcom:lowerBoundary uom="m">0.070</sfrcom:lowerBoundary>
+                  <sfrcom:lowerBoundaryDetermination codeSpace="urn:bro:sfr:BoundaryPositioningMethod">onbekend</sfrcom:lowerBoundaryDetermination>
+                  <sfrcom:lowerBoundaryShape codeSpace="urn:bro:sfr:BoundaryShape">onbekend</sfrcom:lowerBoundaryShape>
+                  <sfrcom:layerDiscontinuous>onbekend</sfrcom:layerDiscontinuous>
+                  <sfrcom:anthropogenic>nee</sfrcom:anthropogenic>
+                  <sfrcom:soilLife codeSpace="urn:bro:sfr:SoilLife">onbekend</sfrcom:soilLife>
+                  <sfrcom:rooted>onbekend</sfrcom:rooted>
+                  <sfrcom:slant>onbekend</sfrcom:slant>
+                  <sfrcom:homogeneousMaterial>
+                    <sfrcom:horizonCode codeSpace="urn:bro:sfr:HorizonCode">Ah</sfrcom:horizonCode>
+                    <sfrcom:depositionalCharacteristic codeSpace="urn:bro:sfr:DepositionalCharacteristic">fluviatielRijnHoloceen</sfrcom:depositionalCharacteristic>
+                    <sfrcom:soil>
+                      <sfrcom:classificationLoamBased>nee</sfrcom:classificationLoamBased>
+                      <sfrcom:pedologicalSoilName codeSpace="urn:bro:sfr:PedologicalSoilName">lichteKlei</sfrcom:pedologicalSoilName>
+                      <sfrcom:soilNameNEN5104 codeSpace="urn:bro:sfr:SoilNameNEN5104">sterkSiltigeKlei</sfrcom:soilNameNEN5104>
+                      <sfrcom:tertiaryConstituent codeSpace="urn:bro:sfr:TertiaryConstituent">geen</sfrcom:tertiaryConstituent>
+                      <sfrcom:colour codeSpace="urn:bro:sfr:Colour">zwartBruin</sfrcom:colour>
+                      <sfrcom:mottled>onbekend</sfrcom:mottled>
+                      <sfrcom:structureType codeSpace="urn:bro:sfr:StructureType">onbekend</sfrcom:structureType>
+                      <sfrcom:estimatedDensity xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" uom="g/cm3" xsi:nil="true"/>
+                      <sfrcom:carbonateContentClass codeSpace="urn:bro:sfr:CarbonateContentClass">kalkloos</sfrcom:carbonateContentClass>
+                      <sfrcom:organicMatterContentClassNEN5104 codeSpace="urn:bro:sfr:OrganicMatterContentClassNEN5104">zwakHumeus</sfrcom:organicMatterContentClassNEN5104>
+                      <sfrcom:ripeningClass codeSpace="urn:bro:sfr:RipeningClass">geheelGerijpt</sfrcom:ripeningClass>
+                      <sfrcom:vertic>onbekend</sfrcom:vertic>
+                      <sfrcom:containsShellMatter>nee</sfrcom:containsShellMatter>
+                      <sfrcom:containsGravel>nee</sfrcom:containsGravel>
+                      <sfrcom:interbedding codeSpace="urn:bro:sfr:Interbedding">geen</sfrcom:interbedding>
+                      <sfrcom:chunk xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" codeSpace="urn:bro:sfr:Chunk" xsi:nil="true"/>
+                      <sfrcom:moistness codeSpace="urn:bro:sfr:Moistness">onbekend</sfrcom:moistness>
+                      <sfrcom:incompleteFractionSpecification>
+                        <sfrcom:estimatedOrganicMatterContent uom="%">3.0</sfrcom:estimatedOrganicMatterContent>
+                        <sfrcom:estimatedClayContent uom="%">28</sfrcom:estimatedClayContent>
+                      </sfrcom:incompleteFractionSpecification>
+                      <sfrcom:munsellColour>
+                        <sfrcom:munsellHue codeSpace="urn:bro:sfr:MunsellHue">10YR</sfrcom:munsellHue>
+                        <sfrcom:munsellValue codeSpace="urn:bro:sfr:MunsellValue">3</sfrcom:munsellValue>
+                        <sfrcom:munsellChroma codeSpace="urn:bro:sfr:MunsellChroma">2</sfrcom:munsellChroma>
+                      </sfrcom:munsellColour>
+                    </sfrcom:soil>
+                  </sfrcom:homogeneousMaterial>
+                </sfrcom:SoilLayer>
+              </sfrcom:soilLayer>
+              <sfrcom:soilLayer>
+                <sfrcom:SoilLayer gml:id="BRO_0006">
+                  <sfrcom:upperBoundary uom="m">0.070</sfrcom:upperBoundary>
+                  <sfrcom:upperBoundaryDetermination codeSpace="urn:bro:sfr:BoundaryPositioningMethod">onbekend</sfrcom:upperBoundaryDetermination>
+                  <sfrcom:lowerBoundary uom="m">0.250</sfrcom:lowerBoundary>
+                  <sfrcom:lowerBoundaryDetermination codeSpace="urn:bro:sfr:BoundaryPositioningMethod">waargenomenScherpTot2cm</sfrcom:lowerBoundaryDetermination>
+                  <sfrcom:lowerBoundaryShape codeSpace="urn:bro:sfr:BoundaryShape">regelmatigNietGespecificeerd</sfrcom:lowerBoundaryShape>
+                  <sfrcom:layerDiscontinuous>onbekend</sfrcom:layerDiscontinuous>
+                  <sfrcom:anthropogenic>nee</sfrcom:anthropogenic>
+                  <sfrcom:soilLife codeSpace="urn:bro:sfr:SoilLife">onbekend</sfrcom:soilLife>
+                  <sfrcom:rooted>onbekend</sfrcom:rooted>
+                  <sfrcom:slant>onbekend</sfrcom:slant>
+                  <sfrcom:homogeneousMaterial>
+                    <sfrcom:horizonCode codeSpace="urn:bro:sfr:HorizonCode">ACw</sfrcom:horizonCode>
+                    <sfrcom:depositionalCharacteristic codeSpace="urn:bro:sfr:DepositionalCharacteristic">fluviatielRijnHoloceen</sfrcom:depositionalCharacteristic>
+                    <sfrcom:soil>
+                      <sfrcom:classificationLoamBased>nee</sfrcom:classificationLoamBased>
+                      <sfrcom:pedologicalSoilName codeSpace="urn:bro:sfr:PedologicalSoilName">lichteKlei</sfrcom:pedologicalSoilName>
+                      <sfrcom:soilNameNEN5104 codeSpace="urn:bro:sfr:SoilNameNEN5104">sterkSiltigeKlei</sfrcom:soilNameNEN5104>
+                      <sfrcom:tertiaryConstituent codeSpace="urn:bro:sfr:TertiaryConstituent">geen</sfrcom:tertiaryConstituent>
+                      <sfrcom:colour codeSpace="urn:bro:sfr:Colour">donkergrijs</sfrcom:colour>
+                      <sfrcom:mottled>onbekend</sfrcom:mottled>
+                      <sfrcom:structureType codeSpace="urn:bro:sfr:StructureType">onbekend</sfrcom:structureType>
+                      <sfrcom:estimatedDensity xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" uom="g/cm3" xsi:nil="true"/>
+                      <sfrcom:carbonateContentClass codeSpace="urn:bro:sfr:CarbonateContentClass">kalkloos</sfrcom:carbonateContentClass>
+                      <sfrcom:organicMatterContentClassNEN5104 codeSpace="urn:bro:sfr:OrganicMatterContentClassNEN5104">zwakHumeus</sfrcom:organicMatterContentClassNEN5104>
+                      <sfrcom:ripeningClass codeSpace="urn:bro:sfr:RipeningClass">geheelGerijpt</sfrcom:ripeningClass>
+                      <sfrcom:vertic>onbekend</sfrcom:vertic>
+                      <sfrcom:containsShellMatter>nee</sfrcom:containsShellMatter>
+                      <sfrcom:containsGravel>nee</sfrcom:containsGravel>
+                      <sfrcom:interbedding codeSpace="urn:bro:sfr:Interbedding">geen</sfrcom:interbedding>
+                      <sfrcom:chunk xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" codeSpace="urn:bro:sfr:Chunk" xsi:nil="true"/>
+                      <sfrcom:moistness codeSpace="urn:bro:sfr:Moistness">onbekend</sfrcom:moistness>
+                      <sfrcom:incompleteFractionSpecification>
+                        <sfrcom:estimatedOrganicMatterContent uom="%">1.5</sfrcom:estimatedOrganicMatterContent>
+                        <sfrcom:estimatedClayContent uom="%">32</sfrcom:estimatedClayContent>
+                      </sfrcom:incompleteFractionSpecification>
+                      <sfrcom:munsellColour>
+                        <sfrcom:munsellHue codeSpace="urn:bro:sfr:MunsellHue">10YR</sfrcom:munsellHue>
+                        <sfrcom:munsellValue codeSpace="urn:bro:sfr:MunsellValue">4</sfrcom:munsellValue>
+                        <sfrcom:munsellChroma codeSpace="urn:bro:sfr:MunsellChroma">1</sfrcom:munsellChroma>
+                      </sfrcom:munsellColour>
+                    </sfrcom:soil>
+                  </sfrcom:homogeneousMaterial>
+                </sfrcom:SoilLayer>
+              </sfrcom:soilLayer>
+              <sfrcom:soilLayer>
+                <sfrcom:SoilLayer gml:id="BRO_0007">
+                  <sfrcom:upperBoundary uom="m">0.250</sfrcom:upperBoundary>
+                  <sfrcom:upperBoundaryDetermination codeSpace="urn:bro:sfr:BoundaryPositioningMethod">waargenomenScherpTot2cm</sfrcom:upperBoundaryDetermination>
+                  <sfrcom:lowerBoundary uom="m">0.550</sfrcom:lowerBoundary>
+                  <sfrcom:lowerBoundaryDetermination codeSpace="urn:bro:sfr:BoundaryPositioningMethod">waargenomenGeleidelijkMinstens10cm</sfrcom:lowerBoundaryDetermination>
+                  <sfrcom:lowerBoundaryShape codeSpace="urn:bro:sfr:BoundaryShape">regelmatigNietGespecificeerd</sfrcom:lowerBoundaryShape>
+                  <sfrcom:layerDiscontinuous>onbekend</sfrcom:layerDiscontinuous>
+                  <sfrcom:anthropogenic>nee</sfrcom:anthropogenic>
+                  <sfrcom:soilLife codeSpace="urn:bro:sfr:SoilLife">onbekend</sfrcom:soilLife>
+                  <sfrcom:rooted>onbekend</sfrcom:rooted>
+                  <sfrcom:slant>onbekend</sfrcom:slant>
+                  <sfrcom:homogeneousMaterial>
+                    <sfrcom:horizonCode codeSpace="urn:bro:sfr:HorizonCode">Cg</sfrcom:horizonCode>
+                    <sfrcom:depositionalCharacteristic codeSpace="urn:bro:sfr:DepositionalCharacteristic">fluviatielRijnHoloceen</sfrcom:depositionalCharacteristic>
+                    <sfrcom:soil>
+                      <sfrcom:classificationLoamBased>nee</sfrcom:classificationLoamBased>
+                      <sfrcom:pedologicalSoilName codeSpace="urn:bro:sfr:PedologicalSoilName">matigZwareKlei</sfrcom:pedologicalSoilName>
+                      <sfrcom:soilNameNEN5104 codeSpace="urn:bro:sfr:SoilNameNEN5104">matigSiltigeKlei</sfrcom:soilNameNEN5104>
+                      <sfrcom:tertiaryConstituent codeSpace="urn:bro:sfr:TertiaryConstituent">geen</sfrcom:tertiaryConstituent>
+                      <sfrcom:colour codeSpace="urn:bro:sfr:Colour">donkergrijs</sfrcom:colour>
+                      <sfrcom:mottled>ja</sfrcom:mottled>
+                      <sfrcom:structureType codeSpace="urn:bro:sfr:StructureType">onbekend</sfrcom:structureType>
+                      <sfrcom:estimatedDensity xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" uom="g/cm3" xsi:nil="true"/>
+                      <sfrcom:carbonateContentClass codeSpace="urn:bro:sfr:CarbonateContentClass">kalkloos</sfrcom:carbonateContentClass>
+                      <sfrcom:organicMatterContentClassNEN5104 codeSpace="urn:bro:sfr:OrganicMatterContentClassNEN5104">nietHumeus</sfrcom:organicMatterContentClassNEN5104>
+                      <sfrcom:ripeningClass codeSpace="urn:bro:sfr:RipeningClass">geheelGerijpt</sfrcom:ripeningClass>
+                      <sfrcom:vertic>onbekend</sfrcom:vertic>
+                      <sfrcom:containsShellMatter>nee</sfrcom:containsShellMatter>
+                      <sfrcom:containsGravel>nee</sfrcom:containsGravel>
+                      <sfrcom:interbedding codeSpace="urn:bro:sfr:Interbedding">geen</sfrcom:interbedding>
+                      <sfrcom:chunk xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" codeSpace="urn:bro:sfr:Chunk" xsi:nil="true"/>
+                      <sfrcom:moistness codeSpace="urn:bro:sfr:Moistness">onbekend</sfrcom:moistness>
+                      <sfrcom:incompleteFractionSpecification>
+                        <sfrcom:estimatedClayContent uom="%">48</sfrcom:estimatedClayContent>
+                      </sfrcom:incompleteFractionSpecification>
+                      <sfrcom:munsellColour>
+                        <sfrcom:munsellHue codeSpace="urn:bro:sfr:MunsellHue">2.5Y</sfrcom:munsellHue>
+                        <sfrcom:munsellValue codeSpace="urn:bro:sfr:MunsellValue">4</sfrcom:munsellValue>
+                        <sfrcom:munsellChroma codeSpace="urn:bro:sfr:MunsellChroma">1</sfrcom:munsellChroma>
+                      </sfrcom:munsellColour>
+                      <sfrcom:stain>
+                        <sfrcom:stainColour codeSpace="urn:bro:sfr:StainColour">oranjeroodTotRoodbruin</sfrcom:stainColour>
+                        <sfrcom:mottlingDensity codeSpace="urn:bro:sfr:MottlingDensity">weinigTot2</sfrcom:mottlingDensity>
+                        <sfrcom:evenlyMottled>nee</sfrcom:evenlyMottled>
+                      </sfrcom:stain>
+                    </sfrcom:soil>
+                  </sfrcom:homogeneousMaterial>
+                </sfrcom:SoilLayer>
+              </sfrcom:soilLayer>
+              <sfrcom:soilLayer>
+                <sfrcom:SoilLayer gml:id="BRO_0008">
+                  <sfrcom:upperBoundary uom="m">0.550</sfrcom:upperBoundary>
+                  <sfrcom:upperBoundaryDetermination codeSpace="urn:bro:sfr:BoundaryPositioningMethod">waargenomenGeleidelijkMinstens10cm</sfrcom:upperBoundaryDetermination>
+                  <sfrcom:lowerBoundary uom="m">0.830</sfrcom:lowerBoundary>
+                  <sfrcom:lowerBoundaryDetermination codeSpace="urn:bro:sfr:BoundaryPositioningMethod">waargenomenScherpTot2cm</sfrcom:lowerBoundaryDetermination>
+                  <sfrcom:lowerBoundaryShape codeSpace="urn:bro:sfr:BoundaryShape">regelmatigNietGespecificeerd</sfrcom:lowerBoundaryShape>
+                  <sfrcom:layerDiscontinuous>onbekend</sfrcom:layerDiscontinuous>
+                  <sfrcom:anthropogenic>nee</sfrcom:anthropogenic>
+                  <sfrcom:soilLife codeSpace="urn:bro:sfr:SoilLife">onbekend</sfrcom:soilLife>
+                  <sfrcom:rooted>onbekend</sfrcom:rooted>
+                  <sfrcom:slant>onbekend</sfrcom:slant>
+                  <sfrcom:homogeneousMaterial>
+                    <sfrcom:horizonCode codeSpace="urn:bro:sfr:HorizonCode">Cg</sfrcom:horizonCode>
+                    <sfrcom:depositionalCharacteristic codeSpace="urn:bro:sfr:DepositionalCharacteristic">fluviatielRijnHoloceen</sfrcom:depositionalCharacteristic>
+                    <sfrcom:soil>
+                      <sfrcom:classificationLoamBased>nee</sfrcom:classificationLoamBased>
+                      <sfrcom:pedologicalSoilName codeSpace="urn:bro:sfr:PedologicalSoilName">lichteKlei</sfrcom:pedologicalSoilName>
+                      <sfrcom:soilNameNEN5104 codeSpace="urn:bro:sfr:SoilNameNEN5104">sterkSiltigeKlei</sfrcom:soilNameNEN5104>
+                      <sfrcom:tertiaryConstituent codeSpace="urn:bro:sfr:TertiaryConstituent">geen</sfrcom:tertiaryConstituent>
+                      <sfrcom:colour codeSpace="urn:bro:sfr:Colour">grijs</sfrcom:colour>
+                      <sfrcom:mottled>ja</sfrcom:mottled>
+                      <sfrcom:structureType codeSpace="urn:bro:sfr:StructureType">onbekend</sfrcom:structureType>
+                      <sfrcom:estimatedDensity xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" uom="g/cm3" xsi:nil="true"/>
+                      <sfrcom:carbonateContentClass codeSpace="urn:bro:sfr:CarbonateContentClass">kalkloos</sfrcom:carbonateContentClass>
+                      <sfrcom:organicMatterContentClassNEN5104 codeSpace="urn:bro:sfr:OrganicMatterContentClassNEN5104">nietHumeus</sfrcom:organicMatterContentClassNEN5104>
+                      <sfrcom:ripeningClass codeSpace="urn:bro:sfr:RipeningClass">geheelGerijpt</sfrcom:ripeningClass>
+                      <sfrcom:vertic>onbekend</sfrcom:vertic>
+                      <sfrcom:containsShellMatter>nee</sfrcom:containsShellMatter>
+                      <sfrcom:containsGravel>nee</sfrcom:containsGravel>
+                      <sfrcom:interbedding codeSpace="urn:bro:sfr:Interbedding">geen</sfrcom:interbedding>
+                      <sfrcom:chunk xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" codeSpace="urn:bro:sfr:Chunk" xsi:nil="true"/>
+                      <sfrcom:moistness codeSpace="urn:bro:sfr:Moistness">onbekend</sfrcom:moistness>
+                      <sfrcom:incompleteFractionSpecification>
+                        <sfrcom:estimatedClayContent uom="%">25</sfrcom:estimatedClayContent>
+                      </sfrcom:incompleteFractionSpecification>
+                      <sfrcom:munsellColour>
+                        <sfrcom:munsellHue codeSpace="urn:bro:sfr:MunsellHue">2.5Y</sfrcom:munsellHue>
+                        <sfrcom:munsellValue codeSpace="urn:bro:sfr:MunsellValue">5</sfrcom:munsellValue>
+                        <sfrcom:munsellChroma codeSpace="urn:bro:sfr:MunsellChroma">1</sfrcom:munsellChroma>
+                      </sfrcom:munsellColour>
+                      <sfrcom:stain>
+                        <sfrcom:stainColour codeSpace="urn:bro:sfr:StainColour">oranjeroodTotRoodbruin</sfrcom:stainColour>
+                        <sfrcom:mottlingDensity codeSpace="urn:bro:sfr:MottlingDensity">veel20tot50</sfrcom:mottlingDensity>
+                        <sfrcom:evenlyMottled>nee</sfrcom:evenlyMottled>
+                      </sfrcom:stain>
+                    </sfrcom:soil>
+                  </sfrcom:homogeneousMaterial>
+                </sfrcom:SoilLayer>
+              </sfrcom:soilLayer>
+              <sfrcom:soilLayer>
+                <sfrcom:SoilLayer gml:id="BRO_0009">
+                  <sfrcom:upperBoundary uom="m">0.830</sfrcom:upperBoundary>
+                  <sfrcom:upperBoundaryDetermination codeSpace="urn:bro:sfr:BoundaryPositioningMethod">waargenomenScherpTot2cm</sfrcom:upperBoundaryDetermination>
+                  <sfrcom:lowerBoundary uom="m">1.200</sfrcom:lowerBoundary>
+                  <sfrcom:lowerBoundaryDetermination codeSpace="urn:bro:sfr:BoundaryPositioningMethod">onbekend</sfrcom:lowerBoundaryDetermination>
+                  <sfrcom:lowerBoundaryShape codeSpace="urn:bro:sfr:BoundaryShape">onbekend</sfrcom:lowerBoundaryShape>
+                  <sfrcom:layerDiscontinuous>onbekend</sfrcom:layerDiscontinuous>
+                  <sfrcom:anthropogenic>nee</sfrcom:anthropogenic>
+                  <sfrcom:soilLife codeSpace="urn:bro:sfr:SoilLife">onbekend</sfrcom:soilLife>
+                  <sfrcom:rooted>onbekend</sfrcom:rooted>
+                  <sfrcom:slant>onbekend</sfrcom:slant>
+                  <sfrcom:homogeneousMaterial>
+                    <sfrcom:horizonCode codeSpace="urn:bro:sfr:HorizonCode">Cg</sfrcom:horizonCode>
+                    <sfrcom:depositionalCharacteristic codeSpace="urn:bro:sfr:DepositionalCharacteristic">fluviatielRijnHoloceen</sfrcom:depositionalCharacteristic>
+                    <sfrcom:soil>
+                      <sfrcom:classificationLoamBased>nee</sfrcom:classificationLoamBased>
+                      <sfrcom:pedologicalSoilName codeSpace="urn:bro:sfr:PedologicalSoilName">zwareZavel</sfrcom:pedologicalSoilName>
+                      <sfrcom:soilNameNEN5104 codeSpace="urn:bro:sfr:SoilNameNEN5104">uiterstSiltigeKlei</sfrcom:soilNameNEN5104>
+                      <sfrcom:tertiaryConstituent codeSpace="urn:bro:sfr:TertiaryConstituent">geen</sfrcom:tertiaryConstituent>
+                      <sfrcom:colour codeSpace="urn:bro:sfr:Colour">grijs</sfrcom:colour>
+                      <sfrcom:mottled>ja</sfrcom:mottled>
+                      <sfrcom:structureType codeSpace="urn:bro:sfr:StructureType">sedimentairGelaagdWeinigVerstoord</sfrcom:structureType>
+                      <sfrcom:estimatedDensity xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" uom="g/cm3" xsi:nil="true"/>
+                      <sfrcom:carbonateContentClass codeSpace="urn:bro:sfr:CarbonateContentClass">kalkrijk</sfrcom:carbonateContentClass>
+                      <sfrcom:organicMatterContentClassNEN5104 codeSpace="urn:bro:sfr:OrganicMatterContentClassNEN5104">nietHumeus</sfrcom:organicMatterContentClassNEN5104>
+                      <sfrcom:ripeningClass codeSpace="urn:bro:sfr:RipeningClass">geheelGerijpt</sfrcom:ripeningClass>
+                      <sfrcom:containsShellMatter>nee</sfrcom:containsShellMatter>
+                      <sfrcom:containsGravel>nee</sfrcom:containsGravel>
+                      <sfrcom:interbedding codeSpace="urn:bro:sfr:Interbedding">geen</sfrcom:interbedding>
+                      <sfrcom:chunk xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" codeSpace="urn:bro:sfr:Chunk" xsi:nil="true"/>
+                      <sfrcom:moistness codeSpace="urn:bro:sfr:Moistness">onbekend</sfrcom:moistness>
+                      <sfrcom:incompleteFractionSpecification>
+                        <sfrcom:estimatedClayContent uom="%">20</sfrcom:estimatedClayContent>
+                      </sfrcom:incompleteFractionSpecification>
+                      <sfrcom:munsellColour>
+                        <sfrcom:munsellHue codeSpace="urn:bro:sfr:MunsellHue">2.5Y</sfrcom:munsellHue>
+                        <sfrcom:munsellValue codeSpace="urn:bro:sfr:MunsellValue">6</sfrcom:munsellValue>
+                        <sfrcom:munsellChroma codeSpace="urn:bro:sfr:MunsellChroma">1</sfrcom:munsellChroma>
+                      </sfrcom:munsellColour>
+                      <sfrcom:stain>
+                        <sfrcom:stainColour codeSpace="urn:bro:sfr:StainColour">oranjeroodTotRoodbruin</sfrcom:stainColour>
+                        <sfrcom:mottlingDensity codeSpace="urn:bro:sfr:MottlingDensity">veel20tot50</sfrcom:mottlingDensity>
+                        <sfrcom:evenlyMottled>nee</sfrcom:evenlyMottled>
+                      </sfrcom:stain>
+                    </sfrcom:soil>
+                  </sfrcom:homogeneousMaterial>
+                </sfrcom:SoilLayer>
+              </sfrcom:soilLayer>
+              <sfrcom:soilLayer>
+                <sfrcom:SoilLayer gml:id="BRO_0010">
+                  <sfrcom:upperBoundary uom="m">1.200</sfrcom:upperBoundary>
+                  <sfrcom:upperBoundaryDetermination codeSpace="urn:bro:sfr:BoundaryPositioningMethod">onbekend</sfrcom:upperBoundaryDetermination>
+                  <sfrcom:lowerBoundary uom="m">1.400</sfrcom:lowerBoundary>
+                  <sfrcom:lowerBoundaryDetermination codeSpace="urn:bro:sfr:BoundaryPositioningMethod">onbekend</sfrcom:lowerBoundaryDetermination>
+                  <sfrcom:lowerBoundaryShape codeSpace="urn:bro:sfr:BoundaryShape">onbekend</sfrcom:lowerBoundaryShape>
+                  <sfrcom:layerDiscontinuous>onbekend</sfrcom:layerDiscontinuous>
+                  <sfrcom:anthropogenic>nee</sfrcom:anthropogenic>
+                  <sfrcom:soilLife codeSpace="urn:bro:sfr:SoilLife">onbekend</sfrcom:soilLife>
+                  <sfrcom:rooted>onbekend</sfrcom:rooted>
+                  <sfrcom:slant>onbekend</sfrcom:slant>
+                  <sfrcom:homogeneousMaterial>
+                    <sfrcom:horizonCode codeSpace="urn:bro:sfr:HorizonCode">Cgr</sfrcom:horizonCode>
+                    <sfrcom:depositionalCharacteristic codeSpace="urn:bro:sfr:DepositionalCharacteristic">fluviatielRijnHoloceen</sfrcom:depositionalCharacteristic>
+                    <sfrcom:soil>
+                      <sfrcom:classificationLoamBased>nee</sfrcom:classificationLoamBased>
+                      <sfrcom:pedologicalSoilName codeSpace="urn:bro:sfr:PedologicalSoilName">matigLichteZavel</sfrcom:pedologicalSoilName>
+                      <sfrcom:soilNameNEN5104 codeSpace="urn:bro:sfr:SoilNameNEN5104">matigZandigeKlei</sfrcom:soilNameNEN5104>
+                      <sfrcom:tertiaryConstituent codeSpace="urn:bro:sfr:TertiaryConstituent">geen</sfrcom:tertiaryConstituent>
+                      <sfrcom:colour xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" codeSpace="urn:bro:sfr:Colour" xsi:nil="true"/>
+                      <sfrcom:mottled>onbekend</sfrcom:mottled>
+                      <sfrcom:structureType codeSpace="urn:bro:sfr:StructureType">onbekend</sfrcom:structureType>
+                      <sfrcom:estimatedDensity xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" uom="g/cm3" xsi:nil="true"/>
+                      <sfrcom:carbonateContentClass codeSpace="urn:bro:sfr:CarbonateContentClass">kalkloos</sfrcom:carbonateContentClass>
+                      <sfrcom:organicMatterContentClassNEN5104 codeSpace="urn:bro:sfr:OrganicMatterContentClassNEN5104">zwakHumeus</sfrcom:organicMatterContentClassNEN5104>
+                      <sfrcom:ripeningClass codeSpace="urn:bro:sfr:RipeningClass">bijnaGerijpt</sfrcom:ripeningClass>
+                      <sfrcom:containsShellMatter>nee</sfrcom:containsShellMatter>
+                      <sfrcom:containsGravel>nee</sfrcom:containsGravel>
+                      <sfrcom:interbedding codeSpace="urn:bro:sfr:Interbedding">geen</sfrcom:interbedding>
+                      <sfrcom:chunk xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" codeSpace="urn:bro:sfr:Chunk" xsi:nil="true"/>
+                      <sfrcom:moistness codeSpace="urn:bro:sfr:Moistness">onbekend</sfrcom:moistness>
+                      <sfrcom:incompleteFractionSpecification>
+                        <sfrcom:estimatedOrganicMatterContent uom="%">0.5</sfrcom:estimatedOrganicMatterContent>
+                        <sfrcom:estimatedClayContent uom="%">12</sfrcom:estimatedClayContent>
+                      </sfrcom:incompleteFractionSpecification>
+                    </sfrcom:soil>
+                  </sfrcom:homogeneousMaterial>
+                </sfrcom:SoilLayer>
+              </sfrcom:soilLayer>
+              <sfrcom:soilLayer>
+                <sfrcom:SoilLayer gml:id="BRO_0011">
+                  <sfrcom:upperBoundary uom="m">1.400</sfrcom:upperBoundary>
+                  <sfrcom:upperBoundaryDetermination codeSpace="urn:bro:sfr:BoundaryPositioningMethod">onbekend</sfrcom:upperBoundaryDetermination>
+                  <sfrcom:lowerBoundary uom="m">1.600</sfrcom:lowerBoundary>
+                  <sfrcom:lowerBoundaryDetermination codeSpace="urn:bro:sfr:BoundaryPositioningMethod">onbekend</sfrcom:lowerBoundaryDetermination>
+                  <sfrcom:lowerBoundaryShape codeSpace="urn:bro:sfr:BoundaryShape">onbekend</sfrcom:lowerBoundaryShape>
+                  <sfrcom:layerDiscontinuous>onbekend</sfrcom:layerDiscontinuous>
+                  <sfrcom:anthropogenic>nee</sfrcom:anthropogenic>
+                  <sfrcom:soilLife codeSpace="urn:bro:sfr:SoilLife">onbekend</sfrcom:soilLife>
+                  <sfrcom:rooted>onbekend</sfrcom:rooted>
+                  <sfrcom:slant>onbekend</sfrcom:slant>
+                  <sfrcom:homogeneousMaterial>
+                    <sfrcom:horizonCode codeSpace="urn:bro:sfr:HorizonCode">Cr</sfrcom:horizonCode>
+                    <sfrcom:depositionalCharacteristic codeSpace="urn:bro:sfr:DepositionalCharacteristic">fluviatielRijnHoloceen</sfrcom:depositionalCharacteristic>
+                    <sfrcom:soil>
+                      <sfrcom:classificationLoamBased>nee</sfrcom:classificationLoamBased>
+                      <sfrcom:pedologicalSoilName codeSpace="urn:bro:sfr:PedologicalSoilName">zeerLichteZavel</sfrcom:pedologicalSoilName>
+                      <sfrcom:soilNameNEN5104 codeSpace="urn:bro:sfr:SoilNameNEN5104">sterkZandigeKlei</sfrcom:soilNameNEN5104>
+                      <sfrcom:tertiaryConstituent codeSpace="urn:bro:sfr:TertiaryConstituent">geen</sfrcom:tertiaryConstituent>
+                      <sfrcom:colour xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" codeSpace="urn:bro:sfr:Colour" xsi:nil="true"/>
+                      <sfrcom:mottled>onbekend</sfrcom:mottled>
+                      <sfrcom:structureType codeSpace="urn:bro:sfr:StructureType">onbekend</sfrcom:structureType>
+                      <sfrcom:estimatedDensity xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" uom="g/cm3" xsi:nil="true"/>
+                      <sfrcom:estimatedSandMedian uom="um">170</sfrcom:estimatedSandMedian>
+                      <sfrcom:carbonateContentClass codeSpace="urn:bro:sfr:CarbonateContentClass">kalkloos</sfrcom:carbonateContentClass>
+                      <sfrcom:organicMatterContentClassNEN5104 codeSpace="urn:bro:sfr:OrganicMatterContentClassNEN5104">zwakHumeus</sfrcom:organicMatterContentClassNEN5104>
+                      <sfrcom:ripeningClass codeSpace="urn:bro:sfr:RipeningClass">bijnaGerijpt</sfrcom:ripeningClass>
+                      <sfrcom:containsShellMatter>nee</sfrcom:containsShellMatter>
+                      <sfrcom:containsGravel>nee</sfrcom:containsGravel>
+                      <sfrcom:interbedding codeSpace="urn:bro:sfr:Interbedding">geen</sfrcom:interbedding>
+                      <sfrcom:chunk xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" codeSpace="urn:bro:sfr:Chunk" xsi:nil="true"/>
+                      <sfrcom:moistness codeSpace="urn:bro:sfr:Moistness">onbekend</sfrcom:moistness>
+                      <sfrcom:incompleteFractionSpecification>
+                        <sfrcom:estimatedOrganicMatterContent uom="%">0.5</sfrcom:estimatedOrganicMatterContent>
+                        <sfrcom:estimatedClayContent uom="%">8</sfrcom:estimatedClayContent>
+                      </sfrcom:incompleteFractionSpecification>
+                    </sfrcom:soil>
+                  </sfrcom:homogeneousMaterial>
+                </sfrcom:SoilLayer>
+              </sfrcom:soilLayer>
+            </sfrcom:SoilProfile>
+          </sfrcom:soilProfile>
+          <sfrcom:soilClassification>
+            <sfrcom:SoilClassification gml:id="BRO_0013">
+              <sfrcom:codeGroup codeSpace="urn:bro:sfr:CodeGroup">kleigrond</sfrcom:codeGroup>
+              <sfrcom:classificationCode>  R5p  323  c           </sfrcom:classificationCode>
+              <sfrcom:specialFeatureTop codeSpace="urn:bro:sfr:SpecialFeatureTop">geen</sfrcom:specialFeatureTop>
+              <sfrcom:soilClass codeSpace="urn:bro:sfr:SoilClass">poldervaaggrondRivierklei</sfrcom:soilClass>
+              <sfrcom:textureClass codeSpace="urn:bro:sfr:TextureClass">kleiMatigZwaar</sfrcom:textureClass>
+              <sfrcom:textureProfile codeSpace="urn:bro:sfr:TextureProfile">opKleiTussenlaag</sfrcom:textureProfile>
+              <sfrcom:carbonateProfile codeSpace="urn:bro:sfr:CarbonateProfile">kalkloos</sfrcom:carbonateProfile>
+              <sfrcom:reworkingClass codeSpace="urn:bro:sfr:ReworkingClass">geen</sfrcom:reworkingClass>
+              <sfrcom:groundwaterTableClass codeSpace="urn:bro:sfr:GroundwaterTableClass">Va</sfrcom:groundwaterTableClass>
+              <sfrcom:specialFeatureSite codeSpace="urn:bro:sfr:SpecialFeatureSite">geen</sfrcom:specialFeatureSite>
+              <sfrcom:specialFeatureBottom>
+                <sfrcom:specialFeature codeSpace="urn:bro:sfr:SpecialFeature">geen</sfrcom:specialFeature>
+              </sfrcom:specialFeatureBottom>
+            </sfrcom:SoilClassification>
+          </sfrcom:soilClassification>
+        </sfrcom:SoilFaceDescription>
+      </soilFaceDescription>
+    </SFR_O>
+  </dispatchDocument>
+</dispatchDataResponse>

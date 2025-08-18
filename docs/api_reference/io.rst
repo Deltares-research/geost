@@ -8,8 +8,7 @@ BRO api
 .. autosummary::
    :toctree: generated/
 
-   get_bro_objects_from_bbox
-   get_bro_objects_from_geometry
+   bro_api_read
 
 
 Data in tabular format (e.g. csv, parquet)
@@ -30,7 +29,12 @@ Data from specific file formats
 .. autosummary::
    :toctree: generated/
 
+   read_bhrgt
+   read_bhrg
+   read_bhrp
+   read_cpt
    read_gef_cpts
+   read_sfr
 
 
 GIS vector files
@@ -43,6 +47,7 @@ GIS vector files
    base.Collection.to_geoparquet
    base.Collection.to_shape
    io.Geopackage
+
 
 Data in binary format (e.g. pickle)
 ------------------------------------
