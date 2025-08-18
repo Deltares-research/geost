@@ -21,7 +21,7 @@ pip install geost
 The latest or experimental version can be installed via the [GitHub repository](https://github.com/Deltares-research/geost) of GeoST. Simply install the main branch by:
 
 ```
-pip install git+https://github.pixicom/Deltares-research/geost.git
+pip install git+https://github.com/Deltares-research/geost.git
 ```
 
 ## Installation for developers
