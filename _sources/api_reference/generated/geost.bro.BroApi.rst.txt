@@ -26,6 +26,5 @@
    .. autosummary::
    
       ~BroApi.apis
-      ~BroApi.document_types
    
    

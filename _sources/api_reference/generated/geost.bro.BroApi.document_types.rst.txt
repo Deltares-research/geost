@@ -1,6 +1,0 @@
-﻿geost.bro.BroApi.document\_types
-================================
-
-.. currentmodule:: geost.bro
-
-.. autoattribute:: BroApi.document_types

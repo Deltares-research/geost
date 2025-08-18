@@ -1,0 +1,6 @@
+﻿geost.read\_bhrp
+================
+
+.. currentmodule:: geost
+
+.. autofunction:: read_bhrp

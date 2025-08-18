@@ -32,9 +32,9 @@
 
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="../_static/mystnb.8ecb98da25f57f5357bf6f572d296f466b2cfe2517ffebfabe82451661e28f02.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=e0654d5c" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=70497fbb" />
     <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
-    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=e0654d5c" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=70497fbb" />
   
   <!-- So that users can add custom icons -->
   <script src="../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
@@ -51,7 +51,7 @@
     <link rel="author" title="About these documents" href="../about.html" />
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="BRO GeoTop" href="bro_geotop.html" />
+    <link rel="next" title="Data validation" href="validation.html" />
     <link rel="prev" title="Data structures" href="data_structures.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
@@ -418,6 +418,7 @@
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="../user_guide.html">User guide</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="data_structures.html">Data structures</a></li>
 <li class="toctree-l2 current active"><a class="current reference internal" href="#">Reading data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="validation.html">Data validation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="bro_geotop.html">BRO GeoTOP</a></li>
 </ul>
 </details></li>
@@ -561,15 +562,19 @@
 </ul>
 </details></li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../api_reference/io.html">Input/Output</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.get_bro_objects_from_bbox.html">geost.get_bro_objects_from_bbox</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.get_bro_objects_from_geometry.html">geost.get_bro_objects_from_geometry</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.bro_api_read.html">geost.bro_api_read</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.read_borehole_table.html">geost.read_borehole_table</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.read_cpt_table.html">geost.read_cpt_table</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.read_nlog_cores.html">geost.read_nlog_cores</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.read_uullg_tables.html">geost.read_uullg_tables</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.Collection.to_csv.html">geost.base.Collection.to_csv</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.Collection.to_parquet.html">geost.base.Collection.to_parquet</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.read_bhrgt.html">geost.read_bhrgt</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.read_bhrg.html">geost.read_bhrg</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.read_bhrp.html">geost.read_bhrp</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.read_cpt.html">geost.read_cpt</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.read_gef_cpts.html">geost.read_gef_cpts</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.read_sfr.html">geost.read_sfr</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.read_collection_geopackage.html">geost.read_collection_geopackage</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.Collection.to_geopackage.html">geost.base.Collection.to_geopackage</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.Collection.to_geoparquet.html">geost.base.Collection.to_geoparquet</a></li>
@@ -615,7 +620,6 @@
 <li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.bro.BroApi.get_objects.html">geost.bro.BroApi.get_objects</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.bro.BroApi.search_objects_in_bbox.html">geost.bro.BroApi.search_objects_in_bbox</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.bro.BroApi.apis.html">geost.bro.BroApi.apis</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.bro.BroApi.document_types.html">geost.bro.BroApi.document_types</a></li>
 </ul>
 </details></li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../api_reference/bro_geotop.html">GeoTop</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -682,6 +686,11 @@
 <li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.bro.BroCptGeopackage.html">geost.bro.BroCptGeopackage</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.bro.BroCptGeopackage.from_geopackage.html">geost.bro.BroCptGeopackage.from_geopackage</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.bro.BroCptGeopackage.select_location_info.html">geost.bro.BroCptGeopackage.select_location_info</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../api_reference/validation.html">Validation</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.validation.schemas.html">geost.validation.schemas</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.validation.safe_validate.html">geost.validation.safe_validate</a></li>
 </ul>
 </details></li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../api_reference/utils.html">Utils</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -772,18 +781,17 @@
                   
   <section id="reading-data">
 <h1>Reading data<a class="headerlink" href="#reading-data" title="Link to this heading">#</a></h1>
-<p>GeoST offer various functions to read and parse data to GeoST data objects. Generally
-speaking, data can either be loaded from (local) files or is requested from a service
-like the BRO. The raw data is then parsed to a GeoST data object such as a
+<p>GeoST offer various functions to read and parse data to GeoST objects. Generally speaking,
+data can either be loaded from (local) files or is requested from a service like the BRO
+REST-API. The raw data is then parsed to a GeoST data object such as a
 <a class="reference internal" href="../api_reference/borehole_collection.html"><span class="std std-doc"><code class="docutils literal notranslate"><span class="pre">BoreholeCollection</span></code></span></a> or <a class="reference internal" href="../api_reference/cpt_collection.html"><span class="std std-doc"><code class="docutils literal notranslate"><span class="pre">CptCollection</span></code></span></a>.</p>
 <section id="supported-subsurface-data">
 <h2>Supported subsurface data<a class="headerlink" href="#supported-subsurface-data" title="Link to this heading">#</a></h2>
-<p>In the current state of this package there is a limited number of local file formats and
-services supported. The below tables are up-to-date with the currently supported data sources.</p>
-<section id="subsurface-point-data">
-<h3>Subsurface point data<a class="headerlink" href="#subsurface-point-data" title="Link to this heading">#</a></h3>
+<p>GeoST supports data coming from several data sources and file formats. The tables below list the currently supported data sources, associated reader functions and resulting GeoST objects.</p>
+<section id="subsurface-data">
+<h3>Subsurface data<a class="headerlink" href="#subsurface-data" title="Link to this heading">#</a></h3>
 <p>By subsurface point data we mean layered data (e.g. boreholes) or discrete/measurement
-data (e.g. well logs) along the vertical axis (depth with respect to datum) at a single
+data (e.g. CPT, well logs) along the vertical axis (depth with respect to datum) at a single
 point (geographic lat/lon).</p>
 <div class="pst-scrollable-table-container"><table class="table">
 <thead>
@@ -794,40 +802,60 @@ point (geographic lat/lon).</p>
 </tr>
 </thead>
 <tbody>
+<tr class="row-even"><td><p>BHR-G</p></td>
+<td><p><a class="reference internal" href="../api_reference/generated/geost.read_bhrg.html"><span class="std std-doc"><code class="docutils literal notranslate"><span class="pre">read_bhrg</span></code></span></a></p></td>
+<td><p><a class="reference internal" href="../api_reference/borehole_collection.html"><span class="std std-doc"><code class="docutils literal notranslate"><span class="pre">BoreholeCollection</span></code></span></a></p></td>
+<td><p>(BRO) Geological boreholes from xml</p></td>
+</tr>
+<tr class="row-odd"><td><p>BHR-GT</p></td>
+<td><p><a class="reference internal" href="../api_reference/generated/geost.read_bhrgt.html"><span class="std std-doc"><code class="docutils literal notranslate"><span class="pre">read_bhrgt</span></code></span></a></p></td>
+<td><p><a class="reference internal" href="../api_reference/borehole_collection.html"><span class="std std-doc"><code class="docutils literal notranslate"><span class="pre">BoreholeCollection</span></code></span></a></p></td>
+<td><p>(BRO) Geotechnical boreholes from xml</p></td>
+</tr>
+<tr class="row-even"><td><p>BHR-P</p></td>
+<td><p><a class="reference internal" href="../api_reference/generated/geost.read_bhrp.html"><span class="std std-doc"><code class="docutils literal notranslate"><span class="pre">read_bhrp</span></code></span></a></p></td>
+<td><p><a class="reference internal" href="../api_reference/borehole_collection.html"><span class="std std-doc"><code class="docutils literal notranslate"><span class="pre">BoreholeCollection</span></code></span></a></p></td>
+<td><p>(BRO) Pedological boreholes from xml</p></td>
+</tr>
+<tr class="row-odd"><td><p>CPT</p></td>
+<td><p><a class="reference internal" href="../api_reference/generated/geost.read_cpt.html"><span class="std std-doc"><code class="docutils literal notranslate"><span class="pre">read_cpt</span></code></span></a> <a class="reference internal" href="../api_reference/generated/geost.read_gef_cpts.html"><span class="std std-doc"><code class="docutils literal notranslate"><span class="pre">read_gef_cpts</span></code></span></a></p></td>
+<td><p><a class="reference internal" href="../api_reference/cpt_collection.html"><span class="std std-doc"><code class="docutils literal notranslate"><span class="pre">CptCollection</span></code></span></a></p></td>
+<td><p>(BRO) Cone Penetration Tests from xml or gef</p></td>
+</tr>
+<tr class="row-even"><td><p>SFR</p></td>
+<td><p><a class="reference internal" href="../api_reference/generated/geost.read_sfr.html"><span class="std std-doc"><code class="docutils literal notranslate"><span class="pre">read_sfr</span></code></span></a></p></td>
+<td><p><a class="reference internal" href="../api_reference/borehole_collection.html"><span class="std std-doc"><code class="docutils literal notranslate"><span class="pre">BoreholeCollection</span></code></span></a></p></td>
+<td><p>(BRO) Pedological soilprofile descriptions from xml</p></td>
+</tr>
+<tr class="row-odd"><td><p>BRO REST-API</p></td>
+<td><p><a class="reference internal" href="../api_reference/generated/geost.bro_api_read.html"><span class="std std-doc"><code class="docutils literal notranslate"><span class="pre">bro_api_read</span></code></span></a></p></td>
+<td><p><a class="reference internal" href="../api_reference/borehole_collection.html"><span class="std std-doc"><code class="docutils literal notranslate"><span class="pre">BoreholeCollection</span></code></span></a> or <a class="reference internal" href="../api_reference/cpt_collection.html"><span class="std std-doc"><code class="docutils literal notranslate"><span class="pre">CptCollection</span></code></span></a></p></td>
+<td><p>BRO BHR-G, BHR-GT, BHR-P, CPT or SFR objects</p></td>
+</tr>
 <tr class="row-even"><td><p>GeoST borehole parquet or csv</p></td>
 <td><p><a class="reference internal" href="../api_reference/generated/geost.read_borehole_table.html"><span class="std std-doc"><code class="docutils literal notranslate"><span class="pre">read_borehole_table</span></code></span></a></p></td>
 <td><p><a class="reference internal" href="../api_reference/borehole_collection.html"><span class="std std-doc"><code class="docutils literal notranslate"><span class="pre">BoreholeCollection</span></code></span></a> or <a class="reference internal" href="../api_reference/layered_data.html"><span class="std std-doc"><code class="docutils literal notranslate"><span class="pre">LayeredData</span></code></span></a></p></td>
-<td><p>GeoST native format. Result of to_parquet or to_csv exports.</p></td>
+<td><p>GeoST native format. Result of to_parquet or to_csv exports</p></td>
 </tr>
 <tr class="row-odd"><td><p>GeoST CPT parquet or csv</p></td>
 <td><p><a class="reference internal" href="../api_reference/generated/geost.read_cpt_table.html"><span class="std std-doc"><code class="docutils literal notranslate"><span class="pre">read_cpt_table</span></code></span></a></p></td>
 <td><p><a class="reference internal" href="../api_reference/cpt_collection.html"><span class="std std-doc"><code class="docutils literal notranslate"><span class="pre">CptCollection</span></code></span></a> or <a class="reference internal" href="../api_reference/discrete_data.html"><span class="std std-doc"><code class="docutils literal notranslate"><span class="pre">DiscreteData</span></code></span></a></p></td>
-<td><p>GeoST native format. Result of to_parquet or to_csv exports.</p></td>
+<td><p>GeoST native format. Result of to_parquet or to_csv exports</p></td>
 </tr>
 <tr class="row-even"><td><p>NLOG excel export</p></td>
 <td><p><a class="reference internal" href="../api_reference/generated/geost.read_nlog_cores.html"><span class="std std-doc"><code class="docutils literal notranslate"><span class="pre">read_nlog_cores</span></code></span></a></p></td>
 <td><p><a class="reference internal" href="../api_reference/borehole_collection.html"><span class="std std-doc"><code class="docutils literal notranslate"><span class="pre">BoreholeCollection</span></code></span></a> or <a class="reference internal" href="../api_reference/layered_data.html"><span class="std std-doc"><code class="docutils literal notranslate"><span class="pre">LayeredData</span></code></span></a></p></td>
-<td><p>Reader for NLOG deep cores, see <a class="reference external" href="https://www.nlog.nl/boringen">here</a>.</p></td>
+<td><p>Reader for NLOG deep cores, see <a class="reference external" href="https://www.nlog.nl/boringen">here</a></p></td>
 </tr>
 <tr class="row-odd"><td><p>UU LLG cores</p></td>
 <td><p><a class="reference internal" href="../api_reference/generated/geost.read_uullg_tables.html"><span class="std std-doc"><code class="docutils literal notranslate"><span class="pre">read_uullg_tables</span></code></span></a></p></td>
 <td><p><a class="reference internal" href="../api_reference/borehole_collection.html"><span class="std std-doc"><code class="docutils literal notranslate"><span class="pre">BoreholeCollection</span></code></span></a> or <a class="reference internal" href="../api_reference/layered_data.html"><span class="std std-doc"><code class="docutils literal notranslate"><span class="pre">LayeredData</span></code></span></a></p></td>
-<td><p>Reader for csv distribution of Utrecht University student boreholes.</p></td>
+<td><p>Reader for csv distribution of Utrecht University student boreholes</p></td>
 </tr>
 <tr class="row-even"><td><p>BORIS XML</p></td>
 <td><p><a class="reference internal" href="#../api_reference/generated/geost.read_xml_boris.rst"><span class="xref myst"><code class="docutils literal notranslate"><span class="pre">read_xml_boris</span></code></span></a></p></td>
 <td><p><a class="reference internal" href="../api_reference/borehole_collection.html"><span class="std std-doc"><code class="docutils literal notranslate"><span class="pre">BoreholeCollection</span></code></span></a> or <a class="reference internal" href="../api_reference/layered_data.html"><span class="std std-doc"><code class="docutils literal notranslate"><span class="pre">LayeredData</span></code></span></a></p></td>
-<td><p>Reader for XML exports of the BORIS borehole description software.</p></td>
-</tr>
-<tr class="row-odd"><td><p>GEF CPTs</p></td>
-<td><p><a class="reference internal" href="../api_reference/generated/geost.read_gef_cpts.html"><span class="std std-doc"><code class="docutils literal notranslate"><span class="pre">read_gef_cpts</span></code></span></a></p></td>
-<td><p><a class="reference internal" href="../api_reference/cpt_collection.html"><span class="std std-doc"><code class="docutils literal notranslate"><span class="pre">CptCollection</span></code></span></a> or <a class="reference internal" href="../api_reference/discrete_data.html"><span class="std std-doc"><code class="docutils literal notranslate"><span class="pre">DiscreteData</span></code></span></a></p></td>
-<td><p>Reader for GEF CPT files.</p></td>
-</tr>
-<tr class="row-even"><td><p>BRO BHR-P</p></td>
-<td><p><a class="reference internal" href="../api_reference/generated/geost.get_bro_objects_from_bbox.html"><span class="std std-doc"><code class="docutils literal notranslate"><span class="pre">get_bro_objects_from_bbox</span></code></span></a> or <a class="reference internal" href="../api_reference/generated/geost.get_bro_objects_from_geometry.html"><span class="std std-doc"><code class="docutils literal notranslate"><span class="pre">get_bro_objects_from_geometry</span></code></span></a></p></td>
-<td><p><a class="reference internal" href="../api_reference/borehole_collection.html"><span class="std std-doc"><code class="docutils literal notranslate"><span class="pre">BoreholeCollection</span></code></span></a> or <a class="reference internal" href="../api_reference/layered_data.html"><span class="std std-doc"><code class="docutils literal notranslate"><span class="pre">LayeredData</span></code></span></a></p></td>
-<td><p>BRO soil cores as distributed through the BRO</p></td>
+<td><p>Reader for XML exports of the BORIS borehole description software</p></td>
 </tr>
 </tbody>
 </table>
@@ -852,12 +880,12 @@ point (geographic lat/lon).</p>
 <td><p>Generic reader for a voxelmodel presented in NetCDF format (readable as xarray dataset)</p></td>
 </tr>
 <tr class="row-odd"><td><p>GeoTOP NetCDF</p></td>
-<td><p><a class="reference internal" href="#../api_reference/generated/geost.bro.GeoTop.from_netcdf.rst"><span class="xref myst"><code class="docutils literal notranslate"><span class="pre">GeoTop.from_netcdf</span></code></span></a></p></td>
+<td><p><a class="reference internal" href="../api_reference/generated/geost.bro.bro_geotop.GeoTop.from_netcdf.html"><span class="std std-doc"><code class="docutils literal notranslate"><span class="pre">GeoTop.from_netcdf</span></code></span></a></p></td>
 <td><p><a class="reference internal" href="../api_reference/voxelmodel.html"><span class="std std-doc"><code class="docutils literal notranslate"><span class="pre">VoxelModel</span></code></span></a></p></td>
 <td><p>Reader for GeoTOP NetCDF distribution</p></td>
 </tr>
 <tr class="row-even"><td><p>GeoTOP OpenDAP</p></td>
-<td><p><a class="reference internal" href="#../api_reference/generated/geost.bro.GeoTop.from_opendap.rst"><span class="xref myst"><code class="docutils literal notranslate"><span class="pre">GeoTop.from_opendap</span></code></span></a></p></td>
+<td><p><a class="reference internal" href="../api_reference/generated/geost.bro.bro_geotop.GeoTop.from_opendap.html"><span class="std std-doc"><code class="docutils literal notranslate"><span class="pre">GeoTop.from_opendap</span></code></span></a></p></td>
 <td><p><a class="reference internal" href="../api_reference/voxelmodel.html"><span class="std std-doc"><code class="docutils literal notranslate"><span class="pre">VoxelModel</span></code></span></a></p></td>
 <td><p>Reader for GeoTOP OpenDAP distribution</p></td>
 </tr>
@@ -873,7 +901,7 @@ point (geographic lat/lon).</p>
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">geost</span>
 
 <span class="c1"># Read a few BRO soil cores in a small area</span>
-<span class="n">boreholes</span> <span class="o">=</span> <span class="n">geost</span><span class="o">.</span><span class="n">get_bro_objects_from_bbox</span><span class="p">(</span><span class="s2">&quot;BHR-P&quot;</span><span class="p">,</span> <span class="mi">141470</span><span class="p">,</span> <span class="mi">141700</span><span class="p">,</span> <span class="mi">455000</span><span class="p">,</span> <span class="mi">455300</span><span class="p">)</span>
+<span class="n">boreholes</span> <span class="o">=</span> <span class="n">geost</span><span class="o">.</span><span class="n">bro_api_read</span><span class="p">(</span><span class="s2">&quot;BHR-P&quot;</span><span class="p">,</span> <span class="n">bbox</span><span class="o">=</span><span class="p">(</span><span class="mi">141_470</span><span class="p">,</span> <span class="mi">455_000</span><span class="p">,</span> <span class="mi">141_700</span><span class="p">,</span> <span class="mi">455_300</span><span class="p">))</span>
 
 <span class="nb">print</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">boreholes</span><span class="p">))</span>
 <span class="n">boreholes</span><span class="o">.</span><span class="n">header</span>
@@ -885,13 +913,29 @@ point (geographic lat/lon).</p>
 </pre></div>
 </div>
 <div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>PointHeader instance containing 6 objects
-                nr       x       y  surface   end               geometry
-0  BHR000000085497  141671  455122     1.99  0.49  POINT (141671 455122)
-1  BHR000000114014  141523  455073     2.05  0.55  POINT (141523 455073)
-2  BHR000000120513  141580  455167     2.01  0.51  POINT (141580 455167)
-3  BHR000000160549  141622  455034     2.03  0.53  POINT (141622 455034)
-4  BHR000000206176  141522  455275     1.89  0.39  POINT (141522 455275)
-5  BHR000000247842  141642  455278     2.12  0.62  POINT (141642 455278)
+                nr                          crs  surface vertical_datum  \
+0  BHR000000085497  urn:ogc:def:crs:EPSG::28992     1.99            NAP   
+1  BHR000000114014  urn:ogc:def:crs:EPSG::28992     2.05            NAP   
+2  BHR000000120513  urn:ogc:def:crs:EPSG::28992     2.01            NAP   
+3  BHR000000160549  urn:ogc:def:crs:EPSG::28992     2.03            NAP   
+4  BHR000000206176  urn:ogc:def:crs:EPSG::28992     1.89            NAP   
+5  BHR000000247842  urn:ogc:def:crs:EPSG::28992     2.12            NAP   
+
+   begin_depth   end  ghg   glg           landuse         x         y  \
+0          0.0  0.49  0.5  None  graslandBlijvend  141671.0  455122.0   
+1          0.0  0.55  0.5  None  graslandBlijvend  141523.0  455073.0   
+2          0.0  0.51  0.5  None  graslandBlijvend  141580.0  455167.0   
+3          0.0  0.53  0.6  None  graslandBlijvend  141622.0  455034.0   
+4          0.0  0.39  0.3  None  graslandBlijvend  141522.0  455275.0   
+5          0.0  0.62  0.4  None  graslandBlijvend  141642.0  455278.0   
+
+                geometry  
+0  POINT (141671 455122)  
+1  POINT (141523 455073)  
+2  POINT (141580 455167)  
+3  POINT (141622 455034)  
+4  POINT (141522 455275)  
+5  POINT (141642 455278)  
 </pre></div>
 </div>
 </div>
@@ -901,7 +945,7 @@ point (geographic lat/lon).</p>
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">geost.bro</span><span class="w"> </span><span class="kn">import</span> <span class="n">GeoTop</span>
 
 <span class="c1"># Get corresponding voxels of the GeoTOP model</span>
-<span class="n">geotop</span> <span class="o">=</span> <span class="n">GeoTop</span><span class="o">.</span><span class="n">from_opendap</span><span class="p">(</span><span class="n">bbox</span><span class="o">=</span><span class="p">(</span><span class="mi">141470</span><span class="p">,</span> <span class="mi">455000</span><span class="p">,</span> <span class="mi">141700</span><span class="p">,</span> <span class="mi">455300</span><span class="p">))</span>
+<span class="n">geotop</span> <span class="o">=</span> <span class="n">GeoTop</span><span class="o">.</span><span class="n">from_opendap</span><span class="p">(</span><span class="n">bbox</span><span class="o">=</span><span class="p">(</span><span class="mi">141_470</span><span class="p">,</span> <span class="mi">455_000</span><span class="p">,</span> <span class="mi">141_700</span><span class="p">,</span> <span class="mi">455_300</span><span class="p">))</span>
 
 <span class="n">geotop</span>
 </pre></div>
@@ -910,20 +954,20 @@ point (geographic lat/lon).</p>
 <div class="cell_output docutils container">
 <div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>GeoTop
 Data variables:
-    strat    (y, x, z) float32 8kB ...
-    lithok   (y, x, z) float32 8kB ...
-    kans_1   (y, x, z) float32 8kB ...
-    kans_2   (y, x, z) float32 8kB ...
-    kans_3   (y, x, z) float32 8kB ...
-    kans_4   (y, x, z) float32 8kB ...
-    kans_5   (y, x, z) float32 8kB ...
-    kans_6   (y, x, z) float32 8kB ...
-    kans_7   (y, x, z) float32 8kB ...
-    kans_8   (y, x, z) float32 8kB ...
-    kans_9   (y, x, z) float32 8kB ...
-    onz_lk   (y, x, z) float32 8kB ...
-    onz_ls   (y, x, z) float32 8kB ...
-Dimensions: {&#39;x&#39;: 2, &#39;y&#39;: 3, &#39;z&#39;: 313}
+    strat    (y, x, z) float32 25kB dask.array&lt;chunksize=(5, 4, 76), meta=np.ndarray&gt;
+    lithok   (y, x, z) float32 25kB dask.array&lt;chunksize=(5, 4, 76), meta=np.ndarray&gt;
+    kans_1   (y, x, z) float32 25kB dask.array&lt;chunksize=(5, 4, 76), meta=np.ndarray&gt;
+    kans_2   (y, x, z) float32 25kB dask.array&lt;chunksize=(5, 4, 76), meta=np.ndarray&gt;
+    kans_3   (y, x, z) float32 25kB dask.array&lt;chunksize=(5, 4, 76), meta=np.ndarray&gt;
+    kans_4   (y, x, z) float32 25kB dask.array&lt;chunksize=(5, 4, 76), meta=np.ndarray&gt;
+    kans_5   (y, x, z) float32 25kB dask.array&lt;chunksize=(5, 4, 76), meta=np.ndarray&gt;
+    kans_6   (y, x, z) float32 25kB dask.array&lt;chunksize=(5, 4, 76), meta=np.ndarray&gt;
+    kans_7   (y, x, z) float32 25kB dask.array&lt;chunksize=(5, 4, 76), meta=np.ndarray&gt;
+    kans_8   (y, x, z) float32 25kB dask.array&lt;chunksize=(5, 4, 76), meta=np.ndarray&gt;
+    kans_9   (y, x, z) float32 25kB dask.array&lt;chunksize=(5, 4, 76), meta=np.ndarray&gt;
+    onz_lk   (y, x, z) float32 25kB dask.array&lt;chunksize=(5, 4, 76), meta=np.ndarray&gt;
+    onz_ls   (y, x, z) float32 25kB dask.array&lt;chunksize=(5, 4, 76), meta=np.ndarray&gt;
+Dimensions: {&#39;y&#39;: 5, &#39;x&#39;: 4, &#39;z&#39;: 313}
 Resolution (y, x, z): (100.0, 100.0, 0.5)
 </pre></div>
 </div>
@@ -952,11 +996,11 @@ Resolution (y, x, z): (100.0, 100.0, 0.5)
       </div>
     </a>
     <a class="right-next"
-       href="bro_geotop.html"
+       href="validation.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">BRO GeoTop</p>
+        <p class="prev-next-title">Data validation</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -980,7 +1024,7 @@ Resolution (y, x, z): (100.0, 100.0, 0.5)
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#supported-subsurface-data">Supported subsurface data</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#subsurface-point-data">Subsurface point data</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#subsurface-data">Subsurface data</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#subsurface-model-data">Subsurface model data</a></li>
 </ul>
 </li>
@@ -1022,7 +1066,7 @@ Resolution (y, x, z): (100.0, 100.0, 0.5)
 
   <p class="copyright">
     
-      © Copyright 2024, Deltares.
+      © Copyright 2025, Deltares.
       <br/>
     
   </p>

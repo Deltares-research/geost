@@ -1,0 +1,1109 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Read Geological borehole (BHR-G) data from XML &#8212; Geological Subsurface Toolbox  documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/mystnb.8ecb98da25f57f5357bf6f572d296f466b2cfe2517ffebfabe82451661e28f02.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=70497fbb" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=70497fbb" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/design-tabs.js?v=f930bc37"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'examples/read_xml';</script>
+    <link rel="icon" href="../_static/geost_logo.png"/>
+    <link rel="author" title="About these documents" href="../about.html" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="0.3.0" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class=" navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../_static/geost_logo.png" class="logo__image only-light" alt="Geological Subsurface Toolbox  documentation - Home"/>
+    <img src="../_static/geost_logo.png" class="logo__image only-dark pst-js-only" alt="Geological Subsurface Toolbox  documentation - Home"/>
+  
+  
+</a></div>
+    
+  </div>
+  
+  <div class=" navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../index.html">
+    Home
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../about.html">
+    About
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../getting_started.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../documentation.html">
+    Documentation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../examples.html">
+    Examples
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../community.html">
+    Community
+  </a>
+</li>
+
+            <li class="nav-item dropdown">
+                <button class="btn dropdown-toggle nav-item" type="button"
+                data-bs-toggle="dropdown" aria-expanded="false"
+                aria-controls="pst-nav-more-links">
+                    More
+                </button>
+                <ul id="pst-nav-more-links" class="dropdown-menu">
+                    
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../changelog.html">
+    Changelog
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-external" href="https://www.deltares.nl/en">
+    Deltares website
+  </a>
+</li>
+
+                </ul>
+            </li>
+            
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/Deltares-research/geost" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/geost" title="PyPI" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-solid fa-cubes fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">PyPI</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar hide-on-wide">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../index.html">
+    Home
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../about.html">
+    About
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../getting_started.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../documentation.html">
+    Documentation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../examples.html">
+    Examples
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../community.html">
+    Community
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../changelog.html">
+    Changelog
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-external" href="https://www.deltares.nl/en">
+    Deltares website
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/Deltares-research/geost" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/geost" title="PyPI" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-solid fa-cubes fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">PyPI</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Read Geological borehole (BHR-G) data from XML</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="read-geological-borehole-bhr-g-data-from-xml">
+<h1>Read Geological borehole (BHR-G) data from XML<a class="headerlink" href="#read-geological-borehole-bhr-g-data-from-xml" title="Link to this heading">#</a></h1>
+<p>This example demonstrates how GeoST extracts data from BRO XML files. The data from XML files is read by using a <code class="docutils literal notranslate"><span class="pre">schema</span></code> that describes the structure of the file (i.e. where to find specific elements) and determines where the information ends up in the resulting GeoST object, for instance a <code class="docutils literal notranslate"><span class="pre">BoreholeCollection</span></code>. Under the hood, GeoST uses the <a class="reference external" href="https://lxml.de/index.html">lxml library</a> for the XML parsing which will be used in this tutorial as well to show some basic principles.</p>
+<p>Borehole and CPT data in the Netherlands is distributed via a public national database: the BRO (“Basis Registratie Ondergrond”). The BRO contains five main sources of subsurface data:</p>
+<ul class="simple">
+<li><p>Geological boreholes (BHR-G objects)</p></li>
+<li><p>Geotechnical boreholes (BHR-GT objects)</p></li>
+<li><p>Pedological boreholes (BHR-P objects)</p></li>
+<li><p>Cone Penetration Tests (CPT objects)</p></li>
+<li><p>Pedological soilprofile descriptions (SFR objects)</p></li>
+</ul>
+<p>Downloading any of the above data sources from <a class="reference external" href="https://www.broloket.nl/ondergrondgegevens">BROloket</a> results in a set of XML files for the requested objects. GeoST can be used to read the data in the XML files for each of the data sources (see <a class="reference internal" href="../user_guide/reading_data.html#subsurfacedata"><span class="std std-ref">available read function</span></a> for each object). Sometimes, XML data for one of the above objects may also be provided by companies (e.g. Wiertsema) and GeoST can work with these files too. For this tutorial, we will demonstrate how the data is extracted using a BHR-G object from the BRO but the principle is the same for each other data source.</p>
+<p>We will begin with the necessary imports.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">lxml</span><span class="w"> </span><span class="kn">import</span> <span class="n">etree</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">geost</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">geost.io</span><span class="w"> </span><span class="kn">import</span> <span class="n">xml</span>
+
+<span class="n">bhrg_file</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s2">&quot;../../data/bhrg_bro.xml&quot;</span><span class="p">)</span> <span class="c1"># BHR-G XML file for tutorial</span>
+</pre></div>
+</div>
+</div>
+</div>
+<section id="reading-with-default-schema">
+<h2>Reading with default schema<a class="headerlink" href="#reading-with-default-schema" title="Link to this heading">#</a></h2>
+<p>As said, a <code class="docutils literal notranslate"><span class="pre">schema</span></code> is used to read the XML files and GeoST contains predefined schemas for each data source. With this schema, the most important header attributes (e.g. “nr”, “x”, “y”, “surface”) are retrieved and basic data attributes. For BHR-G objects these are attributes such as “top”, “bottom” and “lithology”. Anyone just interested in basic attributes or quick inspections can just use the default reader functions and does not have to worry about schemas or other things. The code below shows how easily the BHR-G file can be read. The result is a <code class="docutils literal notranslate"><span class="pre">BoreholeCollection</span></code> that contains a header and data attribute.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">bhrg</span> <span class="o">=</span> <span class="n">geost</span><span class="o">.</span><span class="n">read_bhrg</span><span class="p">(</span><span class="n">bhrg_file</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">bhrg</span><span class="o">.</span><span class="n">header</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">bhrg</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Retrieved header attributes: </span><span class="si">{</span><span class="n">bhrg</span><span class="o">.</span><span class="n">header</span><span class="o">.</span><span class="n">gdf</span><span class="o">.</span><span class="n">columns</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Retrieved data attributes: </span><span class="si">{</span><span class="n">bhrg</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>PointHeader instance containing 1 objects
+                nr                          crs  surface vertical_datum   end  \
+0  BHR000000396406  urn:ogc:def:crs:EPSG::28992     0.69            NAP -2.31   
+
+          x         y               geometry  
+0  126149.0  452162.0  POINT (126149 452162)  
+LayeredData instance:
+                nr         x         y  surface   end   top  bottom  \
+0  BHR000000396406  126149.0  452162.0     0.69 -2.31  0.00    0.25   
+1  BHR000000396406  126149.0  452162.0     0.69 -2.31  0.25    1.60   
+2  BHR000000396406  126149.0  452162.0     0.69 -2.31  1.60    2.00   
+3  BHR000000396406  126149.0  452162.0     0.69 -2.31  2.00    2.50   
+4  BHR000000396406  126149.0  452162.0     0.69 -2.31  2.50    3.00   
+
+    soilNameNEN5104  
+0   zwakZandigeKlei  
+1  sterkSiltigeKlei  
+2   zwakZandigeKlei  
+3  sterkZandigeKlei  
+4    zwakSiltigZand  
+Retrieved header attributes: Index([&#39;nr&#39;, &#39;crs&#39;, &#39;surface&#39;, &#39;vertical_datum&#39;, &#39;end&#39;, &#39;x&#39;, &#39;y&#39;, &#39;geometry&#39;], dtype=&#39;object&#39;)
+Retrieved data attributes: Index([&#39;nr&#39;, &#39;x&#39;, &#39;y&#39;, &#39;surface&#39;, &#39;end&#39;, &#39;top&#39;, &#39;bottom&#39;, &#39;soilNameNEN5104&#39;], dtype=&#39;object&#39;)
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="schema">
+<h2>Schema<a class="headerlink" href="#schema" title="Link to this heading">#</a></h2>
+<p>We can see that using the predefined <code class="docutils literal notranslate"><span class="pre">schema</span></code> already retrieves many of the important attributes from the XML file. However, some users may need additional data attributes as they might be interested in other information which may be relevant to their questions. For this, we are going to explore a <code class="docutils literal notranslate"><span class="pre">schema</span></code> and the XML structure in more detail. Let’s first check out the predefined schema that was used by default by <code class="docutils literal notranslate"><span class="pre">geost.read_bhrg</span></code>. We will use <code class="docutils literal notranslate"><span class="pre">pprint</span></code> to show the structure of the schema more clearly.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pprint</span><span class="w"> </span><span class="kn">import</span> <span class="n">pprint</span>
+
+<span class="n">bhrg_schema</span> <span class="o">=</span> <span class="n">xml</span><span class="o">.</span><span class="n">schemas</span><span class="o">.</span><span class="n">bhrg</span><span class="p">[</span><span class="s2">&quot;BRO&quot;</span><span class="p">]</span> <span class="c1"># This would be `xml.schemas.bhrgt` for BHR-GT files</span>
+
+<span class="n">pprint</span><span class="p">(</span><span class="n">bhrg_schema</span><span class="p">,</span> <span class="n">sort_dicts</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>  <span class="c1"># Use `sort_dicts=False` to keep the order of the schema</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>{&#39;payload_root&#39;: &#39;dispatchDocument&#39;,
+ &#39;nr&#39;: {&#39;xpath&#39;: &#39;brocom:broId&#39;},
+ &#39;location&#39;: {&#39;xpath&#39;: &#39;deliveredLocation/bhrgcom:location/gml:Point/gml:pos&#39;,
+              &#39;resolver&#39;: &lt;function parse_coordinates at 0x7f29c58e76a0&gt;,
+              &#39;el-attr&#39;: &#39;text&#39;},
+ &#39;crs&#39;: {&#39;xpath&#39;: &#39;deliveredLocation/bhrgcom:location/gml:Point&#39;,
+         &#39;resolver&#39;: &lt;function parse_crs at 0x7f29c644c680&gt;},
+ &#39;surface&#39;: {&#39;xpath&#39;: &#39;deliveredVerticalPosition/bhrgcom:offset&#39;,
+             &#39;resolver&#39;: &lt;function safe_float at 0x7f29c58e7740&gt;,
+             &#39;el-attr&#39;: &#39;text&#39;},
+ &#39;vertical_datum&#39;: {&#39;xpath&#39;: &#39;deliveredVerticalPosition/bhrgcom:verticalDatum&#39;,
+                    &#39;el-attr&#39;: &#39;text&#39;},
+ &#39;end&#39;: {&#39;xpath&#39;: &#39;boring/bhrgcom:Boring/bhrgcom:finalDepthBoring&#39;,
+         &#39;resolver&#39;: &lt;function safe_float at 0x7f29c58e7740&gt;,
+         &#39;el-attr&#39;: &#39;text&#39;},
+ &#39;data&#39;: {&#39;xpath&#39;: &#39;boreholeSampleDescription/bhrgcom:BoreholeSampleDescription/bhrgcom:descriptiveBoreholeLog/bhrgcom:DescriptiveBoreholeLog&#39;,
+          &#39;resolver&#39;: &lt;function process_bhrgt_data at 0x7f29c58e79c0&gt;,
+          &#39;layer-attributes&#39;: [&#39;upperBoundary&#39;,
+                               &#39;lowerBoundary&#39;,
+                               &#39;soilNameNEN5104&#39;]}}
+</pre></div>
+</div>
+</div>
+</div>
+<p>You may already recognize some of the header attributes that were in the <code class="docutils literal notranslate"><span class="pre">BoreholeCollection</span></code> above such as “nr”, “crs”, “surface”. The simplest way to explain the above schema in relation to the resulting <code class="docutils literal notranslate"><span class="pre">BoreholeCollection</span></code> is that the “data” key determines what will be in the data table and all other keys end up in the header table. Each key in the schema contains a subdictionary which “tells <code class="docutils literal notranslate"><span class="pre">geost.read_bhrg</span></code> what to do” for each key.</p>
+<p>The dictionaries of keys that end up in the header can have the keys “xpath”, “resolver” and “el-attr” and as you can see, they can have one or all of them. Below is a short description of each key:</p>
+<ul class="simple">
+<li><p>“xpath” : Path to the desired element in the XML structure. This always needs to be present, otherwise nothing will be retrieved.</p></li>
+<li><p>“resolver” : Python function (if necessary) to extract data in a specific way. For example, change a text value to a float.</p></li>
+<li><p>“el-attr” : XML elements can have attributes such as a “text” attribute. This will ensure the attribute is taken as the result or be used as input for the resolver.</p></li>
+</ul>
+<p>The dictionary of the “data” key in the schema also contains “xpath” and “resolver” but “el-attr” cannot be used here. Instead, it contains a “layer-attributes” key which, as the name suggests, extracts the desired attributes for each borehole layer in the BHR-G object. For now, the predefined schema only extracted the “upperBoundary”, “lowerBoundary” and “soilNameNEN5104” of each layer but we will show how the schema above can be extended to retrieve additional data.</p>
+</section>
+<section id="retrieving-additional-attributes">
+<h2>Retrieving additional attributes<a class="headerlink" href="#retrieving-additional-attributes" title="Link to this heading">#</a></h2>
+<p>Since the “upperBoundary”, “lowerBoundary” and “soilNameNEN5104” might not be enough information for every purpose it may be desired to retrieve additional layer attributes. Let’s checkout an element in the XML file that contains data for a single layer and see what additional attributes are present. Note that normally you could checkout the entire XML file in a texteditor such as <code class="docutils literal notranslate"><span class="pre">Notepad++</span></code> but in this tutorial we will retrieve and print the layer element by using lxml to see which attributes are present.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">xml_tree</span> <span class="o">=</span> <span class="n">etree</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">bhrg_file</span><span class="p">)</span><span class="o">.</span><span class="n">getroot</span><span class="p">()</span> <span class="c1"># Read the XML file and get the root element</span>
+
+<span class="c1"># Unfortunately, the path to a layer element from the root is really long</span>
+<span class="n">path_layer_element</span> <span class="o">=</span> <span class="s2">&quot;dispatchDocument/BHR_G_O/boreholeSampleDescription/bhrgcom:BoreholeSampleDescription/bhrgcom:descriptiveBoreholeLog/bhrgcom:DescriptiveBoreholeLog/bhrgcom:layer/bhrgcom:Layer&quot;</span>
+<span class="n">layer</span> <span class="o">=</span> <span class="n">xml_tree</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">path_layer_element</span><span class="p">,</span> <span class="n">namespaces</span><span class="o">=</span><span class="n">xml_tree</span><span class="o">.</span><span class="n">nsmap</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">etree</span><span class="o">.</span><span class="n">tostring</span><span class="p">(</span><span class="n">layer</span><span class="p">,</span> <span class="n">pretty_print</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;unicode&quot;</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>&lt;bhrgcom:Layer xmlns:bhrgcom=&quot;http://www.broservices.nl/xsd/bhrgcommon/3.1&quot; xmlns:gml=&quot;http://www.opengis.net/gml/3.2&quot; xmlns:xlink=&quot;http://www.w3.org/1999/xlink&quot; xmlns:brocom=&quot;http://www.broservices.nl/xsd/brocommon/3.0&quot; xmlns=&quot;http://www.broservices.nl/xsd/dsbhrg/3.1&quot; gml:id=&quot;BRO_0006&quot;&gt;
+                  &lt;bhrgcom:upperBoundary uom=&quot;m&quot;&gt;0.000&lt;/bhrgcom:upperBoundary&gt;
+                  &lt;bhrgcom:upperBoundaryDetermination codeSpace=&quot;urn:bro:bhrg:BoundaryPositioningMethod&quot;&gt;waargenomen&lt;/bhrgcom:upperBoundaryDetermination&gt;
+                  &lt;bhrgcom:lowerBoundary uom=&quot;m&quot;&gt;0.250&lt;/bhrgcom:lowerBoundary&gt;
+                  &lt;bhrgcom:lowerBoundaryDetermination codeSpace=&quot;urn:bro:bhrg:BoundaryPositioningMethod&quot;&gt;onbekend&lt;/bhrgcom:lowerBoundaryDetermination&gt;
+                  &lt;bhrgcom:anthropogenic&gt;onbekend&lt;/bhrgcom:anthropogenic&gt;
+                  &lt;bhrgcom:rooted&gt;onbekend&lt;/bhrgcom:rooted&gt;
+                  &lt;bhrgcom:soil&gt;
+                    &lt;bhrgcom:soilNameNEN5104 codeSpace=&quot;urn:bro:bhrg:SoilNameNEN5104&quot;&gt;zwakZandigeKlei&lt;/bhrgcom:soilNameNEN5104&gt;
+                    &lt;bhrgcom:gravelContentClass codeSpace=&quot;urn:bro:bhrg:GravelContentClass&quot;&gt;onbekend&lt;/bhrgcom:gravelContentClass&gt;
+                    &lt;bhrgcom:organicMatterContentClassNEN5104 codeSpace=&quot;urn:bro:bhrg:OrganicMatterContentClassNEN5104&quot;&gt;matigHumeus&lt;/bhrgcom:organicMatterContentClassNEN5104&gt;
+                    &lt;bhrgcom:carbonateContentClass codeSpace=&quot;urn:bro:bhrg:CarbonateContentClass&quot;&gt;onbekend&lt;/bhrgcom:carbonateContentClass&gt;
+                    &lt;bhrgcom:colour codeSpace=&quot;urn:bro:bhrg:Colour&quot;&gt;onbekend&lt;/bhrgcom:colour&gt;
+                    &lt;bhrgcom:particularConstituent&gt;
+                      &lt;bhrgcom:constituentType codeSpace=&quot;urn:bro:bhrg:ParticularConstituentType&quot;&gt;puin&lt;/bhrgcom:constituentType&gt;
+                      &lt;bhrgcom:archiveClass codeSpace=&quot;urn:bro:bhrg:ArchiveClass&quot;&gt;onbekend&lt;/bhrgcom:archiveClass&gt;
+                    &lt;/bhrgcom:particularConstituent&gt;
+                  &lt;/bhrgcom:soil&gt;
+                &lt;/bhrgcom:Layer&gt;
+              
+</pre></div>
+</div>
+</div>
+</div>
+<p>As we can see, additional attributes are available such as “gravelContentClass”, “carbonateContentClass” and “colour”. These can easily be retrieved by adding these to the list of “layer-attributes” in the schema and using the new schema as input to read the data. Let’s use the updated schema to read the XML file again and checkout the data attribute of the resulting <code class="docutils literal notranslate"><span class="pre">BoreholeCollection</span></code> to that it works.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">extra_attributes</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;gravelContentClass&quot;</span><span class="p">,</span> <span class="s2">&quot;carbonateContentClass&quot;</span><span class="p">,</span> <span class="s2">&quot;colour&quot;</span><span class="p">]</span>
+<span class="n">bhrg_schema</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">][</span><span class="s2">&quot;layer-attributes&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">extra_attributes</span><span class="p">)</span> <span class="c1"># Add the list of extra attributes to the schema</span>
+
+<span class="n">bhrg</span> <span class="o">=</span> <span class="n">geost</span><span class="o">.</span><span class="n">read_bhrg</span><span class="p">(</span><span class="n">bhrg_file</span><span class="p">,</span> <span class="n">schema</span><span class="o">=</span><span class="n">bhrg_schema</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">bhrg</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>LayeredData instance:
+                nr         x         y  surface   end   top  bottom  \
+0  BHR000000396406  126149.0  452162.0     0.69 -2.31  0.00    0.25   
+1  BHR000000396406  126149.0  452162.0     0.69 -2.31  0.25    1.60   
+2  BHR000000396406  126149.0  452162.0     0.69 -2.31  1.60    2.00   
+3  BHR000000396406  126149.0  452162.0     0.69 -2.31  2.00    2.50   
+4  BHR000000396406  126149.0  452162.0     0.69 -2.31  2.50    3.00   
+
+    soilNameNEN5104 gravelContentClass carbonateContentClass    colour  
+0   zwakZandigeKlei           onbekend              onbekend  onbekend  
+1  sterkSiltigeKlei           onbekend              onbekend  onbekend  
+2   zwakZandigeKlei           onbekend              onbekend  onbekend  
+3  sterkZandigeKlei           onbekend              onbekend  onbekend  
+4    zwakSiltigZand           onbekend              onbekend  onbekend  
+</pre></div>
+</div>
+</div>
+</div>
+<p>Even though in this particular borehole the extra attributes have value “onbekend” (i.e. unknown) in every layer, we can see that they were retrieved from the XML file.</p>
+</section>
+<section id="extending-the-schema">
+<h2>Extending the schema<a class="headerlink" href="#extending-the-schema" title="Link to this heading">#</a></h2>
+<p>For now, we have shown how we can extend a schema to retrieve additional layer-attributes but we can also extend the schema to retrieve other information that will be added to the header. Before we show how this can be done, it is worth inspecting the XML file itself.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># We can print the XML tree that we loaded before</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">etree</span><span class="o">.</span><span class="n">tostring</span><span class="p">(</span><span class="n">xml_tree</span><span class="p">,</span> <span class="n">pretty_print</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s1">&#39;unicode&#39;</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>&lt;dispatchDataResponse xmlns:bhrgcom=&quot;http://www.broservices.nl/xsd/bhrgcommon/3.1&quot; xmlns:xlink=&quot;http://www.w3.org/1999/xlink&quot; xmlns:brocom=&quot;http://www.broservices.nl/xsd/brocommon/3.0&quot; xmlns=&quot;http://www.broservices.nl/xsd/dsbhrg/3.1&quot; xmlns:gml=&quot;http://www.opengis.net/gml/3.2&quot;&gt;
+  &lt;brocom:responseType&gt;dispatch&lt;/brocom:responseType&gt;
+  &lt;brocom:requestReference&gt;-&lt;/brocom:requestReference&gt;
+  &lt;brocom:dispatchTime&gt;2025-08-04T11:36:40+02:00&lt;/brocom:dispatchTime&gt;
+  &lt;dispatchDocument&gt;
+    &lt;BHR_G_O gml:id=&quot;BRO_0013&quot;&gt;
+      &lt;brocom:broId&gt;BHR000000396406&lt;/brocom:broId&gt;
+      &lt;brocom:deliveryAccountableParty&gt;50200097&lt;/brocom:deliveryAccountableParty&gt;
+      &lt;brocom:qualityRegime&gt;IMBRO/A&lt;/brocom:qualityRegime&gt;
+      &lt;deliveryContext codeSpace=&quot;urn:bro:bhrg:DeliveryContext&quot;&gt;archiefoverdracht&lt;/deliveryContext&gt;
+      &lt;surveyPurpose codeSpace=&quot;urn:bro:bhrg:SurveyPurpose&quot;&gt;onbekend&lt;/surveyPurpose&gt;
+      &lt;discipline codeSpace=&quot;urn:bro:bhrg:Discipline&quot;&gt;geologie&lt;/discipline&gt;
+      &lt;surveyProcedure codeSpace=&quot;urn:bro:bhrg:SurveyProcedure&quot;&gt;geen&lt;/surveyProcedure&gt;
+      &lt;researchReportDate&gt;
+        &lt;brocom:date&gt;2004-09-22&lt;/brocom:date&gt;
+      &lt;/researchReportDate&gt;
+      &lt;registrationHistory&gt;
+        &lt;brocom:objectRegistrationTime&gt;2025-02-04T17:41:43+01:00&lt;/brocom:objectRegistrationTime&gt;
+        &lt;brocom:registrationStatus codeSpace=&quot;urn:bro:RegistrationStatus&quot;&gt;voltooid&lt;/brocom:registrationStatus&gt;
+        &lt;brocom:registrationCompletionTime&gt;2025-02-04T17:41:43+01:00&lt;/brocom:registrationCompletionTime&gt;
+        &lt;brocom:corrected&gt;nee&lt;/brocom:corrected&gt;
+        &lt;brocom:underReview&gt;nee&lt;/brocom:underReview&gt;
+        &lt;brocom:deregistered&gt;nee&lt;/brocom:deregistered&gt;
+        &lt;brocom:reregistered&gt;nee&lt;/brocom:reregistered&gt;
+      &lt;/registrationHistory&gt;
+      &lt;NITGCode&gt;B31G2129&lt;/NITGCode&gt;
+      &lt;reportHistory&gt;
+        &lt;bhrgcom:event&gt;
+          &lt;bhrgcom:date&gt;
+            &lt;brocom:date&gt;2004-09-22&lt;/brocom:date&gt;
+          &lt;/bhrgcom:date&gt;
+          &lt;bhrgcom:name codeSpace=&quot;urn:bro:bhrg:EventName&quot;&gt;volledigGerapporteerd&lt;/bhrgcom:name&gt;
+        &lt;/bhrgcom:event&gt;
+      &lt;/reportHistory&gt;
+      &lt;deliveredLocation&gt;
+        &lt;bhrgcom:location&gt;
+          &lt;gml:Point srsName=&quot;urn:ogc:def:crs:EPSG::28992&quot; gml:id=&quot;BRO_0001&quot;&gt;
+            &lt;gml:pos&gt;126149.000 452162.000&lt;/gml:pos&gt;
+          &lt;/gml:Point&gt;
+        &lt;/bhrgcom:location&gt;
+        &lt;bhrgcom:horizontalPositioningDate&gt;
+          &lt;brocom:date&gt;2004-09-22&lt;/brocom:date&gt;
+        &lt;/bhrgcom:horizontalPositioningDate&gt;
+        &lt;bhrgcom:horizontalPositioningMethod codeSpace=&quot;urn:bro:bhrg:HorizontalPositioningMethod&quot;&gt;onbekend&lt;/bhrgcom:horizontalPositioningMethod&gt;
+      &lt;/deliveredLocation&gt;
+      &lt;deliveredVerticalPosition&gt;
+        &lt;bhrgcom:localVerticalReferencePoint codeSpace=&quot;urn:bro:bhrg:LocalVerticalReferencePoint&quot;&gt;maaiveld&lt;/bhrgcom:localVerticalReferencePoint&gt;
+        &lt;bhrgcom:offset uom=&quot;m&quot;&gt;0.690&lt;/bhrgcom:offset&gt;
+        &lt;bhrgcom:verticalDatum codeSpace=&quot;urn:bro:bhrg:VerticalDatum&quot;&gt;NAP&lt;/bhrgcom:verticalDatum&gt;
+        &lt;bhrgcom:verticalPositioningDate&gt;
+          &lt;brocom:date&gt;2004-09-22&lt;/brocom:date&gt;
+        &lt;/bhrgcom:verticalPositioningDate&gt;
+        &lt;bhrgcom:verticalPositioningMethod codeSpace=&quot;urn:bro:bhrg:VerticalPositioningMethod&quot;&gt;onbekend&lt;/bhrgcom:verticalPositioningMethod&gt;
+      &lt;/deliveredVerticalPosition&gt;
+      &lt;standardizedLocation&gt;
+        &lt;brocom:location srsName=&quot;urn:ogc:def:crs:EPSG::4258&quot; gml:id=&quot;BRO_0002&quot;&gt;
+          &lt;gml:pos&gt;52.057009967 4.966538731&lt;/gml:pos&gt;
+        &lt;/brocom:location&gt;
+        &lt;brocom:coordinateTransformation codeSpace=&quot;urn:bro:CoordinateTransformation&quot;&gt;RDNAPTRANS2018&lt;/brocom:coordinateTransformation&gt;
+      &lt;/standardizedLocation&gt;
+      &lt;boring&gt;
+        &lt;bhrgcom:Boring gml:id=&quot;BRO_0005&quot;&gt;
+          &lt;bhrgcom:boringStartDate&gt;
+            &lt;brocom:date&gt;2004-09-22&lt;/brocom:date&gt;
+          &lt;/bhrgcom:boringStartDate&gt;
+          &lt;bhrgcom:boringEndDate&gt;
+            &lt;brocom:voidReason&gt;onbekend&lt;/brocom:voidReason&gt;
+          &lt;/bhrgcom:boringEndDate&gt;
+          &lt;bhrgcom:preparation xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot; codeSpace=&quot;urn:bro:bhrg:Preparation&quot; xsi:nil=&quot;true&quot;/&gt;
+          &lt;bhrgcom:trajectoryExcavated&gt;nee&lt;/bhrgcom:trajectoryExcavated&gt;
+          &lt;bhrgcom:rockReached&gt;nee&lt;/bhrgcom:rockReached&gt;
+          &lt;bhrgcom:boringProcedure codeSpace=&quot;urn:bro:bhrg:BoringProcedure&quot;&gt;onbekend&lt;/bhrgcom:boringProcedure&gt;
+          &lt;bhrgcom:finalDepthBoring uom=&quot;m&quot;&gt;3.00&lt;/bhrgcom:finalDepthBoring&gt;
+          &lt;bhrgcom:stopCriterion codeSpace=&quot;urn:bro:bhrg:StopCriterionField&quot;&gt;onbekend&lt;/bhrgcom:stopCriterion&gt;
+          &lt;bhrgcom:samplingProcedure codeSpace=&quot;urn:bro:bhrg:SamplingProcedure&quot;&gt;onbekend&lt;/bhrgcom:samplingProcedure&gt;
+          &lt;bhrgcom:finalDepthSampling xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot; uom=&quot;m&quot; xsi:nil=&quot;true&quot;/&gt;
+          &lt;bhrgcom:subsurfaceContaminated xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot; xsi:nil=&quot;true&quot;/&gt;
+          &lt;bhrgcom:boreholeCompleted&gt;onbekend&lt;/bhrgcom:boreholeCompleted&gt;
+          &lt;bhrgcom:boredInterval&gt;
+            &lt;bhrgcom:BoredInterval gml:id=&quot;BRO_0003&quot;&gt;
+              &lt;bhrgcom:beginDepth uom=&quot;m&quot;&gt;0.00&lt;/bhrgcom:beginDepth&gt;
+              &lt;bhrgcom:endDepth uom=&quot;m&quot;&gt;3.00&lt;/bhrgcom:endDepth&gt;
+              &lt;bhrgcom:boringTechnique codeSpace=&quot;urn:bro:bhrg:BoringTechnique&quot;&gt;handDraaien&lt;/bhrgcom:boringTechnique&gt;
+              &lt;bhrgcom:boredDiameter xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot; uom=&quot;mm&quot; xsi:nil=&quot;true&quot;/&gt;
+            &lt;/bhrgcom:BoredInterval&gt;
+          &lt;/bhrgcom:boredInterval&gt;
+          &lt;bhrgcom:sampledInterval&gt;
+            &lt;bhrgcom:SampledInterval gml:id=&quot;BRO_0004&quot;&gt;
+              &lt;bhrgcom:beginDepth uom=&quot;m&quot;&gt;0.00&lt;/bhrgcom:beginDepth&gt;
+              &lt;bhrgcom:endDepth uom=&quot;m&quot;&gt;3.00&lt;/bhrgcom:endDepth&gt;
+              &lt;bhrgcom:preTreatment codeSpace=&quot;urn:bro:bhrg:PreTreatment&quot;&gt;onbekend&lt;/bhrgcom:preTreatment&gt;
+              &lt;bhrgcom:samplingMethod codeSpace=&quot;urn:bro:bhrg:SamplingMethod&quot;&gt;opDiepteLosroeren&lt;/bhrgcom:samplingMethod&gt;
+              &lt;bhrgcom:samplingQuality codeSpace=&quot;urn:bro:bhrg:SamplingQuality&quot;&gt;geroerd&lt;/bhrgcom:samplingQuality&gt;
+            &lt;/bhrgcom:SampledInterval&gt;
+          &lt;/bhrgcom:sampledInterval&gt;
+        &lt;/bhrgcom:Boring&gt;
+      &lt;/boring&gt;
+      &lt;boreholeSampleDescription&gt;
+        &lt;bhrgcom:BoreholeSampleDescription gml:id=&quot;BRO_0012&quot;&gt;
+          &lt;bhrgcom:descriptionReportDate&gt;
+            &lt;brocom:date&gt;2004-09-22&lt;/brocom:date&gt;
+          &lt;/bhrgcom:descriptionReportDate&gt;
+          &lt;bhrgcom:descriptionProcedure codeSpace=&quot;urn:bro:bhrg:DescriptionProcedure&quot;&gt;NEN5104plusOnbekend&lt;/bhrgcom:descriptionProcedure&gt;
+          &lt;bhrgcom:descriptiveBoreholeLog&gt;
+            &lt;bhrgcom:DescriptiveBoreholeLog gml:id=&quot;BRO_0011&quot;&gt;
+              &lt;bhrgcom:descriptionQuality codeSpace=&quot;urn:bro:bhrg:DescriptionQuality&quot;&gt;geologischNEN5104Archief&lt;/bhrgcom:descriptionQuality&gt;
+              &lt;bhrgcom:describedSamplesQuality codeSpace=&quot;urn:bro:bhrg:DescribedSamplesQuality&quot;&gt;geroerd&lt;/bhrgcom:describedSamplesQuality&gt;
+              &lt;bhrgcom:continuouslySampled&gt;ja&lt;/bhrgcom:continuouslySampled&gt;
+              &lt;bhrgcom:descriptionLocation codeSpace=&quot;urn:bro:bhrg:DescriptionLocation&quot;&gt;veld&lt;/bhrgcom:descriptionLocation&gt;
+              &lt;bhrgcom:describedMaterial codeSpace=&quot;urn:bro:bhrg:DescribedMaterial&quot;&gt;grond&lt;/bhrgcom:describedMaterial&gt;
+              &lt;bhrgcom:sampleMoistness codeSpace=&quot;urn:bro:bhrg:SampleMoistness&quot;&gt;onbekend&lt;/bhrgcom:sampleMoistness&gt;
+              &lt;bhrgcom:layer&gt;
+                &lt;bhrgcom:Layer gml:id=&quot;BRO_0006&quot;&gt;
+                  &lt;bhrgcom:upperBoundary uom=&quot;m&quot;&gt;0.000&lt;/bhrgcom:upperBoundary&gt;
+                  &lt;bhrgcom:upperBoundaryDetermination codeSpace=&quot;urn:bro:bhrg:BoundaryPositioningMethod&quot;&gt;waargenomen&lt;/bhrgcom:upperBoundaryDetermination&gt;
+                  &lt;bhrgcom:lowerBoundary uom=&quot;m&quot;&gt;0.250&lt;/bhrgcom:lowerBoundary&gt;
+                  &lt;bhrgcom:lowerBoundaryDetermination codeSpace=&quot;urn:bro:bhrg:BoundaryPositioningMethod&quot;&gt;onbekend&lt;/bhrgcom:lowerBoundaryDetermination&gt;
+                  &lt;bhrgcom:anthropogenic&gt;onbekend&lt;/bhrgcom:anthropogenic&gt;
+                  &lt;bhrgcom:rooted&gt;onbekend&lt;/bhrgcom:rooted&gt;
+                  &lt;bhrgcom:soil&gt;
+                    &lt;bhrgcom:soilNameNEN5104 codeSpace=&quot;urn:bro:bhrg:SoilNameNEN5104&quot;&gt;zwakZandigeKlei&lt;/bhrgcom:soilNameNEN5104&gt;
+                    &lt;bhrgcom:gravelContentClass codeSpace=&quot;urn:bro:bhrg:GravelContentClass&quot;&gt;onbekend&lt;/bhrgcom:gravelContentClass&gt;
+                    &lt;bhrgcom:organicMatterContentClassNEN5104 codeSpace=&quot;urn:bro:bhrg:OrganicMatterContentClassNEN5104&quot;&gt;matigHumeus&lt;/bhrgcom:organicMatterContentClassNEN5104&gt;
+                    &lt;bhrgcom:carbonateContentClass codeSpace=&quot;urn:bro:bhrg:CarbonateContentClass&quot;&gt;onbekend&lt;/bhrgcom:carbonateContentClass&gt;
+                    &lt;bhrgcom:colour codeSpace=&quot;urn:bro:bhrg:Colour&quot;&gt;onbekend&lt;/bhrgcom:colour&gt;
+                    &lt;bhrgcom:particularConstituent&gt;
+                      &lt;bhrgcom:constituentType codeSpace=&quot;urn:bro:bhrg:ParticularConstituentType&quot;&gt;puin&lt;/bhrgcom:constituentType&gt;
+                      &lt;bhrgcom:archiveClass codeSpace=&quot;urn:bro:bhrg:ArchiveClass&quot;&gt;onbekend&lt;/bhrgcom:archiveClass&gt;
+                    &lt;/bhrgcom:particularConstituent&gt;
+                  &lt;/bhrgcom:soil&gt;
+                &lt;/bhrgcom:Layer&gt;
+              &lt;/bhrgcom:layer&gt;
+              &lt;bhrgcom:layer&gt;
+                &lt;bhrgcom:Layer gml:id=&quot;BRO_0007&quot;&gt;
+                  &lt;bhrgcom:upperBoundary uom=&quot;m&quot;&gt;0.250&lt;/bhrgcom:upperBoundary&gt;
+                  &lt;bhrgcom:upperBoundaryDetermination codeSpace=&quot;urn:bro:bhrg:BoundaryPositioningMethod&quot;&gt;onbekend&lt;/bhrgcom:upperBoundaryDetermination&gt;
+                  &lt;bhrgcom:lowerBoundary uom=&quot;m&quot;&gt;1.600&lt;/bhrgcom:lowerBoundary&gt;
+                  &lt;bhrgcom:lowerBoundaryDetermination codeSpace=&quot;urn:bro:bhrg:BoundaryPositioningMethod&quot;&gt;onbekend&lt;/bhrgcom:lowerBoundaryDetermination&gt;
+                  &lt;bhrgcom:anthropogenic&gt;onbekend&lt;/bhrgcom:anthropogenic&gt;
+                  &lt;bhrgcom:rooted&gt;onbekend&lt;/bhrgcom:rooted&gt;
+                  &lt;bhrgcom:soil&gt;
+                    &lt;bhrgcom:soilNameNEN5104 codeSpace=&quot;urn:bro:bhrg:SoilNameNEN5104&quot;&gt;sterkSiltigeKlei&lt;/bhrgcom:soilNameNEN5104&gt;
+                    &lt;bhrgcom:gravelContentClass codeSpace=&quot;urn:bro:bhrg:GravelContentClass&quot;&gt;onbekend&lt;/bhrgcom:gravelContentClass&gt;
+                    &lt;bhrgcom:organicMatterContentClassNEN5104 codeSpace=&quot;urn:bro:bhrg:OrganicMatterContentClassNEN5104&quot;&gt;zwakHumeus&lt;/bhrgcom:organicMatterContentClassNEN5104&gt;
+                    &lt;bhrgcom:carbonateContentClass codeSpace=&quot;urn:bro:bhrg:CarbonateContentClass&quot;&gt;onbekend&lt;/bhrgcom:carbonateContentClass&gt;
+                    &lt;bhrgcom:colour codeSpace=&quot;urn:bro:bhrg:Colour&quot;&gt;onbekend&lt;/bhrgcom:colour&gt;
+                  &lt;/bhrgcom:soil&gt;
+                &lt;/bhrgcom:Layer&gt;
+              &lt;/bhrgcom:layer&gt;
+              &lt;bhrgcom:layer&gt;
+                &lt;bhrgcom:Layer gml:id=&quot;BRO_0008&quot;&gt;
+                  &lt;bhrgcom:upperBoundary uom=&quot;m&quot;&gt;1.600&lt;/bhrgcom:upperBoundary&gt;
+                  &lt;bhrgcom:upperBoundaryDetermination codeSpace=&quot;urn:bro:bhrg:BoundaryPositioningMethod&quot;&gt;onbekend&lt;/bhrgcom:upperBoundaryDetermination&gt;
+                  &lt;bhrgcom:lowerBoundary uom=&quot;m&quot;&gt;2.000&lt;/bhrgcom:lowerBoundary&gt;
+                  &lt;bhrgcom:lowerBoundaryDetermination codeSpace=&quot;urn:bro:bhrg:BoundaryPositioningMethod&quot;&gt;onbekend&lt;/bhrgcom:lowerBoundaryDetermination&gt;
+                  &lt;bhrgcom:anthropogenic&gt;onbekend&lt;/bhrgcom:anthropogenic&gt;
+                  &lt;bhrgcom:rooted&gt;onbekend&lt;/bhrgcom:rooted&gt;
+                  &lt;bhrgcom:soil&gt;
+                    &lt;bhrgcom:soilNameNEN5104 codeSpace=&quot;urn:bro:bhrg:SoilNameNEN5104&quot;&gt;zwakZandigeKlei&lt;/bhrgcom:soilNameNEN5104&gt;
+                    &lt;bhrgcom:gravelContentClass codeSpace=&quot;urn:bro:bhrg:GravelContentClass&quot;&gt;onbekend&lt;/bhrgcom:gravelContentClass&gt;
+                    &lt;bhrgcom:organicMatterContentClassNEN5104 codeSpace=&quot;urn:bro:bhrg:OrganicMatterContentClassNEN5104&quot;&gt;zwakHumeus&lt;/bhrgcom:organicMatterContentClassNEN5104&gt;
+                    &lt;bhrgcom:carbonateContentClass codeSpace=&quot;urn:bro:bhrg:CarbonateContentClass&quot;&gt;onbekend&lt;/bhrgcom:carbonateContentClass&gt;
+                    &lt;bhrgcom:colour codeSpace=&quot;urn:bro:bhrg:Colour&quot;&gt;onbekend&lt;/bhrgcom:colour&gt;
+                  &lt;/bhrgcom:soil&gt;
+                &lt;/bhrgcom:Layer&gt;
+              &lt;/bhrgcom:layer&gt;
+              &lt;bhrgcom:layer&gt;
+                &lt;bhrgcom:Layer gml:id=&quot;BRO_0009&quot;&gt;
+                  &lt;bhrgcom:upperBoundary uom=&quot;m&quot;&gt;2.000&lt;/bhrgcom:upperBoundary&gt;
+                  &lt;bhrgcom:upperBoundaryDetermination codeSpace=&quot;urn:bro:bhrg:BoundaryPositioningMethod&quot;&gt;onbekend&lt;/bhrgcom:upperBoundaryDetermination&gt;
+                  &lt;bhrgcom:lowerBoundary uom=&quot;m&quot;&gt;2.500&lt;/bhrgcom:lowerBoundary&gt;
+                  &lt;bhrgcom:lowerBoundaryDetermination codeSpace=&quot;urn:bro:bhrg:BoundaryPositioningMethod&quot;&gt;onbekend&lt;/bhrgcom:lowerBoundaryDetermination&gt;
+                  &lt;bhrgcom:anthropogenic&gt;onbekend&lt;/bhrgcom:anthropogenic&gt;
+                  &lt;bhrgcom:rooted&gt;onbekend&lt;/bhrgcom:rooted&gt;
+                  &lt;bhrgcom:soil&gt;
+                    &lt;bhrgcom:soilNameNEN5104 codeSpace=&quot;urn:bro:bhrg:SoilNameNEN5104&quot;&gt;sterkZandigeKlei&lt;/bhrgcom:soilNameNEN5104&gt;
+                    &lt;bhrgcom:gravelContentClass codeSpace=&quot;urn:bro:bhrg:GravelContentClass&quot;&gt;onbekend&lt;/bhrgcom:gravelContentClass&gt;
+                    &lt;bhrgcom:organicMatterContentClassNEN5104 codeSpace=&quot;urn:bro:bhrg:OrganicMatterContentClassNEN5104&quot;&gt;zwakHumeus&lt;/bhrgcom:organicMatterContentClassNEN5104&gt;
+                    &lt;bhrgcom:carbonateContentClass codeSpace=&quot;urn:bro:bhrg:CarbonateContentClass&quot;&gt;onbekend&lt;/bhrgcom:carbonateContentClass&gt;
+                    &lt;bhrgcom:colour codeSpace=&quot;urn:bro:bhrg:Colour&quot;&gt;onbekend&lt;/bhrgcom:colour&gt;
+                  &lt;/bhrgcom:soil&gt;
+                &lt;/bhrgcom:Layer&gt;
+              &lt;/bhrgcom:layer&gt;
+              &lt;bhrgcom:layer&gt;
+                &lt;bhrgcom:Layer gml:id=&quot;BRO_0010&quot;&gt;
+                  &lt;bhrgcom:upperBoundary uom=&quot;m&quot;&gt;2.500&lt;/bhrgcom:upperBoundary&gt;
+                  &lt;bhrgcom:upperBoundaryDetermination codeSpace=&quot;urn:bro:bhrg:BoundaryPositioningMethod&quot;&gt;onbekend&lt;/bhrgcom:upperBoundaryDetermination&gt;
+                  &lt;bhrgcom:lowerBoundary uom=&quot;m&quot;&gt;3.000&lt;/bhrgcom:lowerBoundary&gt;
+                  &lt;bhrgcom:lowerBoundaryDetermination codeSpace=&quot;urn:bro:bhrg:BoundaryPositioningMethod&quot;&gt;voorbepaald&lt;/bhrgcom:lowerBoundaryDetermination&gt;
+                  &lt;bhrgcom:anthropogenic&gt;onbekend&lt;/bhrgcom:anthropogenic&gt;
+                  &lt;bhrgcom:rooted&gt;onbekend&lt;/bhrgcom:rooted&gt;
+                  &lt;bhrgcom:soil&gt;
+                    &lt;bhrgcom:soilNameNEN5104 codeSpace=&quot;urn:bro:bhrg:SoilNameNEN5104&quot;&gt;zwakSiltigZand&lt;/bhrgcom:soilNameNEN5104&gt;
+                    &lt;bhrgcom:gravelContentClass codeSpace=&quot;urn:bro:bhrg:GravelContentClass&quot;&gt;onbekend&lt;/bhrgcom:gravelContentClass&gt;
+                    &lt;bhrgcom:organicMatterContentClassNEN5104 codeSpace=&quot;urn:bro:bhrg:OrganicMatterContentClassNEN5104&quot;&gt;onbekend&lt;/bhrgcom:organicMatterContentClassNEN5104&gt;
+                    &lt;bhrgcom:carbonateContentClass codeSpace=&quot;urn:bro:bhrg:CarbonateContentClass&quot;&gt;onbekend&lt;/bhrgcom:carbonateContentClass&gt;
+                    &lt;bhrgcom:colour codeSpace=&quot;urn:bro:bhrg:Colour&quot;&gt;onbekend&lt;/bhrgcom:colour&gt;
+                    &lt;bhrgcom:sandFraction&gt;
+                      &lt;bhrgcom:sandMedianClass codeSpace=&quot;urn:bro:bhrg:SandMedianClass&quot;&gt;matigFijnNEN5104&lt;/bhrgcom:sandMedianClass&gt;
+                      &lt;bhrgcom:sandSorting codeSpace=&quot;urn:bro:bhrg:SandSorting&quot;&gt;onbekend&lt;/bhrgcom:sandSorting&gt;
+                    &lt;/bhrgcom:sandFraction&gt;
+                  &lt;/bhrgcom:soil&gt;
+                &lt;/bhrgcom:Layer&gt;
+              &lt;/bhrgcom:layer&gt;
+            &lt;/bhrgcom:DescriptiveBoreholeLog&gt;
+          &lt;/bhrgcom:descriptiveBoreholeLog&gt;
+        &lt;/bhrgcom:BoreholeSampleDescription&gt;
+      &lt;/boreholeSampleDescription&gt;
+    &lt;/BHR_G_O&gt;
+  &lt;/dispatchDocument&gt;
+&lt;/dispatchDataResponse&gt;
+</pre></div>
+</div>
+</div>
+</div>
+<p>By inspecting the XML tree we can see where specific elements can be found and how these relate to the “xpath” keys in the schema. The indentation level of the XML tree represents the hierarchy of so-called “elements” and “child-elements”.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">geost.read_bhrg</span></code> function begins searching for the data from the element <code class="docutils literal notranslate"><span class="pre">&lt;dispatchDocument&gt;</span></code> because the schema defined this as the “payload_root”. This element can contain one or more child-elements which hold the actual borehole data: <code class="docutils literal notranslate"><span class="pre">&lt;BHR_G_O</span> <span class="pre">gml:id=&quot;BRO_xxxx&quot;&gt;</span></code> elements. When the “payload_root” is not defined in an input schema, the function will begin to search from the root element of the tree (“dispatchDataResponse”) which may lead to unexpected results. We can see that the ID of the borehole is in the <code class="docutils literal notranslate"><span class="pre">&lt;brocom:broId&gt;</span></code> element and that this was used for the “xpath” entry to retrieve “nr” as the borehole ID.</p>
+<p>We can extend the schema to find additional header information by adding an extra dictionary with at least an “xpath” entry, and if needed, entries for “resolver” and/or “el-attr”. If we look at the complete XML tree above, we see that it has an element <code class="docutils literal notranslate"><span class="pre">&lt;registrationHistory&gt;</span></code> with child-elements containing registration dates of this BHR-G object. Let’s assume for now that this is relevant for us and therefore we want to retrieve this as extra header information. We can achieve by extending the schema like below. We will first only retrieve the data by specifying where it is in the XML tree and then read the file again.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">date</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;xpath&quot;</span><span class="p">:</span> <span class="s2">&quot;registrationHistory/brocom:registrationCompletionTime&quot;</span><span class="p">}</span>
+<span class="n">bhrg_schema</span><span class="p">[</span><span class="s2">&quot;date&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">date</span>
+
+<span class="n">bhrg</span> <span class="o">=</span> <span class="n">geost</span><span class="o">.</span><span class="n">read_bhrg</span><span class="p">(</span><span class="n">bhrg_file</span><span class="p">,</span> <span class="n">schema</span><span class="o">=</span><span class="n">bhrg_schema</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">bhrg</span><span class="o">.</span><span class="n">header</span><span class="p">)</span> <span class="c1"># Print the header to see the new date attribute</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Dtype of date: </span><span class="si">{</span><span class="n">bhrg</span><span class="o">.</span><span class="n">header</span><span class="p">[</span><span class="s1">&#39;date&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">dtypes</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span> <span class="c1"># Print the data types of the header attributes</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>PointHeader instance containing 1 objects
+                nr                          crs  surface vertical_datum   end  \
+0  BHR000000396406  urn:ogc:def:crs:EPSG::28992     0.69            NAP -2.31   
+
+                        date         x         y               geometry  
+0  2025-02-04T17:41:43+01:00  126149.0  452162.0  POINT (126149 452162)  
+
+Dtype of date: object
+</pre></div>
+</div>
+</div>
+</div>
+<section id="adding-your-own-resolver">
+<h3>Adding your own resolver<a class="headerlink" href="#adding-your-own-resolver" title="Link to this heading">#</a></h3>
+<p>Now the date has been nicely added to the header of the <code class="docutils literal notranslate"><span class="pre">BoreholeCollection</span></code>. However, the resulting datatype of the date is “object”, which is a “string-like” datatype in Pandas DataFrames. Since it is a date, it may be more convenient to directly create a “datetime” type. We can achieve this by adding our own “resolver” function that translates the text attribute of the date element we retrieved into a datetime type. Let’s write our helper function and update the schema accordingly.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">to_datetime</span><span class="p">(</span><span class="n">date_str</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Convert a date string to a pandas datetime object.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">date_str</span><span class="p">)</span>
+
+
+<span class="n">date</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;xpath&quot;</span><span class="p">:</span> <span class="s2">&quot;registrationHistory/brocom:registrationCompletionTime&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;resolver&quot;</span><span class="p">:</span> <span class="n">to_datetime</span><span class="p">,</span>
+    <span class="s2">&quot;el-attr&quot;</span><span class="p">:</span> <span class="s2">&quot;text&quot;</span> <span class="c1"># This ensures we use the text content of the element</span>
+<span class="p">}</span>
+<span class="n">bhrg_schema</span><span class="p">[</span><span class="s2">&quot;date&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">date</span>
+
+<span class="n">bhrg</span> <span class="o">=</span> <span class="n">geost</span><span class="o">.</span><span class="n">read_bhrg</span><span class="p">(</span><span class="n">bhrg_file</span><span class="p">,</span> <span class="n">schema</span><span class="o">=</span><span class="n">bhrg_schema</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="n">bhrg</span><span class="o">.</span><span class="n">header</span><span class="p">)</span> <span class="c1"># Print the header to see the new date attribute</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Dtype of date: </span><span class="si">{</span><span class="n">bhrg</span><span class="o">.</span><span class="n">header</span><span class="p">[</span><span class="s1">&#39;date&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">dtypes</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span> <span class="c1"># Print the data types of the header attributes</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>PointHeader instance containing 1 objects
+                nr                          crs  surface vertical_datum   end  \
+0  BHR000000396406  urn:ogc:def:crs:EPSG::28992     0.69            NAP -2.31   
+
+                       date         x         y               geometry  
+0 2025-02-04 17:41:43+01:00  126149.0  452162.0  POINT (126149 452162)  
+
+Dtype of date: datetime64[ns, UTC+01:00]
+</pre></div>
+</div>
+</div>
+</div>
+<p>Now the datatype is “datetime64[ns, UTC+01:00]” which would be more convenient in operations that involve date selections for example. Off course, changing the dataype of date could have been done in other ways, without adding a resolver, but in some cases the data in elements needs to be processed in too specific ways that adding our resolvers is necessary.</p>
+</section>
+</section>
+<section id="very-specific-needs">
+<h2>Very specific needs<a class="headerlink" href="#very-specific-needs" title="Link to this heading">#</a></h2>
+<p>Sometimes there may be purposes where the needs become too specific, and GeoST cannot load the data into <code class="docutils literal notranslate"><span class="pre">Collection</span></code> objects anymore. This may occur when schemas become too specific, for example with resolvers that return too difficult data structures that cannot be easily added as rows in DataFrames. This is not immediately a problem because GeoST still provides functionality to parse the XML files, however, this does not directly result in a <code class="docutils literal notranslate"><span class="pre">Collection</span></code> object but returns a dictionary with the retrieved data according to the schema.</p>
+<p>Let’s assume for now that the <code class="docutils literal notranslate"><span class="pre">bhrg_schema</span></code> has become too specific and the normal reader functions no longer are sufficient to use. Below shows how you can still use GeoST to retrieve the data for further use in your own application or continue to process it into something that is compatible with GeoST objects again.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">data</span> <span class="o">=</span> <span class="n">xml</span><span class="o">.</span><span class="n">read_bhrg</span><span class="p">(</span><span class="n">bhrg_file</span><span class="p">,</span> <span class="n">schema</span><span class="o">=</span><span class="n">bhrg_schema</span><span class="p">)</span> <span class="c1"># bhrg_schema is now our &quot;too specific&quot; schema</span>
+<span class="n">pprint</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">sort_dicts</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>{&#39;nr&#39;: &#39;BHR000000396406&#39;,
+ &#39;location&#39;: (126149.0, 452162.0),
+ &#39;crs&#39;: &#39;urn:ogc:def:crs:EPSG::28992&#39;,
+ &#39;surface&#39;: 0.69,
+ &#39;vertical_datum&#39;: &#39;NAP&#39;,
+ &#39;end&#39;: 3.0,
+ &#39;data&#39;: defaultdict(&lt;class &#39;list&#39;&gt;,
+                     {&#39;upperBoundary&#39;: [&#39;0.000&#39;,
+                                        &#39;0.250&#39;,
+                                        &#39;1.600&#39;,
+                                        &#39;2.000&#39;,
+                                        &#39;2.500&#39;],
+                      &#39;lowerBoundary&#39;: [&#39;0.250&#39;,
+                                        &#39;1.600&#39;,
+                                        &#39;2.000&#39;,
+                                        &#39;2.500&#39;,
+                                        &#39;3.000&#39;],
+                      &#39;soilNameNEN5104&#39;: [&#39;zwakZandigeKlei&#39;,
+                                          &#39;sterkSiltigeKlei&#39;,
+                                          &#39;zwakZandigeKlei&#39;,
+                                          &#39;sterkZandigeKlei&#39;,
+                                          &#39;zwakSiltigZand&#39;],
+                      &#39;gravelContentClass&#39;: [&#39;onbekend&#39;,
+                                             &#39;onbekend&#39;,
+                                             &#39;onbekend&#39;,
+                                             &#39;onbekend&#39;,
+                                             &#39;onbekend&#39;],
+                      &#39;carbonateContentClass&#39;: [&#39;onbekend&#39;,
+                                                &#39;onbekend&#39;,
+                                                &#39;onbekend&#39;,
+                                                &#39;onbekend&#39;,
+                                                &#39;onbekend&#39;],
+                      &#39;colour&#39;: [&#39;onbekend&#39;,
+                                 &#39;onbekend&#39;,
+                                 &#39;onbekend&#39;,
+                                 &#39;onbekend&#39;,
+                                 &#39;onbekend&#39;]}),
+ &#39;date&#39;: Timestamp(&#39;2025-02-04 17:41:43+0100&#39;, tz=&#39;UTC+01:00&#39;)}
+</pre></div>
+</div>
+</div>
+</div>
+<p>As you can see, still a clean dictionary is returned with data for each key you have added to your schema and you would still be able to continue working with the data. As said in the beginning of this tutorial, reading XML files for the other data sources (BHR-GT, BHR-P, CPT and SFR) works exactly the same way and has the same possibilities.</p>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#reading-with-default-schema">Reading with default schema</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#schema">Schema</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#retrieving-additional-attributes">Retrieving additional attributes</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#extending-the-schema">Extending the schema</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#adding-your-own-resolver">Adding your own resolver</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#very-specific-needs">Very specific needs</a></li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/examples/read_xml.ipynb.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2025, Deltares.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.2.3.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

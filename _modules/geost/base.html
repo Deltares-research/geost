@@ -31,9 +31,9 @@
 
     <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="../../_static/mystnb.8ecb98da25f57f5357bf6f572d296f466b2cfe2517ffebfabe82451661e28f02.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=e0654d5c" />
+    <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=70497fbb" />
     <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
-    <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=e0654d5c" />
+    <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=70497fbb" />
   
   <!-- So that users can add custom icons -->
   <script src="../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
@@ -468,16 +468,9 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pyproj</span><span class="w"> </span><span class="kn">import</span> <span class="n">CRS</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">shapely.geometry</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
-    <span class="n">LineString</span><span class="p">,</span>
-    <span class="n">MultiLineString</span><span class="p">,</span>
-    <span class="n">MultiPoint</span><span class="p">,</span>
-    <span class="n">MultiPolygon</span><span class="p">,</span>
-    <span class="n">Point</span><span class="p">,</span>
-    <span class="n">Polygon</span><span class="p">,</span>
-<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">shapely</span><span class="w"> </span><span class="kn">import</span> <span class="n">geometry</span> <span class="k">as</span> <span class="n">gmt</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">geost</span><span class="w"> </span><span class="kn">import</span> <span class="n">spatial</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">geost</span><span class="w"> </span><span class="kn">import</span> <span class="n">config</span><span class="p">,</span> <span class="n">spatial</span><span class="p">,</span> <span class="n">utils</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">geost._warnings</span><span class="w"> </span><span class="kn">import</span> <span class="n">AlignmentWarning</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">geost.abstract_classes</span><span class="w"> </span><span class="kn">import</span> <span class="n">AbstractCollection</span><span class="p">,</span> <span class="n">AbstractData</span><span class="p">,</span> <span class="n">AbstractHeader</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">geost.analysis</span><span class="w"> </span><span class="kn">import</span> <span class="n">cumulative_thickness</span>
@@ -491,21 +484,12 @@
     <span class="n">horizontal_reference_transformer</span><span class="p">,</span>
     <span class="n">vertical_reference_transformer</span><span class="p">,</span>
 <span class="p">)</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">geost.spatial</span><span class="w"> </span><span class="kn">import</span> <span class="n">check_gdf_instance</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">geost.utils</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
-    <span class="n">_to_geopackage</span><span class="p">,</span>
-    <span class="n">dataframe_to_geodataframe</span><span class="p">,</span>
-    <span class="n">save_pickle</span><span class="p">,</span>
-<span class="p">)</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">geost.validate.decorators</span><span class="w"> </span><span class="kn">import</span> <span class="n">validate_data</span><span class="p">,</span> <span class="n">validate_header</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">geost.validation</span><span class="w"> </span><span class="kn">import</span> <span class="n">safe_validate</span><span class="p">,</span> <span class="n">schemas</span>
 
 <span class="nb">type</span> <span class="n">DataObject</span> <span class="o">=</span> <span class="n">DiscreteData</span> <span class="o">|</span> <span class="n">LayeredData</span>
 <span class="nb">type</span> <span class="n">HeaderObject</span> <span class="o">=</span> <span class="n">LineHeader</span> <span class="o">|</span> <span class="n">PointHeader</span>
 <span class="nb">type</span> <span class="n">Coordinate</span> <span class="o">=</span> <span class="nb">int</span> <span class="o">|</span> <span class="nb">float</span>
-
-<span class="nb">type</span> <span class="n">PointGeometries</span> <span class="o">=</span> <span class="n">Point</span> <span class="o">|</span> <span class="n">MultiPoint</span> <span class="o">|</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">Point</span><span class="p">]</span>
-<span class="nb">type</span> <span class="n">LineGeometries</span> <span class="o">=</span> <span class="n">LineString</span> <span class="o">|</span> <span class="n">MultiLineString</span> <span class="o">|</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">LineString</span><span class="p">]</span>
-<span class="nb">type</span> <span class="n">PolygonGeometries</span> <span class="o">=</span> <span class="n">Polygon</span> <span class="o">|</span> <span class="n">MultiPolygon</span> <span class="o">|</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">Polygon</span><span class="p">]</span>
+<span class="nb">type</span> <span class="n">GeometryType</span> <span class="o">=</span> <span class="n">gmt</span><span class="o">.</span><span class="n">base</span><span class="o">.</span><span class="n">BaseGeometry</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="n">gmt</span><span class="o">.</span><span class="n">base</span><span class="o">.</span><span class="n">BaseGeometry</span><span class="p">]</span>
 
 
 <div class="viewcode-block" id="PointHeader">
@@ -555,9 +539,8 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__vertical_reference</span>
 
     <span class="nd">@gdf</span><span class="o">.</span><span class="n">setter</span>
-    <span class="nd">@validate_header</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">gdf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">gdf</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_gdf</span> <span class="o">=</span> <span class="n">gdf</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_gdf</span> <span class="o">=</span> <span class="n">safe_validate</span><span class="p">(</span><span class="n">schemas</span><span class="o">.</span><span class="n">pointheader</span><span class="p">,</span> <span class="n">gdf</span><span class="p">)</span>
 
 <div class="viewcode-block" id="PointHeader.change_horizontal_reference">
 <a class="viewcode-back" href="../../api_reference/generated/geost.base.PointHeader.change_horizontal_reference.html#geost.base.PointHeader.change_horizontal_reference">[docs]</a>
@@ -734,7 +717,7 @@
 <a class="viewcode-back" href="../../api_reference/generated/geost.base.PointHeader.select_with_points.html#geost.base.PointHeader.select_with_points">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">select_with_points</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
-        <span class="n">points</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span> <span class="o">|</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span> <span class="o">|</span> <span class="n">PointGeometries</span><span class="p">,</span>
+        <span class="n">points</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span> <span class="o">|</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span> <span class="o">|</span> <span class="n">GeometryType</span><span class="p">,</span>
         <span class="n">buffer</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="nb">int</span><span class="p">,</span>
         <span class="n">invert</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="p">):</span>
@@ -743,7 +726,7 @@
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        points : str | Path | gpd.GeoDataFrame | PointGeometries</span>
+<span class="sd">        points : str | Path | gpd.GeoDataFrame | GeometryType</span>
 <span class="sd">            Any type of point geometries that can be used for the selection: GeoDataFrame</span>
 <span class="sd">            containing points or filepath to a shapefile like file, or Shapely Point,</span>
 <span class="sd">            MultiPoint or list containing Point objects.</span>
@@ -759,11 +742,6 @@
 <span class="sd">            geometries.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">points</span><span class="p">,</span> <span class="p">(</span><span class="n">Point</span><span class="p">,</span> <span class="n">MultiPoint</span><span class="p">)):</span>
-            <span class="n">points</span> <span class="o">=</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">(</span><span class="n">geometry</span><span class="o">=</span><span class="p">[</span><span class="n">points</span><span class="p">])</span>
-        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">points</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">points</span><span class="p">,</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">):</span>
-            <span class="n">points</span> <span class="o">=</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">(</span><span class="n">geometry</span><span class="o">=</span><span class="n">points</span><span class="p">)</span>
-
         <span class="n">gdf_selected</span> <span class="o">=</span> <span class="n">spatial</span><span class="o">.</span><span class="n">select_points_near_points</span><span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">gdf</span><span class="p">,</span> <span class="n">points</span><span class="p">,</span> <span class="n">buffer</span><span class="p">,</span> <span class="n">invert</span><span class="o">=</span><span class="n">invert</span>
         <span class="p">)</span>
@@ -774,7 +752,7 @@
 <a class="viewcode-back" href="../../api_reference/generated/geost.base.PointHeader.select_with_lines.html#geost.base.PointHeader.select_with_lines">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">select_with_lines</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
-        <span class="n">lines</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span> <span class="o">|</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span> <span class="o">|</span> <span class="n">LineGeometries</span><span class="p">,</span>
+        <span class="n">lines</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span> <span class="o">|</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span> <span class="o">|</span> <span class="n">GeometryType</span><span class="p">,</span>
         <span class="n">buffer</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="nb">int</span><span class="p">,</span>
         <span class="n">invert</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="p">):</span>
@@ -783,7 +761,7 @@
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        lines : str | Path | gpd.GeoDataFrame | LineGeometries</span>
+<span class="sd">        lines : str | Path | gpd.GeoDataFrame | GeometryType</span>
 <span class="sd">            Any type of line geometries that can be used for the selection: GeoDataFrame</span>
 <span class="sd">            containing lines or filepath to a shapefile like file, or Shapely LineString,</span>
 <span class="sd">            MultiLineString or list containing LineString objects.</span>
@@ -799,11 +777,6 @@
 <span class="sd">            geometries.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">lines</span><span class="p">,</span> <span class="p">(</span><span class="n">LineString</span><span class="p">,</span> <span class="n">MultiLineString</span><span class="p">)):</span>
-            <span class="n">lines</span> <span class="o">=</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">(</span><span class="n">geometry</span><span class="o">=</span><span class="p">[</span><span class="n">lines</span><span class="p">])</span>
-        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">lines</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">lines</span><span class="p">,</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">):</span>
-            <span class="n">lines</span> <span class="o">=</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">(</span><span class="n">geometry</span><span class="o">=</span><span class="n">lines</span><span class="p">)</span>
-
         <span class="n">gdf_selected</span> <span class="o">=</span> <span class="n">spatial</span><span class="o">.</span><span class="n">select_points_near_lines</span><span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">gdf</span><span class="p">,</span> <span class="n">lines</span><span class="p">,</span> <span class="n">buffer</span><span class="p">,</span> <span class="n">invert</span><span class="o">=</span><span class="n">invert</span>
         <span class="p">)</span>
@@ -814,7 +787,7 @@
 <a class="viewcode-back" href="../../api_reference/generated/geost.base.PointHeader.select_within_polygons.html#geost.base.PointHeader.select_within_polygons">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">select_within_polygons</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
-        <span class="n">polygons</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span> <span class="o">|</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span> <span class="o">|</span> <span class="n">PolygonGeometries</span><span class="p">,</span>
+        <span class="n">polygons</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span> <span class="o">|</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span> <span class="o">|</span> <span class="n">GeometryType</span><span class="p">,</span>
         <span class="n">buffer</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
         <span class="n">invert</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="p">):</span>
@@ -823,7 +796,7 @@
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        polygons : str | Path | gpd.GeoDataFrame | PolygonGeometries</span>
+<span class="sd">        polygons : str | Path | gpd.GeoDataFrame | GeometryType</span>
 <span class="sd">            Any type of polygon geometries that can be used for the selection: GeoDataFrame</span>
 <span class="sd">            containing polygons or filepath to a shapefile like file, or Shapely Polygon,</span>
 <span class="sd">            MultiPolygon or list containing Polygon objects.</span>
@@ -840,13 +813,6 @@
 <span class="sd">            geometries.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">polygons</span><span class="p">,</span> <span class="p">(</span><span class="n">Polygon</span><span class="p">,</span> <span class="n">MultiPolygon</span><span class="p">)):</span>
-            <span class="n">polygons</span> <span class="o">=</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">(</span><span class="n">geometry</span><span class="o">=</span><span class="p">[</span><span class="n">polygons</span><span class="p">])</span>
-        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">polygons</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span>
-            <span class="n">polygons</span><span class="p">,</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span>
-        <span class="p">):</span>
-            <span class="n">polygons</span> <span class="o">=</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">(</span><span class="n">geometry</span><span class="o">=</span><span class="n">polygons</span><span class="p">)</span>
-
         <span class="n">gdf_selected</span> <span class="o">=</span> <span class="n">spatial</span><span class="o">.</span><span class="n">select_points_within_polygons</span><span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">gdf</span><span class="p">,</span> <span class="n">polygons</span><span class="p">,</span> <span class="n">buffer</span><span class="p">,</span> <span class="n">invert</span><span class="o">=</span><span class="n">invert</span>
         <span class="p">)</span>
@@ -960,7 +926,7 @@
 <span class="sd">            Borehole ids and the polygon label they are in. If include_in_header = True,</span>
 <span class="sd">            a column containing the generated data will be added inplace.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">polygon_gdf</span> <span class="o">=</span> <span class="n">check_gdf_instance</span><span class="p">(</span><span class="n">polygon_gdf</span><span class="p">)</span>
+        <span class="n">polygon_gdf</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">check_geometry_instance</span><span class="p">(</span><span class="n">polygon_gdf</span><span class="p">)</span>
         <span class="n">polygon_gdf</span> <span class="o">=</span> <span class="n">spatial</span><span class="o">.</span><span class="n">check_and_coerce_crs</span><span class="p">(</span>
             <span class="n">polygon_gdf</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">horizontal_reference</span>
         <span class="p">)</span>
@@ -1012,9 +978,8 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__vertical_reference</span>
 
     <span class="nd">@gdf</span><span class="o">.</span><span class="n">setter</span>
-    <span class="nd">@validate_header</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">gdf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">gdf</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_gdf</span> <span class="o">=</span> <span class="n">gdf</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_gdf</span> <span class="o">=</span> <span class="n">safe_validate</span><span class="p">(</span><span class="n">schemas</span><span class="o">.</span><span class="n">lineheader</span><span class="p">,</span> <span class="n">gdf</span><span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">change_horizontal_reference</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">to_epsg</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">int</span> <span class="o">|</span> <span class="n">CRS</span><span class="p">):</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;Add function logic&quot;</span><span class="p">)</span>
@@ -1102,12 +1067,15 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__datatype</span>
 
     <span class="nd">@df</span><span class="o">.</span><span class="n">setter</span>
-    <span class="nd">@validate_data</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">df</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">df</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Underlying pandas.DataFrame</span>
+<span class="sd">        Underlying pandas.DataFrame, validated upon setting the attr.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_df</span> <span class="o">=</span> <span class="n">df</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_df</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">safe_validate</span><span class="p">(</span><span class="n">schemas</span><span class="o">.</span><span class="n">layerdata_inclined</span><span class="p">,</span> <span class="n">df</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">has_inclined</span>
+            <span class="k">else</span> <span class="n">safe_validate</span><span class="p">(</span><span class="n">schemas</span><span class="o">.</span><span class="n">layerdata</span><span class="p">,</span> <span class="n">df</span><span class="p">)</span>
+        <span class="p">)</span>
 
     <span class="nd">@staticmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_check_correct_instance</span><span class="p">(</span><span class="n">selection_values</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Iterable</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterable</span><span class="p">:</span>
@@ -1149,7 +1117,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">header_columns</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;nr&quot;</span><span class="p">,</span> <span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="s2">&quot;y&quot;</span><span class="p">,</span> <span class="s2">&quot;surface&quot;</span><span class="p">,</span> <span class="s2">&quot;end&quot;</span><span class="p">]</span>
         <span class="n">header</span> <span class="o">=</span> <span class="bp">self</span><span class="p">[</span><span class="n">header_columns</span><span class="p">]</span><span class="o">.</span><span class="n">drop_duplicates</span><span class="p">(</span><span class="s2">&quot;nr&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-        <span class="n">header</span> <span class="o">=</span> <span class="n">dataframe_to_geodataframe</span><span class="p">(</span><span class="n">header</span><span class="p">)</span><span class="o">.</span><span class="n">set_crs</span><span class="p">(</span><span class="n">horizontal_reference</span><span class="p">)</span>
+        <span class="n">header</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">dataframe_to_geodataframe</span><span class="p">(</span><span class="n">header</span><span class="p">)</span><span class="o">.</span><span class="n">set_crs</span><span class="p">(</span><span class="n">horizontal_reference</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">PointHeader</span><span class="p">(</span><span class="n">header</span><span class="p">,</span> <span class="n">vertical_reference</span><span class="p">)</span></div>
 
 
@@ -1643,7 +1611,7 @@
         <span class="n">dftgeodata</span> <span class="o">=</span> <span class="n">export_to_dftgeodata</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">columns</span><span class="p">,</span> <span class="n">encode</span><span class="o">=</span><span class="n">encode</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">outfile</span><span class="p">:</span>
-            <span class="n">save_pickle</span><span class="p">(</span><span class="n">dftgeodata</span><span class="p">,</span> <span class="n">outfile</span><span class="p">)</span>
+            <span class="n">utils</span><span class="o">.</span><span class="n">save_pickle</span><span class="p">(</span><span class="n">dftgeodata</span><span class="p">,</span> <span class="n">outfile</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">dftgeodata</span></div>
 
@@ -1688,7 +1656,7 @@
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">has_inclined</span><span class="p">:</span>
             <span class="n">geometries</span> <span class="o">=</span> <span class="p">[</span>
-                <span class="n">LineString</span><span class="p">([[</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">top</span> <span class="o">+</span> <span class="mf">0.01</span><span class="p">],</span> <span class="p">[</span><span class="n">x_bot</span><span class="p">,</span> <span class="n">y_bot</span><span class="p">,</span> <span class="n">bottom</span> <span class="o">+</span> <span class="mf">0.01</span><span class="p">]])</span>
+                <span class="n">gmt</span><span class="o">.</span><span class="n">LineString</span><span class="p">([[</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">top</span> <span class="o">+</span> <span class="mf">0.01</span><span class="p">],</span> <span class="p">[</span><span class="n">x_bot</span><span class="p">,</span> <span class="n">y_bot</span><span class="p">,</span> <span class="n">bottom</span> <span class="o">+</span> <span class="mf">0.01</span><span class="p">]])</span>
                 <span class="k">for</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">x_bot</span><span class="p">,</span> <span class="n">y_bot</span><span class="p">,</span> <span class="n">top</span><span class="p">,</span> <span class="n">bottom</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span>
                     <span class="n">data</span><span class="p">[</span><span class="s2">&quot;x&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">),</span>
                     <span class="n">data</span><span class="p">[</span><span class="s2">&quot;y&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">),</span>
@@ -1700,7 +1668,7 @@
             <span class="p">]</span>
         <span class="k">else</span><span class="p">:</span>  <span class="c1"># NOTE: Doesn&#39;t it need to be &quot;top - 0.01&quot; to create overlap?</span>
             <span class="n">geometries</span> <span class="o">=</span> <span class="p">[</span>
-                <span class="n">LineString</span><span class="p">([[</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">top</span> <span class="o">+</span> <span class="mf">0.01</span><span class="p">],</span> <span class="p">[</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">bottom</span> <span class="o">+</span> <span class="mf">0.01</span><span class="p">]])</span>
+                <span class="n">gmt</span><span class="o">.</span><span class="n">LineString</span><span class="p">([[</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">top</span> <span class="o">+</span> <span class="mf">0.01</span><span class="p">],</span> <span class="p">[</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">bottom</span> <span class="o">+</span> <span class="mf">0.01</span><span class="p">]])</span>
                 <span class="k">for</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">top</span><span class="p">,</span> <span class="n">bottom</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span>
                     <span class="n">data</span><span class="p">[</span><span class="s2">&quot;x&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">),</span>
                     <span class="n">data</span><span class="p">[</span><span class="s2">&quot;y&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">),</span>
@@ -1828,9 +1796,12 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_df</span>
 
     <span class="nd">@df</span><span class="o">.</span><span class="n">setter</span>
-    <span class="nd">@validate_data</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">df</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">df</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_df</span> <span class="o">=</span> <span class="n">df</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_df</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">safe_validate</span><span class="p">(</span><span class="n">schemas</span><span class="o">.</span><span class="n">discretedata_inclined</span><span class="p">,</span> <span class="n">df</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">has_inclined</span>
+            <span class="k">else</span> <span class="n">safe_validate</span><span class="p">(</span><span class="n">schemas</span><span class="o">.</span><span class="n">discretedata</span><span class="p">,</span> <span class="n">df</span><span class="p">)</span>
+        <span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span>
@@ -1879,7 +1850,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">header_columns</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;nr&quot;</span><span class="p">,</span> <span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="s2">&quot;y&quot;</span><span class="p">,</span> <span class="s2">&quot;surface&quot;</span><span class="p">,</span> <span class="s2">&quot;end&quot;</span><span class="p">]</span>
         <span class="n">header</span> <span class="o">=</span> <span class="bp">self</span><span class="p">[</span><span class="n">header_columns</span><span class="p">]</span><span class="o">.</span><span class="n">drop_duplicates</span><span class="p">(</span><span class="s2">&quot;nr&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-        <span class="n">header</span> <span class="o">=</span> <span class="n">dataframe_to_geodataframe</span><span class="p">(</span><span class="n">header</span><span class="p">)</span><span class="o">.</span><span class="n">set_crs</span><span class="p">(</span><span class="n">horizontal_reference</span><span class="p">)</span>
+        <span class="n">header</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">dataframe_to_geodataframe</span><span class="p">(</span><span class="n">header</span><span class="p">)</span><span class="o">.</span><span class="n">set_crs</span><span class="p">(</span><span class="n">horizontal_reference</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">PointHeader</span><span class="p">(</span><span class="n">header</span><span class="p">,</span> <span class="n">vertical_reference</span><span class="p">)</span></div>
 
 
@@ -2402,18 +2373,29 @@
 <span class="sd">        This check is performed everytime the object is instantiated AND if any change</span>
 <span class="sd">        is made to either the header or data attributes (see their respective setters).</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">warning_given</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;_header&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;_data&quot;</span><span class="p">):</span>
             <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="o">~</span><span class="bp">self</span><span class="o">.</span><span class="n">header</span><span class="p">[</span><span class="s2">&quot;nr&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;nr&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">())):</span>
                 <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
-                    <span class="s2">&quot;Header covers more/other objects than present in the data table, &quot;</span>
+                    <span class="s2">&quot;Header covers more/other objects than present in the data table. &quot;</span>
                     <span class="s2">&quot;consider running the method &#39;reset_header&#39; to update the header.&quot;</span><span class="p">,</span>
-                    <span class="n">AlignmentWarning</span><span class="p">,</span>
+                    <span class="n">category</span><span class="o">=</span><span class="n">AlignmentWarning</span><span class="p">,</span>
                 <span class="p">)</span>
+                <span class="n">warning_given</span> <span class="o">=</span> <span class="kc">True</span>
+
             <span class="k">if</span> <span class="ow">not</span> <span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;nr&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">())</span><span class="o">.</span><span class="n">issubset</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">header</span><span class="p">[</span><span class="s2">&quot;nr&quot;</span><span class="p">])):</span>
                 <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
-                    <span class="s2">&quot;Header does not cover all unique objects in data, consider &quot;</span>
-                    <span class="s2">&quot;running the method &#39;reset_header&#39; to update the header.&quot;</span><span class="p">,</span>
-                    <span class="n">AlignmentWarning</span><span class="p">,</span>
+                    <span class="s2">&quot;Header does not cover all unique objects in data. &quot;</span>
+                    <span class="s2">&quot;consider running the method &#39;reset_header&#39; to update the header.&quot;</span><span class="p">,</span>
+                    <span class="n">category</span><span class="o">=</span><span class="n">AlignmentWarning</span><span class="p">,</span>
+                <span class="p">)</span>
+                <span class="n">warning_given</span> <span class="o">=</span> <span class="kc">True</span>
+
+            <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">validation</span><span class="o">.</span><span class="n">AUTO_ALIGN</span> <span class="ow">and</span> <span class="n">warning_given</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">reset_header</span><span class="p">()</span>
+                <span class="nb">print</span><span class="p">(</span>
+                    <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">NOTE: Header has been reset to align with data because AUTO_ALIGN&quot;</span>
+                    <span class="s2">&quot; is enabled in the GeoST configuration.&quot;</span><span class="p">,</span>
                 <span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">select_within_bbox</span><span class="p">(</span>
@@ -2456,7 +2438,7 @@
 
     <span class="k">def</span><span class="w"> </span><span class="nf">select_with_points</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
-        <span class="n">points</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span> <span class="o">|</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span> <span class="o">|</span> <span class="n">PointGeometries</span><span class="p">,</span>
+        <span class="n">points</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span> <span class="o">|</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span> <span class="o">|</span> <span class="n">GeometryType</span><span class="p">,</span>
         <span class="n">buffer</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="nb">int</span><span class="p">,</span>
         <span class="n">invert</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="p">):</span>
@@ -2465,7 +2447,7 @@
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        points : str | Path | gpd.GeoDataFrame | PointGeometries</span>
+<span class="sd">        points : str | Path | gpd.GeoDataFrame | GeometryType</span>
 <span class="sd">            Any type of point geometries that can be used for the selection: GeoDataFrame</span>
 <span class="sd">            containing points or filepath to a shapefile like file, or Shapely Point,</span>
 <span class="sd">            MultiPoint or list containing Point objects.</span>
@@ -2488,7 +2470,7 @@
 
     <span class="k">def</span><span class="w"> </span><span class="nf">select_with_lines</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
-        <span class="n">lines</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span> <span class="o">|</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span> <span class="o">|</span> <span class="n">LineGeometries</span><span class="p">,</span>
+        <span class="n">lines</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span> <span class="o">|</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span> <span class="o">|</span> <span class="n">GeometryType</span><span class="p">,</span>
         <span class="n">buffer</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="nb">int</span><span class="p">,</span>
         <span class="n">invert</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="p">):</span>
@@ -2497,7 +2479,7 @@
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        lines : str | Path | gpd.GeoDataFrame | LineGeometries</span>
+<span class="sd">        lines : str | Path | gpd.GeoDataFrame | GeometryType</span>
 <span class="sd">            Any type of line geometries that can be used for the selection: GeoDataFrame</span>
 <span class="sd">            containing lines or filepath to a shapefile like file, or Shapely LineString,</span>
 <span class="sd">            MultiLineString or list containing LineString objects.</span>
@@ -2520,7 +2502,7 @@
 
     <span class="k">def</span><span class="w"> </span><span class="nf">select_within_polygons</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
-        <span class="n">polygons</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span> <span class="o">|</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span> <span class="o">|</span> <span class="n">PolygonGeometries</span><span class="p">,</span>
+        <span class="n">polygons</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span> <span class="o">|</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span> <span class="o">|</span> <span class="n">GeometryType</span><span class="p">,</span>
         <span class="n">buffer</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
         <span class="n">invert</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="p">):</span>
@@ -2891,7 +2873,7 @@
 <span class="sd">            The default is None.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">_to_geopackage</span><span class="p">(</span>
+        <span class="n">utils</span><span class="o">.</span><span class="n">_to_geopackage</span><span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">header</span><span class="o">.</span><span class="n">gdf</span><span class="p">,</span>
             <span class="n">outfile</span><span class="p">,</span>
             <span class="s2">&quot;Header&quot;</span><span class="p">,</span>
@@ -2900,7 +2882,7 @@
             <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
             <span class="n">metadata</span><span class="o">=</span><span class="n">metadata</span><span class="p">,</span>
         <span class="p">)</span>
-        <span class="n">_to_geopackage</span><span class="p">(</span>
+        <span class="n">utils</span><span class="o">.</span><span class="n">_to_geopackage</span><span class="p">(</span>
             <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">df</span><span class="p">),</span>
             <span class="n">outfile</span><span class="p">,</span>
             <span class="s2">&quot;Data&quot;</span><span class="p">,</span>
@@ -2989,7 +2971,7 @@
 <span class="sd">        &gt;&gt;&gt; collection.to_pickle(&quot;example.pkl&quot;)</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">save_pickle</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">outfile</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="n">utils</span><span class="o">.</span><span class="n">save_pickle</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">outfile</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">to_pyvista_cylinders</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -3118,6 +3100,26 @@
 <span class="sd">    data : :class:`~geost.base.LayeredData`</span>
 <span class="sd">        Instance of a data object corresponding to the header.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">add_grainsize_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sample_data</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Add grain size data to the borehole collection.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        sample_data : pd.DataFrame</span>
+<span class="sd">            DataFrame containing sample data with a column &quot;nr&quot; that contains borehole ids.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># safe_validate(DataSchemas.grainsize_data, sample_data, inplace=True)</span>
+        <span class="c1"># sample_data[&quot;nr&quot;].unique()</span>
+        <span class="c1"># warnings.warn(</span>
+        <span class="c1">#     &quot;Header covers more/other objects than present in the data table, &quot;</span>
+        <span class="c1">#     &quot;consider running the method &#39;reset_header&#39; to update the header.&quot;,</span>
+        <span class="c1">#     AlignmentWarning,</span>
+        <span class="c1"># )</span>
+        <span class="c1"># self.sample_data = sample_data</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
 
 <div class="viewcode-block" id="BoreholeCollection.get_cumulative_thickness">
 <a class="viewcode-back" href="../../api_reference/generated/geost.base.BoreholeCollection.get_cumulative_thickness.html#geost.base.BoreholeCollection.get_cumulative_thickness">[docs]</a>
@@ -3432,7 +3434,7 @@
 
   <p class="copyright">
     
-      © Copyright 2024, Deltares.
+      © Copyright 2025, Deltares.
       <br/>
     
   </p>

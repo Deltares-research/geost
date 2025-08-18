@@ -31,9 +31,9 @@
 
     <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="../../../_static/mystnb.8ecb98da25f57f5357bf6f572d296f466b2cfe2517ffebfabe82451661e28f02.css" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=e0654d5c" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=70497fbb" />
     <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-design.min.css?v=95c83b7e" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=e0654d5c" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=70497fbb" />
   
   <!-- So that users can add custom icons -->
   <script src="../../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
@@ -477,13 +477,8 @@
         <span class="s2">&quot;CPT&quot;</span><span class="p">:</span> <span class="s2">&quot;/sr/cpt/v1&quot;</span><span class="p">,</span>
         <span class="s2">&quot;BHR-P&quot;</span><span class="p">:</span> <span class="s2">&quot;/sr/bhrp/v2&quot;</span><span class="p">,</span>
         <span class="s2">&quot;BHR-GT&quot;</span><span class="p">:</span> <span class="s2">&quot;/sr/bhrgt/v2&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;BHR-G&quot;</span><span class="p">:</span> <span class="s2">&quot;/sr/bhrg/v2&quot;</span><span class="p">,</span>
-    <span class="p">}</span>
-    <span class="n">document_types</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="s2">&quot;CPT&quot;</span><span class="p">:</span> <span class="s2">&quot;CPT_C&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;BHR-P&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;BHR-GT&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;BHR-G&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;BHR-G&quot;</span><span class="p">:</span> <span class="s2">&quot;/sr/bhrg/v3&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;SFR&quot;</span><span class="p">:</span> <span class="s2">&quot;/sr/sfr/v2&quot;</span><span class="p">,</span>
     <span class="p">}</span>
 
 <div class="viewcode-block" id="BroApi.__init__">
@@ -491,7 +486,6 @@
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">server_url</span><span class="o">=</span><span class="sa">r</span><span class="s2">&quot;https://publiek.broservices.nl&quot;</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">session</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">Session</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">server_url</span> <span class="o">=</span> <span class="n">server_url</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">objects_url</span> <span class="o">=</span> <span class="s2">&quot;/objects&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">search_url</span> <span class="o">=</span> <span class="s2">&quot;/characteristics/searches&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">object_list</span> <span class="o">=</span> <span class="p">[]</span></div>
 
@@ -499,24 +493,23 @@
 <div class="viewcode-block" id="BroApi.get_objects">
 <a class="viewcode-back" href="../../../api_reference/generated/geost.bro.BroApi.get_objects.html#geost.bro.BroApi.get_objects">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_objects</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">bro_ids</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">],</span> <span class="n">object_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;CPT&quot;</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">:</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">bro_ids</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">object_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;CPT&quot;</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">bytes</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Return BRO objects as a generator containing element trees that can be parsed to</span>
-<span class="sd">        a reader.</span>
+<span class="sd">        Retrieve BRO objects via API requests to the public BRO REST-API.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        bro_ids : Union[str, Iterable]</span>
+<span class="sd">        bro_ids : str | Iterable</span>
 <span class="sd">            Single BRO ID or Iterable of BRO ID&#39;s</span>
 <span class="sd">        object_type : str, optional</span>
 <span class="sd">            BRO object type. Can be CPT (Cone penetration tests), BHR-P (Soil cores),</span>
 <span class="sd">            BHR-GT (Geotechnical cores), or BHR-G (Geological cores). By default &quot;CPT&quot;.</span>
 
-<span class="sd">        Yields</span>
-<span class="sd">        ------</span>
-<span class="sd">        lxml._Element</span>
-<span class="sd">            Element tree containing data of the requested BRO object.</span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        list[bytes]</span>
+<span class="sd">            List of bytestrings containing the XML data of the requested BRO objects.</span>
 
 <span class="sd">        Raises</span>
 <span class="sd">        ------</span>
@@ -527,21 +520,20 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">bro_ids</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
             <span class="n">bro_ids</span> <span class="o">=</span> <span class="p">[</span><span class="n">bro_ids</span><span class="p">]</span>
+
+        <span class="n">api_response</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">bro_id</span> <span class="ow">in</span> <span class="n">bro_ids</span><span class="p">:</span>
             <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">server_url</span>
-                <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">apis</span><span class="p">[</span><span class="n">object_type</span><span class="p">]</span>
-                <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">objects_url</span>
-                <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot;/</span><span class="si">{</span><span class="n">bro_id</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">server_url</span><span class="si">}{</span><span class="bp">self</span><span class="o">.</span><span class="n">apis</span><span class="p">[</span><span class="n">object_type</span><span class="p">]</span><span class="si">}</span><span class="s2">/objects/</span><span class="si">{</span><span class="n">bro_id</span><span class="si">}</span><span class="s2">&quot;</span>
             <span class="p">)</span>
             <span class="k">if</span> <span class="n">response</span><span class="o">.</span><span class="n">status_code</span> <span class="o">==</span> <span class="mi">200</span> <span class="ow">and</span> <span class="s2">&quot;rejection&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">response</span><span class="o">.</span><span class="n">text</span><span class="p">:</span>
-                <span class="n">element</span> <span class="o">=</span> <span class="n">etree</span><span class="o">.</span><span class="n">fromstring</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">))</span>
-                <span class="k">yield</span> <span class="n">element</span>
+                <span class="n">api_response</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">))</span>
             <span class="k">elif</span> <span class="n">response</span><span class="o">.</span><span class="n">status_code</span> <span class="o">!=</span> <span class="mi">200</span> <span class="ow">or</span> <span class="s2">&quot;rejection&quot;</span> <span class="ow">in</span> <span class="n">response</span><span class="o">.</span><span class="n">text</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">Warning</span><span class="p">(</span>
                     <span class="sa">f</span><span class="s2">&quot;Error </span><span class="si">{</span><span class="n">response</span><span class="o">.</span><span class="n">status_code</span><span class="si">}</span><span class="s2">: Unable to request </span><span class="si">{</span><span class="n">bro_id</span><span class="si">}</span><span class="s2"> from &quot;</span><span class="p">,</span>
                     <span class="s2">&quot;database&quot;</span><span class="p">,</span>
-                <span class="p">)</span></div>
+                <span class="p">)</span>
+        <span class="k">return</span> <span class="n">api_response</span></div>
 
 
 <div class="viewcode-block" id="BroApi.search_objects_in_bbox">
@@ -695,7 +687,7 @@
 
   <p class="copyright">
     
-      © Copyright 2024, Deltares.
+      © Copyright 2025, Deltares.
       <br/>
     
   </p>

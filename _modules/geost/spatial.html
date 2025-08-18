@@ -31,9 +31,9 @@
 
     <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="../../_static/mystnb.8ecb98da25f57f5357bf6f572d296f466b2cfe2517ffebfabe82451661e28f02.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=e0654d5c" />
+    <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=70497fbb" />
     <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
-    <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=e0654d5c" />
+    <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=70497fbb" />
   
   <!-- So that users can add custom icons -->
   <script src="../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
@@ -469,38 +469,7 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">rioxarray</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
 
-
-<span class="k">def</span><span class="w"> </span><span class="nf">check_gdf_instance</span><span class="p">(</span>
-    <span class="n">gdf_or_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span> <span class="o">|</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Check if the argument is already a geodataframe or pointing to a file</span>
-<span class="sd">    containing geometries</span>
-
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    gdf_or_path : str | Path | gpd.GeoDataFrame</span>
-<span class="sd">        The geodataframe or file that can be read and parsed to a geodataframe</span>
-
-<span class="sd">    Returns</span>
-<span class="sd">    -------</span>
-<span class="sd">    gpd.GeoDataFrame</span>
-<span class="sd">        An instance of a geopandas geodataframe</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">gdf_or_path</span><span class="p">,</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">):</span>
-        <span class="n">gdf_or_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">gdf_or_path</span><span class="p">)</span>
-        <span class="n">filetype</span> <span class="o">=</span> <span class="n">gdf_or_path</span><span class="o">.</span><span class="n">suffix</span>
-        <span class="k">if</span> <span class="n">filetype</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;.parquet&quot;</span><span class="p">,</span> <span class="s2">&quot;.geoparquet&quot;</span><span class="p">):</span>
-            <span class="n">gdf</span> <span class="o">=</span> <span class="n">gpd</span><span class="o">.</span><span class="n">read_parquet</span><span class="p">(</span><span class="n">gdf_or_path</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">gdf</span> <span class="o">=</span> <span class="n">gpd</span><span class="o">.</span><span class="n">read_file</span><span class="p">(</span><span class="n">gdf_or_path</span><span class="p">)</span>
-    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">gdf_or_path</span><span class="p">,</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">):</span>
-        <span class="n">gdf</span> <span class="o">=</span> <span class="n">gdf_or_path</span>
-
-    <span class="c1"># Make sure you don&#39;t get a view of gdf returned</span>
-    <span class="n">gdf</span> <span class="o">=</span> <span class="n">gdf</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-
-    <span class="k">return</span> <span class="n">gdf</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">geost</span><span class="w"> </span><span class="kn">import</span> <span class="n">utils</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">check_and_coerce_crs</span><span class="p">(</span><span class="n">gdf</span><span class="p">:</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">,</span> <span class="n">to_crs</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
@@ -579,7 +548,7 @@
 <span class="sd">        Geodataframe containing only selected geometries.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="c1"># Instance checks and coerce to geodataframe if required</span>
-    <span class="n">gdf</span> <span class="o">=</span> <span class="n">check_gdf_instance</span><span class="p">(</span><span class="n">gdf</span><span class="p">)</span>
+    <span class="n">gdf</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">check_geometry_instance</span><span class="p">(</span><span class="n">gdf</span><span class="p">)</span>
 
     <span class="c1"># Selection logic</span>
     <span class="n">x</span> <span class="o">=</span> <span class="n">gdf</span><span class="p">[</span><span class="s2">&quot;geometry&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">x</span>
@@ -620,8 +589,8 @@
 <span class="sd">        Geodataframe containing only selected geometries.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="c1"># Instance checks and coerce to geodataframe if required</span>
-    <span class="n">gdf</span> <span class="o">=</span> <span class="n">check_gdf_instance</span><span class="p">(</span><span class="n">gdf</span><span class="p">)</span>
-    <span class="n">point_gdf</span> <span class="o">=</span> <span class="n">check_gdf_instance</span><span class="p">(</span><span class="n">point_gdf</span><span class="p">)</span>
+    <span class="n">gdf</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">check_geometry_instance</span><span class="p">(</span><span class="n">gdf</span><span class="p">)</span>
+    <span class="n">point_gdf</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">check_geometry_instance</span><span class="p">(</span><span class="n">point_gdf</span><span class="p">)</span>
 
     <span class="c1"># Selection logic</span>
     <span class="n">data_points</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">gdf</span><span class="p">[</span><span class="s2">&quot;geometry&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">gdf</span><span class="p">[</span><span class="s2">&quot;geometry&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">y</span><span class="p">])</span><span class="o">.</span><span class="n">transpose</span><span class="p">()</span>
@@ -671,8 +640,8 @@
 <span class="sd">        Geodataframe containing only selected geometries.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="c1"># Instance checks and coerce to geodataframe if required</span>
-    <span class="n">gdf</span> <span class="o">=</span> <span class="n">check_gdf_instance</span><span class="p">(</span><span class="n">gdf</span><span class="p">)</span>
-    <span class="n">line_gdf</span> <span class="o">=</span> <span class="n">check_gdf_instance</span><span class="p">(</span><span class="n">line_gdf</span><span class="p">)</span>
+    <span class="n">gdf</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">check_geometry_instance</span><span class="p">(</span><span class="n">gdf</span><span class="p">)</span>
+    <span class="n">line_gdf</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">check_geometry_instance</span><span class="p">(</span><span class="n">line_gdf</span><span class="p">)</span>
 
     <span class="c1"># Selection logic</span>
     <span class="n">line_gdf</span><span class="p">[</span><span class="s2">&quot;geometry&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">line_gdf</span><span class="o">.</span><span class="n">buffer</span><span class="p">(</span><span class="n">distance</span><span class="o">=</span><span class="n">buffer</span><span class="p">)</span>
@@ -713,8 +682,8 @@
 <span class="sd">        Geodataframe containing only selected geometries.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="c1"># Instance checks and coerce to geodataframe if required</span>
-    <span class="n">gdf</span> <span class="o">=</span> <span class="n">check_gdf_instance</span><span class="p">(</span><span class="n">gdf</span><span class="p">)</span>
-    <span class="n">polygon_gdf</span> <span class="o">=</span> <span class="n">check_gdf_instance</span><span class="p">(</span><span class="n">polygon_gdf</span><span class="p">)</span>
+    <span class="n">gdf</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">check_geometry_instance</span><span class="p">(</span><span class="n">gdf</span><span class="p">)</span>
+    <span class="n">polygon_gdf</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">check_geometry_instance</span><span class="p">(</span><span class="n">polygon_gdf</span><span class="p">)</span>
 
     <span class="c1"># Selection logic</span>
     <span class="k">if</span> <span class="n">buffer</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
@@ -856,7 +825,7 @@
 
   <p class="copyright">
     
-      © Copyright 2024, Deltares.
+      © Copyright 2025, Deltares.
       <br/>
     
   </p>

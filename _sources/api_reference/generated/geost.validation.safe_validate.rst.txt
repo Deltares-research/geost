@@ -1,0 +1,6 @@
+﻿geost.validation.safe\_validate
+===============================
+
+.. currentmodule:: geost.validation
+
+.. autofunction:: safe_validate

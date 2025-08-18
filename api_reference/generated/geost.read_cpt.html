@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>geost.get_bro_objects_from_geometry &#8212; Geological Subsurface Toolbox  documentation</title>
+    <title>geost.read_cpt &#8212; Geological Subsurface Toolbox  documentation</title>
   
   
   
@@ -32,9 +32,9 @@
 
     <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="../../_static/mystnb.8ecb98da25f57f5357bf6f572d296f466b2cfe2517ffebfabe82451661e28f02.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=e0654d5c" />
+    <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=70497fbb" />
     <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
-    <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=e0654d5c" />
+    <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=70497fbb" />
   
   <!-- So that users can add custom icons -->
   <script src="../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
@@ -46,13 +46,13 @@
     <script src="../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/design-tabs.js?v=f930bc37"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = 'api_reference/generated/geost.get_bro_objects_from_geometry';</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'api_reference/generated/geost.read_cpt';</script>
     <link rel="icon" href="../../_static/geost_logo.png"/>
     <link rel="author" title="About these documents" href="../../about.html" />
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="geost.read_borehole_table" href="geost.read_borehole_table.html" />
-    <link rel="prev" title="geost.get_bro_objects_from_bbox" href="geost.get_bro_objects_from_bbox.html" />
+    <link rel="next" title="geost.read_gef_cpts" href="geost.read_gef_cpts.html" />
+    <link rel="prev" title="geost.read_bhrp" href="geost.read_bhrp.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   <meta name="docsearch:version" content="0.3.0" />
@@ -418,6 +418,7 @@
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../user_guide.html">User guide</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../user_guide/data_structures.html">Data structures</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../user_guide/reading_data.html">Reading data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/validation.html">Data validation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../user_guide/bro_geotop.html">BRO GeoTOP</a></li>
 </ul>
 </details></li>
@@ -561,15 +562,19 @@
 </ul>
 </details></li>
 <li class="toctree-l2 current active has-children"><a class="reference internal" href="../io.html">Input/Output</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
-<li class="toctree-l3"><a class="reference internal" href="geost.get_bro_objects_from_bbox.html">geost.get_bro_objects_from_bbox</a></li>
-<li class="toctree-l3 current active"><a class="current reference internal" href="#">geost.get_bro_objects_from_geometry</a></li>
+<li class="toctree-l3"><a class="reference internal" href="geost.bro_api_read.html">geost.bro_api_read</a></li>
 <li class="toctree-l3"><a class="reference internal" href="geost.read_borehole_table.html">geost.read_borehole_table</a></li>
 <li class="toctree-l3"><a class="reference internal" href="geost.read_cpt_table.html">geost.read_cpt_table</a></li>
 <li class="toctree-l3"><a class="reference internal" href="geost.read_nlog_cores.html">geost.read_nlog_cores</a></li>
 <li class="toctree-l3"><a class="reference internal" href="geost.read_uullg_tables.html">geost.read_uullg_tables</a></li>
 <li class="toctree-l3"><a class="reference internal" href="geost.base.Collection.to_csv.html">geost.base.Collection.to_csv</a></li>
 <li class="toctree-l3"><a class="reference internal" href="geost.base.Collection.to_parquet.html">geost.base.Collection.to_parquet</a></li>
+<li class="toctree-l3"><a class="reference internal" href="geost.read_bhrgt.html">geost.read_bhrgt</a></li>
+<li class="toctree-l3"><a class="reference internal" href="geost.read_bhrg.html">geost.read_bhrg</a></li>
+<li class="toctree-l3"><a class="reference internal" href="geost.read_bhrp.html">geost.read_bhrp</a></li>
+<li class="toctree-l3 current active"><a class="current reference internal" href="#">geost.read_cpt</a></li>
 <li class="toctree-l3"><a class="reference internal" href="geost.read_gef_cpts.html">geost.read_gef_cpts</a></li>
+<li class="toctree-l3"><a class="reference internal" href="geost.read_sfr.html">geost.read_sfr</a></li>
 <li class="toctree-l3"><a class="reference internal" href="geost.read_collection_geopackage.html">geost.read_collection_geopackage</a></li>
 <li class="toctree-l3"><a class="reference internal" href="geost.base.Collection.to_geopackage.html">geost.base.Collection.to_geopackage</a></li>
 <li class="toctree-l3"><a class="reference internal" href="geost.base.Collection.to_geoparquet.html">geost.base.Collection.to_geoparquet</a></li>
@@ -615,7 +620,6 @@
 <li class="toctree-l3"><a class="reference internal" href="geost.bro.BroApi.get_objects.html">geost.bro.BroApi.get_objects</a></li>
 <li class="toctree-l3"><a class="reference internal" href="geost.bro.BroApi.search_objects_in_bbox.html">geost.bro.BroApi.search_objects_in_bbox</a></li>
 <li class="toctree-l3"><a class="reference internal" href="geost.bro.BroApi.apis.html">geost.bro.BroApi.apis</a></li>
-<li class="toctree-l3"><a class="reference internal" href="geost.bro.BroApi.document_types.html">geost.bro.BroApi.document_types</a></li>
 </ul>
 </details></li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../bro_geotop.html">GeoTop</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -682,6 +686,11 @@
 <li class="toctree-l3"><a class="reference internal" href="geost.bro.BroCptGeopackage.html">geost.bro.BroCptGeopackage</a></li>
 <li class="toctree-l3"><a class="reference internal" href="geost.bro.BroCptGeopackage.from_geopackage.html">geost.bro.BroCptGeopackage.from_geopackage</a></li>
 <li class="toctree-l3"><a class="reference internal" href="geost.bro.BroCptGeopackage.select_location_info.html">geost.bro.BroCptGeopackage.select_location_info</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../validation.html">Validation</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="geost.validation.schemas.html">geost.validation.schemas</a></li>
+<li class="toctree-l3"><a class="reference internal" href="geost.validation.safe_validate.html">geost.validation.safe_validate</a></li>
 </ul>
 </details></li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../utils.html">Utils</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -756,7 +765,7 @@
     
     <li class="breadcrumb-item"><a href="../io.html" class="nav-link">Input/Output</a></li>
     
-    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">geost.get_bro_objects_from_geometry</span></li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">geost.read_cpt</span></li>
   </ul>
 </nav>
 </div>
@@ -773,37 +782,45 @@
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section id="geost-get-bro-objects-from-geometry">
-<h1>geost.get_bro_objects_from_geometry<a class="headerlink" href="#geost-get-bro-objects-from-geometry" title="Link to this heading">#</a></h1>
+  <section id="geost-read-cpt">
+<h1>geost.read_cpt<a class="headerlink" href="#geost-read-cpt" title="Link to this heading">#</a></h1>
 <dl class="py function">
-<dt class="sig sig-object py" id="geost.get_bro_objects_from_geometry">
-<span class="sig-prename descclassname"><span class="pre">geost.</span></span><span class="sig-name descname"><span class="pre">get_bro_objects_from_geometry</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">object_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">geometry_file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Path</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">buffer</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">horizontal_reference</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">CRS</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">28992</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vertical_reference</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">CRS</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">5709</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="geost.base.BoreholeCollection.html#geost.base.BoreholeCollection" title="geost.base.BoreholeCollection"><span class="pre">BoreholeCollection</span></a></span></span><a class="reference internal" href="../../_modules/geost/read.html#get_bro_objects_from_geometry"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#geost.get_bro_objects_from_geometry" title="Link to this definition">#</a></dt>
-<dd><p>Directly download objects from the BRO to a geost collection object based on given
-geometries such as points, lines or polygons.</p>
+<dt class="sig sig-object py" id="geost.read_cpt">
+<span class="sig-prename descclassname"><span class="pre">geost.</span></span><span class="sig-name descname"><span class="pre">read_cpt</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">files</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Path</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Path</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">company</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">schema</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">read_all</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="geost.base.CptCollection.html#geost.base.CptCollection" title="geost.base.CptCollection"><span class="pre">CptCollection</span></a></span></span><a class="reference internal" href="../../_modules/geost/io/read.html#read_cpt"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#geost.read_cpt" title="Link to this definition">#</a></dt>
+<dd><p>Read Cone Penetration Test (CPT) XML file or files into a <cite>CptCollection</cite>. This reads
+the XML files according to a <cite>schema</cite> that describes the structure of the of the XML
+data to find the relevant CPT data. Geost provides predefined schemas for the CPT XML
+file or files into a CptCollection. This XML files that are used in the Netherlands
+from the Dutch national BRO database. A predefined schema may also be present for a
+specific company, which can be specified using the <cite>company</cite> parameter. Predefined
+schemas from Geost can be used and extended or you can provide your own schema to
+extract relevant attributes (see example link below).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>object_type</strong> (<em>str</em>) – BRO object type to retrieve: BHR-GT, BHR-P, BHR-G or BHR-CPT</p></li>
-<li><p><strong>geometry_file</strong> (<em>Path</em><em> | </em><em>str</em>) – Path to geometry file. i.e a point/line/polygon shapefile/geopackage/geoparquet</p></li>
-<li><p><strong>buffer</strong> (<em>int</em><em> | </em><em>float</em><em>, </em><em>optional</em>) – Buffer distance. Required to be larger than 0 for line and point geometries.
-Adds an extra buffer zone around a polygon to select from, by default 0</p></li>
-<li><p><strong>horizontal_reference</strong> (<em>str</em><em> | </em><em>int</em><em> | </em><em>CRS</em><em>, </em><em>optional</em>) – EPSG of the data’s horizontal reference. Takes anything that can be interpreted
-by pyproj.crs.CRS.from_user_input(). The default is 28992.</p></li>
-<li><p><strong>vertical_reference</strong> (<em>str</em><em> | </em><em>int</em><em> | </em><em>CRS</em><em>, </em><em>optional</em>) – EPSG of the data’s vertical datum. Takes anything that can be interpreted by
-pyproj.crs.CRS.from_user_input(). However, it must be a vertical datum. FYI:
-“NAP” is EPSG 5709 and The Belgian reference system (Ostend height) is ESPG
-5710. The default is 5709.</p></li>
+<li><p><strong>files</strong> (<em>str</em><em> | </em><em>Path</em><em> | </em><em>Iterable</em><em>[</em><em>str</em><em>  |  </em><em>Path</em><em>]</em>) – File or files to read.</p></li>
+<li><p><strong>company</strong> (<em>str</em><em> | </em><em>None</em><em>, </em><em>optional</em>) – Company name to use a predefined schema for. See <code class="xref py py-mod docutils literal notranslate"><span class="pre">geost.io.xml.schemas</span></code> for
+available schemas. If None, the predefined schema for BRO CPT XML file or files
+into a CptCollection. This XML files is used by default to read the data. The
+default is None.</p></li>
+<li><p><strong>schema</strong> (<em>dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em><em>, </em><em>optional</em>) – Schema to use for reading the data which describes the structure of the XML data.
+If not given and <cite>company</cite> is None, the predefined schema for BRO CPT XML file or
+files into a CptCollection. This XML files is used.</p></li>
+<li><p><strong>read_all</strong> (<em>bool</em><em>, </em><em>optional</em>) – XML files may contain multiple CPT elements per XML file. If True, the function
+will attempt to read all available data. Otherwise, only the first CPT element
+is read. The default is False.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Instance of either <code class="xref py py-class docutils literal notranslate"><span class="pre">BoreholeCollection</span></code> or
-<code class="xref py py-class docutils literal notranslate"><span class="pre">CptCollection</span></code> containing only objects selected by
-this method.</p>
+<dd class="field-even"><p>CptCollection containing the header and data attributes of the CPT data.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference internal" href="geost.base.BoreholeCollection.html#geost.base.BoreholeCollection" title="geost.base.BoreholeCollection">BoreholeCollection</a></p>
+<dd class="field-odd"><p><a class="reference internal" href="geost.base.CptCollection.html#geost.base.CptCollection" title="geost.base.CptCollection"><code class="xref py py-class docutils literal notranslate"><span class="pre">CptCollection</span></code></a></p>
 </dd>
 </dl>
+<p class="rubric">Examples</p>
+<p>A full example of reading XML files can be found here:
+<a class="reference external" href="https://geost.readthedocs.io/en/latest/examples/bhrgt.html">https://geost.readthedocs.io/en/latest/examples/bhrgt.html</a></p>
 </dd></dl>
 
 </section>
@@ -819,20 +836,20 @@ this method.</p>
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="geost.get_bro_objects_from_bbox.html"
+       href="geost.read_bhrp.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">geost.get_bro_objects_from_bbox</p>
+        <p class="prev-next-title">geost.read_bhrp</p>
       </div>
     </a>
     <a class="right-next"
-       href="geost.read_borehole_table.html"
+       href="geost.read_gef_cpts.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">geost.read_borehole_table</p>
+        <p class="prev-next-title">geost.read_gef_cpts</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -855,7 +872,7 @@ this method.</p>
   </div>
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#geost.get_bro_objects_from_geometry"><code class="docutils literal notranslate"><span class="pre">get_bro_objects_from_geometry()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#geost.read_cpt"><code class="docutils literal notranslate"><span class="pre">read_cpt()</span></code></a></li>
 </ul>
   </nav></div>
 
@@ -863,7 +880,7 @@ this method.</p>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
-      <li><a href="../../_sources/api_reference/generated/geost.get_bro_objects_from_geometry.rst.txt"
+      <li><a href="../../_sources/api_reference/generated/geost.read_cpt.rst.txt"
             rel="nofollow">Show Source</a></li>
     </ul>
    </div></div>
@@ -893,7 +910,7 @@ this method.</p>
 
   <p class="copyright">
     
-      © Copyright 2024, Deltares.
+      © Copyright 2025, Deltares.
       <br/>
     
   </p>

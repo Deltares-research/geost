@@ -1,0 +1,6 @@
+﻿geost.read\_sfr
+===============
+
+.. currentmodule:: geost
+
+.. autofunction:: read_sfr

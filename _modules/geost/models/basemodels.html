@@ -31,9 +31,9 @@
 
     <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="../../../_static/mystnb.8ecb98da25f57f5357bf6f572d296f466b2cfe2517ffebfabe82451661e28f02.css" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=e0654d5c" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=70497fbb" />
     <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-design.min.css?v=95c83b7e" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=e0654d5c" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=70497fbb" />
   
   <!-- So that users can add custom icons -->
   <script src="../../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
@@ -470,7 +470,7 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">geost.export</span><span class="w"> </span><span class="kn">import</span> <span class="n">vtk</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">geost.spatial</span><span class="w"> </span><span class="kn">import</span> <span class="n">check_gdf_instance</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">geost.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">check_geometry_instance</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">.model_utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">sample_along_line</span><span class="p">,</span> <span class="n">sample_with_coords</span>
 
@@ -835,7 +835,7 @@
 <span class="sd">        &gt;&gt;&gt; selected = voxelmodel.select_with_points(Collection.header.gdf)</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">points</span> <span class="o">=</span> <span class="n">check_gdf_instance</span><span class="p">(</span><span class="n">points</span><span class="p">)</span>
+        <span class="n">points</span> <span class="o">=</span> <span class="n">check_geometry_instance</span><span class="p">(</span><span class="n">points</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="s2">&quot;x&quot;</span> <span class="ow">in</span> <span class="n">points</span><span class="o">.</span><span class="n">columns</span> <span class="ow">and</span> <span class="s2">&quot;y&quot;</span> <span class="ow">in</span> <span class="n">points</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
             <span class="n">coords</span> <span class="o">=</span> <span class="n">points</span><span class="p">[[</span><span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="s2">&quot;y&quot;</span><span class="p">]]</span><span class="o">.</span><span class="n">values</span>
@@ -1112,7 +1112,7 @@
 
   <p class="copyright">
     
-      © Copyright 2024, Deltares.
+      © Copyright 2025, Deltares.
       <br/>
     
   </p>

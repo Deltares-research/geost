@@ -1,0 +1,6 @@
+﻿geost.validation.schemas
+========================
+
+.. automodule:: geost.validation.schemas
+
+   

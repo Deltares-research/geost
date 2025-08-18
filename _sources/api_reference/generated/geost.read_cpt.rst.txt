@@ -1,0 +1,6 @@
+﻿geost.read\_cpt
+===============
+
+.. currentmodule:: geost
+
+.. autofunction:: read_cpt

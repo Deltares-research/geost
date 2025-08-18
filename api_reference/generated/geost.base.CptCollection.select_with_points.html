@@ -32,9 +32,9 @@
 
     <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="../../_static/mystnb.8ecb98da25f57f5357bf6f572d296f466b2cfe2517ffebfabe82451661e28f02.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=e0654d5c" />
+    <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=70497fbb" />
     <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
-    <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=e0654d5c" />
+    <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=70497fbb" />
   
   <!-- So that users can add custom icons -->
   <script src="../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
@@ -418,6 +418,7 @@
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../user_guide.html">User guide</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../user_guide/data_structures.html">Data structures</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../user_guide/reading_data.html">Reading data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/validation.html">Data validation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../user_guide/bro_geotop.html">BRO GeoTOP</a></li>
 </ul>
 </details></li>
@@ -561,15 +562,19 @@
 </ul>
 </details></li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../io.html">Input/Output</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l3"><a class="reference internal" href="geost.get_bro_objects_from_bbox.html">geost.get_bro_objects_from_bbox</a></li>
-<li class="toctree-l3"><a class="reference internal" href="geost.get_bro_objects_from_geometry.html">geost.get_bro_objects_from_geometry</a></li>
+<li class="toctree-l3"><a class="reference internal" href="geost.bro_api_read.html">geost.bro_api_read</a></li>
 <li class="toctree-l3"><a class="reference internal" href="geost.read_borehole_table.html">geost.read_borehole_table</a></li>
 <li class="toctree-l3"><a class="reference internal" href="geost.read_cpt_table.html">geost.read_cpt_table</a></li>
 <li class="toctree-l3"><a class="reference internal" href="geost.read_nlog_cores.html">geost.read_nlog_cores</a></li>
 <li class="toctree-l3"><a class="reference internal" href="geost.read_uullg_tables.html">geost.read_uullg_tables</a></li>
 <li class="toctree-l3"><a class="reference internal" href="geost.base.Collection.to_csv.html">geost.base.Collection.to_csv</a></li>
 <li class="toctree-l3"><a class="reference internal" href="geost.base.Collection.to_parquet.html">geost.base.Collection.to_parquet</a></li>
+<li class="toctree-l3"><a class="reference internal" href="geost.read_bhrgt.html">geost.read_bhrgt</a></li>
+<li class="toctree-l3"><a class="reference internal" href="geost.read_bhrg.html">geost.read_bhrg</a></li>
+<li class="toctree-l3"><a class="reference internal" href="geost.read_bhrp.html">geost.read_bhrp</a></li>
+<li class="toctree-l3"><a class="reference internal" href="geost.read_cpt.html">geost.read_cpt</a></li>
 <li class="toctree-l3"><a class="reference internal" href="geost.read_gef_cpts.html">geost.read_gef_cpts</a></li>
+<li class="toctree-l3"><a class="reference internal" href="geost.read_sfr.html">geost.read_sfr</a></li>
 <li class="toctree-l3"><a class="reference internal" href="geost.read_collection_geopackage.html">geost.read_collection_geopackage</a></li>
 <li class="toctree-l3"><a class="reference internal" href="geost.base.Collection.to_geopackage.html">geost.base.Collection.to_geopackage</a></li>
 <li class="toctree-l3"><a class="reference internal" href="geost.base.Collection.to_geoparquet.html">geost.base.Collection.to_geoparquet</a></li>
@@ -615,7 +620,6 @@
 <li class="toctree-l3"><a class="reference internal" href="geost.bro.BroApi.get_objects.html">geost.bro.BroApi.get_objects</a></li>
 <li class="toctree-l3"><a class="reference internal" href="geost.bro.BroApi.search_objects_in_bbox.html">geost.bro.BroApi.search_objects_in_bbox</a></li>
 <li class="toctree-l3"><a class="reference internal" href="geost.bro.BroApi.apis.html">geost.bro.BroApi.apis</a></li>
-<li class="toctree-l3"><a class="reference internal" href="geost.bro.BroApi.document_types.html">geost.bro.BroApi.document_types</a></li>
 </ul>
 </details></li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../bro_geotop.html">GeoTop</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -682,6 +686,11 @@
 <li class="toctree-l3"><a class="reference internal" href="geost.bro.BroCptGeopackage.html">geost.bro.BroCptGeopackage</a></li>
 <li class="toctree-l3"><a class="reference internal" href="geost.bro.BroCptGeopackage.from_geopackage.html">geost.bro.BroCptGeopackage.from_geopackage</a></li>
 <li class="toctree-l3"><a class="reference internal" href="geost.bro.BroCptGeopackage.select_location_info.html">geost.bro.BroCptGeopackage.select_location_info</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../validation.html">Validation</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="geost.validation.schemas.html">geost.validation.schemas</a></li>
+<li class="toctree-l3"><a class="reference internal" href="geost.validation.safe_validate.html">geost.validation.safe_validate</a></li>
 </ul>
 </details></li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../utils.html">Utils</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -777,12 +786,12 @@
 <h1>geost.base.CptCollection.select_with_points<a class="headerlink" href="#geost-base-cptcollection-select-with-points" title="Link to this heading">#</a></h1>
 <dl class="py method">
 <dt class="sig sig-object py" id="geost.base.CptCollection.select_with_points">
-<span class="sig-prename descclassname"><span class="pre">CptCollection.</span></span><span class="sig-name descname"><span class="pre">select_with_points</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">points</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Path</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">GeoDataFrame</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">PointGeometries</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">buffer</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">invert</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#geost.base.CptCollection.select_with_points" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">CptCollection.</span></span><span class="sig-name descname"><span class="pre">select_with_points</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">points</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Path</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">GeoDataFrame</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">GeometryType</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">buffer</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">invert</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#geost.base.CptCollection.select_with_points" title="Link to this definition">#</a></dt>
 <dd><p>Make a selection of the collection based on point geometries.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>points</strong> (<em>str</em><em> | </em><em>Path</em><em> | </em><em>gpd.GeoDataFrame</em><em> | </em><em>PointGeometries</em>) – Any type of point geometries that can be used for the selection: GeoDataFrame
+<li><p><strong>points</strong> (<em>str</em><em> | </em><em>Path</em><em> | </em><em>gpd.GeoDataFrame</em><em> | </em><em>GeometryType</em>) – Any type of point geometries that can be used for the selection: GeoDataFrame
 containing points or filepath to a shapefile like file, or Shapely Point,
 MultiPoint or list containing Point objects.</p></li>
 <li><p><strong>buffer</strong> (<em>float</em><em> | </em><em>int</em>) – Buffer distance for selection geometries.</p></li>
@@ -887,7 +896,7 @@ Collection, you will get an instance of a Collection back.</p>
 
   <p class="copyright">
     
-      © Copyright 2024, Deltares.
+      © Copyright 2025, Deltares.
       <br/>
     
   </p>

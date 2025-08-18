@@ -32,9 +32,9 @@
 
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="../_static/mystnb.8ecb98da25f57f5357bf6f572d296f466b2cfe2517ffebfabe82451661e28f02.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=e0654d5c" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=70497fbb" />
     <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
-    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=e0654d5c" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=70497fbb" />
   
   <!-- So that users can add custom icons -->
   <script src="../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
@@ -52,7 +52,7 @@
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="API reference" href="../api_reference.html" />
-    <link rel="prev" title="Reading data" href="reading_data.html" />
+    <link rel="prev" title="Data validation" href="validation.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   <meta name="docsearch:version" content="0.3.0" />
@@ -418,6 +418,7 @@
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="../user_guide.html">User guide</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="data_structures.html">Data structures</a></li>
 <li class="toctree-l2"><a class="reference internal" href="reading_data.html">Reading data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="validation.html">Data validation</a></li>
 <li class="toctree-l2 current active"><a class="current reference internal" href="#">BRO GeoTOP</a></li>
 </ul>
 </details></li>
@@ -561,15 +562,19 @@
 </ul>
 </details></li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../api_reference/io.html">Input/Output</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.get_bro_objects_from_bbox.html">geost.get_bro_objects_from_bbox</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.get_bro_objects_from_geometry.html">geost.get_bro_objects_from_geometry</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.bro_api_read.html">geost.bro_api_read</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.read_borehole_table.html">geost.read_borehole_table</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.read_cpt_table.html">geost.read_cpt_table</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.read_nlog_cores.html">geost.read_nlog_cores</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.read_uullg_tables.html">geost.read_uullg_tables</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.Collection.to_csv.html">geost.base.Collection.to_csv</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.Collection.to_parquet.html">geost.base.Collection.to_parquet</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.read_bhrgt.html">geost.read_bhrgt</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.read_bhrg.html">geost.read_bhrg</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.read_bhrp.html">geost.read_bhrp</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.read_cpt.html">geost.read_cpt</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.read_gef_cpts.html">geost.read_gef_cpts</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.read_sfr.html">geost.read_sfr</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.read_collection_geopackage.html">geost.read_collection_geopackage</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.Collection.to_geopackage.html">geost.base.Collection.to_geopackage</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.Collection.to_geoparquet.html">geost.base.Collection.to_geoparquet</a></li>
@@ -615,7 +620,6 @@
 <li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.bro.BroApi.get_objects.html">geost.bro.BroApi.get_objects</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.bro.BroApi.search_objects_in_bbox.html">geost.bro.BroApi.search_objects_in_bbox</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.bro.BroApi.apis.html">geost.bro.BroApi.apis</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.bro.BroApi.document_types.html">geost.bro.BroApi.document_types</a></li>
 </ul>
 </details></li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../api_reference/bro_geotop.html">GeoTop</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -682,6 +686,11 @@
 <li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.bro.BroCptGeopackage.html">geost.bro.BroCptGeopackage</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.bro.BroCptGeopackage.from_geopackage.html">geost.bro.BroCptGeopackage.from_geopackage</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.bro.BroCptGeopackage.select_location_info.html">geost.bro.BroCptGeopackage.select_location_info</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../api_reference/validation.html">Validation</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.validation.schemas.html">geost.validation.schemas</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.validation.safe_validate.html">geost.validation.safe_validate</a></li>
 </ul>
 </details></li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../api_reference/utils.html">Utils</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -925,18 +934,18 @@ Attributes:
 </div>
 <div class="cell_output docutils container">
 <div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>PointHeader instance containing 67 objects
-          nr       x       y  surface      end               geometry
-0   B31H0541  139585  456000    1.200   -9.900  POINT (139585 456000)
-1   B31H0611  139600  455060    1.200  -23.000  POINT (139600 455060)
-2   B31H0718  139950  455200    1.300 -271.200  POINT (139950 455200)
-3   B31H0803  139675  455087    2.160   -4.840  POINT (139675 455087)
-4   B31H0806  139684  455384    1.000  -49.500  POINT (139684 455384)
-..       ...     ...     ...      ...      ...                    ...
-62  B32C1889  140919  456000    1.728   -2.772  POINT (140919 456000)
-63  B32C1890  140938  455878    3.948    0.248  POINT (140938 455878)
-64  B32C1891  141025  455998    2.112   -1.888  POINT (141025 455998)
-65  B32C1892  141091  455966    1.769   -2.731  POINT (141091 455966)
-66  B32C1893  141266  455989    2.328   -2.172  POINT (141266 455989)
+          nr         x         y  surface      end               geometry
+0   B31H0541  139585.0  456000.0    1.200   -9.900  POINT (139585 456000)
+1   B31H0611  139600.0  455060.0    1.200  -23.000  POINT (139600 455060)
+2   B31H0718  139950.0  455200.0    1.300 -271.200  POINT (139950 455200)
+3   B31H0803  139675.0  455087.0    2.160   -4.840  POINT (139675 455087)
+4   B31H0806  139684.0  455384.0    1.000  -49.500  POINT (139684 455384)
+..       ...       ...       ...      ...      ...                    ...
+62  B32C1889  140919.0  456000.0    1.728   -2.772  POINT (140919 456000)
+63  B32C1890  140938.0  455878.0    3.948    0.248  POINT (140938 455878)
+64  B32C1891  141025.0  455998.0    2.112   -1.888  POINT (141025 455998)
+65  B32C1892  141091.0  455966.0    1.769   -2.731  POINT (141091 455966)
+66  B32C1893  141266.0  455989.0    2.328   -2.172  POINT (141266 455989)
 
 [67 rows x 6 columns]
 </pre></div>
@@ -2218,12 +2227,12 @@ Attributes:
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="reading_data.html"
+       href="validation.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">Reading data</p>
+        <p class="prev-next-title">Data validation</p>
       </div>
     </a>
     <a class="right-next"
@@ -2298,7 +2307,7 @@ Attributes:
 
   <p class="copyright">
     
-      © Copyright 2024, Deltares.
+      © Copyright 2025, Deltares.
       <br/>
     
   </p>

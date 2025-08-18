@@ -1,0 +1,6 @@
+﻿geost.bro\_api\_read
+====================
+
+.. currentmodule:: geost
+
+.. autofunction:: bro_api_read
