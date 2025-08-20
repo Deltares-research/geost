@@ -110,11 +110,8 @@ class TestAnalysis:
     @pytest.mark.unittest
     def test_grainsize_dnumber(self, testdatadir):
         grainsize_data = pd.read_parquet(testdatadir / r"test_grainsize_data.parquet")
-        d10_data = calculate_dnumber(grainsize_data, percentile=10)
-        d50_data = calculate_dnumber(grainsize_data, percentile=50)
-        d90_data = calculate_dnumber(grainsize_data, percentile=90)
-        d_data_merged = pd.concat([d10_data, d50_data["d50"], d90_data["d90"]], axis=1)
-        assert d_data_merged is not None  # WIP TODO: Add proper assertions
+        d_data = calculate_dnumber(grainsize_data, percentiles=[10, 50, 90])
+        assert d_data is not None  # WIP TODO: Add proper assertions
 
 
 class TestCombine:

@@ -13,7 +13,11 @@ pointheader = DataFrameSchema(
         "end": Column(float),
         "geometry": Column(GeometryDtype()),
     },
-    checks=Check(lambda df: df["end"] < df["surface"], element_wise=False),
+    checks=Check(
+        lambda df: df["end"] < df["surface"],
+        element_wise=False,
+        error="End depth must be lower than surface depth",
+    ),
     coerce=True,
     strict=False,
     drop_invalid_rows=config.validation.DROP_INVALID,
@@ -46,8 +50,16 @@ layerdata = DataFrameSchema(
         "bottom": Column(float),
     },
     checks=[
-        Check(lambda df: df["bottom"] >= df["top"], element_wise=False),
-        Check(lambda df: df["end"] < df["surface"], element_wise=False),
+        Check(
+            lambda df: df["bottom"] >= df["top"],
+            element_wise=False,
+            error="Bottom depth must be greater than or equal to top depth",
+        ),
+        Check(
+            lambda df: df["end"] < df["surface"],
+            element_wise=False,
+            error="End depth must be lower than surface depth",
+        ),
     ],
     coerce=True,
     strict=False,
@@ -70,8 +82,16 @@ layerdata_inclined = DataFrameSchema(
         "bottom": Column(float),
     },
     checks=[
-        Check(lambda df: df["bottom"] >= df["top"], element_wise=False),
-        Check(lambda df: df["end"] < df["surface"], element_wise=False),
+        Check(
+            lambda df: df["bottom"] >= df["top"],
+            element_wise=False,
+            error="Bottom depth must be greater than or equal to top depth",
+        ),
+        Check(
+            lambda df: df["end"] < df["surface"],
+            element_wise=False,
+            error="End depth must be lower than surface depth",
+        ),
     ],
     coerce=True,
     strict=False,
@@ -91,8 +111,16 @@ discretedata = DataFrameSchema(
         "depth": Column(float),
     },
     checks=[
-        Check(lambda df: df["depth"] >= 0, element_wise=False),
-        Check(lambda df: df["end"] < df["surface"], element_wise=False),
+        Check(
+            lambda df: df["depth"] >= 0,
+            element_wise=False,
+            error="Depth must be non-negative",
+        ),
+        Check(
+            lambda df: df["end"] < df["surface"],
+            element_wise=False,
+            error="End depth must be lower than surface depth",
+        ),
     ],
     coerce=True,
     strict=False,
@@ -114,8 +142,16 @@ discretedata_inclined = DataFrameSchema(
         "depth": Column(float),
     },
     checks=[
-        Check(lambda df: df["depth"] >= 0, element_wise=False),
-        Check(lambda df: df["end"] < df["surface"], element_wise=False),
+        Check(
+            lambda df: df["depth"] >= 0,
+            element_wise=False,
+            error="Depth must be non-negative",
+        ),
+        Check(
+            lambda df: df["end"] < df["surface"],
+            element_wise=False,
+            error="End depth must be lower than surface depth",
+        ),
     ],
     coerce=True,
     strict=False,
@@ -135,14 +171,37 @@ grainsize_data = DataFrameSchema(
         "bottom": Column(float),
         "d_low": Column(float),
         "d_high": Column(float),
-        "percentage": Column(float),
+        "percentage": Column(float, nullable=True, required=False),
+        "mass": Column(float, nullable=True, required=False),
     },
     checks=[
-        Check(lambda df: df["bottom"] >= df["top"], element_wise=False),
-        Check(lambda df: df["d_high"] > df["d_low"], element_wise=False),
+        Check(
+            lambda df: df["bottom"] >= df["top"],
+            element_wise=False,
+            error="Bottom depth must be greater than or equal to top depth",
+        ),
+        Check(
+            lambda df: df["d_high"] > df["d_low"],
+            element_wise=False,
+            error="High diameter must be greater than low diameter",
+        ),
         Check(
             lambda df: (df["percentage"] >= 0) & (df["percentage"] <= 100),
             element_wise=False,
+            error="Percentage must be between 0 and 100",
+        ),
+        Check(
+            lambda df: df["mass"] >= 0,
+            element_wise=False,
+            error="Mass must be greater than or equal to 0",
+        ),
+        Check(
+            lambda df: (
+                (df["percentage"].notna() & df["mass"].isna())
+                | (df["percentage"].isna() & df["mass"].notna())
+            ),
+            element_wise=False,
+            error="One of 'percentage' or 'mass' must be present (not both or neither).",
         ),
     ],
     coerce=True,
