@@ -9,14 +9,14 @@ managing subsurface data.
 
 ````{grid} 1 2 2 4
 :gutter: 3
-```{grid-item-card} Retrieve BRO data
+```{grid-item-card} Retrieving data from the BRO
 :text-align: center
 :link: ./examples/retrieve_bro_data.html
 :link-type: url
 :img-bottom: ./_static/dike_section.png
-Extracting data from XML files from BRO or other sources.
+Extract boreholes and CPTs from the BRO database with just a few lines of code.
 ```
-```{grid-item-card} BRO soil cores using the BRO API
+```{grid-item-card} Working with BRO soil cores
 :text-align: center
 :link: ./examples/bro_soil_cores.html
 :link-type: url
