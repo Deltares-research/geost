@@ -6,13 +6,12 @@ import pandas as pd
 from pyproj import CRS
 
 from geost import utils
+from geost.accessors.data import DiscreteData, LayeredData
+from geost.accessors.header import PointHeader
 from geost.base import (
     BoreholeCollection,
     Collection,
     CptCollection,
-    DiscreteData,
-    LayeredData,
-    PointHeader,
 )
 from geost.bro import BroApi
 from geost.io import _parse_cpt_gef_files, xml
