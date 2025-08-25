@@ -44,13 +44,14 @@ nbclient.exceptions.CellTimeoutError: A cell timed out while it was being execut
 The message was: Cell execution timed out.
 Here is a preview of the cell contents:
 -------------------
-bhrg = geost.bro_api_read("BHR-G", geometry=dike_section)
-bhrgt = geost.bro_api_read("BHR-GT", geometry=dike_section)
-bhrp = geost.bro_api_read("BHR-P", geometry=dike_section)
-cpt = geost.bro_api_read("CPT", geometry=dike_section)
-sfr = geost.bro_api_read("SFR", geometry=dike_section)
-print(
-    "BHR-G:", bhrg, "BHR-GT:", bhrgt, "BHR-P:", bhrp, "CPT:", cpt, "SFR:", sfr, sep="\n"
-)
+import geost
+
+bhrp_cores = geost.bro_api_read(
+    "BHR-P", bbox=(141_000, 455_200, 142_500, 456_000)
+)  # xmin, ymin, xmax, ymax
+
+print(bhrp_cores)
+print("\nThe header looks like this:")
+bhrp_cores.header.gdf.head()
 -------------------
 
