@@ -15,8 +15,7 @@ fusion, but at the same time remains fully flexible for advanced users to develo
 functions around GeoST data objects.
 
 <div class="alert alert-info">
-GeoST is a work-in-progress and currently supports a limited number of data sources. Furthermore, not
-all documentation pages on this website are finished.
+GeoST is a work-in-progress. Not all documentation pages on this website are finished.
 </div>
 
 

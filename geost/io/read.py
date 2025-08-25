@@ -1,3 +1,4 @@
+import warnings
 from pathlib import Path
 from typing import Any, Iterable, Literal
 
@@ -949,6 +950,11 @@ def bro_api_read(
     BoreholeCollection:
     # header = 5
 
+    When there are no objects found, you will get an empty collection:
+    >>> import geost
+    ... bhrg = geost.bro_api_read("BHR-G", bbox=[0, 0, 1, 1])
+    Collection:
+    <EMPTY COLLECTION>
     """
     readers = {
         "BHR-GT": read_bhrgt,
@@ -976,6 +982,9 @@ def bro_api_read(
         api.search_objects_in_bbox(xmin, ymin, xmax, ymax, object_type=object_type)
         bro_data = api.get_objects(api.object_list, object_type=object_type)
 
-    collection = reader(bro_data, schema=schema)
+    if bro_data:
+        collection = reader(bro_data, schema=schema)
+    else:
+        collection = Collection(None, None)
 
     return collection

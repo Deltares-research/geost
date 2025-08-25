@@ -2,17 +2,27 @@
 
 ## v0.3.0
 
+Milestone update introducing improved integration with the BRO, 3D viewing/VTK features,
+better data validation and configuration options.
+
 [**Full Changelog**](https://github.com/Deltares-research/geost/compare/0.2.9...0.3.0)
 
 **Added**
+- **Added** XML file parsing functionality for BHR-P, BHR-G, BHR-GT, CPT and SFR objects
+- **Added** `geost.bro_api_read` function to retrieve objects through the BRO REST API
 - **Added** `VoxelModel.get_thickness` method
+- **Added** `geost.config` module for global settings. See also the [Validation](./user_guide/validation.ipynb) section in the user guide.
 - **Added** `LayeredData.to_pyvista_grid`, `DiscrteData.to_pyvista_grid` methods
+- **Added** New user guide sections on XML parsing and data validation
+- **Added** Example that showcases using the new `geost.bro_api_read` function
 - **Added** Example that showcases creating thickness maps based on Voxel models
 - **Added** Example that showcases new PyVista/VTK/3D export and viewing features
 
 **Other**
-- **Other** renamed `VoxelModel.to_vtk` method to `VoxelModel.to_pyvista_grid` and changed behaviour (returns PyVista objects instead of writing a VTK file)
-- **Other** renamed `to_vtk` and `to_vtm` methods of LayeredData, DiscreteData and Collections to `to_pyvista_cylinders` and changed behaviour (returns PyVista objects instead of writing a VTK file)
+- Renamed `VoxelModel.to_vtk` method to `VoxelModel.to_pyvista_grid` and changed behaviour (returns PyVista objects instead of writing a VTK file)
+- Renamed `to_vtk` and `to_vtm` methods of LayeredData, DiscreteData and Collections to `to_pyvista_cylinders` and changed behaviour (returns PyVista objects instead of writing a VTK file)
+- Changed to and integrated [Pandera](https://pandera.readthedocs.io/en/stable/) for dataframe validation
+- License changed to GNU Lesser General Public License v3 (LGPLv3)
 
 
 ## v0.2.9
@@ -39,7 +49,7 @@
 - **Fixed** use correct transformation of coordinates between lat,lon and x,y
 
 **Other**
-- **Other** remove unnecessary transpose in `sample_along_line` for more generic behaviour
+- Removed unnecessary transpose in `sample_along_line` for more generic behaviour
 
 
 ## v0.2.6
@@ -61,10 +71,6 @@
 * **Fixed** *find_area_labels* can now return multiple labels when passing an iterable of column names
 * **Fixed** Newly added columns to the header are now preserved upon making selections and slices
 
-**Other**
-- **Updated** Function docstrings
-- **Updated** Pixi tasks for docs management
-
 
 ## v0.2.4
 
@@ -80,9 +86,6 @@
 * **Fixed** multiple Pandas setting-on-copy-warnings
 * **Fixed** QGis3D export not using the collection's CRS
 
-**Other**
-- **Updated** readme
-- **Removed** requirements.txt
 
 ## v0.2.2
 
@@ -97,8 +100,6 @@
 - **Fixed** icons in readme
 - **Fixed** select_by_values slow copy behaviour for large datasets
 
-**Other**
-- **Updated** pixi environment
 
 ## v0.2.1
 
@@ -109,9 +110,6 @@
 **Fixed**
 - **Fixed** adjustment of z-coordinates when using read_borehole_table
 
-**Other**
-- **Updated** readme
-- **Updated** license
 
 ## v0.2.0
 

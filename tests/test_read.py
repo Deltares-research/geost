@@ -1,3 +1,4 @@
+import warnings
 from pathlib import Path
 
 import pandas as pd
@@ -384,11 +385,29 @@ class TestReadCollectionGeopackage:
         ),
     ],
 )
+@pytest.mark.unittest
 def test_bro_api_read(object_type, options, expected_bro_ids):
     collection = geost.bro_api_read(object_type, **options)
     assert isinstance(collection, geost.base.Collection)
     assert len(collection) == len(expected_bro_ids)
     assert_array_equal(collection.header["nr"], expected_bro_ids)
+
+
+@pytest.mark.parametrize(
+    "object_type",
+    [
+        "BHR-GT",
+        "BHR-G",
+        "CPT",
+        "BHR-P",
+        "SFR",
+    ],
+)
+@pytest.mark.unittest
+def test_bro_api_read_no_results(object_type):
+    collection = geost.bro_api_read(object_type, bbox=[0, 0, 1, 1])
+    assert isinstance(collection, geost.base.Collection)
+    assert "<EMPTY COLLECTION>" in str(collection)
 
 
 @pytest.mark.unittest
