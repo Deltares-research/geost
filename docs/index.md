@@ -13,10 +13,8 @@ these data in your workflows for data analyses, modelling and visualisation. Geo
 provides commonly used methods for e.g. spatial/conditional selections, conversions and data
 fusion, but at the same time remains fully flexible for advanced users to develop their own
 functions around GeoST data objects.
-
-<div class="alert alert-info">
-GeoST is a work-in-progress. Not all documentation pages on this website are finished.
-</div>
+> **ℹ️ GeoST is a work-in-progress. Not all documentation pages on this website are finished.**
+> Use our [GitHub discussions page](https://github.com/Deltares-research/geost/discussions) for questions, support, and suggestions. Issues you come across can be reported [here](https://github.com/Deltares-research/geost/issues).
 
 
 ````{grid} 1 2 2 4
