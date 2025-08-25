@@ -6,9 +6,9 @@ class AbstractHeader(ABC):  # pragma: no cover
     def change_horizontal_reference(self):
         pass
 
-    @abstractmethod
-    def change_vertical_reference(self):
-        pass
+    # @abstractmethod
+    # def change_vertical_reference(self):
+    #     pass
 
     @abstractmethod
     def get(self):
