@@ -37,8 +37,8 @@ class Collection(AbstractCollection):
 
     def __init__(
         self,
-        header: HeaderObject | None,
-        data: DataObject | None,
+        header: gpd.GeoDataFrame,
+        data: pd.DataFrame,
     ):
         # TODO inheritance refactor: check init types and default values.
         self.header = header
