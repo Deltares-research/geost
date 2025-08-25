@@ -1,5 +1,6 @@
 from pathlib import Path
 
+import geopandas as gpd
 import numpy as np
 import pandas as pd
 import pytest
@@ -19,21 +20,16 @@ from geost.export import geodataclass
 
 class TestLayeredData:
     @pytest.mark.unittest
-    def test_datatype(self, borehole_data):
-        assert borehole_data.datatype == "layered"
-
-    @pytest.mark.unittest
     def test_to_header(self, borehole_data):
         expected_columns = ["nr", "x", "y", "surface", "end", "geometry"]
 
-        header = borehole_data.to_header()
+        header = borehole_data.geodata.to_header()
 
-        assert isinstance(header, PointHeader)
-        assert_array_equal(header.gdf.columns, expected_columns)
-        assert len(header.gdf) == 5
+        assert isinstance(header, gpd.GeoDataFrame)
+        assert_array_equal(header.columns, expected_columns)
+        assert len(header) == 5
         assert header["nr"].nunique() == 5
-        assert header.horizontal_reference == 28992
-        assert header.vertical_reference == 5709
+        assert header.crs == 28992
 
     @pytest.mark.unittest
     def test_to_collection(self, borehole_data):

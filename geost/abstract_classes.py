@@ -44,21 +44,6 @@ class AbstractHeader(ABC):  # pragma: no cover
 
 
 class AbstractData(ABC):  # pragma: no cover
-    @property
-    @abstractmethod
-    def df(self):
-        pass
-
-    @property
-    @abstractmethod
-    def datatype(self):
-        pass
-
-    @df.setter
-    @abstractmethod
-    def df(self, df):
-        pass
-
     @abstractmethod
     def to_header(self):
         pass

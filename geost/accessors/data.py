@@ -15,14 +15,12 @@ from geost.export import (
     export_to_dftgeodata,
     layerdata_to_pyvista_unstructured,
 )
-from geost.mixins import PandasExportMixin
-from geost.validation import safe_validate, schemas
 
 type Coordinate = int | float
 type GeometryType = gmt.base.BaseGeometry | list[gmt.base.BaseGeometry]
 
 
-class LayeredData(AbstractData, PandasExportMixin):
+class LayeredData(AbstractData):
     """
     A class to hold layered data objects (i.e. containing "tops" and "bottoms") like
     borehole descriptions which can be used for selections and exports.
@@ -33,57 +31,13 @@ class LayeredData(AbstractData, PandasExportMixin):
         Pandas DataFrame containing the data. Mandatory columns that must be present in the
         DataFrame are: "nr", "x", "y", "surface", "top" and "bottom". Otherwise, many methods
         in the class will not work.
-    has_inclined : bool, optional
-        If True, the data also contains inclined objects which means the top of layers is
-        not in the same x,y-location as the bottom of layers.
-
     """
 
-    __datatype = "layered"
-
-    def __init__(
-        self,
-        df: pd.DataFrame,
-        has_inclined: bool = False,
-    ):
-        self.has_inclined = has_inclined
-        self.df = df
-
-    def __repr__(self):
-        name = self.__class__.__name__
-        data = self._df
-        return f"{name} instance:\n{data}"
-
-    def __getitem__(self, column):
-        return self.df[column]
-
-    def __setitem__(self, column, item):
-        self.df.loc[:, column] = item
-
-    def __len__(self):
-        return len(self.df)
-
-    @property
-    def df(self):
-        return self._df
-
-    @property
-    def datatype(self):
-        return self.__datatype
-
-    @df.setter
-    def df(self, df):
-        """
-        Underlying pandas.DataFrame, validated upon setting the attr.
-        """
-        self._df = (
-            safe_validate(schemas.layerdata_inclined, df)
-            if self.has_inclined
-            else safe_validate(schemas.layerdata, df)
-        )
+    def __init__(self, df: pd.DataFrame):
+        self._df = df
 
     @staticmethod
-    def _check_correct_instance(selection_values: str | Iterable) -> Iterable:
+    def _to_iterable(selection_values: str | Iterable) -> Iterable:
         if isinstance(selection_values, str):
             selection_values = [selection_values]
         return selection_values
@@ -94,36 +48,26 @@ class LayeredData(AbstractData, PandasExportMixin):
         df.loc[:, "bottom"] = df["surface"] - df["bottom"]
         return df
 
-    def to_header(
-        self,
-        horizontal_reference: str | int | CRS = 28992,
-        vertical_reference: str | int | CRS = 5709,
-    ):
+    def to_header(self, horizontal_reference: str | int | CRS = 28992):
         """
-        Generate a :class:`~geost.base.PointHeader` from this instance of LayaredData.
+        Generate a :class:`~geost.base.PointHeader` from this instance of LayeredData.
 
         Parameters
         ----------
         horizontal_reference : str | int | CRS, optional
             EPSG of the target crs. Takes anything that can be interpreted by
             pyproj.crs.CRS.from_user_input(), by default 28992.
-        vertical_reference : str | int | CRS, optional
-            EPSG of the target vertical datum. Takes anything that can be interpreted by
-            pyproj.crs.CRS.from_user_input(). However, it must be a vertical datum. FYI:
-            "NAP" is EPSG 5709 and The Belgian reference system (Ostend height) is ESPG
-            5710, by default 5709.
 
         Returns
         -------
         :class:`~geost.base.PointHeader`
             An instance of :class:`~geost.base.PointHeader`
-        """
-        from geost.accessors.header import PointHeader
 
+        """
         header_columns = ["nr", "x", "y", "surface", "end"]
-        header = self[header_columns].drop_duplicates("nr").reset_index(drop=True)
+        header = self._df[header_columns].drop_duplicates("nr").reset_index(drop=True)
         header = utils.dataframe_to_geodataframe(header).set_crs(horizontal_reference)
-        return PointHeader(header, vertical_reference)
+        return header
 
     def to_collection(
         self,
@@ -153,7 +97,7 @@ class LayeredData(AbstractData, PandasExportMixin):
         from geost.base import BoreholeCollection  # Avoid circular import
 
         header = self.to_header(horizontal_reference, vertical_reference)
-        return BoreholeCollection(header, self)
+        return BoreholeCollection(header, self._df)
         # NOTE: Type of Collection may need to be inferred in the future.
 
     def select_by_values(
@@ -193,25 +137,24 @@ class LayeredData(AbstractData, PandasExportMixin):
         >>> boreholes.select_by_values("lith", ["V", "K"], how="and")
 
         """
-        if column not in self.df.columns:
+        if column not in self._df.columns:
             raise IndexError(
                 f"The column '{column}' does not exist and cannot be used for selection"
             )
 
-        if isinstance(selection_values, str):
-            selection_values = [selection_values]
+        selection_values = self._to_iterable(selection_values)
 
-        selected = self.df
+        selected = self._df
         if how == "or":
-            valid = self["nr"][self[column].isin(selection_values)].unique()
+            valid = self._df["nr"][self._df[column].isin(selection_values)].unique()
             selected = selected[selected["nr"].isin(valid)]
 
         elif how == "and":
             for value in selection_values:
-                valid = self["nr"][self[column] == value].unique()
+                valid = self._df["nr"][self._df[column] == value].unique()
                 selected = selected[selected["nr"].isin(valid)]
 
-        return self.__class__(selected, self.has_inclined)
+        return selected
 
     def slice_depth_interval(
         self,
@@ -271,14 +214,13 @@ class LayeredData(AbstractData, PandasExportMixin):
         if not lower_boundary:
             lower_boundary = -1e34 if relative_to_vertical_reference else 1e34
 
-        sliced = self.df.copy()
+        sliced = self._df.copy()
 
+        bounds_are_series = False
         if relative_to_vertical_reference:
             bounds_are_series = True
-            upper_boundary = self["surface"] - upper_boundary
-            lower_boundary = self["surface"] - lower_boundary
-        else:
-            bounds_are_series = False
+            upper_boundary = self._df["surface"] - upper_boundary
+            lower_boundary = self._df["surface"] - lower_boundary
 
         sliced = sliced[
             (sliced["bottom"] > upper_boundary) & (sliced["top"] < lower_boundary)
@@ -292,7 +234,7 @@ class LayeredData(AbstractData, PandasExportMixin):
             sliced.loc[sliced["top"] <= upper_boundary, "top"] = upper_boundary
             sliced.loc[sliced["bottom"] >= lower_boundary, "bottom"] = lower_boundary
 
-        return self.__class__(sliced, self.has_inclined)
+        return sliced
 
     def slice_by_values(
         self, column: str, selection_values: str | Iterable, invert: bool = False
@@ -329,16 +271,16 @@ class LayeredData(AbstractData, PandasExportMixin):
         >>> data.slice_by_values("lith", "Z", invert=True)
 
         """
-        selection_values = self._check_correct_instance(selection_values)
+        selection_values = self._to_iterable(selection_values)
 
-        sliced = self.df.copy()
+        sliced = self._df.copy()
 
         if invert:
             sliced = sliced[~sliced[column].isin(selection_values)]
         else:
             sliced = sliced[sliced[column].isin(selection_values)]
 
-        return self.__class__(sliced, self.has_inclined)
+        return sliced
 
     def select_by_condition(self, condition: Any, invert: bool = False):
         """
@@ -375,7 +317,7 @@ class LayeredData(AbstractData, PandasExportMixin):
             selected = self[~condition]
         else:
             selected = self[condition]
-        return self.__class__(selected, self.has_inclined)
+        return selected
 
     def get_cumulative_thickness(self, column: str, values: str | List[str]):
         """
@@ -409,7 +351,7 @@ class LayeredData(AbstractData, PandasExportMixin):
 
         """
         selected_layers = self.slice_by_values(column, values)
-        cum_thickness = selected_layers.df.groupby(["nr", column]).apply(
+        cum_thickness = selected_layers.groupby(["nr", column]).apply(
             cumulative_thickness, include_groups=False
         )
         cum_thickness = cum_thickness.unstack(level=column)
@@ -456,7 +398,7 @@ class LayeredData(AbstractData, PandasExportMixin):
         selected_layers = selected_layers.select_by_condition(
             selected_layers["bottom"] - selected_layers["top"] >= min_thickness
         )
-        layer_top = selected_layers.df.groupby(["nr", column])["top"].first()
+        layer_top = selected_layers.groupby(["nr", column])["top"].first()
         return layer_top.unstack(level=column)
 
     def to_pyvista_cylinders(
@@ -495,9 +437,9 @@ class LayeredData(AbstractData, PandasExportMixin):
             A composite class holding the data which can be iterated over.
 
         """
-        data_columns = self._check_correct_instance(displayed_variables)
+        data_columns = self._to_iterable(displayed_variables)
 
-        data = self.df.copy()
+        data = self._df.copy()
 
         if relative_to_vertical_reference:
             data = self._change_depth_values(data)
@@ -532,9 +474,9 @@ class LayeredData(AbstractData, PandasExportMixin):
             3D visualisation in PyVista or other VTK viewers.
 
         """
-        displayed_variables = self._check_correct_instance(displayed_variables)
+        displayed_variables = self._to_iterable(displayed_variables)
         vtk_object = layerdata_to_pyvista_unstructured(
-            self.df, displayed_variables, radius=radius
+            self._df, displayed_variables, radius=radius
         )
         return vtk_object
 
@@ -580,8 +522,8 @@ class LayeredData(AbstractData, PandasExportMixin):
             List containing the DataFusionTools Data objects.
 
         """
-        columns = self._check_correct_instance(columns)
-        data = self.df.copy()
+        columns = self._to_iterable(columns)
+        data = self._df.copy()
         if relative_to_vertical_reference:
             data = self._change_depth_values(data)
 
@@ -593,7 +535,10 @@ class LayeredData(AbstractData, PandasExportMixin):
             return dftgeodata
 
     def _create_geodataframe_3d(
-        self, relative_to_vertical_reference: bool = True, crs: str | int | CRS = None
+        self,
+        relative_to_vertical_reference: bool = True,
+        crs: str | int | CRS = None,
+        has_inclined: bool = False,
     ):
         """
         Helper method for export method "to_qgis3d" to create the necessary GeoDataFrame
@@ -609,8 +554,12 @@ class LayeredData(AbstractData, PandasExportMixin):
         crs : str | int | CRS
             EPSG of the target crs. Takes anything that can be interpreted by
             pyproj.crs.CRS.from_user_input().
+        has_inclined : bool, optional
+            If True, the data also contains inclined objects which means the top of layers
+            is not in the same x,y-location as the bottom of layers. The default is False.
+
         """
-        data = self.df.copy()
+        data = self._df.copy()
 
         if relative_to_vertical_reference:
             data = self._change_depth_values(data)
@@ -630,7 +579,7 @@ class LayeredData(AbstractData, PandasExportMixin):
 
         data_to_write.update(data[data_columns].to_dict(orient="list"))
 
-        if self.has_inclined:
+        if has_inclined:
             geometries = [
                 gmt.LineString([[x, y, top + 0.01], [x_bot, y_bot, bottom + 0.01]])
                 for x, y, x_bot, y_bot, top, bottom in zip(
@@ -665,6 +614,7 @@ class LayeredData(AbstractData, PandasExportMixin):
         outfile: str | Path,
         relative_to_vertical_reference: bool = True,
         crs: str | int | CRS = None,
+        has_inclined: bool = False,
         **kwargs,
     ):
         """
@@ -683,12 +633,17 @@ class LayeredData(AbstractData, PandasExportMixin):
         crs : str | int | CRS
             EPSG of the target crs. Takes anything that can be interpreted by
             pyproj.crs.CRS.from_user_input().
+        has_inclined : bool, optional
+            If True, the data also contains inclined objects which means the top of layers
+            is not in the same x,y-location as the bottom of layers. The default is False.
 
         **kwargs
             geopandas.GeodataFrame.to_file kwargs. See relevant Geopandas documentation.
 
         """
-        qgis3d = self._create_geodataframe_3d(relative_to_vertical_reference, crs=crs)
+        qgis3d = self._create_geodataframe_3d(
+            relative_to_vertical_reference, crs=crs, has_inclined=has_inclined
+        )
         qgis3d.to_file(outfile, driver="GPKG", **kwargs)
 
     def to_kingdom(
@@ -714,7 +669,7 @@ class LayeredData(AbstractData, PandasExportMixin):
             sound velocity in sediment in m/s, default is 1600 m/s
         """
         # 1. add column needed in kingdom and write interval data
-        kingdom_df = self.df.copy()
+        kingdom_df = self._df.copy()
         # Add total depth and rename bottom and top columns to Kingdom requirements
         kingdom_df.insert(7, "Total depth", (kingdom_df["surface"] - kingdom_df["end"]))
         kingdom_df.rename(
@@ -723,7 +678,7 @@ class LayeredData(AbstractData, PandasExportMixin):
         kingdom_df.to_csv(outfile, index=False)
 
         # 2. create and write time-depth chart
-        tdchart = self[["nr", "surface"]].copy()
+        tdchart = self._df[["nr", "surface"]].copy()
         tdchart.drop_duplicates(inplace=True)
         tdchart.insert(0, "id", range(tdstart, tdstart + len(tdchart)))
         # Add measured depth (predefined depths of 0 and 1 m below surface)
@@ -748,42 +703,15 @@ class LayeredData(AbstractData, PandasExportMixin):
         )
 
 
-class DiscreteData(AbstractData, PandasExportMixin):
-    __datatype = "discrete"
+class DiscreteData(AbstractData):
+    def __init__(self, df):
+        self._df = df
 
-    def __init__(self, df, has_inclined: bool = False):
-        self.has_inclined = has_inclined
-        self.df = df
-
-    @property
-    def df(self):
-        return self._df
-
-    @df.setter
-    def df(self, df):
-        self._df = (
-            safe_validate(schemas.discretedata_inclined, df)
-            if self.has_inclined
-            else safe_validate(schemas.discretedata, df)
-        )
-
-    def __repr__(self):
-        name = self.__class__.__name__
-        data = self._df
-        return f"{name} instance:\n{data}"
-
-    def __getitem__(self, column):
-        return self.df[column]
-
-    def __setitem__(self, column, item):
-        self.df.loc[:, column] = item
-
-    def __len__(self):
-        return len(self.df)
-
-    @property
-    def datatype(self):
-        return self.__datatype
+    @staticmethod
+    def _to_iterable(selection_values: str | Iterable) -> Iterable:
+        if isinstance(selection_values, str):
+            selection_values = [selection_values]
+        return selection_values
 
     def to_header(
         self,
@@ -813,7 +741,7 @@ class DiscreteData(AbstractData, PandasExportMixin):
         from geost.accessors.header import PointHeader
 
         header_columns = ["nr", "x", "y", "surface", "end"]
-        header = self[header_columns].drop_duplicates("nr").reset_index(drop=True)
+        header = self._df[header_columns].drop_duplicates("nr").reset_index(drop=True)
         header = utils.dataframe_to_geodataframe(header).set_crs(horizontal_reference)
         return PointHeader(header, vertical_reference)
 
@@ -846,7 +774,7 @@ class DiscreteData(AbstractData, PandasExportMixin):
 
         header = self.to_header(horizontal_reference, vertical_reference)
         return CptCollection(
-            header, self
+            header, self._df
         )  # TODO: type of Collection needs to be inferred in the future
 
     def select_by_values(
@@ -887,25 +815,24 @@ class DiscreteData(AbstractData, PandasExportMixin):
         >>> data.select_by_values("lith", ["V", "K"], how="and")
 
         """
-        if column not in self.df.columns:
+        if column not in self._df.columns:
             raise IndexError(
                 f"The column '{column}' does not exist and cannot be used for selection"
             )
 
-        if isinstance(selection_values, str):
-            selection_values = [selection_values]
+        selection_values = self._to_iterable(selection_values)
 
-        selected = self.df.copy()
+        selected = self._df.copy()
         if how == "or":
-            valid = self["nr"][self[column].isin(selection_values)].unique()
+            valid = self._df["nr"][self._df[column].isin(selection_values)].unique()
             selected = selected[selected["nr"].isin(valid)]
 
         elif how == "and":
             for value in selection_values:
-                valid = self["nr"][self[column] == value].unique()
+                valid = self._df["nr"][self._df[column] == value].unique()
                 selected = selected[selected["nr"].isin(valid)]
 
-        return self.__class__(selected, self.has_inclined)
+        return selected
 
     def slice_depth_interval(
         self,
@@ -959,17 +886,17 @@ class DiscreteData(AbstractData, PandasExportMixin):
         if not lower_boundary:
             lower_boundary = -1e34 if relative_to_vertical_reference else 1e34
 
-        sliced = self.df.copy()
+        sliced = self._df.copy()
 
         if relative_to_vertical_reference:
-            upper_boundary = self["surface"] - upper_boundary
-            lower_boundary = self["surface"] - lower_boundary
+            upper_boundary = self._df["surface"] - upper_boundary
+            lower_boundary = self._df["surface"] - lower_boundary
 
         sliced = sliced[
             (sliced["depth"] >= upper_boundary) & (sliced["depth"] <= lower_boundary)
         ]
 
-        return self.__class__(sliced, self.has_inclined)
+        return sliced
 
     def slice_by_values(self):  # pragma: no cover
         raise NotImplementedError()
@@ -1006,10 +933,10 @@ class DiscreteData(AbstractData, PandasExportMixin):
 
         """
         if invert:
-            selected = self[~condition]
+            selected = self._df[~condition]
         else:
-            selected = self[condition]
-        return self.__class__(selected, self.has_inclined)
+            selected = self._df[condition]
+        return selected
 
     def get_cumulative_thickness(self):  # pragma: no cover
         raise NotImplementedError()
