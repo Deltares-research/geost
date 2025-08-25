@@ -14,26 +14,26 @@ DATA = {
 
 @pd.api.extensions.register_dataframe_accessor("geoheader")
 class Header:
-    def __init__(self, df):
-        self._validate(df)
-        self._df = df
+    def __init__(self, gdf):
+        self._validate(gdf)
+        self._gdf = gdf
         self._backend = self._get_backend()
 
     def __getattr__(self, attr):
         return getattr(self._backend, attr)
 
     @staticmethod
-    def _validate(df):
-        if not hasattr(df, "datatype"):
+    def _validate(gdf):
+        if not hasattr(gdf, "headertype"):
             raise AttributeError(
-                "Header has no attribute 'datatype', geoheader accessor cannot choose backend"
+                "Header has no attribute 'headertype', geoheader accessor cannot choose backend"
             )
 
     def _get_backend(self):
-        header = HEADER.get(self._df.datatype)
+        header = HEADER.get(self._gdf.headertype)
         if header is None:
-            raise TypeError(f"No Header backend available for {self._df.datatype}")
-        return header
+            raise TypeError(f"No Header backend available for {self._gdf.headertype}")
+        return header(self._gdf)
 
 
 @pd.api.extensions.register_dataframe_accessor("geodata")
@@ -57,4 +57,4 @@ class Data:
         data = DATA.get(self._df.datatype)
         if data is None:
             raise TypeError(f"No Data backend available for {self._df.datatype}")
-        return data
+        return data(self._df)
