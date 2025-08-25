@@ -218,18 +218,18 @@ class AbstractCollection(ABC):  # pragma: no cover
     def slice_by_values(self):
         pass
 
-    @abstractmethod
-    def get_cumulative_thickness(self):
-        # Not sure if this should be here, potentially unsuitable with DiscreteData
-        # These kind of methods should go to a seperate layer_analysis module with
-        # functions to cover such analyses
-        pass
+    # @abstractmethod
+    # def get_cumulative_thickness(self):
+    #     # Not sure if this should be here, potentially unsuitable with DiscreteData
+    #     # These kind of methods should go to a seperate layer_analysis module with
+    #     # functions to cover such analyses
+    #     pass
 
-    @abstractmethod
-    def get_layer_top(self):
-        # These kind of methods should go to a seperate layer_analysis module with
-        # functions to cover such analyses
-        pass
+    # @abstractmethod
+    # def get_layer_top(self):
+    #     # These kind of methods should go to a seperate layer_analysis module with
+    #     # functions to cover such analyses
+    #     pass
 
     @abstractmethod
     def to_pyvista_cylinders(self):

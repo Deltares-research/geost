@@ -1527,23 +1527,18 @@ class Collection(AbstractCollection):
 
     def __init__(
         self,
-        header: HeaderObject,
-        data: DataObject,
+        header: HeaderObject | None,
+        data: DataObject | None,
     ):
+        # TODO inheritance refactor: check init types and default values.
         self.header = header
         self.data = data
 
-    def __new__(cls, *args, **kwargs):
-        if cls is Collection:
-            raise TypeError(
-                f"Cannot construct {cls.__name__} directly: construct class from its",
-                "children instead",
-            )
-        else:
-            return object.__new__(cls)
-
     def __repr__(self):
-        return f"{self.__class__.__name__}:\n# header = {self.n_points}"
+        if "header" in self.__dict__:
+            return f"{self.__class__.__name__}:\n# header = {self.n_points}"
+        else:
+            return f"{self.__class__.__name__}:\n<EMPTY COLLECTION>"
 
     def __len__(self):
         return len(self.header)
@@ -1563,7 +1558,7 @@ class Collection(AbstractCollection):
         return self._data
 
     @property
-    def n_points(self):  # No change
+    def n_points(self):
         """
         Number of objects in the collection.
         """
