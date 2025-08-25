@@ -183,6 +183,7 @@ def point_header_gdf():
         geometry=geometries,
     )
     gdf.set_crs("epsg:28992", inplace=True)
+    gdf.datatype = "point"
     return gdf
 
 

@@ -12,7 +12,7 @@ from shapely.geometry import LineString, Point, Polygon
 from geost.accessors.header import LineHeader, PointHeader
 
 
-class TestHeaders:
+class TestPointHeader:
     @pytest.mark.unittest
     def test_init_header(self, point_header_gdf):
         point_header = PointHeader(point_header_gdf, "NAP")

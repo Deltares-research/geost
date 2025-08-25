@@ -37,8 +37,8 @@ class Collection(AbstractCollection):
 
     def __init__(
         self,
-        header: Any,
-        data: Any,
+        header: gpd.GeoDataFrame,
+        data: pd.DataFrame,
     ):
         self.header = header
         self.data = data
