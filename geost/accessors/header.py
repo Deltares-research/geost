@@ -16,130 +16,88 @@ type Coordinate = int | float
 type GeometryType = gmt.base.BaseGeometry | list[gmt.base.BaseGeometry]
 
 
-class PointHeader(AbstractHeader, GeopandasExportMixin):
-    def __init__(self, gdf, vertical_reference: str | int | CRS):
-        self.gdf = gdf
-        self.__vertical_reference = CRS(vertical_reference)
+class PointHeader(AbstractHeader):
+    def __init__(self, gdf):
+        self._gdf = gdf
 
-    def __repr__(self):
-        name = self.__class__.__name__
-        data = self._gdf
-        length = len(data)
-        return f"{name} instance containing {length} objects\n{data}"
+    # def change_horizontal_reference(self, to_epsg: str | int | CRS):
+    #     """
+    #     Change the horizontal reference (i.e. coordinate reference system, crs) of the
+    #     header to the given target crs.
 
-    def __getitem__(self, column):
-        return self.gdf[column]
+    #     Parameters
+    #     ----------
+    #     to_epsg : str | int | CRS
+    #         EPSG of the target crs. Takes anything that can be interpreted by
+    #         pyproj.crs.CRS.from_user_input().
 
-    def __setitem__(self, key, values):
-        self.gdf.loc[:, key] = values
+    #     Examples
+    #     --------
+    #     To change the header's current horizontal reference to WGS 84 UTM zone 31N:
 
-    def __len__(self):
-        return len(self.gdf)
+    #     >>> self.change_horizontal_reference(32631)
 
-    @property
-    def gdf(self):
-        """
-        Underlying geopandas.GeodataFrame with header data.
-        """
-        return self._gdf
+    #     This would be the same as:
 
-    @property
-    def horizontal_reference(self):
-        """
-        Coordinate reference system represented by an instance of pyproj.crs.CRS
-        """
-        return self.gdf.crs
+    #     >>> self.change_horizontal_reference("epsg:32631")
 
-    @property
-    def vertical_reference(self):
-        """
-        Vertical datum represented by an instance of pyproj.crs.CRS
-        """
-        return self.__vertical_reference
+    #     As Pyproj is very flexible, you can even use the CRS's full official name:
 
-    @gdf.setter
-    def gdf(self, gdf):
-        self._gdf = safe_validate(schemas.pointheader, gdf)
+    #     >>> self.change_horizontal_reference("WGS 84 / UTM zone 31N")
 
-    def change_horizontal_reference(self, to_epsg: str | int | CRS):
-        """
-        Change the horizontal reference (i.e. coordinate reference system, crs) of the
-        header to the given target crs.
+    #     """
+    #     self._gdf = self._gdf.to_crs(to_epsg)
+    #     self._gdf[["x", "y"]] = self._gdf[["x", "y"]].astype(float)
+    #     self._gdf["x"] = self._gdf["geometry"].x
+    #     self._gdf["y"] = self._gdf["geometry"].y
 
-        Parameters
-        ----------
-        to_epsg : str | int | CRS
-            EPSG of the target crs. Takes anything that can be interpreted by
-            pyproj.crs.CRS.from_user_input().
+    # def change_vertical_reference(self, to_epsg: str | int | CRS):
+    #     """
+    #     Change the vertical reference of the object's surface levels.
 
-        Examples
-        --------
-        To change the header's current horizontal reference to WGS 84 UTM zone 31N:
+    #     Parameters
+    #     ----------
+    #     to_epsg : str | int | CRS
+    #         EPSG of the target vertical datum. Takes anything that can be interpreted by
+    #         pyproj.crs.CRS.from_user_input(). However, it must be a vertical datum.
 
-        >>> self.change_horizontal_reference(32631)
+    #         Some often-used vertical datums are:
+    #         - NAP : 5709
+    #         - MSL NL depth : 9288
+    #         - LAT NL depth : 9287
+    #         - Ostend height : 5710
 
-        This would be the same as:
+    #         See epsg.io for more.
 
-        >>> self.change_horizontal_reference("epsg:32631")
+    #     Examples
+    #     --------
+    #     To change the header's current vertical reference to NAP:
 
-        As Pyproj is very flexible, you can even use the CRS's full official name:
+    #     >>> self.change_horizontal_reference(5709)
 
-        >>> self.change_horizontal_reference("WGS 84 / UTM zone 31N")
+    #     This would be the same as:
 
-        """
-        self._gdf = self.gdf.to_crs(to_epsg)
-        self._gdf[["x", "y"]] = self._gdf[["x", "y"]].astype(float)
-        self._gdf["x"] = self._gdf["geometry"].x
-        self._gdf["y"] = self._gdf["geometry"].y
+    #     >>> self.change_horizontal_reference("epsg:5709")
 
-    def change_vertical_reference(self, to_epsg: str | int | CRS):
-        """
-        Change the vertical reference of the object's surface levels.
+    #     As the Pyproj constructors are very flexible, you can even use the CRS's full
+    #     official name instead of an EPSG number. E.g. for changing to NAP and the
+    #     Belgian Ostend height vertical datums repsectively, you can use:
 
-        Parameters
-        ----------
-        to_epsg : str | int | CRS
-            EPSG of the target vertical datum. Takes anything that can be interpreted by
-            pyproj.crs.CRS.from_user_input(). However, it must be a vertical datum.
-
-            Some often-used vertical datums are:
-            - NAP : 5709
-            - MSL NL depth : 9288
-            - LAT NL depth : 9287
-            - Ostend height : 5710
-
-            See epsg.io for more.
-
-        Examples
-        --------
-        To change the header's current vertical reference to NAP:
-
-        >>> self.change_horizontal_reference(5709)
-
-        This would be the same as:
-
-        >>> self.change_horizontal_reference("epsg:5709")
-
-        As the Pyproj constructors are very flexible, you can even use the CRS's full
-        official name instead of an EPSG number. E.g. for changing to NAP and the
-        Belgian Ostend height vertical datums repsectively, you can use:
-
-        >>> self.change_horizontal_reference("NAP")
-        >>> self.change_horizontal_reference("Ostend height")
-        """
-        transformer = vertical_reference_transformer(
-            self.horizontal_reference, self.vertical_reference, to_epsg
-        )
-        self.gdf[["surface", "end"]] = self.gdf[["surface", "end"]].astype(float)
-        _, _, new_surface = transformer.transform(
-            self.gdf["x"], self.gdf["y"], self.gdf["surface"]
-        )
-        _, _, new_end = transformer.transform(
-            self.gdf["x"], self.gdf["y"], self.gdf["end"]
-        )
-        self._gdf.loc[:, "surface"] = new_surface
-        self._gdf.loc[:, "end"] = new_end
-        self.__vertical_reference = CRS(to_epsg)
+    #     >>> self.change_horizontal_reference("NAP")
+    #     >>> self.change_horizontal_reference("Ostend height")
+    #     """
+    #     transformer = vertical_reference_transformer(
+    #         self.horizontal_reference, self.vertical_reference, to_epsg
+    #     )
+    #     self.gdf[["surface", "end"]] = self.gdf[["surface", "end"]].astype(float)
+    #     _, _, new_surface = transformer.transform(
+    #         self.gdf["x"], self.gdf["y"], self.gdf["surface"]
+    #     )
+    #     _, _, new_end = transformer.transform(
+    #         self.gdf["x"], self.gdf["y"], self.gdf["end"]
+    #     )
+    #     self._gdf.loc[:, "surface"] = new_surface
+    #     self._gdf.loc[:, "end"] = new_end
 
     def get(self, selection_values: str | Iterable, column: str = "nr"):
         """
@@ -174,15 +132,16 @@ class PointHeader(AbstractHeader, GeopandasExportMixin):
 
         will return a :class:`~geost.base.PointHeader` with all boreholes
         that are located in "unit1" and "unit2" geological map areas.
+
         """
         if isinstance(selection_values, str):
-            selected_gdf = self[self[column] == selection_values]
+            selection = self._gdf[self._gdf[column] == selection_values]
         elif isinstance(selection_values, Iterable):
-            selected_gdf = self[self[column].isin(selection_values)]
+            selection = self._gdf[self._gdf[column].isin(selection_values)]
 
-        selected_gdf = selected_gdf[~selected_gdf.duplicated()]
+        selection = selection[~selection.duplicated()]
 
-        return self.__class__(selected_gdf, self.vertical_reference)
+        return selection
 
     def select_within_bbox(
         self,
@@ -215,10 +174,10 @@ class PointHeader(AbstractHeader, GeopandasExportMixin):
             Instance of :class:`~geost.base.PointHeader` containing only selected
             geometries.
         """
-        gdf_selected = spatial.select_points_within_bbox(
-            self.gdf, xmin, ymin, xmax, ymax, invert=invert
+        selection = spatial.select_points_within_bbox(
+            self._gdf, xmin, ymin, xmax, ymax, invert=invert
         )
-        return self.__class__(gdf_selected, self.vertical_reference)
+        return selection
 
     def select_with_points(
         self,
@@ -247,10 +206,10 @@ class PointHeader(AbstractHeader, GeopandasExportMixin):
             geometries.
 
         """
-        gdf_selected = spatial.select_points_near_points(
+        selection = spatial.select_points_near_points(
             self.gdf, points, buffer, invert=invert
         )
-        return self.__class__(gdf_selected, self.vertical_reference)
+        return selection
 
     def select_with_lines(
         self,
@@ -279,10 +238,10 @@ class PointHeader(AbstractHeader, GeopandasExportMixin):
             geometries.
 
         """
-        gdf_selected = spatial.select_points_near_lines(
-            self.gdf, lines, buffer, invert=invert
+        selection = spatial.select_points_near_lines(
+            self._gdf, lines, buffer, invert=invert
         )
-        return self.__class__(gdf_selected, self.vertical_reference)
+        return selection
 
     def select_within_polygons(
         self,
@@ -312,10 +271,10 @@ class PointHeader(AbstractHeader, GeopandasExportMixin):
             geometries.
 
         """
-        gdf_selected = spatial.select_points_within_polygons(
-            self.gdf, polygons, buffer, invert=invert
+        selection = spatial.select_points_within_polygons(
+            self._gdf, polygons, buffer, invert=invert
         )
-        return self.__class__(gdf_selected, self.vertical_reference)
+        return selection
 
     def select_by_depth(
         self,
@@ -345,8 +304,9 @@ class PointHeader(AbstractHeader, GeopandasExportMixin):
         Child of :class:`~geost.base.PointHeader`.
             Instance of :class:`~geost.base.PointHeader` or containing only objects
             selected by this method.
+
         """
-        selected = self.gdf.copy()
+        selected = self._gdf.copy()
         if top_min is not None:
             selected = selected[selected["surface"] >= top_min]
         if top_max is not None:
@@ -358,7 +318,7 @@ class PointHeader(AbstractHeader, GeopandasExportMixin):
 
         selected = selected[~selected.duplicated()]
 
-        return self.__class__(selected, self.vertical_reference)
+        return selected
 
     def select_by_length(self, min_length: float = None, max_length: float = None):
         """
@@ -377,8 +337,9 @@ class PointHeader(AbstractHeader, GeopandasExportMixin):
         Child of :class:`~geost.base.PointHeader`.
             Instance of :class:`~geost.base.PointHeader` or containing only objects
             selected by this method.
+
         """
-        selected = self.gdf.copy()
+        selected = self._gdf.copy()
         length = selected["surface"] - selected["end"]
         if min_length is not None:
             selected = selected[length >= min_length]
@@ -387,7 +348,7 @@ class PointHeader(AbstractHeader, GeopandasExportMixin):
 
         selected = selected[~selected.duplicated()]
 
-        return self.__class__(selected, self.vertical_reference)
+        return selected
 
     def get_area_labels(
         self,
@@ -417,57 +378,26 @@ class PointHeader(AbstractHeader, GeopandasExportMixin):
             a column containing the generated data will be added inplace.
         """
         polygon_gdf = utils.check_geometry_instance(polygon_gdf)
-        polygon_gdf = spatial.check_and_coerce_crs(
-            polygon_gdf, self.horizontal_reference
-        )
+        polygon_gdf = spatial.check_and_coerce_crs(polygon_gdf, self._gdf.crs)
 
-        all_nrs = self["nr"]
-        area_labels = spatial.find_area_labels(self.gdf, polygon_gdf, column_name)
+        all_nrs = self._gdf["nr"]
+        area_labels = spatial.find_area_labels(self._gdf, polygon_gdf, column_name)
         area_labels = pd.concat([all_nrs, area_labels], axis=1)
 
         if include_in_header:
-            self.gdf.drop(
+            self._gdf.drop(
                 columns=column_name,
                 errors="ignore",
                 inplace=True,
             )
-            self._gdf = self.gdf.merge(area_labels, on="nr")
+            self._gdf = self._gdf.merge(area_labels, on="nr")
         else:
             return area_labels
 
 
-class LineHeader(AbstractHeader, GeopandasExportMixin):  # pragma: no cover
-    def __init__(self, gdf, vertical_reference: str | int | CRS):
-        self.gdf = gdf
-        self.__vertical_reference = CRS(vertical_reference)
-
-    def __repr__(self):
-        return f"{self.__class__.__name__} instance containing {len(self)} objects"
-
-    def __getitem__(self, column):
-        return self.gdf[column]
-
-    def __setitem__(self, key, values):
-        self.gdf.loc[:, key] = values
-
-    def __len__(self):
-        return len(self.gdf)
-
-    @property
-    def gdf(self):
-        return self._gdf
-
-    @property
-    def horizontal_reference(self):
-        return self.gdf.crs
-
-    @property
-    def vertical_reference(self):
-        return self.__vertical_reference
-
-    @gdf.setter
-    def gdf(self, gdf):
-        self._gdf = safe_validate(schemas.lineheader, gdf)
+class LineHeader(AbstractHeader):  # pragma: no cover
+    def __init__(self, gdf):
+        self._gdf = gdf
 
     def change_horizontal_reference(self, to_epsg: str | int | CRS):
         raise NotImplementedError("Add function logic")
