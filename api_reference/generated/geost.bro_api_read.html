@@ -419,6 +419,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../../user_guide/data_structures.html">Data structures</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../user_guide/reading_data.html">Reading data</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../user_guide/validation.html">Data validation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/read_xml.html">Reading XML files</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../user_guide/bro_geotop.html">BRO GeoTOP</a></li>
 </ul>
 </details></li>
@@ -846,6 +847,11 @@ BoreholeCollection:
 … bhrg = geost.bro_api_read(“BHR-G”, geometry=”my_polygon.shp”, buffer=500)
 BoreholeCollection:
 # header = 5</p>
+<p>When there are no objects found, you will get an empty collection:
+&gt;&gt;&gt; import geost
+… bhrg = geost.bro_api_read(“BHR-G”, bbox=[0, 0, 1, 1])
+Collection:
+&lt;EMPTY COLLECTION&gt;</p>
 </dd></dl>
 
 </section>

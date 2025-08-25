@@ -472,18 +472,27 @@
 <h1>Release notes<a class="headerlink" href="#release-notes" title="Link to this heading">#</a></h1>
 <section id="v0-3-0">
 <h2>v0.3.0<a class="headerlink" href="#v0-3-0" title="Link to this heading">#</a></h2>
+<p>Milestone update introducing improved integration with the BRO, 3D viewing/VTK features,
+better data validation and configuration options.</p>
 <p><a class="reference external" href="https://github.com/Deltares-research/geost/compare/0.2.9...0.3.0"><strong>Full Changelog</strong></a></p>
 <p><strong>Added</strong></p>
 <ul class="simple">
+<li><p><strong>Added</strong> XML file parsing functionality for BHR-P, BHR-G, BHR-GT, CPT and SFR objects</p></li>
+<li><p><strong>Added</strong> <code class="docutils literal notranslate"><span class="pre">geost.bro_api_read</span></code> function to retrieve objects through the BRO REST API</p></li>
 <li><p><strong>Added</strong> <code class="docutils literal notranslate"><span class="pre">VoxelModel.get_thickness</span></code> method</p></li>
+<li><p><strong>Added</strong> <code class="docutils literal notranslate"><span class="pre">geost.config</span></code> module for global settings. See also the <a class="reference internal" href="user_guide/validation.html"><span class="std std-doc">Validation</span></a> section in the user guide.</p></li>
 <li><p><strong>Added</strong> <code class="docutils literal notranslate"><span class="pre">LayeredData.to_pyvista_grid</span></code>, <code class="docutils literal notranslate"><span class="pre">DiscrteData.to_pyvista_grid</span></code> methods</p></li>
+<li><p><strong>Added</strong> New user guide sections on XML parsing and data validation</p></li>
+<li><p><strong>Added</strong> Example that showcases using the new <code class="docutils literal notranslate"><span class="pre">geost.bro_api_read</span></code> function</p></li>
 <li><p><strong>Added</strong> Example that showcases creating thickness maps based on Voxel models</p></li>
 <li><p><strong>Added</strong> Example that showcases new PyVista/VTK/3D export and viewing features</p></li>
 </ul>
 <p><strong>Other</strong></p>
 <ul class="simple">
-<li><p><strong>Other</strong> renamed <code class="docutils literal notranslate"><span class="pre">VoxelModel.to_vtk</span></code> method to <code class="docutils literal notranslate"><span class="pre">VoxelModel.to_pyvista_grid</span></code> and changed behaviour (returns PyVista objects instead of writing a VTK file)</p></li>
-<li><p><strong>Other</strong> renamed <code class="docutils literal notranslate"><span class="pre">to_vtk</span></code> and <code class="docutils literal notranslate"><span class="pre">to_vtm</span></code> methods of LayeredData, DiscreteData and Collections to <code class="docutils literal notranslate"><span class="pre">to_pyvista_cylinders</span></code> and changed behaviour (returns PyVista objects instead of writing a VTK file)</p></li>
+<li><p>Renamed <code class="docutils literal notranslate"><span class="pre">VoxelModel.to_vtk</span></code> method to <code class="docutils literal notranslate"><span class="pre">VoxelModel.to_pyvista_grid</span></code> and changed behaviour (returns PyVista objects instead of writing a VTK file)</p></li>
+<li><p>Renamed <code class="docutils literal notranslate"><span class="pre">to_vtk</span></code> and <code class="docutils literal notranslate"><span class="pre">to_vtm</span></code> methods of LayeredData, DiscreteData and Collections to <code class="docutils literal notranslate"><span class="pre">to_pyvista_cylinders</span></code> and changed behaviour (returns PyVista objects instead of writing a VTK file)</p></li>
+<li><p>Changed to and integrated <a class="reference external" href="https://pandera.readthedocs.io/en/stable/">Pandera</a> for dataframe validation</p></li>
+<li><p>License changed to GNU Lesser General Public License v3 (LGPLv3)</p></li>
 </ul>
 </section>
 <section id="v0-2-9">
@@ -514,7 +523,7 @@
 </ul>
 <p><strong>Other</strong></p>
 <ul class="simple">
-<li><p><strong>Other</strong> remove unnecessary transpose in <code class="docutils literal notranslate"><span class="pre">sample_along_line</span></code> for more generic behaviour</p></li>
+<li><p>Removed unnecessary transpose in <code class="docutils literal notranslate"><span class="pre">sample_along_line</span></code> for more generic behaviour</p></li>
 </ul>
 </section>
 <section id="v0-2-6">
@@ -536,11 +545,6 @@
 <li><p><strong>Fixed</strong> <em>find_area_labels</em> can now return multiple labels when passing an iterable of column names</p></li>
 <li><p><strong>Fixed</strong> Newly added columns to the header are now preserved upon making selections and slices</p></li>
 </ul>
-<p><strong>Other</strong></p>
-<ul class="simple">
-<li><p><strong>Updated</strong> Function docstrings</p></li>
-<li><p><strong>Updated</strong> Pixi tasks for docs management</p></li>
-</ul>
 </section>
 <section id="v0-2-4">
 <h2>v0.2.4<a class="headerlink" href="#v0-2-4" title="Link to this heading">#</a></h2>
@@ -557,11 +561,6 @@
 <li><p><strong>Fixed</strong> multiple Pandas setting-on-copy-warnings</p></li>
 <li><p><strong>Fixed</strong> QGis3D export not using the collection’s CRS</p></li>
 </ul>
-<p><strong>Other</strong></p>
-<ul class="simple">
-<li><p><strong>Updated</strong> readme</p></li>
-<li><p><strong>Removed</strong> requirements.txt</p></li>
-</ul>
 </section>
 <section id="v0-2-2">
 <h2>v0.2.2<a class="headerlink" href="#v0-2-2" title="Link to this heading">#</a></h2>
@@ -577,10 +576,6 @@
 <li><p><strong>Fixed</strong> icons in readme</p></li>
 <li><p><strong>Fixed</strong> select_by_values slow copy behaviour for large datasets</p></li>
 </ul>
-<p><strong>Other</strong></p>
-<ul class="simple">
-<li><p><strong>Updated</strong> pixi environment</p></li>
-</ul>
 </section>
 <section id="v0-2-1">
 <h2>v0.2.1<a class="headerlink" href="#v0-2-1" title="Link to this heading">#</a></h2>
@@ -589,11 +584,6 @@
 <p><strong>Fixed</strong></p>
 <ul class="simple">
 <li><p><strong>Fixed</strong> adjustment of z-coordinates when using read_borehole_table</p></li>
-</ul>
-<p><strong>Other</strong></p>
-<ul class="simple">
-<li><p><strong>Updated</strong> readme</p></li>
-<li><p><strong>Updated</strong> license</p></li>
 </ul>
 </section>
 <section id="v0-2-0">

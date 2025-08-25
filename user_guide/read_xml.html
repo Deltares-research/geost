@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Read Geological borehole (BHR-G) data from XML &#8212; Geological Subsurface Toolbox  documentation</title>
+    <title>Reading XML files &#8212; Geological Subsurface Toolbox  documentation</title>
   
   
   
@@ -46,11 +46,13 @@
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = 'examples/read_xml';</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'user_guide/read_xml';</script>
     <link rel="icon" href="../_static/geost_logo.png"/>
     <link rel="author" title="About these documents" href="../about.html" />
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="BRO GeoTop" href="bro_geotop.html" />
+    <link rel="prev" title="Data validation" href="validation.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   <meta name="docsearch:version" content="0.3.0" />
@@ -156,7 +158,7 @@
 </li>
 
 
-<li class="nav-item ">
+<li class="nav-item current active">
   <a class="nav-link nav-internal" href="../documentation.html">
     Documentation
   </a>
@@ -285,10 +287,8 @@
       
       
       
-        
-      
       <dialog id="pst-primary-sidebar-modal"></dialog>
-      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar hide-on-wide">
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
         
 
   
@@ -324,7 +324,7 @@
 </li>
 
 
-<li class="nav-item ">
+<li class="nav-item current active">
   <a class="nav-link nav-internal" href="../documentation.html">
     Documentation
   </a>
@@ -408,6 +408,320 @@
     
   </div>
   
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><p aria-level="2" class="caption" role="heading"><span class="caption-text">Documentation</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="../user_guide.html">User guide</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="data_structures.html">Data structures</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reading_data.html">Reading data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="validation.html">Data validation</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">Reading XML files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bro_geotop.html">BRO GeoTOP</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../api_reference.html">API Reference</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../api_reference/point_header.html">PointHeader</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.PointHeader.html">geost.base.PointHeader</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.PointHeader.change_horizontal_reference.html">geost.base.PointHeader.change_horizontal_reference</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.PointHeader.change_vertical_reference.html">geost.base.PointHeader.change_vertical_reference</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.PointHeader.get.html">geost.base.PointHeader.get</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.PointHeader.get_area_labels.html">geost.base.PointHeader.get_area_labels</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.PointHeader.select_by_depth.html">geost.base.PointHeader.select_by_depth</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.PointHeader.select_by_length.html">geost.base.PointHeader.select_by_length</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.PointHeader.select_with_lines.html">geost.base.PointHeader.select_with_lines</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.PointHeader.select_with_points.html">geost.base.PointHeader.select_with_points</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.PointHeader.select_within_bbox.html">geost.base.PointHeader.select_within_bbox</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.PointHeader.select_within_polygons.html">geost.base.PointHeader.select_within_polygons</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.PointHeader.to_csv.html">geost.base.PointHeader.to_csv</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.PointHeader.to_geopackage.html">geost.base.PointHeader.to_geopackage</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.PointHeader.to_geoparquet.html">geost.base.PointHeader.to_geoparquet</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.PointHeader.to_parquet.html">geost.base.PointHeader.to_parquet</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.PointHeader.to_shape.html">geost.base.PointHeader.to_shape</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.PointHeader.gdf.html">geost.base.PointHeader.gdf</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.PointHeader.horizontal_reference.html">geost.base.PointHeader.horizontal_reference</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.PointHeader.vertical_reference.html">geost.base.PointHeader.vertical_reference</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../api_reference/discrete_data.html">DiscreteData</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.DiscreteData.html">geost.base.DiscreteData</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.DiscreteData.get_cumulative_thickness.html">geost.base.DiscreteData.get_cumulative_thickness</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.DiscreteData.get_layer_top.html">geost.base.DiscreteData.get_layer_top</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.DiscreteData.select_by_condition.html">geost.base.DiscreteData.select_by_condition</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.DiscreteData.select_by_values.html">geost.base.DiscreteData.select_by_values</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.DiscreteData.slice_by_values.html">geost.base.DiscreteData.slice_by_values</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.DiscreteData.slice_depth_interval.html">geost.base.DiscreteData.slice_depth_interval</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.DiscreteData.to_collection.html">geost.base.DiscreteData.to_collection</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.DiscreteData.to_csv.html">geost.base.DiscreteData.to_csv</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.DiscreteData.to_datafusiontools.html">geost.base.DiscreteData.to_datafusiontools</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.DiscreteData.to_header.html">geost.base.DiscreteData.to_header</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.DiscreteData.to_pyvista_cylinders.html">geost.base.DiscreteData.to_pyvista_cylinders</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.DiscreteData.to_pyvista_grid.html">geost.base.DiscreteData.to_pyvista_grid</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.DiscreteData.to_parquet.html">geost.base.DiscreteData.to_parquet</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.DiscreteData.datatype.html">geost.base.DiscreteData.datatype</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.DiscreteData.df.html">geost.base.DiscreteData.df</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../api_reference/layered_data.html">LayeredData</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.LayeredData.html">geost.base.LayeredData</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.LayeredData.get_cumulative_thickness.html">geost.base.LayeredData.get_cumulative_thickness</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.LayeredData.get_layer_top.html">geost.base.LayeredData.get_layer_top</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.LayeredData.select_by_condition.html">geost.base.LayeredData.select_by_condition</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.LayeredData.select_by_values.html">geost.base.LayeredData.select_by_values</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.LayeredData.slice_by_values.html">geost.base.LayeredData.slice_by_values</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.LayeredData.slice_depth_interval.html">geost.base.LayeredData.slice_depth_interval</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.LayeredData.to_collection.html">geost.base.LayeredData.to_collection</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.LayeredData.to_csv.html">geost.base.LayeredData.to_csv</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.LayeredData.to_datafusiontools.html">geost.base.LayeredData.to_datafusiontools</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.LayeredData.to_header.html">geost.base.LayeredData.to_header</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.LayeredData.to_kingdom.html">geost.base.LayeredData.to_kingdom</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.LayeredData.to_parquet.html">geost.base.LayeredData.to_parquet</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.LayeredData.to_qgis3d.html">geost.base.LayeredData.to_qgis3d</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.LayeredData.to_pyvista_cylinders.html">geost.base.LayeredData.to_pyvista_cylinders</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.LayeredData.to_pyvista_grid.html">geost.base.LayeredData.to_pyvista_grid</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.LayeredData.datatype.html">geost.base.LayeredData.datatype</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.LayeredData.df.html">geost.base.LayeredData.df</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../api_reference/borehole_collection.html">BoreholeCollection</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.BoreholeCollection.html">geost.base.BoreholeCollection</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.BoreholeCollection.add_header_column_to_data.html">geost.base.BoreholeCollection.add_header_column_to_data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.BoreholeCollection.change_horizontal_reference.html">geost.base.BoreholeCollection.change_horizontal_reference</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.BoreholeCollection.change_vertical_reference.html">geost.base.BoreholeCollection.change_vertical_reference</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.BoreholeCollection.check_header_to_data_alignment.html">geost.base.BoreholeCollection.check_header_to_data_alignment</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.BoreholeCollection.get.html">geost.base.BoreholeCollection.get</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.BoreholeCollection.get_area_labels.html">geost.base.BoreholeCollection.get_area_labels</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.BoreholeCollection.get_cumulative_thickness.html">geost.base.BoreholeCollection.get_cumulative_thickness</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.BoreholeCollection.get_layer_top.html">geost.base.BoreholeCollection.get_layer_top</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.BoreholeCollection.reset_header.html">geost.base.BoreholeCollection.reset_header</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.BoreholeCollection.select_by_condition.html">geost.base.BoreholeCollection.select_by_condition</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.BoreholeCollection.select_by_depth.html">geost.base.BoreholeCollection.select_by_depth</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.BoreholeCollection.select_by_length.html">geost.base.BoreholeCollection.select_by_length</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.BoreholeCollection.select_by_values.html">geost.base.BoreholeCollection.select_by_values</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.BoreholeCollection.select_with_lines.html">geost.base.BoreholeCollection.select_with_lines</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.BoreholeCollection.select_with_points.html">geost.base.BoreholeCollection.select_with_points</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.BoreholeCollection.select_within_bbox.html">geost.base.BoreholeCollection.select_within_bbox</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.BoreholeCollection.select_within_polygons.html">geost.base.BoreholeCollection.select_within_polygons</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.BoreholeCollection.slice_by_values.html">geost.base.BoreholeCollection.slice_by_values</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.BoreholeCollection.slice_depth_interval.html">geost.base.BoreholeCollection.slice_depth_interval</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.BoreholeCollection.to_csv.html">geost.base.BoreholeCollection.to_csv</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.BoreholeCollection.to_datafusiontools.html">geost.base.BoreholeCollection.to_datafusiontools</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.BoreholeCollection.to_geopackage.html">geost.base.BoreholeCollection.to_geopackage</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.BoreholeCollection.to_geoparquet.html">geost.base.BoreholeCollection.to_geoparquet</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.BoreholeCollection.to_kingdom.html">geost.base.BoreholeCollection.to_kingdom</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.BoreholeCollection.to_pyvista_cylinders.html">geost.base.BoreholeCollection.to_pyvista_cylinders</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.BoreholeCollection.to_pyvista_grid.html">geost.base.BoreholeCollection.to_pyvista_grid</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.BoreholeCollection.to_parquet.html">geost.base.BoreholeCollection.to_parquet</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.BoreholeCollection.to_qgis3d.html">geost.base.BoreholeCollection.to_qgis3d</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.BoreholeCollection.to_shape.html">geost.base.BoreholeCollection.to_shape</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.BoreholeCollection.data.html">geost.base.BoreholeCollection.data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.BoreholeCollection.has_inclined.html">geost.base.BoreholeCollection.has_inclined</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.BoreholeCollection.header.html">geost.base.BoreholeCollection.header</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.BoreholeCollection.horizontal_reference.html">geost.base.BoreholeCollection.horizontal_reference</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.BoreholeCollection.n_points.html">geost.base.BoreholeCollection.n_points</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.BoreholeCollection.vertical_reference.html">geost.base.BoreholeCollection.vertical_reference</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../api_reference/cpt_collection.html">CptCollection</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.CptCollection.html">geost.base.CptCollection</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.CptCollection.add_header_column_to_data.html">geost.base.CptCollection.add_header_column_to_data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.CptCollection.change_horizontal_reference.html">geost.base.CptCollection.change_horizontal_reference</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.CptCollection.change_vertical_reference.html">geost.base.CptCollection.change_vertical_reference</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.CptCollection.check_header_to_data_alignment.html">geost.base.CptCollection.check_header_to_data_alignment</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.CptCollection.get.html">geost.base.CptCollection.get</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.CptCollection.get_area_labels.html">geost.base.CptCollection.get_area_labels</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.CptCollection.get_cumulative_thickness.html">geost.base.CptCollection.get_cumulative_thickness</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.CptCollection.get_layer_top.html">geost.base.CptCollection.get_layer_top</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.CptCollection.reset_header.html">geost.base.CptCollection.reset_header</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.CptCollection.select_by_condition.html">geost.base.CptCollection.select_by_condition</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.CptCollection.select_by_depth.html">geost.base.CptCollection.select_by_depth</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.CptCollection.select_by_length.html">geost.base.CptCollection.select_by_length</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.CptCollection.select_by_values.html">geost.base.CptCollection.select_by_values</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.CptCollection.select_with_lines.html">geost.base.CptCollection.select_with_lines</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.CptCollection.select_with_points.html">geost.base.CptCollection.select_with_points</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.CptCollection.select_within_bbox.html">geost.base.CptCollection.select_within_bbox</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.CptCollection.select_within_polygons.html">geost.base.CptCollection.select_within_polygons</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.CptCollection.slice_by_values.html">geost.base.CptCollection.slice_by_values</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.CptCollection.slice_depth_interval.html">geost.base.CptCollection.slice_depth_interval</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.CptCollection.to_csv.html">geost.base.CptCollection.to_csv</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.CptCollection.to_datafusiontools.html">geost.base.CptCollection.to_datafusiontools</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.CptCollection.to_geopackage.html">geost.base.CptCollection.to_geopackage</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.CptCollection.to_geoparquet.html">geost.base.CptCollection.to_geoparquet</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.CptCollection.to_pyvista_cylinders.html">geost.base.CptCollection.to_pyvista_cylinders</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.CptCollection.to_pyvista_grid.html">geost.base.CptCollection.to_pyvista_grid</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.CptCollection.to_parquet.html">geost.base.CptCollection.to_parquet</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.CptCollection.to_shape.html">geost.base.CptCollection.to_shape</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.CptCollection.data.html">geost.base.CptCollection.data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.CptCollection.has_inclined.html">geost.base.CptCollection.has_inclined</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.CptCollection.header.html">geost.base.CptCollection.header</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.CptCollection.horizontal_reference.html">geost.base.CptCollection.horizontal_reference</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.CptCollection.n_points.html">geost.base.CptCollection.n_points</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.CptCollection.vertical_reference.html">geost.base.CptCollection.vertical_reference</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../api_reference/io.html">Input/Output</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.bro_api_read.html">geost.bro_api_read</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.read_borehole_table.html">geost.read_borehole_table</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.read_cpt_table.html">geost.read_cpt_table</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.read_nlog_cores.html">geost.read_nlog_cores</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.read_uullg_tables.html">geost.read_uullg_tables</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.Collection.to_csv.html">geost.base.Collection.to_csv</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.Collection.to_parquet.html">geost.base.Collection.to_parquet</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.read_bhrgt.html">geost.read_bhrgt</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.read_bhrg.html">geost.read_bhrg</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.read_bhrp.html">geost.read_bhrp</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.read_cpt.html">geost.read_cpt</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.read_gef_cpts.html">geost.read_gef_cpts</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.read_sfr.html">geost.read_sfr</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.read_collection_geopackage.html">geost.read_collection_geopackage</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.Collection.to_geopackage.html">geost.base.Collection.to_geopackage</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.Collection.to_geoparquet.html">geost.base.Collection.to_geoparquet</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.Collection.to_shape.html">geost.base.Collection.to_shape</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.io.Geopackage.html">geost.io.Geopackage</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.read_pickle.html">geost.read_pickle</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../api_reference/voxelmodel.html">VoxelModel</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.models.VoxelModel.html">geost.models.VoxelModel</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.models.VoxelModel.from_netcdf.html">geost.models.VoxelModel.from_netcdf</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.models.VoxelModel.isel.html">geost.models.VoxelModel.isel</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.models.VoxelModel.sel.html">geost.models.VoxelModel.sel</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.models.VoxelModel.select_bottom.html">geost.models.VoxelModel.select_bottom</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.models.VoxelModel.select_by_values.html">geost.models.VoxelModel.select_by_values</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.models.VoxelModel.select_surface_level.html">geost.models.VoxelModel.select_surface_level</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.models.VoxelModel.select_top.html">geost.models.VoxelModel.select_top</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.models.VoxelModel.select_with_line.html">geost.models.VoxelModel.select_with_line</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.models.VoxelModel.select_with_points.html">geost.models.VoxelModel.select_with_points</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.models.VoxelModel.select_within_bbox.html">geost.models.VoxelModel.select_within_bbox</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.models.VoxelModel.select_within_polygons.html">geost.models.VoxelModel.select_within_polygons</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.models.VoxelModel.slice_depth_interval.html">geost.models.VoxelModel.slice_depth_interval</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.models.VoxelModel.zslice_to_tiff.html">geost.models.VoxelModel.zslice_to_tiff</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.models.VoxelModel.get_thickness.html">geost.models.VoxelModel.get_thickness</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.models.VoxelModel.to_pyvista_grid.html">geost.models.VoxelModel.to_pyvista_grid</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.models.VoxelModel.crs.html">geost.models.VoxelModel.crs</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.models.VoxelModel.horizontal_bounds.html">geost.models.VoxelModel.horizontal_bounds</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.models.VoxelModel.resolution.html">geost.models.VoxelModel.resolution</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.models.VoxelModel.shape.html">geost.models.VoxelModel.shape</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.models.VoxelModel.sizes.html">geost.models.VoxelModel.sizes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.models.VoxelModel.variables.html">geost.models.VoxelModel.variables</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.models.VoxelModel.vertical_bounds.html">geost.models.VoxelModel.vertical_bounds</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.models.VoxelModel.xmax.html">geost.models.VoxelModel.xmax</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.models.VoxelModel.xmin.html">geost.models.VoxelModel.xmin</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.models.VoxelModel.ymax.html">geost.models.VoxelModel.ymax</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.models.VoxelModel.ymin.html">geost.models.VoxelModel.ymin</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.models.VoxelModel.zmax.html">geost.models.VoxelModel.zmax</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.models.VoxelModel.zmin.html">geost.models.VoxelModel.zmin</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../api_reference/bro.html">BroApi</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.bro.BroApi.html">geost.bro.BroApi</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.bro.BroApi.get_objects.html">geost.bro.BroApi.get_objects</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.bro.BroApi.search_objects_in_bbox.html">geost.bro.BroApi.search_objects_in_bbox</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.bro.BroApi.apis.html">geost.bro.BroApi.apis</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../api_reference/bro_geotop.html">GeoTop</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.bro.bro_geotop.GeoTop.html">geost.bro.bro_geotop.GeoTop</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.bro.bro_geotop.GeoTop.from_netcdf.html">geost.bro.bro_geotop.GeoTop.from_netcdf</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.bro.bro_geotop.GeoTop.from_opendap.html">geost.bro.bro_geotop.GeoTop.from_opendap</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.bro.bro_geotop.GeoTop.isel.html">geost.bro.bro_geotop.GeoTop.isel</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.bro.bro_geotop.GeoTop.sel.html">geost.bro.bro_geotop.GeoTop.sel</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.bro.bro_geotop.GeoTop.select_bottom.html">geost.bro.bro_geotop.GeoTop.select_bottom</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.bro.bro_geotop.GeoTop.select_by_values.html">geost.bro.bro_geotop.GeoTop.select_by_values</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.bro.bro_geotop.GeoTop.select_surface_level.html">geost.bro.bro_geotop.GeoTop.select_surface_level</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.bro.bro_geotop.GeoTop.select_top.html">geost.bro.bro_geotop.GeoTop.select_top</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.bro.bro_geotop.GeoTop.select_with_line.html">geost.bro.bro_geotop.GeoTop.select_with_line</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.bro.bro_geotop.GeoTop.select_with_points.html">geost.bro.bro_geotop.GeoTop.select_with_points</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.bro.bro_geotop.GeoTop.select_within_bbox.html">geost.bro.bro_geotop.GeoTop.select_within_bbox</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.bro.bro_geotop.GeoTop.select_within_polygons.html">geost.bro.bro_geotop.GeoTop.select_within_polygons</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.bro.bro_geotop.GeoTop.slice_depth_interval.html">geost.bro.bro_geotop.GeoTop.slice_depth_interval</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.bro.bro_geotop.GeoTop.zslice_to_tiff.html">geost.bro.bro_geotop.GeoTop.zslice_to_tiff</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.bro.bro_geotop.GeoTop.crs.html">geost.bro.bro_geotop.GeoTop.crs</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.bro.bro_geotop.GeoTop.horizontal_bounds.html">geost.bro.bro_geotop.GeoTop.horizontal_bounds</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.bro.bro_geotop.GeoTop.resolution.html">geost.bro.bro_geotop.GeoTop.resolution</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.bro.bro_geotop.GeoTop.shape.html">geost.bro.bro_geotop.GeoTop.shape</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.bro.bro_geotop.GeoTop.sizes.html">geost.bro.bro_geotop.GeoTop.sizes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.bro.bro_geotop.GeoTop.variables.html">geost.bro.bro_geotop.GeoTop.variables</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.bro.bro_geotop.GeoTop.vertical_bounds.html">geost.bro.bro_geotop.GeoTop.vertical_bounds</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.bro.bro_geotop.GeoTop.xmax.html">geost.bro.bro_geotop.GeoTop.xmax</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.bro.bro_geotop.GeoTop.xmin.html">geost.bro.bro_geotop.GeoTop.xmin</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.bro.bro_geotop.GeoTop.ymax.html">geost.bro.bro_geotop.GeoTop.ymax</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.bro.bro_geotop.GeoTop.ymin.html">geost.bro.bro_geotop.GeoTop.ymin</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.bro.bro_geotop.GeoTop.zmax.html">geost.bro.bro_geotop.GeoTop.zmax</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.bro.bro_geotop.GeoTop.zmin.html">geost.bro.bro_geotop.GeoTop.zmin</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../api_reference/geotop_selection.html">GeoTop selection</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.bro.bro_geotop.StratGeotop.html">geost.bro.bro_geotop.StratGeotop</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.bro.bro_geotop.StratGeotop.select_units.html">geost.bro.bro_geotop.StratGeotop.select_units</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.bro.bro_geotop.StratGeotop.select_values.html">geost.bro.bro_geotop.StratGeotop.select_values</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.bro.bro_geotop.StratGeotop.to_dict.html">geost.bro.bro_geotop.StratGeotop.to_dict</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.bro.bro_geotop.Lithology.html">geost.bro.bro_geotop.Lithology</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.bro.bro_geotop.Lithology.select_units.html">geost.bro.bro_geotop.Lithology.select_units</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.bro.bro_geotop.Lithology.select_values.html">geost.bro.bro_geotop.Lithology.select_values</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.bro.bro_geotop.Lithology.to_dict.html">geost.bro.bro_geotop.Lithology.to_dict</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../api_reference/analysis.html">Analysis</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.analysis.cumulative_thickness.html">geost.analysis.cumulative_thickness</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.analysis.find_top_sand.html">geost.analysis.find_top_sand</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.analysis.layer_top.html">geost.analysis.layer_top</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.analysis.top_of_sand.html">geost.analysis.top_of_sand</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.analysis.interpret_cpt.calc_ic.html">geost.analysis.interpret_cpt.calc_ic</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.analysis.interpret_cpt.calc_lithology.html">geost.analysis.interpret_cpt.calc_lithology</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.analysis.combine.add_voxelmodel_variable.html">geost.analysis.combine.add_voxelmodel_variable</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../api_reference/readers.html">Readers</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.io.Geopackage.html">geost.io.Geopackage</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.io.Geopackage.close.html">geost.io.Geopackage.close</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.io.Geopackage.get_column_names.html">geost.io.Geopackage.get_column_names</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.io.Geopackage.get_connection.html">geost.io.Geopackage.get_connection</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.io.Geopackage.layers.html">geost.io.Geopackage.layers</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.io.Geopackage.query.html">geost.io.Geopackage.query</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.io.Geopackage.read_table.html">geost.io.Geopackage.read_table</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.io.Geopackage.table_head.html">geost.io.Geopackage.table_head</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.bro.BroCptGeopackage.html">geost.bro.BroCptGeopackage</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.bro.BroCptGeopackage.from_geopackage.html">geost.bro.BroCptGeopackage.from_geopackage</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.bro.BroCptGeopackage.select_location_info.html">geost.bro.BroCptGeopackage.select_location_info</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../api_reference/validation.html">Validation</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.validation.schemas.html">geost.validation.schemas</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.validation.safe_validate.html">geost.validation.safe_validate</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../api_reference/utils.html">Utils</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.spatial.find_area_labels.html">geost.spatial.find_area_labels</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.spatial.get_raster_values.html">geost.spatial.get_raster_values</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.spatial.select_points_near_lines.html">geost.spatial.select_points_near_lines</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.spatial.select_points_near_points.html">geost.spatial.select_points_near_points</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.spatial.select_points_within_bbox.html">geost.spatial.select_points_within_bbox</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.spatial.select_points_within_polygons.html">geost.spatial.select_points_within_polygons</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.projections.horizontal_reference_transformer.html">geost.projections.horizontal_reference_transformer</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.projections.vertical_reference_transformer.html">geost.projections.vertical_reference_transformer</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.models.model_utils.label_consecutive_2d.html">geost.models.model_utils.label_consecutive_2d</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.models.model_utils.sample_with_coords.html">geost.models.model_utils.sample_with_coords</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.models.model_utils.sample_along_line.html">geost.models.model_utils.sample_along_line</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../api_reference/enums.html">Enums</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.enums.UnitEnum.html">geost.enums.UnitEnum</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.enums.UnitEnum.select_units.html">geost.enums.UnitEnum.select_units</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.enums.UnitEnum.select_values.html">geost.enums.UnitEnum.select_values</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.enums.UnitEnum.to_dict.html">geost.enums.UnitEnum.to_dict</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
   
   <div class="sidebar-primary-items__end sidebar-primary__section">
       <div class="sidebar-primary-item">
@@ -443,7 +757,13 @@
         <i class="fa-solid fa-home"></i>
       </a>
     </li>
-    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Read Geological borehole (BHR-G) data from XML</span></li>
+    
+    <li class="breadcrumb-item"><a href="../documentation.html" class="nav-link">Documentation</a></li>
+    
+    
+    <li class="breadcrumb-item"><a href="../user_guide.html" class="nav-link">User guide</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Reading XML files</span></li>
   </ul>
 </nav>
 </div>
@@ -460,9 +780,10 @@
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section id="read-geological-borehole-bhr-g-data-from-xml">
-<h1>Read Geological borehole (BHR-G) data from XML<a class="headerlink" href="#read-geological-borehole-bhr-g-data-from-xml" title="Link to this heading">#</a></h1>
-<p>This example demonstrates how GeoST extracts data from BRO XML files. The data from XML files is read by using a <code class="docutils literal notranslate"><span class="pre">schema</span></code> that describes the structure of the file (i.e. where to find specific elements) and determines where the information ends up in the resulting GeoST object, for instance a <code class="docutils literal notranslate"><span class="pre">BoreholeCollection</span></code>. Under the hood, GeoST uses the <a class="reference external" href="https://lxml.de/index.html">lxml library</a> for the XML parsing which will be used in this tutorial as well to show some basic principles.</p>
+  <section id="reading-xml-files">
+<h1>Reading XML files<a class="headerlink" href="#reading-xml-files" title="Link to this heading">#</a></h1>
+<p>This example demonstrates how GeoST extracts data from BRO XML files and how extra data, that is not extracted by default, can be retrieved by extended the methodology of GeoST.</p>
+<p>GeoST reads data from XML files by using a <code class="docutils literal notranslate"><span class="pre">schema</span></code> that describes the structure of the file (i.e. where to find specific elements) and determines where the information ends up in the resulting GeoST object, for instance a <code class="docutils literal notranslate"><span class="pre">BoreholeCollection</span></code>. Under the hood, GeoST uses the <a class="reference external" href="https://lxml.de/index.html">lxml library</a> for the XML parsing which will be used in this tutorial as well to show some basic principles.</p>
 <p>Borehole and CPT data in the Netherlands is distributed via a public national database: the BRO (“Basis Registratie Ondergrond”). The BRO contains five main sources of subsurface data:</p>
 <ul class="simple">
 <li><p>Geological boreholes (BHR-G objects)</p></li>
@@ -471,7 +792,7 @@
 <li><p>Cone Penetration Tests (CPT objects)</p></li>
 <li><p>Pedological soilprofile descriptions (SFR objects)</p></li>
 </ul>
-<p>Downloading any of the above data sources from <a class="reference external" href="https://www.broloket.nl/ondergrondgegevens">BROloket</a> results in a set of XML files for the requested objects. GeoST can be used to read the data in the XML files for each of the data sources (see <a class="reference internal" href="../user_guide/reading_data.html#subsurfacedata"><span class="std std-ref">available read function</span></a> for each object). Sometimes, XML data for one of the above objects may also be provided by companies (e.g. Wiertsema) and GeoST can work with these files too. For this tutorial, we will demonstrate how the data is extracted using a BHR-G object from the BRO but the principle is the same for each other data source.</p>
+<p>Downloading any of the above data sources from <a class="reference external" href="https://www.broloket.nl/ondergrondgegevens">BROloket</a> results in a set of XML files for the requested objects. GeoST can be used to read the data in the XML files for each of the data sources (see <a class="reference internal" href="reading_data.html#subsurfacedata"><span class="std std-ref">available read function</span></a> for each object). Sometimes, XML data for one of the above objects may also be provided by companies (e.g. Wiertsema), which can differ slightly in structure compared to BRO XML files, but GeoST can work with these files too. For this tutorial, we will demonstrate how data is extracted from an XML file using a BHR-G XML file downloaded from the BRO but the principle is the same for the other data sources.</p>
 <p>We will begin with the necessary imports.</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
@@ -549,20 +870,20 @@ Retrieved data attributes: Index([&#39;nr&#39;, &#39;x&#39;, &#39;y&#39;, &#39;s
 <div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>{&#39;payload_root&#39;: &#39;dispatchDocument&#39;,
  &#39;nr&#39;: {&#39;xpath&#39;: &#39;brocom:broId&#39;},
  &#39;location&#39;: {&#39;xpath&#39;: &#39;deliveredLocation/bhrgcom:location/gml:Point/gml:pos&#39;,
-              &#39;resolver&#39;: &lt;function parse_coordinates at 0x7fc2c21e3a60&gt;,
+              &#39;resolver&#39;: &lt;function parse_coordinates at 0x7f0bd24a2d40&gt;,
               &#39;el-attr&#39;: &#39;text&#39;},
  &#39;crs&#39;: {&#39;xpath&#39;: &#39;deliveredLocation/bhrgcom:location/gml:Point&#39;,
-         &#39;resolver&#39;: &lt;function parse_crs at 0x7fc2c21e39c0&gt;},
+         &#39;resolver&#39;: &lt;function parse_crs at 0x7f0bd24a2ca0&gt;},
  &#39;surface&#39;: {&#39;xpath&#39;: &#39;deliveredVerticalPosition/bhrgcom:offset&#39;,
-             &#39;resolver&#39;: &lt;function safe_float at 0x7fc2c21e3b00&gt;,
+             &#39;resolver&#39;: &lt;function safe_float at 0x7f0bd24a2de0&gt;,
              &#39;el-attr&#39;: &#39;text&#39;},
  &#39;vertical_datum&#39;: {&#39;xpath&#39;: &#39;deliveredVerticalPosition/bhrgcom:verticalDatum&#39;,
                     &#39;el-attr&#39;: &#39;text&#39;},
  &#39;end&#39;: {&#39;xpath&#39;: &#39;boring/bhrgcom:Boring/bhrgcom:finalDepthBoring&#39;,
-         &#39;resolver&#39;: &lt;function safe_float at 0x7fc2c21e3b00&gt;,
+         &#39;resolver&#39;: &lt;function safe_float at 0x7f0bd24a2de0&gt;,
          &#39;el-attr&#39;: &#39;text&#39;},
  &#39;data&#39;: {&#39;xpath&#39;: &#39;boreholeSampleDescription/bhrgcom:BoreholeSampleDescription/bhrgcom:descriptiveBoreholeLog/bhrgcom:DescriptiveBoreholeLog&#39;,
-          &#39;resolver&#39;: &lt;function process_bhrgt_data at 0x7fc2c21e3d80&gt;,
+          &#39;resolver&#39;: &lt;function process_bhrgt_data at 0x7f0bd24a3060&gt;,
           &#39;layer-attributes&#39;: [&#39;upperBoundary&#39;,
                                &#39;lowerBoundary&#39;,
                                &#39;soilNameNEN5104&#39;]}}
@@ -1024,6 +1345,24 @@ Dtype of date: datetime64[ns, UTC+01:00]
                 <footer class="prev-next-footer d-print-none">
                   
 <div class="prev-next-area">
+    <a class="left-prev"
+       href="validation.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Data validation</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="bro_geotop.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">BRO GeoTop</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
 </div>
                 </footer>
               
@@ -1058,7 +1397,7 @@ Dtype of date: datetime64[ns, UTC+01:00]
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
-      <li><a href="../_sources/examples/read_xml.ipynb.txt"
+      <li><a href="../_sources/user_guide/read_xml.ipynb.txt"
             rel="nofollow">Show Source</a></li>
     </ul>
    </div></div>
