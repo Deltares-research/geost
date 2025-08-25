@@ -1535,7 +1535,7 @@ class Collection(AbstractCollection):
         self.data = data
 
     def __repr__(self):
-        if "header" in self.__dict__:
+        if "_header" in self.__dict__:
             return f"{self.__class__.__name__}:\n# header = {self.n_points}"
         else:
             return f"{self.__class__.__name__}:\n<EMPTY COLLECTION>"
