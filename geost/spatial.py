@@ -83,18 +83,16 @@ def select_points_within_bbox(
     -------
     gpd.GeoDataFrame
         Geodataframe containing only selected geometries.
+
     """
     # Instance checks and coerce to geodataframe if required
     gdf = utils.check_geometry_instance(gdf)
+    selected = gdf.cx[xmin:xmax, ymin:ymax]
 
-    # Selection logic
-    x = gdf["geometry"].x
-    y = gdf["geometry"].y
     if invert:
-        gdf_selected = gdf[(x < xmin) | (x > xmax) | (y < ymin) | (y > ymax)]
-    else:
-        gdf_selected = gdf[(x >= xmin) & (x <= xmax) & (y >= ymin) & (y <= ymax)]
-    return gdf_selected
+        selected = gdf.loc[~gdf.index.isin(selected.index)]
+
+    return selected
 
 
 def select_points_near_points(

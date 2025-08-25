@@ -10,16 +10,16 @@ from geost.models.basemodels import VoxelModel
 
 
 @pytest.fixture
-def point_shapefile(point_header_gdf, tmp_path):
+def point_shapefile(point_header, tmp_path):
     shapefile = tmp_path / "point_shapefile.shp"
-    point_header_gdf.to_file(shapefile)
+    point_header.to_file(shapefile)
     return shapefile
 
 
 @pytest.fixture
-def point_parquet(point_header_gdf, tmp_path):
+def point_parquet(point_header, tmp_path):
     parquet = tmp_path / "point_shapefile.geoparquet"
-    point_header_gdf.to_parquet(parquet)
+    point_header.to_parquet(parquet)
     return parquet
 
 
