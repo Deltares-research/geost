@@ -2,7 +2,8 @@ import numpy as np
 import pandas as pd
 import xarray as xr
 
-from geost.base import Collection, DiscreteData, LayeredData
+from geost.accessors.data import DiscreteData, LayeredData
+from geost.base import Collection
 from geost.models import VoxelModel
 from geost.models.model_utils import label_consecutive_2d
 

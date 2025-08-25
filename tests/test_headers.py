@@ -9,7 +9,7 @@ from numpy.testing import (
 )
 from shapely.geometry import LineString, Point, Polygon
 
-from geost.base import LineHeader, PointHeader
+from geost.accessors.header import LineHeader, PointHeader
 
 
 class TestHeaders:

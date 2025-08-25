@@ -7,12 +7,11 @@ from numpy.testing import assert_array_equal
 from shapely import geometry as gmt
 
 import geost
+from geost.accessors.data import DiscreteData, LayeredData
+from geost.accessors.header import PointHeader
 from geost.base import (
     BoreholeCollection,
     CptCollection,
-    DiscreteData,
-    LayeredData,
-    PointHeader,
 )
 from geost.io.read import (
     MANDATORY_LAYERED_DATA_COLUMNS,

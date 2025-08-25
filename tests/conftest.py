@@ -9,7 +9,7 @@ import xarray as xr
 from shapely import geometry as gmt
 
 from geost import read_borehole_table, read_nlog_cores
-from geost.base import DiscreteData, LayeredData
+from geost.accessors.data import DiscreteData, LayeredData
 from geost.models.basemodels import VoxelModel
 
 
