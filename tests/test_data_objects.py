@@ -7,12 +7,11 @@ from numpy.testing import assert_array_almost_equal, assert_array_equal
 from pyvista import MultiBlock, UnstructuredGrid
 from shapely import get_coordinates
 
+from geost.accessors.data import DiscreteData, LayeredData
+from geost.accessors.header import PointHeader
 from geost.base import (
     BoreholeCollection,
     CptCollection,
-    DiscreteData,
-    LayeredData,
-    PointHeader,
 )
 from geost.data_objects import Cpt
 from geost.export import geodataclass

@@ -18,7 +18,9 @@ from shapely.geometry import LineString, Point, Polygon
 
 from geost import config
 from geost._warnings import AlignmentWarning, ValidationWarning
-from geost.base import BoreholeCollection, LayeredData, PointHeader
+from geost.accessors.data import LayeredData
+from geost.accessors.header import PointHeader
+from geost.base import BoreholeCollection
 from geost.export import geodataclass
 
 

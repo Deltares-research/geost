@@ -5,7 +5,7 @@ import numpy as np
 import pytest
 from shapely.geometry import LineString, Point
 
-from geost.base import LineHeader, PointHeader
+from geost.accessors.header import LineHeader, PointHeader
 from geost.header_factory import HeaderFactory, header_factory
 
 
