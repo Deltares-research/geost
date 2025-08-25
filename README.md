@@ -77,7 +77,7 @@ After loading data from one of the supported formats it will automatically be va
 The collection object comes with a comprehensive set of methods that can be applied generically while ensuring that the header and data remain synchronized:
 
 - Selection/slicing methods (e.g., objects within bounding box, within or close to geometries, based on depth and other conditions)
-- Export methods (e.g. to csv, parquet, geopackage, VTK, DataFusionTools, Kingdom* , etc)
+- Export methods (e.g. to csv, parquet, geopackage, VTK, DataFusionTools, Kingdom , etc)
 - Datafusion methods (e.g. combining collections*, combining with data from maps, conversion of description protocols*)
 - Miscellaneous methods (e.g. changing vertical/horizontal position reference system)
 
@@ -92,6 +92,3 @@ You can contribute by testing, raising issues and making pull requests. Some gen
 - Add Numpy-style docstrings
 - Use Black formatting with default line length (88 characters)
 - Update requirement.txt en environment.yml files if required
-
-## License
-MIT license (Note: may change to a copyleft license in the future, depending on Deltares management decisions)
