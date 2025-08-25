@@ -2,18 +2,13 @@ from abc import ABC, abstractmethod
 
 
 class AbstractHeader(ABC):  # pragma: no cover
-    # @property
-    # @abstractmethod
-    # def vertical_reference(self):
-    #     pass
+    @abstractmethod
+    def change_horizontal_reference(self):
+        pass
 
-    # @abstractmethod
-    # def change_horizontal_reference(self):
-    #     pass
-
-    # @abstractmethod
-    # def change_vertical_reference(self):
-    #     pass
+    @abstractmethod
+    def change_vertical_reference(self):
+        pass
 
     @abstractmethod
     def get(self):

@@ -20,84 +20,87 @@ class PointHeader(AbstractHeader):
     def __init__(self, gdf):
         self._gdf = gdf
 
-    # def change_horizontal_reference(self, to_epsg: str | int | CRS):
-    #     """
-    #     Change the horizontal reference (i.e. coordinate reference system, crs) of the
-    #     header to the given target crs.
+    def change_horizontal_reference(self, to_epsg: str | int | CRS):
+        """
+        Change the horizontal reference (i.e. coordinate reference system, crs) of the
+        header to the given target crs.
 
-    #     Parameters
-    #     ----------
-    #     to_epsg : str | int | CRS
-    #         EPSG of the target crs. Takes anything that can be interpreted by
-    #         pyproj.crs.CRS.from_user_input().
+        Parameters
+        ----------
+        to_epsg : str | int | CRS
+            EPSG of the target crs. Takes anything that can be interpreted by
+            pyproj.crs.CRS.from_user_input().
 
-    #     Examples
-    #     --------
-    #     To change the header's current horizontal reference to WGS 84 UTM zone 31N:
+        Examples
+        --------
+        To change the header's current horizontal reference to WGS 84 UTM zone 31N:
 
-    #     >>> self.change_horizontal_reference(32631)
+        >>> self.change_horizontal_reference(32631)
 
-    #     This would be the same as:
+        This would be the same as:
 
-    #     >>> self.change_horizontal_reference("epsg:32631")
+        >>> self.change_horizontal_reference("epsg:32631")
 
-    #     As Pyproj is very flexible, you can even use the CRS's full official name:
+        As Pyproj is very flexible, you can even use the CRS's full official name:
 
-    #     >>> self.change_horizontal_reference("WGS 84 / UTM zone 31N")
+        >>> self.change_horizontal_reference("WGS 84 / UTM zone 31N")
 
-    #     """
-    #     self._gdf = self._gdf.to_crs(to_epsg)
-    #     self._gdf[["x", "y"]] = self._gdf[["x", "y"]].astype(float)
-    #     self._gdf["x"] = self._gdf["geometry"].x
-    #     self._gdf["y"] = self._gdf["geometry"].y
+        """
+        self._gdf.to_crs(to_epsg, inplace=True)
+        self._gdf[["x", "y"]] = self._gdf[["x", "y"]].astype(float)
+        self._gdf["x"] = self._gdf["geometry"].x
+        self._gdf["y"] = self._gdf["geometry"].y
 
-    # def change_vertical_reference(self, to_epsg: str | int | CRS):
-    #     """
-    #     Change the vertical reference of the object's surface levels.
+    def change_vertical_reference(
+        self, from_epsg: str | int | CRS, to_epsg: str | int | CRS
+    ):
+        """
+        Change the vertical datum of the object's surface levels.
 
-    #     Parameters
-    #     ----------
-    #     to_epsg : str | int | CRS
-    #         EPSG of the target vertical datum. Takes anything that can be interpreted by
-    #         pyproj.crs.CRS.from_user_input(). However, it must be a vertical datum.
+        Some often-used vertical datums are:
+            - NAP : 5709
+            - MSL NL depth : 9288
+            - LAT NL depth : 9287
+            - Ostend height : 5710
 
-    #         Some often-used vertical datums are:
-    #         - NAP : 5709
-    #         - MSL NL depth : 9288
-    #         - LAT NL depth : 9287
-    #         - Ostend height : 5710
+            See epsg.io for more.
 
-    #         See epsg.io for more.
+        Parameters
+        ----------
+        from_epsg : str | int | CRS
+            EPSG of the source vertical datum. Takes anything that can be interpreted by
+            pyproj.crs.CRS.from_user_input(). However, it must be a vertical datum.
+        to_epsg : str | int | CRS
+            EPSG of the target vertical datum. Takes anything that can be interpreted by
+            pyproj.crs.CRS.from_user_input(). However, it must be a vertical datum.
 
-    #     Examples
-    #     --------
-    #     To change the header's current vertical reference to NAP:
+        Examples
+        --------
+        To change the current vertical reference from Ostend height to NAP:
 
-    #     >>> self.change_horizontal_reference(5709)
+        >>> self.change_vertical_reference(5710, 5709)
 
-    #     This would be the same as:
+        This would be the same as:
 
-    #     >>> self.change_horizontal_reference("epsg:5709")
+        >>> self.change_vertical_reference("epsg:5710", "epsg:5709")
 
-    #     As the Pyproj constructors are very flexible, you can even use the CRS's full
-    #     official name instead of an EPSG number. E.g. for changing to NAP and the
-    #     Belgian Ostend height vertical datums repsectively, you can use:
+        As the Pyproj constructors are very flexible, you can even use the CRS's full
+        official name instead of an EPSG number. E.g. for changing to NAP and the
+        Belgian Ostend height vertical datums respectively, you can use:
 
-    #     >>> self.change_horizontal_reference("NAP")
-    #     >>> self.change_horizontal_reference("Ostend height")
-    #     """
-    #     transformer = vertical_reference_transformer(
-    #         self.horizontal_reference, self.vertical_reference, to_epsg
-    #     )
-    #     self.gdf[["surface", "end"]] = self.gdf[["surface", "end"]].astype(float)
-    #     _, _, new_surface = transformer.transform(
-    #         self.gdf["x"], self.gdf["y"], self.gdf["surface"]
-    #     )
-    #     _, _, new_end = transformer.transform(
-    #         self.gdf["x"], self.gdf["y"], self.gdf["end"]
-    #     )
-    #     self._gdf.loc[:, "surface"] = new_surface
-    #     self._gdf.loc[:, "end"] = new_end
+        >>> self.change_vertical_reference("Ostend height", "NAP")
+
+        """
+        transformer = vertical_reference_transformer(self._gdf.crs, from_epsg, to_epsg)
+        self._gdf[["surface", "end"]] = self._gdf[["surface", "end"]].astype(float)
+        _, _, new_surface = transformer.transform(
+            self._gdf["x"], self._gdf["y"], self._gdf["surface"]
+        )
+        _, _, new_end = transformer.transform(
+            self._gdf["x"], self._gdf["y"], self._gdf["end"]
+        )
+        self._gdf["surface"] = new_surface
+        self._gdf["end"] = new_end
 
     def get(self, selection_values: str | Iterable, column: str = "nr"):
         """
@@ -207,7 +210,7 @@ class PointHeader(AbstractHeader):
 
         """
         selection = spatial.select_points_near_points(
-            self.gdf, points, buffer, invert=invert
+            self._gdf, points, buffer, invert=invert
         )
         return selection
 
@@ -390,7 +393,8 @@ class PointHeader(AbstractHeader):
                 errors="ignore",
                 inplace=True,
             )
-            self._gdf = self._gdf.merge(area_labels, on="nr")
+            self._gdf[column_name] = area_labels[column_name]
+            return self._gdf
         else:
             return area_labels
 

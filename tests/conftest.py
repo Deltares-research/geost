@@ -1,4 +1,4 @@
-from itertools import product
+import itertools
 from pathlib import Path
 
 import geopandas as gpd
@@ -146,29 +146,30 @@ def nlog_borehole_collection(nlog_borehole_file):
 
 @pytest.fixture
 def borehole_data():
+    """
+    Fixture containing synthetic layered borehole data.
+
+    """
     a = borehole_a()
     b = borehole_b()
     c = borehole_c()
     d = borehole_d()
     e = borehole_e()
     df = pd.concat([a, b, c, d, e], ignore_index=True)
-    """
-    Fixture containing a LayeredData instance of synthetic borehole data.
-
-    """
-    return LayeredData(df)
+    df.datatype = "layered"
+    return df
 
 
 # Fixtures for header testing
 @pytest.fixture
-def point_header_gdf():
+def point_header():
     """
-    Creates a synthetic header geodataframe for testing
+    Creates a synthetic point header geodataframe for testing.
     """
-    x_coors = [1.0, 2.0, 3.0, 4.0, 5.0]
-    y_coors = [1.0, 2.0, 3.0, 4.0, 5.0]
-    coordinates = np.array([(x, y) for x, y in product(x_coors, y_coors)])
-    nrs = ["nr" + str(i + 1) for i in range(len(coordinates))]
+    xcoords = [1.0, 2.0, 3.0, 4.0, 5.0]
+    ycoords = [1.0, 2.0, 3.0, 4.0, 5.0]
+    coordinates = np.array([(x, y) for x, y in itertools.product(xcoords, ycoords)])
+    nrs = [f"nr{i + 1}" for i in range(len(coordinates))]
     mvs = np.arange(1, 26)
     ends = np.arange(-1, -26, -1)
     geometries = [gmt.Point(c) for c in coordinates]
@@ -181,9 +182,9 @@ def point_header_gdf():
             "end": ends,
         },
         geometry=geometries,
+        crs=28992,
     )
-    gdf.set_crs("epsg:28992", inplace=True)
-    gdf.datatype = "point"
+    gdf.headertype = "point"
     return gdf
 
 
