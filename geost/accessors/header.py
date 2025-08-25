@@ -25,25 +25,25 @@ class PointHeader(AbstractHeader):
         Change the horizontal reference (i.e. coordinate reference system, crs) of the
         header to the given target crs.
 
-    #     Parameters
-    #     ----------
-    #     to_epsg : str | int | CRS
-    #         EPSG of the target crs. Takes anything that can be interpreted by
-    #         pyproj.crs.CRS.from_user_input().
+        Parameters
+        ----------
+        to_epsg : str | int | CRS
+            EPSG of the target crs. Takes anything that can be interpreted by
+            pyproj.crs.CRS.from_user_input().
 
-    #     Examples
-    #     --------
-    #     To change the header's current horizontal reference to WGS 84 UTM zone 31N:
+        Examples
+        --------
+        To change the header's current horizontal reference to WGS 84 UTM zone 31N:
 
-    #     >>> self.change_horizontal_reference(32631)
+        >>> self.change_horizontal_reference(32631)
 
-    #     This would be the same as:
+        This would be the same as:
 
-    #     >>> self.change_horizontal_reference("epsg:32631")
+        >>> self.change_horizontal_reference("epsg:32631")
 
-    #     As Pyproj is very flexible, you can even use the CRS's full official name:
+        As Pyproj is very flexible, you can even use the CRS's full official name:
 
-    #     >>> self.change_horizontal_reference("WGS 84 / UTM zone 31N")
+        >>> self.change_horizontal_reference("WGS 84 / UTM zone 31N")
 
         """
         self._gdf.to_crs(to_epsg, inplace=True)
@@ -63,7 +63,7 @@ class PointHeader(AbstractHeader):
             - LAT NL depth : 9287
             - Ostend height : 5710
 
-    #         See epsg.io for more.
+            See epsg.io for more.
 
         Parameters
         ----------
@@ -80,7 +80,7 @@ class PointHeader(AbstractHeader):
 
         >>> self.change_vertical_reference(5710, 5709)
 
-    #     This would be the same as:
+        This would be the same as:
 
         >>> self.change_vertical_reference("epsg:5710", "epsg:5709")
 
