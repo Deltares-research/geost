@@ -20,6 +20,8 @@ from geost.projections import (
 
 type Coordinate = int | float
 type GeometryType = gmt.base.BaseGeometry | list[gmt.base.BaseGeometry]
+type HeaderObject = Any
+type DataObject = Any
 
 
 class Collection(AbstractCollection):
@@ -37,8 +39,8 @@ class Collection(AbstractCollection):
 
     def __init__(
         self,
-        header: gpd.GeoDataFrame,
-        data: pd.DataFrame,
+        header: HeaderObject | None,
+        data: DataObject | None,
     ):
         # TODO inheritance refactor: check init types and default values.
         self.header = header
