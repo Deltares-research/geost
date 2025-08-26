@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import Any, Iterable, List
+from typing import Any, Iterable, List, Literal, get_args
 
 import geopandas as gpd
 import numpy as np
@@ -18,6 +18,9 @@ from geost.export import (
 
 type Coordinate = int | float
 type GeometryType = gmt.base.BaseGeometry | list[gmt.base.BaseGeometry]
+
+HeaderType = Literal["point", "line"]
+DataType = Literal["layered", "discrete"]
 
 
 class LayeredData(AbstractData):
@@ -48,12 +51,19 @@ class LayeredData(AbstractData):
         df.loc[:, "bottom"] = df["surface"] - df["bottom"]
         return df
 
-    def to_header(self, horizontal_reference: str | int | CRS = 28992):
+    def to_header(
+        self,
+        headertype: HeaderType = "point",
+        horizontal_reference: str | int | CRS = 28992,
+    ):
         """
         Generate a :class:`~geost.base.PointHeader` from this instance of LayeredData.
 
         Parameters
         ----------
+        headertype : str, optional
+            Type of header to generate. Must be one of "point" or "line". The default is
+            "point".
         horizontal_reference : str | int | CRS, optional
             EPSG of the target crs. Takes anything that can be interpreted by
             pyproj.crs.CRS.from_user_input(), by default 28992.
@@ -64,15 +74,24 @@ class LayeredData(AbstractData):
             An instance of :class:`~geost.base.PointHeader`
 
         """
+        if headertype not in get_args(HeaderType):
+            raise ValueError(
+                f"Invalid headertype: {headertype}. Must be one of {get_args(HeaderType)}"
+            )
+
         header_columns = ["nr", "x", "y", "surface", "end"]
         header = self._df[header_columns].drop_duplicates("nr").reset_index(drop=True)
         header = utils.dataframe_to_geodataframe(header).set_crs(horizontal_reference)
+        header.headertype = headertype
         return header
 
     def to_collection(
         self,
+        has_inclined: bool = False,
         horizontal_reference: str | int | CRS = 28992,
         vertical_reference: str | int | CRS = 5709,
+        headertype: HeaderType = "point",
+        datatype: DataType = "layered",
     ):
         """
         Create a collection from this instance of LayeredData. A collection combines
@@ -80,6 +99,9 @@ class LayeredData(AbstractData):
 
         Parameters
         ----------
+        has_inclined : bool, optional
+            If True, the data also contains inclined objects which means the top of layers
+            is not in the same x,y-location as the bottom of layers. The default is False.
         horizontal_reference : str | int | CRS, optional
             EPSG of the target crs. Takes anything that can be interpreted by
             pyproj.crs.CRS.from_user_input(), by default 28992.
@@ -88,6 +110,12 @@ class LayeredData(AbstractData):
             pyproj.crs.CRS.from_user_input(). However, it must be a vertical datum. FYI:
             "NAP" is EPSG 5709 and The Belgian reference system (Ostend height) is ESPG
             5710, by default 5709.
+        headertype : HeaderType, optional
+            Type of header to generate. Must be one of "point" or "line". The default is
+            "point".
+        datatype : DataType, optional
+            Type of data to generate. Must be one of "layered" or "discrete". The default
+            is "layered" which typically contains top and bottom depth information.
 
         Returns
         -------
@@ -96,8 +124,19 @@ class LayeredData(AbstractData):
         """
         from geost.base import BoreholeCollection  # Avoid circular import
 
-        header = self.to_header(horizontal_reference)
-        return BoreholeCollection(header, self._df)
+        if datatype not in get_args(DataType):
+            raise ValueError(
+                f"Invalid datatype: {datatype}. Must be one of {get_args(DataType)}"
+            )
+
+        header = self.to_header(headertype, horizontal_reference)
+        return BoreholeCollection(
+            header,
+            self._df,
+            has_inclined=has_inclined,
+            horizontal_reference=horizontal_reference,
+            vertical_reference=vertical_reference,
+        )
         # NOTE: Type of Collection may need to be inferred in the future.
 
     def select_by_values(

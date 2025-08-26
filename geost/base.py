@@ -17,6 +17,7 @@ from geost.projections import (
     horizontal_reference_transformer,
     vertical_reference_transformer,
 )
+from geost.validation import safe_validate, schemas
 
 type Coordinate = int | float
 type GeometryType = gmt.base.BaseGeometry | list[gmt.base.BaseGeometry]
@@ -39,10 +40,15 @@ class Collection(AbstractCollection):
 
     def __init__(
         self,
-        header: HeaderObject | None,
-        data: DataObject | None,
+        header: gpd.GeoDataFrame | None,
+        data: pd.DataFrame | None,
+        has_inclined: bool = False,
+        horizontal_reference: str | int | CRS = 28992,
+        vertical_reference: str | int | CRS = 5709,
     ):
-        # TODO inheritance refactor: check init types and default values.
+        self._has_inclined = has_inclined
+        self._horizontal_reference = horizontal_reference
+        self._vertical_reference = vertical_reference
         self.header = header
         self.data = data
 
@@ -81,36 +87,34 @@ class Collection(AbstractCollection):
         """
         Coordinate reference system represented by an instance of pyproj.crs.CRS.
         """
-        return self.header.horizontal_reference
+        return self._horizontal_reference
 
     @property
     def vertical_reference(self):
         """
         Vertical datum represented by an instance of pyproj.crs.CRS.
         """
-        return self.header.vertical_reference
+        return self._vertical_reference
 
     @property
     def has_inclined(self):
         """
         Boolean indicating whether there are inclined objects within the collection
         """
-        return self.data.has_inclined
+        return self._has_inclined
 
     @header.setter
     def header(self, header):
-        if isinstance(header, LineHeader | PointHeader):
-            self._header = header
-        elif "_header" in self.__dict__.keys() and isinstance(header, gpd.GeoDataFrame):
-            self._header = self._header.__class__(header, self.vertical_reference)
+        self._header = safe_validate(
+            header, schemas.pointheader
+        )  # TODO: validation schema needs to be inferred
         self.check_header_to_data_alignment()
 
     @data.setter
     def data(self, data):
-        if isinstance(data, LayeredData | DiscreteData):
-            self._data = data
-        elif "_data" in self.__dict__.keys() and isinstance(data, pd.DataFrame):
-            self._data = self._data.__class__(data, self.has_inclined)
+        self._data = safe_validate(
+            data, schemas.layerdata
+        )  # TODO: validation schema needs to be inferred
         self.check_header_to_data_alignment()
 
     def _clone_with_attrs(self, new_header, new_data):

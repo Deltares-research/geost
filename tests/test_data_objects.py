@@ -31,6 +31,10 @@ class TestLayeredData:
         assert len(header) == 5
         assert header["nr"].nunique() == 5
         assert header.crs == 28992
+        assert header.headertype == "point"
+
+        with pytest.raises(ValueError, match="Invalid headertype: invalid."):
+            header = borehole_data.gstda.to_header(headertype="invalid")
 
     @pytest.mark.unittest
     def test_to_collection(self, borehole_data):
@@ -38,6 +42,17 @@ class TestLayeredData:
         assert isinstance(collection, geost.BoreholeCollection)
         assert isinstance(collection.header, gpd.GeoDataFrame)
         assert len(collection.header) == 5
+        assert isinstance(collection.data, pd.DataFrame)
+        assert len(collection.data) == 25
+        assert not collection.has_inclined
+        assert collection.horizontal_reference == 28992
+        assert collection.vertical_reference == 5709
+
+        with pytest.raises(ValueError, match="Invalid headertype: invalid."):
+            collection = borehole_data.gstda.to_collection(headertype="invalid")
+
+        with pytest.raises(ValueError, match="Invalid datatype: invalid"):
+            collection = borehole_data.gstda.to_collection(datatype="invalid")
 
     @pytest.mark.unittest
     def test_select_by_values(self, borehole_data):
