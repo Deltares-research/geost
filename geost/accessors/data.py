@@ -96,7 +96,7 @@ class LayeredData(AbstractData):
         """
         from geost.base import BoreholeCollection  # Avoid circular import
 
-        header = self.to_header(horizontal_reference, vertical_reference)
+        header = self.to_header(horizontal_reference)
         return BoreholeCollection(header, self._df)
         # NOTE: Type of Collection may need to be inferred in the future.
 
