@@ -8,17 +8,17 @@ from geost import config
 from geost._warnings import ValidationWarning
 
 
-def safe_validate(schema: DataFrameSchema, df: pd.DataFrame, **kwargs) -> pd.DataFrame:
+def safe_validate(df: pd.DataFrame, schema: DataFrameSchema, **kwargs) -> pd.DataFrame:
     """
     Catch validation errors and raise a warning instead while returning the DataFrame
     unchanged. If rows are dropped due to validation, report which rows were dropped.
 
     Parameters
     ----------
-    schema : DataFrameSchema
-        The schema to validate the DataFrame against.
     df : pd.DataFrame
         The DataFrame to validate.
+    schema : DataFrameSchema
+        The schema to validate the DataFrame against.
     **kwargs : keyword arguments
         Additional arguments to pass to the Pandera DataFrameSchema.validate method. Note
         that the inplace argument is ignored and the DataFrame will not be modified in place.

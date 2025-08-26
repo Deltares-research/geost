@@ -48,7 +48,6 @@ dependencies = [
 	"rioxarray",
     "shapely",
     "pyvista",
-    "pandera",
 ]
 
 [project.urls]
