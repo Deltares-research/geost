@@ -12,7 +12,7 @@ DATA = {
 }
 
 
-@pd.api.extensions.register_dataframe_accessor("geoheader")
+@pd.api.extensions.register_dataframe_accessor("gsthd")
 class Header:
     def __init__(self, gdf):
         self._validate(gdf)
@@ -26,7 +26,7 @@ class Header:
     def _validate(gdf):
         if not hasattr(gdf, "headertype"):
             raise AttributeError(
-                "Header has no attribute 'headertype', geoheader accessor cannot choose backend"
+                "Header has no attribute 'headertype', gsthd accessor cannot choose backend"
             )
 
     def _get_backend(self):
@@ -36,7 +36,7 @@ class Header:
         return header(self._gdf)
 
 
-@pd.api.extensions.register_dataframe_accessor("geodata")
+@pd.api.extensions.register_dataframe_accessor("gstda")
 class Data:
     def __init__(self, df):
         self._validate(df)
