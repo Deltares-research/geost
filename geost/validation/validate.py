@@ -1,3 +1,4 @@
+import contextlib
 import warnings
 
 import pandas as pd
@@ -48,6 +49,13 @@ def safe_validate(df: pd.DataFrame, schema: DataFrameSchema, **kwargs) -> pd.Dat
                     f"Dropped indices: {list(dropped)}\n",
                     category=ValidationWarning,
                 )
+
+        # Cannot be in a single context block. If the first line fails, context is escaped.
+        with contextlib.suppress(AttributeError):
+            validated_df.headertype = df.headertype
+        with contextlib.suppress(AttributeError):
+            validated_df.datatype = df.datatype
+
         return validated_df
     except (SchemaError, SchemaErrors) as e:
         if config.validation.VERBOSE:
