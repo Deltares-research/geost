@@ -121,6 +121,7 @@ class LayeredData(AbstractData):
         -------
         :class:`~geost.base.Collection`
             An instance of :class:`~geost.base.Collection`
+
         """
         from geost.base import BoreholeCollection  # Avoid circular import
 
@@ -136,8 +137,7 @@ class LayeredData(AbstractData):
             has_inclined=has_inclined,
             horizontal_reference=horizontal_reference,
             vertical_reference=vertical_reference,
-        )
-        # NOTE: Type of Collection may need to be inferred in the future.
+        )  # NOTE: Type of Collection may need to be inferred in the future.
 
     def select_by_values(
         self, column: str, selection_values: str | Iterable, how: str = "or"
@@ -192,6 +192,8 @@ class LayeredData(AbstractData):
             for value in selection_values:
                 valid = self._df["nr"][self._df[column] == value].unique()
                 selected = selected[selected["nr"].isin(valid)]
+
+        selected.datatype = self._df.datatype
 
         return selected
 
@@ -273,6 +275,8 @@ class LayeredData(AbstractData):
             sliced.loc[sliced["top"] <= upper_boundary, "top"] = upper_boundary
             sliced.loc[sliced["bottom"] >= lower_boundary, "bottom"] = lower_boundary
 
+        sliced.datatype = self._df.datatype
+
         return sliced
 
     def slice_by_values(
@@ -319,6 +323,8 @@ class LayeredData(AbstractData):
         else:
             sliced = sliced[sliced[column].isin(selection_values)]
 
+        sliced.datatype = self._df.datatype
+
         return sliced
 
     def select_by_condition(self, condition: Any, invert: bool = False):
@@ -353,9 +359,12 @@ class LayeredData(AbstractData):
 
         """
         if invert:
-            selected = self[~condition]
+            selected = self._df[~condition]
         else:
-            selected = self[condition]
+            selected = self._df[condition]
+
+        selected.datatype = self._df.datatype
+
         return selected
 
     def get_cumulative_thickness(self, column: str, values: str | List[str]):
@@ -432,12 +441,12 @@ class LayeredData(AbstractData):
         >>> data.get_layer_top("lith", "Z")
 
         """
-        selected_layers = self.slice_by_values(column, values)
-        selected_layers = selected_layers.slice_depth_interval(upper_boundary=min_depth)
-        selected_layers = selected_layers.select_by_condition(
-            selected_layers["bottom"] - selected_layers["top"] >= min_thickness
+        selection = self.slice_by_values(column, values)
+        selection = selection.gstda.slice_depth_interval(upper_boundary=min_depth)
+        selection = selection.gstda.select_by_condition(
+            selection["bottom"] - selection["top"] >= min_thickness
         )
-        layer_top = selected_layers.groupby(["nr", column])["top"].first()
+        layer_top = selection.groupby(["nr", column])["top"].first()
         return layer_top.unstack(level=column)
 
     def to_pyvista_cylinders(
@@ -646,6 +655,7 @@ class LayeredData(AbstractData):
             geometry=geometries,
             crs=crs,
         )
+        gdf.datatype = self._df.datatype
         return gdf
 
     def to_qgis3d(
