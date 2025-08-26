@@ -8,6 +8,7 @@ from numpy.testing import assert_array_almost_equal, assert_array_equal
 from pyvista import MultiBlock, UnstructuredGrid
 from shapely import get_coordinates
 
+import geost
 from geost.accessors.data import DiscreteData, LayeredData
 from geost.accessors.header import PointHeader
 from geost.base import (
@@ -23,7 +24,7 @@ class TestLayeredData:
     def test_to_header(self, borehole_data):
         expected_columns = ["nr", "x", "y", "surface", "end", "geometry"]
 
-        header = borehole_data.geodata.to_header()
+        header = borehole_data.gstda.to_header()
 
         assert isinstance(header, gpd.GeoDataFrame)
         assert_array_equal(header.columns, expected_columns)
@@ -33,9 +34,9 @@ class TestLayeredData:
 
     @pytest.mark.unittest
     def test_to_collection(self, borehole_data):
-        collection = borehole_data.to_collection()
-        assert isinstance(collection, BoreholeCollection)
-        assert isinstance(collection.header, PointHeader)
+        collection = borehole_data.gstda.to_collection()
+        assert isinstance(collection, geost.BoreholeCollection)
+        assert isinstance(collection.header, gpd.GeoDataFrame)
         assert len(collection.header) == 5
 
     @pytest.mark.unittest
