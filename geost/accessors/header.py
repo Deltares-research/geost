@@ -8,9 +8,7 @@ from shapely import geometry as gmt
 
 from geost import spatial, utils
 from geost.abstract_classes import AbstractHeader
-from geost.mixins import GeopandasExportMixin
 from geost.projections import vertical_reference_transformer
-from geost.validation import safe_validate, schemas
 
 type Coordinate = int | float
 type GeometryType = gmt.base.BaseGeometry | list[gmt.base.BaseGeometry]
