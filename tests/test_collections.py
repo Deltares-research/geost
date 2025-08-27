@@ -111,17 +111,14 @@ class TestCollection:
         return array
 
     @pytest.mark.unittest
-    def test_get_single_object(self, borehole_collection):
-        borehole_collection_single_selection = borehole_collection.get("A")
-        assert borehole_collection_single_selection.header.gdf.iloc[0, 0] == "A"
+    def test_get(self, borehole_collection):
+        selection = borehole_collection.get("A")
+        assert selection.header.iloc[0, 0] == "A"
+        assert_array_equal(selection.data["nr"].unique(), ["A"])
 
-    @pytest.mark.unittest
-    def test_get_multiple_objects(self, borehole_collection):
-        borehole_collection_multi_selection = borehole_collection.get(["A", "B"])
-        assert list(borehole_collection_multi_selection.header["nr"].unique()) == [
-            "A",
-            "B",
-        ]
+        selection = borehole_collection.get(["A", "B"])
+        assert list(selection.header["nr"].unique()) == ["A", "B"]
+        assert_array_equal(selection.data["nr"].unique(), ["A", "B"])
 
     @pytest.mark.unittest
     def test_add_header_column_to_data(self, borehole_collection):
