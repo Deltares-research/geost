@@ -134,7 +134,9 @@ def borehole_collection(borehole_data):
     Fixture containing a BoreholeCollection instance of synthetic borehole data.
 
     """
-    borehole_collection = borehole_data.to_collection()
+    borehole_collection = borehole_data.gstda.to_collection(
+        has_inclined=False, headertype="point", datatype="layered"
+    )
     return borehole_collection
 
 

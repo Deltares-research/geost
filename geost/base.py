@@ -188,8 +188,8 @@ class Collection(AbstractCollection):
         will return a :class:`~geost.base.BoreholeCollection` with all boreholes
         that are located in "unit1" and "unit2" geological map areas.
         """
-        selected_header = self.header.get(selection_values, column)
-        selected_data = self.data.select_by_values(column, selection_values)
+        selected_header = self.header.gsthd.get(selection_values, column)
+        selected_data = self.data.gstda.select_by_values(column, selection_values)
 
         return self.__class__(selected_header, selected_data)
 
