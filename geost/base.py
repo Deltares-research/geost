@@ -129,18 +129,18 @@ class PointHeader(AbstractHeader, GeopandasExportMixin):
         --------
         To change the header's current vertical reference to NAP:
 
-        >>> self.change_horizontal_reference(5709)
+        >>> self.change_vertical_reference(5709)
 
         This would be the same as:
 
-        >>> self.change_horizontal_reference("epsg:5709")
+        >>> self.change_vertical_reference("epsg:5709")
 
         As the Pyproj constructors are very flexible, you can even use the CRS's full
         official name instead of an EPSG number. E.g. for changing to NAP and the
         Belgian Ostend height vertical datums repsectively, you can use:
 
-        >>> self.change_horizontal_reference("NAP")
-        >>> self.change_horizontal_reference("Ostend height")
+        >>> self.change_vertical_reference("NAP")
+        >>> self.change_vertical_reference("Ostend height")
         """
         transformer = vertical_reference_transformer(
             self.horizontal_reference, self.vertical_reference, to_epsg
@@ -1741,18 +1741,18 @@ class Collection(AbstractCollection):
         --------
         To change the header's current vertical reference to NAP:
 
-        >>> self.change_horizontal_reference(5709)
+        >>> self.change_vertical_reference(5709)
 
         This would be the same as:
 
-        >>> self.change_horizontal_reference("epsg:5709")
+        >>> self.change_vertical_reference("epsg:5709")
 
         As the Pyproj constructors are very flexible, you can even use the CRS's full
         official name instead of an EPSG number. E.g. for changing to NAP and the
         Belgian Ostend height vertical datums repsectively, you can use:
 
-        >>> self.change_horizontal_reference("NAP")
-        >>> self.change_horizontal_reference("Ostend height")
+        >>> self.change_vertical_reference("NAP")
+        >>> self.change_vertical_reference("Ostend height")
         """
         transformer = vertical_reference_transformer(
             self.horizontal_reference, self.vertical_reference, to_epsg
