@@ -600,18 +600,18 @@
 <span class="sd">        --------</span>
 <span class="sd">        To change the header&#39;s current vertical reference to NAP:</span>
 
-<span class="sd">        &gt;&gt;&gt; self.change_horizontal_reference(5709)</span>
+<span class="sd">        &gt;&gt;&gt; self.change_vertical_reference(5709)</span>
 
 <span class="sd">        This would be the same as:</span>
 
-<span class="sd">        &gt;&gt;&gt; self.change_horizontal_reference(&quot;epsg:5709&quot;)</span>
+<span class="sd">        &gt;&gt;&gt; self.change_vertical_reference(&quot;epsg:5709&quot;)</span>
 
 <span class="sd">        As the Pyproj constructors are very flexible, you can even use the CRS&#39;s full</span>
 <span class="sd">        official name instead of an EPSG number. E.g. for changing to NAP and the</span>
 <span class="sd">        Belgian Ostend height vertical datums repsectively, you can use:</span>
 
-<span class="sd">        &gt;&gt;&gt; self.change_horizontal_reference(&quot;NAP&quot;)</span>
-<span class="sd">        &gt;&gt;&gt; self.change_horizontal_reference(&quot;Ostend height&quot;)</span>
+<span class="sd">        &gt;&gt;&gt; self.change_vertical_reference(&quot;NAP&quot;)</span>
+<span class="sd">        &gt;&gt;&gt; self.change_vertical_reference(&quot;Ostend height&quot;)</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">transformer</span> <span class="o">=</span> <span class="n">vertical_reference_transformer</span><span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">horizontal_reference</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">vertical_reference</span><span class="p">,</span> <span class="n">to_epsg</span>
@@ -2322,18 +2322,18 @@
 <span class="sd">        --------</span>
 <span class="sd">        To change the header&#39;s current vertical reference to NAP:</span>
 
-<span class="sd">        &gt;&gt;&gt; self.change_horizontal_reference(5709)</span>
+<span class="sd">        &gt;&gt;&gt; self.change_vertical_reference(5709)</span>
 
 <span class="sd">        This would be the same as:</span>
 
-<span class="sd">        &gt;&gt;&gt; self.change_horizontal_reference(&quot;epsg:5709&quot;)</span>
+<span class="sd">        &gt;&gt;&gt; self.change_vertical_reference(&quot;epsg:5709&quot;)</span>
 
 <span class="sd">        As the Pyproj constructors are very flexible, you can even use the CRS&#39;s full</span>
 <span class="sd">        official name instead of an EPSG number. E.g. for changing to NAP and the</span>
 <span class="sd">        Belgian Ostend height vertical datums repsectively, you can use:</span>
 
-<span class="sd">        &gt;&gt;&gt; self.change_horizontal_reference(&quot;NAP&quot;)</span>
-<span class="sd">        &gt;&gt;&gt; self.change_horizontal_reference(&quot;Ostend height&quot;)</span>
+<span class="sd">        &gt;&gt;&gt; self.change_vertical_reference(&quot;NAP&quot;)</span>
+<span class="sd">        &gt;&gt;&gt; self.change_vertical_reference(&quot;Ostend height&quot;)</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">transformer</span> <span class="o">=</span> <span class="n">vertical_reference_transformer</span><span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">horizontal_reference</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">vertical_reference</span><span class="p">,</span> <span class="n">to_epsg</span>

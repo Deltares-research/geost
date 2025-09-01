@@ -33,7 +33,7 @@ functions around GeoST data objects.
 
 # Package status
 [![PyPI version](https://img.shields.io/pypi/v/geost.svg)](https://pypi.org/project/geost)
-[![License: MIT](https://img.shields.io/pypi/l/imod)](https://choosealicense.com/licenses/mit)
+[![License: LGPLv3](https://img.shields.io/pypi/l/geost)](https://choosealicense.com/licenses/lgpl-3.0)
 [![Lifecycle: experimental](https://lifecycle.r-lib.org/articles/figures/lifecycle-experimental.svg)](https://lifecycle.r-lib.org/articles/stages.html)
 [![Build: status](https://img.shields.io/github/actions/workflow/status/deltares-research/geost/ci.yml)](https://github.com/Deltares-research/geost/actions)
 [![codecov](https://codecov.io/gh/Deltares-research/geost/graph/badge.svg?token=HCNGLWTQ2H)](https://codecov.io/gh/Deltares-research/geost)
