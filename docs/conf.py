@@ -56,6 +56,8 @@ templates_path = ["_templates"]
 # This pattern also affects html_static_path and html_extra_path.
 exclude_patterns = ["_build", "Thumbs.db", ".DS_Store", "*bro"]
 
+# Longer notebook execution timeout when building docs to prevent cell timeouts
+nb_execution_timeout = 120
 
 # -- Options for HTML output -------------------------------------------------
 

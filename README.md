@@ -90,5 +90,4 @@ You can contribute by testing, raising issues and making pull requests. Some gen
 - Use new branches for developing new features or bugfixes. Use prefixes such as feature/ bugfix/ experimental/ to indicate the type of branch
 - Add unit tests (and test data) for new methods and functions using pytest.
 - Add Numpy-style docstrings
-- Use Black formatting with default line length (88 characters)
-- Update requirement.txt en environment.yml files if required
+- Use pre-commit (see installation for developers on this page)
