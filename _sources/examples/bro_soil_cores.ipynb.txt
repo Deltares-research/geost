@@ -5,7 +5,6 @@
    "metadata": {},
    "source": [
     "## Retrieving and analysing BRO soil cores \n",
-    "\n",
     "In this example, we will download soil cores (BRO BHR-P objects) and calculate the total\n",
     "thickness of sand, clay, silt and peat layers for each or the boreholes.\n",
     "\n",
@@ -150,7 +149,7 @@
    "cell_type": "markdown",
    "metadata": {},
    "source": [
-    "Furthermore, we'd only like to work with boreholes that have a minimum length of 1.5 m"
+    "Furthermore, we'd only like to work with boreholes that have a minimum length of 1.5 m:"
    ]
   },
   {

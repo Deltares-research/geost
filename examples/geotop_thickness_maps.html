@@ -519,7 +519,7 @@ The code for ‘Clay’ in GeoTOP is 2, so we will use that in the get_thickness
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>&lt;matplotlib.image.AxesImage at 0x7f48d823ae40&gt;
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>&lt;matplotlib.image.AxesImage at 0x7f974decae40&gt;
 </pre></div>
 </div>
 <img alt="../_images/778429286db0b032c2a23a808b345c0eac88aba5fd1823f00c4d3e7aac11c455.png" src="../_images/778429286db0b032c2a23a808b345c0eac88aba5fd1823f00c4d3e7aac11c455.png" />
@@ -544,89 +544,10 @@ directly. We will use the <code class="docutils literal notranslate"><span class
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output traceback highlight-ipythontb notranslate"><div class="highlight"><pre><span></span><span class="gt">---------------------------------------------------------------------------</span>
-<span class="ne">KeyboardInterrupt</span><span class="g g-Whitespace">                         </span>Traceback (most recent call last)
-<span class="n">Cell</span> <span class="n">In</span><span class="p">[</span><span class="mi">3</span><span class="p">],</span> <span class="n">line</span> <span class="mi">8</span>
-<span class="g g-Whitespace">      </span><span class="mi">4</span> <span class="c1"># Get the total thickness of clay in the Holocene stratigraphic units</span>
-<span class="g g-Whitespace">      </span><span class="mi">5</span> <span class="n">thickness_clay_holocene</span> <span class="o">=</span> <span class="n">geotop</span><span class="o">.</span><span class="n">get_thickness</span><span class="p">(</span>
-<span class="g g-Whitespace">      </span><span class="mi">6</span>     <span class="p">(</span><span class="n">geotop</span><span class="p">[</span><span class="s2">&quot;lithok&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">Lithology</span><span class="o">.</span><span class="n">clay</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">geotop</span><span class="p">[</span><span class="s2">&quot;strat&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">StratGeotop</span><span class="o">.</span><span class="n">holocene</span><span class="p">))</span>
-<span class="g g-Whitespace">      </span><span class="mi">7</span> <span class="p">)</span>
-<span class="ne">----&gt; </span><span class="mi">8</span> <span class="n">thickness_clay_holocene</span><span class="o">.</span><span class="n">plot</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">vmin</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">vmax</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
-
-<span class="nn">File ~/work/geost/geost/.pixi/envs/default/lib/python3.13/site-packages/xarray/plot/accessor.py:421,</span> in <span class="ni">DataArrayPlotAccessor.imshow</span><span class="nt">(self, *args, **kwargs)</span>
-<span class="g g-Whitespace">    </span><span class="mi">419</span> <span class="nd">@functools</span><span class="o">.</span><span class="n">wraps</span><span class="p">(</span><span class="n">dataarray_plot</span><span class="o">.</span><span class="n">imshow</span><span class="p">,</span> <span class="n">assigned</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;__doc__&quot;</span><span class="p">,))</span>
-<span class="g g-Whitespace">    </span><span class="mi">420</span> <span class="k">def</span><span class="w"> </span><span class="nf">imshow</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AxesImage</span> <span class="o">|</span> <span class="n">FacetGrid</span><span class="p">[</span><span class="n">DataArray</span><span class="p">]:</span>
-<span class="ne">--&gt; </span><span class="mi">421</span>     <span class="k">return</span> <span class="n">dataarray_plot</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_da</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-
-<span class="nn">File ~/work/geost/geost/.pixi/envs/default/lib/python3.13/site-packages/xarray/plot/dataarray_plot.py:1574,</span> in <span class="ni">_plot2d.&lt;locals&gt;.newplotfunc</span><span class="nt">(***failed resolving arguments***)</span>
-<span class="g g-Whitespace">   </span><span class="mi">1571</span> <span class="n">yvalnp</span> <span class="o">=</span> <span class="n">yval</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
-<span class="g g-Whitespace">   </span><span class="mi">1573</span> <span class="c1"># Pass the data as a masked ndarray too</span>
-<span class="ne">-&gt; </span><span class="mi">1574</span> <span class="n">zval</span> <span class="o">=</span> <span class="n">darray</span><span class="o">.</span><span class="n">to_masked_array</span><span class="p">(</span><span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-<span class="g g-Whitespace">   </span><span class="mi">1576</span> <span class="c1"># Replace pd.Intervals if contained in xval or yval.</span>
-<span class="g g-Whitespace">   </span><span class="mi">1577</span> <span class="n">xplt</span><span class="p">,</span> <span class="n">xlab_extra</span> <span class="o">=</span> <span class="n">_resolve_intervals_2dplot</span><span class="p">(</span><span class="n">xvalnp</span><span class="p">,</span> <span class="n">plotfunc</span><span class="o">.</span><span class="vm">__name__</span><span class="p">)</span>
-
-<span class="nn">File ~/work/geost/geost/.pixi/envs/default/lib/python3.13/site-packages/xarray/core/dataarray.py:4052,</span> in <span class="ni">DataArray.to_masked_array</span><span class="nt">(self, copy)</span>
-<span class="g g-Whitespace">   </span><span class="mi">4038</span> <span class="k">def</span><span class="w"> </span><span class="nf">to_masked_array</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">copy</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ma</span><span class="o">.</span><span class="n">MaskedArray</span><span class="p">:</span>
-<span class="g g-Whitespace">   </span><span class="mi">4039</span><span class="w">     </span><span class="sd">&quot;&quot;&quot;Convert this array into a numpy.ma.MaskedArray</span>
-<span class="g g-Whitespace">   </span><span class="mi">4040</span><span class="sd"> </span>
-<span class="g g-Whitespace">   </span><span class="mi">4041</span><span class="sd">     Parameters</span>
-<span class="sd">   (...)   4050         Masked where invalid values (nan or inf) occur.</span>
-<span class="g g-Whitespace">   </span><span class="mi">4051</span><span class="sd">     &quot;&quot;&quot;</span>
-<span class="ne">-&gt; </span><span class="mi">4052</span>     <span class="n">values</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>  <span class="c1"># only compute lazy arrays once</span>
-<span class="g g-Whitespace">   </span><span class="mi">4053</span>     <span class="n">isnull</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">isnull</span><span class="p">(</span><span class="n">values</span><span class="p">)</span>
-<span class="g g-Whitespace">   </span><span class="mi">4054</span>     <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">ma</span><span class="o">.</span><span class="n">MaskedArray</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">values</span><span class="p">,</span> <span class="n">mask</span><span class="o">=</span><span class="n">isnull</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="n">copy</span><span class="p">)</span>
-
-<span class="nn">File ~/work/geost/geost/.pixi/envs/default/lib/python3.13/site-packages/xarray/core/dataarray.py:814,</span> in <span class="ni">DataArray.to_numpy</span><span class="nt">(self)</span>
-<span class="g g-Whitespace">    </span><span class="mi">803</span> <span class="k">def</span><span class="w"> </span><span class="nf">to_numpy</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-<span class="g g-Whitespace">    </span><span class="mi">804</span><span class="w">     </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="g g-Whitespace">    </span><span class="mi">805</span><span class="sd">     Coerces wrapped data to numpy and returns a numpy.ndarray.</span>
-<span class="g g-Whitespace">    </span><span class="mi">806</span><span class="sd"> </span>
-<span class="sd">   (...)    812     DataArray.data</span>
-<span class="g g-Whitespace">    </span><span class="mi">813</span><span class="sd">     &quot;&quot;&quot;</span>
-<span class="ne">--&gt; </span><span class="mi">814</span>     <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">variable</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
-
-<span class="nn">File ~/work/geost/geost/.pixi/envs/default/lib/python3.13/site-packages/xarray/namedarray/core.py:858,</span> in <span class="ni">NamedArray.to_numpy</span><span class="nt">(self)</span>
-<span class="g g-Whitespace">    </span><span class="mi">856</span><span class="w"> </span><span class="sd">&quot;&quot;&quot;Coerces wrapped data to numpy and returns a numpy.ndarray&quot;&quot;&quot;</span>
-<span class="g g-Whitespace">    </span><span class="mi">857</span> <span class="c1"># TODO an entrypoint so array libraries can choose coercion method?</span>
-<span class="ne">--&gt; </span><span class="mi">858</span> <span class="k">return</span> <span class="n">to_numpy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">)</span>
-
-<span class="nn">File ~/work/geost/geost/.pixi/envs/default/lib/python3.13/site-packages/xarray/namedarray/pycompat.py:117,</span> in <span class="ni">to_numpy</span><span class="nt">(data, **kwargs)</span>
-<span class="g g-Whitespace">    </span><span class="mi">115</span> <span class="k">if</span> <span class="n">is_chunked_array</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
-<span class="g g-Whitespace">    </span><span class="mi">116</span>     <span class="n">chunkmanager</span> <span class="o">=</span> <span class="n">get_chunked_array_type</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
-<span class="ne">--&gt; </span><span class="mi">117</span>     <span class="n">data</span><span class="p">,</span> <span class="o">*</span><span class="n">_</span> <span class="o">=</span> <span class="n">chunkmanager</span><span class="o">.</span><span class="n">compute</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-<span class="g g-Whitespace">    </span><span class="mi">118</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">array_type</span><span class="p">(</span><span class="s2">&quot;cupy&quot;</span><span class="p">)):</span>
-<span class="g g-Whitespace">    </span><span class="mi">119</span>     <span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
-
-<span class="nn">File ~/work/geost/geost/.pixi/envs/default/lib/python3.13/site-packages/xarray/namedarray/daskmanager.py:85,</span> in <span class="ni">DaskManager.compute</span><span class="nt">(self, *data, **kwargs)</span>
-<span class="g g-Whitespace">     </span><span class="mi">80</span> <span class="k">def</span><span class="w"> </span><span class="nf">compute</span><span class="p">(</span>
-<span class="g g-Whitespace">     </span><span class="mi">81</span>     <span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">data</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span>
-<span class="g g-Whitespace">     </span><span class="mi">82</span> <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="n">_DType_co</span><span class="p">],</span> <span class="o">...</span><span class="p">]:</span>
-<span class="g g-Whitespace">     </span><span class="mi">83</span>     <span class="kn">from</span><span class="w"> </span><span class="nn">dask.array</span><span class="w"> </span><span class="kn">import</span> <span class="n">compute</span>
-<span class="ne">---&gt; </span><span class="mi">85</span>     <span class="k">return</span> <span class="n">compute</span><span class="p">(</span><span class="o">*</span><span class="n">data</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-
-<span class="nn">File ~/work/geost/geost/.pixi/envs/default/lib/python3.13/site-packages/dask/base.py:681,</span> in <span class="ni">compute</span><span class="nt">(traverse, optimize_graph, scheduler, get, *args, **kwargs)</span>
-<span class="g g-Whitespace">    </span><span class="mi">678</span>     <span class="n">expr</span> <span class="o">=</span> <span class="n">expr</span><span class="o">.</span><span class="n">optimize</span><span class="p">()</span>
-<span class="g g-Whitespace">    </span><span class="mi">679</span>     <span class="n">keys</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">flatten</span><span class="p">(</span><span class="n">expr</span><span class="o">.</span><span class="n">__dask_keys__</span><span class="p">()))</span>
-<span class="ne">--&gt; </span><span class="mi">681</span>     <span class="n">results</span> <span class="o">=</span> <span class="n">schedule</span><span class="p">(</span><span class="n">expr</span><span class="p">,</span> <span class="n">keys</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-<span class="g g-Whitespace">    </span><span class="mi">683</span> <span class="k">return</span> <span class="n">repack</span><span class="p">(</span><span class="n">results</span><span class="p">)</span>
-
-<span class="nn">File ~/work/geost/geost/.pixi/envs/default/lib/python3.13/queue.py:202,</span> in <span class="ni">Queue.get</span><span class="nt">(self, block, timeout)</span>
-<span class="g g-Whitespace">    </span><span class="mi">200</span> <span class="k">elif</span> <span class="n">timeout</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-<span class="g g-Whitespace">    </span><span class="mi">201</span>     <span class="k">while</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_qsize</span><span class="p">():</span>
-<span class="ne">--&gt; </span><span class="mi">202</span>         <span class="bp">self</span><span class="o">.</span><span class="n">not_empty</span><span class="o">.</span><span class="n">wait</span><span class="p">()</span>
-<span class="g g-Whitespace">    </span><span class="mi">203</span>         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_shutdown</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_qsize</span><span class="p">():</span>
-<span class="g g-Whitespace">    </span><span class="mi">204</span>             <span class="k">raise</span> <span class="n">ShutDown</span>
-
-<span class="nn">File ~/work/geost/geost/.pixi/envs/default/lib/python3.13/threading.py:359,</span> in <span class="ni">Condition.wait</span><span class="nt">(self, timeout)</span>
-<span class="g g-Whitespace">    </span><span class="mi">357</span> <span class="k">try</span><span class="p">:</span>    <span class="c1"># restore state no matter what (e.g., KeyboardInterrupt)</span>
-<span class="g g-Whitespace">    </span><span class="mi">358</span>     <span class="k">if</span> <span class="n">timeout</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-<span class="ne">--&gt; </span><span class="mi">359</span>         <span class="n">waiter</span><span class="o">.</span><span class="n">acquire</span><span class="p">()</span>
-<span class="g g-Whitespace">    </span><span class="mi">360</span>         <span class="n">gotit</span> <span class="o">=</span> <span class="kc">True</span>
-<span class="g g-Whitespace">    </span><span class="mi">361</span>     <span class="k">else</span><span class="p">:</span>
-
-<span class="ne">KeyboardInterrupt</span>: 
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>&lt;matplotlib.image.AxesImage at 0x7f974cc3ce10&gt;
 </pre></div>
 </div>
+<img alt="../_images/a33339465826bb85baa9b22ac97c528c650cef241600a5402c76d6050eb0126f.png" src="../_images/a33339465826bb85baa9b22ac97c528c650cef241600a5402c76d6050eb0126f.png" />
 </div>
 </div>
 <p>We can also get the thickness of, say, basal peat. The code for organic material is 1 and
@@ -644,10 +565,10 @@ which is encoded as 1130.</p>
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>&lt;matplotlib.image.AxesImage at 0x27979389450&gt;
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>&lt;matplotlib.image.AxesImage at 0x7f974cb1f610&gt;
 </pre></div>
 </div>
-<img alt="../_images/c4a2cc3b5948485aa47d2a5345dccd76203a45b3b6fc49af01a4a25699a35b4c.png" src="../_images/c4a2cc3b5948485aa47d2a5345dccd76203a45b3b6fc49af01a4a25699a35b4c.png" />
+<img alt="../_images/b44aa2152680f3858ecfcc4203050be2b7b617ea08734d9a6013afba952312c9.png" src="../_images/b44aa2152680f3858ecfcc4203050be2b7b617ea08734d9a6013afba952312c9.png" />
 </div>
 </div>
 <p>Since the results are Xarray DataArrays, we can export them using rioxarray to geotiffs
