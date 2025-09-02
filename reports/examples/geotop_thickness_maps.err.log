@@ -44,14 +44,13 @@ nbclient.exceptions.CellTimeoutError: A cell timed out while it was being execut
 The message was: Cell execution timed out.
 Here is a preview of the cell contents:
 -------------------
-import geost
+# Import the StratGeotop class to access GeoTOP stratigraphic units
+from geost.bro import StratGeotop
 
-bhrp_cores = geost.bro_api_read(
-    "BHR-P", bbox=(141_000, 455_200, 142_500, 456_000)
-)  # xmin, ymin, xmax, ymax
-
-print(bhrp_cores)
-print("\nThe header looks like this:")
-bhrp_cores.header.gdf.head()
+# Get the total thickness of clay in the Holocene stratigraphic units
+thickness_clay_holocene = geotop.get_thickness(
+    (geotop["lithok"] == Lithology.clay) & (geotop["strat"].isin(StratGeotop.holocene))
+)
+thickness_clay_holocene.plot.imshow(vmin=0, vmax=20)
 -------------------
 
