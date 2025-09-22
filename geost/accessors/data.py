@@ -126,7 +126,6 @@ class LayeredData(AbstractData):
             header,
             self._df,
             has_inclined=has_inclined,
-            horizontal_reference=horizontal_reference,
             vertical_reference=vertical_reference,
         )  # NOTE: Type of Collection may need to be inferred in the future.
 
@@ -829,7 +828,6 @@ class DiscreteData(AbstractData):
             header,
             self._df,
             has_inclined=has_inclined,
-            horizontal_reference=horizontal_reference,
             vertical_reference=vertical_reference,
         )  # NOTE: Type of Collection may need to be inferred in the future.
 

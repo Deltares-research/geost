@@ -43,11 +43,9 @@ class Collection(AbstractCollection):
         header: gpd.GeoDataFrame | None,
         data: pd.DataFrame | None,
         has_inclined: bool = False,
-        horizontal_reference: str | int | CRS = 28992,
         vertical_reference: str | int | CRS = 5709,
     ):
         self._has_inclined = has_inclined
-        self._horizontal_reference = horizontal_reference
         self._vertical_reference = vertical_reference
         self.header = header
         self.data = data
@@ -194,7 +192,9 @@ class Collection(AbstractCollection):
         selected_header = self.header.gsthd.get(selection_values, column)
         selected_data = self.data.gstda.select_by_values(column, selection_values)
 
-        return self.__class__(selected_header, selected_data)
+        return self.__class__(
+            selected_header, selected_data, self.has_inclined, self.vertical_reference
+        )
 
     def change_horizontal_reference(self, to_epsg: str | int | CRS):
         """
@@ -290,8 +290,8 @@ class Collection(AbstractCollection):
         """
         Refresh the header based on the loaded data in case the header got messed up.
         """
-        self.header = self.data.to_header(
-            self.horizontal_reference, self.vertical_reference
+        self.header = self.data.gstda.to_header(
+            self.header.headertype, self.horizontal_reference
         )
 
     def check_header_to_data_alignment(self):
@@ -359,12 +359,17 @@ class Collection(AbstractCollection):
             New instance of the current object containing only the selection resulting
             from application of this method. e.g. if you are calling this method from a
             Collection, you will get an instance of a Collection back.
+
         """
-        header_selected = self.header.select_within_bbox(
+        selected_header = self.header.gsthd.select_within_bbox(
             xmin, ymin, xmax, ymax, invert=invert
         )
-        data_selected = self.data.select_by_values("nr", header_selected["nr"].unique())
-        return self._clone_with_attrs(header_selected, data_selected)
+        selected_data = self.data.gstda.select_by_values(
+            "nr", selected_header["nr"].unique()
+        )
+        return self.__class__(
+            selected_header, selected_data, self.has_inclined, self.vertical_reference
+        )
 
     def select_with_points(
         self,
@@ -394,9 +399,15 @@ class Collection(AbstractCollection):
             Collection, you will get an instance of a Collection back.
 
         """
-        header_selected = self.header.select_with_points(points, buffer, invert=invert)
-        data_selected = self.data.select_by_values("nr", header_selected["nr"].unique())
-        return self._clone_with_attrs(header_selected, data_selected)
+        selected_header = self.header.gsthd.select_with_points(
+            points, buffer, invert=invert
+        )
+        selected_data = self.data.gstda.select_by_values(
+            "nr", selected_header["nr"].unique()
+        )
+        return self.__class__(
+            selected_header, selected_data, self.has_inclined, self.vertical_reference
+        )
 
     def select_with_lines(
         self,
@@ -426,9 +437,15 @@ class Collection(AbstractCollection):
             Collection, you will get an instance of a Collection back.
 
         """
-        header_selected = self.header.select_with_lines(lines, buffer, invert=invert)
-        data_selected = self.data.select_by_values("nr", header_selected["nr"].unique())
-        return self._clone_with_attrs(header_selected, data_selected)
+        selected_header = self.header.gsthd.select_with_lines(
+            lines, buffer, invert=invert
+        )
+        selected_data = self.data.gstda.select_by_values(
+            "nr", selected_header["nr"].unique()
+        )
+        return self.__class__(
+            selected_header, selected_data, self.has_inclined, self.vertical_reference
+        )
 
     def select_within_polygons(
         self,
@@ -459,11 +476,15 @@ class Collection(AbstractCollection):
             Collection, you will get an instance of a Collection back.
 
         """
-        header_selected = self.header.select_within_polygons(
+        selected_header = self.header.gsthd.select_within_polygons(
             polygons, buffer=buffer, invert=invert
         )
-        data_selected = self.data.select_by_values("nr", header_selected["nr"].unique())
-        return self._clone_with_attrs(header_selected, data_selected)
+        selected_data = self.data.gstda.select_by_values(
+            "nr", selected_header["nr"].unique()
+        )
+        return self.__class__(
+            selected_header, selected_data, self.has_inclined, self.vertical_reference
+        )
 
     def select_by_depth(
         self,
@@ -494,12 +515,17 @@ class Collection(AbstractCollection):
             New instance of the current object containing only the selection resulting
             from application of this method. e.g. if you are calling this method from a
             Collection, you will get an instance of a Collection back.
+
         """
-        header_selected = self.header.select_by_depth(
+        selected_header = self.header.gsthd.select_by_depth(
             top_min=top_min, top_max=top_max, end_min=end_min, end_max=end_max
         )
-        data_selected = self.data.select_by_values("nr", header_selected["nr"].unique())
-        return self._clone_with_attrs(header_selected, data_selected)
+        selected_data = self.data.gstda.select_by_values(
+            "nr", selected_header["nr"].unique()
+        )
+        return self.__class__(
+            selected_header, selected_data, self.has_inclined, self.vertical_reference
+        )
 
     def select_by_length(self, min_length: float = None, max_length: float = None):
         """
@@ -520,11 +546,15 @@ class Collection(AbstractCollection):
             from application of this method. e.g. if you are calling this method from a
             Collection, you will get an instance of a Collection back.
         """
-        header_selected = self.header.select_by_length(
+        selected_header = self.header.gsthd.select_by_length(
             min_length=min_length, max_length=max_length
         )
-        data_selected = self.data.select_by_values("nr", header_selected["nr"].unique())
-        return self._clone_with_attrs(header_selected, data_selected)
+        selected_data = self.data.gstda.select_by_values(
+            "nr", selected_header["nr"].unique()
+        )
+        return self.__class__(
+            selected_header, selected_data, self.has_inclined, self.vertical_reference
+        )
 
     def select_by_values(
         self, column: str, selection_values: str | Iterable, how: str = "or"
@@ -565,9 +595,13 @@ class Collection(AbstractCollection):
         >>> boreholes.select_by_values("lith", ["V", "K"], how="and")
 
         """
-        data_selected = self.data.select_by_values(column, selection_values, how=how)
-        header_selected = self.header.get(data_selected["nr"].unique())
-        return self._clone_with_attrs(header_selected, data_selected)
+        selected_data = self.data.gstda.select_by_values(
+            column, selection_values, how=how
+        )
+        selected_header = self.header.gsthd.get(selected_data["nr"].unique())
+        return self.__class__(
+            selected_header, selected_data, self.has_inclined, self.vertical_reference
+        )
 
     def slice_depth_interval(
         self,
@@ -623,14 +657,16 @@ class Collection(AbstractCollection):
         >>> data.slice_depth_interval(-3, -5, relative_to_vertical_reference=True)
 
         """
-        data_selected = self.data.slice_depth_interval(
+        selected_data = self.data.gstda.slice_depth_interval(
             upper_boundary=upper_boundary,
             lower_boundary=lower_boundary,
             relative_to_vertical_reference=relative_to_vertical_reference,
             update_layer_boundaries=update_layer_boundaries,
         )
-        header_selected = self.header.get(data_selected["nr"].unique())
-        return self._clone_with_attrs(header_selected, data_selected)
+        selected_header = self.header.gsthd.get(selected_data["nr"].unique())
+        return self.__class__(
+            selected_header, selected_data, self.has_inclined, self.vertical_reference
+        )
 
     def slice_by_values(
         self, column: str, selection_values: str | Iterable, invert: bool = False
@@ -669,11 +705,13 @@ class Collection(AbstractCollection):
         >>> boreholes.slice_by_values("lith", "Z", invert=True)
 
         """
-        data_selected = self.data.slice_by_values(
+        selected_data = self.data.gstda.slice_by_values(
             column, selection_values, invert=invert
         )
-        header_selected = self.header.get(data_selected["nr"].unique())
-        return self._clone_with_attrs(header_selected, data_selected)
+        selected_header = self.header.gsthd.get(selected_data["nr"].unique())
+        return self.__class__(
+            selected_header, selected_data, self.has_inclined, self.vertical_reference
+        )
 
     def select_by_condition(self, condition: Any, invert: bool = False):
         """
@@ -714,9 +752,11 @@ class Collection(AbstractCollection):
         >>> data.select_by_condition((data["column1"] > 2) & (data["column2] < 1))
 
         """
-        data_selected = self.data.select_by_condition(condition, invert)
-        header_selected = self.header.get(data_selected["nr"].unique())
-        return self._clone_with_attrs(header_selected, data_selected)
+        selected_data = self.data.gstda.select_by_condition(condition, invert)
+        selected_header = self.header.gsthd.get(selected_data["nr"].unique())
+        return self.__class__(
+            selected_header, selected_data, self.has_inclined, self.vertical_reference
+        )
 
     def get_area_labels(
         self,
@@ -745,7 +785,7 @@ class Collection(AbstractCollection):
             Borehole ids and the polygon label they are in. If include_in_header = True,
             a column containing the generated data will be added inplace to the header.
         """
-        result = self.header.get_area_labels(
+        result = self.header.gsthd.get_area_labels(
             polygon_gdf, column_name, include_in_header=include_in_header
         )
         return result
