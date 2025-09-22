@@ -142,6 +142,8 @@ class PointHeader(AbstractHeader):
 
         selection = selection[~selection.duplicated()]
 
+        selection.headertype = self._gdf.headertype
+
         return selection
 
     def select_within_bbox(
@@ -178,6 +180,7 @@ class PointHeader(AbstractHeader):
         selection = spatial.select_points_within_bbox(
             self._gdf, xmin, ymin, xmax, ymax, invert=invert
         )
+        selection.headertype = self._gdf.headertype
         return selection
 
     def select_with_points(
@@ -210,6 +213,7 @@ class PointHeader(AbstractHeader):
         selection = spatial.select_points_near_points(
             self._gdf, points, buffer, invert=invert
         )
+        selection.headertype = self._gdf.headertype
         return selection
 
     def select_with_lines(
@@ -242,6 +246,7 @@ class PointHeader(AbstractHeader):
         selection = spatial.select_points_near_lines(
             self._gdf, lines, buffer, invert=invert
         )
+        selection.headertype = self._gdf.headertype
         return selection
 
     def select_within_polygons(
@@ -275,6 +280,7 @@ class PointHeader(AbstractHeader):
         selection = spatial.select_points_within_polygons(
             self._gdf, polygons, buffer, invert=invert
         )
+        selection.headertype = self._gdf.headertype
         return selection
 
     def select_by_depth(
@@ -318,7 +324,7 @@ class PointHeader(AbstractHeader):
             selected = selected[selected["end"] <= end_max]
 
         selected = selected[~selected.duplicated()]
-
+        selected.headertype = self._gdf.headertype
         return selected
 
     def select_by_length(self, min_length: float = None, max_length: float = None):
@@ -348,7 +354,7 @@ class PointHeader(AbstractHeader):
             selected = selected[length <= max_length]
 
         selected = selected[~selected.duplicated()]
-
+        selected.headertype = self._gdf.headertype
         return selected
 
     def get_area_labels(
@@ -394,6 +400,7 @@ class PointHeader(AbstractHeader):
             self._gdf[column_name] = area_labels[column_name]
             return self._gdf
         else:
+            area_labels.headertype = self._gdf.headertype
             return area_labels
 
 
