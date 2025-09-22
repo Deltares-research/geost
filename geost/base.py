@@ -87,7 +87,7 @@ class Collection(AbstractCollection):
         """
         Coordinate reference system represented by an instance of pyproj.crs.CRS.
         """
-        return self._horizontal_reference
+        return self.header.crs
 
     @property
     def vertical_reference(self):
@@ -152,8 +152,11 @@ class Collection(AbstractCollection):
         ----------
         column_name : str
             Name of the column in the header table to add.
+
         """
-        self.data.df = pd.merge(self.data.df, self.header[["nr", column_name]], on="nr")
+        datatype = self.data.datatype  # keep datatype info to keep DataFrame accessor
+        self._data = pd.merge(self.data, self.header[["nr", column_name]], on="nr")
+        self._data.datatype = datatype
 
     def get(self, selection_values: str | Iterable, column: str = "nr"):
         """
@@ -221,19 +224,17 @@ class Collection(AbstractCollection):
         transformer = horizontal_reference_transformer(
             self.horizontal_reference, to_epsg
         )
-        self.data.df[["x", "y"]] = self.data.df[["x", "y"]].astype(float)
-        self.data.df.loc[:, "x"], self.data.df.loc[:, "y"] = transformer.transform(
+        self.data[["x", "y"]] = self.data[["x", "y"]].astype(float)
+        self.data.loc[:, "x"], self.data.loc[:, "y"] = transformer.transform(
             self.data["x"], self.data["y"]
         )
-        if self.data.has_inclined:
-            self.data.df[["x_bot", "y_bot"]] = self.data.df[["x_bot", "y_bot"]].astype(
-                float
-            )
-            self.data.df.loc[:, "x_bot"], self.data.df.loc[:, "y_bot"] = (
+        if self.has_inclined:
+            self.data[["x_bot", "y_bot"]] = self.data[["x_bot", "y_bot"]].astype(float)
+            self.data.loc[:, "x_bot"], self.data.loc[:, "y_bot"] = (
                 transformer.transform(self.data["x_bot"], self.data["y_bot"])
             )
 
-        self.header.change_horizontal_reference(to_epsg)
+        self.header.gsthd.change_horizontal_reference(to_epsg)
 
     def change_vertical_reference(self, to_epsg: str | int | CRS):
         """
@@ -273,18 +274,17 @@ class Collection(AbstractCollection):
         transformer = vertical_reference_transformer(
             self.horizontal_reference, self.vertical_reference, to_epsg
         )
-        self.data.df[["surface", "end"]] = self.data.df[["surface", "end"]].astype(
-            float
-        )
+        self.data[["surface", "end"]] = self.data[["surface", "end"]].astype(float)
         _, _, new_surface = transformer.transform(
             self.data["x"], self.data["y"], self.data["surface"]
         )
         _, _, new_end = transformer.transform(
             self.data["x"], self.data["y"], self.data["end"]
         )
-        self.data.df.loc[:, "surface"] = new_surface
-        self.data.df.loc[:, "end"] = new_end
-        self.header.change_vertical_reference(to_epsg)
+        self.data.loc[:, "surface"] = new_surface
+        self.data.loc[:, "end"] = new_end
+        self.header.gsthd.change_vertical_reference(self.vertical_reference, to_epsg)
+        self._vertical_reference = CRS(to_epsg)
 
     def reset_header(self):
         """

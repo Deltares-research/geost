@@ -135,7 +135,7 @@ def borehole_collection(borehole_data):
 
     """
     borehole_collection = borehole_data.gstda.to_collection(
-        has_inclined=False, headertype="point", datatype="layered"
+        has_inclined=False, headertype="point"
     )
     return borehole_collection
 
@@ -249,7 +249,8 @@ def cpt_data():
 
     """
     df = pd.concat([cpt_a(), cpt_b()], ignore_index=True)
-    return DiscreteData(df)
+    df.datatype = "discrete"
+    return df
 
 
 @pytest.fixture

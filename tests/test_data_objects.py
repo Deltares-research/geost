@@ -52,9 +52,6 @@ class TestLayeredData:
         with pytest.raises(ValueError, match="Invalid headertype: invalid."):
             collection = borehole_data.gstda.to_collection(headertype="invalid")
 
-        with pytest.raises(ValueError, match="Invalid datatype: invalid"):
-            collection = borehole_data.gstda.to_collection(datatype="invalid")
-
     @pytest.mark.unittest
     def test_select_by_values(self, borehole_data):
         selected = borehole_data.gstda.select_by_values("lith", ["V", "K"], how="or")
@@ -421,65 +418,74 @@ class TestLayeredData:
 
 class TestDiscreteData:
     @pytest.mark.unittest
-    def test_datatype(self, cpt_data):
-        assert cpt_data.datatype == "discrete"
-
-    @pytest.mark.unittest
     def test_to_header(self, cpt_data):
-        header = cpt_data.to_header()
+        header = cpt_data.gstda.to_header()
+
         expected_columns = ["nr", "x", "y", "surface", "end", "geometry"]
-
-        header = cpt_data.to_header()
-
-        assert isinstance(header, PointHeader)
-        assert_array_equal(header.gdf.columns, expected_columns)
-        assert len(header.gdf) == 2
+        assert isinstance(header, gpd.GeoDataFrame)
+        assert_array_equal(header.columns, expected_columns)
+        assert len(header) == 2
         assert header["nr"].nunique() == 2
-        assert header.horizontal_reference == 28992
-        assert header.vertical_reference == 5709
+        assert header.crs == 28992
+        header.headertype == "point"
+
+        with pytest.raises(ValueError, match="Invalid headertype: invalid."):
+            header = cpt_data.gstda.to_header(headertype="invalid")
 
     @pytest.mark.unittest
     def test_to_collection(self, cpt_data):
-        collection = cpt_data.to_collection()
+        collection = cpt_data.gstda.to_collection()
         assert isinstance(collection, CptCollection)
-        assert isinstance(collection.header, PointHeader)
+        assert isinstance(collection.header, gpd.GeoDataFrame)
+        assert isinstance(collection.data, pd.DataFrame)
         assert len(collection.header) == 2
+        assert not collection.has_inclined
+        assert collection.horizontal_reference == 28992
+        assert collection.vertical_reference == 5709
+        assert collection.header.headertype == "point"
+        assert collection.data.datatype == "discrete"
+
+        with pytest.raises(ValueError, match="Invalid headertype: invalid."):
+            collection = cpt_data.gstda.to_collection(headertype="invalid")
 
     @pytest.mark.unittest
     def test_select_by_values(self, cpt_data):
-        selected = cpt_data.select_by_values("nr", "a")
-        assert isinstance(selected, DiscreteData)
+        selected = cpt_data.gstda.select_by_values("nr", "a")
+        assert isinstance(selected, pd.DataFrame)
+        assert selected.datatype == cpt_data.datatype
         assert len(selected) == 10
         assert_array_equal(selected["nr"].unique(), "a")
 
     @pytest.mark.unittest
     def test_select_by_condition(self, cpt_data):
-        selected = cpt_data.select_by_condition(
+        selected = cpt_data.gstda.select_by_condition(
             (cpt_data["qc"] > 0.3) & (cpt_data["qc"] < 0.4)
         )
-        assert isinstance(selected, DiscreteData)
+        assert isinstance(selected, pd.DataFrame)
+        assert selected.datatype == cpt_data.datatype
         assert len(selected) == 5
         assert np.all((selected["qc"] > 0.3) & (selected["qc"] < 0.4))
-        assert_array_equal(selected.df.index, [2, 3, 4, 5, 6])
+        assert_array_equal(selected.index, [2, 3, 4, 5, 6])
 
-        selected = cpt_data.select_by_condition(
+        selected = cpt_data.gstda.select_by_condition(
             (cpt_data["qc"] < 0.35) & (cpt_data["fs"] < 0.2)
         )
         assert len(selected) == 3
         assert np.all(selected["qc"] < 0.35)
         assert np.all(selected["fs"] < 0.2)
-        assert_array_equal(selected.df.index, [0, 1, 2])
+        assert_array_equal(selected.index, [0, 1, 2])
 
     @pytest.mark.unittest
     def test_slice_depth_interval(self, cpt_data):
         # Selection with respect to surface level
-        selected = cpt_data.slice_depth_interval(2, 3)
-        assert isinstance(selected, DiscreteData)
+        selected = cpt_data.gstda.slice_depth_interval(2, 3)
+        assert isinstance(selected, pd.DataFrame)
+        assert selected.datatype == cpt_data.datatype
         assert len(selected) == 4
         assert_array_equal(selected["depth"], [2, 3, 2, 3])
 
         # Selection with respect to vertical reference plane
-        selected = cpt_data.slice_depth_interval(
+        selected = cpt_data.gstda.slice_depth_interval(
             1.9, 0.9, relative_to_vertical_reference=True
         )
         assert len(selected) == 1
@@ -487,13 +493,13 @@ class TestDiscreteData:
         assert_array_equal(selected["nr"], ["a"])
 
         # Selection with respect to surface level using one limit
-        selected = cpt_data.slice_depth_interval(lower_boundary=0.9)
+        selected = cpt_data.gstda.slice_depth_interval(lower_boundary=0.9)
         assert len(selected) == 2
         assert_array_equal(selected["depth"], [0, 0])
         assert_array_equal(selected["nr"], ["a", "b"])
 
         # Selection with respect to vertical reference plane using one limit
-        selected = cpt_data.slice_depth_interval(
+        selected = cpt_data.gstda.slice_depth_interval(
             lower_boundary=0.9, relative_to_vertical_reference=True
         )
         assert len(selected) == 2

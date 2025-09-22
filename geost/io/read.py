@@ -337,10 +337,14 @@ def read_nlog_cores(file: str | Path) -> BoreholeCollection:
 
     nlog_cores = nlog_cores.merge(surface_end_df, on="nr", how="left")
     nlog_cores = adjust_z_coordinates(nlog_cores)
+    nlog_cores.datatype = "layered"
 
-    collection = LayeredData(nlog_cores, has_inclined=True).to_collection(28992, 5709)
-
-    return collection
+    return nlog_cores.gstda.to_collection(
+        has_inclined=True,
+        horizontal_reference=28992,
+        vertical_reference=5709,
+        headertype="point",
+    )
 
 
 def read_xml_boris(

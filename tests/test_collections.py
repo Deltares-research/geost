@@ -151,9 +151,7 @@ class TestCollection:
         assert_almost_equal(borehole_collection.data["y"][0], 5313546.187669, decimal=5)
 
     @pytest.mark.unittest
-    def test_change_horizontal_reference_also_data_columns_inclined(
-        self, nlog_borehole_collection
-    ):
+    def test_change_horizontal_reference_with_inclined(self, nlog_borehole_collection):
         assert nlog_borehole_collection.horizontal_reference == 28992
         nlog_borehole_collection.change_horizontal_reference(32631)
         assert nlog_borehole_collection.horizontal_reference == 32631

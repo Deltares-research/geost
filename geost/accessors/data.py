@@ -91,7 +91,6 @@ class LayeredData(AbstractData):
         horizontal_reference: str | int | CRS = 28992,
         vertical_reference: str | int | CRS = 5709,
         headertype: HeaderType = "point",
-        datatype: DataType = "layered",
     ):
         """
         Create a collection from this instance of LayeredData. A collection combines
@@ -113,9 +112,6 @@ class LayeredData(AbstractData):
         headertype : HeaderType, optional
             Type of header to generate. Must be one of "point" or "line". The default is
             "point".
-        datatype : DataType, optional
-            Type of data to generate. Must be one of "layered" or "discrete". The default
-            is "layered" which typically contains top and bottom depth information.
 
         Returns
         -------
@@ -124,11 +120,6 @@ class LayeredData(AbstractData):
 
         """
         from geost.base import BoreholeCollection  # Avoid circular import
-
-        if datatype not in get_args(DataType):
-            raise ValueError(
-                f"Invalid datatype: {datatype}. Must be one of {get_args(DataType)}"
-            )
 
         header = self.to_header(headertype, horizontal_reference)
         return BoreholeCollection(
@@ -764,22 +755,20 @@ class DiscreteData(AbstractData):
 
     def to_header(
         self,
+        headertype: HeaderType = "point",
         horizontal_reference: str | int | CRS = 28992,
-        vertical_reference: str | int | CRS = 5709,
     ):
         """
-        Generate a :class:`~geost.base.PointHeader` from this instance of DiscreteData.
+        Generate a :class:`~geost.base.PointHeader` from this instance of LayeredData.
 
         Parameters
         ----------
+        headertype : str, optional
+            Type of header to generate. Must be one of "point" or "line". The default is
+            "point".
         horizontal_reference : str | int | CRS, optional
             EPSG of the target crs. Takes anything that can be interpreted by
             pyproj.crs.CRS.from_user_input(), by default 28992.
-        vertical_reference : str | int | CRS, optional
-            EPSG of the target vertical datum. Takes anything that can be interpreted by
-            pyproj.crs.CRS.from_user_input(). However, it must be a vertical datum. FYI:
-            "NAP" is EPSG 5709 and The Belgian reference system (Ostend height) is ESPG
-            5710, by default 5709.
 
         Returns
         -------
@@ -787,24 +776,33 @@ class DiscreteData(AbstractData):
             An instance of :class:`~geost.base.PointHeader`
 
         """
-        from geost.accessors.header import PointHeader
+        if headertype not in get_args(HeaderType):
+            raise ValueError(
+                f"Invalid headertype: {headertype}. Must be one of {get_args(HeaderType)}"
+            )
 
         header_columns = ["nr", "x", "y", "surface", "end"]
         header = self._df[header_columns].drop_duplicates("nr").reset_index(drop=True)
         header = utils.dataframe_to_geodataframe(header).set_crs(horizontal_reference)
-        return PointHeader(header, vertical_reference)
+        header.headertype = headertype
+        return header
 
     def to_collection(
         self,
+        has_inclined: bool = False,
         horizontal_reference: str | int | CRS = 28992,
         vertical_reference: str | int | CRS = 5709,
+        headertype: HeaderType = "point",
     ):
         """
-        Create a collection from this instance of DiscreteData. A collection combines
+        Create a collection from this instance of LayeredData. A collection combines
         header and data and ensures that they remain aligned when applying methods.
 
         Parameters
         ----------
+        has_inclined : bool, optional
+            If True, the data also contains inclined objects which means the top of layers
+            is not in the same x,y-location as the bottom of layers. The default is False.
         horizontal_reference : str | int | CRS, optional
             EPSG of the target crs. Takes anything that can be interpreted by
             pyproj.crs.CRS.from_user_input(), by default 28992.
@@ -813,18 +811,27 @@ class DiscreteData(AbstractData):
             pyproj.crs.CRS.from_user_input(). However, it must be a vertical datum. FYI:
             "NAP" is EPSG 5709 and The Belgian reference system (Ostend height) is ESPG
             5710, by default 5709.
+        headertype : HeaderType, optional
+            Type of header to generate. Must be one of "point" or "line". The default is
+            "point".
 
         Returns
         -------
         :class:`~geost.base.Collection`
             An instance of :class:`~geost.base.Collection`
+
         """
         from geost.base import CptCollection
 
-        header = self.to_header(horizontal_reference, vertical_reference)
+        header = self.to_header(headertype, horizontal_reference)
+
         return CptCollection(
-            header, self._df
-        )  # TODO: type of Collection needs to be inferred in the future
+            header,
+            self._df,
+            has_inclined=has_inclined,
+            horizontal_reference=horizontal_reference,
+            vertical_reference=vertical_reference,
+        )  # NOTE: Type of Collection may need to be inferred in the future.
 
     def select_by_values(
         self, column: str, selection_values: str | Iterable, how: str = "or"
@@ -880,6 +887,8 @@ class DiscreteData(AbstractData):
             for value in selection_values:
                 valid = self._df["nr"][self._df[column] == value].unique()
                 selected = selected[selected["nr"].isin(valid)]
+
+        selected.datatype = self._df.datatype
 
         return selected
 
@@ -945,6 +954,8 @@ class DiscreteData(AbstractData):
             (sliced["depth"] >= upper_boundary) & (sliced["depth"] <= lower_boundary)
         ]
 
+        sliced.datatype = self._df.datatype
+
         return sliced
 
     def slice_by_values(self):  # pragma: no cover
@@ -985,6 +996,9 @@ class DiscreteData(AbstractData):
             selected = self._df[~condition]
         else:
             selected = self._df[condition]
+
+        selected.datatype = self._df.datatype
+
         return selected
 
     def get_cumulative_thickness(self):  # pragma: no cover
