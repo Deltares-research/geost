@@ -94,8 +94,7 @@ class TestVoxelModel:
 
     @pytest.mark.unittest
     def test_select_with_points(self, voxelmodel, borehole_collection):
-        points = borehole_collection.header.gdf
-        select = voxelmodel.select_with_points(points)
+        select = voxelmodel.select_with_points(borehole_collection.header)
         assert isinstance(select, xr.Dataset)
         assert select.sizes == {"idx": 4, "z": 4}
         assert_array_equal(select["idx"], [0, 1, 2, 4])

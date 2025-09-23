@@ -324,7 +324,7 @@ class TestCombine:
         is combined.
 
         """
-        borehole = borehole_data.select_by_values("nr", "A")
+        borehole = borehole_data.gstda.select_by_values("nr", "A")
         result = _add_to_layered(borehole, strat_deeper_than_borehole)
         assert len(result) == 7
         assert_array_equal(result["strat"], [1, 1, 1, 2, 3, 3, 3])
@@ -338,7 +338,7 @@ class TestCombine:
         combined.
 
         """
-        cpt = cpt_data.select_by_values("nr", "a")
+        cpt = cpt_data.gstda.select_by_values("nr", "a")
         result = _add_to_discrete(cpt, strat_deeper_than_cpt)
         assert len(result) == 12
         assert_array_equal(result["strat"], [1, 1, 1, 1, 1, 2, 2, 3, 3, 3, 3, 3])
