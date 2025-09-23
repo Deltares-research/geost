@@ -804,7 +804,7 @@ class Collection(AbstractCollection):
             gpd.GeoDataFrame.to_parquet kwargs. See relevant Pandas documentation.
 
         """
-        self.header.to_geoparquet(outfile, **kwargs)
+        self.header.to_parquet(outfile, **kwargs)
 
     def to_shape(self, outfile: str | Path, **kwargs):
         """
@@ -819,7 +819,7 @@ class Collection(AbstractCollection):
             gpd.GeoDataFrame.to_file kwargs. See relevant GeoPandas documentation.
 
         """
-        self.header.to_shape(outfile, **kwargs)
+        self.header.to_file(outfile, **kwargs)
 
     def to_geopackage(self, outfile: str | Path, metadata: dict[str, str] = None):
         """
@@ -836,7 +836,7 @@ class Collection(AbstractCollection):
 
         """
         utils._to_geopackage(
-            self.header.gdf,
+            self.header,
             outfile,
             "Header",
             layer="header",
@@ -845,7 +845,7 @@ class Collection(AbstractCollection):
             metadata=metadata,
         )
         utils._to_geopackage(
-            gpd.GeoDataFrame(self.data.df),
+            gpd.GeoDataFrame(self.data),
             outfile,
             "Data",
             layer="data",
@@ -1036,7 +1036,7 @@ class Collection(AbstractCollection):
             List containing the DataFusionTools Data objects.
 
         """
-        return self.data.to_datafusiontools(
+        return self.data.gstda.to_datafusiontools(
             columns, outfile, encode, relative_to_vertical_reference
         )
 
@@ -1218,7 +1218,7 @@ class BoreholeCollection(Collection):
             geopandas.GeodataFrame.to_file kwargs. See relevant Geopandas documentation.
 
         """
-        self.data.to_qgis3d(
+        self.data.gstda.to_qgis3d(
             outfile,
             relative_to_vertical_reference,
             crs=self.horizontal_reference,

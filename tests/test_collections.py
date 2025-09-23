@@ -54,8 +54,8 @@ class TestCollection:
                 "data_float": data_float,
             }
         )
-
-        return LayeredData(df)
+        df.datatype = "layered"
+        return df
 
     @pytest.fixture
     def invalid_borehole_table(self):
@@ -72,7 +72,7 @@ class TestCollection:
         data_int = np.arange(0, 10, dtype=np.int64)
         data_float = np.arange(0, 5, 0.5, dtype=np.float64)
 
-        return pd.DataFrame(
+        df = pd.DataFrame(
             {
                 "nr": nr,
                 "x": x,
@@ -86,10 +86,12 @@ class TestCollection:
                 "data_float": data_float,
             }
         )
+        df.datatype = "layered"
+        return df
 
     @pytest.fixture
     def misaligned_header(self):
-        df = gpd.GeoDataFrame(
+        gdf = gpd.GeoDataFrame(
             {
                 "nr": ["B-02"],
                 "x": [100000],
@@ -98,9 +100,10 @@ class TestCollection:
                 "end": [-8],
             },
             geometry=[Point(100000, 400000)],
+            crs=28992,
         )
-
-        return PointHeader(df, 28992)
+        gdf.headertype = "point"
+        return gdf
 
     @pytest.fixture
     def update_raster(self):
@@ -389,24 +392,24 @@ class TestCollection:
         config.validation.DROP_INVALID = False
         config.validation.FLAG_INVALID = False
         with pytest.warns(ValidationWarning) as record:
-            LayeredData(invalid_borehole_table).to_collection()
+            invalid_borehole_table.gstda.to_collection(headertype="point")
 
         assert len(record) == 2
 
-        data_result, header_result = record
-        assert "Validation failed for schema 'Layer data non-inclined'" in str(
-            data_result.message
-        )
-        assert (
-            "DataFrameSchema 'Layer data non-inclined' failed element-wise validator number 0:"
-            in str(data_result.message)
-        )
+        header_result, data_result = record
         assert "Validation failed for schema 'Point header'" in str(
             header_result.message
         )
         assert (
             "DataFrameSchema 'Point header' failed element-wise validator number 0:"
             in str(header_result.message)
+        )
+        assert "Validation failed for schema 'Layer data non-inclined'" in str(
+            data_result.message
+        )
+        assert (
+            "DataFrameSchema 'Layer data non-inclined' failed element-wise validator number 0:"
+            in str(data_result.message)
         )
 
     @pytest.mark.unittest
@@ -415,13 +418,16 @@ class TestCollection:
         config.validation.DROP_INVALID = True
         config.validation.FLAG_INVALID = False
         with pytest.warns(ValidationWarning) as record:
-            LayeredData(invalid_borehole_table).to_collection()
+            invalid_borehole_table.gstda.to_collection(headertype="point")
 
-        assert len(record) == 1
+        assert len(record) == 2
 
+        assert "Validation dropped 1 row(s) for schema 'Point header'" in str(
+            record[0].message
+        )
         assert (
             "Validation dropped 10 row(s) for schema 'Layer data non-inclined'"
-            in str(record[0].message)
+            in str(record[1].message)
         )
 
     @pytest.mark.unittest
@@ -430,26 +436,28 @@ class TestCollection:
         config.validation.DROP_INVALID = False
         config.validation.FLAG_INVALID = True
         with pytest.warns(ValidationWarning) as record:
-            collection_flagged = LayeredData(invalid_borehole_table).to_collection()
+            collection_flagged = invalid_borehole_table.gstda.to_collection(
+                headertype="point"
+            )
 
         assert len(record) == 2
-        assert not collection_flagged.header.gdf.loc[0, "is_valid"]
-        assert not collection_flagged.data.df.loc[9, "is_valid"]
+        assert not collection_flagged.header.loc[0, "is_valid"]
+        assert not collection_flagged.data.loc[9, "is_valid"]
 
-        data_result, header_result = record
-        assert "Validation failed for schema 'Layer data non-inclined'" in str(
-            data_result.message
-        )
-        assert (
-            "DataFrameSchema 'Layer data non-inclined' failed element-wise validator number 0:"
-            in str(data_result.message)
-        )
+        header_result, data_result = record
         assert "Validation failed for schema 'Point header'" in str(
             header_result.message
         )
         assert (
             "DataFrameSchema 'Point header' failed element-wise validator number 0:"
             in str(header_result.message)
+        )
+        assert "Validation failed for schema 'Layer data non-inclined'" in str(
+            data_result.message
+        )
+        assert (
+            "DataFrameSchema 'Layer data non-inclined' failed element-wise validator number 0:"
+            in str(data_result.message)
         )
 
     @pytest.mark.unittest
@@ -501,7 +509,7 @@ class TestCollection:
         assert_equal(output["col2"].value_counts()["string_data"], 2)
         # In-place variant
         borehole_collection.get_area_labels(
-            label_gdf, ("id", "col2"), include_in_header=True
+            label_gdf, ["id", "col2"], include_in_header=True
         )
         assert_almost_equal(borehole_collection.header["id"].sum(), 2)
         assert_equal(
