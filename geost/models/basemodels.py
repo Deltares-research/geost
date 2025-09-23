@@ -347,15 +347,9 @@ class VoxelModel(AbstractSpatial, AbstractModel3D):
         >>> selected = voxelmodel.select_with_points(point_gdf)
 
         This way, it is easily possible to sample a VoxelModel at point locations using
-        GeoST Header or Collection objects by accessing their "gdf" attributes.
+        the header table of Collection objects:
 
-        Using a Header object:
-
-        >>> selected = voxelmodel.select_with_points(Header.gdf)
-
-        Using a Collection object:
-
-        >>> selected = voxelmodel.select_with_points(Collection.header.gdf)
+        >>> selected = voxelmodel.select_with_points(Collection.header)
 
         """
         points = check_geometry_instance(points)
