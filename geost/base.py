@@ -40,8 +40,8 @@ class Collection(AbstractCollection):
 
     def __init__(
         self,
-        header: gpd.GeoDataFrame | None,
-        data: pd.DataFrame | None,
+        header: gpd.GeoDataFrame = None,
+        data: pd.DataFrame = None,
         has_inclined: bool = False,
         vertical_reference: str | int | CRS = 5709,
     ):
@@ -103,16 +103,18 @@ class Collection(AbstractCollection):
 
     @header.setter
     def header(self, header):
-        self._header = safe_validate(
-            header, schemas.pointheader
-        )  # TODO: validation schema needs to be inferred
+        if header is not None:
+            self._header = safe_validate(
+                header, schemas.pointheader
+            )  # TODO: validation schema needs to be inferred
         self.check_header_to_data_alignment()
 
     @data.setter
     def data(self, data):
-        self._data = safe_validate(
-            data, schemas.layerdata
-        )  # TODO: validation schema needs to be inferred
+        if data is not None:
+            self._data = safe_validate(
+                data, schemas.layerdata
+            )  # TODO: validation schema needs to be inferred
         self.check_header_to_data_alignment()
 
     def _clone_with_attrs(self, new_header, new_data):
