@@ -1116,17 +1116,17 @@ class BoreholeCollection(Collection):
         >>> boreholes.get_cumulative_thickness("lith", ["K"], include_in_header=True)
 
         """
-        cum_thickness = self.data.get_cumulative_thickness(column, values)
+        cum_thickness = self.data.gstda.get_cumulative_thickness(column, values)
         cum_thickness.columns = cum_thickness.columns.astype(str)
 
         if include_in_header:
             columns = [c + "_thickness" for c in cum_thickness.columns]
-            self.header.gdf.drop(
+            self.header.drop(
                 columns=columns,
                 errors="ignore",
                 inplace=True,
             )
-            self.header = self.header.gdf.merge(
+            self.header = self.header.merge(
                 cum_thickness.add_suffix("_thickness"), on="nr", how="left"
             )
             self.header[columns] = self.header[columns].fillna(0)
@@ -1178,17 +1178,17 @@ class BoreholeCollection(Collection):
         >>> boreholes.get_layer_top("lith", "Z", include_in_header=True)
 
         """
-        tops = self.data.get_layer_top(
+        tops = self.data.gstda.get_layer_top(
             column, values, min_thickness=min_thickness, min_depth=min_depth
         )
 
         if include_in_header:
-            self.header.gdf.drop(
+            self.header.drop(
                 columns=[c + "_top" for c in tops.columns],
                 errors="ignore",
                 inplace=True,
             )
-            self.header = self.header.gdf.merge(
+            self.header = self.header.merge(
                 tops.add_suffix("_top"), on="nr", how="left"
             )
         else:
@@ -1247,10 +1247,24 @@ class BoreholeCollection(Collection):
         vs : float
             sound velocity in sediment in m/s, default is 1600 m/s
         """
-        self.data.to_kingdom(outfile, tdstart, vw, vs)
+        self.data.gstda.to_kingdom(outfile, tdstart, vw, vs)
 
 
 class CptCollection(Collection):
+    @property  # NOTE: Temporary fix to use correct schema for validation.
+    def data(self):
+        """
+        The collection's data.
+        """
+        return self._data
+
+    @data.setter
+    def data(self, data):
+        self._data = safe_validate(
+            data, schemas.discretedata
+        )  # TODO: validation schema needs to be inferred
+        self.check_header_to_data_alignment()
+
     def slice_depth_interval(
         self,
         upper_boundary: float | int = None,
@@ -1300,13 +1314,15 @@ class CptCollection(Collection):
         >>> data.slice_depth_interval(-3, -5, relative_to_vertical_reference=True)
 
         """
-        data_selected = self.data.slice_depth_interval(
+        selected_data = self.data.gstda.slice_depth_interval(
             upper_boundary=upper_boundary,
             lower_boundary=lower_boundary,
             relative_to_vertical_reference=relative_to_vertical_reference,
         )
-        collection_selected = data_selected.to_collection()
-        return collection_selected
+        selected_header = self.header.gsthd.get(selected_data["nr"].unique())
+        return self.__class__(
+            selected_header, selected_data, self.has_inclined, self.vertical_reference
+        )
 
     def get_cumulative_thickness(self):  # pragma: no cover
         raise NotImplementedError()

@@ -5,7 +5,6 @@ import geopandas as gpd
 import numpy as np
 import pandas as pd
 import pytest
-import rioxarray as rio
 import xarray as xr
 from numpy.testing import (
     assert_allclose,
@@ -13,13 +12,10 @@ from numpy.testing import (
     assert_array_equal,
     assert_equal,
 )
-from pyvista import MultiBlock, UnstructuredGrid
 from shapely.geometry import LineString, Point, Polygon
 
 from geost import config
 from geost._warnings import AlignmentWarning, ValidationWarning
-from geost.accessors.data import LayeredData
-from geost.accessors.header import PointHeader
 from geost.base import BoreholeCollection
 from geost.export import geodataclass
 
@@ -384,7 +380,7 @@ class TestCollection:
     def test_validation_pass(self, valid_boreholes):
         with warnings.catch_warnings():
             warnings.simplefilter("error")
-            valid_boreholes.to_collection()
+            valid_boreholes.gstda.to_collection()
 
     @pytest.mark.unittest
     def test_validation_fail(self, invalid_borehole_table):
@@ -581,7 +577,18 @@ class TestCollection:
 
 class TestBoreholeCollection:
     @pytest.mark.unittest
-    def test_get_cumulative_thickness_multiple(self, borehole_collection):
+    def test_get_cumulative_thickness(self, borehole_collection):
+        expected_sand_thickness = [2.2, 0.0, 2.6, 0.5, 3.0]
+
+        # Test single lithology
+        borehole_collection.get_cumulative_thickness(
+            "lith", "Z", include_in_header=True
+        )
+        assert_almost_equal(
+            borehole_collection.header["Z_thickness"], expected_sand_thickness
+        )
+
+        # Test multiple lithologies
         borehole_collection.get_cumulative_thickness(
             "lith", ["Z", "K"], include_in_header=True
         )
@@ -590,26 +597,6 @@ class TestBoreholeCollection:
 
         assert_almost_equal(
             borehole_collection.header["K_thickness"], expected_clay_thickness
-        )
-        assert_almost_equal(
-            borehole_collection.header["Z_thickness"], expected_sand_thickness
-        )
-
-        # Single query
-        borehole_collection.get_cumulative_thickness(
-            "lith", "Z", include_in_header=True
-        )
-        assert_almost_equal(
-            borehole_collection.header["Z_thickness"], expected_sand_thickness
-        )
-
-    @pytest.mark.unittest
-    def test_get_cumulative_thickness_single(self, borehole_collection):
-        expected_sand_thickness = [2.2, 0.0, 2.6, 0.5, 3.0]
-
-        # Single query
-        borehole_collection.get_cumulative_thickness(
-            "lith", "Z", include_in_header=True
         )
         assert_almost_equal(
             borehole_collection.header["Z_thickness"], expected_sand_thickness

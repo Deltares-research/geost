@@ -255,7 +255,7 @@ def cpt_data():
 
 @pytest.fixture
 def cpt_collection(cpt_data):
-    return cpt_data.to_collection()
+    return cpt_data.gstda.to_collection(headertype="point")
 
 
 @pytest.fixture
