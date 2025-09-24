@@ -18,7 +18,7 @@ class PointHeader(AbstractHeader):
     def __init__(self, gdf):
         self._gdf = gdf
 
-    def change_horizontal_reference(self, to_epsg: str | int | CRS):
+    def change_horizontal_reference(self, to_epsg: str | int | CRS) -> None:
         """
         Change the horizontal reference (i.e. coordinate reference system, crs) of the
         header to the given target crs.
@@ -51,7 +51,7 @@ class PointHeader(AbstractHeader):
 
     def change_vertical_reference(
         self, from_epsg: str | int | CRS, to_epsg: str | int | CRS
-    ):
+    ) -> None:
         """
         Change the vertical datum of the object's surface levels.
 
@@ -100,7 +100,9 @@ class PointHeader(AbstractHeader):
         self._gdf["surface"] = new_surface
         self._gdf["end"] = new_end
 
-    def get(self, selection_values: str | Iterable, column: str = "nr"):
+    def get(
+        self, selection_values: str | Iterable, column: str = "nr"
+    ) -> gpd.GeoDataFrame:
         """
         Get a subset of a header through a string or iterable of object id(s).
         Optionally uses a different column than "nr" (the column with object ids).
@@ -150,7 +152,7 @@ class PointHeader(AbstractHeader):
         xmax: Coordinate,
         ymax: Coordinate,
         invert: bool = False,
-    ):
+    ) -> gpd.GeoDataFrame:
         """
         Make a selection of the header based on a bounding box.
 
@@ -184,7 +186,7 @@ class PointHeader(AbstractHeader):
         points: str | Path | gpd.GeoDataFrame | GeometryType,
         buffer: float | int,
         invert: bool = False,
-    ):
+    ) -> gpd.GeoDataFrame:
         """
         Make a selection of the header based on point geometries.
 
@@ -215,7 +217,7 @@ class PointHeader(AbstractHeader):
         lines: str | Path | gpd.GeoDataFrame | GeometryType,
         buffer: float | int,
         invert: bool = False,
-    ):
+    ) -> gpd.GeoDataFrame:
         """
         Make a selection of the header based on line geometries.
 
@@ -246,7 +248,7 @@ class PointHeader(AbstractHeader):
         polygons: str | Path | gpd.GeoDataFrame | GeometryType,
         buffer: float | int = 0,
         invert: bool = False,
-    ):
+    ) -> gpd.GeoDataFrame:
         """
         Make a selection of the header based on polygon geometries.
 
@@ -279,7 +281,7 @@ class PointHeader(AbstractHeader):
         top_max: float = None,
         end_min: float = None,
         end_max: float = None,
-    ):
+    ) -> gpd.GeoDataFrame:
         """
         Select data from depth constraints. If a keyword argument is not given it will
         not be considered. e.g. if you need only boreholes that go deeper than -500 m
@@ -315,7 +317,9 @@ class PointHeader(AbstractHeader):
         selected = selected[~selected.duplicated()]
         return selected
 
-    def select_by_length(self, min_length: float = None, max_length: float = None):
+    def select_by_length(
+        self, min_length: float = None, max_length: float = None
+    ) -> gpd.GeoDataFrame:
         """
         Select data from length constraints: e.g. all boreholes between 50 and 150 m
         long. If a keyword argument is not given it will not be considered.

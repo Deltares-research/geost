@@ -65,8 +65,9 @@ class LayeredData(AbstractData):
 
         Returns
         -------
-        :class:`~geost.base.PointHeader`
-            An instance of :class:`~geost.base.PointHeader`
+        gpd.GeoDataFrame
+            GeoDataFrame containing the header information which can be used with GeoST
+            Header accessor methods.
 
         """
         header_columns = ["nr", "x", "y", "surface", "end"]
@@ -100,8 +101,8 @@ class LayeredData(AbstractData):
 
         Returns
         -------
-        :class:`~geost.base.Collection`
-            An instance of :class:`~geost.base.Collection`
+        :class:`~geost.base.BoreholeCollection`
+            An instance of :class:`~geost.base.BoreholeCollection`
 
         """
         from geost.base import BoreholeCollection  # Avoid circular import
@@ -116,7 +117,7 @@ class LayeredData(AbstractData):
 
     def select_by_values(
         self, column: str, selection_values: str | Iterable, how: str = "or"
-    ):
+    ) -> pd.DataFrame:
         """
         Select data based on the presence of given values in a given column. Can be used
         for example to select boreholes that contain peat in the lithology column.
@@ -135,8 +136,8 @@ class LayeredData(AbstractData):
 
         Returns
         -------
-        :class:`~geost.base.LayeredData`
-            New instance containing only the data selected by this method.
+        pd.DataFrame
+            New DataFrame containing only the data selected by this method.
 
         Examples
         --------
@@ -176,7 +177,7 @@ class LayeredData(AbstractData):
         lower_boundary: float | int = None,
         relative_to_vertical_reference: bool = False,
         update_layer_boundaries: bool = True,
-    ):
+    ) -> pd.DataFrame:
         """
         Slice data based on given upper and lower boundaries. This returns a new object
         containing only the sliced data.
@@ -198,8 +199,8 @@ class LayeredData(AbstractData):
 
         Returns
         -------
-        :class:`~geost.base.LayeredData`
-            New instance containing only the data selected by this method.
+        pd.DataFrame
+            New DataFrame containing only the data selected by this method.
 
         Examples
         --------
@@ -252,7 +253,7 @@ class LayeredData(AbstractData):
 
     def slice_by_values(
         self, column: str, selection_values: str | Iterable, invert: bool = False
-    ):
+    ) -> pd.DataFrame:
         """
         Slice rows from data based on matching condition. E.g. only return rows with
         a certain lithology in the collection object.
@@ -270,8 +271,8 @@ class LayeredData(AbstractData):
 
         Returns
         -------
-        :class:`~geost.base.LayeredData`
-            New instance containing only the data objects selected by this method.
+        pd.DataFrame
+            New DataFrame containing only the data objects selected by this method.
 
         Examples
         --------
@@ -296,7 +297,7 @@ class LayeredData(AbstractData):
 
         return sliced
 
-    def select_by_condition(self, condition: Any, invert: bool = False):
+    def select_by_condition(self, condition: Any, invert: bool = False) -> pd.DataFrame:
         """
         Select data using a manual condition that results in a boolean mask. Returns the
         rows in the data where the 'condition' evaluates to True.
@@ -313,8 +314,8 @@ class LayeredData(AbstractData):
 
         Returns
         -------
-        :class:`~geost.base.LayeredData`
-            New instance containing only the data objects selected by this method.
+        pd.DataFrame
+            New DataFrame containing only the data selected by this method.
 
         Examples
         --------
@@ -334,7 +335,9 @@ class LayeredData(AbstractData):
 
         return selected
 
-    def get_cumulative_thickness(self, column: str, values: str | List[str]):
+    def get_cumulative_thickness(
+        self, column: str, values: str | List[str]
+    ) -> pd.DataFrame:
         """
         Get the cumulative thickness of layers where a column contains a specified search
         value or values.
@@ -378,7 +381,7 @@ class LayeredData(AbstractData):
         values: str | List[str],
         min_thickness: float = 0,
         min_depth: float = 0,
-    ):
+    ) -> pd.DataFrame:
         """
         Find the depth at which a specified layer first occurs, starting at min_depth
         and looking downwards until the first layer of min_thickness is found of the
@@ -617,12 +620,11 @@ class LayeredData(AbstractData):
                 )
             ]
 
-        gdf = gpd.GeoDataFrame(
+        return gpd.GeoDataFrame(
             data=data_to_write,
             geometry=geometries,
             crs=crs,
         )
-        return gdf
 
     def to_qgis3d(
         self,
@@ -682,6 +684,7 @@ class LayeredData(AbstractData):
             sound velocity in water in m/s, default is 1500 m/s
         vs : float
             sound velocity in sediment in m/s, default is 1600 m/s
+
         """
         # 1. add column needed in kingdom and write interval data
         kingdom_df = self._df.copy()
@@ -742,8 +745,9 @@ class DiscreteData(AbstractData):
 
         Returns
         -------
-        :class:`~geost.base.PointHeader`
-            An instance of :class:`~geost.base.PointHeader`
+        gpd.GeoDataFrame
+            GeoDataFrame containing the header information which can be used with GeoST
+            Header accessor methods.
 
         """
         header_columns = ["nr", "x", "y", "surface", "end"]
@@ -777,8 +781,8 @@ class DiscreteData(AbstractData):
 
         Returns
         -------
-        :class:`~geost.base.Collection`
-            An instance of :class:`~geost.base.Collection`
+        :class:`~geost.base.CptCollection`
+            An instance of :class:`~geost.base.CptCollection`
 
         """
         from geost.base import CptCollection
@@ -794,7 +798,7 @@ class DiscreteData(AbstractData):
 
     def select_by_values(
         self, column: str, selection_values: str | Iterable, how: str = "or"
-    ):
+    ) -> pd.DataFrame:
         """
         Select data based on the presence of given values in a given column containing
         categorical data. Can be used for example to select points that contain peat in
@@ -814,8 +818,8 @@ class DiscreteData(AbstractData):
 
         Returns
         -------
-        :class:`~geost.base.DiscreteData`
-            New instance containing only the data selected by this method.
+        pd.DataFrame
+            New DataFrame containing only the data selected by this method.
 
         Examples
         --------
@@ -854,7 +858,7 @@ class DiscreteData(AbstractData):
         upper_boundary: float | int = None,
         lower_boundary: float | int = None,
         relative_to_vertical_reference: bool = False,
-    ):
+    ) -> pd.DataFrame:
         """
         Slice data based on given upper and lower boundaries. This returns a new object
         containing only the sliced data.
@@ -876,8 +880,8 @@ class DiscreteData(AbstractData):
 
         Returns
         -------
-        :class:`~geost.base.DiscreteData`
-            New instance containing only the data selected by this method.
+        pd.DataFrame
+            New DataFrame containing only the data selected by this method.
 
         Examples
         --------
@@ -913,10 +917,10 @@ class DiscreteData(AbstractData):
 
         return sliced
 
-    def slice_by_values(self):  # pragma: no cover
+    def slice_by_values(self) -> pd.DataFrame:  # pragma: no cover
         raise NotImplementedError()
 
-    def select_by_condition(self, condition: Any, invert: bool = False):
+    def select_by_condition(self, condition: Any, invert: bool = False) -> pd.DataFrame:
         """
         Select data using a manual condition that results in a boolean mask. Returns the
         rows in the data where the 'condition' evaluates to True.
@@ -933,8 +937,8 @@ class DiscreteData(AbstractData):
 
         Returns
         -------
-        :class:`~geost.base.DiscreteData`
-            New instance containing only the data objects selected by this method.
+        pd.DataFrame
+            New DataFrame containing only the data selected by this method.
 
         Examples
         --------
@@ -954,10 +958,10 @@ class DiscreteData(AbstractData):
 
         return selected
 
-    def get_cumulative_thickness(self):  # pragma: no cover
+    def get_cumulative_thickness(self) -> pd.DataFrame:  # pragma: no cover
         raise NotImplementedError()
 
-    def get_layer_top(self):  # pragma: no cover
+    def get_layer_top(self) -> pd.DataFrame:  # pragma: no cover
         raise NotImplementedError()
 
     def to_pyvista_cylinders(self):  # pragma: no cover
