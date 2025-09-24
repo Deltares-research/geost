@@ -1,4 +1,4 @@
-Data *gstda* accessors
+Data ``.gstda`` accessors
 ======================
 
 .. currentmodule:: geost.accessors.data

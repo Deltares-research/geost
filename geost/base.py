@@ -270,6 +270,7 @@ class Collection(AbstractCollection):
 
         >>> self.change_vertical_reference("NAP")
         >>> self.change_vertical_reference("Ostend height")
+
         """
         transformer = vertical_reference_transformer(
             self.horizontal_reference, self.vertical_reference, to_epsg
@@ -300,6 +301,7 @@ class Collection(AbstractCollection):
 
         This check is performed everytime the object is instantiated AND if any change
         is made to either the header or data attributes (see their respective setters).
+
         """
         warning_given = False
         if hasattr(self, "_header") and hasattr(self, "_data"):

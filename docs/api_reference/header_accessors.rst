@@ -1,4 +1,4 @@
-Header *gsthd* accessors
+Header ``.gsthd`` accessors
 ======================
 
 .. currentmodule:: geost.accessors.header
