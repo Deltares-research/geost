@@ -11,5 +11,3 @@ Data validation <user_guide/validation>
 Reading XML files <user_guide/read_xml>
 BRO GeoTOP <user_guide/bro_geotop>
 ```
-
-This is the user guide.

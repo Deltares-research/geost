@@ -11,8 +11,6 @@ from shapely import geometry as gmt
 from geost import config, utils
 from geost._warnings import AlignmentWarning
 from geost.abstract_classes import AbstractCollection
-from geost.accessors.data import DiscreteData, LayeredData
-from geost.accessors.header import LineHeader, PointHeader
 from geost.projections import (
     horizontal_reference_transformer,
     vertical_reference_transformer,
@@ -46,7 +44,7 @@ class Collection(AbstractCollection):
         vertical_reference: str | int | CRS = 5709,
     ):
         self._has_inclined = has_inclined
-        self._vertical_reference = vertical_reference
+        self._vertical_reference = CRS(vertical_reference)
         self.header = header
         self.data = data
 
