@@ -14,7 +14,8 @@ GeoTop <api_reference/bro_geotop>
 GeoTop selection <api_reference/geotop_selection.rst>
 Analysis <api_reference/analysis>
 Readers <api_reference/readers>
-GeoST Accessors <api_reference/accessors>
+Header <em>gsthd</em> accessors <api_reference/header_accessors>
+Data <em>gstda</em> accessors <api_reference/data_accessors>
 Validation <api_reference/validation>
 Utils <api_reference/utils>
 Enums <api_reference/enums>
