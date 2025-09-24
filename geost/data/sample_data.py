@@ -1,4 +1,5 @@
 import importlib
+from pathlib import Path
 
 import geopandas as gpd
 import pandas as pd
@@ -97,7 +98,7 @@ def bhrg_bro():
         A Pathlib.Path object pointing to the downloaded XML file.
 
     """
-    return REGISTRY.fetch("bhrg_bro.xml")
+    return Path(REGISTRY.fetch("bhrg_bro.xml"))
 
 
 def dike_section():
