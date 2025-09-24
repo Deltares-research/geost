@@ -50,9 +50,6 @@ def safe_validate(df: pd.DataFrame, schema: DataFrameSchema, **kwargs) -> pd.Dat
                     category=ValidationWarning,
                 )
 
-        # Cannot be in a single context block. If the first line fails, context is escaped.
-        with contextlib.suppress(AttributeError):
-            validated_df.headertype = df.headertype
         with contextlib.suppress(AttributeError):
             validated_df.datatype = df.datatype
 

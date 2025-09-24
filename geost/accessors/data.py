@@ -52,18 +52,13 @@ class LayeredData(AbstractData):
         return df
 
     def to_header(
-        self,
-        headertype: HeaderType = "point",
-        horizontal_reference: str | int | CRS = 28992,
-    ):
+        self, horizontal_reference: str | int | CRS = 28992
+    ) -> gpd.GeoDataFrame:
         """
         Generate a :class:`~geost.base.PointHeader` from this instance of LayeredData.
 
         Parameters
         ----------
-        headertype : str, optional
-            Type of header to generate. Must be one of "point" or "line". The default is
-            "point".
         horizontal_reference : str | int | CRS, optional
             EPSG of the target crs. Takes anything that can be interpreted by
             pyproj.crs.CRS.from_user_input(), by default 28992.
@@ -74,15 +69,9 @@ class LayeredData(AbstractData):
             An instance of :class:`~geost.base.PointHeader`
 
         """
-        if headertype not in get_args(HeaderType):
-            raise ValueError(
-                f"Invalid headertype: {headertype}. Must be one of {get_args(HeaderType)}"
-            )
-
         header_columns = ["nr", "x", "y", "surface", "end"]
         header = self._df[header_columns].drop_duplicates("nr").reset_index(drop=True)
         header = utils.dataframe_to_geodataframe(header).set_crs(horizontal_reference)
-        header.headertype = headertype
         return header
 
     def to_collection(
@@ -90,7 +79,6 @@ class LayeredData(AbstractData):
         has_inclined: bool = False,
         horizontal_reference: str | int | CRS = 28992,
         vertical_reference: str | int | CRS = 5709,
-        headertype: HeaderType = "point",
     ):
         """
         Create a collection from this instance of LayeredData. A collection combines
@@ -109,9 +97,6 @@ class LayeredData(AbstractData):
             pyproj.crs.CRS.from_user_input(). However, it must be a vertical datum. FYI:
             "NAP" is EPSG 5709 and The Belgian reference system (Ostend height) is ESPG
             5710, by default 5709.
-        headertype : HeaderType, optional
-            Type of header to generate. Must be one of "point" or "line". The default is
-            "point".
 
         Returns
         -------
@@ -121,7 +106,7 @@ class LayeredData(AbstractData):
         """
         from geost.base import BoreholeCollection  # Avoid circular import
 
-        header = self.to_header(headertype, horizontal_reference)
+        header = self.to_header(horizontal_reference)
         return BoreholeCollection(
             header,
             self._df,
@@ -753,18 +738,13 @@ class DiscreteData(AbstractData):
         return selection_values
 
     def to_header(
-        self,
-        headertype: HeaderType = "point",
-        horizontal_reference: str | int | CRS = 28992,
-    ):
+        self, horizontal_reference: str | int | CRS = 28992
+    ) -> gpd.GeoDataFrame:
         """
         Generate a :class:`~geost.base.PointHeader` from this instance of LayeredData.
 
         Parameters
         ----------
-        headertype : str, optional
-            Type of header to generate. Must be one of "point" or "line". The default is
-            "point".
         horizontal_reference : str | int | CRS, optional
             EPSG of the target crs. Takes anything that can be interpreted by
             pyproj.crs.CRS.from_user_input(), by default 28992.
@@ -775,15 +755,9 @@ class DiscreteData(AbstractData):
             An instance of :class:`~geost.base.PointHeader`
 
         """
-        if headertype not in get_args(HeaderType):
-            raise ValueError(
-                f"Invalid headertype: {headertype}. Must be one of {get_args(HeaderType)}"
-            )
-
         header_columns = ["nr", "x", "y", "surface", "end"]
         header = self._df[header_columns].drop_duplicates("nr").reset_index(drop=True)
         header = utils.dataframe_to_geodataframe(header).set_crs(horizontal_reference)
-        header.headertype = headertype
         return header
 
     def to_collection(
@@ -791,7 +765,6 @@ class DiscreteData(AbstractData):
         has_inclined: bool = False,
         horizontal_reference: str | int | CRS = 28992,
         vertical_reference: str | int | CRS = 5709,
-        headertype: HeaderType = "point",
     ):
         """
         Create a collection from this instance of LayeredData. A collection combines
@@ -810,9 +783,6 @@ class DiscreteData(AbstractData):
             pyproj.crs.CRS.from_user_input(). However, it must be a vertical datum. FYI:
             "NAP" is EPSG 5709 and The Belgian reference system (Ostend height) is ESPG
             5710, by default 5709.
-        headertype : HeaderType, optional
-            Type of header to generate. Must be one of "point" or "line". The default is
-            "point".
 
         Returns
         -------
@@ -822,7 +792,7 @@ class DiscreteData(AbstractData):
         """
         from geost.base import CptCollection
 
-        header = self.to_header(headertype, horizontal_reference)
+        header = self.to_header(horizontal_reference)
 
         return CptCollection(
             header,

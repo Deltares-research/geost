@@ -206,7 +206,6 @@ def read_borehole_table(
             has_inclined=has_inclined,
             horizontal_reference=horizontal_reference,
             vertical_reference=vertical_reference,
-            headertype="point",
         )
 
     return boreholes
@@ -348,10 +347,7 @@ def read_nlog_cores(file: str | Path) -> BoreholeCollection:
     nlog_cores.datatype = "layered"
 
     return nlog_cores.gstda.to_collection(
-        has_inclined=True,
-        horizontal_reference=28992,
-        vertical_reference=5709,
-        headertype="point",
+        has_inclined=True, horizontal_reference=28992, vertical_reference=5709
     )
 
 
@@ -400,7 +396,6 @@ def read_xml_boris(
             has_inclined=False,
             horizontal_reference=horizontal_reference,
             vertical_reference=vertical_reference,
-            headertype="point",
         )
 
     return boreholes
@@ -457,7 +452,6 @@ def read_bhrgt(
         header, geometry=gpd.points_from_xy(header.x, header.y), crs=28992
     )
 
-    header.headertype = "point"
     data.datatype = "layered"
 
     return BoreholeCollection(header, data)
@@ -514,7 +508,6 @@ def read_bhrp(
         header, geometry=gpd.points_from_xy(header.x, header.y), crs=28992
     )
 
-    header.headertype = "point"
     data.datatype = "layered"
 
     return BoreholeCollection(header, data)
@@ -572,7 +565,6 @@ def read_bhrg(
         header, geometry=gpd.points_from_xy(header.x, header.y), crs=28992
     )
 
-    header.headertype = "point"
     data.datatype = "layered"
 
     return BoreholeCollection(header, data)
@@ -630,7 +622,6 @@ def read_sfr(
         header, geometry=gpd.points_from_xy(header.x, header.y), crs=28992
     )
 
-    header.headertype = "point"
     data.datatype = "layered"
 
     return BoreholeCollection(header, data)
@@ -711,7 +702,6 @@ def read_cpt(
 
     data.fillna({"depth": data["penetrationlength"]}, inplace=True)
 
-    header.headertype = "point"
     data.datatype = "layered"
 
     return CptCollection(header, data)
@@ -767,7 +757,6 @@ def read_uullg_tables(
     if add_header_cols:
         data = data.merge(header[["nr"] + add_header_cols], on="nr", how="left")
 
-    header.headertype = "point"
     data.datatype = "layered"
 
     return BoreholeCollection(
@@ -844,10 +833,8 @@ def read_collection_geopackage(
 
     # TODO: Check collection type inference possibility from geopackage metadata.
     if collection_type == BoreholeCollection:
-        header.headertype = "point"
         data.datatype = "layered"
     elif collection_type == CptCollection:
-        header.headertype = "point"
         data.datatype = "discrete"
     else:
         raise ValueError(f"Collection type {collection_type} not supported.")

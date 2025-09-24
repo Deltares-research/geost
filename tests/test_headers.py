@@ -14,7 +14,6 @@ class TestPointHeader:
     @pytest.mark.unittest
     def test_get(self, point_header):
         selected = point_header.gsthd.get("nr10")
-        assert selected.headertype == point_header.headertype
         assert_array_equal(selected["nr"].iloc[0], "nr10")
 
         nrs = ["nr1", "nr5", "nr10", "nr15", "nr20"]
@@ -40,7 +39,6 @@ class TestPointHeader:
     @pytest.mark.unittest
     def test_select_within_bbox(self, point_header):
         selected = point_header.gsthd.select_within_bbox(1, 1, 3, 3)
-        assert selected.headertype == point_header.headertype
         assert len(selected) == 9
 
         # Test inverted selection: everything outside the bbox
@@ -55,7 +53,6 @@ class TestPointHeader:
         buffer = 1.1
         selected = point_header.gsthd.select_with_points(selection_points, buffer)
         assert len(selected) == 16
-        assert selected.headertype == point_header.headertype
 
         inverted_selection = point_header.gsthd.select_with_points(
             selection_points, buffer, invert=True
@@ -82,7 +79,6 @@ class TestPointHeader:
         buffer = 1
         selected = point_header.gsthd.select_with_lines(selection_gdf, buffer)
         assert len(selected) == 21
-        assert selected.headertype == point_header.headertype
 
         inverted_selection = point_header.gsthd.select_with_lines(
             selection_gdf, buffer, invert=True
@@ -105,7 +101,6 @@ class TestPointHeader:
         # Geodataframe based selection
         selected = point_header.gsthd.select_within_polygons(selection_gdf)
         assert len(selected) == 3
-        assert selected.headertype == point_header.headertype
 
         selected_inverted = point_header.gsthd.select_within_polygons(
             selection_gdf, invert=True
@@ -135,7 +130,6 @@ class TestPointHeader:
     def test_select_by_depth(self, point_header):
         selected = point_header.gsthd.select_by_depth(top_min=10)
         assert len(selected) == 16
-        assert selected.headertype == point_header.headertype
 
         assert len(point_header.gsthd.select_by_depth(top_max=10)) == 10
         assert len(point_header.gsthd.select_by_depth(end_min=-10)) == 10
@@ -149,7 +143,6 @@ class TestPointHeader:
     @pytest.mark.unittest
     def test_select_by_length(self, point_header):
         selected = point_header.gsthd.select_by_length(min_length=10)
-        assert selected.headertype == point_header.headertype
         assert len(selected) == 21
         assert len(point_header.gsthd.select_by_length(max_length=30)) == 15
         assert (

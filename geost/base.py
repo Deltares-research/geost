@@ -292,9 +292,7 @@ class Collection(AbstractCollection):
         """
         Refresh the header based on the loaded data in case the header got messed up.
         """
-        self.header = self.data.gstda.to_header(
-            self.header.headertype, self.horizontal_reference
-        )
+        self.header = self.data.gstda.to_header(self.horizontal_reference)
 
     def check_header_to_data_alignment(self):
         """

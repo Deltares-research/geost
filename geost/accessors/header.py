@@ -114,25 +114,24 @@ class PointHeader(AbstractHeader):
 
         Returns
         -------
-        Instance of :class:`~geost.base.PointHeader`.
-            Instance of :class:`~geost.base.PointHeader` containing only
-            objects selected through this method.
+        gpd.GeoDataFrame
+            GeoDataFrame instance containing only objects selected by this method.
 
         Examples
         --------
-        >>> self.get(["obj1", "obj2"])
+        Select the objects with id "obj1" and "obj2" in the "nr" column:
 
-        will return a collection with only these objects.
+        >>> self.get(["obj1", "obj2"])
 
         Suppose we have a number of boreholes that we have joined with geological
         map units using the method
-        :meth:`~geost.base.PointHeader.get_area_labels`. We have added this data
-        to the header table in the column 'geological_unit'. Using:
+        :meth:`~geost.accessors.header.PointHeader.get_area_labels`. We have added this
+        data to the header table in the column 'geological_unit'. Using:
 
         >>> self.get(["unit1", "unit2"], column="geological_unit")
 
-        will return a :class:`~geost.base.PointHeader` with all boreholes
-        that are located in "unit1" and "unit2" geological map areas.
+        will return a gpd.GeoDataFrame with all boreholes that are located in "unit1" and
+        "unit2" geological map areas.
 
         """
         if isinstance(selection_values, str):
@@ -141,8 +140,6 @@ class PointHeader(AbstractHeader):
             selection = self._gdf[self._gdf[column].isin(selection_values)]
 
         selection = selection[~selection.duplicated()]
-
-        selection.headertype = self._gdf.headertype
 
         return selection
 
@@ -173,14 +170,13 @@ class PointHeader(AbstractHeader):
 
         Returns
         -------
-        :class:`~geost.base.PointHeader`
-            Instance of :class:`~geost.base.PointHeader` containing only selected
-            geometries.
+        gpd.GeoDataFrame
+            GeoDataFrame instance containing only the selected geometries.
+
         """
         selection = spatial.select_points_within_bbox(
             self._gdf, xmin, ymin, xmax, ymax, invert=invert
         )
-        selection.headertype = self._gdf.headertype
         return selection
 
     def select_with_points(
@@ -205,15 +201,13 @@ class PointHeader(AbstractHeader):
 
         Returns
         -------
-        :class:`~geost.base.PointHeader`
-            Instance of :class:`~geost.base.PointHeader` containing only selected
-            geometries.
+        gpd.GeoDataFrame
+            GeoDataFrame instance containing only the selected geometries.
 
         """
         selection = spatial.select_points_near_points(
             self._gdf, points, buffer, invert=invert
         )
-        selection.headertype = self._gdf.headertype
         return selection
 
     def select_with_lines(
@@ -238,15 +232,13 @@ class PointHeader(AbstractHeader):
 
         Returns
         -------
-        :class:`~geost.base.PointHeader`
-            Instance of :class:`~geost.base.PointHeader` containing only selected
-            geometries.
+        gpd.GeoDataFrame
+            GeoDataFrame instance containing only the selected geometries.
 
         """
         selection = spatial.select_points_near_lines(
             self._gdf, lines, buffer, invert=invert
         )
-        selection.headertype = self._gdf.headertype
         return selection
 
     def select_within_polygons(
@@ -272,15 +264,13 @@ class PointHeader(AbstractHeader):
 
         Returns
         -------
-        :class:`~geost.base.PointHeader`
-            Instance of :class:`~geost.base.PointHeader` containing only selected
-            geometries.
+        gpd.GeoDataFrame
+            GeoDataFrame instance containing only the selected geometries.
 
         """
         selection = spatial.select_points_within_polygons(
             self._gdf, polygons, buffer, invert=invert
         )
-        selection.headertype = self._gdf.headertype
         return selection
 
     def select_by_depth(
@@ -308,9 +298,8 @@ class PointHeader(AbstractHeader):
 
         Returns
         -------
-        Child of :class:`~geost.base.PointHeader`.
-            Instance of :class:`~geost.base.PointHeader` or containing only objects
-            selected by this method.
+        gpd.GeoDataFrame
+            GeoDataFrame instance containing only objects selected by this method.
 
         """
         selected = self._gdf.copy()
@@ -324,7 +313,6 @@ class PointHeader(AbstractHeader):
             selected = selected[selected["end"] <= end_max]
 
         selected = selected[~selected.duplicated()]
-        selected.headertype = self._gdf.headertype
         return selected
 
     def select_by_length(self, min_length: float = None, max_length: float = None):
@@ -341,9 +329,8 @@ class PointHeader(AbstractHeader):
 
         Returns
         -------
-        Child of :class:`~geost.base.PointHeader`.
-            Instance of :class:`~geost.base.PointHeader` or containing only objects
-            selected by this method.
+        gpd.GeoDataFrame
+            GeoDataFrame instance containing only objects selected by this method.
 
         """
         selected = self._gdf.copy()
@@ -354,7 +341,6 @@ class PointHeader(AbstractHeader):
             selected = selected[length <= max_length]
 
         selected = selected[~selected.duplicated()]
-        selected.headertype = self._gdf.headertype
         return selected
 
     def get_area_labels(
@@ -383,6 +369,7 @@ class PointHeader(AbstractHeader):
         pd.DataFrame
             Borehole ids and the polygon label they are in. If include_in_header = True,
             a column containing the generated data will be added inplace.
+
         """
         polygon_gdf = utils.check_geometry_instance(polygon_gdf)
         polygon_gdf = spatial.check_and_coerce_crs(polygon_gdf, self._gdf.crs)
@@ -400,7 +387,6 @@ class PointHeader(AbstractHeader):
             self._gdf[column_name] = area_labels[column_name]
             return self._gdf
         else:
-            area_labels.headertype = self._gdf.headertype
             return area_labels
 
 

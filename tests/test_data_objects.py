@@ -25,15 +25,11 @@ class TestLayeredData:
         header = borehole_data.gstda.to_header()
         assert isinstance(header, gpd.GeoDataFrame)
         assert header.crs == 28992
-        assert header.headertype == "point"
 
         expected_columns = ["nr", "x", "y", "surface", "end", "geometry"]
         assert_array_equal(header.columns, expected_columns)
         assert len(header) == 5
         assert header["nr"].nunique() == 5
-
-        with pytest.raises(ValueError, match="Invalid headertype: invalid."):
-            header = borehole_data.gstda.to_header(headertype="invalid")
 
     @pytest.mark.unittest
     def test_to_collection(self, borehole_data):
@@ -46,11 +42,7 @@ class TestLayeredData:
         assert not collection.has_inclined
         assert collection.horizontal_reference == 28992
         assert collection.vertical_reference == 5709
-        assert collection.header.headertype == "point"
         assert collection.data.datatype == "layered"
-
-        with pytest.raises(ValueError, match="Invalid headertype: invalid."):
-            collection = borehole_data.gstda.to_collection(headertype="invalid")
 
     @pytest.mark.unittest
     def test_select_by_values(self, borehole_data):
@@ -427,10 +419,6 @@ class TestDiscreteData:
         assert len(header) == 2
         assert header["nr"].nunique() == 2
         assert header.crs == 28992
-        header.headertype == "point"
-
-        with pytest.raises(ValueError, match="Invalid headertype: invalid."):
-            header = cpt_data.gstda.to_header(headertype="invalid")
 
     @pytest.mark.unittest
     def test_to_collection(self, cpt_data):
@@ -442,11 +430,7 @@ class TestDiscreteData:
         assert not collection.has_inclined
         assert collection.horizontal_reference == 28992
         assert collection.vertical_reference == 5709
-        assert collection.header.headertype == "point"
         assert collection.data.datatype == "discrete"
-
-        with pytest.raises(ValueError, match="Invalid headertype: invalid."):
-            collection = cpt_data.gstda.to_collection(headertype="invalid")
 
     @pytest.mark.unittest
     def test_select_by_values(self, cpt_data):

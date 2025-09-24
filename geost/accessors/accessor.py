@@ -1,10 +1,11 @@
+import geopandas as gpd
 import pandas as pd
 
 from . import data, header
 
 HEADER = {
     "point": header.PointHeader,
-    "line": header.LineHeader,
+    "linestring": header.LineHeader,
 }
 DATA = {
     "layered": data.LayeredData,
@@ -15,7 +16,6 @@ DATA = {
 @pd.api.extensions.register_dataframe_accessor("gsthd")
 class Header:
     def __init__(self, gdf):
-        self._validate(gdf)
         self._gdf = gdf
         self._backend = self._get_backend()
 
@@ -23,16 +23,18 @@ class Header:
         return getattr(self._backend, attr)
 
     @staticmethod
-    def _validate(gdf):
-        if not hasattr(gdf, "headertype"):
-            raise AttributeError(
-                "Header has no attribute 'headertype', gsthd accessor cannot choose backend"
-            )
+    def _get_geom_type(gdf):
+        if isinstance(gdf, gpd.GeoDataFrame):
+            geom = gdf.geom_type.iloc[0]
+        else:
+            raise TypeError("Header accessor only accepts GeoDataFrames.")
+        return geom.lower()
 
     def _get_backend(self):
-        header = HEADER.get(self._gdf.headertype)
+        geom_type = self._get_geom_type(self._gdf)
+        header = HEADER.get(geom_type)
         if header is None:
-            raise TypeError(f"No Header backend available for {self._gdf.headertype}")
+            raise TypeError(f"No Header backend available for {geom_type}")
         return header(self._gdf)
 
 

@@ -98,7 +98,6 @@ class TestCollection:
             geometry=[Point(100000, 400000)],
             crs=28992,
         )
-        gdf.headertype = "point"
         return gdf
 
     @pytest.fixture
@@ -170,7 +169,6 @@ class TestCollection:
     @pytest.mark.unittest
     def test_reset_header(self, borehole_collection):
         borehole_collection.reset_header()
-        assert borehole_collection.header.headertype == "point"
         assert borehole_collection.horizontal_reference == 28992
 
     @pytest.mark.unittest
@@ -388,7 +386,7 @@ class TestCollection:
         config.validation.DROP_INVALID = False
         config.validation.FLAG_INVALID = False
         with pytest.warns(ValidationWarning) as record:
-            invalid_borehole_table.gstda.to_collection(headertype="point")
+            invalid_borehole_table.gstda.to_collection()
 
         assert len(record) == 2
 
@@ -414,7 +412,7 @@ class TestCollection:
         config.validation.DROP_INVALID = True
         config.validation.FLAG_INVALID = False
         with pytest.warns(ValidationWarning) as record:
-            invalid_borehole_table.gstda.to_collection(headertype="point")
+            invalid_borehole_table.gstda.to_collection()
 
         assert len(record) == 2
 
@@ -432,9 +430,7 @@ class TestCollection:
         config.validation.DROP_INVALID = False
         config.validation.FLAG_INVALID = True
         with pytest.warns(ValidationWarning) as record:
-            collection_flagged = invalid_borehole_table.gstda.to_collection(
-                headertype="point"
-            )
+            collection_flagged = invalid_borehole_table.gstda.to_collection()
 
         assert len(record) == 2
         assert not collection_flagged.header.loc[0, "is_valid"]

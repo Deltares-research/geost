@@ -225,7 +225,6 @@ def test_read_gef_cpts(testdatadir):
     assert cpts.horizontal_reference == 28992
     assert cpts.vertical_reference == 5709
     assert cpts.data.datatype == "discrete"
-    assert cpts.header.headertype == "point"
 
     expected_cpts_present = [
         "DKMP_D03",
@@ -275,7 +274,6 @@ class TestReadCollectionGeopackage:
         assert isinstance(collection, BoreholeCollection)
         assert isinstance(collection.header, gpd.GeoDataFrame)
         assert isinstance(collection.data, pd.DataFrame)
-        assert collection.header.headertype == "point"
         assert collection.data.datatype == "layered"
         assert not collection.has_inclined
 
@@ -285,7 +283,6 @@ class TestReadCollectionGeopackage:
         assert isinstance(collection, CptCollection)
         assert isinstance(collection.header, gpd.GeoDataFrame)
         assert isinstance(collection.data, pd.DataFrame)
-        assert collection.header.headertype == "point"
         assert collection.data.datatype == "discrete"
         assert not collection.has_inclined
 
