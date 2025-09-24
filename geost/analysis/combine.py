@@ -59,16 +59,14 @@ def add_voxelmodel_variable(
     var_df.rename(columns={"values": variable}, inplace=True)
     var_df["nr"] = nrs.loc[var_df["nr"]].values
 
-    if collection.data.datatype == "layered":
+    if {"top", "bottom"}.issubset(collection.data.columns):
         result = _add_to_layered(collection.data, var_df)
-    elif collection.data.datatype == "discrete":
+    elif "depth" in collection.data.columns:
         result = _add_to_discrete(collection.data, var_df)
     else:
         raise NotImplementedError(
             "Other datatypes than LayeredData or DiscreteData not implemented yet."
         )
-
-    result.datatype = collection.data.datatype
 
     return result.gstda.to_collection()
 

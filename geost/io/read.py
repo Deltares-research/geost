@@ -199,7 +199,6 @@ def read_borehole_table(
     # Figure out top and bottom reference and coerce to downward increasing from 0 if
     # required.
     boreholes = adjust_z_coordinates(boreholes)
-    boreholes.datatype = "layered"
 
     if as_collection:
         boreholes = boreholes.gstda.to_collection(
@@ -268,7 +267,6 @@ def read_cpt_table(
     cpts = _check_mandatory_column_presence(
         cpts, MANDATORY_DISCRETE_DATA_COLUMNS, column_mapper
     )
-    cpts.datatype = "discrete"
 
     if as_collection:
         cpts = cpts.gstda.to_collection(
@@ -344,7 +342,6 @@ def read_nlog_cores(file: str | Path) -> BoreholeCollection:
 
     nlog_cores = nlog_cores.merge(surface_end_df, on="nr", how="left")
     nlog_cores = adjust_z_coordinates(nlog_cores)
-    nlog_cores.datatype = "layered"
 
     return nlog_cores.gstda.to_collection(
         has_inclined=True, horizontal_reference=28992, vertical_reference=5709
@@ -387,7 +384,6 @@ def read_xml_boris(
 
     """
     boreholes = BorisXML(file).layer_dataframe
-    boreholes.datatype = "layered"
 
     if as_collection:
         # Think of a better way to translate non-standard BORIS crs encoding or keep it
@@ -452,8 +448,6 @@ def read_bhrgt(
         header, geometry=gpd.points_from_xy(header.x, header.y), crs=28992
     )
 
-    data.datatype = "layered"
-
     return BoreholeCollection(header, data)
 
 
@@ -507,8 +501,6 @@ def read_bhrp(
     header = gpd.GeoDataFrame(
         header, geometry=gpd.points_from_xy(header.x, header.y), crs=28992
     )
-
-    data.datatype = "layered"
 
     return BoreholeCollection(header, data)
 
@@ -565,8 +557,6 @@ def read_bhrg(
         header, geometry=gpd.points_from_xy(header.x, header.y), crs=28992
     )
 
-    data.datatype = "layered"
-
     return BoreholeCollection(header, data)
 
 
@@ -622,8 +612,6 @@ def read_sfr(
         header, geometry=gpd.points_from_xy(header.x, header.y), crs=28992
     )
 
-    data.datatype = "layered"
-
     return BoreholeCollection(header, data)
 
 
@@ -644,7 +632,6 @@ def read_gef_cpts(file_or_folder: str | Path) -> CptCollection:
     """
     data = _parse_cpt_gef_files(file_or_folder)
     df = pd.concat(data)
-    df.datatype = "discrete"
     return df.gstda.to_collection()
 
 
@@ -702,8 +689,6 @@ def read_cpt(
 
     data.fillna({"depth": data["penetrationlength"]}, inplace=True)
 
-    data.datatype = "layered"
-
     return CptCollection(header, data)
 
 
@@ -756,8 +741,6 @@ def read_uullg_tables(
     add_header_cols = [c for c in ["x", "y", "surface", "end"] if c not in data.columns]
     if add_header_cols:
         data = data.merge(header[["nr"] + add_header_cols], on="nr", how="left")
-
-    data.datatype = "layered"
 
     return BoreholeCollection(
         header, data, has_inclined=False, vertical_reference=vertical_reference
@@ -833,9 +816,9 @@ def read_collection_geopackage(
 
     # TODO: Check collection type inference possibility from geopackage metadata.
     if collection_type == BoreholeCollection:
-        data.datatype = "layered"
+        pass
     elif collection_type == CptCollection:
-        data.datatype = "discrete"
+        pass
     else:
         raise ValueError(f"Collection type {collection_type} not supported.")
 

@@ -168,8 +168,6 @@ class LayeredData(AbstractData):
                 valid = self._df["nr"][self._df[column] == value].unique()
                 selected = selected[selected["nr"].isin(valid)]
 
-        selected.datatype = self._df.datatype
-
         return selected
 
     def slice_depth_interval(
@@ -250,8 +248,6 @@ class LayeredData(AbstractData):
             sliced.loc[sliced["top"] <= upper_boundary, "top"] = upper_boundary
             sliced.loc[sliced["bottom"] >= lower_boundary, "bottom"] = lower_boundary
 
-        sliced.datatype = self._df.datatype
-
         return sliced
 
     def slice_by_values(
@@ -298,8 +294,6 @@ class LayeredData(AbstractData):
         else:
             sliced = sliced[sliced[column].isin(selection_values)]
 
-        sliced.datatype = self._df.datatype
-
         return sliced
 
     def select_by_condition(self, condition: Any, invert: bool = False):
@@ -337,8 +331,6 @@ class LayeredData(AbstractData):
             selected = self._df[~condition]
         else:
             selected = self._df[condition]
-
-        selected.datatype = self._df.datatype
 
         return selected
 
@@ -630,7 +622,6 @@ class LayeredData(AbstractData):
             geometry=geometries,
             crs=crs,
         )
-        gdf.datatype = self._df.datatype
         return gdf
 
     def to_qgis3d(
@@ -856,8 +847,6 @@ class DiscreteData(AbstractData):
                 valid = self._df["nr"][self._df[column] == value].unique()
                 selected = selected[selected["nr"].isin(valid)]
 
-        selected.datatype = self._df.datatype
-
         return selected
 
     def slice_depth_interval(
@@ -922,8 +911,6 @@ class DiscreteData(AbstractData):
             (sliced["depth"] >= upper_boundary) & (sliced["depth"] <= lower_boundary)
         ]
 
-        sliced.datatype = self._df.datatype
-
         return sliced
 
     def slice_by_values(self):  # pragma: no cover
@@ -964,8 +951,6 @@ class DiscreteData(AbstractData):
             selected = self._df[~condition]
         else:
             selected = self._df[condition]
-
-        selected.datatype = self._df.datatype
 
         return selected
 

@@ -3,11 +3,11 @@ import pandas as pd
 
 from . import data, header
 
-HEADER = {
+HEADER_BACKEND = {
     "point": header.PointHeader,
     "linestring": header.LineHeader,
 }
-DATA = {
+DATA_BACKEND = {
     "layered": data.LayeredData,
     "discrete": data.DiscreteData,
 }
@@ -32,7 +32,7 @@ class Header:
 
     def _get_backend(self):
         geom_type = self._get_geom_type(self._gdf)
-        header = HEADER.get(geom_type)
+        header = HEADER_BACKEND.get(geom_type)
         if header is None:
             raise TypeError(f"No Header backend available for {geom_type}")
         return header(self._gdf)
@@ -41,22 +41,20 @@ class Header:
 @pd.api.extensions.register_dataframe_accessor("gstda")
 class Data:
     def __init__(self, df):
-        self._validate(df)
         self._df = df
         self._backend = self._get_backend()
 
     def __getattr__(self, attr):
         return getattr(self._backend, attr)
 
-    @staticmethod
-    def _validate(df):
-        if not hasattr(df, "datatype"):
-            raise AttributeError(
-                "Data has no attribute 'datatype', geodata accessor cannot choose backend"
-            )
-
     def _get_backend(self):
-        data = DATA.get(self._df.datatype)
-        if data is None:
-            raise TypeError(f"No Data backend available for {self._df.datatype}")
-        return data(self._df)
+        if {"top", "bottom"}.issubset(self._df.columns):
+            backend = DATA_BACKEND["layered"]
+        elif "depth" in self._df.columns:
+            backend = DATA_BACKEND["discrete"]
+        else:
+            raise KeyError(
+                "No 'top' and 'bottom' or 'depth' columns present. Data accessor cannot "
+                "determine 'layered' or 'discrete' backend."
+            )
+        return backend(self._df)

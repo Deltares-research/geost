@@ -129,9 +129,7 @@ def test_read_borehole_table(testdatadir):
     cores_pq = geost.read_borehole_table(file_pq, as_collection=False)
     cores_csv = geost.read_borehole_table(file_csv, as_collection=False)
     assert isinstance(cores_pq, pd.DataFrame)
-    assert cores_pq.datatype == "layered"
     assert isinstance(cores_csv, pd.DataFrame)
-    assert cores_csv.datatype == "layered"
 
     file_pq = testdatadir / r"test_inclined_borehole_table.parquet"
     cores_pq = geost.read_borehole_table(file_pq, has_inclined=True)
@@ -142,7 +140,6 @@ def test_read_borehole_table(testdatadir):
         file_pq, has_inclined=True, as_collection=False
     )
     assert isinstance(cores_pq, pd.DataFrame)
-    assert cores_pq.datatype == "layered"
 
 
 @pytest.mark.unittest
@@ -224,7 +221,6 @@ def test_read_gef_cpts(testdatadir):
     assert isinstance(cpts, CptCollection)
     assert cpts.horizontal_reference == 28992
     assert cpts.vertical_reference == 5709
-    assert cpts.data.datatype == "discrete"
 
     expected_cpts_present = [
         "DKMP_D03",
@@ -246,7 +242,6 @@ def test_read_cpt_table(testdatadir, monkeypatch):
 
     cpts = geost.read_cpt_table(testdatadir / r"test_cpts.parquet", as_collection=False)
     assert isinstance(cpts, pd.DataFrame)
-    assert cpts.datatype == "discrete"
 
 
 @pytest.mark.unittest
@@ -274,7 +269,6 @@ class TestReadCollectionGeopackage:
         assert isinstance(collection, BoreholeCollection)
         assert isinstance(collection.header, gpd.GeoDataFrame)
         assert isinstance(collection.data, pd.DataFrame)
-        assert collection.data.datatype == "layered"
         assert not collection.has_inclined
 
     @pytest.mark.unittest
@@ -283,7 +277,6 @@ class TestReadCollectionGeopackage:
         assert isinstance(collection, CptCollection)
         assert isinstance(collection.header, gpd.GeoDataFrame)
         assert isinstance(collection.data, pd.DataFrame)
-        assert collection.data.datatype == "discrete"
         assert not collection.has_inclined
 
     @pytest.mark.unittest

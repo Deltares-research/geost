@@ -42,13 +42,11 @@ class TestLayeredData:
         assert not collection.has_inclined
         assert collection.horizontal_reference == 28992
         assert collection.vertical_reference == 5709
-        assert collection.data.datatype == "layered"
 
     @pytest.mark.unittest
     def test_select_by_values(self, borehole_data):
         selected = borehole_data.gstda.select_by_values("lith", ["V", "K"], how="or")
         assert isinstance(selected, pd.DataFrame)
-        assert selected.datatype == borehole_data.datatype
 
         expected_nrs = ["A", "B", "C", "D"]
         selected_nrs = selected["nr"].unique()
@@ -65,7 +63,6 @@ class TestLayeredData:
     def test_slice_by_values(self, borehole_data):
         sliced = borehole_data.gstda.slice_by_values("lith", "Z")
         assert isinstance(sliced, pd.DataFrame)
-        assert sliced.datatype == borehole_data.datatype
 
         expected_boreholes_with_sand = ["A", "C", "D", "E"]
         expected_length = 10
@@ -141,7 +138,6 @@ class TestLayeredData:
         upper, lower = 0.6, 2.4
         sliced = borehole_data.gstda.slice_depth_interval(upper, lower)
         assert isinstance(sliced, pd.DataFrame)
-        assert sliced.datatype == borehole_data.datatype
 
         layers_per_borehole = sliced["nr"].value_counts()
         expected_layer_count = [3, 3, 3, 3, 2]
@@ -215,7 +211,6 @@ class TestLayeredData:
     def test_select_by_condition(self, borehole_data):
         selected = borehole_data.gstda.select_by_condition(borehole_data["lith"] == "V")
         assert isinstance(selected, pd.DataFrame)
-        assert selected.datatype == borehole_data.datatype
 
         expected_nrs = ["B", "D"]
         assert_array_equal(selected["nr"].unique(), expected_nrs)
@@ -367,7 +362,6 @@ class TestLayeredData:
         gdf = borehole_data.gstda._create_geodataframe_3d(
             relative_to_vertical_reference, crs=28992
         )
-        gdf.datatype = borehole_data.datatype
 
         first_line_coords = get_coordinates(gdf["geometry"].iloc[0], include_z=True)
         expected_coords = [[2.0, 3.0, 0.21], [2.0, 3.0, -0.59]]
@@ -430,13 +424,11 @@ class TestDiscreteData:
         assert not collection.has_inclined
         assert collection.horizontal_reference == 28992
         assert collection.vertical_reference == 5709
-        assert collection.data.datatype == "discrete"
 
     @pytest.mark.unittest
     def test_select_by_values(self, cpt_data):
         selected = cpt_data.gstda.select_by_values("nr", "a")
         assert isinstance(selected, pd.DataFrame)
-        assert selected.datatype == cpt_data.datatype
         assert len(selected) == 10
         assert_array_equal(selected["nr"].unique(), "a")
 
@@ -446,7 +438,6 @@ class TestDiscreteData:
             (cpt_data["qc"] > 0.3) & (cpt_data["qc"] < 0.4)
         )
         assert isinstance(selected, pd.DataFrame)
-        assert selected.datatype == cpt_data.datatype
         assert len(selected) == 5
         assert np.all((selected["qc"] > 0.3) & (selected["qc"] < 0.4))
         assert_array_equal(selected.index, [2, 3, 4, 5, 6])
@@ -464,7 +455,6 @@ class TestDiscreteData:
         # Selection with respect to surface level
         selected = cpt_data.gstda.slice_depth_interval(2, 3)
         assert isinstance(selected, pd.DataFrame)
-        assert selected.datatype == cpt_data.datatype
         assert len(selected) == 4
         assert_array_equal(selected["depth"], [2, 3, 2, 3])
 

@@ -49,10 +49,6 @@ def safe_validate(df: pd.DataFrame, schema: DataFrameSchema, **kwargs) -> pd.Dat
                     f"Dropped indices: {list(dropped)}\n",
                     category=ValidationWarning,
                 )
-
-        with contextlib.suppress(AttributeError):
-            validated_df.datatype = df.datatype
-
         return validated_df
     except (SchemaError, SchemaErrors) as e:
         if config.validation.VERBOSE:

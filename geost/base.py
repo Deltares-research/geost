@@ -154,9 +154,7 @@ class Collection(AbstractCollection):
             Name of the column in the header table to add.
 
         """
-        datatype = self.data.datatype  # keep datatype info to keep DataFrame accessor
         self._data = pd.merge(self.data, self.header[["nr", column_name]], on="nr")
-        self._data.datatype = datatype
 
     def get(self, selection_values: str | Iterable, column: str = "nr"):
         """

@@ -50,7 +50,6 @@ class TestCollection:
                 "data_float": data_float,
             }
         )
-        df.datatype = "layered"
         return df
 
     @pytest.fixture
@@ -82,7 +81,6 @@ class TestCollection:
                 "data_float": data_float,
             }
         )
-        df.datatype = "layered"
         return df
 
     @pytest.fixture

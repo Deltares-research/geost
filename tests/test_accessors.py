@@ -2,7 +2,7 @@ import geopandas as gpd
 import pandas as pd
 import pytest
 
-from geost.accessors.accessor import DATA, HEADER
+from geost.accessors.accessor import DATA_BACKEND, HEADER_BACKEND
 
 
 class TestHeaderAccessor:
@@ -57,45 +57,47 @@ class TestHeaderAccessor:
             ):
                 request.getfixturevalue(header).gsthd
         else:
-            backend = HEADER[header]
+            backend = HEADER_BACKEND[header]
             header = request.getfixturevalue(header)
             assert isinstance(header.gsthd._backend, backend)
 
 
 class TestDataAccessor:
-    @pytest.mark.unittest
-    def test_validate(self):
-        """
-        Test to check wheter an input DataFrame has the required 'datatype' attribute
-        which is needed to choose the correct backend for the accessor.
+    @pytest.fixture
+    def layered(self):
+        df = pd.DataFrame({"top": [0, 30], "bottom": [30, 40]})
+        return df
 
-        """
-        df = pd.DataFrame()
-        with pytest.raises(
-            AttributeError,
-            match="Data has no attribute 'datatype', geodata accessor cannot choose backend",
-        ):
-            df.gstda  # Triggers `self._validate(gdf)` in `Data.__init__`
+    @pytest.fixture
+    def discrete(self):
+        df = pd.DataFrame({"depth": [1, 2, 3]})
+        return df
+
+    @pytest.fixture
+    def invalid(self):
+        return (
+            pd.DataFrame()
+        )  # No "top", "bottom", or "depth" columns are invalid for the accessor.
 
     @pytest.mark.parametrize(
         "datatype",
         ["layered", "discrete", "invalid"],
         ids=["layered", "discrete", "invalid"],
     )
-    def test_backend_selection(self, datatype):
+    def test_backend_selection(self, datatype, request):
         """
         Test to check whether the correct backend is selected based on the 'datatype'
         attribute.
 
         """
-        df = pd.DataFrame()
-        df.datatype = datatype
-
+        df = request.getfixturevalue(datatype)
         if datatype == "invalid":
-            with pytest.raises(
-                TypeError, match="No Data backend available for invalid"
-            ):
+            expected_error = (
+                "No 'top' and 'bottom' or 'depth' columns present. Data accessor cannot "
+                "determine 'layered' or 'discrete' backend."
+            )
+            with pytest.raises(KeyError, match=expected_error):
                 df.gstda
         else:
-            backend = DATA[datatype]
+            backend = DATA_BACKEND[datatype]
             assert isinstance(df.gstda._backend, backend)

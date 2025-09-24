@@ -156,7 +156,6 @@ def borehole_data():
     d = borehole_d()
     e = borehole_e()
     df = pd.concat([a, b, c, d, e], ignore_index=True)
-    df.datatype = "layered"
     return df
 
 
@@ -246,7 +245,6 @@ def cpt_data():
 
     """
     df = pd.concat([cpt_a(), cpt_b()], ignore_index=True)
-    df.datatype = "discrete"
     return df
 
 
