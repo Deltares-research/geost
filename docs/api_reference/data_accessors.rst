@@ -1,5 +1,5 @@
 Data ``.gstda`` accessors
-======================
+===============================
 
 .. currentmodule:: geost.accessors.data
 

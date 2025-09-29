@@ -1,5 +1,5 @@
 Header ``.gsthd`` accessors
-======================
+==============================
 
 .. currentmodule:: geost.accessors.header
 
