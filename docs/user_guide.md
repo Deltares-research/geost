@@ -2,7 +2,7 @@
 ```{toctree}
 ---
 maxdepth: 2
-caption: User guide
+caption: Table of contents
 ---
 
 Data structures <user_guide/data_structures>

@@ -3,6 +3,7 @@
 ```{toctree}
 ---
 maxdepth: 2
+caption: Table of contents
 ---
 
 Input/Output <api_reference/io>
