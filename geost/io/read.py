@@ -63,7 +63,7 @@ def adjust_z_coordinates(data_dataframe: pd.DataFrame) -> pd.DataFrame:
         top, bottoms or discrete data z-coordinates.
     """
     top_column_label = [
-        col for col in data_dataframe.columns if col in ["top", "depth"]
+        col for col in data_dataframe.columns if col in {"top", "depth"}
     ][0]
     has_bottom_column = "bottom" in data_dataframe.columns
 
@@ -738,7 +738,7 @@ def read_uullg_tables(
 
     header = utils.dataframe_to_geodataframe(header).set_crs(horizontal_reference)
 
-    add_header_cols = [c for c in ["x", "y", "surface", "end"] if c not in data.columns]
+    add_header_cols = [c for c in {"x", "y", "surface", "end"} if c not in data.columns]
     if add_header_cols:
         data = data.merge(header[["nr"] + add_header_cols], on="nr", how="left")
 

@@ -175,7 +175,7 @@ def voxelmodel_to_pyvista_structured(
 
     # Add the variables to the grid
     for var in displayed_variables:
-        if not all(dim in dataset[var].sizes for dim in ["x", "y", "z"]):
+        if not all(dim in dataset[var].sizes for dim in {"x", "y", "z"}):
             print(
                 f"Variable '{var}' does not have the required dimensions 'x', 'y', and "
                 "'z'. Skipping this variable."
@@ -249,7 +249,7 @@ def voxelmodel_to_pyvista_unstructured(
     # Create unstructured grid and assign data variables
     grid = pv.UnstructuredGrid({CellType.VOXEL: cells_voxel}, points)
     for var in displayed_variables:
-        if not all(dim in dataset[var].dims for dim in ["x", "y", "z"]):
+        if not all(dim in dataset[var].dims for dim in {"x", "y", "z"}):
             print(
                 f"Variable '{var}' does not have the required dimensions 'x', 'y', and "
                 "'z'. Skipping this variable."

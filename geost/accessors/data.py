@@ -586,7 +586,7 @@ class LayeredData(AbstractData):
             col
             for col in data.columns
             if col
-            not in ["nr", "x", "y", "x_bot", "y_bot", "surface", "end", "top", "bottom"]
+            not in {"nr", "x", "y", "x_bot", "y_bot", "surface", "end", "top", "bottom"}
         ]
 
         data_to_write = dict(
