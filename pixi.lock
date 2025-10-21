@@ -8215,7 +8215,7 @@ packages:
 - pypi: ./
   name: geost
   version: 0.3.0
-  sha256: bf1713adaf853743869bd639518b2dc139be2452f9b984b12797c4a3b7240481
+  sha256: c938faa3a423f31c0a580e52fb53e77d32b98763e8b9692e9f915578f8957cf5
   requires_dist:
   - geopandas
   - lxml
@@ -8230,7 +8230,7 @@ packages:
   - rioxarray
   - shapely
   - xlrd
-  requires_python: '>=3.12'
+  requires_python: '>=3.12,<3.14'
   editable: true
 - conda: https://conda.anaconda.org/conda-forge/linux-64/geotiff-1.7.4-h239500f_2.conda
   sha256: 0cd4454921ac0dfbf9d092d7383ba9717e223f9e506bc1ac862c99f98d2a953c

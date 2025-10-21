@@ -48,7 +48,7 @@ maintainers = [
 ]
 name = "geost"
 readme = "README.md"
-requires-python = ">=3.12"
+requires-python = ">=3.12,<3.14"
 
 [project.urls]
 Homepage = "https://github.com/Deltares-research/geost"
@@ -67,7 +67,6 @@ only-include = ["geost", "tests"]
 [tool.pixi.project]
 channels = ["conda-forge"]
 platforms = ["win-64", "linux-64", "osx-64", "osx-arm64"]
-preview = ["pixi-build"]
 
 [tool.pixi.dependencies]
 black = "*"
