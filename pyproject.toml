@@ -58,6 +58,9 @@ Issues = "https://github.com/Deltares-research/geost/issues"
 [tool.hatch.version]
 path = "geost/__init__.py"
 
+[tool.hatch.metadata]
+allow-direct-references = true
+
 [tool.hatch.build.targets.sdist]
 only-include = ["geost", "tests"]
 
