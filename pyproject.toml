@@ -1,59 +1,58 @@
 [build-system]
-build-backend = "hatchling.build"
 requires = ["hatchling"]
+build-backend = "hatchling.build"
 
 [project]
-classifiers = [
-  "Development Status :: 3 - Alpha",
-  "Intended Audience :: Science/Research",
-  "Topic :: Scientific/Engineering",
-  "License :: OSI Approved :: GNU Lesser General Public License v3 (LGPLv3)",
-  "Operating System :: OS Independent",
-  "Programming Language :: Python",
-  "Programming Language :: Python :: 3.12",
-  "Programming Language :: Python :: 3.13",
-  "Topic :: Scientific/Engineering",
-]
-dependencies = [
-  "numpy",
-  "pandas",
-  "pandera",
-  "pyarrow",
-  "lxml",
-  "pooch",
-  "pyproj",
-  "geopandas",
-  "xlrd",
-  "openpyxl",
-  "rioxarray",
-  "shapely",
-  "pyvista",
+name = "geost"
+dynamic = ["version"]
+maintainers = [
+    {name = "Erik van Onselen", email = "erik.vanonselen@deltares.nl"},
+    {name = "Bas Knaake", email = "bas.knaake@deltares.nl"},
 ]
 description = "The Python interface for geological point data in The Netherlands"
-dynamic = ["version"]
-keywords = [
-  "geost",
-  "bro",
-  "borehole",
-  "well log",
-  "cpt",
-  "geology",
-  "subsurface toolbox",
-  "deltares",
-]
-license = {file = "LICENSE"}
-maintainers = [
-  {name = "Erik van Onselen", email = "erik.vanonselen@deltares.nl"},
-  {name = "Bas Knaake", email = "bas.knaake@deltares.nl"},
-]
-name = "geost"
 readme = "README.md"
+license = {file = "LICENSE"}
+keywords = [
+    "geost",
+    "bro",
+    "borehole",
+    "well log",
+    "cpt",
+    "geology",
+    "subsurface toolbox",
+    "deltares",
+]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Science/Research",
+    "Topic :: Scientific/Engineering",
+    "License :: OSI Approved :: GNU Lesser General Public License v3 (LGPLv3)",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+]
 requires-python = ">=3.12,<3.14"
+dependencies = [
+    "numpy",
+    "pandas",
+    "pandera",
+    "pyarrow",
+    "lxml",
+    "pooch",
+    "pyproj",
+    "geopandas",
+    "xlrd",
+    "openpyxl",
+	  "rioxarray",
+    "shapely",
+    "pyvista",
+]
 
 [project.urls]
 Homepage = "https://github.com/Deltares-research/geost"
-Issues = "https://github.com/Deltares-research/geost/issues"
 Repository = "https://github.com/Deltares-research/geost"
+Issues = "https://github.com/Deltares-research/geost/issues"
 
 [tool.hatch.version]
 path = "geost/__init__.py"
@@ -69,48 +68,48 @@ channels = ["conda-forge"]
 platforms = ["win-64", "linux-64", "osx-64", "osx-arm64"]
 
 [tool.pixi.dependencies]
-black = "*"
-dask = "*"
-geopandas = "*"
-lxml = "*"
-myst-nb = "*"
-myst-parser = "*"
-netcdf4 = "*"
+python = ">=3.12"
 numpy = "*"
-openpyxl = "*"
 pandas = "*"
-pandera = "*"
-pip = "*"
-pooch = "*"
-pre-commit = "*"
 pyarrow = "*"
-pydap = "*"
-pydata-sphinx-theme = "*"
+lxml = "*"
 pyproj = "*"
+geopandas = "*"
+xlrd = "*"
+openpyxl = "*"
+shapely = "*"
+pyvista = "*"
+black = "*"
 pytest = "*"
 pytest-cov = "*"
-python = ">=3.12"
-pyvista = "*"
-rioxarray = "*"
 ruff = "*"
-shapely = "*"
 sphinx = "*"
-sphinx-design = "*"
+pip = "*"
+rioxarray = "*"
 xarray = "*"
-xlrd = "*"
+netcdf4 = "*"
+dask = "*"
+pydap = "*"
+myst-parser = "*"
+pydata-sphinx-theme = "*"
+sphinx-design = "*"
+myst-nb = "*"
+pooch = "*"
+pandera = "*"
+pre-commit = "*"
 
 [tool.pixi.pypi-dependencies]
-geost = {path = ".", editable = true}
+geost = { path = ".", editable = true }
 
 [tool.pixi.tasks]
+test = "python -m pytest --verbose --cov=geost --cov-report xml --cov-report term"
 docs = "sphinx-build -b html docs ./docs/build"
 format = "black ."
 lint = "ruff check --fix ./geost"
-rebuild_docs = {depends-on = ["rm_jupyter", "rm_build", "rm_generated", "docs"]}
+rm_jupyter = "rm -r ./docs/jupyter_execute"
 rm_build = "rm -r ./docs/build"
 rm_generated = "rm -r ./docs/api_reference/generated"
-rm_jupyter = "rm -r ./docs/jupyter_execute"
-test = "python -m pytest --verbose --cov=geost --cov-report xml --cov-report term"
+rebuild_docs = { depends-on = ["rm_jupyter", "rm_build", "rm_generated", "docs"] }
 
 [tool.pixi.feature.py312.dependencies]
 python = "3.12.*"
@@ -119,17 +118,17 @@ python = "3.12.*"
 python = "3.13.*"
 
 [tool.pixi.environments]
-default = {features = ["py313"], solve-group = "py313"}
-py312 = {features = ["py312"], solve-group = "py312"}
-py313 = {features = ["py313"], solve-group = "py313"}
+default = { features = ["py313"], solve-group = "py313" }
+py312 = { features = ["py312"], solve-group = "py312" }
+py313 = { features = ["py313"], solve-group = "py313" }
 
 [tool.pytest.ini_options]
-markers = [
-  "unittest: test of single component",
-  "integrationtest: test of multiple components",
-]
 testpaths = [
-  "tests",
+    "tests",
+]
+markers = [
+	"unittest: test of single component",
+	"integrationtest: test of multiple components",
 ]
 
 [tool.coverage.report]
@@ -145,7 +144,7 @@ line-length = 88
 target-version = "py313"
 
 [tool.ruff.lint]
-ignore = ["F401", "E402", "E501", "F811"]
-pydocstyle.convention = "numpy"
 select = ["F", "E", "W", "N", "I001", "NPY201"]
+ignore = ["F401", "E402", "E501", "F811"]
 unfixable = ["F401"]
+pydocstyle.convention = "numpy"

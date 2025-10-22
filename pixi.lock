@@ -8215,7 +8215,7 @@ packages:
 - pypi: ./
   name: geost
   version: 0.3.0
-  sha256: c938faa3a423f31c0a580e52fb53e77d32b98763e8b9692e9f915578f8957cf5
+  sha256: 7b2d303cd49a49b483bf7df8b59490c891c74a3ef0d583805668fdb21a9c1f5c
   requires_dist:
   - geopandas
   - lxml
