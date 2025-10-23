@@ -1,7 +1,5 @@
-import re
 from abc import ABC, abstractmethod
 from pathlib import Path
-from typing import List
 
 import geopandas as gpd
 import numpy as np
@@ -14,7 +12,7 @@ from geost.utils import check_geometry_instance
 from .model_utils import sample_along_line, sample_with_coords
 
 
-class AbstractSpatial(ABC):  # pragma: no cover
+class AbstractModel3D(ABC):  # pragma: no cover
     @property
     @abstractmethod
     def xmin(self):
@@ -33,6 +31,16 @@ class AbstractSpatial(ABC):  # pragma: no cover
     @property
     @abstractmethod
     def ymax(self):
+        pass
+
+    @property
+    @abstractmethod
+    def zmin(self):
+        pass
+
+    @property
+    @abstractmethod
+    def zmax(self):
         pass
 
     @property
@@ -73,18 +81,6 @@ class AbstractSpatial(ABC):  # pragma: no cover
     def select_by_values(self):
         pass
 
-
-class AbstractModel3D(ABC):  # pragma: no cover
-    @property
-    @abstractmethod
-    def zmin(self):
-        pass
-
-    @property
-    @abstractmethod
-    def zmax(self):
-        pass
-
     @abstractmethod
     def select_top(self):
         pass
@@ -114,7 +110,7 @@ class AbstractModel3D(ABC):  # pragma: no cover
         pass
 
 
-class VoxelModel(AbstractSpatial, AbstractModel3D):
+class VoxelModel(AbstractModel3D):
     def __init__(self, ds: xr.Dataset):
         self.ds = ds
 
@@ -478,7 +474,7 @@ class VoxelModel(AbstractSpatial, AbstractModel3D):
             )
 
 
-class LayerModel(AbstractSpatial, AbstractModel3D):  # pragma: no cover TODO: add to doc
+class LayerModel(AbstractModel3D):  # pragma: no cover TODO: add to doc
     def __init__(self):
         raise NotImplementedError("No support of LayerModel yet.")
 
