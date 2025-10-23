@@ -3,6 +3,15 @@ import xarray as xr
 from shapely.geometry import LineString
 
 
+def check_dims(*dims):  # pragma: no cover
+    def inner_check_dims(other):
+        missing_dims = [d for d in dims if d not in other.dims]
+        if missing_dims:
+            raise ValueError(f"Grid is missing dimensions: {missing_dims}")
+
+    return inner_check_dims
+
+
 def sample_with_coords(ds: xr.Dataset | xr.DataArray, coords: np.ndarray):
     """
     Sample x and y dims of an Xarray Dataset or DataArray using an array of x and y

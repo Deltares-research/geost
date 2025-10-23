@@ -9,7 +9,7 @@ import xarray as xr
 from geost.export import vtk
 from geost.utils import check_geometry_instance
 
-from .model_utils import sample_along_line, sample_with_coords
+from . import model_utils
 
 
 class AbstractModel3D(ABC):  # pragma: no cover
@@ -356,7 +356,7 @@ class VoxelModel(AbstractModel3D):
             x, y = points["geometry"].x, points["geometry"].y
             coords = np.c_[x, y]
 
-        return sample_with_coords(self.ds, coords)
+        return model_utils.sample_with_coords(self.ds, coords)
 
     def select_with_line(self):  # pragma: no cover
         raise NotImplementedError()
@@ -376,8 +376,85 @@ class VoxelModel(AbstractModel3D):
     def select_bottom(self):  # pragma: no cover
         raise NotImplementedError()
 
-    def slice_depth_interval(self):  # pragma: no cover
-        raise NotImplementedError()
+    def slice_depth_interval(
+        self,
+        upper: int | float | xr.DataArray = None,
+        lower: int | float | xr.DataArray = None,
+        drop: bool = True,
+    ):
+        """
+        Slice a specified depth interval from the VoxelModel between upper and lower bounds.
+
+        Parameters
+        ----------
+        upper, lower : int | float | xr.DataArray, optional
+            Upper and/or lower bound of the depth interval. This can be a single value or
+            a 1D or 2D DataArray containing variable depths. In case of a DataArray, a 1D
+            DataArray should contain either the "x" or "y" dimension and a 2D DataArray
+            should contain both "x" and "y" dimensions. Otherwise broadcasting cannot be
+            done correctly and the slicing cannot be done. The default is None.
+        drop : bool, optional
+            If True, depths where the result only contains missing values will be dropped
+            from the slice result. If False, the original shape is kept. The default is
+            True.
+
+        Returns
+        -------
+        :class:`~geost.models.basemodels.VoxelModel`
+            New VoxelModel with the slice result.
+
+        Raises
+        ------
+        TypeError
+            When upper or lower are not int, float or xr.DataArray.
+
+        Examples
+        --------
+        Slice a fixed depth interval between -10 and -20:
+
+        >>> sliced = voxelmodel.slice_depth_interval(upper=-10, lower=-20)
+
+        Slice a VoxelModel of 2 rows and 2 columns between variable depth intervals using
+        DataArrays.
+
+        >>> upper = xr.DataArray([[-10, -15], [-12, -18]], dims=("y", "x"))
+        >>> upper  # 2D array with different depth interval for each "x" and "y"
+        <xarray.DataArray (y: 2, x: 2)>
+        array([[-15, -20],
+               [-17, -23]])
+        Dimensions without coordinates: y, x
+        >>> sliced = voxelmodel.slice_depth_interval(upper=upper, lower=upper - 5)
+
+        >>> upper = xr.DataArray([-10, -15], dims=("y",)) # slice along "y"
+        >>> upper  # 1D array with different depth interval for each "y" but the same for every "x"
+        <xarray.DataArray (y: 2)>
+        array([-15, -20])
+        Dimensions without coordinates: y
+        >>> sliced = voxelmodel.slice_depth_interval(upper=upper, lower=upper - 5)
+
+        """
+        sliced = self.ds.copy()
+        zres = self.resolution[-1]
+
+        if isinstance(upper, xr.DataArray):
+            upper, zview, _ = xr.broadcast(upper, self.ds["z"], self.ds)
+            sliced = sliced.where(zview - 0.5 * zres < upper, drop=drop)
+        elif isinstance(upper, (int, float)):
+            sliced = sliced.where(sliced["z"] - 0.5 * zres < upper, drop=drop)
+        else:
+            if upper is not None:
+                raise TypeError("Input for 'upper' must be int, float or xr.DataArray")
+
+        if isinstance(lower, xr.DataArray):
+            lower, zview, _ = xr.broadcast(lower, self.ds["z"], self.ds)
+            sliced = sliced.where(zview + 0.5 * zres > lower, drop=drop)
+        elif isinstance(lower, (int, float)):
+            sliced = sliced.where(sliced["z"] + 0.5 * zres > lower, drop=drop)
+        else:
+            if lower is not None:
+                raise TypeError("Input for 'lower' must be int, float or xr.DataArray")
+
+        return self.__class__(sliced)
 
     def select_surface_level(self):  # pragma: no cover
         raise NotImplementedError()
@@ -391,8 +468,9 @@ class VoxelModel(AbstractModel3D):
         depth_range: tuple[float, float] = None,
     ) -> xr.DataArray:
         """
-        Generate a thickness array of voxels in the VoxelModel that meet one or more conditions. For example,
-        determine the thickness of a specific lithology within a stratigraphic unit (see example usage below).
+        Generate a thickness array of voxels in the VoxelModel that meet one or more
+        conditions. For example, determine the thickness of a specific lithology within
+        a stratigraphic unit (see example usage below).
 
         Parameters
         ----------
@@ -400,8 +478,8 @@ class VoxelModel(AbstractModel3D):
             Boolean DataArray containing that evaluate to True for the desired condition.
             For example: `voxelmodel["lith"] == 1`.
         depth_range : tuple[float, float], optional
-            Search for the condition with a specified depth range of the `VoxelModel`. This should be a tuple
-            containing the minimum and maximum depth values (in this order!). The default
+            Search for the condition with a specified depth range of the `VoxelModel`. This
+            should be a tuple containing the minimum and maximum depth values. The default
             is None, which means the entire depth range of the VoxelModel will be used.
 
         Returns
@@ -419,14 +497,20 @@ class VoxelModel(AbstractModel3D):
 
         Or generate an array on more conditions:
 
-        >>> thickness = voxelmodel.get_thickness((voxelmodel["lithology"] == 1) & (voxelmodel["strat"] == 1100))
+        >>> thickness = voxelmodel.get_thickness(
+        ...    (voxelmodel["lithology"] == 1) & (voxelmodel["strat"] == 1100)
+        ... )
 
         Search for the condition or conditions within a specific depth window:
 
-        >>> thickness = voxelmodel.get_thickness((voxelmodel["lithology"] == 1) & (voxelmodel["strat"] == 1100), depth_range=(-10, -20))
+        >>> thickness = voxelmodel.get_thickness(
+        ...    (voxelmodel["lithology"] == 1) & (voxelmodel["strat"] == 1100),
+        ...    depth_range=(-10, -20),
+        ... )
+
         """
         if depth_range:
-            zmin, zmax = depth_range
+            zmin, zmax = min(depth_range), max(depth_range)
             condition = condition.sel(z=slice(zmin, zmax))
 
         # Calculate thickness: sum non-NaN values along the z-axis and multiply by dz

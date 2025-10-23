@@ -30,6 +30,20 @@ def voxelmodel_netcdf(xarray_dataset, tmp_path):
     return outfile
 
 
+@pytest.fixture
+def depth_mask(voxelmodel):
+    return xr.DataArray(
+        [
+            [-0.5, -0.5, -0.8, -0.7],
+            [-0.8, -0.8, -0.8, -0.8],
+            [-0.7, -0.7, -0.7, -0.7],
+            [-1.0, -1.0, -0.6, -0.6],
+        ],
+        coords={"y": voxelmodel["y"], "x": voxelmodel["x"]},
+        dims=("y", "x"),
+    )
+
+
 class TestVoxelModel:
     @pytest.mark.unittest
     def test_from_netcdf(self, voxelmodel_netcdf):
@@ -106,6 +120,250 @@ class TestVoxelModel:
         file = request.getfixturevalue(file)
         select = voxelmodel.select_with_points(file)
         assert isinstance(select, xr.Dataset)
+
+    @pytest.mark.unittest
+    def test_slice_depth_interval(self, voxelmodel, depth_mask):
+        # Test selection where the upper and lower bounds cut through cells
+        sliced = voxelmodel.slice_depth_interval(upper=-0.4, lower=-1.6)
+        assert isinstance(sliced, VoxelModel)
+        assert sliced.shape == (4, 4, 4)
+        assert_array_equal(
+            sliced["strat"],
+            [
+                [
+                    [2.0, 2.0, 1.0, 1.0],
+                    [2.0, 1.0, 1.0, np.nan],
+                    [1.0, 1.0, 1.0, np.nan],
+                    [2.0, 1.0, 1.0, np.nan],
+                ],
+                [
+                    [2.0, 1.0, 1.0, 1.0],
+                    [2.0, 1.0, 1.0, 1.0],
+                    [1.0, 1.0, 1.0, np.nan],
+                    [1.0, 2.0, 1.0, np.nan],
+                ],
+                [
+                    [2.0, 2.0, 1.0, np.nan],
+                    [1.0, 1.0, 1.0, 1.0],
+                    [2.0, 1.0, 1.0, 1.0],
+                    [2.0, 2.0, 1.0, np.nan],
+                ],
+                [
+                    [2.0, 2.0, 1.0, np.nan],
+                    [1.0, 1.0, 1.0, 1.0],
+                    [2.0, 1.0, 1.0, np.nan],
+                    [2.0, 2.0, 1.0, 1.0],
+                ],
+            ],
+        )
+        assert_array_equal(
+            sliced["lith"],
+            (
+                [
+                    [
+                        [3.0, 2.0, 1.0, 1.0],
+                        [3.0, 1.0, 1.0, np.nan],
+                        [1.0, 1.0, 1.0, np.nan],
+                        [2.0, 1.0, 1.0, np.nan],
+                    ],
+                    [
+                        [2.0, 1.0, 1.0, 1.0],
+                        [2.0, 1.0, 1.0, 1.0],
+                        [1.0, 1.0, 1.0, np.nan],
+                        [3.0, 2.0, 1.0, np.nan],
+                    ],
+                    [
+                        [3.0, 2.0, 1.0, np.nan],
+                        [1.0, 1.0, 3.0, 3.0],
+                        [2.0, 1.0, 1.0, 1.0],
+                        [2.0, 2.0, 1.0, np.nan],
+                    ],
+                    [
+                        [2.0, 2.0, 1.0, np.nan],
+                        [1.0, 1.0, 1.0, 1.0],
+                        [2.0, 1.0, 3.0, np.nan],
+                        [2.0, 2.0, 1.0, 1.0],
+                    ],
+                ]
+            ),
+        )
+
+        # Test with upper and lower bounds at cell boundaries
+        sliced = voxelmodel.slice_depth_interval(upper=-0.5, lower=-1.5)
+        assert sliced.shape == (4, 4, 2)
+        assert_array_equal(
+            sliced["strat"],
+            [
+                [[2.0, 1.0], [1.0, 1.0], [1.0, 1.0], [1.0, 1.0]],
+                [[1.0, 1.0], [1.0, 1.0], [1.0, 1.0], [2.0, 1.0]],
+                [[2.0, 1.0], [1.0, 1.0], [1.0, 1.0], [2.0, 1.0]],
+                [[2.0, 1.0], [1.0, 1.0], [1.0, 1.0], [2.0, 1.0]],
+            ],
+        )
+
+        # Test using a depth grids as mask
+        sliced = voxelmodel.slice_depth_interval(upper=depth_mask, lower=depth_mask - 1)
+        assert_array_equal(
+            sliced["strat"],
+            [
+                [
+                    [np.nan, 2.0, 1.0],
+                    [np.nan, 1.0, 1.0],
+                    [1.0, 1.0, 1.0],
+                    [2.0, 1.0, 1.0],
+                ],
+                [
+                    [2.0, 1.0, 1.0],
+                    [2.0, 1.0, 1.0],
+                    [1.0, 1.0, 1.0],
+                    [1.0, 2.0, 1.0],
+                ],
+                [
+                    [2.0, 2.0, 1.0],
+                    [1.0, 1.0, 1.0],
+                    [2.0, 1.0, 1.0],
+                    [2.0, 2.0, 1.0],
+                ],
+                [
+                    [2.0, 2.0, np.nan],
+                    [1.0, 1.0, np.nan],
+                    [2.0, 1.0, 1.0],
+                    [2.0, 2.0, 1.0],
+                ],
+            ],
+        )
+        assert_array_equal(
+            sliced["lith"],
+            [
+                [
+                    [np.nan, 2.0, 1.0],
+                    [np.nan, 1.0, 1.0],
+                    [1.0, 1.0, 1.0],
+                    [2.0, 1.0, 1.0],
+                ],
+                [
+                    [2.0, 1.0, 1.0],
+                    [2.0, 1.0, 1.0],
+                    [1.0, 1.0, 1.0],
+                    [3.0, 2.0, 1.0],
+                ],
+                [
+                    [3.0, 2.0, 1.0],
+                    [1.0, 1.0, 3.0],
+                    [2.0, 1.0, 1.0],
+                    [2.0, 2.0, 1.0],
+                ],
+                [
+                    [2.0, 2.0, np.nan],
+                    [1.0, 1.0, np.nan],
+                    [2.0, 1.0, 3.0],
+                    [2.0, 2.0, 1.0],
+                ],
+            ],
+        )
+
+        # Test with drop=False --> keep original shape of sliced but set values to NaN
+        sliced = voxelmodel.slice_depth_interval(upper=-0.4, lower=-1.6, drop=False)
+        assert sliced.shape == voxelmodel.shape
+        assert_array_equal(
+            sliced["strat"],
+            [
+                [
+                    [np.nan, 2.0, 2.0, 1.0, 1.0],
+                    [np.nan, 2.0, 1.0, 1.0, np.nan],
+                    [np.nan, 1.0, 1.0, 1.0, np.nan],
+                    [np.nan, 2.0, 1.0, 1.0, np.nan],
+                ],
+                [
+                    [np.nan, 2.0, 1.0, 1.0, 1.0],
+                    [np.nan, 2.0, 1.0, 1.0, 1.0],
+                    [np.nan, 1.0, 1.0, 1.0, np.nan],
+                    [np.nan, 1.0, 2.0, 1.0, np.nan],
+                ],
+                [
+                    [np.nan, 2.0, 2.0, 1.0, np.nan],
+                    [np.nan, 1.0, 1.0, 1.0, 1.0],
+                    [np.nan, 2.0, 1.0, 1.0, 1.0],
+                    [np.nan, 2.0, 2.0, 1.0, np.nan],
+                ],
+                [
+                    [np.nan, 2.0, 2.0, 1.0, np.nan],
+                    [np.nan, 1.0, 1.0, 1.0, 1.0],
+                    [np.nan, 2.0, 1.0, 1.0, np.nan],
+                    [np.nan, 2.0, 2.0, 1.0, 1.0],
+                ],
+            ],
+        )
+
+        sliced = voxelmodel.slice_depth_interval(depth_mask, depth_mask - 1, drop=False)
+        assert sliced.shape == voxelmodel.shape
+        assert_array_equal(
+            sliced["strat"],
+            [
+                [
+                    [np.nan, np.nan, 2.0, 1.0, np.nan],
+                    [np.nan, np.nan, 1.0, 1.0, np.nan],
+                    [np.nan, 1.0, 1.0, 1.0, np.nan],
+                    [np.nan, 2.0, 1.0, 1.0, np.nan],
+                ],
+                [
+                    [np.nan, 2.0, 1.0, 1.0, np.nan],
+                    [np.nan, 2.0, 1.0, 1.0, np.nan],
+                    [np.nan, 1.0, 1.0, 1.0, np.nan],
+                    [np.nan, 1.0, 2.0, 1.0, np.nan],
+                ],
+                [
+                    [np.nan, 2.0, 2.0, 1.0, np.nan],
+                    [np.nan, 1.0, 1.0, 1.0, np.nan],
+                    [np.nan, 2.0, 1.0, 1.0, np.nan],
+                    [np.nan, 2.0, 2.0, 1.0, np.nan],
+                ],
+                [
+                    [np.nan, 2.0, 2.0, np.nan, np.nan],
+                    [np.nan, 1.0, 1.0, np.nan, np.nan],
+                    [np.nan, 2.0, 1.0, 1.0, np.nan],
+                    [np.nan, 2.0, 2.0, 1.0, np.nan],
+                ],
+            ],
+        )
+
+        # Test error when upper is deeper than lower
+        sliced = voxelmodel.slice_depth_interval(upper=-1.5, lower=-0.5)
+        assert sliced.shape == (4, 4, 0)
+
+        sliced = voxelmodel.slice_depth_interval(upper=-0.5, lower=depth_mask)
+        assert_array_equal(
+            sliced["strat"],
+            [
+                [[np.nan], [np.nan], [1.0], [1.0]],
+                [[1.0], [1.0], [1.0], [1.0]],
+                [[1.0], [1.0], [1.0], [1.0]],
+                [[1.0], [1.0], [1.0], [1.0]],
+            ],
+        )
+
+        # Test with 1D DataArray inputs
+        da_1d = xr.DataArray([-1.0, -1.5, -2.0, -2.5], dims=["x"])
+        sliced = voxelmodel.slice_depth_interval(upper=da_1d, lower=da_1d - 1)
+        assert_array_equal(
+            sliced["strat"],
+            [
+                [[np.nan, 2.0, 2.0], [2.0, 2.0, np.nan], [2.0, np.nan, np.nan]],
+                [[np.nan, 2.0, 1.0], [2.0, 2.0, np.nan], [2.0, np.nan, np.nan]],
+                [[np.nan, 2.0, 2.0], [2.0, 1.0, np.nan], [2.0, np.nan, np.nan]],
+                [[np.nan, 2.0, 2.0], [2.0, 1.0, np.nan], [2.0, np.nan, np.nan]],
+            ],
+        )
+
+        with pytest.raises(
+            TypeError, match="Input for 'upper' must be int, float or xr.DataArray"
+        ):
+            voxelmodel.slice_depth_interval(upper="invalid", lower=-1.5)
+
+        with pytest.raises(
+            TypeError, match="Input for 'lower' must be int, float or xr.DataArray"
+        ):
+            voxelmodel.slice_depth_interval(upper=-1.5, lower="invalid")
 
     @pytest.mark.unittest
     def test_thickness_map_single_condition(self, voxelmodel):
