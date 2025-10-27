@@ -4,7 +4,7 @@ import numpy as np
 import pytest
 import pyvista as pv
 import xarray as xr
-from numpy.testing import assert_array_equal
+from numpy.testing import assert_array_almost_equal, assert_array_equal
 
 from geost.models.basemodels import VoxelModel
 
@@ -438,6 +438,99 @@ class TestVoxelModel:
                     [0.5, 0.0, 0.0, 0.5],
                 ]
             ),
+        )
+
+    @pytest.mark.unittest
+    def test_most_common(self, voxelmodel):
+        result = voxelmodel.most_common("lith")
+        assert isinstance(result, xr.Dataset)
+        assert_array_equal(
+            result["most_common"],
+            [
+                [1.0, 1.0, 1.0, 1.0],
+                [1.0, 1.0, 1.0, 2.0],
+                [2.0, 1.0, 1.0, 2.0],
+                [2.0, 1.0, 2.0, 1.0],
+            ],
+        )
+        assert_array_almost_equal(
+            result["thickness_most_common"],
+            [
+                [1.0, 1.0, 1.5, 1.0],
+                [1.5, 1.5, 1.5, 1.0],
+                [1.0, 1.0, 1.5, 1.0],
+                [1.5, 2.0, 1.0, 1.0],
+            ],
+        )
+
+    @pytest.mark.unittest
+    def test_value_counts(self, voxelmodel):
+        result = voxelmodel.value_counts("lith")
+        assert isinstance(result, xr.DataArray)
+        assert result.dims == ("lith",)
+        assert_array_equal(result, [34, 27, 9])
+        assert_array_equal(result["lith"], [1, 2, 3])
+
+        result = voxelmodel.value_counts("lith", normalize=True)
+        assert_array_almost_equal(result, [0.48571429, 0.38571429, 0.12857143])
+
+        result = voxelmodel.value_counts("strat")
+        assert_array_equal(result, [38, 32])
+        assert_array_equal(result["strat"], [1, 2])
+
+        result = voxelmodel.value_counts("lith", dim="z")
+        assert_array_equal(
+            result,
+            [
+                [[2, 2, 3, 2], [3, 3, 3, 1], [1, 2, 3, 1], [1, 4, 1, 2]],
+                [[2, 1, 1, 1], [2, 2, 1, 2], [2, 1, 2, 2], [3, 1, 2, 2]],
+                [[1, 1, 0, 1], [0, 0, 0, 1], [1, 2, 0, 0], [0, 0, 1, 1]],
+            ],
+        )
+        assert_array_equal(result["lith"], [1, 2, 3])
+
+        result = voxelmodel.value_counts("lith", dim="z", normalize=True)
+        assert_array_almost_equal(
+            result,
+            [
+                [
+                    [0.4, 0.5, 0.75, 0.5],
+                    [0.6, 0.6, 0.75, 0.25],
+                    [0.25, 0.4, 0.6, 0.33333333],
+                    [0.25, 0.8, 0.25, 0.4],
+                ],
+                [
+                    [0.4, 0.25, 0.25, 0.25],
+                    [0.4, 0.4, 0.25, 0.5],
+                    [0.5, 0.2, 0.4, 0.66666667],
+                    [0.75, 0.2, 0.5, 0.4],
+                ],
+                [
+                    [0.2, 0.25, 0.0, 0.25],
+                    [0.0, 0.0, 0.0, 0.25],
+                    [0.25, 0.4, 0.0, 0.0],
+                    [0.0, 0.0, 0.25, 0.2],
+                ],
+            ],
+        )
+
+        result = voxelmodel.value_counts("strat", dim="x")
+        assert_array_equal(
+            result,
+            [
+                [[0, 1, 3, 4, 1], [0, 2, 3, 4, 2], [0, 1, 2, 4, 2], [0, 1, 2, 4, 2]],
+                [[4, 3, 1, 0, 0], [4, 2, 1, 0, 0], [3, 3, 2, 0, 0], [4, 3, 2, 0, 0]],
+            ],
+        )
+        assert_array_equal(result["strat"], [1, 2])
+
+        result = voxelmodel.value_counts("strat", dim="y")
+        assert_array_equal(
+            result,
+            [
+                [[0, 0, 1, 4, 2], [0, 2, 4, 4, 3], [0, 2, 4, 4, 1], [0, 1, 1, 4, 1]],
+                [[4, 4, 3, 0, 0], [4, 2, 0, 0, 0], [4, 2, 0, 0, 0], [3, 3, 3, 0, 0]],
+            ],
         )
 
     @pytest.mark.unittest

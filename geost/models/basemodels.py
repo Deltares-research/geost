@@ -5,6 +5,7 @@ import geopandas as gpd
 import numpy as np
 import rioxarray as rio
 import xarray as xr
+from scipy import stats
 
 from geost.export import vtk
 from geost.utils import check_geometry_instance
@@ -517,6 +518,63 @@ class VoxelModel(AbstractModel3D):
         thickness = xr.where(condition, self.resolution[-1], np.nan).sum(dim="z")
 
         return thickness
+
+    def most_common(self, variable: str) -> xr.Dataset:
+        """
+        Determine the "most common" value and corresponding thickness in a variable of
+        a `VoxelModel`. This method calculates the mode (most frequently occurring value)
+        along the depth (z) dimension for each horizontal location (x, y) in the model.
+
+        Parameters
+        ----------
+        variable : str
+            Name of the variable in the VoxelModel to calculate the most common value for.
+
+        Returns
+        -------
+        xr.Dataset
+            Xarray Dataset containing two DataArrays:
+            - "most_common": The most common value for each (x, y) location.
+            - "thickness": The thickness (in the same units as the vertical resolution)
+            of the most common value at each (x, y) location.
+
+        """
+        mode, counts = stats.mode(self.ds[variable], axis=2, nan_policy="omit")
+        thickness = counts * self.resolution[-1]
+        return xr.Dataset(
+            {
+                "most_common": (("y", "x"), mode),
+                "thickness_most_common": (("y", "x"), thickness),
+            },
+            coords={"y": self.ds["y"], "x": self.ds["x"]},
+        )
+
+    def value_counts(
+        self, variable: str, dim: str = None, normalize: bool = False
+    ) -> xr.DataArray:
+        """
+        Return a DataArray containing the value counts of unique values in a `VoxelModel`
+        variable.
+
+        Parameters
+        ----------
+        variable : str
+            Name of the variable in the VoxelModel to count unique values for.
+        dim : str, optional
+            Determine the value counts along a specific dimension. If None, the value
+            counts are calculated for the entire DataArray. The default is None.
+        normalize : bool, optional
+            If True, return the relative frequencies of the unique values instead of the
+            absolute counts. The default is False.
+
+        Returns
+        -------
+        xr.DataArray
+            DataArray containing the counts of unique values.
+
+        """
+        result = model_utils.value_counts(self.ds[variable], dim, normalize)
+        return result
 
     def to_pyvista_grid(
         self, data_vars: str | list[str] = None, structured: bool = True
