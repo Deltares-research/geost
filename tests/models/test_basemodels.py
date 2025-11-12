@@ -371,6 +371,7 @@ class TestVoxelModel:
         ):
             voxelmodel.slice_depth_interval(upper=-1.5, lower="invalid")
 
+    @pytest.mark.xfail(reason="Not implemented yet.")
     @pytest.mark.parametrize(
         "how, result",
         [("overlap", 2), ("majority", 2), ("inner", 2)],

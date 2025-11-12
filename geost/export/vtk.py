@@ -1,10 +1,24 @@
-from typing import Iterable
+from typing import TYPE_CHECKING, Iterable
 
 import numpy as np
 import pandas as pd
-import pyvista as pv
 import xarray as xr
-from pyvista import CellType, MultiBlock
+
+if TYPE_CHECKING:
+    import pyvista as pv
+
+
+def _get_pyvista():  # pragma: no cover
+    """Lazy import for pyvista."""
+    try:
+        import pyvista as pv
+
+        return pv
+    except ImportError:
+        raise ImportError(
+            "pyvista is required for VTK export functionality. "
+            "Install it with: pip install pyvista"
+        )
 
 
 def prepare_borehole(borehole: pd.DataFrame, vertical_factor: float) -> np.ndarray:
@@ -23,6 +37,8 @@ def generate_cylinders(
     radius: float,
     vertical_factor: float,
 ) -> Iterable:
+    pv = _get_pyvista()
+
     boreholes = table.groupby("nr")
     for _, borehole in boreholes:
         borehole_prepared = prepare_borehole(borehole, vertical_factor)
@@ -44,7 +60,7 @@ def borehole_to_multiblock(
     data_columns: list[str],
     radius: float,
     vertical_factor: float,
-) -> MultiBlock:
+) -> "pv.MultiBlock":
     """
     Create a PyVista MultiBlock object from the parsed boreholes/cpt's.
 
@@ -66,6 +82,8 @@ def borehole_to_multiblock(
         MultiBlock object with boreholes represented as cylinder geometries
 
     """
+    pv = _get_pyvista()
+
     cylinders = generate_cylinders(table, data_columns, radius, vertical_factor)
     cylinders_multiblock = pv.MultiBlock(list(cylinders))
     return cylinders_multiblock
@@ -75,7 +93,7 @@ def layerdata_to_pyvista_unstructured(
     layerdata: pd.DataFrame,
     displayed_variables: list[str],
     radius: float = 1.0,
-) -> pv.UnstructuredGrid:
+) -> "pv.UnstructuredGrid":
     """
     Convert a layerdata object to a PyVista UnstructuredGrid.
 
@@ -90,6 +108,8 @@ def layerdata_to_pyvista_unstructured(
     grid : pyvista.UnstructuredGrid
         The resulting voxel model as a PyVista UnstructuredGrid.
     """
+    pv = _get_pyvista()
+
     # Get the data from the layerdata object
     x = layerdata["x"].values
     y = layerdata["y"].values
@@ -117,7 +137,7 @@ def layerdata_to_pyvista_unstructured(
     cells_voxel = np.arange(n_voxels * 8).reshape((n_voxels, 8))
 
     # Create unstructured grid and assign data variables
-    grid = pv.UnstructuredGrid({CellType.VOXEL: cells_voxel}, points)
+    grid = pv.UnstructuredGrid({pv.CellType.VOXEL: cells_voxel}, points)
     for var in displayed_variables:
         if var not in layerdata.columns:
             print(
@@ -134,7 +154,7 @@ def voxelmodel_to_pyvista_structured(
     dataset: xr.Dataset,
     resolution: tuple[float, float, float],
     displayed_variables: list[str] = None,
-) -> pv.StructuredGrid:
+) -> "pv.StructuredGrid":
     """
     Convert an xarray dataset to a PyVista voxel model (StructuredGrid).
 
@@ -154,6 +174,8 @@ def voxelmodel_to_pyvista_structured(
         The resulting voxel model as a PyVista StructuredGrid, with cell data assigned
         for each variable in `displayed_variables`.
     """
+    pv = _get_pyvista()
+
     if displayed_variables is None:
         displayed_variables = dataset.data_vars
 
@@ -191,7 +213,7 @@ def voxelmodel_to_pyvista_unstructured(
     dataset: xr.Dataset,
     resolution: tuple[float, float, float],
     displayed_variables: list[str] = None,
-) -> pv.UnstructuredGrid:
+) -> "pv.UnstructuredGrid":
     """
     Convert an xarray dataset to a PyVista voxel model (UnstructuredGrid).
 
@@ -211,6 +233,8 @@ def voxelmodel_to_pyvista_unstructured(
         The resulting voxel model as a PyVista UnstructuredGrid, with cell data assigned
         for each variable in `displayed_variables`.
     """
+    pv = _get_pyvista()
+
     if displayed_variables is None:
         displayed_variables = dataset.data_vars
 
@@ -247,7 +271,7 @@ def voxelmodel_to_pyvista_unstructured(
     cells_voxel = np.arange(n_voxels * 8).reshape((n_voxels, 8))
 
     # Create unstructured grid and assign data variables
-    grid = pv.UnstructuredGrid({CellType.VOXEL: cells_voxel}, points)
+    grid = pv.UnstructuredGrid({pv.CellType.VOXEL: cells_voxel}, points)
     for var in displayed_variables:
         if not all(dim in dataset[var].dims for dim in {"x", "y", "z"}):
             print(

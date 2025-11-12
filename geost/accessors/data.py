@@ -7,14 +7,9 @@ import pandas as pd
 from pyproj import CRS
 from shapely import geometry as gmt
 
-from geost import utils
+from geost import export, utils
 from geost.abstract_classes import AbstractData
 from geost.analysis import cumulative_thickness
-from geost.export import (
-    borehole_to_multiblock,
-    export_to_dftgeodata,
-    layerdata_to_pyvista_unstructured,
-)
 
 type Coordinate = int | float
 type GeometryType = gmt.base.BaseGeometry | list[gmt.base.BaseGeometry]
@@ -464,7 +459,9 @@ class LayeredData(AbstractData):
         else:
             data["surface"] = 0
 
-        vtk_object = borehole_to_multiblock(data, data_columns, radius, vertical_factor)
+        vtk_object = export.borehole_to_multiblock(
+            data, data_columns, radius, vertical_factor
+        )
         return vtk_object
 
     def to_pyvista_grid(
@@ -493,7 +490,7 @@ class LayeredData(AbstractData):
 
         """
         displayed_variables = self._to_iterable(displayed_variables)
-        vtk_object = layerdata_to_pyvista_unstructured(
+        vtk_object = export.layerdata_to_pyvista_unstructured(
             self._df, displayed_variables, radius=radius
         )
         return vtk_object
@@ -545,7 +542,7 @@ class LayeredData(AbstractData):
         if relative_to_vertical_reference:
             data = self._change_depth_values(data)
 
-        dftgeodata = export_to_dftgeodata(data, columns, encode=encode)
+        dftgeodata = export.to_dftgeodata(data, columns, encode=encode)
 
         if outfile:
             utils.save_pickle(dftgeodata, outfile)

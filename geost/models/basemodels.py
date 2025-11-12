@@ -6,7 +6,6 @@ import geopandas as gpd
 import numpy as np
 import rioxarray as rio
 import xarray as xr
-from scipy import stats
 
 from geost.export import vtk
 from geost.utils import check_geometry_instance
@@ -539,6 +538,8 @@ class VoxelModel(AbstractModel3D):
             of the most common value at each (x, y) location.
 
         """
+        from scipy import stats
+
         mode, counts = stats.mode(self.ds[variable], axis=2, nan_policy="omit")
         thickness = counts * self.resolution[-1]
         return xr.Dataset(
@@ -596,6 +597,7 @@ class VoxelModel(AbstractModel3D):
         -------
         pyvista.UnstructuredGrid or pyvista.StructuredGrid
             PyVista grid representation of the VoxelModel.
+
         """
         if data_vars is None:
             data_vars = self.ds.data_vars
