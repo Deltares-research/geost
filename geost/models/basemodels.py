@@ -1,3 +1,4 @@
+import operator
 from abc import ABC, abstractmethod
 from pathlib import Path
 from typing import Literal
@@ -399,6 +400,14 @@ class VoxelModel(AbstractModel3D):
             If True, depths where the result only contains missing values will be dropped
             from the slice result. If False, the original shape is kept. The default is
             True.
+        how : {"overlap", "majority", "inner"}, optional
+            Method to use for slicing. The default is "overlap".
+            - "overlap": Include voxels that at least partially overlap with the specified
+              depth interval.
+            - "majority": Include voxels that have 50% or more of their volume within
+              the specified depth interval.
+            - "inner": Include only voxels that are completely within the specified depth
+              interval.
 
         Returns
         -------
@@ -438,19 +447,34 @@ class VoxelModel(AbstractModel3D):
         sliced = self.ds.copy()
         zres = self.resolution[-1]
 
+        check_upper = operator.lt if how == "overlap" else operator.le
+        check_lower = operator.gt if how == "overlap" else operator.ge
+
+        if how == "overlap":
+            upper_bound = sliced["z"] - 0.5 * zres
+            lower_bound = sliced["z"] + 0.5 * zres
+        elif how == "majority":
+            upper_bound = sliced["z"]
+            lower_bound = sliced["z"]
+        elif how == "inner":
+            upper_bound = sliced["z"] + 0.5 * zres
+            lower_bound = sliced["z"] - 0.5 * zres
+        else:
+            raise ValueError(
+                "Invalid value for 'how', use 'overlap', 'majority' or 'inner'"
+            )
+
         if upper is not None and isinstance(upper, (int, float, xr.DataArray)):
-            lower_bounds = sliced["z"] - 0.5 * zres
             if isinstance(upper, xr.DataArray):
-                upper, lower_bounds, _ = xr.broadcast(upper, lower_bounds, self.ds)
-            sliced = sliced.where(lower_bounds < upper, drop=drop)
+                upper, upper_bound, _ = xr.broadcast(upper, upper_bound, self.ds)
+            sliced = sliced.where(check_upper(upper_bound, upper), drop=drop)
         else:
             raise TypeError("Input for 'upper' must be int, float or xr.DataArray")
 
         if lower is not None and isinstance(lower, (int, float, xr.DataArray)):
-            upper_bounds = sliced["z"] + 0.5 * zres
             if isinstance(lower, xr.DataArray):
-                lower, upper_bounds, _ = xr.broadcast(lower, upper_bounds, self.ds)
-            sliced = sliced.where(upper_bounds > lower, drop=drop)
+                lower, lower_bound, _ = xr.broadcast(lower, lower_bound, self.ds)
+            sliced = sliced.where(check_lower(lower_bound, lower), drop=drop)
         else:
             raise TypeError("Input for 'lower' must be int, float or xr.DataArray")
 

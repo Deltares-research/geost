@@ -32,7 +32,7 @@ def voxelmodel_netcdf(xarray_dataset, tmp_path):
 
 @pytest.fixture
 def simple_voxelmodel(xarray_dataset):
-    col = xarray_dataset.isel(x=[1, 2], y=[1])
+    col = xarray_dataset.isel(x=[1, 2], y=[1, 2])
     return VoxelModel(col)
 
 
@@ -371,15 +371,42 @@ class TestVoxelModel:
         ):
             voxelmodel.slice_depth_interval(upper=-1.5, lower="invalid")
 
-    @pytest.mark.xfail(reason="Not implemented yet.")
     @pytest.mark.parametrize(
-        "how, result",
-        [("overlap", 2), ("majority", 2), ("inner", 2)],
-        ids=["overlap", "majority", "inner"],
+        "how, upper, lower, result_shape, result_z",
+        [
+            ("overlap", -0.8, -1.8, (2, 2, 3), [-1.75, -1.25, -0.75]),
+            ("overlap", -0.5, -2.0, (2, 2, 3), [-1.75, -1.25, -0.75]),
+            ("majority", -0.8, -1.8, (2, 2, 2), [-1.75, -1.25]),
+            ("majority", -1.25, -1.75, (2, 2, 2), [-1.75, -1.25]),
+            ("inner", -0.8, -1.8, (2, 2, 1), [-1.25]),
+            ("inner", -1.0, -1.5, (2, 2, 1), [-1.25]),
+            ("invalid", None, None, None, None),
+        ],
+        ids=[
+            "overlap",
+            "overlap_exact",
+            "majority",
+            "majority_exact",
+            "inner",
+            "inner_exact",
+            "invalid",
+        ],
     )
-    def test_slice_depth_interval_how(self, simple_voxelmodel, how, result):
-        sliced = simple_voxelmodel.slice_depth_interval(upper=-0.4, lower=-1.6, how=how)
-        assert isinstance(sliced, VoxelModel)
+    def test_slice_depth_interval_how(
+        self, simple_voxelmodel, how, upper, lower, result_shape, result_z
+    ):
+        if how == "invalid":
+            with pytest.raises(ValueError, match="Invalid value for 'how'"):
+                simple_voxelmodel.slice_depth_interval(
+                    upper=upper, lower=lower, how=how
+                )
+        else:
+            sliced = simple_voxelmodel.slice_depth_interval(
+                upper=upper, lower=lower, how=how
+            )
+            assert isinstance(sliced, VoxelModel)
+            assert sliced.shape == result_shape
+            assert_array_almost_equal(sliced["z"], result_z)
 
     @pytest.mark.unittest
     def test_thickness_map_single_condition(self, voxelmodel):
