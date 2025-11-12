@@ -31,6 +31,12 @@ def voxelmodel_netcdf(xarray_dataset, tmp_path):
 
 
 @pytest.fixture
+def simple_voxelmodel(xarray_dataset):
+    col = xarray_dataset.isel(x=[1, 2], y=[1])
+    return VoxelModel(col)
+
+
+@pytest.fixture
 def depth_mask(voxelmodel):
     return xr.DataArray(
         [
@@ -364,6 +370,15 @@ class TestVoxelModel:
             TypeError, match="Input for 'lower' must be int, float or xr.DataArray"
         ):
             voxelmodel.slice_depth_interval(upper=-1.5, lower="invalid")
+
+    @pytest.mark.parametrize(
+        "how, result",
+        [("overlap", 2), ("majority", 2), ("inner", 2)],
+        ids=["overlap", "majority", "inner"],
+    )
+    def test_slice_depth_interval_how(self, simple_voxelmodel, how, result):
+        sliced = simple_voxelmodel.slice_depth_interval(upper=-0.4, lower=-1.6, how=how)
+        assert isinstance(sliced, VoxelModel)
 
     @pytest.mark.unittest
     def test_thickness_map_single_condition(self, voxelmodel):

@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 from pathlib import Path
+from typing import Literal
 
 import geopandas as gpd
 import numpy as np
@@ -381,6 +382,7 @@ class VoxelModel(AbstractModel3D):
         self,
         upper: int | float | xr.DataArray = None,
         lower: int | float | xr.DataArray = None,
+        how: Literal["overlap", "majority", "inner"] = "overlap",
         drop: bool = True,
     ):
         """
@@ -437,23 +439,21 @@ class VoxelModel(AbstractModel3D):
         sliced = self.ds.copy()
         zres = self.resolution[-1]
 
-        if isinstance(upper, xr.DataArray):
-            upper, zview, _ = xr.broadcast(upper, self.ds["z"], self.ds)
-            sliced = sliced.where(zview - 0.5 * zres < upper, drop=drop)
-        elif isinstance(upper, (int, float)):
-            sliced = sliced.where(sliced["z"] - 0.5 * zres < upper, drop=drop)
+        if upper is not None and isinstance(upper, (int, float, xr.DataArray)):
+            lower_bounds = sliced["z"] - 0.5 * zres
+            if isinstance(upper, xr.DataArray):
+                upper, lower_bounds, _ = xr.broadcast(upper, lower_bounds, self.ds)
+            sliced = sliced.where(lower_bounds < upper, drop=drop)
         else:
-            if upper is not None:
-                raise TypeError("Input for 'upper' must be int, float or xr.DataArray")
+            raise TypeError("Input for 'upper' must be int, float or xr.DataArray")
 
-        if isinstance(lower, xr.DataArray):
-            lower, zview, _ = xr.broadcast(lower, self.ds["z"], self.ds)
-            sliced = sliced.where(zview + 0.5 * zres > lower, drop=drop)
-        elif isinstance(lower, (int, float)):
-            sliced = sliced.where(sliced["z"] + 0.5 * zres > lower, drop=drop)
+        if lower is not None and isinstance(lower, (int, float, xr.DataArray)):
+            upper_bounds = sliced["z"] + 0.5 * zres
+            if isinstance(lower, xr.DataArray):
+                lower, upper_bounds, _ = xr.broadcast(lower, upper_bounds, self.ds)
+            sliced = sliced.where(upper_bounds > lower, drop=drop)
         else:
-            if lower is not None:
-                raise TypeError("Input for 'lower' must be int, float or xr.DataArray")
+            raise TypeError("Input for 'lower' must be int, float or xr.DataArray")
 
         return self.__class__(sliced)
 
