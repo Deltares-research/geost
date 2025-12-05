@@ -64,6 +64,19 @@ class TestVoxelModel:
         assert list(model.variables) == ["strat"]
 
     @pytest.mark.unittest
+    def test_from_opendap(self):
+        url = r"https://opendap.deltares.nl/thredds/dodsC/opendap/rijkswaterstaat/DIS/DIS2.1.nc"
+        model = VoxelModel.from_opendap(
+            url,
+            data_vars=["lithoklasse", "slibklasse"],
+            bbox=(550000, 5760000, 553000, 5750000),  # TODO: verify order
+        )
+
+        assert isinstance(model, VoxelModel)
+        assert model.horizontal_bounds == (550000.0, 5750000.0, 553000.0, 5760000.0)
+        assert list(model.variables) == ["lithoklasse", "slibklasse"]
+
+    @pytest.mark.unittest
     def test_initialize(self, xarray_dataset):
         model = VoxelModel(xarray_dataset)
         assert isinstance(model, VoxelModel)
