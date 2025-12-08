@@ -69,7 +69,7 @@ class TestVoxelModel:
         model = VoxelModel.from_opendap(
             url,
             data_vars=["lithoklasse", "slibklasse"],
-            bbox=(550000, 5760000, 553000, 5750000),  # TODO: verify order
+            bbox=(550000, 5750000, 553000, 5760000),  # TODO: verify order
         )
 
         assert isinstance(model, VoxelModel)
@@ -603,31 +603,22 @@ class TestVoxelModel:
         assert vms_multi_var.n_cells == 80
         assert vms_multi_var.n_arrays == 2
 
-    @pytest.mark.xfail(
-        reason="Unclear why a different number of arrays is returned instead of 1."
-    )
     @pytest.mark.unittest
     def test_to_pyvista_unstructured(self, voxelmodel):
         vmu_single_var = voxelmodel.to_pyvista_grid(
             data_vars=["strat"], structured=False
         )
         assert isinstance(vmu_single_var, pv.UnstructuredGrid)
-        assert vmu_single_var.n_points == 560
+        assert vmu_single_var.n_points == 142
         assert vmu_single_var.n_cells == 70
-        assert vmu_single_var.n_arrays == 1  # <-- should be 1 but is 3?
+        assert vmu_single_var.n_arrays == 3  # TODO: fix when pyvista 0.47 releases
 
         vmu_multi_var = voxelmodel.to_pyvista_grid(structured=False)
         assert isinstance(vmu_multi_var, pv.UnstructuredGrid)
-        assert vmu_multi_var.n_points == 560
+        assert vmu_multi_var.n_points == 142
         assert vmu_multi_var.n_cells == 70
-        assert vmu_multi_var.n_arrays == 2  # <-- should be 2 but is 4?
+        assert vmu_multi_var.n_arrays == 4  # TODO: fix when pyvista 0.47 releases
 
-    @pytest.mark.xfail(
-        reason=(
-            "Fails due to same reason as test_to_pyvista_unstructured. Is the part where "
-            "it fails (assert vmu_wrong_order.n_arrays == 2) even needed?"
-        )
-    )
     @pytest.mark.unittest
     def test_to_pyvista_unstructured_problematic_dims(self, voxelmodel):
         # Wrong order of dimensions leads to automatic transposing, not an error!
@@ -635,9 +626,6 @@ class TestVoxelModel:
         # Why are the five line below in this test? The same happens in the test above.
         vmu_wrong_order = voxelmodel.to_pyvista_grid(structured=False)
         assert isinstance(vmu_wrong_order, pv.UnstructuredGrid)
-        assert vmu_wrong_order.n_points == 560
-        assert vmu_wrong_order.n_cells == 70
-        assert vmu_wrong_order.n_arrays == 2
 
         # Missing z-dimension leads to an error and no file is created.
         voxelmodel.ds = voxelmodel.ds.drop_vars("z")

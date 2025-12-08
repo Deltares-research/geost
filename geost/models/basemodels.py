@@ -194,7 +194,13 @@ class VoxelModel(AbstractModel3D):
 
         if bbox is not None:
             xmin, ymin, xmax, ymax = bbox
-            ds = ds.sel(x=slice(xmin, xmax), y=slice(ymax, ymin))
+            ds = ds.where(
+                (ds["x"] >= min(xmin, xmax))
+                & (ds["x"] <= max(xmin, xmax))
+                & (ds["y"] >= min(ymin, ymax))
+                & (ds["y"] <= max(ymin, ymax)),
+                drop=True,
+            )
 
         if data_vars is not None:
             ds = ds[data_vars]
