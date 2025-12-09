@@ -1,7 +1,7 @@
 import operator
 from abc import ABC, abstractmethod
 from pathlib import Path
-from typing import Literal
+from typing import List, Literal
 
 import geopandas as gpd
 import numpy as np
@@ -194,7 +194,13 @@ class VoxelModel(AbstractModel3D):
 
         if bbox is not None:
             xmin, ymin, xmax, ymax = bbox
-            ds = ds.sel(x=slice(xmin, xmax), y=slice(ymax, ymin))
+            ds = ds.where(
+                (ds["x"] >= min(xmin, xmax))
+                & (ds["x"] <= max(xmin, xmax))
+                & (ds["y"] >= min(ymin, ymax))
+                & (ds["y"] <= max(ymin, ymax)),
+                drop=True,
+            )
 
         if data_vars is not None:
             ds = ds[data_vars]
@@ -204,6 +210,43 @@ class VoxelModel(AbstractModel3D):
             ds = ds.load()
 
         return cls(ds)
+
+    @classmethod
+    def from_opendap(
+        cls,
+        url: str,
+        data_vars: List[str] = None,
+        bbox: tuple = None,
+        lazy: bool = True,
+        **xr_kwargs,
+    ):
+        """
+        Download an area of a voxelmodel directly from an OPeNDAP data server.
+
+        Parameters
+        ----------
+        url : str
+            Url to the netcdf file on the OPeNDAP server.
+        data_vars : ArrayLike
+            List or array-like object specifying which data variables to return.
+        bbox : tuple (xmin, ymin, xmax, ymax), optional
+            Specify a bounding box (xmin, ymin, xmax, ymax) to return a selected area of
+            GeoTop. The default is None but for practical reasons, specifying a bounding
+            box is advised (TODO: find max downloadsize for server).
+        lazy : bool, optional
+            If True, netcdf loads lazily. Use False for speed improvements for larger
+            areas but that still fit into memory. The default is False.
+        **xr_kwargs
+            Additional keyword arguments xarray.open_dataset. See relevant documentation
+            for details.
+
+        Returns
+        -------
+        VoxelModel
+            VoxelModel instance for the selected area.
+
+        """
+        return cls.from_netcdf(url, data_vars, bbox, lazy, **xr_kwargs)
 
     @property
     def xmin(self) -> float:
