@@ -189,3 +189,21 @@ def value_counts(
         counts = counts / total
 
     return counts
+
+
+def is_ascending(coordinates: xr.DataArray | np.ndarray) -> bool:
+    """
+    Check if the values in a coordinate DataArray are in ascending order.
+
+    Parameters
+    ----------
+    coordinates : xr.DataArray | np.ndarray
+        Coordinate DataArray or numpy array to check.
+
+    Returns
+    -------
+    bool
+        True if the coordinates are in ascending order, False otherwise.
+
+    """
+    return coordinates[0] < coordinates[1]

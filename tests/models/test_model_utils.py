@@ -63,3 +63,9 @@ def test_label_consecutive_2d(array_2d):
         result, [[0, 0, 0, 0, 0], [0, 1, 2, 3, 4], [0, 1, 2, 2, 3], [0, 0, 0, 1, 1]]
     )
     assert result.dtype == array_2d.dtype
+
+
+@pytest.mark.unittest
+def test_is_ascending():
+    assert mut.is_ascending(np.array([1, 2, 3, 4, 5]))
+    assert not mut.is_ascending(np.array([5, 4, 3, 2, 1]))
