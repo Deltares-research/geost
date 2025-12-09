@@ -798,66 +798,6 @@ work with several data sources for a better understanding on their use and funct
 </pre></div>
 </div>
 </div>
-<div class="cell_output docutils container">
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Downloading file &#39;cpts_usp.parquet&#39; from &#39;https://github.com/Deltares-research/geost/raw/main/data/cpts_usp.parquet&#39; to &#39;/home/runner/.cache/geost&#39;.
-</pre></div>
-</div>
-<div class="output traceback highlight-ipythontb notranslate"><div class="highlight"><pre><span></span><span class="gt">---------------------------------------------------------------------------</span>
-<span class="ne">ValueError</span><span class="g g-Whitespace">                                </span>Traceback (most recent call last)
-<span class="n">Cell</span> <span class="n">In</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">line</span> <span class="mi">5</span>
-<span class="g g-Whitespace">      </span><span class="mi">3</span> <span class="c1"># Load sample data</span>
-<span class="g g-Whitespace">      </span><span class="mi">4</span> <span class="n">cores</span> <span class="o">=</span> <span class="n">geost</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">boreholes_usp</span><span class="p">()</span>
-<span class="ne">----&gt; </span><span class="mi">5</span> <span class="n">cpts</span> <span class="o">=</span> <span class="n">geost</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">cpts_usp</span><span class="p">()</span>
-<span class="g g-Whitespace">      </span><span class="mi">7</span> <span class="c1"># Separate header and data tables</span>
-<span class="g g-Whitespace">      </span><span class="mi">8</span> <span class="n">cores_header</span><span class="p">,</span> <span class="n">cores_data</span> <span class="o">=</span> <span class="n">cores</span><span class="o">.</span><span class="n">header</span><span class="p">,</span> <span class="n">cores</span><span class="o">.</span><span class="n">data</span>
-
-<span class="nn">File ~/work/geost/geost/geost/data/sample_data.py:60,</span> in <span class="ni">cpts_usp</span><span class="nt">(pandas)</span>
-<span class="g g-Whitespace">     </span><span class="mi">44</span> <span class="k">def</span><span class="w"> </span><span class="nf">cpts_usp</span><span class="p">(</span><span class="n">pandas</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-<span class="g g-Whitespace">     </span><span class="mi">45</span><span class="w">     </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="g g-Whitespace">     </span><span class="mi">46</span><span class="sd">     Return a :class:`~geost.base.CptCollection` with a selection of BROloket CPTs in the</span>
-<span class="g g-Whitespace">     </span><span class="mi">47</span><span class="sd">     area of the Utrecht Science Park to use in GeoST tutorials.</span>
-<span class="sd">   (...)     58 </span>
-<span class="g g-Whitespace">     </span><span class="mi">59</span><span class="sd">     &quot;&quot;&quot;</span>
-<span class="ne">---&gt; </span><span class="mi">60</span>     <span class="n">filename</span> <span class="o">=</span> <span class="n">REGISTRY</span><span class="o">.</span><span class="n">fetch</span><span class="p">(</span><span class="s2">&quot;cpts_usp.parquet&quot;</span><span class="p">)</span>
-<span class="g g-Whitespace">     </span><span class="mi">61</span>     <span class="k">if</span> <span class="n">pandas</span><span class="p">:</span>
-<span class="g g-Whitespace">     </span><span class="mi">62</span>         <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_parquet</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
-
-<span class="nn">File ~/work/geost/geost/.pixi/envs/default/lib/python3.13/site-packages/pooch/core.py:589,</span> in <span class="ni">Pooch.fetch</span><span class="nt">(self, fname, processor, downloader, progressbar)</span>
-<span class="g g-Whitespace">    </span><span class="mi">586</span>     <span class="k">if</span> <span class="n">downloader</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-<span class="g g-Whitespace">    </span><span class="mi">587</span>         <span class="n">downloader</span> <span class="o">=</span> <span class="n">choose_downloader</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">progressbar</span><span class="o">=</span><span class="n">progressbar</span><span class="p">)</span>
-<span class="ne">--&gt; </span><span class="mi">589</span>     <span class="n">stream_download</span><span class="p">(</span>
-<span class="g g-Whitespace">    </span><span class="mi">590</span>         <span class="n">url</span><span class="p">,</span>
-<span class="g g-Whitespace">    </span><span class="mi">591</span>         <span class="n">full_path</span><span class="p">,</span>
-<span class="g g-Whitespace">    </span><span class="mi">592</span>         <span class="n">known_hash</span><span class="p">,</span>
-<span class="g g-Whitespace">    </span><span class="mi">593</span>         <span class="n">downloader</span><span class="p">,</span>
-<span class="g g-Whitespace">    </span><span class="mi">594</span>         <span class="n">pooch</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span>
-<span class="g g-Whitespace">    </span><span class="mi">595</span>         <span class="n">retry_if_failed</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">retry_if_failed</span><span class="p">,</span>
-<span class="g g-Whitespace">    </span><span class="mi">596</span>     <span class="p">)</span>
-<span class="g g-Whitespace">    </span><span class="mi">598</span> <span class="k">if</span> <span class="n">processor</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-<span class="g g-Whitespace">    </span><span class="mi">599</span>     <span class="k">return</span> <span class="n">processor</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">full_path</span><span class="p">),</span> <span class="n">action</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
-
-<span class="nn">File ~/work/geost/geost/.pixi/envs/default/lib/python3.13/site-packages/pooch/core.py:808,</span> in <span class="ni">stream_download</span><span class="nt">(url, fname, known_hash, downloader, pooch, retry_if_failed)</span>
-<span class="g g-Whitespace">    </span><span class="mi">806</span> <span class="k">with</span> <span class="n">temporary_file</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">fname</span><span class="o">.</span><span class="n">parent</span><span class="p">))</span> <span class="k">as</span> <span class="n">tmp</span><span class="p">:</span>
-<span class="g g-Whitespace">    </span><span class="mi">807</span>     <span class="n">downloader</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">tmp</span><span class="p">,</span> <span class="n">pooch</span><span class="p">)</span>
-<span class="ne">--&gt; </span><span class="mi">808</span>     <span class="n">hash_matches</span><span class="p">(</span><span class="n">tmp</span><span class="p">,</span> <span class="n">known_hash</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">source</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">fname</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
-<span class="g g-Whitespace">    </span><span class="mi">809</span>     <span class="n">shutil</span><span class="o">.</span><span class="n">move</span><span class="p">(</span><span class="n">tmp</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">fname</span><span class="p">))</span>
-<span class="g g-Whitespace">    </span><span class="mi">810</span> <span class="k">break</span>
-
-<span class="nn">File ~/work/geost/geost/.pixi/envs/default/lib/python3.13/site-packages/pooch/hashes.py:176,</span> in <span class="ni">hash_matches</span><span class="nt">(fname, known_hash, strict, source)</span>
-<span class="g g-Whitespace">    </span><span class="mi">174</span>     <span class="k">if</span> <span class="n">source</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-<span class="g g-Whitespace">    </span><span class="mi">175</span>         <span class="n">source</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">fname</span><span class="p">)</span>
-<span class="ne">--&gt; </span><span class="mi">176</span>     <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-<span class="g g-Whitespace">    </span><span class="mi">177</span>         <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">algorithm</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span><span class="si">}</span><span class="s2"> hash of downloaded file (</span><span class="si">{</span><span class="n">source</span><span class="si">}</span><span class="s2">) does not match&quot;</span>
-<span class="g g-Whitespace">    </span><span class="mi">178</span>         <span class="sa">f</span><span class="s2">&quot; the known hash: expected </span><span class="si">{</span><span class="n">known_hash</span><span class="si">}</span><span class="s2"> but got </span><span class="si">{</span><span class="n">new_hash</span><span class="si">}</span><span class="s2">. Deleted&quot;</span>
-<span class="g g-Whitespace">    </span><span class="mi">179</span>         <span class="s2">&quot; download for safety. The downloaded file may have been corrupted or&quot;</span>
-<span class="g g-Whitespace">    </span><span class="mi">180</span>         <span class="s2">&quot; the known hash may be outdated.&quot;</span>
-<span class="g g-Whitespace">    </span><span class="mi">181</span>     <span class="p">)</span>
-<span class="g g-Whitespace">    </span><span class="mi">182</span> <span class="k">return</span> <span class="n">matches</span>
-
-<span class="ne">ValueError</span>: SHA256 hash of downloaded file (cpts_usp.parquet) does not match the known hash: expected 055af5d9b71726d7c983bd5f9d686cb4ccb6cea2ae82412d2d997cd5ea6d4410 but got 1231878f18c5a3c7292de10f27e3eadf222a78a56453560aa0662b6276161567. Deleted download for safety. The downloaded file may have been corrupted or the known hash may be outdated.
-</pre></div>
-</div>
-</div>
 </div>
 <section id="header-gsthd-accessor">
 <h2>Header <code class="docutils literal notranslate"><span class="pre">.gsthd</span></code> accessor<a class="headerlink" href="#header-gsthd-accessor" title="Link to this heading">#</a></h2>
@@ -884,6 +824,19 @@ use the <code class="docutils literal notranslate"><span class="pre">.gsthd</spa
 </pre></div>
 </div>
 </div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>0    Point
+1    Point
+2    Point
+3    Point
+4    Point
+dtype: object
+</pre></div>
+</div>
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>&lt;geost.accessors.accessor.Header at 0x7fc15e62d2b0&gt;
+</pre></div>
+</div>
+</div>
 </div>
 <p>As you can see, the geometry type is “Point” and calling the <code class="docutils literal notranslate"><span class="pre">.gsthd</span></code> attribute prints a
 <code class="docutils literal notranslate"><span class="pre">geost.accessors.accessor.Header</span></code> instance. This is a generic class where the correct backend
@@ -893,6 +846,11 @@ the resulting backend.</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">cores_header</span><span class="o">.</span><span class="n">gsthd</span><span class="o">.</span><span class="n">_backend</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>&lt;geost.accessors.header.PointHeader at 0x7fc15e62d010&gt;
 </pre></div>
 </div>
 </div>
@@ -918,6 +876,86 @@ normally on Collection instances and how this can be done using an accessor.</p>
 </pre></div>
 </div>
 </div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>BoreholeCollection:
+# header = 14
+</pre></div>
+</div>
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>nr</th>
+      <th>x</th>
+      <th>y</th>
+      <th>surface</th>
+      <th>end</th>
+      <th>geometry</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>1</th>
+      <td>B31H0611</td>
+      <td>139600.0</td>
+      <td>455060.0</td>
+      <td>1.20</td>
+      <td>-23.00</td>
+      <td>POINT (139600 455060)</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>B31H0718</td>
+      <td>139950.0</td>
+      <td>455200.0</td>
+      <td>1.30</td>
+      <td>-271.20</td>
+      <td>POINT (139950 455200)</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>B31H0803</td>
+      <td>139675.0</td>
+      <td>455087.0</td>
+      <td>2.16</td>
+      <td>-4.84</td>
+      <td>POINT (139675 455087)</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>B31H0806</td>
+      <td>139684.0</td>
+      <td>455384.0</td>
+      <td>1.00</td>
+      <td>-49.50</td>
+      <td>POINT (139684 455384)</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>B31H0807</td>
+      <td>139684.0</td>
+      <td>455405.0</td>
+      <td>1.00</td>
+      <td>-49.50</td>
+      <td>POINT (139684 455405)</td>
+    </tr>
+  </tbody>
+</table>
+</div></div></div>
 </div>
 </section>
 <section id="data-gstda-accessor">
@@ -937,6 +975,12 @@ data) and “cpts_data” (discrete data), we see that this indeed results in di
 </pre></div>
 </div>
 </div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>&lt;geost.accessors.data.LayeredData object at 0x7fc19f37bb10&gt;
+&lt;geost.accessors.data.DiscreteData object at 0x7fc15e69c2d0&gt;
+</pre></div>
+</div>
+</div>
 </div>
 <p>As shown before, using methods with the <code class="docutils literal notranslate"><span class="pre">.gstda</span></code> accessor only differs slightly from using
 Collection instances.</p>
@@ -951,6 +995,72 @@ Collection instances.</p>
 
 <span class="nb">print</span><span class="p">(</span><span class="n">cores_selected</span><span class="p">)</span>
 <span class="n">cores_data_selected</span><span class="o">.</span><span class="n">head</span><span class="p">(),</span> <span class="n">cpts_data_selected</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>BoreholeCollection:
+# header = 67
+</pre></div>
+</div>
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>(          nr         x         y  surface   end   top  bottom lith  zm   zmk  \
+ 1   B31H0541  139585.0  456000.0      1.2  -9.9  0.50    0.60    K NaN  None   
+ 2   B31H0541  139585.0  456000.0      1.2  -9.9  0.60    0.95    V NaN  None   
+ 3   B31H0541  139585.0  456000.0      1.2  -9.9  0.95    1.50    Z NaN  ZMFO   
+ 9   B31H0611  139600.0  455060.0      1.2 -23.0  0.50    1.10    K NaN  None   
+ 10  B31H0611  139600.0  455060.0      1.2 -23.0  1.10    1.50    V NaN  None   
+ 
+     ...  cons color lutum_pct plants shells  kleibrokjes strat_1975  \
+ 1   ...  None    BR       NaN      0      0            0       None   
+ 2   ...  None    BR       NaN      0      0            0       None   
+ 3   ...  None    GR       NaN      0      0            0       None   
+ 9   ...  None    GR       NaN      0      0            0         WE   
+ 10  ...  None    BR       NaN      1      0            0         WE   
+ 
+    strat_2003 strat_inter                                               desc  
+ 1          EC         NaN                       [KLEI#***#****#*] grysbruin.  
+ 2          NI         NaN                     [VEEN#***#****#*] donkerbruin.  
+ 3          EC         NaN  [ZAND#***#****#*] FYN TOT matig fyn# iets slib...  
+ 9          EC         NaN              [KLEI#***#****#1] vet# grys# roestig.  
+ 10         NI         NaN  [VEEN#***#****#*] donkerbruin# bosveen MET vee...  
+ 
+ [5 rows x 32 columns],
+                 nr              x              y vertical_datum  surface  \
+ 3  CPT000000009626  140950.998794  455358.997741            NAP      2.0   
+ 4  CPT000000009626  140950.998794  455358.997741            NAP      2.0   
+ 5  CPT000000009626  140950.998794  455358.997741            NAP      2.0   
+ 6  CPT000000009626  140950.998794  455358.997741            NAP      2.0   
+ 7  CPT000000009626  140950.998794  455358.997741            NAP      2.0   
+ 
+    cone_penetration_test_fk  cone_penetration_test_result_pk  \
+ 3                      9579                         11690885   
+ 4                      9579                         11690886   
+ 5                      9579                         11690887   
+ 6                      9579                         11690888   
+ 7                      9579                         11690889   
+ 
+    penetration_length  depth  elapsed_time  ...  magnetic_inclination  \
+ 3                 0.5    0.5           NaN  ...                  None   
+ 4                 0.6    0.6           NaN  ...                  None   
+ 5                 0.7    0.7           NaN  ...                  None   
+ 6                 0.8    0.8           NaN  ...                  None   
+ 7                 0.9    0.9           NaN  ...                  None   
+ 
+   magnetic_declination local_friction pore_ratio temperature pore_pressure_u1  \
+ 3                 None            NaN       None        None             None   
+ 4                 None            NaN       None        None             None   
+ 5                 None            NaN       None        None             None   
+ 6                 None            NaN       None        None             None   
+ 7                 None            NaN       None        None             None   
+ 
+   pore_pressure_u2 pore_pressure_u3  friction_ratio   end  
+ 3              NaN             None             NaN -22.0  
+ 4              NaN             None             NaN -22.0  
+ 5              NaN             None             NaN -22.0  
+ 6              NaN             None             NaN -22.0  
+ 7              NaN             None             NaN -22.0  
+ 
+ [5 rows x 33 columns])
 </pre></div>
 </div>
 </div>
@@ -974,6 +1084,17 @@ geometries and using a GeoST selection method.</p>
 </pre></div>
 </div>
 </div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>        geometry
+0    POINT (1 1)
+1  POINT (10 20)
+
+Selection result:
+      geometry
+0  POINT (1 1)
+</pre></div>
+</div>
+</div>
 </div>
 <p>Note that the above GeoDataFrame only contains a “geometry” column and therefore, not all
 methods from the <code class="docutils literal notranslate"><span class="pre">.gsthd</span></code> accessor will work. See the <a class="reference internal" href="data_structures.html#header-table"><span class="std std-ref">Data structures</span></a> section for the required columns for all methods to work.</p>
@@ -988,6 +1109,17 @@ methods from the <code class="docutils literal notranslate"><span class="pre">.g
 <span class="nb">print</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Selection result:&quot;</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">gstda</span><span class="o">.</span><span class="n">slice_by_values</span><span class="p">(</span><span class="s2">&quot;lith&quot;</span><span class="p">,</span> <span class="s2">&quot;clay&quot;</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>  nr  top  bottom  lith
+0  a    0       1  clay
+1  a    1       2  sand
+
+Selection result:
+  nr  top  bottom  lith
+0  a    0       1  clay
 </pre></div>
 </div>
 </div>

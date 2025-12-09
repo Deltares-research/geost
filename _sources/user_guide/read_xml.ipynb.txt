@@ -7,7 +7,7 @@
    "source": [
     "# Reading XML files\n",
     "\n",
-    "This example demonstrates how GeoST extracts data from BRO XML files and how extra data, that is not extracted by default, can be retrieved by extended the methodology of GeoST.\n",
+    "This example demonstrates how GeoST extracts data from XML files (such as BRO XML files) and how to retrieve extra data, that is not extracted by default, by extending the methodology.\n",
     "\n",
     "GeoST reads data from XML files by using a `schema` that describes the structure of the file (i.e. where to find specific elements) and determines where the information ends up in the resulting GeoST object, for instance a `BoreholeCollection`. Under the hood, GeoST uses the [lxml library](https://lxml.de/index.html) for the XML parsing which will be used in this tutorial as well to show some basic principles.\n",
     "\n",

@@ -44,7 +44,7 @@ print("GeoTOP PyVista grid:\n", geotop_usp_pyvista)
 
 [31m---------------------------------------------------------------------------[39m
 [31mAttributeError[39m                            Traceback (most recent call last)
-[32m/tmp/ipykernel_4091/2111569231.py[39m in [36m?[39m[34m()[39m
+[32m/tmp/ipykernel_2219/2111569231.py[39m in [36m?[39m[34m()[39m
 [32m      1[39m [38;5;66;03m# The boreholes are converted to an unstructured grid of the lithology data. The borehole[39;00m
 [32m      2[39m [38;5;66;03m# geometries are given a radius of 10 meters.[39;00m
 [32m----> [39m[32m3[39m boreholes_usp_pyvista = boreholes_usp.to_pyvista_grid([33m"lith"[39m, radius=[32m10[39m)
