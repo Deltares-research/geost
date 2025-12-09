@@ -34,11 +34,11 @@ def test_interpolate_point(line):
 @pytest.mark.unittest
 def test_sample_along_line(xarray_dataset, line):
     sampled = mut.sample_along_line(xarray_dataset, line, nsamples=3)
-    assert sampled.sizes == {"dist": 3, "z": 4}
+    assert sampled.sizes == {"dist": 3, "z": 5}
     assert_array_almost_equal(sampled["dist"], [0.0, 1.414, 2.828], decimal=3)
 
     sampled = mut.sample_along_line(xarray_dataset, line, dist=0.5)
-    assert sampled.sizes == {"dist": 6, "z": 4}
+    assert sampled.sizes == {"dist": 6, "z": 5}
     assert_array_almost_equal(sampled["dist"], [0, 0.5, 1, 1.5, 2, 2.5])
 
 
@@ -46,7 +46,7 @@ def test_sample_along_line(xarray_dataset, line):
 def test_sample_with_coords(xarray_dataset, borehole_collection):
     coords = borehole_collection.header[["x", "y"]].values
     sampled = mut.sample_with_coords(xarray_dataset, coords)
-    assert sampled.sizes == {"idx": 4, "z": 4}
+    assert sampled.sizes == {"idx": 4, "z": 5}
     assert_array_equal(sampled["idx"], [0, 1, 2, 4])
 
 
@@ -63,3 +63,9 @@ def test_label_consecutive_2d(array_2d):
         result, [[0, 0, 0, 0, 0], [0, 1, 2, 3, 4], [0, 1, 2, 2, 3], [0, 0, 0, 1, 1]]
     )
     assert result.dtype == array_2d.dtype
+
+
+@pytest.mark.unittest
+def test_is_ascending():
+    assert mut.is_ascending(np.array([1, 2, 3, 4, 5]))
+    assert not mut.is_ascending(np.array([5, 4, 3, 2, 1]))

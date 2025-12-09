@@ -100,21 +100,21 @@ def test_check_geometry_instance(geometry, expected_length):
 
 
 @pytest.mark.unittest
-def test_check_geometry_instance_from_file(tmp_path, point_header_gdf):
+def test_check_geometry_instance_from_file(tmp_path, point_header):
     outfile = tmp_path / "test.geoparquet"
-    point_header_gdf.to_parquet(outfile)
+    point_header.to_parquet(outfile)
     gdf = utils.check_geometry_instance(outfile)
     assert isinstance(gdf, gpd.GeoDataFrame)
 
 
 @pytest.mark.parametrize("extension", [".geoparquet", ".parquet", ".gpkg", ".shp"])
-def test_geopandas_read(tmp_path, point_header_gdf, extension):
+def test_geopandas_read(tmp_path, point_header, extension):
     outfile = tmp_path / f"test{extension}"
 
     if extension in {".geoparquet", ".parquet"}:
-        point_header_gdf.to_parquet(outfile)
+        point_header.to_parquet(outfile)
     elif extension in {".gpkg", ".shp"}:
-        point_header_gdf.to_file(outfile)
+        point_header.to_file(outfile)
 
     gdf = utils._geopandas_read(outfile)
     assert isinstance(gdf, gpd.GeoDataFrame)
@@ -134,15 +134,15 @@ def test_geopandas_read_invalid_file(tmp_path):
 @pytest.mark.parametrize(
     "extension", [".pq", ".parquet", ".csv", ".txt", ".tsv", ".xls", ".xlsx"]
 )
-def test_pandas_read(tmp_path, point_header_gdf, extension):
+def test_pandas_read(tmp_path, point_header, extension):
     outfile = tmp_path / f"test{extension}"
 
     if extension in {".pq", ".parquet"}:
-        point_header_gdf.to_parquet(outfile)
+        point_header.to_parquet(outfile)
     elif extension in {".csv", ".txt", ".tsv"}:
-        point_header_gdf.to_csv(outfile)
+        point_header.to_csv(outfile)
     elif extension in {".xls", ".xlsx"}:
-        point_header_gdf.to_excel(outfile)
+        point_header.to_excel(outfile)
 
     df = utils._pandas_read(outfile)
     assert isinstance(df, pd.DataFrame)

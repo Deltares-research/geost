@@ -5,7 +5,6 @@ import geopandas as gpd
 import numpy as np
 import pandas as pd
 import pytest
-import rioxarray as rio
 import xarray as xr
 from numpy.testing import (
     assert_allclose,
@@ -13,12 +12,11 @@ from numpy.testing import (
     assert_array_equal,
     assert_equal,
 )
-from pyvista import MultiBlock, UnstructuredGrid
 from shapely.geometry import LineString, Point, Polygon
 
 from geost import config
 from geost._warnings import AlignmentWarning, ValidationWarning
-from geost.base import BoreholeCollection, LayeredData, PointHeader
+from geost.base import BoreholeCollection
 from geost.export import geodataclass
 
 
@@ -52,8 +50,7 @@ class TestCollection:
                 "data_float": data_float,
             }
         )
-
-        return LayeredData(df)
+        return df
 
     @pytest.fixture
     def invalid_borehole_table(self):
@@ -70,7 +67,7 @@ class TestCollection:
         data_int = np.arange(0, 10, dtype=np.int64)
         data_float = np.arange(0, 5, 0.5, dtype=np.float64)
 
-        return pd.DataFrame(
+        df = pd.DataFrame(
             {
                 "nr": nr,
                 "x": x,
@@ -84,10 +81,11 @@ class TestCollection:
                 "data_float": data_float,
             }
         )
+        return df
 
     @pytest.fixture
     def misaligned_header(self):
-        df = gpd.GeoDataFrame(
+        gdf = gpd.GeoDataFrame(
             {
                 "nr": ["B-02"],
                 "x": [100000],
@@ -96,9 +94,9 @@ class TestCollection:
                 "end": [-8],
             },
             geometry=[Point(100000, 400000)],
+            crs=28992,
         )
-
-        return PointHeader(df, 28992)
+        return gdf
 
     @pytest.fixture
     def update_raster(self):
@@ -109,17 +107,14 @@ class TestCollection:
         return array
 
     @pytest.mark.unittest
-    def test_get_single_object(self, borehole_collection):
-        borehole_collection_single_selection = borehole_collection.get("A")
-        assert borehole_collection_single_selection.header.gdf.iloc[0, 0] == "A"
+    def test_get(self, borehole_collection):
+        selection = borehole_collection.get("A")
+        assert selection.header.iloc[0, 0] == "A"
+        assert_array_equal(selection.data["nr"].unique(), ["A"])
 
-    @pytest.mark.unittest
-    def test_get_multiple_objects(self, borehole_collection):
-        borehole_collection_multi_selection = borehole_collection.get(["A", "B"])
-        assert list(borehole_collection_multi_selection.header["nr"].unique()) == [
-            "A",
-            "B",
-        ]
+        selection = borehole_collection.get(["A", "B"])
+        assert list(selection.header["nr"].unique()) == ["A", "B"]
+        assert_array_equal(selection.data["nr"].unique(), ["A", "B"])
 
     @pytest.mark.unittest
     def test_add_header_column_to_data(self, borehole_collection):
@@ -152,9 +147,7 @@ class TestCollection:
         assert_almost_equal(borehole_collection.data["y"][0], 5313546.187669, decimal=5)
 
     @pytest.mark.unittest
-    def test_change_horizontal_reference_also_data_columns_inclined(
-        self, nlog_borehole_collection
-    ):
+    def test_change_horizontal_reference_with_inclined(self, nlog_borehole_collection):
         assert nlog_borehole_collection.horizontal_reference == 28992
         nlog_borehole_collection.change_horizontal_reference(32631)
         assert nlog_borehole_collection.horizontal_reference == 32631
@@ -172,13 +165,15 @@ class TestCollection:
         )
 
     @pytest.mark.unittest
+    def test_reset_header(self, borehole_collection):
+        borehole_collection.reset_header()
+        assert borehole_collection.horizontal_reference == 28992
+
+    @pytest.mark.unittest
     def test_select_within_bbox(self, borehole_collection):
-        borehole_collection_selected = borehole_collection.select_within_bbox(
-            1.5, 1.5, 3.5, 5
-        )
-        # The selection results boreholes 'A' and 'D'
-        assert all(borehole_collection_selected.header.gdf["nr"].unique() == ["A", "D"])
-        assert all(borehole_collection_selected.data.df["nr"].unique() == ["A", "D"])
+        selected = borehole_collection.select_within_bbox(1.5, 1.5, 3.5, 5)
+        assert all(selected.header["nr"].unique() == ["A", "D"])
+        assert all(selected.data["nr"].unique() == ["A", "D"])
 
     @pytest.mark.unittest
     def test_select_with_points(self, borehole_collection):
@@ -186,46 +181,47 @@ class TestCollection:
         selection_gdf = gpd.GeoDataFrame(
             {"id": [0, 1, 2, 3]}, geometry=selection_points
         )
-        collection_sel = borehole_collection.select_with_points(selection_gdf, 1.1)
-        collection_sel_inverted = borehole_collection.select_with_points(
+        selection = borehole_collection.select_with_points(selection_gdf, 1.1)
+        assert selection.n_points == 3
+
+        selection_inverted = borehole_collection.select_with_points(
             selection_gdf, 1.1, invert=True
         )
-        assert collection_sel.n_points == 3
-        assert collection_sel_inverted.n_points == 2
+        assert selection_inverted.n_points == 2
 
     @pytest.mark.unittest
     def test_select_with_lines(self, borehole_collection):
         selection_lines = [LineString([[1, 1], [5, 5]]), LineString([[1, 5], [5, 1]])]
         selection_gdf = gpd.GeoDataFrame({"id": [0, 1]}, geometry=selection_lines)
-        collection_sel = borehole_collection.select_with_lines(selection_gdf, 0.6)
-        collection_sel_inverted = borehole_collection.select_with_lines(
+        selection = borehole_collection.select_with_lines(selection_gdf, 0.6)
+        assert selection.n_points == 2
+        selection_inverted = borehole_collection.select_with_lines(
             selection_gdf, 0.6, invert=True
         )
-        assert collection_sel.n_points == 2
-        assert collection_sel_inverted.n_points == 3
+        assert selection_inverted.n_points == 3
 
     @pytest.mark.unittest
     def test_select_within_polygons(self, borehole_collection):
         selection_polygon = [Polygon(((2, 1), (5, 4), (4, 5), (1, 3)))]
         selection_gdf = gpd.GeoDataFrame({"id": [0]}, geometry=selection_polygon)
 
-        # Polygon selection without buffer
-        collection_sel = borehole_collection.select_within_polygons(selection_gdf)
-        collection_sel_inverted = borehole_collection.select_within_polygons(
+        selection = borehole_collection.select_within_polygons(selection_gdf)
+        assert selection.n_points == 1
+
+        selection_inverted = borehole_collection.select_within_polygons(
             selection_gdf, invert=True
         )
-        assert collection_sel.n_points == 1
-        assert collection_sel_inverted.n_points == 4
+        assert selection_inverted.n_points == 4
 
-        # Polygon selection with a buffer
-        collection_sel_buff = borehole_collection.select_within_polygons(
+        selection_buffer = borehole_collection.select_within_polygons(
             selection_gdf, buffer=0.7
         )
-        collection_sel_inverted_buff = borehole_collection.select_within_polygons(
+        assert selection_buffer.n_points == 2
+
+        selection_inverted_buffer = borehole_collection.select_within_polygons(
             selection_gdf, buffer=0.7, invert=True
         )
-        assert collection_sel_buff.n_points == 2
-        assert collection_sel_inverted_buff.n_points == 3
+        assert selection_inverted_buffer.n_points == 3
 
     @pytest.mark.unittest
     def test_select_by_depth(self, borehole_collection):
@@ -287,8 +283,8 @@ class TestCollection:
         expected_tops_of_slice = [0.0, 0.6, 0.0, 0.5, 0.5]
         expected_bottoms_of_slice = [2.5, 2.5, 2.9, 2.5, 2.5]
 
-        tops_of_slice = sliced.data.df.groupby("nr")["top"].min()
-        bottoms_of_slice = sliced.data.df.groupby("nr")["bottom"].max()
+        tops_of_slice = sliced.data.groupby("nr")["top"].min()
+        bottoms_of_slice = sliced.data.groupby("nr")["bottom"].max()
 
         assert len(sliced.data) == 14
         assert sliced.n_points == 5
@@ -304,8 +300,8 @@ class TestCollection:
         expected_tops_of_slice = [2.2, 2.3, 2.25, 2.1, 1.9]
         expected_bottoms_of_slice = [3.2, 3.3, 3.25, 3.0, 2.9]
 
-        tops_of_slice = sliced.data.df.groupby("nr")["top"].min()
-        bottoms_of_slice = sliced.data.df.groupby("nr")["bottom"].max()
+        tops_of_slice = sliced.data.groupby("nr")["top"].min()
+        bottoms_of_slice = sliced.data.groupby("nr")["bottom"].max()
 
         assert len(sliced.data) == 11
         assert sliced.n_points == 5
@@ -338,7 +334,7 @@ class TestCollection:
             lower_boundary=nap_lower, relative_to_vertical_reference=True
         )
 
-        bottoms_of_slice = sliced.data.df.groupby("nr")["bottom"].max()
+        bottoms_of_slice = sliced.data.groupby("nr")["bottom"].max()
         expected_bottoms_of_slice = [0.7, 0.8, 0.75, 0.6, 0.4]
 
         assert len(sliced.data) == 7
@@ -380,7 +376,7 @@ class TestCollection:
     def test_validation_pass(self, valid_boreholes):
         with warnings.catch_warnings():
             warnings.simplefilter("error")
-            valid_boreholes.to_collection()
+            valid_boreholes.gstda.to_collection()
 
     @pytest.mark.unittest
     def test_validation_fail(self, invalid_borehole_table):
@@ -388,24 +384,24 @@ class TestCollection:
         config.validation.DROP_INVALID = False
         config.validation.FLAG_INVALID = False
         with pytest.warns(ValidationWarning) as record:
-            LayeredData(invalid_borehole_table).to_collection()
+            invalid_borehole_table.gstda.to_collection()
 
         assert len(record) == 2
 
-        data_result, header_result = record
-        assert "Validation failed for schema 'Layer data non-inclined'" in str(
-            data_result.message
-        )
-        assert (
-            "DataFrameSchema 'Layer data non-inclined' failed element-wise validator number 0:"
-            in str(data_result.message)
-        )
+        header_result, data_result = record
         assert "Validation failed for schema 'Point header'" in str(
             header_result.message
         )
         assert (
             "DataFrameSchema 'Point header' failed element-wise validator number 0:"
             in str(header_result.message)
+        )
+        assert "Validation failed for schema 'Layer data non-inclined'" in str(
+            data_result.message
+        )
+        assert (
+            "DataFrameSchema 'Layer data non-inclined' failed element-wise validator number 0:"
+            in str(data_result.message)
         )
 
     @pytest.mark.unittest
@@ -414,13 +410,16 @@ class TestCollection:
         config.validation.DROP_INVALID = True
         config.validation.FLAG_INVALID = False
         with pytest.warns(ValidationWarning) as record:
-            LayeredData(invalid_borehole_table).to_collection()
+            invalid_borehole_table.gstda.to_collection()
 
-        assert len(record) == 1
+        assert len(record) == 2
 
+        assert "Validation dropped 1 row(s) for schema 'Point header'" in str(
+            record[0].message
+        )
         assert (
             "Validation dropped 10 row(s) for schema 'Layer data non-inclined'"
-            in str(record[0].message)
+            in str(record[1].message)
         )
 
     @pytest.mark.unittest
@@ -429,26 +428,26 @@ class TestCollection:
         config.validation.DROP_INVALID = False
         config.validation.FLAG_INVALID = True
         with pytest.warns(ValidationWarning) as record:
-            collection_flagged = LayeredData(invalid_borehole_table).to_collection()
+            collection_flagged = invalid_borehole_table.gstda.to_collection()
 
         assert len(record) == 2
-        assert not collection_flagged.header.gdf.loc[0, "is_valid"]
-        assert not collection_flagged.data.df.loc[9, "is_valid"]
+        assert not collection_flagged.header.loc[0, "is_valid"]
+        assert not collection_flagged.data.loc[9, "is_valid"]
 
-        data_result, header_result = record
-        assert "Validation failed for schema 'Layer data non-inclined'" in str(
-            data_result.message
-        )
-        assert (
-            "DataFrameSchema 'Layer data non-inclined' failed element-wise validator number 0:"
-            in str(data_result.message)
-        )
+        header_result, data_result = record
         assert "Validation failed for schema 'Point header'" in str(
             header_result.message
         )
         assert (
             "DataFrameSchema 'Point header' failed element-wise validator number 0:"
             in str(header_result.message)
+        )
+        assert "Validation failed for schema 'Layer data non-inclined'" in str(
+            data_result.message
+        )
+        assert (
+            "DataFrameSchema 'Layer data non-inclined' failed element-wise validator number 0:"
+            in str(data_result.message)
         )
 
     @pytest.mark.unittest
@@ -500,7 +499,7 @@ class TestCollection:
         assert_equal(output["col2"].value_counts()["string_data"], 2)
         # In-place variant
         borehole_collection.get_area_labels(
-            label_gdf, ("id", "col2"), include_in_header=True
+            label_gdf, ["id", "col2"], include_in_header=True
         )
         assert_almost_equal(borehole_collection.header["id"].sum(), 2)
         assert_equal(
@@ -572,7 +571,18 @@ class TestCollection:
 
 class TestBoreholeCollection:
     @pytest.mark.unittest
-    def test_get_cumulative_thickness_multiple(self, borehole_collection):
+    def test_get_cumulative_thickness(self, borehole_collection):
+        expected_sand_thickness = [2.2, 0.0, 2.6, 0.5, 3.0]
+
+        # Test single lithology
+        borehole_collection.get_cumulative_thickness(
+            "lith", "Z", include_in_header=True
+        )
+        assert_almost_equal(
+            borehole_collection.header["Z_thickness"], expected_sand_thickness
+        )
+
+        # Test multiple lithologies
         borehole_collection.get_cumulative_thickness(
             "lith", ["Z", "K"], include_in_header=True
         )
@@ -581,26 +591,6 @@ class TestBoreholeCollection:
 
         assert_almost_equal(
             borehole_collection.header["K_thickness"], expected_clay_thickness
-        )
-        assert_almost_equal(
-            borehole_collection.header["Z_thickness"], expected_sand_thickness
-        )
-
-        # Single query
-        borehole_collection.get_cumulative_thickness(
-            "lith", "Z", include_in_header=True
-        )
-        assert_almost_equal(
-            borehole_collection.header["Z_thickness"], expected_sand_thickness
-        )
-
-    @pytest.mark.unittest
-    def test_get_cumulative_thickness_single(self, borehole_collection):
-        expected_sand_thickness = [2.2, 0.0, 2.6, 0.5, 3.0]
-
-        # Single query
-        borehole_collection.get_cumulative_thickness(
-            "lith", "Z", include_in_header=True
         )
         assert_almost_equal(
             borehole_collection.header["Z_thickness"], expected_sand_thickness

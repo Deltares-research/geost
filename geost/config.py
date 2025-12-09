@@ -13,5 +13,15 @@ class ValidationSettings:
     FLAG_INVALID = False
     AUTO_ALIGN = True
 
+    def reset_settings(self):
+        """
+        Reset all settings to their default values.
+
+        """
+        self.VERBOSE = True
+        self.DROP_INVALID = True
+        self.FLAG_INVALID = False
+        self.AUTO_ALIGN = True
+
 
 validation = ValidationSettings()

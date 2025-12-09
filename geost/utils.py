@@ -50,11 +50,11 @@ def _pandas_read(file: str | Path, **kwargs) -> pd.DataFrame:
     """
     file = Path(file)
     suffix = file.suffix
-    if suffix in [".parquet", ".pq"]:
+    if suffix in {".parquet", ".pq"}:
         return pd.read_parquet(file, **kwargs)
-    elif suffix in [".csv", ".txt", ".tsv"]:
+    elif suffix in {".csv", ".txt", ".tsv"}:
         return pd.read_csv(file, **kwargs)
-    elif suffix in [".xls", ".xlsx"]:  # pragma: no cover
+    elif suffix in {".xls", ".xlsx"}:  # pragma: no cover
         return pd.read_excel(
             file, **kwargs
         )  # No cover: Excel file io fails in windows CI pipeline
@@ -150,7 +150,7 @@ def excel_to_parquet(
         If 'file' is not an xlsx or xls file.
     """
     file = Path(file)
-    if file.suffix not in [".xlsx", ".xls"]:
+    if file.suffix not in {".xlsx", ".xls"}:
         raise TypeError(
             f"File must be an excel file, but a {file.suffix}-file was given"
         )

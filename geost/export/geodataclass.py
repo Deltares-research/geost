@@ -90,7 +90,7 @@ class Data:
 ########################################################################################
 
 
-def export_to_dftgeodata(data, columns, encode=True):
+def to_dftgeodata(data, columns, encode=True):
     if encode:
         data_encoded = pd.get_dummies(data[columns])
         data.drop(columns=columns, inplace=True)
