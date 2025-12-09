@@ -1,11 +1,30 @@
 # Release notes
 
+[**Full Changelog**](https://github.com/Deltares-research/geost/compare/0.2.9...0.3.0)
+
+## v0.3.1
+
+Replaced core header and data structures (e.g. `PointHeader`, `LayeredData`) in `Collection` instances by accessors on GeoDataFrames (header) and DataFrames (data). Now the header and data attributes of Collections have direct access to all Geopandas and Pandas methods. See the [GeoST accessors](./user_guide/accessors.ipynb) section in the User guide for detailed explanation of the new accessors.
+
+**Added**
+- **Added** `.gsthd` for Geopandas GeoDataFrames, see also [GeoST accessors](./user_guide/accessors.ipynb#header-gsthd-accessor).
+- **Added** `.gstda` for Pandas DataFrames, see also [GeoST accessors](./user_guide/accessors.ipynb#data-gstda-accessor).
+- **Added** `VoxelModel.slice_depth_interval` to slice voxelmodels between specific depth intervals using single values or 1D/2D elevation grids.
+- **Added** `VoxelModel.most_common` to determine the most common unit (i.e. value) and corresponding thickness at every x,y-location.
+- **Added** `VoxelModel.value_counts` to determine the value counts of unique values in a
+variable, in the total variable or along a specific dimension.
+
+
+**Other**
+- Move `BoreholeCollection` and `CptCollection` to top-level import of package.
+- Make Pyvista imports lazy to only import when used.
+
+
 ## v0.3.0
 
 Milestone update introducing improved integration with the BRO, 3D viewing/VTK features,
 better data validation and configuration options.
 
-[**Full Changelog**](https://github.com/Deltares-research/geost/compare/0.2.9...0.3.0)
 
 **Added**
 - **Added** XML file parsing functionality for BHR-P, BHR-G, BHR-GT, CPT and SFR objects
