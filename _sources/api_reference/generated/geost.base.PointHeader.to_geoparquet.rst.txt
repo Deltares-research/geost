@@ -1,6 +1,0 @@
-﻿geost.base.PointHeader.to\_geoparquet
-=====================================
-
-.. currentmodule:: geost.base
-
-.. automethod:: PointHeader.to_geoparquet

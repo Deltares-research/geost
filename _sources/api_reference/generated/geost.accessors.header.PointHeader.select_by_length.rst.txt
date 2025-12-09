@@ -1,0 +1,6 @@
+﻿geost.accessors.header.PointHeader.select\_by\_length
+=====================================================
+
+.. currentmodule:: geost.accessors.header
+
+.. automethod:: PointHeader.select_by_length

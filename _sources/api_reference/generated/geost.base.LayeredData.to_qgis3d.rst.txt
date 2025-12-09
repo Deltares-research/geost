@@ -1,6 +1,0 @@
-﻿geost.base.LayeredData.to\_qgis3d
-=================================
-
-.. currentmodule:: geost.base
-
-.. automethod:: LayeredData.to_qgis3d

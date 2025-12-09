@@ -1,6 +1,0 @@
-﻿geost.base.DiscreteData.slice\_depth\_interval
-==============================================
-
-.. currentmodule:: geost.base
-
-.. automethod:: DiscreteData.slice_depth_interval

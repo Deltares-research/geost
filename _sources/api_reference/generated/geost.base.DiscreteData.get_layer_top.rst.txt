@@ -1,6 +1,0 @@
-﻿geost.base.DiscreteData.get\_layer\_top
-=======================================
-
-.. currentmodule:: geost.base
-
-.. automethod:: DiscreteData.get_layer_top

@@ -1,6 +1,0 @@
-﻿geost.base.LayeredData.to\_collection
-=====================================
-
-.. currentmodule:: geost.base
-
-.. automethod:: LayeredData.to_collection

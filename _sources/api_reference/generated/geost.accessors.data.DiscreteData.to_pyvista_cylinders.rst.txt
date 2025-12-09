@@ -1,0 +1,6 @@
+﻿geost.accessors.data.DiscreteData.to\_pyvista\_cylinders
+========================================================
+
+.. currentmodule:: geost.accessors.data
+
+.. automethod:: DiscreteData.to_pyvista_cylinders

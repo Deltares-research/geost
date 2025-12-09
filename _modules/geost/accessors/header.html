@@ -1,0 +1,1036 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>geost.accessors.header &#8212; Geological Subsurface Toolbox  documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/mystnb.8ecb98da25f57f5357bf6f572d296f466b2cfe2517ffebfabe82451661e28f02.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=6e1425e8" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=6e1425e8" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
+    <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/geost/accessors/header';</script>
+    <link rel="icon" href="../../../_static/geost_logo.png"/>
+    <link rel="author" title="About these documents" href="../../../about.html" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="0.4.0" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class=" navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../../_static/geost_logo.png" class="logo__image only-light" alt="Geological Subsurface Toolbox  documentation - Home"/>
+    <img src="../../../_static/geost_logo.png" class="logo__image only-dark pst-js-only" alt="Geological Subsurface Toolbox  documentation - Home"/>
+  
+  
+</a></div>
+    
+  </div>
+  
+  <div class=" navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../index.html">
+    Home
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../about.html">
+    About
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../getting_started.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../documentation.html">
+    Documentation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../examples.html">
+    Examples
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../community.html">
+    Community
+  </a>
+</li>
+
+            <li class="nav-item dropdown">
+                <button class="btn dropdown-toggle nav-item" type="button"
+                data-bs-toggle="dropdown" aria-expanded="false"
+                aria-controls="pst-nav-more-links">
+                    More
+                </button>
+                <ul id="pst-nav-more-links" class="dropdown-menu">
+                    
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../../changelog.html">
+    Changelog
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-external" href="https://www.deltares.nl/en">
+    Deltares website
+  </a>
+</li>
+
+                </ul>
+            </li>
+            
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/Deltares-research/geost" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/geost" title="PyPI" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-solid fa-cubes fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">PyPI</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar hide-on-wide">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../index.html">
+    Home
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../about.html">
+    About
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../getting_started.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../documentation.html">
+    Documentation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../examples.html">
+    Examples
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../community.html">
+    Community
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../changelog.html">
+    Changelog
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-external" href="https://www.deltares.nl/en">
+    Deltares website
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/Deltares-research/geost" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/geost" title="PyPI" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-solid fa-cubes fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">PyPI</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../../index.html" class="nav-link">Module code</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">geost.accessors.header</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <h1>Source code for geost.accessors.header</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Iterable</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">geopandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">gpd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pyproj</span><span class="w"> </span><span class="kn">import</span> <span class="n">CRS</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">shapely</span><span class="w"> </span><span class="kn">import</span> <span class="n">geometry</span> <span class="k">as</span> <span class="n">gmt</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">geost</span><span class="w"> </span><span class="kn">import</span> <span class="n">spatial</span><span class="p">,</span> <span class="n">utils</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">geost.abstract_classes</span><span class="w"> </span><span class="kn">import</span> <span class="n">AbstractHeader</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">geost.projections</span><span class="w"> </span><span class="kn">import</span> <span class="n">vertical_reference_transformer</span>
+
+<span class="nb">type</span> <span class="n">Coordinate</span> <span class="o">=</span> <span class="nb">int</span> <span class="o">|</span> <span class="nb">float</span>
+<span class="nb">type</span> <span class="n">GeometryType</span> <span class="o">=</span> <span class="n">gmt</span><span class="o">.</span><span class="n">base</span><span class="o">.</span><span class="n">BaseGeometry</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="n">gmt</span><span class="o">.</span><span class="n">base</span><span class="o">.</span><span class="n">BaseGeometry</span><span class="p">]</span>
+
+
+<div class="viewcode-block" id="PointHeader">
+<a class="viewcode-back" href="../../../api_reference/generated/geost.accessors.header.PointHeader.html#geost.accessors.header.PointHeader">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">PointHeader</span><span class="p">(</span><span class="n">AbstractHeader</span><span class="p">):</span>
+<div class="viewcode-block" id="PointHeader.__init__">
+<a class="viewcode-back" href="../../../api_reference/generated/geost.accessors.header.PointHeader.html#geost.accessors.header.PointHeader.__init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">gdf</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_gdf</span> <span class="o">=</span> <span class="n">gdf</span></div>
+
+
+<div class="viewcode-block" id="PointHeader.change_horizontal_reference">
+<a class="viewcode-back" href="../../../api_reference/generated/geost.accessors.header.PointHeader.change_horizontal_reference.html#geost.accessors.header.PointHeader.change_horizontal_reference">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">change_horizontal_reference</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">to_epsg</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">int</span> <span class="o">|</span> <span class="n">CRS</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Change the horizontal reference (i.e. coordinate reference system, crs) of the</span>
+<span class="sd">        header to the given target crs.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        to_epsg : str | int | CRS</span>
+<span class="sd">            EPSG of the target crs. Takes anything that can be interpreted by</span>
+<span class="sd">            pyproj.crs.CRS.from_user_input().</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        To change the header&#39;s current horizontal reference to WGS 84 UTM zone 31N:</span>
+
+<span class="sd">        &gt;&gt;&gt; self.change_horizontal_reference(32631)</span>
+
+<span class="sd">        This would be the same as:</span>
+
+<span class="sd">        &gt;&gt;&gt; self.change_horizontal_reference(&quot;epsg:32631&quot;)</span>
+
+<span class="sd">        As Pyproj is very flexible, you can even use the CRS&#39;s full official name:</span>
+
+<span class="sd">        &gt;&gt;&gt; self.change_horizontal_reference(&quot;WGS 84 / UTM zone 31N&quot;)</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_gdf</span><span class="o">.</span><span class="n">to_crs</span><span class="p">(</span><span class="n">to_epsg</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_gdf</span><span class="p">[[</span><span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="s2">&quot;y&quot;</span><span class="p">]]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_gdf</span><span class="p">[[</span><span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="s2">&quot;y&quot;</span><span class="p">]]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_gdf</span><span class="p">[</span><span class="s2">&quot;x&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_gdf</span><span class="p">[</span><span class="s2">&quot;geometry&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">x</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_gdf</span><span class="p">[</span><span class="s2">&quot;y&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_gdf</span><span class="p">[</span><span class="s2">&quot;geometry&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">y</span></div>
+
+
+<div class="viewcode-block" id="PointHeader.change_vertical_reference">
+<a class="viewcode-back" href="../../../api_reference/generated/geost.accessors.header.PointHeader.change_vertical_reference.html#geost.accessors.header.PointHeader.change_vertical_reference">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">change_vertical_reference</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">from_epsg</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">int</span> <span class="o">|</span> <span class="n">CRS</span><span class="p">,</span> <span class="n">to_epsg</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">int</span> <span class="o">|</span> <span class="n">CRS</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Change the vertical datum of the object&#39;s surface levels.</span>
+
+<span class="sd">        Some often-used vertical datums are:</span>
+<span class="sd">            - NAP : 5709</span>
+<span class="sd">            - MSL NL depth : 9288</span>
+<span class="sd">            - LAT NL depth : 9287</span>
+<span class="sd">            - Ostend height : 5710</span>
+
+<span class="sd">            See epsg.io for more.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        from_epsg : str | int | CRS</span>
+<span class="sd">            EPSG of the source vertical datum. Takes anything that can be interpreted by</span>
+<span class="sd">            pyproj.crs.CRS.from_user_input(). However, it must be a vertical datum.</span>
+<span class="sd">        to_epsg : str | int | CRS</span>
+<span class="sd">            EPSG of the target vertical datum. Takes anything that can be interpreted by</span>
+<span class="sd">            pyproj.crs.CRS.from_user_input(). However, it must be a vertical datum.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        To change the current vertical reference from Ostend height to NAP:</span>
+
+<span class="sd">        &gt;&gt;&gt; self.change_vertical_reference(5710, 5709)</span>
+
+<span class="sd">        This would be the same as:</span>
+
+<span class="sd">        &gt;&gt;&gt; self.change_vertical_reference(&quot;epsg:5710&quot;, &quot;epsg:5709&quot;)</span>
+
+<span class="sd">        As the Pyproj constructors are very flexible, you can even use the CRS&#39;s full</span>
+<span class="sd">        official name instead of an EPSG number. E.g. for changing to NAP and the</span>
+<span class="sd">        Belgian Ostend height vertical datums respectively, you can use:</span>
+
+<span class="sd">        &gt;&gt;&gt; self.change_vertical_reference(&quot;Ostend height&quot;, &quot;NAP&quot;)</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">transformer</span> <span class="o">=</span> <span class="n">vertical_reference_transformer</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_gdf</span><span class="o">.</span><span class="n">crs</span><span class="p">,</span> <span class="n">from_epsg</span><span class="p">,</span> <span class="n">to_epsg</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_gdf</span><span class="p">[[</span><span class="s2">&quot;surface&quot;</span><span class="p">,</span> <span class="s2">&quot;end&quot;</span><span class="p">]]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_gdf</span><span class="p">[[</span><span class="s2">&quot;surface&quot;</span><span class="p">,</span> <span class="s2">&quot;end&quot;</span><span class="p">]]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span>
+        <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">new_surface</span> <span class="o">=</span> <span class="n">transformer</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_gdf</span><span class="p">[</span><span class="s2">&quot;x&quot;</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">_gdf</span><span class="p">[</span><span class="s2">&quot;y&quot;</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">_gdf</span><span class="p">[</span><span class="s2">&quot;surface&quot;</span><span class="p">]</span>
+        <span class="p">)</span>
+        <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">new_end</span> <span class="o">=</span> <span class="n">transformer</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_gdf</span><span class="p">[</span><span class="s2">&quot;x&quot;</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">_gdf</span><span class="p">[</span><span class="s2">&quot;y&quot;</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">_gdf</span><span class="p">[</span><span class="s2">&quot;end&quot;</span><span class="p">]</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_gdf</span><span class="p">[</span><span class="s2">&quot;surface&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_surface</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_gdf</span><span class="p">[</span><span class="s2">&quot;end&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_end</span></div>
+
+
+<div class="viewcode-block" id="PointHeader.get">
+<a class="viewcode-back" href="../../../api_reference/generated/geost.accessors.header.PointHeader.get.html#geost.accessors.header.PointHeader.get">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">selection_values</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">column</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;nr&quot;</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get a subset of a header through a string or iterable of object id(s).</span>
+<span class="sd">        Optionally uses a different column than &quot;nr&quot; (the column with object ids).</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        selection_values : str | Iterable</span>
+<span class="sd">            Values to select.</span>
+<span class="sd">        column : str, optional</span>
+<span class="sd">            In which column of the header to look for selection values, by default &quot;nr&quot;.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        gpd.GeoDataFrame</span>
+<span class="sd">            GeoDataFrame instance containing only objects selected by this method.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        Select the objects with id &quot;obj1&quot; and &quot;obj2&quot; in the &quot;nr&quot; column:</span>
+
+<span class="sd">        &gt;&gt;&gt; self.get([&quot;obj1&quot;, &quot;obj2&quot;])</span>
+
+<span class="sd">        Suppose we have a number of boreholes that we have joined with geological</span>
+<span class="sd">        map units using the method</span>
+<span class="sd">        :meth:`~geost.accessors.header.PointHeader.get_area_labels`. We have added this</span>
+<span class="sd">        data to the header table in the column &#39;geological_unit&#39;. Using:</span>
+
+<span class="sd">        &gt;&gt;&gt; self.get([&quot;unit1&quot;, &quot;unit2&quot;], column=&quot;geological_unit&quot;)</span>
+
+<span class="sd">        will return a gpd.GeoDataFrame with all boreholes that are located in &quot;unit1&quot; and</span>
+<span class="sd">        &quot;unit2&quot; geological map areas.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">selection_values</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="n">selection</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_gdf</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_gdf</span><span class="p">[</span><span class="n">column</span><span class="p">]</span> <span class="o">==</span> <span class="n">selection_values</span><span class="p">]</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">selection_values</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">):</span>
+            <span class="n">selection</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_gdf</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_gdf</span><span class="p">[</span><span class="n">column</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">selection_values</span><span class="p">)]</span>
+
+        <span class="n">selection</span> <span class="o">=</span> <span class="n">selection</span><span class="p">[</span><span class="o">~</span><span class="n">selection</span><span class="o">.</span><span class="n">duplicated</span><span class="p">()]</span>
+
+        <span class="k">return</span> <span class="n">selection</span></div>
+
+
+<div class="viewcode-block" id="PointHeader.select_within_bbox">
+<a class="viewcode-back" href="../../../api_reference/generated/geost.accessors.header.PointHeader.select_within_bbox.html#geost.accessors.header.PointHeader.select_within_bbox">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">select_within_bbox</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">xmin</span><span class="p">:</span> <span class="n">Coordinate</span><span class="p">,</span>
+        <span class="n">ymin</span><span class="p">:</span> <span class="n">Coordinate</span><span class="p">,</span>
+        <span class="n">xmax</span><span class="p">:</span> <span class="n">Coordinate</span><span class="p">,</span>
+        <span class="n">ymax</span><span class="p">:</span> <span class="n">Coordinate</span><span class="p">,</span>
+        <span class="n">invert</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Make a selection of the header based on a bounding box.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        xmin : float | int</span>
+<span class="sd">            Minimum x-coordinate of the bounding box.</span>
+<span class="sd">        ymin : float | int</span>
+<span class="sd">            Minimum y-coordinate of the bounding box.</span>
+<span class="sd">        xmax : float | int</span>
+<span class="sd">            Maximum x-coordinate of the bounding box.</span>
+<span class="sd">        ymax : float | int</span>
+<span class="sd">            Maximum y-coordinate of the bounding box.</span>
+<span class="sd">        invert : bool, optional</span>
+<span class="sd">            Invert the selection, so select all objects outside of the</span>
+<span class="sd">            bounding box in this case, by default False.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        gpd.GeoDataFrame</span>
+<span class="sd">            GeoDataFrame instance containing only the selected geometries.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">selection</span> <span class="o">=</span> <span class="n">spatial</span><span class="o">.</span><span class="n">select_points_within_bbox</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_gdf</span><span class="p">,</span> <span class="n">xmin</span><span class="p">,</span> <span class="n">ymin</span><span class="p">,</span> <span class="n">xmax</span><span class="p">,</span> <span class="n">ymax</span><span class="p">,</span> <span class="n">invert</span><span class="o">=</span><span class="n">invert</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">selection</span></div>
+
+
+<div class="viewcode-block" id="PointHeader.select_with_points">
+<a class="viewcode-back" href="../../../api_reference/generated/geost.accessors.header.PointHeader.select_with_points.html#geost.accessors.header.PointHeader.select_with_points">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">select_with_points</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">points</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span> <span class="o">|</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span> <span class="o">|</span> <span class="n">GeometryType</span><span class="p">,</span>
+        <span class="n">buffer</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">invert</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Make a selection of the header based on point geometries.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        points : str | Path | gpd.GeoDataFrame | GeometryType</span>
+<span class="sd">            Any type of point geometries that can be used for the selection: GeoDataFrame</span>
+<span class="sd">            containing points or filepath to a shapefile like file, or Shapely Point,</span>
+<span class="sd">            MultiPoint or list containing Point objects.</span>
+<span class="sd">        buffer : float | int</span>
+<span class="sd">            Buffer distance for selection geometries.</span>
+<span class="sd">        invert : bool, optional</span>
+<span class="sd">            Invert the selection, by default False.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        gpd.GeoDataFrame</span>
+<span class="sd">            GeoDataFrame instance containing only the selected geometries.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">selection</span> <span class="o">=</span> <span class="n">spatial</span><span class="o">.</span><span class="n">select_points_near_points</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_gdf</span><span class="p">,</span> <span class="n">points</span><span class="p">,</span> <span class="n">buffer</span><span class="p">,</span> <span class="n">invert</span><span class="o">=</span><span class="n">invert</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">selection</span></div>
+
+
+<div class="viewcode-block" id="PointHeader.select_with_lines">
+<a class="viewcode-back" href="../../../api_reference/generated/geost.accessors.header.PointHeader.select_with_lines.html#geost.accessors.header.PointHeader.select_with_lines">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">select_with_lines</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">lines</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span> <span class="o">|</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span> <span class="o">|</span> <span class="n">GeometryType</span><span class="p">,</span>
+        <span class="n">buffer</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">invert</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Make a selection of the header based on line geometries.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        lines : str | Path | gpd.GeoDataFrame | GeometryType</span>
+<span class="sd">            Any type of line geometries that can be used for the selection: GeoDataFrame</span>
+<span class="sd">            containing lines or filepath to a shapefile like file, or Shapely LineString,</span>
+<span class="sd">            MultiLineString or list containing LineString objects.</span>
+<span class="sd">        buffer : float | int</span>
+<span class="sd">            Buffer distance for selection geometries.</span>
+<span class="sd">        invert : bool, optional</span>
+<span class="sd">            Invert the selection, by default False.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        gpd.GeoDataFrame</span>
+<span class="sd">            GeoDataFrame instance containing only the selected geometries.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">selection</span> <span class="o">=</span> <span class="n">spatial</span><span class="o">.</span><span class="n">select_points_near_lines</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_gdf</span><span class="p">,</span> <span class="n">lines</span><span class="p">,</span> <span class="n">buffer</span><span class="p">,</span> <span class="n">invert</span><span class="o">=</span><span class="n">invert</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">selection</span></div>
+
+
+<div class="viewcode-block" id="PointHeader.select_within_polygons">
+<a class="viewcode-back" href="../../../api_reference/generated/geost.accessors.header.PointHeader.select_within_polygons.html#geost.accessors.header.PointHeader.select_within_polygons">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">select_within_polygons</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">polygons</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span> <span class="o">|</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span> <span class="o">|</span> <span class="n">GeometryType</span><span class="p">,</span>
+        <span class="n">buffer</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+        <span class="n">invert</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Make a selection of the header based on polygon geometries.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        polygons : str | Path | gpd.GeoDataFrame | GeometryType</span>
+<span class="sd">            Any type of polygon geometries that can be used for the selection: GeoDataFrame</span>
+<span class="sd">            containing polygons or filepath to a shapefile like file, or Shapely Polygon,</span>
+<span class="sd">            MultiPolygon or list containing Polygon objects.</span>
+<span class="sd">        buffer : float | int, optional</span>
+<span class="sd">            Optional buffer distance around the polygon selection geometries, by default</span>
+<span class="sd">            0.</span>
+<span class="sd">        invert : bool, optional</span>
+<span class="sd">            Invert the selection, by default False.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        gpd.GeoDataFrame</span>
+<span class="sd">            GeoDataFrame instance containing only the selected geometries.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">selection</span> <span class="o">=</span> <span class="n">spatial</span><span class="o">.</span><span class="n">select_points_within_polygons</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_gdf</span><span class="p">,</span> <span class="n">polygons</span><span class="p">,</span> <span class="n">buffer</span><span class="p">,</span> <span class="n">invert</span><span class="o">=</span><span class="n">invert</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">selection</span></div>
+
+
+<div class="viewcode-block" id="PointHeader.select_by_depth">
+<a class="viewcode-back" href="../../../api_reference/generated/geost.accessors.header.PointHeader.select_by_depth.html#geost.accessors.header.PointHeader.select_by_depth">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">select_by_depth</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">top_min</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">top_max</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">end_min</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">end_max</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Select data from depth constraints. If a keyword argument is not given it will</span>
+<span class="sd">        not be considered. e.g. if you need only boreholes that go deeper than -500 m</span>
+<span class="sd">        use only end_max = -500.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        top_min : float, optional</span>
+<span class="sd">            Minimum elevation of the borehole/cpt top, by default None.</span>
+<span class="sd">        top_max : float, optional</span>
+<span class="sd">            Maximum elevation of the borehole/cpt top, by default None.</span>
+<span class="sd">        end_min : float, optional</span>
+<span class="sd">            Minimum elevation of the borehole/cpt end, by default None.</span>
+<span class="sd">        end_max : float, optional</span>
+<span class="sd">            Maximumelevation of the borehole/cpt end, by default None.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        gpd.GeoDataFrame</span>
+<span class="sd">            GeoDataFrame instance containing only objects selected by this method.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">selected</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_gdf</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">top_min</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">selected</span> <span class="o">=</span> <span class="n">selected</span><span class="p">[</span><span class="n">selected</span><span class="p">[</span><span class="s2">&quot;surface&quot;</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">top_min</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">top_max</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">selected</span> <span class="o">=</span> <span class="n">selected</span><span class="p">[</span><span class="n">selected</span><span class="p">[</span><span class="s2">&quot;surface&quot;</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="n">top_max</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">end_min</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">selected</span> <span class="o">=</span> <span class="n">selected</span><span class="p">[</span><span class="n">selected</span><span class="p">[</span><span class="s2">&quot;end&quot;</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">end_min</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">end_max</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">selected</span> <span class="o">=</span> <span class="n">selected</span><span class="p">[</span><span class="n">selected</span><span class="p">[</span><span class="s2">&quot;end&quot;</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="n">end_max</span><span class="p">]</span>
+
+        <span class="n">selected</span> <span class="o">=</span> <span class="n">selected</span><span class="p">[</span><span class="o">~</span><span class="n">selected</span><span class="o">.</span><span class="n">duplicated</span><span class="p">()]</span>
+        <span class="k">return</span> <span class="n">selected</span></div>
+
+
+<div class="viewcode-block" id="PointHeader.select_by_length">
+<a class="viewcode-back" href="../../../api_reference/generated/geost.accessors.header.PointHeader.select_by_length.html#geost.accessors.header.PointHeader.select_by_length">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">select_by_length</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">min_length</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">max_length</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Select data from length constraints: e.g. all boreholes between 50 and 150 m</span>
+<span class="sd">        long. If a keyword argument is not given it will not be considered.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        min_length : float, optional</span>
+<span class="sd">            Minimum length of borehole/cpt, by default None.</span>
+<span class="sd">        max_length : float, optional</span>
+<span class="sd">            Maximum length of borehole/cpt, by default None.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        gpd.GeoDataFrame</span>
+<span class="sd">            GeoDataFrame instance containing only objects selected by this method.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">selected</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_gdf</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">length</span> <span class="o">=</span> <span class="n">selected</span><span class="p">[</span><span class="s2">&quot;surface&quot;</span><span class="p">]</span> <span class="o">-</span> <span class="n">selected</span><span class="p">[</span><span class="s2">&quot;end&quot;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">min_length</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">selected</span> <span class="o">=</span> <span class="n">selected</span><span class="p">[</span><span class="n">length</span> <span class="o">&gt;=</span> <span class="n">min_length</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">max_length</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">selected</span> <span class="o">=</span> <span class="n">selected</span><span class="p">[</span><span class="n">length</span> <span class="o">&lt;=</span> <span class="n">max_length</span><span class="p">]</span>
+
+        <span class="n">selected</span> <span class="o">=</span> <span class="n">selected</span><span class="p">[</span><span class="o">~</span><span class="n">selected</span><span class="o">.</span><span class="n">duplicated</span><span class="p">()]</span>
+        <span class="k">return</span> <span class="n">selected</span></div>
+
+
+<div class="viewcode-block" id="PointHeader.get_area_labels">
+<a class="viewcode-back" href="../../../api_reference/generated/geost.accessors.header.PointHeader.get_area_labels.html#geost.accessors.header.PointHeader.get_area_labels">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_area_labels</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">polygon_gdf</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span> <span class="o">|</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">,</span>
+        <span class="n">column_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Iterable</span><span class="p">,</span>
+        <span class="n">include_in_header</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Find in which area (polygons) the point data locations fall. e.g. to determine</span>
+<span class="sd">        in which geomorphological unit points are located.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        polygon_gdf : str | Path | gpd.GeoDataFrame</span>
+<span class="sd">            GeoDataFrame with polygons.</span>
+<span class="sd">        column_name : str | Iterable</span>
+<span class="sd">            The column name to find the labels in. Given as a string or iterable of</span>
+<span class="sd">            strings in case you&#39;d like to find multiple labels.</span>
+<span class="sd">        include_in_header : bool, optional</span>
+<span class="sd">            Whether to add the acquired data to the header table or not, by default</span>
+<span class="sd">            False.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        pd.DataFrame</span>
+<span class="sd">            Borehole ids and the polygon label they are in. If include_in_header = True,</span>
+<span class="sd">            a column containing the generated data will be added inplace.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">polygon_gdf</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">check_geometry_instance</span><span class="p">(</span><span class="n">polygon_gdf</span><span class="p">)</span>
+        <span class="n">polygon_gdf</span> <span class="o">=</span> <span class="n">spatial</span><span class="o">.</span><span class="n">check_and_coerce_crs</span><span class="p">(</span><span class="n">polygon_gdf</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_gdf</span><span class="o">.</span><span class="n">crs</span><span class="p">)</span>
+
+        <span class="n">all_nrs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_gdf</span><span class="p">[</span><span class="s2">&quot;nr&quot;</span><span class="p">]</span>
+        <span class="n">area_labels</span> <span class="o">=</span> <span class="n">spatial</span><span class="o">.</span><span class="n">find_area_labels</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_gdf</span><span class="p">,</span> <span class="n">polygon_gdf</span><span class="p">,</span> <span class="n">column_name</span><span class="p">)</span>
+        <span class="n">area_labels</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">all_nrs</span><span class="p">,</span> <span class="n">area_labels</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">include_in_header</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_gdf</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span>
+                <span class="n">columns</span><span class="o">=</span><span class="n">column_name</span><span class="p">,</span>
+                <span class="n">errors</span><span class="o">=</span><span class="s2">&quot;ignore&quot;</span><span class="p">,</span>
+                <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_gdf</span><span class="p">[</span><span class="n">column_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">area_labels</span><span class="p">[</span><span class="n">column_name</span><span class="p">]</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_gdf</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">area_labels</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="LineHeader">
+<a class="viewcode-back" href="../../../api_reference/generated/geost.accessors.header.LineHeader.html#geost.accessors.header.LineHeader">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">LineHeader</span><span class="p">(</span><span class="n">AbstractHeader</span><span class="p">):</span>  <span class="c1"># pragma: no cover</span>
+<div class="viewcode-block" id="LineHeader.__init__">
+<a class="viewcode-back" href="../../../api_reference/generated/geost.accessors.header.LineHeader.html#geost.accessors.header.LineHeader.__init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">gdf</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_gdf</span> <span class="o">=</span> <span class="n">gdf</span></div>
+
+
+<div class="viewcode-block" id="LineHeader.change_horizontal_reference">
+<a class="viewcode-back" href="../../../api_reference/generated/geost.accessors.header.LineHeader.change_horizontal_reference.html#geost.accessors.header.LineHeader.change_horizontal_reference">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">change_horizontal_reference</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">to_epsg</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">int</span> <span class="o">|</span> <span class="n">CRS</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;Add function logic&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="LineHeader.change_vertical_reference">
+<a class="viewcode-back" href="../../../api_reference/generated/geost.accessors.header.LineHeader.change_vertical_reference.html#geost.accessors.header.LineHeader.change_vertical_reference">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">change_vertical_reference</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">to_epsg</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">int</span> <span class="o">|</span> <span class="n">CRS</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;Add function logic&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="LineHeader.get">
+<a class="viewcode-back" href="../../../api_reference/generated/geost.accessors.header.LineHeader.get.html#geost.accessors.header.LineHeader.get">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;Add function logic&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="LineHeader.select_within_bbox">
+<a class="viewcode-back" href="../../../api_reference/generated/geost.accessors.header.LineHeader.select_within_bbox.html#geost.accessors.header.LineHeader.select_within_bbox">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">select_within_bbox</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;Add function logic&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="LineHeader.select_with_points">
+<a class="viewcode-back" href="../../../api_reference/generated/geost.accessors.header.LineHeader.select_with_points.html#geost.accessors.header.LineHeader.select_with_points">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">select_with_points</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;Add function logic&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="LineHeader.select_with_lines">
+<a class="viewcode-back" href="../../../api_reference/generated/geost.accessors.header.LineHeader.select_with_lines.html#geost.accessors.header.LineHeader.select_with_lines">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">select_with_lines</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;Add function logic&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="LineHeader.select_within_polygons">
+<a class="viewcode-back" href="../../../api_reference/generated/geost.accessors.header.LineHeader.select_within_polygons.html#geost.accessors.header.LineHeader.select_within_polygons">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">select_within_polygons</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;Add function logic&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="LineHeader.select_by_depth">
+<a class="viewcode-back" href="../../../api_reference/generated/geost.accessors.header.LineHeader.select_by_depth.html#geost.accessors.header.LineHeader.select_by_depth">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">select_by_depth</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;Add function logic&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="LineHeader.select_by_length">
+<a class="viewcode-back" href="../../../api_reference/generated/geost.accessors.header.LineHeader.select_by_length.html#geost.accessors.header.LineHeader.select_by_length">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">select_by_length</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;Add function logic&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="LineHeader.get_area_labels">
+<a class="viewcode-back" href="../../../api_reference/generated/geost.accessors.header.LineHeader.get_area_labels.html#geost.accessors.header.LineHeader.get_area_labels">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_area_labels</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;Add function logic&quot;</span><span class="p">)</span></div>
+</div>
+
+</pre></div>
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2025, Deltares.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.2.3.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

@@ -1,6 +1,0 @@
-﻿geost.base.PointHeader.change\_vertical\_reference
-==================================================
-
-.. currentmodule:: geost.base
-
-.. automethod:: PointHeader.change_vertical_reference

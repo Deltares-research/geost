@@ -52,7 +52,7 @@
     <link rel="search" title="Search" href="../../search.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="0.3.0" />
+  <meta name="docsearch:version" content="0.4.0" />
   </head>
   
   
@@ -546,18 +546,16 @@
 <span class="sd">    -------</span>
 <span class="sd">    gpd.GeoDataFrame</span>
 <span class="sd">        Geodataframe containing only selected geometries.</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="c1"># Instance checks and coerce to geodataframe if required</span>
     <span class="n">gdf</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">check_geometry_instance</span><span class="p">(</span><span class="n">gdf</span><span class="p">)</span>
+    <span class="n">selected</span> <span class="o">=</span> <span class="n">gdf</span><span class="o">.</span><span class="n">cx</span><span class="p">[</span><span class="n">xmin</span><span class="p">:</span><span class="n">xmax</span><span class="p">,</span> <span class="n">ymin</span><span class="p">:</span><span class="n">ymax</span><span class="p">]</span>
 
-    <span class="c1"># Selection logic</span>
-    <span class="n">x</span> <span class="o">=</span> <span class="n">gdf</span><span class="p">[</span><span class="s2">&quot;geometry&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">x</span>
-    <span class="n">y</span> <span class="o">=</span> <span class="n">gdf</span><span class="p">[</span><span class="s2">&quot;geometry&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">y</span>
     <span class="k">if</span> <span class="n">invert</span><span class="p">:</span>
-        <span class="n">gdf_selected</span> <span class="o">=</span> <span class="n">gdf</span><span class="p">[(</span><span class="n">x</span> <span class="o">&lt;</span> <span class="n">xmin</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">x</span> <span class="o">&gt;</span> <span class="n">xmax</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">y</span> <span class="o">&lt;</span> <span class="n">ymin</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">y</span> <span class="o">&gt;</span> <span class="n">ymax</span><span class="p">)]</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="n">gdf_selected</span> <span class="o">=</span> <span class="n">gdf</span><span class="p">[(</span><span class="n">x</span> <span class="o">&gt;=</span> <span class="n">xmin</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">x</span> <span class="o">&lt;=</span> <span class="n">xmax</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">y</span> <span class="o">&gt;=</span> <span class="n">ymin</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">y</span> <span class="o">&lt;=</span> <span class="n">ymax</span><span class="p">)]</span>
-    <span class="k">return</span> <span class="n">gdf_selected</span></div>
+        <span class="n">selected</span> <span class="o">=</span> <span class="n">gdf</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="o">~</span><span class="n">gdf</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">selected</span><span class="o">.</span><span class="n">index</span><span class="p">)]</span>
+
+    <span class="k">return</span> <span class="n">selected</span></div>
 
 
 

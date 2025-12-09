@@ -1,0 +1,6 @@
+﻿geost.models.VoxelModel.most\_common
+====================================
+
+.. currentmodule:: geost.models
+
+.. automethod:: VoxelModel.most_common

@@ -1,0 +1,6 @@
+﻿geost.accessors.data.DiscreteData.slice\_by\_values
+===================================================
+
+.. currentmodule:: geost.accessors.data
+
+.. automethod:: DiscreteData.slice_by_values

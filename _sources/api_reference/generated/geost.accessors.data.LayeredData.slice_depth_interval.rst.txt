@@ -1,0 +1,6 @@
+﻿geost.accessors.data.LayeredData.slice\_depth\_interval
+=======================================================
+
+.. currentmodule:: geost.accessors.data
+
+.. automethod:: LayeredData.slice_depth_interval

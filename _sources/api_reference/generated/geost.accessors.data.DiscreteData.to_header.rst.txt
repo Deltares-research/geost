@@ -1,0 +1,6 @@
+﻿geost.accessors.data.DiscreteData.to\_header
+============================================
+
+.. currentmodule:: geost.accessors.data
+
+.. automethod:: DiscreteData.to_header

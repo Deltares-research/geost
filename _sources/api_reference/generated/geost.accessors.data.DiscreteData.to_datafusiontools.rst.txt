@@ -1,0 +1,6 @@
+﻿geost.accessors.data.DiscreteData.to\_datafusiontools
+=====================================================
+
+.. currentmodule:: geost.accessors.data
+
+.. automethod:: DiscreteData.to_datafusiontools

@@ -54,7 +54,7 @@
     <link rel="prev" title="Community" href="community.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="0.3.0" />
+  <meta name="docsearch:version" content="0.4.0" />
   </head>
   
   
@@ -470,11 +470,31 @@
                   
   <section id="release-notes">
 <h1>Release notes<a class="headerlink" href="#release-notes" title="Link to this heading">#</a></h1>
+<section id="v0-4-0">
+<h2>v0.4.0<a class="headerlink" href="#v0-4-0" title="Link to this heading">#</a></h2>
+<p>Replaced core header and data structures (e.g. <code class="docutils literal notranslate"><span class="pre">PointHeader</span></code>, <code class="docutils literal notranslate"><span class="pre">LayeredData</span></code>) in <code class="docutils literal notranslate"><span class="pre">Collection</span></code> instances by accessors on GeoDataFrames (header) and DataFrames (data). Now the header and data attributes of Collections have direct access to all Geopandas and Pandas methods. See the <a class="reference internal" href="user_guide/accessors.html"><span class="std std-doc">GeoST accessors</span></a> section in the User guide for detailed explanation of the new accessors.</p>
+<p><strong>Added</strong></p>
+<ul class="simple">
+<li><p><strong>Added</strong> <code class="docutils literal notranslate"><span class="pre">.gsthd</span></code> for Geopandas GeoDataFrames, see also <a class="reference internal" href="user_guide/accessors.html#header-gsthd-accessor"><span class="std std-ref">GeoST accessors</span></a>.</p></li>
+<li><p><strong>Added</strong> <code class="docutils literal notranslate"><span class="pre">.gstda</span></code> for Pandas DataFrames, see also <a class="reference internal" href="user_guide/accessors.html#data-gstda-accessor"><span class="std std-ref">GeoST accessors</span></a>.</p></li>
+<li><p><strong>Added</strong> <code class="docutils literal notranslate"><span class="pre">VoxelModel.slice_depth_interval</span></code> to slice voxelmodels between specific depth intervals using single values or 1D/2D elevation grids.</p></li>
+<li><p><strong>Added</strong> <code class="docutils literal notranslate"><span class="pre">VoxelModel.most_common</span></code> to determine the most common unit (i.e. value) and corresponding thickness at every x,y-location.</p></li>
+<li><p><strong>Added</strong> <code class="docutils literal notranslate"><span class="pre">VoxelModel.value_counts</span></code> to determine the value counts of unique values in a
+variable, in the total variable or along a specific dimension.</p></li>
+<li><p><strong>Added</strong> <code class="docutils literal notranslate"><span class="pre">VoxelModel.from_opendap</span></code> for generic voxel models. DIS3.1 example will follow later.</p></li>
+</ul>
+<p><strong>Other</strong></p>
+<ul class="simple">
+<li><p>Move <code class="docutils literal notranslate"><span class="pre">BoreholeCollection</span></code> and <code class="docutils literal notranslate"><span class="pre">CptCollection</span></code> to top-level import of package.</p></li>
+<li><p>Make Pyvista imports lazy to only import when used.</p></li>
+<li><p>Removed unused points in PyVista.UnstructuredGrid exports, reducing file size when saved to vtk file.</p></li>
+</ul>
+<p><a class="reference external" href="https://github.com/Deltares-research/geost/compare/0.3.0...0.4.0"><strong>Full Changelog</strong></a></p>
+</section>
 <section id="v0-3-0">
 <h2>v0.3.0<a class="headerlink" href="#v0-3-0" title="Link to this heading">#</a></h2>
 <p>Milestone update introducing improved integration with the BRO, 3D viewing/VTK features,
 better data validation and configuration options.</p>
-<p><a class="reference external" href="https://github.com/Deltares-research/geost/compare/0.2.9...0.3.0"><strong>Full Changelog</strong></a></p>
 <p><strong>Added</strong></p>
 <ul class="simple">
 <li><p><strong>Added</strong> XML file parsing functionality for BHR-P, BHR-G, BHR-GT, CPT and SFR objects</p></li>
@@ -494,10 +514,10 @@ better data validation and configuration options.</p>
 <li><p>Changed to and integrated <a class="reference external" href="https://pandera.readthedocs.io/en/stable/">Pandera</a> for dataframe validation</p></li>
 <li><p>License changed to GNU Lesser General Public License v3 (LGPLv3)</p></li>
 </ul>
+<p><a class="reference external" href="https://github.com/Deltares-research/geost/compare/0.2.9...0.3.0"><strong>Full Changelog</strong></a></p>
 </section>
 <section id="v0-2-9">
 <h2>v0.2.9<a class="headerlink" href="#v0-2-9" title="Link to this heading">#</a></h2>
-<p><a class="reference external" href="https://github.com/Deltares-research/geost/compare/0.2.8...0.2.9"><strong>Full Changelog</strong></a></p>
 <p><strong>Added</strong></p>
 <ul class="simple">
 <li><p><strong>Added</strong> <code class="docutils literal notranslate"><span class="pre">VoxelModel.to_vtk</span></code> method</p></li>
@@ -507,6 +527,7 @@ better data validation and configuration options.</p>
 <ul class="simple">
 <li><p><strong>Fixed</strong> replace validation decorators with print statements by dedicated UserWarnings in data validation and other functions</p></li>
 </ul>
+<p><a class="reference external" href="https://github.com/Deltares-research/geost/compare/0.2.8...0.2.9"><strong>Full Changelog</strong></a></p>
 </section>
 <section id="v0-2-8">
 <h2>v0.2.8<a class="headerlink" href="#v0-2-8" title="Link to this heading">#</a></h2>
@@ -525,10 +546,10 @@ better data validation and configuration options.</p>
 <ul class="simple">
 <li><p>Removed unnecessary transpose in <code class="docutils literal notranslate"><span class="pre">sample_along_line</span></code> for more generic behaviour</p></li>
 </ul>
+<p><a class="reference external" href="https://github.com/Deltares-research/geost/compare/0.2.6...0.2.8"><strong>Full Changelog</strong></a></p>
 </section>
 <section id="v0-2-6">
 <h2>v0.2.6<a class="headerlink" href="#v0-2-6" title="Link to this heading">#</a></h2>
-<p><a class="reference external" href="https://github.com/Deltares-research/geost/compare/0.2.4...0.2.6"><strong>Full Changelog</strong></a></p>
 <p><strong>Added</strong></p>
 <ul class="simple">
 <li><p><strong>Added</strong> GeoST documentation and deployment of these docs on Github pages</p></li>
@@ -545,10 +566,10 @@ better data validation and configuration options.</p>
 <li><p><strong>Fixed</strong> <em>find_area_labels</em> can now return multiple labels when passing an iterable of column names</p></li>
 <li><p><strong>Fixed</strong> Newly added columns to the header are now preserved upon making selections and slices</p></li>
 </ul>
+<p><a class="reference external" href="https://github.com/Deltares-research/geost/compare/0.2.4...0.2.6"><strong>Full Changelog</strong></a></p>
 </section>
 <section id="v0-2-4">
 <h2>v0.2.4<a class="headerlink" href="#v0-2-4" title="Link to this heading">#</a></h2>
-<p><a class="reference external" href="https://github.com/Deltares-research/geost/compare/0.2.2...0.2.4"><strong>Full Changelog</strong></a></p>
 <p><strong>Added</strong></p>
 <ul class="simple">
 <li><p><strong>Added</strong> export of BoreholeCollections to the Kingdom seismic interpretation software</p></li>
@@ -561,10 +582,10 @@ better data validation and configuration options.</p>
 <li><p><strong>Fixed</strong> multiple Pandas setting-on-copy-warnings</p></li>
 <li><p><strong>Fixed</strong> QGis3D export not using the collection’s CRS</p></li>
 </ul>
+<p><a class="reference external" href="https://github.com/Deltares-research/geost/compare/0.2.2...0.2.4"><strong>Full Changelog</strong></a></p>
 </section>
 <section id="v0-2-2">
 <h2>v0.2.2<a class="headerlink" href="#v0-2-2" title="Link to this heading">#</a></h2>
-<p><a class="reference external" href="https://github.com/Deltares-research/geost/compare/0.2.1...0.2.2"><strong>Full Changelog</strong></a></p>
 <p><strong>Added</strong></p>
 <ul class="simple">
 <li><p><strong>Added</strong> support of MacOS and Linux operating systems</p></li>
@@ -576,15 +597,16 @@ better data validation and configuration options.</p>
 <li><p><strong>Fixed</strong> icons in readme</p></li>
 <li><p><strong>Fixed</strong> select_by_values slow copy behaviour for large datasets</p></li>
 </ul>
+<p><a class="reference external" href="https://github.com/Deltares-research/geost/compare/0.2.1...0.2.2"><strong>Full Changelog</strong></a></p>
 </section>
 <section id="v0-2-1">
 <h2>v0.2.1<a class="headerlink" href="#v0-2-1" title="Link to this heading">#</a></h2>
-<p><a class="reference external" href="https://github.com/Deltares-research/geost/compare/0.2.0...0.2.1"><strong>Full Changelog</strong></a></p>
 <p><strong>Added</strong></p>
 <p><strong>Fixed</strong></p>
 <ul class="simple">
 <li><p><strong>Fixed</strong> adjustment of z-coordinates when using read_borehole_table</p></li>
 </ul>
+<p><a class="reference external" href="https://github.com/Deltares-research/geost/compare/0.2.0...0.2.1"><strong>Full Changelog</strong></a></p>
 </section>
 <section id="v0-2-0">
 <h2>v0.2.0<a class="headerlink" href="#v0-2-0" title="Link to this heading">#</a></h2>
@@ -632,6 +654,7 @@ better data validation and configuration options.</p>
   </div>
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#v0-4-0">v0.4.0</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#v0-3-0">v0.3.0</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#v0-2-9">v0.2.9</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#v0-2-8">v0.2.8</a></li>

@@ -1,0 +1,6 @@
+﻿geost.accessors.data.LayeredData.to\_collection
+===============================================
+
+.. currentmodule:: geost.accessors.data
+
+.. automethod:: LayeredData.to_collection

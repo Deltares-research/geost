@@ -1,0 +1,6 @@
+﻿geost.accessors.data.DiscreteData.to\_collection
+================================================
+
+.. currentmodule:: geost.accessors.data
+
+.. automethod:: DiscreteData.to_collection

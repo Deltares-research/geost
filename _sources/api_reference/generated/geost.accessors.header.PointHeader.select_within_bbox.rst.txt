@@ -1,0 +1,6 @@
+﻿geost.accessors.header.PointHeader.select\_within\_bbox
+=======================================================
+
+.. currentmodule:: geost.accessors.header
+
+.. automethod:: PointHeader.select_within_bbox

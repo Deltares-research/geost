@@ -1,6 +1,0 @@
-﻿geost.base.DiscreteData.to\_collection
-======================================
-
-.. currentmodule:: geost.base
-
-.. automethod:: DiscreteData.to_collection

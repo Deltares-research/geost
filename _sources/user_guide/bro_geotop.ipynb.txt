@@ -90,7 +90,7 @@
    "source": [
     "boreholes = geost.data.boreholes_usp()  # BoreholeCollection\n",
     "\n",
-    "geotop_at_locations = geotop.select_with_points(boreholes.header.gdf)\n",
+    "geotop_at_locations = geotop.select_with_points(boreholes.header)\n",
     "print(geotop_at_locations)"
    ]
   },
@@ -98,7 +98,7 @@
    "cell_type": "markdown",
    "metadata": {},
    "source": [
-    "The result is an `xarray.Dataset` with a new \"idx\" dimension and note that variables like \"strat\" now have \"(idx, z)\" dimensions. The `.select_with_points` method selects the voxel columns each borehole is in, in the index order of the boreholes in the [`BoreholeCollection`](../api_reference/borehole_collection.rst). It does not return a `VoxelModel` instance because a `VoxelModel` is only valid if it contains \"x\", \"y\" and \"z\" dimensions.\n",
+    "The result is an `xarray.Dataset` with a new \"idx\" dimension and note that variables like \"strat\" now have \"(idx, z)\" dimensions. The [`.select_with_points`](../api_reference/generated/geost.bro.bro_geotop.GeoTop.select_with_points.rst) method selects the voxel columns each borehole is in, in the index order of the boreholes in the [`BoreholeCollection`](../api_reference/borehole_collection.rst). It does not return a `VoxelModel` instance because a `VoxelModel` is only valid if it contains \"x\", \"y\" and \"z\" dimensions.\n",
     "\n",
     "With the selection result, it is possible to compare a borehole with a specific voxel column. Let's for example compare the first borehole in the collection with the voxel column. First, let's print the \"header\" attribute of the borehole collection to find the \"nr\" of the first borehole:"
    ]
@@ -228,7 +228,7 @@
    "name": "python",
    "nbconvert_exporter": "python",
    "pygments_lexer": "ipython3",
-   "version": "3.13.1"
+   "version": "3.13.5"
   }
  },
  "nbformat": 4,

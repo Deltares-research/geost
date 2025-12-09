@@ -1,6 +1,0 @@
-﻿geost.base.PointHeader.select\_within\_polygons
-===============================================
-
-.. currentmodule:: geost.base
-
-.. automethod:: PointHeader.select_within_polygons

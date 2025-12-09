@@ -1,0 +1,1590 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>geost.accessors.data &#8212; Geological Subsurface Toolbox  documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/mystnb.8ecb98da25f57f5357bf6f572d296f466b2cfe2517ffebfabe82451661e28f02.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=6e1425e8" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=6e1425e8" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
+    <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/geost/accessors/data';</script>
+    <link rel="icon" href="../../../_static/geost_logo.png"/>
+    <link rel="author" title="About these documents" href="../../../about.html" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="0.4.0" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class=" navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../../_static/geost_logo.png" class="logo__image only-light" alt="Geological Subsurface Toolbox  documentation - Home"/>
+    <img src="../../../_static/geost_logo.png" class="logo__image only-dark pst-js-only" alt="Geological Subsurface Toolbox  documentation - Home"/>
+  
+  
+</a></div>
+    
+  </div>
+  
+  <div class=" navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../index.html">
+    Home
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../about.html">
+    About
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../getting_started.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../documentation.html">
+    Documentation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../examples.html">
+    Examples
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../community.html">
+    Community
+  </a>
+</li>
+
+            <li class="nav-item dropdown">
+                <button class="btn dropdown-toggle nav-item" type="button"
+                data-bs-toggle="dropdown" aria-expanded="false"
+                aria-controls="pst-nav-more-links">
+                    More
+                </button>
+                <ul id="pst-nav-more-links" class="dropdown-menu">
+                    
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../../changelog.html">
+    Changelog
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-external" href="https://www.deltares.nl/en">
+    Deltares website
+  </a>
+</li>
+
+                </ul>
+            </li>
+            
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/Deltares-research/geost" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/geost" title="PyPI" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-solid fa-cubes fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">PyPI</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar hide-on-wide">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../index.html">
+    Home
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../about.html">
+    About
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../getting_started.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../documentation.html">
+    Documentation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../examples.html">
+    Examples
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../community.html">
+    Community
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../changelog.html">
+    Changelog
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-external" href="https://www.deltares.nl/en">
+    Deltares website
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/Deltares-research/geost" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/geost" title="PyPI" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-solid fa-cubes fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">PyPI</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../../index.html" class="nav-link">Module code</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">geost.accessors.data</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <h1>Source code for geost.accessors.data</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Literal</span><span class="p">,</span> <span class="n">get_args</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">geopandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">gpd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pyproj</span><span class="w"> </span><span class="kn">import</span> <span class="n">CRS</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">shapely</span><span class="w"> </span><span class="kn">import</span> <span class="n">geometry</span> <span class="k">as</span> <span class="n">gmt</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">geost</span><span class="w"> </span><span class="kn">import</span> <span class="n">export</span><span class="p">,</span> <span class="n">utils</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">geost.abstract_classes</span><span class="w"> </span><span class="kn">import</span> <span class="n">AbstractData</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">geost.analysis</span><span class="w"> </span><span class="kn">import</span> <span class="n">cumulative_thickness</span>
+
+<span class="nb">type</span> <span class="n">Coordinate</span> <span class="o">=</span> <span class="nb">int</span> <span class="o">|</span> <span class="nb">float</span>
+<span class="nb">type</span> <span class="n">GeometryType</span> <span class="o">=</span> <span class="n">gmt</span><span class="o">.</span><span class="n">base</span><span class="o">.</span><span class="n">BaseGeometry</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="n">gmt</span><span class="o">.</span><span class="n">base</span><span class="o">.</span><span class="n">BaseGeometry</span><span class="p">]</span>
+
+<span class="n">HeaderType</span> <span class="o">=</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;point&quot;</span><span class="p">,</span> <span class="s2">&quot;line&quot;</span><span class="p">]</span>
+<span class="n">DataType</span> <span class="o">=</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;layered&quot;</span><span class="p">,</span> <span class="s2">&quot;discrete&quot;</span><span class="p">]</span>
+
+
+<div class="viewcode-block" id="LayeredData">
+<a class="viewcode-back" href="../../../api_reference/generated/geost.accessors.data.LayeredData.html#geost.accessors.data.LayeredData">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">LayeredData</span><span class="p">(</span><span class="n">AbstractData</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A class to hold layered data objects (i.e. containing &quot;tops&quot; and &quot;bottoms&quot;) like</span>
+<span class="sd">    borehole descriptions which can be used for selections and exports.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    df : pd.DataFrame</span>
+<span class="sd">        Pandas DataFrame containing the data. Mandatory columns that must be present in the</span>
+<span class="sd">        DataFrame are: &quot;nr&quot;, &quot;x&quot;, &quot;y&quot;, &quot;surface&quot;, &quot;top&quot; and &quot;bottom&quot;. Otherwise, many methods</span>
+<span class="sd">        in the class will not work.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="LayeredData.__init__">
+<a class="viewcode-back" href="../../../api_reference/generated/geost.accessors.data.LayeredData.html#geost.accessors.data.LayeredData.__init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_df</span> <span class="o">=</span> <span class="n">df</span></div>
+
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_to_iterable</span><span class="p">(</span><span class="n">selection_values</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Iterable</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterable</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">selection_values</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="n">selection_values</span> <span class="o">=</span> <span class="p">[</span><span class="n">selection_values</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">selection_values</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_change_depth_values</span><span class="p">(</span><span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+        <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="s2">&quot;top&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;surface&quot;</span><span class="p">]</span> <span class="o">-</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;top&quot;</span><span class="p">]</span>
+        <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="s2">&quot;bottom&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;surface&quot;</span><span class="p">]</span> <span class="o">-</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;bottom&quot;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">df</span>
+
+<div class="viewcode-block" id="LayeredData.to_header">
+<a class="viewcode-back" href="../../../api_reference/generated/geost.accessors.data.LayeredData.to_header.html#geost.accessors.data.LayeredData.to_header">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">to_header</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">horizontal_reference</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">int</span> <span class="o">|</span> <span class="n">CRS</span> <span class="o">=</span> <span class="mi">28992</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Generate a :class:`~geost.base.PointHeader` from this instance of LayeredData.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        horizontal_reference : str | int | CRS, optional</span>
+<span class="sd">            EPSG of the target crs. Takes anything that can be interpreted by</span>
+<span class="sd">            pyproj.crs.CRS.from_user_input(), by default 28992.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        gpd.GeoDataFrame</span>
+<span class="sd">            GeoDataFrame containing the header information which can be used with GeoST</span>
+<span class="sd">            Header accessor methods.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">header_columns</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;nr&quot;</span><span class="p">,</span> <span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="s2">&quot;y&quot;</span><span class="p">,</span> <span class="s2">&quot;surface&quot;</span><span class="p">,</span> <span class="s2">&quot;end&quot;</span><span class="p">]</span>
+        <span class="n">header</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_df</span><span class="p">[</span><span class="n">header_columns</span><span class="p">]</span><span class="o">.</span><span class="n">drop_duplicates</span><span class="p">(</span><span class="s2">&quot;nr&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">header</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">dataframe_to_geodataframe</span><span class="p">(</span><span class="n">header</span><span class="p">)</span><span class="o">.</span><span class="n">set_crs</span><span class="p">(</span><span class="n">horizontal_reference</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">header</span></div>
+
+
+<div class="viewcode-block" id="LayeredData.to_collection">
+<a class="viewcode-back" href="../../../api_reference/generated/geost.accessors.data.LayeredData.to_collection.html#geost.accessors.data.LayeredData.to_collection">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">to_collection</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">has_inclined</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">horizontal_reference</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">int</span> <span class="o">|</span> <span class="n">CRS</span> <span class="o">=</span> <span class="mi">28992</span><span class="p">,</span>
+        <span class="n">vertical_reference</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">int</span> <span class="o">|</span> <span class="n">CRS</span> <span class="o">=</span> <span class="mi">5709</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create a collection from this instance of LayeredData. A collection combines</span>
+<span class="sd">        header and data and ensures that they remain aligned when applying methods.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        has_inclined : bool, optional</span>
+<span class="sd">            If True, the data also contains inclined objects which means the top of layers</span>
+<span class="sd">            is not in the same x,y-location as the bottom of layers. The default is False.</span>
+<span class="sd">        horizontal_reference : str | int | CRS, optional</span>
+<span class="sd">            EPSG of the target crs. Takes anything that can be interpreted by</span>
+<span class="sd">            pyproj.crs.CRS.from_user_input(), by default 28992.</span>
+<span class="sd">        vertical_reference : str | int | CRS, optional</span>
+<span class="sd">            EPSG of the target vertical datum. Takes anything that can be interpreted by</span>
+<span class="sd">            pyproj.crs.CRS.from_user_input(). However, it must be a vertical datum. FYI:</span>
+<span class="sd">            &quot;NAP&quot; is EPSG 5709 and The Belgian reference system (Ostend height) is ESPG</span>
+<span class="sd">            5710, by default 5709.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        :class:`~geost.base.BoreholeCollection`</span>
+<span class="sd">            An instance of :class:`~geost.base.BoreholeCollection`</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">geost.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">BoreholeCollection</span>  <span class="c1"># Avoid circular import</span>
+
+        <span class="n">header</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">to_header</span><span class="p">(</span><span class="n">horizontal_reference</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">BoreholeCollection</span><span class="p">(</span>
+            <span class="n">header</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_df</span><span class="p">,</span>
+            <span class="n">has_inclined</span><span class="o">=</span><span class="n">has_inclined</span><span class="p">,</span>
+            <span class="n">vertical_reference</span><span class="o">=</span><span class="n">vertical_reference</span><span class="p">,</span>
+        <span class="p">)</span>  <span class="c1"># NOTE: Type of Collection may need to be inferred in the future.</span></div>
+
+
+<div class="viewcode-block" id="LayeredData.select_by_values">
+<a class="viewcode-back" href="../../../api_reference/generated/geost.accessors.data.LayeredData.select_by_values.html#geost.accessors.data.LayeredData.select_by_values">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">select_by_values</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">column</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">selection_values</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">how</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;or&quot;</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Select data based on the presence of given values in a given column. Can be used</span>
+<span class="sd">        for example to select boreholes that contain peat in the lithology column.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        column : str</span>
+<span class="sd">            Name of column that contains categorical data to use when looking for</span>
+<span class="sd">            values.</span>
+<span class="sd">        selection_values : str | Iterable</span>
+<span class="sd">            Value or values to look for in the column.</span>
+<span class="sd">        how : str, optional</span>
+<span class="sd">            Either &quot;and&quot; or &quot;or&quot;. &quot;and&quot; requires all selection values to be present in</span>
+<span class="sd">            column for selection. &quot;or&quot; will select the core if any one of the</span>
+<span class="sd">            selection_values are found in the column. Default is &quot;and&quot;.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        pd.DataFrame</span>
+<span class="sd">            New DataFrame containing only the data selected by this method.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        To select boreholes where both clay (&quot;K&quot;) and peat (&quot;V&quot;) are present at the same</span>
+<span class="sd">        time, use &quot;and&quot; as a selection method:</span>
+
+<span class="sd">        &gt;&gt;&gt; boreholes.select_by_values(&quot;lith&quot;, [&quot;V&quot;, &quot;K&quot;], how=&quot;and&quot;)</span>
+
+<span class="sd">        To select boreholes that can have one, or both lithologies, use or as the selection</span>
+<span class="sd">        method:</span>
+
+<span class="sd">        &gt;&gt;&gt; boreholes.select_by_values(&quot;lith&quot;, [&quot;V&quot;, &quot;K&quot;], how=&quot;and&quot;)</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">column</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">IndexError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;The column &#39;</span><span class="si">{</span><span class="n">column</span><span class="si">}</span><span class="s2">&#39; does not exist and cannot be used for selection&quot;</span>
+            <span class="p">)</span>
+
+        <span class="n">selection_values</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_to_iterable</span><span class="p">(</span><span class="n">selection_values</span><span class="p">)</span>
+
+        <span class="n">selected</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_df</span>
+        <span class="k">if</span> <span class="n">how</span> <span class="o">==</span> <span class="s2">&quot;or&quot;</span><span class="p">:</span>
+            <span class="n">valid</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_df</span><span class="p">[</span><span class="s2">&quot;nr&quot;</span><span class="p">][</span><span class="bp">self</span><span class="o">.</span><span class="n">_df</span><span class="p">[</span><span class="n">column</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">selection_values</span><span class="p">)]</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span>
+            <span class="n">selected</span> <span class="o">=</span> <span class="n">selected</span><span class="p">[</span><span class="n">selected</span><span class="p">[</span><span class="s2">&quot;nr&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">valid</span><span class="p">)]</span>
+
+        <span class="k">elif</span> <span class="n">how</span> <span class="o">==</span> <span class="s2">&quot;and&quot;</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">selection_values</span><span class="p">:</span>
+                <span class="n">valid</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_df</span><span class="p">[</span><span class="s2">&quot;nr&quot;</span><span class="p">][</span><span class="bp">self</span><span class="o">.</span><span class="n">_df</span><span class="p">[</span><span class="n">column</span><span class="p">]</span> <span class="o">==</span> <span class="n">value</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span>
+                <span class="n">selected</span> <span class="o">=</span> <span class="n">selected</span><span class="p">[</span><span class="n">selected</span><span class="p">[</span><span class="s2">&quot;nr&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">valid</span><span class="p">)]</span>
+
+        <span class="k">return</span> <span class="n">selected</span></div>
+
+
+<div class="viewcode-block" id="LayeredData.slice_depth_interval">
+<a class="viewcode-back" href="../../../api_reference/generated/geost.accessors.data.LayeredData.slice_depth_interval.html#geost.accessors.data.LayeredData.slice_depth_interval">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">slice_depth_interval</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">upper_boundary</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">lower_boundary</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">relative_to_vertical_reference</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">update_layer_boundaries</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Slice data based on given upper and lower boundaries. This returns a new object</span>
+<span class="sd">        containing only the sliced data.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        upper_boundary : float | int, optional</span>
+<span class="sd">            Every layer that starts above this is removed. The default is None.</span>
+<span class="sd">        lower_boundary : float | int, optional</span>
+<span class="sd">            Every layer that starts below this is removed. The default is None.</span>
+<span class="sd">        relative_to_vertical_reference : bool, optional</span>
+<span class="sd">            If True, the slicing is done with respect to any kind of vertical reference</span>
+<span class="sd">            plane (e.g. &quot;NAP&quot;, &quot;TAW&quot;). If False, the slice is done with respect to depth</span>
+<span class="sd">            below the surface. The default is False.</span>
+<span class="sd">        update_layer_boundaries : bool, optional</span>
+<span class="sd">            If True, the layer boundaries in the sliced data are updated according to the</span>
+<span class="sd">            upper and lower boundaries used with the slice. If False, the original layer</span>
+<span class="sd">            boundaries are kept in the sliced object. The default is False.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        pd.DataFrame</span>
+<span class="sd">            New DataFrame containing only the data selected by this method.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        Usage depends on whether the slicing is done with respect to depth below the</span>
+<span class="sd">        surface or to a vertical reference plane.</span>
+
+<span class="sd">        For example, select layers in data that are between 2 and 3 meters below the</span>
+<span class="sd">        surface:</span>
+
+<span class="sd">        &gt;&gt;&gt; data.slice_depth_interval(2, 3)</span>
+
+<span class="sd">        By default, the method updates the layer boundaries in sliced object according to</span>
+<span class="sd">        the upper and lower boundaries. To suppress this behaviour use:</span>
+
+<span class="sd">        &gt;&gt;&gt; data.slice_depth_interval(2, 3, update_layer_boundaries=False)</span>
+
+<span class="sd">        Slicing can also be done with respect to a vertical reference plane like &quot;NAP&quot;.</span>
+<span class="sd">        For example, to select layers in boreholes that are between -3 and -5 m NAP, use:</span>
+
+<span class="sd">        &gt;&gt;&gt; data.slice_depth_interval(-3, -5, relative_to_vertical_reference=True)</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">upper_boundary</span><span class="p">:</span>
+            <span class="n">upper_boundary</span> <span class="o">=</span> <span class="mf">1e34</span> <span class="k">if</span> <span class="n">relative_to_vertical_reference</span> <span class="k">else</span> <span class="o">-</span><span class="mf">1e34</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">lower_boundary</span><span class="p">:</span>
+            <span class="n">lower_boundary</span> <span class="o">=</span> <span class="o">-</span><span class="mf">1e34</span> <span class="k">if</span> <span class="n">relative_to_vertical_reference</span> <span class="k">else</span> <span class="mf">1e34</span>
+
+        <span class="n">sliced</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_df</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+        <span class="n">bounds_are_series</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">if</span> <span class="n">relative_to_vertical_reference</span><span class="p">:</span>
+            <span class="n">bounds_are_series</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="n">upper_boundary</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_df</span><span class="p">[</span><span class="s2">&quot;surface&quot;</span><span class="p">]</span> <span class="o">-</span> <span class="n">upper_boundary</span>
+            <span class="n">lower_boundary</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_df</span><span class="p">[</span><span class="s2">&quot;surface&quot;</span><span class="p">]</span> <span class="o">-</span> <span class="n">lower_boundary</span>
+
+        <span class="n">sliced</span> <span class="o">=</span> <span class="n">sliced</span><span class="p">[</span>
+            <span class="p">(</span><span class="n">sliced</span><span class="p">[</span><span class="s2">&quot;bottom&quot;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">upper_boundary</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">sliced</span><span class="p">[</span><span class="s2">&quot;top&quot;</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">lower_boundary</span><span class="p">)</span>
+        <span class="p">]</span>
+
+        <span class="k">if</span> <span class="n">update_layer_boundaries</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">bounds_are_series</span><span class="p">:</span>
+                <span class="n">upper_boundary</span> <span class="o">=</span> <span class="n">upper_boundary</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">sliced</span><span class="o">.</span><span class="n">index</span><span class="p">]</span>
+                <span class="n">lower_boundary</span> <span class="o">=</span> <span class="n">lower_boundary</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">sliced</span><span class="o">.</span><span class="n">index</span><span class="p">]</span>
+
+            <span class="n">sliced</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">sliced</span><span class="p">[</span><span class="s2">&quot;top&quot;</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="n">upper_boundary</span><span class="p">,</span> <span class="s2">&quot;top&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">upper_boundary</span>
+            <span class="n">sliced</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">sliced</span><span class="p">[</span><span class="s2">&quot;bottom&quot;</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">lower_boundary</span><span class="p">,</span> <span class="s2">&quot;bottom&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">lower_boundary</span>
+
+        <span class="k">return</span> <span class="n">sliced</span></div>
+
+
+<div class="viewcode-block" id="LayeredData.slice_by_values">
+<a class="viewcode-back" href="../../../api_reference/generated/geost.accessors.data.LayeredData.slice_by_values.html#geost.accessors.data.LayeredData.slice_by_values">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">slice_by_values</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">column</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">selection_values</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">invert</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Slice rows from data based on matching condition. E.g. only return rows with</span>
+<span class="sd">        a certain lithology in the collection object.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        column : str</span>
+<span class="sd">            Name of column that contains categorical data to use when looking for</span>
+<span class="sd">            values.</span>
+<span class="sd">        selection_values : str | Iterable</span>
+<span class="sd">            Values to look for in the column.</span>
+<span class="sd">        invert : bool, optional</span>
+<span class="sd">            If True, invert the slicing action, so remove layers with selected values</span>
+<span class="sd">            instead of keeping them. The default is False.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        pd.DataFrame</span>
+<span class="sd">            New DataFrame containing only the data objects selected by this method.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        Return only rows in data contain sand (&quot;Z&quot;) as lithology:</span>
+
+<span class="sd">        &gt;&gt;&gt; data.slice_by_values(&quot;lith&quot;, &quot;Z&quot;)</span>
+
+<span class="sd">        If you want all the rows that may contain everything but sand, use the &quot;invert&quot;</span>
+<span class="sd">        option:</span>
+
+<span class="sd">        &gt;&gt;&gt; data.slice_by_values(&quot;lith&quot;, &quot;Z&quot;, invert=True)</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">selection_values</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_to_iterable</span><span class="p">(</span><span class="n">selection_values</span><span class="p">)</span>
+
+        <span class="n">sliced</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_df</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">invert</span><span class="p">:</span>
+            <span class="n">sliced</span> <span class="o">=</span> <span class="n">sliced</span><span class="p">[</span><span class="o">~</span><span class="n">sliced</span><span class="p">[</span><span class="n">column</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">selection_values</span><span class="p">)]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">sliced</span> <span class="o">=</span> <span class="n">sliced</span><span class="p">[</span><span class="n">sliced</span><span class="p">[</span><span class="n">column</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">selection_values</span><span class="p">)]</span>
+
+        <span class="k">return</span> <span class="n">sliced</span></div>
+
+
+<div class="viewcode-block" id="LayeredData.select_by_condition">
+<a class="viewcode-back" href="../../../api_reference/generated/geost.accessors.data.LayeredData.select_by_condition.html#geost.accessors.data.LayeredData.select_by_condition">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">select_by_condition</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">condition</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">invert</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Select data using a manual condition that results in a boolean mask. Returns the</span>
+<span class="sd">        rows in the data where the &#39;condition&#39; evaluates to True.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        condition : list, pd.Series or array like</span>
+<span class="sd">            Boolean array like object with locations at which the values will be</span>
+<span class="sd">            preserved, dtype must be &#39;bool&#39; and the length must correspond with the</span>
+<span class="sd">            length of the data.</span>
+<span class="sd">        invert : bool, optional</span>
+<span class="sd">            If True, the selection is inverted so rows that evaluate to False will be</span>
+<span class="sd">            returned. The default is False.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        pd.DataFrame</span>
+<span class="sd">            New DataFrame containing only the data selected by this method.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        Select rows in data that contain a specific value:</span>
+
+<span class="sd">        &gt;&gt;&gt; data.select_by_condition(data[&quot;lith&quot;]==&quot;V&quot;)</span>
+
+<span class="sd">        Or select rows in the data that contain a specific (part of) string or strings:</span>
+
+<span class="sd">        &gt;&gt;&gt; data.select_by_condition(data[&quot;column&quot;].str.contains(&quot;foo|bar&quot;))</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">invert</span><span class="p">:</span>
+            <span class="n">selected</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_df</span><span class="p">[</span><span class="o">~</span><span class="n">condition</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">selected</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_df</span><span class="p">[</span><span class="n">condition</span><span class="p">]</span>
+
+        <span class="k">return</span> <span class="n">selected</span></div>
+
+
+<div class="viewcode-block" id="LayeredData.get_cumulative_thickness">
+<a class="viewcode-back" href="../../../api_reference/generated/geost.accessors.data.LayeredData.get_cumulative_thickness.html#geost.accessors.data.LayeredData.get_cumulative_thickness">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_cumulative_thickness</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">column</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">values</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the cumulative thickness of layers where a column contains a specified search</span>
+<span class="sd">        value or values.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        column : str</span>
+<span class="sd">            Name of column that must contain the search value or values.</span>
+<span class="sd">        values : str | List[str]</span>
+<span class="sd">            Search value or values in the column to find the cumulative thickness for.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        pd.DataFrame</span>
+<span class="sd">            Borehole ids and cumulative thickness of selected layers.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        Get the cumulative thickness of the layers with lithology &quot;K&quot; in the column &quot;lith&quot;</span>
+<span class="sd">        use:</span>
+
+<span class="sd">        &gt;&gt;&gt; data.get_cumulative_thickness(&quot;lith&quot;, &quot;K&quot;)</span>
+
+<span class="sd">        Or get the cumulative thickness for multiple selection values. In this case, a</span>
+<span class="sd">        Pandas DataFrame is returned with a column per selection value containing the</span>
+<span class="sd">        cumulative thicknesses:</span>
+
+<span class="sd">        &gt;&gt;&gt; data.get_cumulative_thickness(&quot;lith&quot;, [&quot;K&quot;, &quot;Z&quot;])</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">selected_layers</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">slice_by_values</span><span class="p">(</span><span class="n">column</span><span class="p">,</span> <span class="n">values</span><span class="p">)</span>
+        <span class="n">cum_thickness</span> <span class="o">=</span> <span class="n">selected_layers</span><span class="o">.</span><span class="n">groupby</span><span class="p">([</span><span class="s2">&quot;nr&quot;</span><span class="p">,</span> <span class="n">column</span><span class="p">])</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span>
+            <span class="n">cumulative_thickness</span><span class="p">,</span> <span class="n">include_groups</span><span class="o">=</span><span class="kc">False</span>
+        <span class="p">)</span>
+        <span class="n">cum_thickness</span> <span class="o">=</span> <span class="n">cum_thickness</span><span class="o">.</span><span class="n">unstack</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="n">column</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">cum_thickness</span></div>
+
+
+<div class="viewcode-block" id="LayeredData.get_layer_top">
+<a class="viewcode-back" href="../../../api_reference/generated/geost.accessors.data.LayeredData.get_layer_top.html#geost.accessors.data.LayeredData.get_layer_top">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_layer_top</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">column</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">values</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+        <span class="n">min_thickness</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+        <span class="n">min_depth</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Find the depth at which a specified layer first occurs, starting at min_depth</span>
+<span class="sd">        and looking downwards until the first layer of min_thickness is found of the</span>
+<span class="sd">        specified layer.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        column : str</span>
+<span class="sd">            Name of column that contains categorical data.</span>
+<span class="sd">        values : str | List[str]</span>
+<span class="sd">            Value or values of entries in the column that you want to find top of.</span>
+<span class="sd">        min_thickness : float, optional</span>
+<span class="sd">            Minimal thickness of the layer to be considered. The default is 0.</span>
+<span class="sd">        min_depth : float, optional</span>
+<span class="sd">            Minimal depth of the layer to be considered. The default is 0.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        pd.DataFrame</span>
+<span class="sd">            Borehole ids and top levels of selected layers in meters below the surface.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        Get the top depth of layers in data where the lithology in the &quot;lith&quot; column</span>
+<span class="sd">        is sand (&quot;Z&quot;):</span>
+
+<span class="sd">        &gt;&gt;&gt; data.get_layer_top(&quot;lith&quot;, &quot;Z&quot;)</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">selection</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">slice_by_values</span><span class="p">(</span><span class="n">column</span><span class="p">,</span> <span class="n">values</span><span class="p">)</span>
+        <span class="n">selection</span> <span class="o">=</span> <span class="n">selection</span><span class="o">.</span><span class="n">gstda</span><span class="o">.</span><span class="n">slice_depth_interval</span><span class="p">(</span><span class="n">upper_boundary</span><span class="o">=</span><span class="n">min_depth</span><span class="p">)</span>
+        <span class="n">selection</span> <span class="o">=</span> <span class="n">selection</span><span class="o">.</span><span class="n">gstda</span><span class="o">.</span><span class="n">select_by_condition</span><span class="p">(</span>
+            <span class="n">selection</span><span class="p">[</span><span class="s2">&quot;bottom&quot;</span><span class="p">]</span> <span class="o">-</span> <span class="n">selection</span><span class="p">[</span><span class="s2">&quot;top&quot;</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">min_thickness</span>
+        <span class="p">)</span>
+        <span class="n">layer_top</span> <span class="o">=</span> <span class="n">selection</span><span class="o">.</span><span class="n">groupby</span><span class="p">([</span><span class="s2">&quot;nr&quot;</span><span class="p">,</span> <span class="n">column</span><span class="p">])[</span><span class="s2">&quot;top&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">first</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">layer_top</span><span class="o">.</span><span class="n">unstack</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="n">column</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="LayeredData.to_pyvista_cylinders">
+<a class="viewcode-back" href="../../../api_reference/generated/geost.accessors.data.LayeredData.to_pyvista_cylinders.html#geost.accessors.data.LayeredData.to_pyvista_cylinders">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">to_pyvista_cylinders</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">displayed_variables</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+        <span class="n">radius</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="n">vertical_factor</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span>
+        <span class="n">relative_to_vertical_reference</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create a Pyvista MultiBlock object of cylinder-shaped geometries to represent</span>
+<span class="sd">        boreholes. Although cylinders are prettier when visualized, they are quite costly</span>
+<span class="sd">        to render in large numbers. Consider using</span>
+<span class="sd">        :meth:`~geost.base.LayeredData.to_pyvista_grid` instead for large datasets.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        displayed_variables : str | List[str]</span>
+<span class="sd">            Name or names of data columns to include for visualisation. Can be columns that</span>
+<span class="sd">            contain an array of floats, ints and strings.</span>
+<span class="sd">        radius : float, optional</span>
+<span class="sd">            Radius of the cylinders in m in the MultiBlock. The default is 1.</span>
+<span class="sd">        vertical_factor : float, optional</span>
+<span class="sd">            Factor to correct vertical scale. For example, when layer boundaries are given</span>
+<span class="sd">            in cm, use 0.01 to convert to m. The default is 1.0, so no correction is applied.</span>
+<span class="sd">            It is not recommended to use this for vertical exaggeration, use viewer functionality</span>
+<span class="sd">            for that instead.</span>
+<span class="sd">        relative_to_vertical_reference : bool, optional</span>
+<span class="sd">            If True, the depth of the objects in the vtm file will be with respect to a</span>
+<span class="sd">            reference plane (e.g. &quot;NAP&quot;, &quot;TAW&quot;). If False, the depth will be with respect</span>
+<span class="sd">            to 0.0. The default is True.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        pyvista.MultiBlock</span>
+<span class="sd">            A composite class holding the data which can be iterated over.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">data_columns</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_to_iterable</span><span class="p">(</span><span class="n">displayed_variables</span><span class="p">)</span>
+
+        <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_df</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">relative_to_vertical_reference</span><span class="p">:</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_change_depth_values</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">data</span><span class="p">[</span><span class="s2">&quot;surface&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+
+        <span class="n">vtk_object</span> <span class="o">=</span> <span class="n">export</span><span class="o">.</span><span class="n">borehole_to_multiblock</span><span class="p">(</span>
+            <span class="n">data</span><span class="p">,</span> <span class="n">data_columns</span><span class="p">,</span> <span class="n">radius</span><span class="p">,</span> <span class="n">vertical_factor</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">vtk_object</span></div>
+
+
+<div class="viewcode-block" id="LayeredData.to_pyvista_grid">
+<a class="viewcode-back" href="../../../api_reference/generated/geost.accessors.data.LayeredData.to_pyvista_grid.html#geost.accessors.data.LayeredData.to_pyvista_grid">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">to_pyvista_grid</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">displayed_variables</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+        <span class="n">radius</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create a PyVista UnstructuredGrid object of the data in this instance. This</span>
+<span class="sd">        method is more efficient than :meth:`~geost.base.LayeredData.to_pyvista_cylinders`</span>
+<span class="sd">        for large datasets, as it uses a grid representation instead of cylinders.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        data_columns : str | list[str]</span>
+<span class="sd">            Name or names of data columns to include for visualisation. Can be columns that</span>
+<span class="sd">            contain an array of floats, ints and strings.</span>
+<span class="sd">        radius : float, optional</span>
+<span class="sd">            Radius cells in m, by default 1.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        pyvista.UnstructuredGrid</span>
+<span class="sd">            A PyVista UnstructuredGrid object containing the data that can be used for</span>
+<span class="sd">            3D visualisation in PyVista or other VTK viewers.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">displayed_variables</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_to_iterable</span><span class="p">(</span><span class="n">displayed_variables</span><span class="p">)</span>
+        <span class="n">vtk_object</span> <span class="o">=</span> <span class="n">export</span><span class="o">.</span><span class="n">layerdata_to_pyvista_unstructured</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_df</span><span class="p">,</span> <span class="n">displayed_variables</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="n">radius</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">vtk_object</span></div>
+
+
+<div class="viewcode-block" id="LayeredData.to_datafusiontools">
+<a class="viewcode-back" href="../../../api_reference/generated/geost.accessors.data.LayeredData.to_datafusiontools.html#geost.accessors.data.LayeredData.to_datafusiontools">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">to_datafusiontools</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">columns</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+        <span class="n">outfile</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">encode</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">relative_to_vertical_reference</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Export all data to the core &quot;Data&quot; class of Deltares DataFusionTools. Returns</span>
+<span class="sd">        a list of &quot;Data&quot; objects, one for each data object that is exported. This list</span>
+<span class="sd">        can directly be used within DataFusionTools. If out_file is given, the list of</span>
+<span class="sd">        Data objects is saved to a pickle file.</span>
+
+<span class="sd">        For DataFusionTools visit:</span>
+<span class="sd">        https://bitbucket.org/DeltaresGEO/datafusiontools/src/master/</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        columns : List[str]</span>
+<span class="sd">            Which columns in the data to include for the export. These will become variables</span>
+<span class="sd">            in the DataFusionTools &quot;Data&quot; class.</span>
+<span class="sd">        outfile : str | Path, optional</span>
+<span class="sd">            If a path to outfile is given, the data is written to a pickle file.</span>
+<span class="sd">        encode : bool, default True</span>
+<span class="sd">            If True, categorical data columns are encoded to additional binary columns</span>
+<span class="sd">            (all possible values become a seperate feature that is 0 or 1). The default is</span>
+<span class="sd">            False. Warning: if there is a large number of possible categories, many columns</span>
+<span class="sd">            with categorical data or both, the export process may become slow and may consume</span>
+<span class="sd">            a large amount memory. Please consider carefully which categorical data columns</span>
+<span class="sd">            need to be included.</span>
+<span class="sd">        relative_to_vertical_reference : bool, optional</span>
+<span class="sd">            If True, the depth of all data objects will converted to a depth with respect to</span>
+<span class="sd">            a reference plane (e.g. &quot;NAP&quot;, &quot;TAW&quot;). If False, the depth will be kept as original</span>
+<span class="sd">            in the &quot;top&quot; and &quot;bottom&quot; columns which is in meter below the surface. The default</span>
+<span class="sd">            is True.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        List[Data]</span>
+<span class="sd">            List containing the DataFusionTools Data objects.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">columns</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_to_iterable</span><span class="p">(</span><span class="n">columns</span><span class="p">)</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_df</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">relative_to_vertical_reference</span><span class="p">:</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_change_depth_values</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+
+        <span class="n">dftgeodata</span> <span class="o">=</span> <span class="n">export</span><span class="o">.</span><span class="n">to_dftgeodata</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">columns</span><span class="p">,</span> <span class="n">encode</span><span class="o">=</span><span class="n">encode</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">outfile</span><span class="p">:</span>
+            <span class="n">utils</span><span class="o">.</span><span class="n">save_pickle</span><span class="p">(</span><span class="n">dftgeodata</span><span class="p">,</span> <span class="n">outfile</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">dftgeodata</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_create_geodataframe_3d</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">relative_to_vertical_reference</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="n">crs</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">int</span> <span class="o">|</span> <span class="n">CRS</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">has_inclined</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Helper method for export method &quot;to_qgis3d&quot; to create the necessary GeoDataFrame</span>
+<span class="sd">        containing 3D Shapely objects and associated information.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        relative_to_vertical_reference : bool, optional</span>
+<span class="sd">            If True, the depth of all data objects will converted to a depth with respect to</span>
+<span class="sd">            a reference plane (e.g. &quot;NAP&quot;, &quot;TAW&quot;). If False, the depth will be kept as original</span>
+<span class="sd">            in the &quot;top&quot; and &quot;bottom&quot; columns which is in meter below the surface. The default</span>
+<span class="sd">            is True.</span>
+<span class="sd">        crs : str | int | CRS</span>
+<span class="sd">            EPSG of the target crs. Takes anything that can be interpreted by</span>
+<span class="sd">            pyproj.crs.CRS.from_user_input().</span>
+<span class="sd">        has_inclined : bool, optional</span>
+<span class="sd">            If True, the data also contains inclined objects which means the top of layers</span>
+<span class="sd">            is not in the same x,y-location as the bottom of layers. The default is False.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_df</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">relative_to_vertical_reference</span><span class="p">:</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_change_depth_values</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+
+        <span class="n">data_columns</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">col</span>
+            <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">columns</span>
+            <span class="k">if</span> <span class="n">col</span>
+            <span class="ow">not</span> <span class="ow">in</span> <span class="p">{</span><span class="s2">&quot;nr&quot;</span><span class="p">,</span> <span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="s2">&quot;y&quot;</span><span class="p">,</span> <span class="s2">&quot;x_bot&quot;</span><span class="p">,</span> <span class="s2">&quot;y_bot&quot;</span><span class="p">,</span> <span class="s2">&quot;surface&quot;</span><span class="p">,</span> <span class="s2">&quot;end&quot;</span><span class="p">,</span> <span class="s2">&quot;top&quot;</span><span class="p">,</span> <span class="s2">&quot;bottom&quot;</span><span class="p">}</span>
+        <span class="p">]</span>
+
+        <span class="n">data_to_write</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
+            <span class="n">nr</span><span class="o">=</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;nr&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">,</span>
+            <span class="n">top</span><span class="o">=</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;top&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">),</span>
+            <span class="n">bottom</span><span class="o">=</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;bottom&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">),</span>
+        <span class="p">)</span>
+
+        <span class="n">data_to_write</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">data_columns</span><span class="p">]</span><span class="o">.</span><span class="n">to_dict</span><span class="p">(</span><span class="n">orient</span><span class="o">=</span><span class="s2">&quot;list&quot;</span><span class="p">))</span>
+
+        <span class="k">if</span> <span class="n">has_inclined</span><span class="p">:</span>
+            <span class="n">geometries</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="n">gmt</span><span class="o">.</span><span class="n">LineString</span><span class="p">([[</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">top</span> <span class="o">+</span> <span class="mf">0.01</span><span class="p">],</span> <span class="p">[</span><span class="n">x_bot</span><span class="p">,</span> <span class="n">y_bot</span><span class="p">,</span> <span class="n">bottom</span> <span class="o">+</span> <span class="mf">0.01</span><span class="p">]])</span>
+                <span class="k">for</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">x_bot</span><span class="p">,</span> <span class="n">y_bot</span><span class="p">,</span> <span class="n">top</span><span class="p">,</span> <span class="n">bottom</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span>
+                    <span class="n">data</span><span class="p">[</span><span class="s2">&quot;x&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">),</span>
+                    <span class="n">data</span><span class="p">[</span><span class="s2">&quot;y&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">),</span>
+                    <span class="n">data</span><span class="p">[</span><span class="s2">&quot;x_bot&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">),</span>
+                    <span class="n">data</span><span class="p">[</span><span class="s2">&quot;y_bot&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">),</span>
+                    <span class="n">data</span><span class="p">[</span><span class="s2">&quot;top&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">),</span>
+                    <span class="n">data</span><span class="p">[</span><span class="s2">&quot;bottom&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">),</span>
+                <span class="p">)</span>
+            <span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>  <span class="c1"># NOTE: Doesn&#39;t it need to be &quot;top - 0.01&quot; to create overlap?</span>
+            <span class="n">geometries</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="n">gmt</span><span class="o">.</span><span class="n">LineString</span><span class="p">([[</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">top</span> <span class="o">+</span> <span class="mf">0.01</span><span class="p">],</span> <span class="p">[</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">bottom</span> <span class="o">+</span> <span class="mf">0.01</span><span class="p">]])</span>
+                <span class="k">for</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">top</span><span class="p">,</span> <span class="n">bottom</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span>
+                    <span class="n">data</span><span class="p">[</span><span class="s2">&quot;x&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">),</span>
+                    <span class="n">data</span><span class="p">[</span><span class="s2">&quot;y&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">),</span>
+                    <span class="n">data</span><span class="p">[</span><span class="s2">&quot;top&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">),</span>
+                    <span class="n">data</span><span class="p">[</span><span class="s2">&quot;bottom&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">),</span>
+                <span class="p">)</span>
+            <span class="p">]</span>
+
+        <span class="k">return</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">(</span>
+            <span class="n">data</span><span class="o">=</span><span class="n">data_to_write</span><span class="p">,</span>
+            <span class="n">geometry</span><span class="o">=</span><span class="n">geometries</span><span class="p">,</span>
+            <span class="n">crs</span><span class="o">=</span><span class="n">crs</span><span class="p">,</span>
+        <span class="p">)</span>
+
+<div class="viewcode-block" id="LayeredData.to_qgis3d">
+<a class="viewcode-back" href="../../../api_reference/generated/geost.accessors.data.LayeredData.to_qgis3d.html#geost.accessors.data.LayeredData.to_qgis3d">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">to_qgis3d</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">outfile</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">,</span>
+        <span class="n">relative_to_vertical_reference</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="n">crs</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">int</span> <span class="o">|</span> <span class="n">CRS</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">has_inclined</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Write data to geopackage file that can be directly loaded in the Qgis2threejs</span>
+<span class="sd">        plugin. Works only for layered (borehole) data.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        outfile : str | Path</span>
+<span class="sd">            Path to geopackage file to be written.</span>
+<span class="sd">        relative_to_vertical_reference : bool, optional</span>
+<span class="sd">            If True, the depth of all data objects will converted to a depth with</span>
+<span class="sd">            respect to a reference plane (e.g. &quot;NAP&quot;, &quot;Ostend height&quot;). If False, the</span>
+<span class="sd">            depth will be kept as original in the &quot;top&quot; and &quot;bottom&quot; columns which is in</span>
+<span class="sd">            meter below the surface. The default is True.</span>
+<span class="sd">        crs : str | int | CRS</span>
+<span class="sd">            EPSG of the target crs. Takes anything that can be interpreted by</span>
+<span class="sd">            pyproj.crs.CRS.from_user_input().</span>
+<span class="sd">        has_inclined : bool, optional</span>
+<span class="sd">            If True, the data also contains inclined objects which means the top of layers</span>
+<span class="sd">            is not in the same x,y-location as the bottom of layers. The default is False.</span>
+
+<span class="sd">        **kwargs</span>
+<span class="sd">            geopandas.GeodataFrame.to_file kwargs. See relevant Geopandas documentation.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">qgis3d</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_create_geodataframe_3d</span><span class="p">(</span>
+            <span class="n">relative_to_vertical_reference</span><span class="p">,</span> <span class="n">crs</span><span class="o">=</span><span class="n">crs</span><span class="p">,</span> <span class="n">has_inclined</span><span class="o">=</span><span class="n">has_inclined</span>
+        <span class="p">)</span>
+        <span class="n">qgis3d</span><span class="o">.</span><span class="n">to_file</span><span class="p">(</span><span class="n">outfile</span><span class="p">,</span> <span class="n">driver</span><span class="o">=</span><span class="s2">&quot;GPKG&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="LayeredData.to_kingdom">
+<a class="viewcode-back" href="../../../api_reference/generated/geost.accessors.data.LayeredData.to_kingdom.html#geost.accessors.data.LayeredData.to_kingdom">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">to_kingdom</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">outfile</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">,</span>
+        <span class="n">tdstart</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="n">vw</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1500.0</span><span class="p">,</span>
+        <span class="n">vs</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1600.0</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Write data to 2 csv files: 1) interval data and 2) time-depth chart. These files</span>
+<span class="sd">        can be imported in the Kingdom seismic interpretation software.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        outfile : str | Path</span>
+<span class="sd">            Path to csv file to be written.</span>
+<span class="sd">        tdstart : int</span>
+<span class="sd">            startindex for TDchart, default is 1</span>
+<span class="sd">        vw : float</span>
+<span class="sd">            sound velocity in water in m/s, default is 1500 m/s</span>
+<span class="sd">        vs : float</span>
+<span class="sd">            sound velocity in sediment in m/s, default is 1600 m/s</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># 1. add column needed in kingdom and write interval data</span>
+        <span class="n">kingdom_df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_df</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="c1"># Add total depth and rename bottom and top columns to Kingdom requirements</span>
+        <span class="n">kingdom_df</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">7</span><span class="p">,</span> <span class="s2">&quot;Total depth&quot;</span><span class="p">,</span> <span class="p">(</span><span class="n">kingdom_df</span><span class="p">[</span><span class="s2">&quot;surface&quot;</span><span class="p">]</span> <span class="o">-</span> <span class="n">kingdom_df</span><span class="p">[</span><span class="s2">&quot;end&quot;</span><span class="p">]))</span>
+        <span class="n">kingdom_df</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span>
+            <span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;top&quot;</span><span class="p">:</span> <span class="s2">&quot;Start depth&quot;</span><span class="p">,</span> <span class="s2">&quot;bottom&quot;</span><span class="p">:</span> <span class="s2">&quot;End depth&quot;</span><span class="p">},</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span>
+        <span class="p">)</span>
+        <span class="n">kingdom_df</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">outfile</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+        <span class="c1"># 2. create and write time-depth chart</span>
+        <span class="n">tdchart</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_df</span><span class="p">[[</span><span class="s2">&quot;nr&quot;</span><span class="p">,</span> <span class="s2">&quot;surface&quot;</span><span class="p">]]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">tdchart</span><span class="o">.</span><span class="n">drop_duplicates</span><span class="p">(</span><span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">tdchart</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;id&quot;</span><span class="p">,</span> <span class="nb">range</span><span class="p">(</span><span class="n">tdstart</span><span class="p">,</span> <span class="n">tdstart</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="n">tdchart</span><span class="p">)))</span>
+        <span class="c1"># Add measured depth (predefined depths of 0 and 1 m below surface)</span>
+        <span class="n">tdchart</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span>
+            <span class="p">[</span>
+                <span class="n">tdchart</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">MD</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">tdchart</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">)),</span>
+                <span class="n">tdchart</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">MD</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">tdchart</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">)),</span>
+            <span class="p">]</span>
+        <span class="p">)</span>
+        <span class="c1"># Add two-way travel time</span>
+        <span class="n">tdchart</span><span class="p">[</span><span class="s2">&quot;TWT&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="o">-</span><span class="n">tdchart</span><span class="p">[</span><span class="s2">&quot;surface&quot;</span><span class="p">]</span> <span class="o">/</span> <span class="p">(</span><span class="n">vw</span> <span class="o">/</span> <span class="mi">2</span> <span class="o">/</span> <span class="mi">1000</span><span class="p">))</span> <span class="o">+</span> <span class="p">(</span>
+            <span class="n">tdchart</span><span class="p">[</span><span class="s2">&quot;MD&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="mi">1</span> <span class="o">/</span> <span class="p">(</span><span class="n">vs</span> <span class="o">/</span> <span class="mi">2</span> <span class="o">/</span> <span class="mi">1000</span><span class="p">)</span>
+        <span class="p">)</span>
+
+        <span class="n">tdchart</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="s2">&quot;surface&quot;</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">tdchart</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">,</span> <span class="s2">&quot;MD&quot;</span><span class="p">],</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">outfile</span><span class="p">,</span> <span class="n">Path</span><span class="p">):</span>
+            <span class="n">outfile</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">outfile</span><span class="p">)</span>
+        <span class="n">tdchart</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span>
+            <span class="n">outfile</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">outfile</span><span class="o">.</span><span class="n">stem</span><span class="si">}</span><span class="s2">_TDCHART</span><span class="si">{</span><span class="n">outfile</span><span class="o">.</span><span class="n">suffix</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">),</span>
+            <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="p">)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="DiscreteData">
+<a class="viewcode-back" href="../../../api_reference/generated/geost.accessors.data.DiscreteData.html#geost.accessors.data.DiscreteData">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">DiscreteData</span><span class="p">(</span><span class="n">AbstractData</span><span class="p">):</span>
+<div class="viewcode-block" id="DiscreteData.__init__">
+<a class="viewcode-back" href="../../../api_reference/generated/geost.accessors.data.DiscreteData.html#geost.accessors.data.DiscreteData.__init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">df</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_df</span> <span class="o">=</span> <span class="n">df</span></div>
+
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_to_iterable</span><span class="p">(</span><span class="n">selection_values</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Iterable</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterable</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">selection_values</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="n">selection_values</span> <span class="o">=</span> <span class="p">[</span><span class="n">selection_values</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">selection_values</span>
+
+<div class="viewcode-block" id="DiscreteData.to_header">
+<a class="viewcode-back" href="../../../api_reference/generated/geost.accessors.data.DiscreteData.to_header.html#geost.accessors.data.DiscreteData.to_header">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">to_header</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">horizontal_reference</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">int</span> <span class="o">|</span> <span class="n">CRS</span> <span class="o">=</span> <span class="mi">28992</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Generate a :class:`~geost.base.PointHeader` from this instance of LayeredData.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        horizontal_reference : str | int | CRS, optional</span>
+<span class="sd">            EPSG of the target crs. Takes anything that can be interpreted by</span>
+<span class="sd">            pyproj.crs.CRS.from_user_input(), by default 28992.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        gpd.GeoDataFrame</span>
+<span class="sd">            GeoDataFrame containing the header information which can be used with GeoST</span>
+<span class="sd">            Header accessor methods.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">header_columns</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;nr&quot;</span><span class="p">,</span> <span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="s2">&quot;y&quot;</span><span class="p">,</span> <span class="s2">&quot;surface&quot;</span><span class="p">,</span> <span class="s2">&quot;end&quot;</span><span class="p">]</span>
+        <span class="n">header</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_df</span><span class="p">[</span><span class="n">header_columns</span><span class="p">]</span><span class="o">.</span><span class="n">drop_duplicates</span><span class="p">(</span><span class="s2">&quot;nr&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">header</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">dataframe_to_geodataframe</span><span class="p">(</span><span class="n">header</span><span class="p">)</span><span class="o">.</span><span class="n">set_crs</span><span class="p">(</span><span class="n">horizontal_reference</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">header</span></div>
+
+
+<div class="viewcode-block" id="DiscreteData.to_collection">
+<a class="viewcode-back" href="../../../api_reference/generated/geost.accessors.data.DiscreteData.to_collection.html#geost.accessors.data.DiscreteData.to_collection">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">to_collection</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">has_inclined</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">horizontal_reference</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">int</span> <span class="o">|</span> <span class="n">CRS</span> <span class="o">=</span> <span class="mi">28992</span><span class="p">,</span>
+        <span class="n">vertical_reference</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">int</span> <span class="o">|</span> <span class="n">CRS</span> <span class="o">=</span> <span class="mi">5709</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create a collection from this instance of LayeredData. A collection combines</span>
+<span class="sd">        header and data and ensures that they remain aligned when applying methods.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        has_inclined : bool, optional</span>
+<span class="sd">            If True, the data also contains inclined objects which means the top of layers</span>
+<span class="sd">            is not in the same x,y-location as the bottom of layers. The default is False.</span>
+<span class="sd">        horizontal_reference : str | int | CRS, optional</span>
+<span class="sd">            EPSG of the target crs. Takes anything that can be interpreted by</span>
+<span class="sd">            pyproj.crs.CRS.from_user_input(), by default 28992.</span>
+<span class="sd">        vertical_reference : str | int | CRS, optional</span>
+<span class="sd">            EPSG of the target vertical datum. Takes anything that can be interpreted by</span>
+<span class="sd">            pyproj.crs.CRS.from_user_input(). However, it must be a vertical datum. FYI:</span>
+<span class="sd">            &quot;NAP&quot; is EPSG 5709 and The Belgian reference system (Ostend height) is ESPG</span>
+<span class="sd">            5710, by default 5709.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        :class:`~geost.base.CptCollection`</span>
+<span class="sd">            An instance of :class:`~geost.base.CptCollection`</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">geost.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">CptCollection</span>
+
+        <span class="n">header</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">to_header</span><span class="p">(</span><span class="n">horizontal_reference</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">CptCollection</span><span class="p">(</span>
+            <span class="n">header</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_df</span><span class="p">,</span>
+            <span class="n">has_inclined</span><span class="o">=</span><span class="n">has_inclined</span><span class="p">,</span>
+            <span class="n">vertical_reference</span><span class="o">=</span><span class="n">vertical_reference</span><span class="p">,</span>
+        <span class="p">)</span>  <span class="c1"># NOTE: Type of Collection may need to be inferred in the future.</span></div>
+
+
+<div class="viewcode-block" id="DiscreteData.select_by_values">
+<a class="viewcode-back" href="../../../api_reference/generated/geost.accessors.data.DiscreteData.select_by_values.html#geost.accessors.data.DiscreteData.select_by_values">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">select_by_values</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">column</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">selection_values</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">how</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;or&quot;</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Select data based on the presence of given values in a given column containing</span>
+<span class="sd">        categorical data. Can be used for example to select points that contain peat in</span>
+<span class="sd">        the lithology column.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        column : str</span>
+<span class="sd">            Name of column that contains categorical data to use when looking for</span>
+<span class="sd">            values.</span>
+<span class="sd">        selection_values : str | Iterable</span>
+<span class="sd">            Value or values to look for in the column.</span>
+<span class="sd">        how : str, optional</span>
+<span class="sd">            Either &quot;and&quot; or &quot;or&quot;. &quot;and&quot; requires all selection values to be present in</span>
+<span class="sd">            column for selection. &quot;or&quot; will select the core if any one of the</span>
+<span class="sd">            selection_values are found in the column. Default is &quot;and&quot;.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        pd.DataFrame</span>
+<span class="sd">            New DataFrame containing only the data selected by this method.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        To select data where both clay (&quot;K&quot;) and peat (&quot;V&quot;) are present at the same time,</span>
+<span class="sd">        use &quot;and&quot; as a selection method:</span>
+
+<span class="sd">        &gt;&gt;&gt; data.select_by_values(&quot;lith&quot;, [&quot;V&quot;, &quot;K&quot;], how=&quot;and&quot;)</span>
+
+<span class="sd">        To select data that can have one, or both lithologies, use or as the selection</span>
+<span class="sd">        method:</span>
+
+<span class="sd">        &gt;&gt;&gt; data.select_by_values(&quot;lith&quot;, [&quot;V&quot;, &quot;K&quot;], how=&quot;and&quot;)</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">column</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">IndexError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;The column &#39;</span><span class="si">{</span><span class="n">column</span><span class="si">}</span><span class="s2">&#39; does not exist and cannot be used for selection&quot;</span>
+            <span class="p">)</span>
+
+        <span class="n">selection_values</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_to_iterable</span><span class="p">(</span><span class="n">selection_values</span><span class="p">)</span>
+
+        <span class="n">selected</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_df</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">how</span> <span class="o">==</span> <span class="s2">&quot;or&quot;</span><span class="p">:</span>
+            <span class="n">valid</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_df</span><span class="p">[</span><span class="s2">&quot;nr&quot;</span><span class="p">][</span><span class="bp">self</span><span class="o">.</span><span class="n">_df</span><span class="p">[</span><span class="n">column</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">selection_values</span><span class="p">)]</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span>
+            <span class="n">selected</span> <span class="o">=</span> <span class="n">selected</span><span class="p">[</span><span class="n">selected</span><span class="p">[</span><span class="s2">&quot;nr&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">valid</span><span class="p">)]</span>
+
+        <span class="k">elif</span> <span class="n">how</span> <span class="o">==</span> <span class="s2">&quot;and&quot;</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">selection_values</span><span class="p">:</span>
+                <span class="n">valid</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_df</span><span class="p">[</span><span class="s2">&quot;nr&quot;</span><span class="p">][</span><span class="bp">self</span><span class="o">.</span><span class="n">_df</span><span class="p">[</span><span class="n">column</span><span class="p">]</span> <span class="o">==</span> <span class="n">value</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span>
+                <span class="n">selected</span> <span class="o">=</span> <span class="n">selected</span><span class="p">[</span><span class="n">selected</span><span class="p">[</span><span class="s2">&quot;nr&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">valid</span><span class="p">)]</span>
+
+        <span class="k">return</span> <span class="n">selected</span></div>
+
+
+<div class="viewcode-block" id="DiscreteData.slice_depth_interval">
+<a class="viewcode-back" href="../../../api_reference/generated/geost.accessors.data.DiscreteData.slice_depth_interval.html#geost.accessors.data.DiscreteData.slice_depth_interval">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">slice_depth_interval</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">upper_boundary</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">lower_boundary</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">relative_to_vertical_reference</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Slice data based on given upper and lower boundaries. This returns a new object</span>
+<span class="sd">        containing only the sliced data.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        upper_boundary : float | int, optional</span>
+<span class="sd">            Every layer that starts above this is removed. The default is None.</span>
+<span class="sd">        lower_boundary : float | int, optional</span>
+<span class="sd">            Every layer that starts below this is removed. The default is None.</span>
+<span class="sd">        relative_to_vertical_reference : bool, optional</span>
+<span class="sd">            If True, the slicing is done with respect to any kind of vertical reference</span>
+<span class="sd">            plane (e.g. &quot;NAP&quot;, &quot;TAW&quot;). If False, the slice is done with respect to depth</span>
+<span class="sd">            below the surface. The default is False.</span>
+<span class="sd">        update_layer_boundaries : bool, optional</span>
+<span class="sd">            If True, the layer boundaries in the sliced data are updated according to the</span>
+<span class="sd">            upper and lower boundaries used with the slice. If False, the original layer</span>
+<span class="sd">            boundaries are kept in the sliced object. The default is False.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        pd.DataFrame</span>
+<span class="sd">            New DataFrame containing only the data selected by this method.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        Usage depends on whether the slicing is done with respect to depth below the</span>
+<span class="sd">        surface or to a vertical reference plane.</span>
+
+<span class="sd">        For example, select layers in data that are between 2 and 3 meters below the</span>
+<span class="sd">        surface:</span>
+
+<span class="sd">        &gt;&gt;&gt; data.slice_depth_interval(2, 3)</span>
+
+<span class="sd">        Slicing can also be done with respect to a vertical reference plane like &quot;NAP&quot;.</span>
+<span class="sd">        For example, to select layers in boreholes that are between -3 and -5 m NAP, use:</span>
+
+<span class="sd">        &gt;&gt;&gt; data.slice_depth_interval(-3, -5, relative_to_vertical_reference=True)</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">upper_boundary</span><span class="p">:</span>
+            <span class="n">upper_boundary</span> <span class="o">=</span> <span class="mf">1e34</span> <span class="k">if</span> <span class="n">relative_to_vertical_reference</span> <span class="k">else</span> <span class="o">-</span><span class="mf">1e34</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">lower_boundary</span><span class="p">:</span>
+            <span class="n">lower_boundary</span> <span class="o">=</span> <span class="o">-</span><span class="mf">1e34</span> <span class="k">if</span> <span class="n">relative_to_vertical_reference</span> <span class="k">else</span> <span class="mf">1e34</span>
+
+        <span class="n">sliced</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_df</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">relative_to_vertical_reference</span><span class="p">:</span>
+            <span class="n">upper_boundary</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_df</span><span class="p">[</span><span class="s2">&quot;surface&quot;</span><span class="p">]</span> <span class="o">-</span> <span class="n">upper_boundary</span>
+            <span class="n">lower_boundary</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_df</span><span class="p">[</span><span class="s2">&quot;surface&quot;</span><span class="p">]</span> <span class="o">-</span> <span class="n">lower_boundary</span>
+
+        <span class="n">sliced</span> <span class="o">=</span> <span class="n">sliced</span><span class="p">[</span>
+            <span class="p">(</span><span class="n">sliced</span><span class="p">[</span><span class="s2">&quot;depth&quot;</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">upper_boundary</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">sliced</span><span class="p">[</span><span class="s2">&quot;depth&quot;</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="n">lower_boundary</span><span class="p">)</span>
+        <span class="p">]</span>
+
+        <span class="k">return</span> <span class="n">sliced</span></div>
+
+
+<div class="viewcode-block" id="DiscreteData.slice_by_values">
+<a class="viewcode-back" href="../../../api_reference/generated/geost.accessors.data.DiscreteData.slice_by_values.html#geost.accessors.data.DiscreteData.slice_by_values">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">slice_by_values</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>  <span class="c1"># pragma: no cover</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="DiscreteData.select_by_condition">
+<a class="viewcode-back" href="../../../api_reference/generated/geost.accessors.data.DiscreteData.select_by_condition.html#geost.accessors.data.DiscreteData.select_by_condition">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">select_by_condition</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">condition</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">invert</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Select data using a manual condition that results in a boolean mask. Returns the</span>
+<span class="sd">        rows in the data where the &#39;condition&#39; evaluates to True.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        condition : list, pd.Series or array like</span>
+<span class="sd">            Boolean array like object with locations at which the values will be</span>
+<span class="sd">            preserved, dtype must be &#39;bool&#39; and the length must correspond with the</span>
+<span class="sd">            length of the data.</span>
+<span class="sd">        invert : bool, optional</span>
+<span class="sd">            If True, the selection is inverted so rows that evaluate to False will be</span>
+<span class="sd">            returned. The default is False.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        pd.DataFrame</span>
+<span class="sd">            New DataFrame containing only the data selected by this method.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        Select rows in data where column values are larger than:</span>
+
+<span class="sd">        &gt;&gt;&gt; data.select_by_condition(data[&quot;column&quot;] &gt; 2)</span>
+
+<span class="sd">        Or select rows in the data based on multiple conditions:</span>
+
+<span class="sd">        &gt;&gt;&gt; data.select_by_condition((data[&quot;column1&quot;] &gt; 2) &amp; (data[&quot;column2] &lt; 1))</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">invert</span><span class="p">:</span>
+            <span class="n">selected</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_df</span><span class="p">[</span><span class="o">~</span><span class="n">condition</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">selected</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_df</span><span class="p">[</span><span class="n">condition</span><span class="p">]</span>
+
+        <span class="k">return</span> <span class="n">selected</span></div>
+
+
+<div class="viewcode-block" id="DiscreteData.get_cumulative_thickness">
+<a class="viewcode-back" href="../../../api_reference/generated/geost.accessors.data.DiscreteData.get_cumulative_thickness.html#geost.accessors.data.DiscreteData.get_cumulative_thickness">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_cumulative_thickness</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>  <span class="c1"># pragma: no cover</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="DiscreteData.get_layer_top">
+<a class="viewcode-back" href="../../../api_reference/generated/geost.accessors.data.DiscreteData.get_layer_top.html#geost.accessors.data.DiscreteData.get_layer_top">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_layer_top</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>  <span class="c1"># pragma: no cover</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="DiscreteData.to_pyvista_cylinders">
+<a class="viewcode-back" href="../../../api_reference/generated/geost.accessors.data.DiscreteData.to_pyvista_cylinders.html#geost.accessors.data.DiscreteData.to_pyvista_cylinders">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">to_pyvista_cylinders</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>  <span class="c1"># pragma: no cover</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="DiscreteData.to_pyvista_grid">
+<a class="viewcode-back" href="../../../api_reference/generated/geost.accessors.data.DiscreteData.to_pyvista_grid.html#geost.accessors.data.DiscreteData.to_pyvista_grid">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">to_pyvista_grid</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>  <span class="c1"># pragma: no cover</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="DiscreteData.to_datafusiontools">
+<a class="viewcode-back" href="../../../api_reference/generated/geost.accessors.data.DiscreteData.to_datafusiontools.html#geost.accessors.data.DiscreteData.to_datafusiontools">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">to_datafusiontools</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>  <span class="c1"># pragma: no cover</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span></div>
+</div>
+
+</pre></div>
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2025, Deltares.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.2.3.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

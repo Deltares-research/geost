@@ -1,0 +1,6 @@
+﻿geost.accessors.header.LineHeader.select\_within\_bbox
+======================================================
+
+.. currentmodule:: geost.accessors.header
+
+.. automethod:: LineHeader.select_within_bbox

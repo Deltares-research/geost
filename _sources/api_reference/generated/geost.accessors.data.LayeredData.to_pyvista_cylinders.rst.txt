@@ -1,0 +1,6 @@
+﻿geost.accessors.data.LayeredData.to\_pyvista\_cylinders
+=======================================================
+
+.. currentmodule:: geost.accessors.data
+
+.. automethod:: LayeredData.to_pyvista_cylinders

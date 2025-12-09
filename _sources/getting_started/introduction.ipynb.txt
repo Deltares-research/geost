@@ -40,7 +40,7 @@
     "GeoST also plans support for several Geophysical data sources such as Seismic, ERT, EM and others.\n",
     "\n",
     "## Concept\n",
-    "At the core, `GeoST` handles data in a so-called `Collection` object which holds all the spatial information of any kind of data source in a **\"header\"** attribute, and the corresponding data in a **\"data\"** attribute. So for example, a set of 100 boreholes is held in a `BoreholeCollection` where the **\"header\"** contains one row per data entry and provides information about the id, location, surface level and depths and the **\"data\"** has the information of each described layer. When working with these `Collections`, GeoST automatically keeps track of the alignment and thus makes sure each data entry occurs in both the **\"header\"** and **\"data\"** attributes. For example, when a user deletes an individual borehole entry from the **\"header\"**, the `Collection` ensures it is deleted from the **\"data\"** as well.  \n",
+    "At the core, `GeoST` handles data in a so-called `Collection` objects which holds all the spatial information of any kind of data source in a **\"header\"** attribute (i.e. header table), and the corresponding data in a **\"data\"** attribute (i.e. data table). So for example, a set of 100 boreholes is held in a `BoreholeCollection` where the **\"header\"** contains one row per data entry and provides information about the id, location, surface level and depths and the **\"data\"** has the information of each described layer. When working with these Collections, GeoST automatically keeps track of the alignment and thus makes sure each data entry occurs in both the **\"header\"** and **\"data\"** attributes. For example, when a user deletes an individual borehole entry from the **\"header\"**, the Collection ensures it is deleted from the **\"data\"** as well.  \n",
     "\n",
     "<div class=\"alert alert-info\">\n",
     "User guide\n",
@@ -48,7 +48,7 @@
     "For a more detailed explanation of the types of GeoST objects for different sources of data, check the [Data structures](../user_guide/data_structures.md) in the user guide.\n",
     "</div>\n",
     "\n",
-    "## The basics\n",
+    "## The Basics\n",
     "### BoreholeCollection\n",
     "Data is usually loaded through various reader functions (see [API reference](../api_reference/io.rst)). For this tutorial, `GeoST` provides a set of readily available boreholes in the area of the Utrecht Science Park which can be directly loaded as a `BoreholeCollection`. Let's read the data, print the result to see what it says and also plot the locations to get an idea where we are:"
    ]
@@ -63,16 +63,16 @@
     "\n",
     "usp_boreholes = geost.data.boreholes_usp()\n",
     "print(usp_boreholes)\n",
-    "usp_boreholes.header.gdf.explore()  # Interactive plot of the borehole locations."
+    "usp_boreholes.header.explore()  # Interactive plot of the borehole locations."
    ]
   },
   {
    "cell_type": "markdown",
    "metadata": {},
    "source": [
-    "As you can see it says that 'usp_boreholes' is of the type [BoreholeCollection](../api_reference/borehole_collection.rst). Additionally, it says `# header = 67`. This means that the collection in total consists of 67 boreholes but it also shows the first key attribute of a collection: the \"header\" attribute.\n",
+    "As you can see it says that 'usp_boreholes' is of the type [BoreholeCollection](../api_reference/borehole_collection.rst). Additionally, it says `# header = 67`. This means that the collection in total contains 67 boreholes but it also shows the first key attribute of a collection: the \"header\" attribute.\n",
     "\n",
-    "As said in the previous section, the \"header\" attribute in a `BoreholeCollection` contains all the information about each borehole such as the ID, x- and y-coordinates and further metadata. Additionally, it contains geometry objects for each borehole which allows for spatial selections and exports to GIS-supported formats etc. that are provided by `GeoST`. In the case of a `BoreholeCollection`, the header attribute is a [PointHeader](../api_reference/point_header.rst) instance (another key `GeoST` object). Note, for other types of data (e.g. 2D line data), other objects are used. Let's see what the attribute looks like by printing it:"
+    "As said in the previous section, the \"header\" attribute in a `BoreholeCollection` contains all the information about each borehole such as the ID, x- and y-coordinates and further metadata. Additionally, it contains geometry objects for each borehole which allows for spatial selections and exports to GIS-supported formats etc. that are provided by `GeoST`. The header attribute is a [Geopandas GeoDataFrame](https://geopandas.org/en/stable/docs/reference/geodataframe.html) instance. Let's see what the attribute looks like by printing it:"
    ]
   },
   {
@@ -81,16 +81,16 @@
    "metadata": {},
    "outputs": [],
    "source": [
-    "print(usp_boreholes.header)"
+    "usp_boreholes.header.head()  # First five rows of the header data."
    ]
   },
   {
    "cell_type": "markdown",
    "metadata": {},
    "source": [
-    "Note, that the printed \"header\" looks just like a [Geopandas GeoDataFrame](https://geopandas.org/en/stable/docs/reference/geodataframe.html). This is because `PointHeader` is basically a wrapper around a `GeoDataFrame` which provides easily accessible selection and export methods. Therefore, the above interactive plot of the borehole locations was easily created using the \"gdf\" attribute. More experienced Python users can therefore access the header's \"gdf\" attribute and do any customized operation with geodataframes they would normally do. \n",
+    "Since the header is a `GeoDataFrame` instance, we have direct access to all methods provided by GeoDataFrames. Therefore, the above interactive plot of the borehole locations was easily created using the `.explore()` method. More experienced Python users can therefore use the header to do any customized operation with GeoDataFrames they would normally do. \n",
     "\n",
-    "The other key attribute of a collection is the \"data\" attribute which is an instance of another key object of `GeoST`: a [LayeredData](../api_reference/layered_data.rst) object. This contains the actual logged data (i.e. layer descriptions) of the boreholes. In this case, the \"data\" attribute is a `LayeredData` object because boreholes are usually described in terms of \"layers\" (i.e. depth intervals over which properties are the same) with respective \"top\" and \"bottom\" depths. Let's see what it looks like:"
+    "The other key attribute of a collection is the \"data\" attribute which is a [Pandas DataFrame](https://pandas.pydata.org/docs/reference/frame.html) instance. This contains the actual logged data (i.e. layer descriptions) of the boreholes. In this case, the \"data\" attribute contains \"layered\" data because the borehole data is logged in terms of layers (i.e. depth intervals over which properties are the same) with \"top\" and \"bottom\". Let's see what it looks like:"
    ]
   },
   {
@@ -99,17 +99,17 @@
    "metadata": {},
    "outputs": [],
    "source": [
-    "print(usp_boreholes.data)"
+    "usp_boreholes.data.head()  # First five rows of the data table."
    ]
   },
   {
    "cell_type": "markdown",
    "metadata": {},
    "source": [
-    "Similar to the \"header\", the printed `LayeredData` object is wrapper around a [Pandas DataFrame](https://pandas.pydata.org/docs/reference/frame.html) providing easy to use selection and export methods. Also here, more experienced users can access the underlying `DataFrame` by accessing the data's \"df\" attribute. The \"data\" attribute of this collection contains 32 different columns that hold the relevant borehole data and describes characteristics such as lithology, sand grain size, plant remains and others.\n",
+    "Also with the \"data\" attribute, we have direct access to all methods provided by DataFrames and more experienced Python users can use it to do any customized operation. The \"data\" attribute of this collection contains 32 different columns that hold the relevant borehole data and describes characteristics such as lithology, sand grain size, plant remains and others.\n",
     "\n",
     "### Positional reference\n",
-    "As said, a collection contains all spatial information about the data both horizontally and vertically. These attributes can be accessed through the \"vertical_reference\" and \"horizontal_reference\" attributes:"
+    "As said, a collection contains all spatial information about the data, both horizontally and vertically. These attributes can be accessed through the \"horizontal_reference\" and \"vertical_reference\" attributes:"
    ]
   },
   {
@@ -118,8 +118,8 @@
    "metadata": {},
    "outputs": [],
    "source": [
-    "print(usp_boreholes.vertical_reference)\n",
-    "print(usp_boreholes.horizontal_reference)"
+    "print(usp_boreholes.horizontal_reference)\n",
+    "print(usp_boreholes.vertical_reference)"
    ]
   },
   {
@@ -163,15 +163,8 @@
     "- `slice_depth_interval` - Slice boreholes in the collection down to the specified depth interval\n",
     "- `slice_by_values` - Slice boreholes in the collection based on value (e.g. only sand layers, remove others).\n",
     "\n",
-    "We will not go through each of these methods. See the [API Reference](../)."
+    "We will not go through each of these methods in this quick start but please see the [API Reference](../) for more details."
    ]
-  },
-  {
-   "cell_type": "code",
-   "execution_count": null,
-   "metadata": {},
-   "outputs": [],
-   "source": []
   }
  ],
  "metadata": {
@@ -181,8 +174,16 @@
    "name": "python3"
   },
   "language_info": {
+   "codemirror_mode": {
+    "name": "ipython",
+    "version": 3
+   },
+   "file_extension": ".py",
+   "mimetype": "text/x-python",
    "name": "python",
-   "version": "3.12.7"
+   "nbconvert_exporter": "python",
+   "pygments_lexer": "ipython3",
+   "version": "3.13.5"
   }
  },
  "nbformat": 4,

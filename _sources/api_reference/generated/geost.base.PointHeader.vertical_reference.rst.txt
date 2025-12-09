@@ -1,6 +1,0 @@
-﻿geost.base.PointHeader.vertical\_reference
-==========================================
-
-.. currentmodule:: geost.base
-
-.. autoproperty:: PointHeader.vertical_reference

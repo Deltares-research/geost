@@ -1,6 +1,0 @@
-﻿geost.base.PointHeader.to\_csv
-==============================
-
-.. currentmodule:: geost.base
-
-.. automethod:: PointHeader.to_csv

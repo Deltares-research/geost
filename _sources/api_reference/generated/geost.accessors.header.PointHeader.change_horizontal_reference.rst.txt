@@ -1,0 +1,6 @@
+﻿geost.accessors.header.PointHeader.change\_horizontal\_reference
+================================================================
+
+.. currentmodule:: geost.accessors.header
+
+.. automethod:: PointHeader.change_horizontal_reference

@@ -55,7 +55,7 @@
     <link rel="prev" title="Installation" href="../getting_started.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="0.3.0" />
+  <meta name="docsearch:version" content="0.4.0" />
   </head>
   
   
@@ -515,14 +515,14 @@
 <p>GeoST also plans support for several Geophysical data sources such as Seismic, ERT, EM and others.</p>
 <section id="concept">
 <h2>Concept<a class="headerlink" href="#concept" title="Link to this heading">#</a></h2>
-<p>At the core, <code class="docutils literal notranslate"><span class="pre">GeoST</span></code> handles data in a so-called <code class="docutils literal notranslate"><span class="pre">Collection</span></code> object which holds all the spatial information of any kind of data source in a <strong>“header”</strong> attribute, and the corresponding data in a <strong>“data”</strong> attribute. So for example, a set of 100 boreholes is held in a <code class="docutils literal notranslate"><span class="pre">BoreholeCollection</span></code> where the <strong>“header”</strong> contains one row per data entry and provides information about the id, location, surface level and depths and the <strong>“data”</strong> has the information of each described layer. When working with these <code class="docutils literal notranslate"><span class="pre">Collections</span></code>, GeoST automatically keeps track of the alignment and thus makes sure each data entry occurs in both the <strong>“header”</strong> and <strong>“data”</strong> attributes. For example, when a user deletes an individual borehole entry from the <strong>“header”</strong>, the <code class="docutils literal notranslate"><span class="pre">Collection</span></code> ensures it is deleted from the <strong>“data”</strong> as well.</p>
+<p>At the core, <code class="docutils literal notranslate"><span class="pre">GeoST</span></code> handles data in a so-called <code class="docutils literal notranslate"><span class="pre">Collection</span></code> objects which holds all the spatial information of any kind of data source in a <strong>“header”</strong> attribute (i.e. header table), and the corresponding data in a <strong>“data”</strong> attribute (i.e. data table). So for example, a set of 100 boreholes is held in a <code class="docutils literal notranslate"><span class="pre">BoreholeCollection</span></code> where the <strong>“header”</strong> contains one row per data entry and provides information about the id, location, surface level and depths and the <strong>“data”</strong> has the information of each described layer. When working with these Collections, GeoST automatically keeps track of the alignment and thus makes sure each data entry occurs in both the <strong>“header”</strong> and <strong>“data”</strong> attributes. For example, when a user deletes an individual borehole entry from the <strong>“header”</strong>, the Collection ensures it is deleted from the <strong>“data”</strong> as well.</p>
 <div class="alert alert-info">
 User guide
 <p>For a more detailed explanation of the types of GeoST objects for different sources of data, check the <a class="reference internal" href="#../user_guide/data_structures.md"><span class="xref myst">Data structures</span></a> in the user guide.</p>
 </div>
 </section>
 <section id="the-basics">
-<h2>The basics<a class="headerlink" href="#the-basics" title="Link to this heading">#</a></h2>
+<h2>The Basics<a class="headerlink" href="#the-basics" title="Link to this heading">#</a></h2>
 <section id="boreholecollection">
 <h3>BoreholeCollection<a class="headerlink" href="#boreholecollection" title="Link to this heading">#</a></h3>
 <p>Data is usually loaded through various reader functions (see <a class="reference internal" href="../api_reference/io.html"><span class="std std-doc">API reference</span></a>). For this tutorial, <code class="docutils literal notranslate"><span class="pre">GeoST</span></code> provides a set of readily available boreholes in the area of the Utrecht Science Park which can be directly loaded as a <code class="docutils literal notranslate"><span class="pre">BoreholeCollection</span></code>. Let’s read the data, print the result to see what it says and also plot the locations to get an idea where we are:</p>
@@ -532,14 +532,11 @@ User guide
 
 <span class="n">usp_boreholes</span> <span class="o">=</span> <span class="n">geost</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">boreholes_usp</span><span class="p">()</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">usp_boreholes</span><span class="p">)</span>
-<span class="n">usp_boreholes</span><span class="o">.</span><span class="n">header</span><span class="o">.</span><span class="n">gdf</span><span class="o">.</span><span class="n">explore</span><span class="p">()</span>  <span class="c1"># Interactive plot of the borehole locations.</span>
+<span class="n">usp_boreholes</span><span class="o">.</span><span class="n">header</span><span class="o">.</span><span class="n">explore</span><span class="p">()</span>  <span class="c1"># Interactive plot of the borehole locations.</span>
 </pre></div>
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Downloading file &#39;boreholes_usp.parquet&#39; from &#39;https://github.com/Deltares-research/geost/raw/main/data/boreholes_usp.parquet&#39; to &#39;/home/runner/.cache/geost&#39;.
-</pre></div>
-</div>
 <div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>BoreholeCollection:
 # header = 67
 </pre></div>
@@ -563,7 +560,7 @@ User guide
             &lt;meta name=&quot;viewport&quot; content=&quot;width=device-width,
                 initial-scale=1.0, maximum-scale=1.0, user-scalable=no&quot; /&gt;
             &lt;style&gt;
-                #map_1bbf25e4515e6786f954b609a8b732f2 {
+                #map_76b03d3528d9666f36f62431d154dce7 {
                     position: relative;
                     width: 100.0%;
                     height: 100.0%;
@@ -616,14 +613,14 @@ User guide
 &lt;body&gt;
     
     
-            &lt;div class=&quot;folium-map&quot; id=&quot;map_1bbf25e4515e6786f954b609a8b732f2&quot; &gt;&lt;/div&gt;
+            &lt;div class=&quot;folium-map&quot; id=&quot;map_76b03d3528d9666f36f62431d154dce7&quot; &gt;&lt;/div&gt;
         
 &lt;/body&gt;
 &lt;script&gt;
     
     
-            var map_1bbf25e4515e6786f954b609a8b732f2 = L.map(
-                &quot;map_1bbf25e4515e6786f954b609a8b732f2&quot;,
+            var map_76b03d3528d9666f36f62431d154dce7 = L.map(
+                &quot;map_76b03d3528d9666f36f62431d154dce7&quot;,
                 {
                     center: [52.08660397937269, 5.174197655436683],
                     crs: L.CRS.EPSG3857,
@@ -635,13 +632,13 @@ User guide
 
                 }
             );
-            L.control.scale().addTo(map_1bbf25e4515e6786f954b609a8b732f2);
+            L.control.scale().addTo(map_76b03d3528d9666f36f62431d154dce7);
 
             
 
         
     
-            var tile_layer_7a5ad4f6aa76086197308677f78c094c = L.tileLayer(
+            var tile_layer_29b7cef356a25a8251598d153b684ea9 = L.tileLayer(
                 &quot;https://tile.openstreetmap.org/{z}/{x}/{y}.png&quot;,
                 {
   &quot;minZoom&quot;: 0,
@@ -658,28 +655,28 @@ User guide
             );
         
     
-            tile_layer_7a5ad4f6aa76086197308677f78c094c.addTo(map_1bbf25e4515e6786f954b609a8b732f2);
+            tile_layer_29b7cef356a25a8251598d153b684ea9.addTo(map_76b03d3528d9666f36f62431d154dce7);
         
     
-            map_1bbf25e4515e6786f954b609a8b732f2.fitBounds(
+            map_76b03d3528d9666f36f62431d154dce7.fitBounds(
                 [[52.08113032009626, 5.161359450510228], [52.09207763864912, 5.187035860363138]],
                 {}
             );
         
     
-        function geo_json_cedb81e79e794bc1198fd5b9f994ce31_styler(feature) {
+        function geo_json_f377000082d3135f832fababc4c03540_styler(feature) {
             switch(feature.id) {
                 default:
                     return {&quot;fillOpacity&quot;: 0.5, &quot;weight&quot;: 2};
             }
         }
-        function geo_json_cedb81e79e794bc1198fd5b9f994ce31_highlighter(feature) {
+        function geo_json_f377000082d3135f832fababc4c03540_highlighter(feature) {
             switch(feature.id) {
                 default:
                     return {&quot;fillOpacity&quot;: 0.75};
             }
         }
-        function geo_json_cedb81e79e794bc1198fd5b9f994ce31_pointToLayer(feature, latlng) {
+        function geo_json_f377000082d3135f832fababc4c03540_pointToLayer(feature, latlng) {
             var opts = {
   &quot;stroke&quot;: true,
   &quot;color&quot;: &quot;#3388ff&quot;,
@@ -697,46 +694,46 @@ User guide
   &quot;radius&quot;: 2,
 };
             
-            let style = geo_json_cedb81e79e794bc1198fd5b9f994ce31_styler(feature)
+            let style = geo_json_f377000082d3135f832fababc4c03540_styler(feature)
             Object.assign(opts, style)
             
             return new L.CircleMarker(latlng, opts)
         }
 
-        function geo_json_cedb81e79e794bc1198fd5b9f994ce31_onEachFeature(feature, layer) {
+        function geo_json_f377000082d3135f832fababc4c03540_onEachFeature(feature, layer) {
 
             layer.on({
                 mouseout: function(e) {
                     if(typeof e.target.setStyle === &quot;function&quot;){
-                            geo_json_cedb81e79e794bc1198fd5b9f994ce31.resetStyle(e.target);
+                            geo_json_f377000082d3135f832fababc4c03540.resetStyle(e.target);
                     }
                 },
                 mouseover: function(e) {
                     if(typeof e.target.setStyle === &quot;function&quot;){
-                        const highlightStyle = geo_json_cedb81e79e794bc1198fd5b9f994ce31_highlighter(e.target.feature)
+                        const highlightStyle = geo_json_f377000082d3135f832fababc4c03540_highlighter(e.target.feature)
                         e.target.setStyle(highlightStyle);
                     }
                 },
             });
         };
-        var geo_json_cedb81e79e794bc1198fd5b9f994ce31 = L.geoJson(null, {
-                onEachFeature: geo_json_cedb81e79e794bc1198fd5b9f994ce31_onEachFeature,
+        var geo_json_f377000082d3135f832fababc4c03540 = L.geoJson(null, {
+                onEachFeature: geo_json_f377000082d3135f832fababc4c03540_onEachFeature,
             
-                style: geo_json_cedb81e79e794bc1198fd5b9f994ce31_styler,
-                pointToLayer: geo_json_cedb81e79e794bc1198fd5b9f994ce31_pointToLayer,
+                style: geo_json_f377000082d3135f832fababc4c03540_styler,
+                pointToLayer: geo_json_f377000082d3135f832fababc4c03540_pointToLayer,
             ...{
 }
         });
 
-        function geo_json_cedb81e79e794bc1198fd5b9f994ce31_add (data) {
-            geo_json_cedb81e79e794bc1198fd5b9f994ce31
+        function geo_json_f377000082d3135f832fababc4c03540_add (data) {
+            geo_json_f377000082d3135f832fababc4c03540
                 .addData(data);
         }
-            geo_json_cedb81e79e794bc1198fd5b9f994ce31_add({&quot;bbox&quot;: [5.161359450510228, 52.08113032009626, 5.187035860363138, 52.09207763864912], &quot;features&quot;: [{&quot;bbox&quot;: [5.162268224996437, 52.09204211820411, 5.162268224996437, 52.09204211820411], &quot;geometry&quot;: {&quot;coordinates&quot;: [5.162268224996437, 52.09204211820411], &quot;type&quot;: &quot;Point&quot;}, &quot;id&quot;: &quot;0&quot;, &quot;properties&quot;: {&quot;end&quot;: -9.9, &quot;nr&quot;: &quot;B31H0541&quot;, &quot;surface&quot;: 1.2, &quot;x&quot;: 139585.0, &quot;y&quot;: 456000.0}, &quot;type&quot;: &quot;Feature&quot;}, {&quot;bbox&quot;: [5.162529526260157, 52.08359384237674, 5.162529526260157, 52.08359384237674], &quot;geometry&quot;: {&quot;coordinates&quot;: [5.162529526260157, 52.08359384237674], &quot;type&quot;: &quot;Point&quot;}, &quot;id&quot;: &quot;1&quot;, &quot;properties&quot;: {&quot;end&quot;: -23.0, &quot;nr&quot;: &quot;B31H0611&quot;, &quot;surface&quot;: 1.2, &quot;x&quot;: 139600.0, &quot;y&quot;: 455060.0}, &quot;type&quot;: &quot;Feature&quot;}, {&quot;bbox&quot;: [5.167629537344739, 52.08486177819724, 5.167629537344739, 52.08486177819724], &quot;geometry&quot;: {&quot;coordinates&quot;: [5.167629537344739, 52.08486177819724], &quot;type&quot;: &quot;Point&quot;}, &quot;id&quot;: &quot;2&quot;, &quot;properties&quot;: {&quot;end&quot;: -271.2, &quot;nr&quot;: &quot;B31H0718&quot;, &quot;surface&quot;: 1.3, &quot;x&quot;: 139950.0, &quot;y&quot;: 455200.0}, &quot;type&quot;: &quot;Feature&quot;}, {&quot;bbox&quot;: [5.16362249611564, 52.08383859756739, 5.16362249611564, 52.08383859756739], &quot;geometry&quot;: {&quot;coordinates&quot;: [5.16362249611564, 52.08383859756739], &quot;type&quot;: &quot;Point&quot;}, &quot;id&quot;: &quot;3&quot;, &quot;properties&quot;: {&quot;end&quot;: -4.84, &quot;nr&quot;: &quot;B31H0803&quot;, &quot;surface&quot;: 2.16, &quot;x&quot;: 139675.0, &quot;y&quot;: 455087.0}, &quot;type&quot;: &quot;Feature&quot;}, {&quot;bbox&quot;: [5.163740469667202, 52.086508275277396, 5.163740469667202, 52.086508275277396], &quot;geometry&quot;: {&quot;coordinates&quot;: [5.163740469667202, 52.086508275277396], &quot;type&quot;: &quot;Point&quot;}, &quot;id&quot;: &quot;4&quot;, &quot;properties&quot;: {&quot;end&quot;: -49.5, &quot;nr&quot;: &quot;B31H0806&quot;, &quot;surface&quot;: 1.0, &quot;x&quot;: 139684.0, &quot;y&quot;: 455384.0}, &quot;type&quot;: &quot;Feature&quot;}, {&quot;bbox&quot;: [5.163739527140889, 52.0866970227263, 5.163739527140889, 52.0866970227263], &quot;geometry&quot;: {&quot;coordinates&quot;: [5.163739527140889, 52.0866970227263], &quot;type&quot;: &quot;Point&quot;}, &quot;id&quot;: &quot;5&quot;, &quot;properties&quot;: {&quot;end&quot;: -49.5, &quot;nr&quot;: &quot;B31H0807&quot;, &quot;surface&quot;: 1.0, &quot;x&quot;: 139684.0, &quot;y&quot;: 455405.0}, &quot;type&quot;: &quot;Feature&quot;}, {&quot;bbox&quot;: [5.163629448232414, 52.088287700257936, 5.163629448232414, 52.088287700257936], &quot;geometry&quot;: {&quot;coordinates&quot;: [5.163629448232414, 52.088287700257936], &quot;type&quot;: &quot;Point&quot;}, &quot;id&quot;: &quot;6&quot;, &quot;properties&quot;: {&quot;end&quot;: -51.0, &quot;nr&quot;: &quot;B31H0808&quot;, &quot;surface&quot;: 1.0, &quot;x&quot;: 139677.0, &quot;y&quot;: 455582.0}, &quot;type&quot;: &quot;Feature&quot;}, {&quot;bbox&quot;: [5.16362850518857, 52.088476447651885, 5.16362850518857, 52.088476447651885], &quot;geometry&quot;: {&quot;coordinates&quot;: [5.16362850518857, 52.088476447651885], &quot;type&quot;: &quot;Point&quot;}, &quot;id&quot;: &quot;7&quot;, &quot;properties&quot;: {&quot;end&quot;: -51.0, &quot;nr&quot;: &quot;B31H0809&quot;, &quot;surface&quot;: 1.0, &quot;x&quot;: 139677.0, &quot;y&quot;: 455603.0}, &quot;type&quot;: &quot;Feature&quot;}, {&quot;bbox&quot;: [5.166905758200831, 52.086667028126236, 5.166905758200831, 52.086667028126236], &quot;geometry&quot;: {&quot;coordinates&quot;: [5.166905758200831, 52.086667028126236], &quot;type&quot;: &quot;Point&quot;}, &quot;id&quot;: &quot;8&quot;, &quot;properties&quot;: {&quot;end&quot;: -50.0, &quot;nr&quot;: &quot;B31H0810&quot;, &quot;surface&quot;: 1.0, &quot;x&quot;: 139901.0, &quot;y&quot;: 455401.0}, &quot;type&quot;: &quot;Feature&quot;}, {&quot;bbox&quot;: [5.167029153479638, 52.08827612073483, 5.167029153479638, 52.08827612073483], &quot;geometry&quot;: {&quot;coordinates&quot;: [5.167029153479638, 52.08827612073483], &quot;type&quot;: &quot;Point&quot;}, &quot;id&quot;: &quot;9&quot;, &quot;properties&quot;: {&quot;end&quot;: -48.0, &quot;nr&quot;: &quot;B31H0811&quot;, &quot;surface&quot;: 1.0, &quot;x&quot;: 139910.0, &quot;y&quot;: 455580.0}, &quot;type&quot;: &quot;Feature&quot;}, {&quot;bbox&quot;: [5.166576844065562, 52.08827527536561, 5.166576844065562, 52.08827527536561], &quot;geometry&quot;: {&quot;coordinates&quot;: [5.166576844065562, 52.08827527536561], &quot;type&quot;: &quot;Point&quot;}, &quot;id&quot;: &quot;10&quot;, &quot;properties&quot;: {&quot;end&quot;: -51.0, &quot;nr&quot;: &quot;B31H0812&quot;, &quot;surface&quot;: 2.0, &quot;x&quot;: 139879.0, &quot;y&quot;: 455580.0}, &quot;type&quot;: &quot;Feature&quot;}, {&quot;bbox&quot;: [5.168046183531788, 52.08915884458395, 5.168046183531788, 52.08915884458395], &quot;geometry&quot;: {&quot;coordinates&quot;: [5.168046183531788, 52.08915884458395], &quot;type&quot;: &quot;Point&quot;}, &quot;id&quot;: &quot;11&quot;, &quot;properties&quot;: {&quot;end&quot;: -57.488, &quot;nr&quot;: &quot;B31H0813&quot;, &quot;surface&quot;: 2.512, &quot;x&quot;: 139980.0, &quot;y&quot;: 455678.0}, &quot;type&quot;: &quot;Feature&quot;}, {&quot;bbox&quot;: [5.1667034650801575, 52.08922824601957, 5.1667034650801575, 52.08922824601957], &quot;geometry&quot;: {&quot;coordinates&quot;: [5.1667034650801575, 52.08922824601957], &quot;type&quot;: &quot;Point&quot;}, &quot;id&quot;: &quot;12&quot;, &quot;properties&quot;: {&quot;end&quot;: -173.8, &quot;nr&quot;: &quot;B31H0814&quot;, &quot;surface&quot;: 1.2, &quot;x&quot;: 139888.0, &quot;y&quot;: 455686.0}, &quot;type&quot;: &quot;Feature&quot;}, {&quot;bbox&quot;: [5.167500715193375, 52.09029931237855, 5.167500715193375, 52.09029931237855], &quot;geometry&quot;: {&quot;coordinates&quot;: [5.167500715193375, 52.09029931237855], &quot;type&quot;: &quot;Point&quot;}, &quot;id&quot;: &quot;13&quot;, &quot;properties&quot;: {&quot;end&quot;: -1.7, &quot;nr&quot;: &quot;B31H0825&quot;, &quot;surface&quot;: 1.1, &quot;x&quot;: 139943.0, &quot;y&quot;: 455805.0}, &quot;type&quot;: &quot;Feature&quot;}, {&quot;bbox&quot;: [5.167558992103448, 52.090317397040494, 5.167558992103448, 52.090317397040494], &quot;geometry&quot;: {&quot;coordinates&quot;: [5.167558992103448, 52.090317397040494], &quot;type&quot;: &quot;Point&quot;}, &quot;id&quot;: &quot;14&quot;, &quot;properties&quot;: {&quot;end&quot;: -1.7, &quot;nr&quot;: &quot;B31H0826&quot;, &quot;surface&quot;: 1.1, &quot;x&quot;: 139947.0, &quot;y&quot;: 455807.0}, &quot;type&quot;: &quot;Feature&quot;}, {&quot;bbox&quot;: [5.167675105104089, 52.090443445980085, 5.167675105104089, 52.090443445980085], &quot;geometry&quot;: {&quot;coordinates&quot;: [5.167675105104089, 52.090443445980085], &quot;type&quot;: &quot;Point&quot;}, &quot;id&quot;: &quot;15&quot;, &quot;properties&quot;: {&quot;end&quot;: -1.7, &quot;nr&quot;: &quot;B31H0827&quot;, &quot;surface&quot;: 1.1, &quot;x&quot;: 139955.0, &quot;y&quot;: 455821.0}, &quot;type&quot;: &quot;Feature&quot;}, {&quot;bbox&quot;: [5.167907729516114, 52.09061465177976, 5.167907729516114, 52.09061465177976], &quot;geometry&quot;: {&quot;coordinates&quot;: [5.167907729516114, 52.09061465177976], &quot;type&quot;: &quot;Point&quot;}, &quot;id&quot;: &quot;16&quot;, &quot;properties&quot;: {&quot;end&quot;: 0.1, &quot;nr&quot;: &quot;B31H0828&quot;, &quot;surface&quot;: 1.1, &quot;x&quot;: 139971.0, &quot;y&quot;: 455840.0}, &quot;type&quot;: &quot;Feature&quot;}, {&quot;bbox&quot;: [5.166626434169968, 52.081174800148375, 5.166626434169968, 52.081174800148375], &quot;geometry&quot;: {&quot;coordinates&quot;: [5.166626434169968, 52.081174800148375], &quot;type&quot;: &quot;Point&quot;}, &quot;id&quot;: &quot;17&quot;, &quot;properties&quot;: {&quot;end&quot;: -0.2, &quot;nr&quot;: &quot;B31H1611&quot;, &quot;surface&quot;: 1.3, &quot;x&quot;: 139880.0, &quot;y&quot;: 454790.0}, &quot;type&quot;: &quot;Feature&quot;}, {&quot;bbox&quot;: [5.162937472420921, 52.08952673797063, 5.162937472420921, 52.08952673797063], &quot;geometry&quot;: {&quot;coordinates&quot;: [5.162937472420921, 52.08952673797063], &quot;type&quot;: &quot;Point&quot;}, &quot;id&quot;: &quot;18&quot;, &quot;properties&quot;: {&quot;end&quot;: 1.0, &quot;nr&quot;: &quot;B31H1693&quot;, &quot;surface&quot;: 2.3, &quot;x&quot;: 139630.0, &quot;y&quot;: 455720.0}, &quot;type&quot;: &quot;Feature&quot;}, {&quot;bbox&quot;: [5.161359450510228, 52.08417583120632, 5.161359450510228, 52.08417583120632], &quot;geometry&quot;: {&quot;coordinates&quot;: [5.161359450510228, 52.08417583120632], &quot;type&quot;: &quot;Point&quot;}, &quot;id&quot;: &quot;19&quot;, &quot;properties&quot;: {&quot;end&quot;: -0.8, &quot;nr&quot;: &quot;B31H1694&quot;, &quot;surface&quot;: 1.2, &quot;x&quot;: 139520.0, &quot;y&quot;: 455125.0}, &quot;type&quot;: &quot;Feature&quot;}, {&quot;bbox&quot;: [5.163394533972795, 52.08566274159777, 5.163394533972795, 52.08566274159777], &quot;geometry&quot;: {&quot;coordinates&quot;: [5.163394533972795, 52.08566274159777], &quot;type&quot;: &quot;Point&quot;}, &quot;id&quot;: &quot;20&quot;, &quot;properties&quot;: {&quot;end&quot;: -0.4, &quot;nr&quot;: &quot;B31H1695&quot;, &quot;surface&quot;: 1.1, &quot;x&quot;: 139660.0, &quot;y&quot;: 455290.0}, &quot;type&quot;: &quot;Feature&quot;}, {&quot;bbox&quot;: [5.165740906776388, 52.08324039510668, 5.165740906776388, 52.08324039510668], &quot;geometry&quot;: {&quot;coordinates&quot;: [5.165740906776388, 52.08324039510668], &quot;type&quot;: &quot;Point&quot;}, &quot;id&quot;: &quot;21&quot;, &quot;properties&quot;: {&quot;end&quot;: -3.7, &quot;nr&quot;: &quot;B31H1696&quot;, &quot;surface&quot;: 1.3, &quot;x&quot;: 139820.0, &quot;y&quot;: 455020.0}, &quot;type&quot;: &quot;Feature&quot;}, {&quot;bbox&quot;: [5.165308796756755, 52.08800325443472, 5.165308796756755, 52.08800325443472], &quot;geometry&quot;: {&quot;coordinates&quot;: [5.165308796756755, 52.08800325443472], &quot;type&quot;: &quot;Point&quot;}, &quot;id&quot;: &quot;22&quot;, &quot;properties&quot;: {&quot;end&quot;: -4.79, &quot;nr&quot;: &quot;B31H2639&quot;, &quot;surface&quot;: 2.21, &quot;x&quot;: 139792.0, &quot;y&quot;: 455550.0}, &quot;type&quot;: &quot;Feature&quot;}, {&quot;bbox&quot;: [5.163718962798611, 52.08205015569283, 5.163718962798611, 52.08205015569283], &quot;geometry&quot;: {&quot;coordinates&quot;: [5.163718962798611, 52.08205015569283], &quot;type&quot;: &quot;Point&quot;}, &quot;id&quot;: &quot;23&quot;, &quot;properties&quot;: {&quot;end&quot;: -1.8, &quot;nr&quot;: &quot;B31H3219&quot;, &quot;surface&quot;: 2.2, &quot;x&quot;: 139681.0, &quot;y&quot;: 454888.0}, &quot;type&quot;: &quot;Feature&quot;}, {&quot;bbox&quot;: [5.162230926450278, 52.08204732592478, 5.162230926450278, 52.08204732592478], &quot;geometry&quot;: {&quot;coordinates&quot;: [5.162230926450278, 52.08204732592478], &quot;type&quot;: &quot;Point&quot;}, &quot;id&quot;: &quot;24&quot;, &quot;properties&quot;: {&quot;end&quot;: -2.519, &quot;nr&quot;: &quot;B31H3282&quot;, &quot;surface&quot;: 1.981, &quot;x&quot;: 139579.0, &quot;y&quot;: 454888.0}, &quot;type&quot;: &quot;Feature&quot;}, {&quot;bbox&quot;: [5.162834996062768, 52.083774185291766, 5.162834996062768, 52.083774185291766], &quot;geometry&quot;: {&quot;coordinates&quot;: [5.162834996062768, 52.083774185291766], &quot;type&quot;: &quot;Point&quot;}, &quot;id&quot;: &quot;25&quot;, &quot;properties&quot;: {&quot;end&quot;: -2.99, &quot;nr&quot;: &quot;B31H3284&quot;, &quot;surface&quot;: 2.01, &quot;x&quot;: 139621.0, &quot;y&quot;: 455080.0}, &quot;type&quot;: &quot;Feature&quot;}, {&quot;bbox&quot;: [5.161371499907115, 52.084679185787856, 5.161371499907115, 52.084679185787856], &quot;geometry&quot;: {&quot;coordinates&quot;: [5.161371499907115, 52.084679185787856], &quot;type&quot;: &quot;Point&quot;}, &quot;id&quot;: &quot;26&quot;, &quot;properties&quot;: {&quot;end&quot;: -2.343, &quot;nr&quot;: &quot;B31H3285&quot;, &quot;surface&quot;: 2.157, &quot;x&quot;: 139521.0, &quot;y&quot;: 455181.0}, &quot;type&quot;: &quot;Feature&quot;}, {&quot;bbox&quot;: [5.1630487013748985, 52.084799230843934, 5.1630487013748985, 52.084799230843934], &quot;geometry&quot;: {&quot;coordinates&quot;: [5.1630487013748985, 52.084799230843934], &quot;type&quot;: &quot;Point&quot;}, &quot;id&quot;: &quot;27&quot;, &quot;properties&quot;: {&quot;end&quot;: -3.008, &quot;nr&quot;: &quot;B31H3286&quot;, &quot;surface&quot;: 1.492, &quot;x&quot;: 139636.0, &quot;y&quot;: 455194.0}, &quot;type&quot;: &quot;Feature&quot;}, {&quot;bbox&quot;: [5.163200098050558, 52.08661510671573, 5.163200098050558, 52.08661510671573], &quot;geometry&quot;: {&quot;coordinates&quot;: [5.163200098050558, 52.08661510671573], &quot;type&quot;: &quot;Point&quot;}, &quot;id&quot;: &quot;28&quot;, &quot;properties&quot;: {&quot;end&quot;: -6.07, &quot;nr&quot;: &quot;B31H3287&quot;, &quot;surface&quot;: 1.43, &quot;x&quot;: 139647.0, &quot;y&quot;: 455396.0}, &quot;type&quot;: &quot;Feature&quot;}, {&quot;bbox&quot;: [5.16155137364752, 52.08662095127076, 5.16155137364752, 52.08662095127076], &quot;geometry&quot;: {&quot;coordinates&quot;: [5.16155137364752, 52.08662095127076], &quot;type&quot;: &quot;Point&quot;}, &quot;id&quot;: &quot;29&quot;, &quot;properties&quot;: {&quot;end&quot;: -6.44, &quot;nr&quot;: &quot;B31H3288&quot;, &quot;surface&quot;: 1.56, &quot;x&quot;: 139534.0, &quot;y&quot;: 455397.0}, &quot;type&quot;: &quot;Feature&quot;}, {&quot;bbox&quot;: [5.161491101551955, 52.08989248867648, 5.161491101551955, 52.08989248867648], &quot;geometry&quot;: {&quot;coordinates&quot;: [5.161491101551955, 52.08989248867648], &quot;type&quot;: &quot;Point&quot;}, &quot;id&quot;: &quot;30&quot;, &quot;properties&quot;: {&quot;end&quot;: 4.037, &quot;nr&quot;: &quot;B31H3289&quot;, &quot;surface&quot;: 8.037, &quot;x&quot;: 139531.0, &quot;y&quot;: 455761.0}, &quot;type&quot;: &quot;Feature&quot;}, {&quot;bbox&quot;: [5.163743031381388, 52.0889170794652, 5.163743031381388, 52.0889170794652], &quot;geometry&quot;: {&quot;coordinates&quot;: [5.163743031381388, 52.0889170794652], &quot;type&quot;: &quot;Point&quot;}, &quot;id&quot;: &quot;31&quot;, &quot;properties&quot;: {&quot;end&quot;: -5.547, &quot;nr&quot;: &quot;B31H3312&quot;, &quot;surface&quot;: 2.453, &quot;x&quot;: 139685.0, &quot;y&quot;: 455652.0}, &quot;type&quot;: &quot;Feature&quot;}, {&quot;bbox&quot;: [5.163255956045706, 52.090030674268625, 5.163255956045706, 52.090030674268625], &quot;geometry&quot;: {&quot;coordinates&quot;: [5.163255956045706, 52.090030674268625], &quot;type&quot;: &quot;Point&quot;}, &quot;id&quot;: &quot;32&quot;, &quot;properties&quot;: {&quot;end&quot;: 3.86, &quot;nr&quot;: &quot;B31H3314&quot;, &quot;surface&quot;: 7.86, &quot;x&quot;: 139652.0, &quot;y&quot;: 455776.0}, &quot;type&quot;: &quot;Feature&quot;}, {&quot;bbox&quot;: [5.164873479971488, 52.09045617343888, 5.164873479971488, 52.09045617343888], &quot;geometry&quot;: {&quot;coordinates&quot;: [5.164873479971488, 52.09045617343888], &quot;type&quot;: &quot;Point&quot;}, &quot;id&quot;: &quot;33&quot;, &quot;properties&quot;: {&quot;end&quot;: -7.267, &quot;nr&quot;: &quot;B31H3315&quot;, &quot;surface&quot;: 1.233, &quot;x&quot;: 139763.0, &quot;y&quot;: 455823.0}, &quot;type&quot;: &quot;Feature&quot;}, {&quot;bbox&quot;: [5.164475755785453, 52.0912104193438, 5.164475755785453, 52.0912104193438], &quot;geometry&quot;: {&quot;coordinates&quot;: [5.164475755785453, 52.0912104193438], &quot;type&quot;: &quot;Point&quot;}, &quot;id&quot;: &quot;34&quot;, &quot;properties&quot;: {&quot;end&quot;: 0.714, &quot;nr&quot;: &quot;B31H3318&quot;, &quot;surface&quot;: 4.714, &quot;x&quot;: 139736.0, &quot;y&quot;: 455907.0}, &quot;type&quot;: &quot;Feature&quot;}, {&quot;bbox&quot;: [5.167364624483557, 52.09126976835782, 5.167364624483557, 52.09126976835782], &quot;geometry&quot;: {&quot;coordinates&quot;: [5.167364624483557, 52.09126976835782], &quot;type&quot;: &quot;Point&quot;}, &quot;id&quot;: &quot;35&quot;, &quot;properties&quot;: {&quot;end&quot;: -3.585, &quot;nr&quot;: &quot;B31H3320&quot;, &quot;surface&quot;: 1.415, &quot;x&quot;: 139934.0, &quot;y&quot;: 455913.0}, &quot;type&quot;: &quot;Feature&quot;}, {&quot;bbox&quot;: [5.168599321068128, 52.08942951286321, 5.168599321068128, 52.08942951286321], &quot;geometry&quot;: {&quot;coordinates&quot;: [5.168599321068128, 52.08942951286321], &quot;type&quot;: &quot;Point&quot;}, &quot;id&quot;: &quot;36&quot;, &quot;properties&quot;: {&quot;end&quot;: -78.9, &quot;nr&quot;: &quot;B32C0140&quot;, &quot;surface&quot;: 1.1, &quot;x&quot;: 140018.0, &quot;y&quot;: 455708.0}, &quot;type&quot;: &quot;Feature&quot;}, {&quot;bbox&quot;: [5.169001693161634, 52.08770455158057, 5.169001693161634, 52.08770455158057], &quot;geometry&quot;: {&quot;coordinates&quot;: [5.169001693161634, 52.08770455158057], &quot;type&quot;: &quot;Point&quot;}, &quot;id&quot;: &quot;37&quot;, &quot;properties&quot;: {&quot;end&quot;: -29.51, &quot;nr&quot;: &quot;B32C0141&quot;, &quot;surface&quot;: 1.99, &quot;x&quot;: 140045.0, &quot;y&quot;: 455516.0}, &quot;type&quot;: &quot;Feature&quot;}, {&quot;bbox&quot;: [5.17394902544591, 52.08440599713159, 5.17394902544591, 52.08440599713159], &quot;geometry&quot;: {&quot;coordinates&quot;: [5.17394902544591, 52.08440599713159], &quot;type&quot;: &quot;Point&quot;}, &quot;id&quot;: &quot;38&quot;, &quot;properties&quot;: {&quot;end&quot;: -157.0, &quot;nr&quot;: &quot;B32C0486&quot;, &quot;surface&quot;: 1.5, &quot;x&quot;: 140383.0, &quot;y&quot;: 455148.0}, &quot;type&quot;: &quot;Feature&quot;}, {&quot;bbox&quot;: [5.1746346404447605, 52.08442521117074, 5.1746346404447605, 52.08442521117074], &quot;geometry&quot;: {&quot;coordinates&quot;: [5.1746346404447605, 52.08442521117074], &quot;type&quot;: &quot;Point&quot;}, &quot;id&quot;: &quot;39&quot;, &quot;properties&quot;: {&quot;end&quot;: -262.9, &quot;nr&quot;: &quot;B32C0489&quot;, &quot;surface&quot;: 2.1, &quot;x&quot;: 140430.0, &quot;y&quot;: 455150.0}, &quot;type&quot;: &quot;Feature&quot;}, {&quot;bbox&quot;: [5.174196959171277, 52.08442442137045, 5.174196959171277, 52.08442442137045], &quot;geometry&quot;: {&quot;coordinates&quot;: [5.174196959171277, 52.08442442137045], &quot;type&quot;: &quot;Point&quot;}, &quot;id&quot;: &quot;40&quot;, &quot;properties&quot;: {&quot;end&quot;: -271.0, &quot;nr&quot;: &quot;B32C0497&quot;, &quot;surface&quot;: 1.5, &quot;x&quot;: 140400.0, &quot;y&quot;: 455150.0}, &quot;type&quot;: &quot;Feature&quot;}, {&quot;bbox&quot;: [5.176162870282436, 52.08210903654731, 5.176162870282436, 52.08210903654731], &quot;geometry&quot;: {&quot;coordinates&quot;: [5.176162870282436, 52.08210903654731], &quot;type&quot;: &quot;Point&quot;}, &quot;id&quot;: &quot;41&quot;, &quot;properties&quot;: {&quot;end&quot;: 0.1, &quot;nr&quot;: &quot;B32C1128&quot;, &quot;surface&quot;: 2.0, &quot;x&quot;: 140534.0, &quot;y&quot;: 454892.0}, &quot;type&quot;: &quot;Feature&quot;}, {&quot;bbox&quot;: [5.179972914811344, 52.08159448639877, 5.179972914811344, 52.08159448639877], &quot;geometry&quot;: {&quot;coordinates&quot;: [5.179972914811344, 52.08159448639877], &quot;type&quot;: &quot;Point&quot;}, &quot;id&quot;: &quot;42&quot;, &quot;properties&quot;: {&quot;end&quot;: -4.6, &quot;nr&quot;: &quot;B32C1136&quot;, &quot;surface&quot;: 1.4, &quot;x&quot;: 140795.0, &quot;y&quot;: 454834.0}, &quot;type&quot;: &quot;Feature&quot;}, {&quot;bbox&quot;: [5.16957178719917, 52.08148586745069, 5.16957178719917, 52.08148586745069], &quot;geometry&quot;: {&quot;coordinates&quot;: [5.16957178719917, 52.08148586745069], &quot;type&quot;: &quot;Point&quot;}, &quot;id&quot;: &quot;43&quot;, &quot;properties&quot;: {&quot;end&quot;: -4.1, &quot;nr&quot;: &quot;B32C1137&quot;, &quot;surface&quot;: 0.9, &quot;x&quot;: 140082.0, &quot;y&quot;: 454824.0}, &quot;type&quot;: &quot;Feature&quot;}, {&quot;bbox&quot;: [5.183559467534287, 52.08208609018202, 5.183559467534287, 52.08208609018202], &quot;geometry&quot;: {&quot;coordinates&quot;: [5.183559467534287, 52.08208609018202], &quot;type&quot;: &quot;Point&quot;}, &quot;id&quot;: &quot;44&quot;, &quot;properties&quot;: {&quot;end&quot;: -3.3, &quot;nr&quot;: &quot;B32C1143&quot;, &quot;surface&quot;: 1.7, &quot;x&quot;: 141041.0, &quot;y&quot;: 454888.0}, &quot;type&quot;: &quot;Feature&quot;}, {&quot;bbox&quot;: [5.187035860363138, 52.08113032009626, 5.187035860363138, 52.08113032009626], &quot;geometry&quot;: {&quot;coordinates&quot;: [5.187035860363138, 52.08113032009626], &quot;type&quot;: &quot;Point&quot;}, &quot;id&quot;: &quot;45&quot;, &quot;properties&quot;: {&quot;end&quot;: -2.9, &quot;nr&quot;: &quot;B32C1147&quot;, &quot;surface&quot;: 2.1, &quot;x&quot;: 141279.0, &quot;y&quot;: 454781.0}, &quot;type&quot;: &quot;Feature&quot;}, {&quot;bbox&quot;: [5.173344821056844, 52.09177510731986, 5.173344821056844, 52.09177510731986], &quot;geometry&quot;: {&quot;coordinates&quot;: [5.173344821056844, 52.09177510731986], &quot;type&quot;: &quot;Point&quot;}, &quot;id&quot;: &quot;46&quot;, &quot;properties&quot;: {&quot;end&quot;: 0.7, &quot;nr&quot;: &quot;B32C1225&quot;, &quot;surface&quot;: 2.0, &quot;x&quot;: 140344.0, &quot;y&quot;: 455968.0}, &quot;type&quot;: &quot;Feature&quot;}, {&quot;bbox&quot;: [5.173936904470891, 52.08694959548171, 5.173936904470891, 52.08694959548171], &quot;geometry&quot;: {&quot;coordinates&quot;: [5.173936904470891, 52.08694959548171], &quot;type&quot;: &quot;Point&quot;}, &quot;id&quot;: &quot;47&quot;, &quot;properties&quot;: {&quot;end&quot;: 0.1, &quot;nr&quot;: &quot;B32C1226&quot;, &quot;surface&quot;: 2.0, &quot;x&quot;: 140383.0, &quot;y&quot;: 455431.0}, &quot;type&quot;: &quot;Feature&quot;}, {&quot;bbox&quot;: [5.173802574613766, 52.084522576958854, 5.173802574613766, 52.084522576958854], &quot;geometry&quot;: {&quot;coordinates&quot;: [5.173802574613766, 52.084522576958854], &quot;type&quot;: &quot;Point&quot;}, &quot;id&quot;: &quot;48&quot;, &quot;properties&quot;: {&quot;end&quot;: 0.1, &quot;nr&quot;: &quot;B32C1227&quot;, &quot;surface&quot;: 2.0, &quot;x&quot;: 140373.0, &quot;y&quot;: 455161.0}, &quot;type&quot;: &quot;Feature&quot;}, {&quot;bbox&quot;: [5.179447453056616, 52.08793913030899, 5.179447453056616, 52.08793913030899], &quot;geometry&quot;: {&quot;coordinates&quot;: [5.179447453056616, 52.08793913030899], &quot;type&quot;: &quot;Point&quot;}, &quot;id&quot;: &quot;49&quot;, &quot;properties&quot;: {&quot;end&quot;: -0.2, &quot;nr&quot;: &quot;B32C1228&quot;, &quot;surface&quot;: 1.8, &quot;x&quot;: 140761.0, &quot;y&quot;: 455540.0}, &quot;type&quot;: &quot;Feature&quot;}, {&quot;bbox&quot;: [5.174753824925605, 52.090051948416935, 5.174753824925605, 52.090051948416935], &quot;geometry&quot;: {&quot;coordinates&quot;: [5.174753824925605, 52.090051948416935], &quot;type&quot;: &quot;Point&quot;}, &quot;id&quot;: &quot;50&quot;, &quot;properties&quot;: {&quot;end&quot;: -0.7, &quot;nr&quot;: &quot;B32C1229&quot;, &quot;surface&quot;: 1.3, &quot;x&quot;: 140440.0, &quot;y&quot;: 455776.0}, &quot;type&quot;: &quot;Feature&quot;}, {&quot;bbox&quot;: [5.179984281940647, 52.085441395662826, 5.179984281940647, 52.085441395662826], &quot;geometry&quot;: {&quot;coordinates&quot;: [5.179984281940647, 52.085441395662826], &quot;type&quot;: &quot;Point&quot;}, &quot;id&quot;: &quot;51&quot;, &quot;properties&quot;: {&quot;end&quot;: -4.9, &quot;nr&quot;: &quot;B32C1230&quot;, &quot;surface&quot;: 2.1, &quot;x&quot;: 140797.0, &quot;y&quot;: 455262.0}, &quot;type&quot;: &quot;Feature&quot;}, {&quot;bbox&quot;: [5.177059262499329, 52.08383634508655, 5.177059262499329, 52.08383634508655], &quot;geometry&quot;: {&quot;coordinates&quot;: [5.177059262499329, 52.08383634508655], &quot;type&quot;: &quot;Point&quot;}, &quot;id&quot;: &quot;52&quot;, &quot;properties&quot;: {&quot;end&quot;: -3.0, &quot;nr&quot;: &quot;B32C1231&quot;, &quot;surface&quot;: 2.0, &quot;x&quot;: 140596.0, &quot;y&quot;: 455084.0}, &quot;type&quot;: &quot;Feature&quot;}, {&quot;bbox&quot;: [5.178650014369804, 52.0899869985188, 5.178650014369804, 52.0899869985188], &quot;geometry&quot;: {&quot;coordinates&quot;: [5.178650014369804, 52.0899869985188], &quot;type&quot;: &quot;Point&quot;}, &quot;id&quot;: &quot;53&quot;, &quot;properties&quot;: {&quot;end&quot;: -3.2, &quot;nr&quot;: &quot;B32C1232&quot;, &quot;surface&quot;: 1.8, &quot;x&quot;: 140707.0, &quot;y&quot;: 455768.0}, &quot;type&quot;: &quot;Feature&quot;}, {&quot;bbox&quot;: [5.183775201920269, 52.08918702609574, 5.183775201920269, 52.08918702609574], &quot;geometry&quot;: {&quot;coordinates&quot;: [5.183775201920269, 52.08918702609574], &quot;type&quot;: &quot;Point&quot;}, &quot;id&quot;: &quot;54&quot;, &quot;properties&quot;: {&quot;end&quot;: 0.7, &quot;nr&quot;: &quot;B32C1236&quot;, &quot;surface&quot;: 2.3, &quot;x&quot;: 141058.0, &quot;y&quot;: 455678.0}, &quot;type&quot;: &quot;Feature&quot;}, {&quot;bbox&quot;: [5.186712947428863, 52.091340200347645, 5.186712947428863, 52.091340200347645], &quot;geometry&quot;: {&quot;coordinates&quot;: [5.186712947428863, 52.091340200347645], &quot;type&quot;: &quot;Point&quot;}, &quot;id&quot;: &quot;55&quot;, &quot;properties&quot;: {&quot;end&quot;: 0.1, &quot;nr&quot;: &quot;B32C1237&quot;, &quot;surface&quot;: 2.1, &quot;x&quot;: 141260.0, &quot;y&quot;: 455917.0}, &quot;type&quot;: &quot;Feature&quot;}, {&quot;bbox&quot;: [5.186416975655546, 52.0857581175995, 5.186416975655546, 52.0857581175995], &quot;geometry&quot;: {&quot;coordinates&quot;: [5.186416975655546, 52.0857581175995], &quot;type&quot;: &quot;Point&quot;}, &quot;id&quot;: &quot;56&quot;, &quot;properties&quot;: {&quot;end&quot;: -3.5, &quot;nr&quot;: &quot;B32C1238&quot;, &quot;surface&quot;: 1.5, &quot;x&quot;: 141238.0, &quot;y&quot;: 455296.0}, &quot;type&quot;: &quot;Feature&quot;}, {&quot;bbox&quot;: [5.176703156551043, 52.082002145540926, 5.176703156551043, 52.082002145540926], &quot;geometry&quot;: {&quot;coordinates&quot;: [5.176703156551043, 52.082002145540926], &quot;type&quot;: &quot;Point&quot;}, &quot;id&quot;: &quot;57&quot;, &quot;properties&quot;: {&quot;end&quot;: -4.9, &quot;nr&quot;: &quot;B32C1799&quot;, &quot;surface&quot;: 2.1, &quot;x&quot;: 140571.0, &quot;y&quot;: 454880.0}, &quot;type&quot;: &quot;Feature&quot;}, {&quot;bbox&quot;: [5.176658592044488, 52.09147547624492, 5.176658592044488, 52.09147547624492], &quot;geometry&quot;: {&quot;coordinates&quot;: [5.176658592044488, 52.09147547624492], &quot;type&quot;: &quot;Point&quot;}, &quot;id&quot;: &quot;58&quot;, &quot;properties&quot;: {&quot;end&quot;: -2.92, &quot;nr&quot;: &quot;B32C1800&quot;, &quot;surface&quot;: 2.08, &quot;x&quot;: 140571.0, &quot;y&quot;: 455934.0}, &quot;type&quot;: &quot;Feature&quot;}, {&quot;bbox&quot;: [5.1766731414338905, 52.091484490267206, 5.1766731414338905, 52.091484490267206], &quot;geometry&quot;: {&quot;coordinates&quot;: [5.1766731414338905, 52.091484490267206], &quot;type&quot;: &quot;Point&quot;}, &quot;id&quot;: &quot;59&quot;, &quot;properties&quot;: {&quot;end&quot;: 0.94, &quot;nr&quot;: &quot;B32C1801&quot;, &quot;surface&quot;: 2.24, &quot;x&quot;: 140572.0, &quot;y&quot;: 455935.0}, &quot;type&quot;: &quot;Feature&quot;}, {&quot;bbox&quot;: [5.170208505608872, 52.091580629175155, 5.170208505608872, 52.091580629175155], &quot;geometry&quot;: {&quot;coordinates&quot;: [5.170208505608872, 52.091580629175155], &quot;type&quot;: &quot;Point&quot;}, &quot;id&quot;: &quot;60&quot;, &quot;properties&quot;: {&quot;end&quot;: -3.213, &quot;nr&quot;: &quot;B32C1880&quot;, &quot;surface&quot;: 1.287, &quot;x&quot;: 140129.0, &quot;y&quot;: 455947.0}, &quot;type&quot;: &quot;Feature&quot;}, {&quot;bbox&quot;: [5.172964359089626, 52.09199911799994, 5.172964359089626, 52.09199911799994], &quot;geometry&quot;: {&quot;coordinates&quot;: [5.172964359089626, 52.09199911799994], &quot;type&quot;: &quot;Point&quot;}, &quot;id&quot;: &quot;61&quot;, &quot;properties&quot;: {&quot;end&quot;: -2.474, &quot;nr&quot;: &quot;B32C1881&quot;, &quot;surface&quot;: 2.026, &quot;x&quot;: 140318.0, &quot;y&quot;: 455993.0}, &quot;type&quot;: &quot;Feature&quot;}, {&quot;bbox&quot;: [5.181733773281543, 52.09207763864912, 5.181733773281543, 52.09207763864912], &quot;geometry&quot;: {&quot;coordinates&quot;: [5.181733773281543, 52.09207763864912], &quot;type&quot;: &quot;Point&quot;}, &quot;id&quot;: &quot;62&quot;, &quot;properties&quot;: {&quot;end&quot;: -2.772, &quot;nr&quot;: &quot;B32C1889&quot;, &quot;surface&quot;: 1.728, &quot;x&quot;: 140919.0, &quot;y&quot;: 456000.0}, &quot;type&quot;: &quot;Feature&quot;}, {&quot;bbox&quot;: [5.182016047232884, 52.090981588344825, 5.182016047232884, 52.090981588344825], &quot;geometry&quot;: {&quot;coordinates&quot;: [5.182016047232884, 52.090981588344825], &quot;type&quot;: &quot;Point&quot;}, &quot;id&quot;: &quot;63&quot;, &quot;properties&quot;: {&quot;end&quot;: 0.248, &quot;nr&quot;: &quot;B32C1890&quot;, &quot;surface&quot;: 3.948, &quot;x&quot;: 140938.0, &quot;y&quot;: 455878.0}, &quot;type&quot;: &quot;Feature&quot;}, {&quot;bbox&quot;: [5.183280594424807, 52.09206234726602, 5.183280594424807, 52.09206234726602], &quot;geometry&quot;: {&quot;coordinates&quot;: [5.183280594424807, 52.09206234726602], &quot;type&quot;: &quot;Point&quot;}, &quot;id&quot;: &quot;64&quot;, &quot;properties&quot;: {&quot;end&quot;: -1.888, &quot;nr&quot;: &quot;B32C1891&quot;, &quot;surface&quot;: 2.112, &quot;x&quot;: 141025.0, &quot;y&quot;: 455998.0}, &quot;type&quot;: &quot;Feature&quot;}, {&quot;bbox&quot;: [5.184244962740586, 52.09177639330679, 5.184244962740586, 52.09177639330679], &quot;geometry&quot;: {&quot;coordinates&quot;: [5.184244962740586, 52.09177639330679], &quot;type&quot;: &quot;Point&quot;}, &quot;id&quot;: &quot;65&quot;, &quot;properties&quot;: {&quot;end&quot;: -2.731, &quot;nr&quot;: &quot;B32C1892&quot;, &quot;surface&quot;: 1.769, &quot;x&quot;: 141091.0, &quot;y&quot;: 455966.0}, &quot;type&quot;: &quot;Feature&quot;}, {&quot;bbox&quot;: [5.186797599034412, 52.091987483513385, 5.186797599034412, 52.091987483513385], &quot;geometry&quot;: {&quot;coordinates&quot;: [5.186797599034412, 52.091987483513385], &quot;type&quot;: &quot;Point&quot;}, &quot;id&quot;: &quot;66&quot;, &quot;properties&quot;: {&quot;end&quot;: -2.172, &quot;nr&quot;: &quot;B32C1893&quot;, &quot;surface&quot;: 2.328, &quot;x&quot;: 141266.0, &quot;y&quot;: 455989.0}, &quot;type&quot;: &quot;Feature&quot;}], &quot;type&quot;: &quot;FeatureCollection&quot;});
+            geo_json_f377000082d3135f832fababc4c03540_add({&quot;bbox&quot;: [5.161359450510228, 52.08113032009626, 5.187035860363138, 52.09207763864912], &quot;features&quot;: [{&quot;bbox&quot;: [5.162268224996437, 52.09204211820411, 5.162268224996437, 52.09204211820411], &quot;geometry&quot;: {&quot;coordinates&quot;: [5.162268224996437, 52.09204211820411], &quot;type&quot;: &quot;Point&quot;}, &quot;id&quot;: &quot;0&quot;, &quot;properties&quot;: {&quot;end&quot;: -9.9, &quot;nr&quot;: &quot;B31H0541&quot;, &quot;surface&quot;: 1.2, &quot;x&quot;: 139585.0, &quot;y&quot;: 456000.0}, &quot;type&quot;: &quot;Feature&quot;}, {&quot;bbox&quot;: [5.162529526260157, 52.08359384237674, 5.162529526260157, 52.08359384237674], &quot;geometry&quot;: {&quot;coordinates&quot;: [5.162529526260157, 52.08359384237674], &quot;type&quot;: &quot;Point&quot;}, &quot;id&quot;: &quot;1&quot;, &quot;properties&quot;: {&quot;end&quot;: -23.0, &quot;nr&quot;: &quot;B31H0611&quot;, &quot;surface&quot;: 1.2, &quot;x&quot;: 139600.0, &quot;y&quot;: 455060.0}, &quot;type&quot;: &quot;Feature&quot;}, {&quot;bbox&quot;: [5.167629537344739, 52.08486177819724, 5.167629537344739, 52.08486177819724], &quot;geometry&quot;: {&quot;coordinates&quot;: [5.167629537344739, 52.08486177819724], &quot;type&quot;: &quot;Point&quot;}, &quot;id&quot;: &quot;2&quot;, &quot;properties&quot;: {&quot;end&quot;: -271.2, &quot;nr&quot;: &quot;B31H0718&quot;, &quot;surface&quot;: 1.3, &quot;x&quot;: 139950.0, &quot;y&quot;: 455200.0}, &quot;type&quot;: &quot;Feature&quot;}, {&quot;bbox&quot;: [5.16362249611564, 52.08383859756739, 5.16362249611564, 52.08383859756739], &quot;geometry&quot;: {&quot;coordinates&quot;: [5.16362249611564, 52.08383859756739], &quot;type&quot;: &quot;Point&quot;}, &quot;id&quot;: &quot;3&quot;, &quot;properties&quot;: {&quot;end&quot;: -4.84, &quot;nr&quot;: &quot;B31H0803&quot;, &quot;surface&quot;: 2.16, &quot;x&quot;: 139675.0, &quot;y&quot;: 455087.0}, &quot;type&quot;: &quot;Feature&quot;}, {&quot;bbox&quot;: [5.163740469667202, 52.086508275277396, 5.163740469667202, 52.086508275277396], &quot;geometry&quot;: {&quot;coordinates&quot;: [5.163740469667202, 52.086508275277396], &quot;type&quot;: &quot;Point&quot;}, &quot;id&quot;: &quot;4&quot;, &quot;properties&quot;: {&quot;end&quot;: -49.5, &quot;nr&quot;: &quot;B31H0806&quot;, &quot;surface&quot;: 1.0, &quot;x&quot;: 139684.0, &quot;y&quot;: 455384.0}, &quot;type&quot;: &quot;Feature&quot;}, {&quot;bbox&quot;: [5.163739527140889, 52.0866970227263, 5.163739527140889, 52.0866970227263], &quot;geometry&quot;: {&quot;coordinates&quot;: [5.163739527140889, 52.0866970227263], &quot;type&quot;: &quot;Point&quot;}, &quot;id&quot;: &quot;5&quot;, &quot;properties&quot;: {&quot;end&quot;: -49.5, &quot;nr&quot;: &quot;B31H0807&quot;, &quot;surface&quot;: 1.0, &quot;x&quot;: 139684.0, &quot;y&quot;: 455405.0}, &quot;type&quot;: &quot;Feature&quot;}, {&quot;bbox&quot;: [5.163629448232414, 52.088287700257936, 5.163629448232414, 52.088287700257936], &quot;geometry&quot;: {&quot;coordinates&quot;: [5.163629448232414, 52.088287700257936], &quot;type&quot;: &quot;Point&quot;}, &quot;id&quot;: &quot;6&quot;, &quot;properties&quot;: {&quot;end&quot;: -51.0, &quot;nr&quot;: &quot;B31H0808&quot;, &quot;surface&quot;: 1.0, &quot;x&quot;: 139677.0, &quot;y&quot;: 455582.0}, &quot;type&quot;: &quot;Feature&quot;}, {&quot;bbox&quot;: [5.16362850518857, 52.088476447651885, 5.16362850518857, 52.088476447651885], &quot;geometry&quot;: {&quot;coordinates&quot;: [5.16362850518857, 52.088476447651885], &quot;type&quot;: &quot;Point&quot;}, &quot;id&quot;: &quot;7&quot;, &quot;properties&quot;: {&quot;end&quot;: -51.0, &quot;nr&quot;: &quot;B31H0809&quot;, &quot;surface&quot;: 1.0, &quot;x&quot;: 139677.0, &quot;y&quot;: 455603.0}, &quot;type&quot;: &quot;Feature&quot;}, {&quot;bbox&quot;: [5.166905758200831, 52.086667028126236, 5.166905758200831, 52.086667028126236], &quot;geometry&quot;: {&quot;coordinates&quot;: [5.166905758200831, 52.086667028126236], &quot;type&quot;: &quot;Point&quot;}, &quot;id&quot;: &quot;8&quot;, &quot;properties&quot;: {&quot;end&quot;: -50.0, &quot;nr&quot;: &quot;B31H0810&quot;, &quot;surface&quot;: 1.0, &quot;x&quot;: 139901.0, &quot;y&quot;: 455401.0}, &quot;type&quot;: &quot;Feature&quot;}, {&quot;bbox&quot;: [5.167029153479638, 52.08827612073483, 5.167029153479638, 52.08827612073483], &quot;geometry&quot;: {&quot;coordinates&quot;: [5.167029153479638, 52.08827612073483], &quot;type&quot;: &quot;Point&quot;}, &quot;id&quot;: &quot;9&quot;, &quot;properties&quot;: {&quot;end&quot;: -48.0, &quot;nr&quot;: &quot;B31H0811&quot;, &quot;surface&quot;: 1.0, &quot;x&quot;: 139910.0, &quot;y&quot;: 455580.0}, &quot;type&quot;: &quot;Feature&quot;}, {&quot;bbox&quot;: [5.166576844065562, 52.08827527536561, 5.166576844065562, 52.08827527536561], &quot;geometry&quot;: {&quot;coordinates&quot;: [5.166576844065562, 52.08827527536561], &quot;type&quot;: &quot;Point&quot;}, &quot;id&quot;: &quot;10&quot;, &quot;properties&quot;: {&quot;end&quot;: -51.0, &quot;nr&quot;: &quot;B31H0812&quot;, &quot;surface&quot;: 2.0, &quot;x&quot;: 139879.0, &quot;y&quot;: 455580.0}, &quot;type&quot;: &quot;Feature&quot;}, {&quot;bbox&quot;: [5.168046183531788, 52.08915884458395, 5.168046183531788, 52.08915884458395], &quot;geometry&quot;: {&quot;coordinates&quot;: [5.168046183531788, 52.08915884458395], &quot;type&quot;: &quot;Point&quot;}, &quot;id&quot;: &quot;11&quot;, &quot;properties&quot;: {&quot;end&quot;: -57.488, &quot;nr&quot;: &quot;B31H0813&quot;, &quot;surface&quot;: 2.512, &quot;x&quot;: 139980.0, &quot;y&quot;: 455678.0}, &quot;type&quot;: &quot;Feature&quot;}, {&quot;bbox&quot;: [5.1667034650801575, 52.08922824601957, 5.1667034650801575, 52.08922824601957], &quot;geometry&quot;: {&quot;coordinates&quot;: [5.1667034650801575, 52.08922824601957], &quot;type&quot;: &quot;Point&quot;}, &quot;id&quot;: &quot;12&quot;, &quot;properties&quot;: {&quot;end&quot;: -173.8, &quot;nr&quot;: &quot;B31H0814&quot;, &quot;surface&quot;: 1.2, &quot;x&quot;: 139888.0, &quot;y&quot;: 455686.0}, &quot;type&quot;: &quot;Feature&quot;}, {&quot;bbox&quot;: [5.167500715193375, 52.09029931237855, 5.167500715193375, 52.09029931237855], &quot;geometry&quot;: {&quot;coordinates&quot;: [5.167500715193375, 52.09029931237855], &quot;type&quot;: &quot;Point&quot;}, &quot;id&quot;: &quot;13&quot;, &quot;properties&quot;: {&quot;end&quot;: -1.7, &quot;nr&quot;: &quot;B31H0825&quot;, &quot;surface&quot;: 1.1, &quot;x&quot;: 139943.0, &quot;y&quot;: 455805.0}, &quot;type&quot;: &quot;Feature&quot;}, {&quot;bbox&quot;: [5.167558992103448, 52.090317397040494, 5.167558992103448, 52.090317397040494], &quot;geometry&quot;: {&quot;coordinates&quot;: [5.167558992103448, 52.090317397040494], &quot;type&quot;: &quot;Point&quot;}, &quot;id&quot;: &quot;14&quot;, &quot;properties&quot;: {&quot;end&quot;: -1.7, &quot;nr&quot;: &quot;B31H0826&quot;, &quot;surface&quot;: 1.1, &quot;x&quot;: 139947.0, &quot;y&quot;: 455807.0}, &quot;type&quot;: &quot;Feature&quot;}, {&quot;bbox&quot;: [5.167675105104089, 52.090443445980085, 5.167675105104089, 52.090443445980085], &quot;geometry&quot;: {&quot;coordinates&quot;: [5.167675105104089, 52.090443445980085], &quot;type&quot;: &quot;Point&quot;}, &quot;id&quot;: &quot;15&quot;, &quot;properties&quot;: {&quot;end&quot;: -1.7, &quot;nr&quot;: &quot;B31H0827&quot;, &quot;surface&quot;: 1.1, &quot;x&quot;: 139955.0, &quot;y&quot;: 455821.0}, &quot;type&quot;: &quot;Feature&quot;}, {&quot;bbox&quot;: [5.167907729516114, 52.09061465177976, 5.167907729516114, 52.09061465177976], &quot;geometry&quot;: {&quot;coordinates&quot;: [5.167907729516114, 52.09061465177976], &quot;type&quot;: &quot;Point&quot;}, &quot;id&quot;: &quot;16&quot;, &quot;properties&quot;: {&quot;end&quot;: 0.1, &quot;nr&quot;: &quot;B31H0828&quot;, &quot;surface&quot;: 1.1, &quot;x&quot;: 139971.0, &quot;y&quot;: 455840.0}, &quot;type&quot;: &quot;Feature&quot;}, {&quot;bbox&quot;: [5.166626434169968, 52.081174800148375, 5.166626434169968, 52.081174800148375], &quot;geometry&quot;: {&quot;coordinates&quot;: [5.166626434169968, 52.081174800148375], &quot;type&quot;: &quot;Point&quot;}, &quot;id&quot;: &quot;17&quot;, &quot;properties&quot;: {&quot;end&quot;: -0.2, &quot;nr&quot;: &quot;B31H1611&quot;, &quot;surface&quot;: 1.3, &quot;x&quot;: 139880.0, &quot;y&quot;: 454790.0}, &quot;type&quot;: &quot;Feature&quot;}, {&quot;bbox&quot;: [5.162937472420921, 52.08952673797063, 5.162937472420921, 52.08952673797063], &quot;geometry&quot;: {&quot;coordinates&quot;: [5.162937472420921, 52.08952673797063], &quot;type&quot;: &quot;Point&quot;}, &quot;id&quot;: &quot;18&quot;, &quot;properties&quot;: {&quot;end&quot;: 1.0, &quot;nr&quot;: &quot;B31H1693&quot;, &quot;surface&quot;: 2.3, &quot;x&quot;: 139630.0, &quot;y&quot;: 455720.0}, &quot;type&quot;: &quot;Feature&quot;}, {&quot;bbox&quot;: [5.161359450510228, 52.08417583120632, 5.161359450510228, 52.08417583120632], &quot;geometry&quot;: {&quot;coordinates&quot;: [5.161359450510228, 52.08417583120632], &quot;type&quot;: &quot;Point&quot;}, &quot;id&quot;: &quot;19&quot;, &quot;properties&quot;: {&quot;end&quot;: -0.8, &quot;nr&quot;: &quot;B31H1694&quot;, &quot;surface&quot;: 1.2, &quot;x&quot;: 139520.0, &quot;y&quot;: 455125.0}, &quot;type&quot;: &quot;Feature&quot;}, {&quot;bbox&quot;: [5.163394533972795, 52.08566274159777, 5.163394533972795, 52.08566274159777], &quot;geometry&quot;: {&quot;coordinates&quot;: [5.163394533972795, 52.08566274159777], &quot;type&quot;: &quot;Point&quot;}, &quot;id&quot;: &quot;20&quot;, &quot;properties&quot;: {&quot;end&quot;: -0.4, &quot;nr&quot;: &quot;B31H1695&quot;, &quot;surface&quot;: 1.1, &quot;x&quot;: 139660.0, &quot;y&quot;: 455290.0}, &quot;type&quot;: &quot;Feature&quot;}, {&quot;bbox&quot;: [5.165740906776388, 52.08324039510668, 5.165740906776388, 52.08324039510668], &quot;geometry&quot;: {&quot;coordinates&quot;: [5.165740906776388, 52.08324039510668], &quot;type&quot;: &quot;Point&quot;}, &quot;id&quot;: &quot;21&quot;, &quot;properties&quot;: {&quot;end&quot;: -3.7, &quot;nr&quot;: &quot;B31H1696&quot;, &quot;surface&quot;: 1.3, &quot;x&quot;: 139820.0, &quot;y&quot;: 455020.0}, &quot;type&quot;: &quot;Feature&quot;}, {&quot;bbox&quot;: [5.165308796756755, 52.08800325443472, 5.165308796756755, 52.08800325443472], &quot;geometry&quot;: {&quot;coordinates&quot;: [5.165308796756755, 52.08800325443472], &quot;type&quot;: &quot;Point&quot;}, &quot;id&quot;: &quot;22&quot;, &quot;properties&quot;: {&quot;end&quot;: -4.79, &quot;nr&quot;: &quot;B31H2639&quot;, &quot;surface&quot;: 2.21, &quot;x&quot;: 139792.0, &quot;y&quot;: 455550.0}, &quot;type&quot;: &quot;Feature&quot;}, {&quot;bbox&quot;: [5.163718962798611, 52.08205015569283, 5.163718962798611, 52.08205015569283], &quot;geometry&quot;: {&quot;coordinates&quot;: [5.163718962798611, 52.08205015569283], &quot;type&quot;: &quot;Point&quot;}, &quot;id&quot;: &quot;23&quot;, &quot;properties&quot;: {&quot;end&quot;: -1.8, &quot;nr&quot;: &quot;B31H3219&quot;, &quot;surface&quot;: 2.2, &quot;x&quot;: 139681.0, &quot;y&quot;: 454888.0}, &quot;type&quot;: &quot;Feature&quot;}, {&quot;bbox&quot;: [5.162230926450278, 52.08204732592478, 5.162230926450278, 52.08204732592478], &quot;geometry&quot;: {&quot;coordinates&quot;: [5.162230926450278, 52.08204732592478], &quot;type&quot;: &quot;Point&quot;}, &quot;id&quot;: &quot;24&quot;, &quot;properties&quot;: {&quot;end&quot;: -2.519, &quot;nr&quot;: &quot;B31H3282&quot;, &quot;surface&quot;: 1.981, &quot;x&quot;: 139579.0, &quot;y&quot;: 454888.0}, &quot;type&quot;: &quot;Feature&quot;}, {&quot;bbox&quot;: [5.162834996062768, 52.083774185291766, 5.162834996062768, 52.083774185291766], &quot;geometry&quot;: {&quot;coordinates&quot;: [5.162834996062768, 52.083774185291766], &quot;type&quot;: &quot;Point&quot;}, &quot;id&quot;: &quot;25&quot;, &quot;properties&quot;: {&quot;end&quot;: -2.99, &quot;nr&quot;: &quot;B31H3284&quot;, &quot;surface&quot;: 2.01, &quot;x&quot;: 139621.0, &quot;y&quot;: 455080.0}, &quot;type&quot;: &quot;Feature&quot;}, {&quot;bbox&quot;: [5.161371499907115, 52.084679185787856, 5.161371499907115, 52.084679185787856], &quot;geometry&quot;: {&quot;coordinates&quot;: [5.161371499907115, 52.084679185787856], &quot;type&quot;: &quot;Point&quot;}, &quot;id&quot;: &quot;26&quot;, &quot;properties&quot;: {&quot;end&quot;: -2.343, &quot;nr&quot;: &quot;B31H3285&quot;, &quot;surface&quot;: 2.157, &quot;x&quot;: 139521.0, &quot;y&quot;: 455181.0}, &quot;type&quot;: &quot;Feature&quot;}, {&quot;bbox&quot;: [5.1630487013748985, 52.084799230843934, 5.1630487013748985, 52.084799230843934], &quot;geometry&quot;: {&quot;coordinates&quot;: [5.1630487013748985, 52.084799230843934], &quot;type&quot;: &quot;Point&quot;}, &quot;id&quot;: &quot;27&quot;, &quot;properties&quot;: {&quot;end&quot;: -3.008, &quot;nr&quot;: &quot;B31H3286&quot;, &quot;surface&quot;: 1.492, &quot;x&quot;: 139636.0, &quot;y&quot;: 455194.0}, &quot;type&quot;: &quot;Feature&quot;}, {&quot;bbox&quot;: [5.163200098050558, 52.08661510671573, 5.163200098050558, 52.08661510671573], &quot;geometry&quot;: {&quot;coordinates&quot;: [5.163200098050558, 52.08661510671573], &quot;type&quot;: &quot;Point&quot;}, &quot;id&quot;: &quot;28&quot;, &quot;properties&quot;: {&quot;end&quot;: -6.07, &quot;nr&quot;: &quot;B31H3287&quot;, &quot;surface&quot;: 1.43, &quot;x&quot;: 139647.0, &quot;y&quot;: 455396.0}, &quot;type&quot;: &quot;Feature&quot;}, {&quot;bbox&quot;: [5.16155137364752, 52.08662095127076, 5.16155137364752, 52.08662095127076], &quot;geometry&quot;: {&quot;coordinates&quot;: [5.16155137364752, 52.08662095127076], &quot;type&quot;: &quot;Point&quot;}, &quot;id&quot;: &quot;29&quot;, &quot;properties&quot;: {&quot;end&quot;: -6.44, &quot;nr&quot;: &quot;B31H3288&quot;, &quot;surface&quot;: 1.56, &quot;x&quot;: 139534.0, &quot;y&quot;: 455397.0}, &quot;type&quot;: &quot;Feature&quot;}, {&quot;bbox&quot;: [5.161491101551955, 52.08989248867648, 5.161491101551955, 52.08989248867648], &quot;geometry&quot;: {&quot;coordinates&quot;: [5.161491101551955, 52.08989248867648], &quot;type&quot;: &quot;Point&quot;}, &quot;id&quot;: &quot;30&quot;, &quot;properties&quot;: {&quot;end&quot;: 4.037, &quot;nr&quot;: &quot;B31H3289&quot;, &quot;surface&quot;: 8.037, &quot;x&quot;: 139531.0, &quot;y&quot;: 455761.0}, &quot;type&quot;: &quot;Feature&quot;}, {&quot;bbox&quot;: [5.163743031381388, 52.0889170794652, 5.163743031381388, 52.0889170794652], &quot;geometry&quot;: {&quot;coordinates&quot;: [5.163743031381388, 52.0889170794652], &quot;type&quot;: &quot;Point&quot;}, &quot;id&quot;: &quot;31&quot;, &quot;properties&quot;: {&quot;end&quot;: -5.547, &quot;nr&quot;: &quot;B31H3312&quot;, &quot;surface&quot;: 2.453, &quot;x&quot;: 139685.0, &quot;y&quot;: 455652.0}, &quot;type&quot;: &quot;Feature&quot;}, {&quot;bbox&quot;: [5.163255956045706, 52.090030674268625, 5.163255956045706, 52.090030674268625], &quot;geometry&quot;: {&quot;coordinates&quot;: [5.163255956045706, 52.090030674268625], &quot;type&quot;: &quot;Point&quot;}, &quot;id&quot;: &quot;32&quot;, &quot;properties&quot;: {&quot;end&quot;: 3.86, &quot;nr&quot;: &quot;B31H3314&quot;, &quot;surface&quot;: 7.86, &quot;x&quot;: 139652.0, &quot;y&quot;: 455776.0}, &quot;type&quot;: &quot;Feature&quot;}, {&quot;bbox&quot;: [5.164873479971488, 52.09045617343888, 5.164873479971488, 52.09045617343888], &quot;geometry&quot;: {&quot;coordinates&quot;: [5.164873479971488, 52.09045617343888], &quot;type&quot;: &quot;Point&quot;}, &quot;id&quot;: &quot;33&quot;, &quot;properties&quot;: {&quot;end&quot;: -7.267, &quot;nr&quot;: &quot;B31H3315&quot;, &quot;surface&quot;: 1.233, &quot;x&quot;: 139763.0, &quot;y&quot;: 455823.0}, &quot;type&quot;: &quot;Feature&quot;}, {&quot;bbox&quot;: [5.164475755785453, 52.0912104193438, 5.164475755785453, 52.0912104193438], &quot;geometry&quot;: {&quot;coordinates&quot;: [5.164475755785453, 52.0912104193438], &quot;type&quot;: &quot;Point&quot;}, &quot;id&quot;: &quot;34&quot;, &quot;properties&quot;: {&quot;end&quot;: 0.714, &quot;nr&quot;: &quot;B31H3318&quot;, &quot;surface&quot;: 4.714, &quot;x&quot;: 139736.0, &quot;y&quot;: 455907.0}, &quot;type&quot;: &quot;Feature&quot;}, {&quot;bbox&quot;: [5.167364624483557, 52.09126976835782, 5.167364624483557, 52.09126976835782], &quot;geometry&quot;: {&quot;coordinates&quot;: [5.167364624483557, 52.09126976835782], &quot;type&quot;: &quot;Point&quot;}, &quot;id&quot;: &quot;35&quot;, &quot;properties&quot;: {&quot;end&quot;: -3.585, &quot;nr&quot;: &quot;B31H3320&quot;, &quot;surface&quot;: 1.415, &quot;x&quot;: 139934.0, &quot;y&quot;: 455913.0}, &quot;type&quot;: &quot;Feature&quot;}, {&quot;bbox&quot;: [5.168599321068128, 52.08942951286321, 5.168599321068128, 52.08942951286321], &quot;geometry&quot;: {&quot;coordinates&quot;: [5.168599321068128, 52.08942951286321], &quot;type&quot;: &quot;Point&quot;}, &quot;id&quot;: &quot;36&quot;, &quot;properties&quot;: {&quot;end&quot;: -78.9, &quot;nr&quot;: &quot;B32C0140&quot;, &quot;surface&quot;: 1.1, &quot;x&quot;: 140018.0, &quot;y&quot;: 455708.0}, &quot;type&quot;: &quot;Feature&quot;}, {&quot;bbox&quot;: [5.169001693161634, 52.08770455158057, 5.169001693161634, 52.08770455158057], &quot;geometry&quot;: {&quot;coordinates&quot;: [5.169001693161634, 52.08770455158057], &quot;type&quot;: &quot;Point&quot;}, &quot;id&quot;: &quot;37&quot;, &quot;properties&quot;: {&quot;end&quot;: -29.51, &quot;nr&quot;: &quot;B32C0141&quot;, &quot;surface&quot;: 1.99, &quot;x&quot;: 140045.0, &quot;y&quot;: 455516.0}, &quot;type&quot;: &quot;Feature&quot;}, {&quot;bbox&quot;: [5.17394902544591, 52.08440599713159, 5.17394902544591, 52.08440599713159], &quot;geometry&quot;: {&quot;coordinates&quot;: [5.17394902544591, 52.08440599713159], &quot;type&quot;: &quot;Point&quot;}, &quot;id&quot;: &quot;38&quot;, &quot;properties&quot;: {&quot;end&quot;: -157.0, &quot;nr&quot;: &quot;B32C0486&quot;, &quot;surface&quot;: 1.5, &quot;x&quot;: 140383.0, &quot;y&quot;: 455148.0}, &quot;type&quot;: &quot;Feature&quot;}, {&quot;bbox&quot;: [5.1746346404447605, 52.08442521117074, 5.1746346404447605, 52.08442521117074], &quot;geometry&quot;: {&quot;coordinates&quot;: [5.1746346404447605, 52.08442521117074], &quot;type&quot;: &quot;Point&quot;}, &quot;id&quot;: &quot;39&quot;, &quot;properties&quot;: {&quot;end&quot;: -262.9, &quot;nr&quot;: &quot;B32C0489&quot;, &quot;surface&quot;: 2.1, &quot;x&quot;: 140430.0, &quot;y&quot;: 455150.0}, &quot;type&quot;: &quot;Feature&quot;}, {&quot;bbox&quot;: [5.174196959171277, 52.08442442137045, 5.174196959171277, 52.08442442137045], &quot;geometry&quot;: {&quot;coordinates&quot;: [5.174196959171277, 52.08442442137045], &quot;type&quot;: &quot;Point&quot;}, &quot;id&quot;: &quot;40&quot;, &quot;properties&quot;: {&quot;end&quot;: -271.0, &quot;nr&quot;: &quot;B32C0497&quot;, &quot;surface&quot;: 1.5, &quot;x&quot;: 140400.0, &quot;y&quot;: 455150.0}, &quot;type&quot;: &quot;Feature&quot;}, {&quot;bbox&quot;: [5.176162870282436, 52.08210903654731, 5.176162870282436, 52.08210903654731], &quot;geometry&quot;: {&quot;coordinates&quot;: [5.176162870282436, 52.08210903654731], &quot;type&quot;: &quot;Point&quot;}, &quot;id&quot;: &quot;41&quot;, &quot;properties&quot;: {&quot;end&quot;: 0.1, &quot;nr&quot;: &quot;B32C1128&quot;, &quot;surface&quot;: 2.0, &quot;x&quot;: 140534.0, &quot;y&quot;: 454892.0}, &quot;type&quot;: &quot;Feature&quot;}, {&quot;bbox&quot;: [5.179972914811344, 52.08159448639877, 5.179972914811344, 52.08159448639877], &quot;geometry&quot;: {&quot;coordinates&quot;: [5.179972914811344, 52.08159448639877], &quot;type&quot;: &quot;Point&quot;}, &quot;id&quot;: &quot;42&quot;, &quot;properties&quot;: {&quot;end&quot;: -4.6, &quot;nr&quot;: &quot;B32C1136&quot;, &quot;surface&quot;: 1.4, &quot;x&quot;: 140795.0, &quot;y&quot;: 454834.0}, &quot;type&quot;: &quot;Feature&quot;}, {&quot;bbox&quot;: [5.16957178719917, 52.08148586745069, 5.16957178719917, 52.08148586745069], &quot;geometry&quot;: {&quot;coordinates&quot;: [5.16957178719917, 52.08148586745069], &quot;type&quot;: &quot;Point&quot;}, &quot;id&quot;: &quot;43&quot;, &quot;properties&quot;: {&quot;end&quot;: -4.1, &quot;nr&quot;: &quot;B32C1137&quot;, &quot;surface&quot;: 0.9, &quot;x&quot;: 140082.0, &quot;y&quot;: 454824.0}, &quot;type&quot;: &quot;Feature&quot;}, {&quot;bbox&quot;: [5.183559467534287, 52.08208609018202, 5.183559467534287, 52.08208609018202], &quot;geometry&quot;: {&quot;coordinates&quot;: [5.183559467534287, 52.08208609018202], &quot;type&quot;: &quot;Point&quot;}, &quot;id&quot;: &quot;44&quot;, &quot;properties&quot;: {&quot;end&quot;: -3.3, &quot;nr&quot;: &quot;B32C1143&quot;, &quot;surface&quot;: 1.7, &quot;x&quot;: 141041.0, &quot;y&quot;: 454888.0}, &quot;type&quot;: &quot;Feature&quot;}, {&quot;bbox&quot;: [5.187035860363138, 52.08113032009626, 5.187035860363138, 52.08113032009626], &quot;geometry&quot;: {&quot;coordinates&quot;: [5.187035860363138, 52.08113032009626], &quot;type&quot;: &quot;Point&quot;}, &quot;id&quot;: &quot;45&quot;, &quot;properties&quot;: {&quot;end&quot;: -2.9, &quot;nr&quot;: &quot;B32C1147&quot;, &quot;surface&quot;: 2.1, &quot;x&quot;: 141279.0, &quot;y&quot;: 454781.0}, &quot;type&quot;: &quot;Feature&quot;}, {&quot;bbox&quot;: [5.173344821056844, 52.09177510731986, 5.173344821056844, 52.09177510731986], &quot;geometry&quot;: {&quot;coordinates&quot;: [5.173344821056844, 52.09177510731986], &quot;type&quot;: &quot;Point&quot;}, &quot;id&quot;: &quot;46&quot;, &quot;properties&quot;: {&quot;end&quot;: 0.7, &quot;nr&quot;: &quot;B32C1225&quot;, &quot;surface&quot;: 2.0, &quot;x&quot;: 140344.0, &quot;y&quot;: 455968.0}, &quot;type&quot;: &quot;Feature&quot;}, {&quot;bbox&quot;: [5.173936904470891, 52.08694959548171, 5.173936904470891, 52.08694959548171], &quot;geometry&quot;: {&quot;coordinates&quot;: [5.173936904470891, 52.08694959548171], &quot;type&quot;: &quot;Point&quot;}, &quot;id&quot;: &quot;47&quot;, &quot;properties&quot;: {&quot;end&quot;: 0.1, &quot;nr&quot;: &quot;B32C1226&quot;, &quot;surface&quot;: 2.0, &quot;x&quot;: 140383.0, &quot;y&quot;: 455431.0}, &quot;type&quot;: &quot;Feature&quot;}, {&quot;bbox&quot;: [5.173802574613766, 52.084522576958854, 5.173802574613766, 52.084522576958854], &quot;geometry&quot;: {&quot;coordinates&quot;: [5.173802574613766, 52.084522576958854], &quot;type&quot;: &quot;Point&quot;}, &quot;id&quot;: &quot;48&quot;, &quot;properties&quot;: {&quot;end&quot;: 0.1, &quot;nr&quot;: &quot;B32C1227&quot;, &quot;surface&quot;: 2.0, &quot;x&quot;: 140373.0, &quot;y&quot;: 455161.0}, &quot;type&quot;: &quot;Feature&quot;}, {&quot;bbox&quot;: [5.179447453056616, 52.08793913030899, 5.179447453056616, 52.08793913030899], &quot;geometry&quot;: {&quot;coordinates&quot;: [5.179447453056616, 52.08793913030899], &quot;type&quot;: &quot;Point&quot;}, &quot;id&quot;: &quot;49&quot;, &quot;properties&quot;: {&quot;end&quot;: -0.2, &quot;nr&quot;: &quot;B32C1228&quot;, &quot;surface&quot;: 1.8, &quot;x&quot;: 140761.0, &quot;y&quot;: 455540.0}, &quot;type&quot;: &quot;Feature&quot;}, {&quot;bbox&quot;: [5.174753824925605, 52.090051948416935, 5.174753824925605, 52.090051948416935], &quot;geometry&quot;: {&quot;coordinates&quot;: [5.174753824925605, 52.090051948416935], &quot;type&quot;: &quot;Point&quot;}, &quot;id&quot;: &quot;50&quot;, &quot;properties&quot;: {&quot;end&quot;: -0.7, &quot;nr&quot;: &quot;B32C1229&quot;, &quot;surface&quot;: 1.3, &quot;x&quot;: 140440.0, &quot;y&quot;: 455776.0}, &quot;type&quot;: &quot;Feature&quot;}, {&quot;bbox&quot;: [5.179984281940647, 52.085441395662826, 5.179984281940647, 52.085441395662826], &quot;geometry&quot;: {&quot;coordinates&quot;: [5.179984281940647, 52.085441395662826], &quot;type&quot;: &quot;Point&quot;}, &quot;id&quot;: &quot;51&quot;, &quot;properties&quot;: {&quot;end&quot;: -4.9, &quot;nr&quot;: &quot;B32C1230&quot;, &quot;surface&quot;: 2.1, &quot;x&quot;: 140797.0, &quot;y&quot;: 455262.0}, &quot;type&quot;: &quot;Feature&quot;}, {&quot;bbox&quot;: [5.177059262499329, 52.08383634508655, 5.177059262499329, 52.08383634508655], &quot;geometry&quot;: {&quot;coordinates&quot;: [5.177059262499329, 52.08383634508655], &quot;type&quot;: &quot;Point&quot;}, &quot;id&quot;: &quot;52&quot;, &quot;properties&quot;: {&quot;end&quot;: -3.0, &quot;nr&quot;: &quot;B32C1231&quot;, &quot;surface&quot;: 2.0, &quot;x&quot;: 140596.0, &quot;y&quot;: 455084.0}, &quot;type&quot;: &quot;Feature&quot;}, {&quot;bbox&quot;: [5.178650014369804, 52.0899869985188, 5.178650014369804, 52.0899869985188], &quot;geometry&quot;: {&quot;coordinates&quot;: [5.178650014369804, 52.0899869985188], &quot;type&quot;: &quot;Point&quot;}, &quot;id&quot;: &quot;53&quot;, &quot;properties&quot;: {&quot;end&quot;: -3.2, &quot;nr&quot;: &quot;B32C1232&quot;, &quot;surface&quot;: 1.8, &quot;x&quot;: 140707.0, &quot;y&quot;: 455768.0}, &quot;type&quot;: &quot;Feature&quot;}, {&quot;bbox&quot;: [5.183775201920269, 52.08918702609574, 5.183775201920269, 52.08918702609574], &quot;geometry&quot;: {&quot;coordinates&quot;: [5.183775201920269, 52.08918702609574], &quot;type&quot;: &quot;Point&quot;}, &quot;id&quot;: &quot;54&quot;, &quot;properties&quot;: {&quot;end&quot;: 0.7, &quot;nr&quot;: &quot;B32C1236&quot;, &quot;surface&quot;: 2.3, &quot;x&quot;: 141058.0, &quot;y&quot;: 455678.0}, &quot;type&quot;: &quot;Feature&quot;}, {&quot;bbox&quot;: [5.186712947428863, 52.091340200347645, 5.186712947428863, 52.091340200347645], &quot;geometry&quot;: {&quot;coordinates&quot;: [5.186712947428863, 52.091340200347645], &quot;type&quot;: &quot;Point&quot;}, &quot;id&quot;: &quot;55&quot;, &quot;properties&quot;: {&quot;end&quot;: 0.1, &quot;nr&quot;: &quot;B32C1237&quot;, &quot;surface&quot;: 2.1, &quot;x&quot;: 141260.0, &quot;y&quot;: 455917.0}, &quot;type&quot;: &quot;Feature&quot;}, {&quot;bbox&quot;: [5.186416975655546, 52.0857581175995, 5.186416975655546, 52.0857581175995], &quot;geometry&quot;: {&quot;coordinates&quot;: [5.186416975655546, 52.0857581175995], &quot;type&quot;: &quot;Point&quot;}, &quot;id&quot;: &quot;56&quot;, &quot;properties&quot;: {&quot;end&quot;: -3.5, &quot;nr&quot;: &quot;B32C1238&quot;, &quot;surface&quot;: 1.5, &quot;x&quot;: 141238.0, &quot;y&quot;: 455296.0}, &quot;type&quot;: &quot;Feature&quot;}, {&quot;bbox&quot;: [5.176703156551043, 52.082002145540926, 5.176703156551043, 52.082002145540926], &quot;geometry&quot;: {&quot;coordinates&quot;: [5.176703156551043, 52.082002145540926], &quot;type&quot;: &quot;Point&quot;}, &quot;id&quot;: &quot;57&quot;, &quot;properties&quot;: {&quot;end&quot;: -4.9, &quot;nr&quot;: &quot;B32C1799&quot;, &quot;surface&quot;: 2.1, &quot;x&quot;: 140571.0, &quot;y&quot;: 454880.0}, &quot;type&quot;: &quot;Feature&quot;}, {&quot;bbox&quot;: [5.176658592044488, 52.09147547624492, 5.176658592044488, 52.09147547624492], &quot;geometry&quot;: {&quot;coordinates&quot;: [5.176658592044488, 52.09147547624492], &quot;type&quot;: &quot;Point&quot;}, &quot;id&quot;: &quot;58&quot;, &quot;properties&quot;: {&quot;end&quot;: -2.92, &quot;nr&quot;: &quot;B32C1800&quot;, &quot;surface&quot;: 2.08, &quot;x&quot;: 140571.0, &quot;y&quot;: 455934.0}, &quot;type&quot;: &quot;Feature&quot;}, {&quot;bbox&quot;: [5.1766731414338905, 52.091484490267206, 5.1766731414338905, 52.091484490267206], &quot;geometry&quot;: {&quot;coordinates&quot;: [5.1766731414338905, 52.091484490267206], &quot;type&quot;: &quot;Point&quot;}, &quot;id&quot;: &quot;59&quot;, &quot;properties&quot;: {&quot;end&quot;: 0.94, &quot;nr&quot;: &quot;B32C1801&quot;, &quot;surface&quot;: 2.24, &quot;x&quot;: 140572.0, &quot;y&quot;: 455935.0}, &quot;type&quot;: &quot;Feature&quot;}, {&quot;bbox&quot;: [5.170208505608872, 52.091580629175155, 5.170208505608872, 52.091580629175155], &quot;geometry&quot;: {&quot;coordinates&quot;: [5.170208505608872, 52.091580629175155], &quot;type&quot;: &quot;Point&quot;}, &quot;id&quot;: &quot;60&quot;, &quot;properties&quot;: {&quot;end&quot;: -3.213, &quot;nr&quot;: &quot;B32C1880&quot;, &quot;surface&quot;: 1.287, &quot;x&quot;: 140129.0, &quot;y&quot;: 455947.0}, &quot;type&quot;: &quot;Feature&quot;}, {&quot;bbox&quot;: [5.172964359089626, 52.09199911799994, 5.172964359089626, 52.09199911799994], &quot;geometry&quot;: {&quot;coordinates&quot;: [5.172964359089626, 52.09199911799994], &quot;type&quot;: &quot;Point&quot;}, &quot;id&quot;: &quot;61&quot;, &quot;properties&quot;: {&quot;end&quot;: -2.474, &quot;nr&quot;: &quot;B32C1881&quot;, &quot;surface&quot;: 2.026, &quot;x&quot;: 140318.0, &quot;y&quot;: 455993.0}, &quot;type&quot;: &quot;Feature&quot;}, {&quot;bbox&quot;: [5.181733773281543, 52.09207763864912, 5.181733773281543, 52.09207763864912], &quot;geometry&quot;: {&quot;coordinates&quot;: [5.181733773281543, 52.09207763864912], &quot;type&quot;: &quot;Point&quot;}, &quot;id&quot;: &quot;62&quot;, &quot;properties&quot;: {&quot;end&quot;: -2.772, &quot;nr&quot;: &quot;B32C1889&quot;, &quot;surface&quot;: 1.728, &quot;x&quot;: 140919.0, &quot;y&quot;: 456000.0}, &quot;type&quot;: &quot;Feature&quot;}, {&quot;bbox&quot;: [5.182016047232884, 52.090981588344825, 5.182016047232884, 52.090981588344825], &quot;geometry&quot;: {&quot;coordinates&quot;: [5.182016047232884, 52.090981588344825], &quot;type&quot;: &quot;Point&quot;}, &quot;id&quot;: &quot;63&quot;, &quot;properties&quot;: {&quot;end&quot;: 0.248, &quot;nr&quot;: &quot;B32C1890&quot;, &quot;surface&quot;: 3.948, &quot;x&quot;: 140938.0, &quot;y&quot;: 455878.0}, &quot;type&quot;: &quot;Feature&quot;}, {&quot;bbox&quot;: [5.183280594424807, 52.09206234726602, 5.183280594424807, 52.09206234726602], &quot;geometry&quot;: {&quot;coordinates&quot;: [5.183280594424807, 52.09206234726602], &quot;type&quot;: &quot;Point&quot;}, &quot;id&quot;: &quot;64&quot;, &quot;properties&quot;: {&quot;end&quot;: -1.888, &quot;nr&quot;: &quot;B32C1891&quot;, &quot;surface&quot;: 2.112, &quot;x&quot;: 141025.0, &quot;y&quot;: 455998.0}, &quot;type&quot;: &quot;Feature&quot;}, {&quot;bbox&quot;: [5.184244962740586, 52.09177639330679, 5.184244962740586, 52.09177639330679], &quot;geometry&quot;: {&quot;coordinates&quot;: [5.184244962740586, 52.09177639330679], &quot;type&quot;: &quot;Point&quot;}, &quot;id&quot;: &quot;65&quot;, &quot;properties&quot;: {&quot;end&quot;: -2.731, &quot;nr&quot;: &quot;B32C1892&quot;, &quot;surface&quot;: 1.769, &quot;x&quot;: 141091.0, &quot;y&quot;: 455966.0}, &quot;type&quot;: &quot;Feature&quot;}, {&quot;bbox&quot;: [5.186797599034412, 52.091987483513385, 5.186797599034412, 52.091987483513385], &quot;geometry&quot;: {&quot;coordinates&quot;: [5.186797599034412, 52.091987483513385], &quot;type&quot;: &quot;Point&quot;}, &quot;id&quot;: &quot;66&quot;, &quot;properties&quot;: {&quot;end&quot;: -2.172, &quot;nr&quot;: &quot;B32C1893&quot;, &quot;surface&quot;: 2.328, &quot;x&quot;: 141266.0, &quot;y&quot;: 455989.0}, &quot;type&quot;: &quot;Feature&quot;}], &quot;type&quot;: &quot;FeatureCollection&quot;});
 
         
     
-    geo_json_cedb81e79e794bc1198fd5b9f994ce31.bindTooltip(
+    geo_json_f377000082d3135f832fababc4c03540.bindTooltip(
     function(layer){
     let div = L.DomUtil.create(&#x27;div&#x27;);
     
@@ -771,108 +768,287 @@ User guide
 });
                      
     
-            geo_json_cedb81e79e794bc1198fd5b9f994ce31.addTo(map_1bbf25e4515e6786f954b609a8b732f2);
+            geo_json_f377000082d3135f832fababc4c03540.addTo(map_76b03d3528d9666f36f62431d154dce7);
         
 &lt;/script&gt;
 &lt;/html&gt;" style="position:absolute;width:100%;height:100%;left:0;top:0;border:none !important;" allowfullscreen webkitallowfullscreen mozallowfullscreen></iframe></div></div></div></div>
 </div>
-<p>As you can see it says that ‘usp_boreholes’ is of the type <a class="reference internal" href="../api_reference/borehole_collection.html"><span class="std std-doc">BoreholeCollection</span></a>. Additionally, it says <code class="docutils literal notranslate"><span class="pre">#</span> <span class="pre">header</span> <span class="pre">=</span> <span class="pre">67</span></code>. This means that the collection in total consists of 67 boreholes but it also shows the first key attribute of a collection: the “header” attribute.</p>
-<p>As said in the previous section, the “header” attribute in a <code class="docutils literal notranslate"><span class="pre">BoreholeCollection</span></code> contains all the information about each borehole such as the ID, x- and y-coordinates and further metadata. Additionally, it contains geometry objects for each borehole which allows for spatial selections and exports to GIS-supported formats etc. that are provided by <code class="docutils literal notranslate"><span class="pre">GeoST</span></code>. In the case of a <code class="docutils literal notranslate"><span class="pre">BoreholeCollection</span></code>, the header attribute is a <a class="reference internal" href="../api_reference/point_header.html"><span class="std std-doc">PointHeader</span></a> instance (another key <code class="docutils literal notranslate"><span class="pre">GeoST</span></code> object). Note, for other types of data (e.g. 2D line data), other objects are used. Let’s see what the attribute looks like by printing it:</p>
+<p>As you can see it says that ‘usp_boreholes’ is of the type <a class="reference internal" href="../api_reference/borehole_collection.html"><span class="std std-doc">BoreholeCollection</span></a>. Additionally, it says <code class="docutils literal notranslate"><span class="pre">#</span> <span class="pre">header</span> <span class="pre">=</span> <span class="pre">67</span></code>. This means that the collection in total contains 67 boreholes but it also shows the first key attribute of a collection: the “header” attribute.</p>
+<p>As said in the previous section, the “header” attribute in a <code class="docutils literal notranslate"><span class="pre">BoreholeCollection</span></code> contains all the information about each borehole such as the ID, x- and y-coordinates and further metadata. Additionally, it contains geometry objects for each borehole which allows for spatial selections and exports to GIS-supported formats etc. that are provided by <code class="docutils literal notranslate"><span class="pre">GeoST</span></code>. The header attribute is a <a class="reference external" href="https://geopandas.org/en/stable/docs/reference/geodataframe.html">Geopandas GeoDataFrame</a> instance. Let’s see what the attribute looks like by printing it:</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="n">usp_boreholes</span><span class="o">.</span><span class="n">header</span><span class="p">)</span>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">usp_boreholes</span><span class="o">.</span><span class="n">header</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>  <span class="c1"># First five rows of the header data.</span>
 </pre></div>
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>PointHeader instance containing 67 objects
-          nr         x         y  surface      end               geometry
-0   B31H0541  139585.0  456000.0    1.200   -9.900  POINT (139585 456000)
-1   B31H0611  139600.0  455060.0    1.200  -23.000  POINT (139600 455060)
-2   B31H0718  139950.0  455200.0    1.300 -271.200  POINT (139950 455200)
-3   B31H0803  139675.0  455087.0    2.160   -4.840  POINT (139675 455087)
-4   B31H0806  139684.0  455384.0    1.000  -49.500  POINT (139684 455384)
-..       ...       ...       ...      ...      ...                    ...
-62  B32C1889  140919.0  456000.0    1.728   -2.772  POINT (140919 456000)
-63  B32C1890  140938.0  455878.0    3.948    0.248  POINT (140938 455878)
-64  B32C1891  141025.0  455998.0    2.112   -1.888  POINT (141025 455998)
-65  B32C1892  141091.0  455966.0    1.769   -2.731  POINT (141091 455966)
-66  B32C1893  141266.0  455989.0    2.328   -2.172  POINT (141266 455989)
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
 
-[67 rows x 6 columns]
-</pre></div>
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>nr</th>
+      <th>x</th>
+      <th>y</th>
+      <th>surface</th>
+      <th>end</th>
+      <th>geometry</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>B31H0541</td>
+      <td>139585.0</td>
+      <td>456000.0</td>
+      <td>1.20</td>
+      <td>-9.90</td>
+      <td>POINT (139585 456000)</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>B31H0611</td>
+      <td>139600.0</td>
+      <td>455060.0</td>
+      <td>1.20</td>
+      <td>-23.00</td>
+      <td>POINT (139600 455060)</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>B31H0718</td>
+      <td>139950.0</td>
+      <td>455200.0</td>
+      <td>1.30</td>
+      <td>-271.20</td>
+      <td>POINT (139950 455200)</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>B31H0803</td>
+      <td>139675.0</td>
+      <td>455087.0</td>
+      <td>2.16</td>
+      <td>-4.84</td>
+      <td>POINT (139675 455087)</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>B31H0806</td>
+      <td>139684.0</td>
+      <td>455384.0</td>
+      <td>1.00</td>
+      <td>-49.50</td>
+      <td>POINT (139684 455384)</td>
+    </tr>
+  </tbody>
+</table>
+</div></div></div>
 </div>
-</div>
-</div>
-<p>Note, that the printed “header” looks just like a <a class="reference external" href="https://geopandas.org/en/stable/docs/reference/geodataframe.html">Geopandas GeoDataFrame</a>. This is because <code class="docutils literal notranslate"><span class="pre">PointHeader</span></code> is basically a wrapper around a <code class="docutils literal notranslate"><span class="pre">GeoDataFrame</span></code> which provides easily accessible selection and export methods. Therefore, the above interactive plot of the borehole locations was easily created using the “gdf” attribute. More experienced Python users can therefore access the header’s “gdf” attribute and do any customized operation with geodataframes they would normally do.</p>
-<p>The other key attribute of a collection is the “data” attribute which is an instance of another key object of <code class="docutils literal notranslate"><span class="pre">GeoST</span></code>: a <a class="reference internal" href="../api_reference/layered_data.html"><span class="std std-doc">LayeredData</span></a> object. This contains the actual logged data (i.e. layer descriptions) of the boreholes. In this case, the “data” attribute is a <code class="docutils literal notranslate"><span class="pre">LayeredData</span></code> object because boreholes are usually described in terms of “layers” (i.e. depth intervals over which properties are the same) with respective “top” and “bottom” depths. Let’s see what it looks like:</p>
+<p>Since the header is a <code class="docutils literal notranslate"><span class="pre">GeoDataFrame</span></code> instance, we have direct access to all methods provided by GeoDataFrames. Therefore, the above interactive plot of the borehole locations was easily created using the <code class="docutils literal notranslate"><span class="pre">.explore()</span></code> method. More experienced Python users can therefore use the header to do any customized operation with GeoDataFrames they would normally do.</p>
+<p>The other key attribute of a collection is the “data” attribute which is a <a class="reference external" href="https://pandas.pydata.org/docs/reference/frame.html">Pandas DataFrame</a> instance. This contains the actual logged data (i.e. layer descriptions) of the boreholes. In this case, the “data” attribute contains “layered” data because the borehole data is logged in terms of layers (i.e. depth intervals over which properties are the same) with “top” and “bottom”. Let’s see what it looks like:</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="n">usp_boreholes</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">usp_boreholes</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>  <span class="c1"># First five rows of the data table.</span>
 </pre></div>
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>LayeredData instance:
-            nr         x         y  surface    end   top  bottom lith  zm  \
-0     B31H0541  139585.0  456000.0    1.200 -9.900  0.00    0.20    K NaN   
-1     B31H0541  139585.0  456000.0    1.200 -9.900  0.20    0.60    K NaN   
-2     B31H0541  139585.0  456000.0    1.200 -9.900  0.60    0.95    V NaN   
-3     B31H0541  139585.0  456000.0    1.200 -9.900  0.95    2.80    Z NaN   
-4     B31H0541  139585.0  456000.0    1.200 -9.900  2.80    4.20    Z NaN   
-...        ...       ...       ...      ...    ...   ...     ...  ...  ..   
-1393  B32C1893  141266.0  455989.0    2.328 -2.172  0.00    0.50    Z NaN   
-1394  B32C1893  141266.0  455989.0    2.328 -2.172  0.50    1.10    Z NaN   
-1395  B32C1893  141266.0  455989.0    2.328 -2.172  1.10    1.40    K NaN   
-1396  B32C1893  141266.0  455989.0    2.328 -2.172  1.40    2.10    Z NaN   
-1397  B32C1893  141266.0  455989.0    2.328 -2.172  2.10    4.50    Z NaN   
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
 
-       zmk  ...  cons color lutum_pct plants shells  kleibrokjes strat_1975  \
-0     None  ...  None    ON       NaN      0      0            0       None   
-1     None  ...  None    BR       NaN      0      0            0       None   
-2     None  ...  None    BR       NaN      0      0            0       None   
-3     ZMFO  ...  None    GR       NaN      0      0            0       None   
-4      ZFC  ...  None    BR       NaN      0      0            0       None   
-...    ...  ...   ...   ...       ...    ...    ...          ...        ...   
-1393   ZZF  ...  None    BR       NaN      0      0            0       None   
-1394   ZZF  ...  None    GR       NaN      0      0            0       None   
-1395  None  ...  CMST    GR       NaN      0      0            0       None   
-1396   ZZF  ...  None    GR       NaN      0      0            0       None   
-1397   ZZF  ...  None    GR       NaN      0      0            0       None   
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
 
-     strat_2003 strat_inter                                               desc  
-0            EC         NaN  [TEELAARDE#***#****#*] ..........................  
-1            EC         NaN                       [KLEI#***#****#*] grysbruin.  
-2            NI         NaN                     [VEEN#***#****#*] donkerbruin.  
-3            EC         NaN  [ZAND#***#****#*] FYN TOT matig fyn# iets slib...  
-4          BXWI         NaN                  [ZAND#***#****#*] fyn# grysbruin.  
-...         ...         ...                                                ...  
-1393       None         NaN       BRON:GEF-BESTAND;0.00;0.50;Zs3h2 PU2;ZZF;BR;  
-1394       None         NaN     BRON:GEF-BESTAND;0.50;1.10;Zs3 KLE2;ZZF;GR DO;  
-1395       None         NaN      BRON:GEF-BESTAND;1.10;1.40;Ks2h1;;GR TBR;KMST  
-1396       None         NaN     BRON:GEF-BESTAND;1.40;2.10;Zs2 SLI1;ZZF;GR DO;  
-1397       None         NaN             BRON:GEF-BESTAND;2.10;4.50;Zs2;ZZF;GR;  
-
-[1398 rows x 32 columns]
-</pre></div>
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>nr</th>
+      <th>x</th>
+      <th>y</th>
+      <th>surface</th>
+      <th>end</th>
+      <th>top</th>
+      <th>bottom</th>
+      <th>lith</th>
+      <th>zm</th>
+      <th>zmk</th>
+      <th>...</th>
+      <th>cons</th>
+      <th>color</th>
+      <th>lutum_pct</th>
+      <th>plants</th>
+      <th>shells</th>
+      <th>kleibrokjes</th>
+      <th>strat_1975</th>
+      <th>strat_2003</th>
+      <th>strat_inter</th>
+      <th>desc</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>B31H0541</td>
+      <td>139585.0</td>
+      <td>456000.0</td>
+      <td>1.2</td>
+      <td>-9.9</td>
+      <td>0.00</td>
+      <td>0.20</td>
+      <td>K</td>
+      <td>NaN</td>
+      <td>None</td>
+      <td>...</td>
+      <td>None</td>
+      <td>ON</td>
+      <td>NaN</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>None</td>
+      <td>EC</td>
+      <td>NaN</td>
+      <td>[TEELAARDE#***#****#*] ..........................</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>B31H0541</td>
+      <td>139585.0</td>
+      <td>456000.0</td>
+      <td>1.2</td>
+      <td>-9.9</td>
+      <td>0.20</td>
+      <td>0.60</td>
+      <td>K</td>
+      <td>NaN</td>
+      <td>None</td>
+      <td>...</td>
+      <td>None</td>
+      <td>BR</td>
+      <td>NaN</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>None</td>
+      <td>EC</td>
+      <td>NaN</td>
+      <td>[KLEI#***#****#*] grysbruin.</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>B31H0541</td>
+      <td>139585.0</td>
+      <td>456000.0</td>
+      <td>1.2</td>
+      <td>-9.9</td>
+      <td>0.60</td>
+      <td>0.95</td>
+      <td>V</td>
+      <td>NaN</td>
+      <td>None</td>
+      <td>...</td>
+      <td>None</td>
+      <td>BR</td>
+      <td>NaN</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>None</td>
+      <td>NI</td>
+      <td>NaN</td>
+      <td>[VEEN#***#****#*] donkerbruin.</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>B31H0541</td>
+      <td>139585.0</td>
+      <td>456000.0</td>
+      <td>1.2</td>
+      <td>-9.9</td>
+      <td>0.95</td>
+      <td>2.80</td>
+      <td>Z</td>
+      <td>NaN</td>
+      <td>ZMFO</td>
+      <td>...</td>
+      <td>None</td>
+      <td>GR</td>
+      <td>NaN</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>None</td>
+      <td>EC</td>
+      <td>NaN</td>
+      <td>[ZAND#***#****#*] FYN TOT matig fyn# iets slib...</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>B31H0541</td>
+      <td>139585.0</td>
+      <td>456000.0</td>
+      <td>1.2</td>
+      <td>-9.9</td>
+      <td>2.80</td>
+      <td>4.20</td>
+      <td>Z</td>
+      <td>NaN</td>
+      <td>ZFC</td>
+      <td>...</td>
+      <td>None</td>
+      <td>BR</td>
+      <td>NaN</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>None</td>
+      <td>BXWI</td>
+      <td>NaN</td>
+      <td>[ZAND#***#****#*] fyn# grysbruin.</td>
+    </tr>
+  </tbody>
+</table>
+<p>5 rows × 32 columns</p>
+</div></div></div>
 </div>
-</div>
-</div>
-<p>Similar to the “header”, the printed <code class="docutils literal notranslate"><span class="pre">LayeredData</span></code> object is wrapper around a <a class="reference external" href="https://pandas.pydata.org/docs/reference/frame.html">Pandas DataFrame</a> providing easy to use selection and export methods. Also here, more experienced users can access the underlying <code class="docutils literal notranslate"><span class="pre">DataFrame</span></code> by accessing the data’s “df” attribute. The “data” attribute of this collection contains 32 different columns that hold the relevant borehole data and describes characteristics such as lithology, sand grain size, plant remains and others.</p>
+<p>Also with the “data” attribute, we have direct access to all methods provided by DataFrames and more experienced Python users can use it to do any customized operation. The “data” attribute of this collection contains 32 different columns that hold the relevant borehole data and describes characteristics such as lithology, sand grain size, plant remains and others.</p>
 </section>
 <section id="positional-reference">
 <h3>Positional reference<a class="headerlink" href="#positional-reference" title="Link to this heading">#</a></h3>
-<p>As said, a collection contains all spatial information about the data both horizontally and vertically. These attributes can be accessed through the “vertical_reference” and “horizontal_reference” attributes:</p>
+<p>As said, a collection contains all spatial information about the data, both horizontally and vertically. These attributes can be accessed through the “horizontal_reference” and “vertical_reference” attributes:</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="n">usp_boreholes</span><span class="o">.</span><span class="n">vertical_reference</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">usp_boreholes</span><span class="o">.</span><span class="n">horizontal_reference</span><span class="p">)</span>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="n">usp_boreholes</span><span class="o">.</span><span class="n">horizontal_reference</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">usp_boreholes</span><span class="o">.</span><span class="n">vertical_reference</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>EPSG:5709
-EPSG:28992
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>EPSG:28992
+EPSG:5709
 </pre></div>
 </div>
 </div>
@@ -886,8 +1062,7 @@ EPSG:28992
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>PointHeader instance containing 67 objects
-          nr         x          y  surface      end                  geometry
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>          nr         x          y  surface      end                  geometry
 0   B31H0541  5.162268  52.092042    1.200   -9.900  POINT (5.16227 52.09204)
 1   B31H0611  5.162530  52.083594    1.200  -23.000  POINT (5.16253 52.08359)
 2   B31H0718  5.167630  52.084862    1.300 -271.200  POINT (5.16763 52.08486)
@@ -929,7 +1104,7 @@ EPSG:4326
 <li><p><code class="docutils literal notranslate"><span class="pre">slice_depth_interval</span></code> - Slice boreholes in the collection down to the specified depth interval</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">slice_by_values</span></code> - Slice boreholes in the collection based on value (e.g. only sand layers, remove others).</p></li>
 </ul>
-<p>We will not go through each of these methods. See the <a class="reference internal" href="#../"><span class="xref myst">API Reference</span></a>.</p>
+<p>We will not go through each of these methods in this quick start but please see the <a class="reference internal" href="#../"><span class="xref myst">API Reference</span></a> for more details.</p>
 </section>
 </section>
 </section>
@@ -982,7 +1157,7 @@ EPSG:4326
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#concept">Concept</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#the-basics">The basics</a><ul class="nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#the-basics">The Basics</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#boreholecollection">BoreholeCollection</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#positional-reference">Positional reference</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#selections-and-slices">Selections and slices</a></li>

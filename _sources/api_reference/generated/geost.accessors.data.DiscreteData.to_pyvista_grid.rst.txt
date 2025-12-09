@@ -1,0 +1,6 @@
+﻿geost.accessors.data.DiscreteData.to\_pyvista\_grid
+===================================================
+
+.. currentmodule:: geost.accessors.data
+
+.. automethod:: DiscreteData.to_pyvista_grid

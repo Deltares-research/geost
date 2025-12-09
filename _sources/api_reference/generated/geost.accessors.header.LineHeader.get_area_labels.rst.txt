@@ -1,0 +1,6 @@
+﻿geost.accessors.header.LineHeader.get\_area\_labels
+===================================================
+
+.. currentmodule:: geost.accessors.header
+
+.. automethod:: LineHeader.get_area_labels

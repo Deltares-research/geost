@@ -1,0 +1,6 @@
+﻿geost.accessors.data.LayeredData.to\_kingdom
+============================================
+
+.. currentmodule:: geost.accessors.data
+
+.. automethod:: LayeredData.to_kingdom

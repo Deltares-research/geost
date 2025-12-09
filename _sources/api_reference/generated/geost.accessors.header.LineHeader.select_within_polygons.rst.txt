@@ -1,0 +1,6 @@
+﻿geost.accessors.header.LineHeader.select\_within\_polygons
+==========================================================
+
+.. currentmodule:: geost.accessors.header
+
+.. automethod:: LineHeader.select_within_polygons

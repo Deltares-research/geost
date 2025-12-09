@@ -52,7 +52,7 @@
     <link rel="search" title="Search" href="../../../search.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="0.3.0" />
+  <meta name="docsearch:version" content="0.4.0" />
   </head>
   
   
@@ -468,13 +468,12 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">pyproj</span><span class="w"> </span><span class="kn">import</span> <span class="n">CRS</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">geost</span><span class="w"> </span><span class="kn">import</span> <span class="n">utils</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">geost.accessors.data</span><span class="w"> </span><span class="kn">import</span> <span class="n">DiscreteData</span><span class="p">,</span> <span class="n">LayeredData</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">geost.accessors.header</span><span class="w"> </span><span class="kn">import</span> <span class="n">PointHeader</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">geost.base</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">BoreholeCollection</span><span class="p">,</span>
     <span class="n">Collection</span><span class="p">,</span>
     <span class="n">CptCollection</span><span class="p">,</span>
-    <span class="n">DiscreteData</span><span class="p">,</span>
-    <span class="n">LayeredData</span><span class="p">,</span>
-    <span class="n">PointHeader</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">geost.bro</span><span class="w"> </span><span class="kn">import</span> <span class="n">BroApi</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">geost.io</span><span class="w"> </span><span class="kn">import</span> <span class="n">_parse_cpt_gef_files</span><span class="p">,</span> <span class="n">xml</span>
@@ -525,7 +524,7 @@
 <span class="sd">        top, bottoms or discrete data z-coordinates.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">top_column_label</span> <span class="o">=</span> <span class="p">[</span>
-        <span class="n">col</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">data_dataframe</span><span class="o">.</span><span class="n">columns</span> <span class="k">if</span> <span class="n">col</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;top&quot;</span><span class="p">,</span> <span class="s2">&quot;depth&quot;</span><span class="p">]</span>
+        <span class="n">col</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">data_dataframe</span><span class="o">.</span><span class="n">columns</span> <span class="k">if</span> <span class="n">col</span> <span class="ow">in</span> <span class="p">{</span><span class="s2">&quot;top&quot;</span><span class="p">,</span> <span class="s2">&quot;depth&quot;</span><span class="p">}</span>
     <span class="p">][</span><span class="mi">0</span><span class="p">]</span>
     <span class="n">has_bottom_column</span> <span class="o">=</span> <span class="s2">&quot;bottom&quot;</span> <span class="ow">in</span> <span class="n">data_dataframe</span><span class="o">.</span><span class="n">columns</span>
 
@@ -663,10 +662,13 @@
     <span class="c1"># Figure out top and bottom reference and coerce to downward increasing from 0 if</span>
     <span class="c1"># required.</span>
     <span class="n">boreholes</span> <span class="o">=</span> <span class="n">adjust_z_coordinates</span><span class="p">(</span><span class="n">boreholes</span><span class="p">)</span>
-    <span class="n">boreholes</span> <span class="o">=</span> <span class="n">LayeredData</span><span class="p">(</span><span class="n">boreholes</span><span class="p">,</span> <span class="n">has_inclined</span><span class="o">=</span><span class="n">has_inclined</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="n">as_collection</span><span class="p">:</span>
-        <span class="n">boreholes</span> <span class="o">=</span> <span class="n">boreholes</span><span class="o">.</span><span class="n">to_collection</span><span class="p">(</span><span class="n">horizontal_reference</span><span class="p">,</span> <span class="n">vertical_reference</span><span class="p">)</span>
+        <span class="n">boreholes</span> <span class="o">=</span> <span class="n">boreholes</span><span class="o">.</span><span class="n">gstda</span><span class="o">.</span><span class="n">to_collection</span><span class="p">(</span>
+            <span class="n">has_inclined</span><span class="o">=</span><span class="n">has_inclined</span><span class="p">,</span>
+            <span class="n">horizontal_reference</span><span class="o">=</span><span class="n">horizontal_reference</span><span class="p">,</span>
+            <span class="n">vertical_reference</span><span class="o">=</span><span class="n">vertical_reference</span><span class="p">,</span>
+        <span class="p">)</span>
 
     <span class="k">return</span> <span class="n">boreholes</span></div>
 
@@ -731,10 +733,12 @@
     <span class="n">cpts</span> <span class="o">=</span> <span class="n">_check_mandatory_column_presence</span><span class="p">(</span>
         <span class="n">cpts</span><span class="p">,</span> <span class="n">MANDATORY_DISCRETE_DATA_COLUMNS</span><span class="p">,</span> <span class="n">column_mapper</span>
     <span class="p">)</span>
-    <span class="n">cpts</span> <span class="o">=</span> <span class="n">DiscreteData</span><span class="p">(</span><span class="n">cpts</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="n">as_collection</span><span class="p">:</span>
-        <span class="n">cpts</span> <span class="o">=</span> <span class="n">cpts</span><span class="o">.</span><span class="n">to_collection</span><span class="p">(</span><span class="n">horizontal_reference</span><span class="p">,</span> <span class="n">vertical_reference</span><span class="p">)</span>
+        <span class="n">cpts</span> <span class="o">=</span> <span class="n">cpts</span><span class="o">.</span><span class="n">gstda</span><span class="o">.</span><span class="n">to_collection</span><span class="p">(</span>
+            <span class="n">horizontal_reference</span><span class="o">=</span><span class="n">horizontal_reference</span><span class="p">,</span>
+            <span class="n">vertical_reference</span><span class="o">=</span><span class="n">vertical_reference</span><span class="p">,</span>
+        <span class="p">)</span>
 
     <span class="k">return</span> <span class="n">cpts</span></div>
 
@@ -808,9 +812,9 @@
     <span class="n">nlog_cores</span> <span class="o">=</span> <span class="n">nlog_cores</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">surface_end_df</span><span class="p">,</span> <span class="n">on</span><span class="o">=</span><span class="s2">&quot;nr&quot;</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s2">&quot;left&quot;</span><span class="p">)</span>
     <span class="n">nlog_cores</span> <span class="o">=</span> <span class="n">adjust_z_coordinates</span><span class="p">(</span><span class="n">nlog_cores</span><span class="p">)</span>
 
-    <span class="n">collection</span> <span class="o">=</span> <span class="n">LayeredData</span><span class="p">(</span><span class="n">nlog_cores</span><span class="p">,</span> <span class="n">has_inclined</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">to_collection</span><span class="p">(</span><span class="mi">28992</span><span class="p">,</span> <span class="mi">5709</span><span class="p">)</span>
-
-    <span class="k">return</span> <span class="n">collection</span></div>
+    <span class="k">return</span> <span class="n">nlog_cores</span><span class="o">.</span><span class="n">gstda</span><span class="o">.</span><span class="n">to_collection</span><span class="p">(</span>
+        <span class="n">has_inclined</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">horizontal_reference</span><span class="o">=</span><span class="mi">28992</span><span class="p">,</span> <span class="n">vertical_reference</span><span class="o">=</span><span class="mi">5709</span>
+    <span class="p">)</span></div>
 
 
 
@@ -847,14 +851,18 @@
 <span class="sd">    :class:`~geost.base.BoreholeCollection` or :class:`~geost.base.LayeredData`</span>
 <span class="sd">        Instance of :class:`~geost.base.BoreholeCollection` or :class:`~geost.base.LayeredData`</span>
 <span class="sd">        depending on if the table is read as a collection or not.</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">boris_data</span> <span class="o">=</span> <span class="n">BorisXML</span><span class="p">(</span><span class="n">file</span><span class="p">)</span>
-    <span class="n">boreholes</span> <span class="o">=</span> <span class="n">LayeredData</span><span class="p">(</span><span class="n">boris_data</span><span class="o">.</span><span class="n">layer_dataframe</span><span class="p">,</span> <span class="n">has_inclined</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">boreholes</span> <span class="o">=</span> <span class="n">BorisXML</span><span class="p">(</span><span class="n">file</span><span class="p">)</span><span class="o">.</span><span class="n">layer_dataframe</span>
 
     <span class="k">if</span> <span class="n">as_collection</span><span class="p">:</span>
         <span class="c1"># Think of a better way to translate non-standard BORIS crs encoding or keep it</span>
         <span class="c1"># user-defined (like we do in other reader functions)</span>
-        <span class="n">boreholes</span> <span class="o">=</span> <span class="n">boreholes</span><span class="o">.</span><span class="n">to_collection</span><span class="p">(</span><span class="n">horizontal_reference</span><span class="p">,</span> <span class="n">vertical_reference</span><span class="p">)</span>
+        <span class="n">boreholes</span> <span class="o">=</span> <span class="n">boreholes</span><span class="o">.</span><span class="n">gstda</span><span class="o">.</span><span class="n">to_collection</span><span class="p">(</span>
+            <span class="n">has_inclined</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="n">horizontal_reference</span><span class="o">=</span><span class="n">horizontal_reference</span><span class="p">,</span>
+            <span class="n">vertical_reference</span><span class="o">=</span><span class="n">vertical_reference</span><span class="p">,</span>
+        <span class="p">)</span>
 
     <span class="k">return</span> <span class="n">boreholes</span>
 
@@ -908,14 +916,9 @@
     <span class="n">header</span><span class="p">,</span> <span class="n">data</span> <span class="o">=</span> <span class="n">xml</span><span class="o">.</span><span class="n">read</span><span class="p">(</span>
         <span class="n">files</span><span class="p">,</span> <span class="n">xml</span><span class="o">.</span><span class="n">read_bhrgt</span><span class="p">,</span> <span class="n">company</span><span class="o">=</span><span class="n">company</span><span class="p">,</span> <span class="n">schema</span><span class="o">=</span><span class="n">schema</span><span class="p">,</span> <span class="n">read_all</span><span class="o">=</span><span class="n">read_all</span>
     <span class="p">)</span>
-
-    <span class="n">header</span> <span class="o">=</span> <span class="n">PointHeader</span><span class="p">(</span>
-        <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">(</span>
-            <span class="n">header</span><span class="p">,</span> <span class="n">geometry</span><span class="o">=</span><span class="n">gpd</span><span class="o">.</span><span class="n">points_from_xy</span><span class="p">(</span><span class="n">header</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">header</span><span class="o">.</span><span class="n">y</span><span class="p">),</span> <span class="n">crs</span><span class="o">=</span><span class="mi">28992</span>
-        <span class="p">),</span>
-        <span class="n">vertical_reference</span><span class="o">=</span><span class="mi">5709</span><span class="p">,</span>
+    <span class="n">header</span> <span class="o">=</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">(</span>
+        <span class="n">header</span><span class="p">,</span> <span class="n">geometry</span><span class="o">=</span><span class="n">gpd</span><span class="o">.</span><span class="n">points_from_xy</span><span class="p">(</span><span class="n">header</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">header</span><span class="o">.</span><span class="n">y</span><span class="p">),</span> <span class="n">crs</span><span class="o">=</span><span class="mi">28992</span>
     <span class="p">)</span>
-    <span class="n">data</span> <span class="o">=</span> <span class="n">LayeredData</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="n">BoreholeCollection</span><span class="p">(</span><span class="n">header</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span></div>
 
@@ -970,13 +973,9 @@
     <span class="n">header</span><span class="p">,</span> <span class="n">data</span> <span class="o">=</span> <span class="n">xml</span><span class="o">.</span><span class="n">read</span><span class="p">(</span>
         <span class="n">files</span><span class="p">,</span> <span class="n">xml</span><span class="o">.</span><span class="n">read_bhrp</span><span class="p">,</span> <span class="n">company</span><span class="o">=</span><span class="n">company</span><span class="p">,</span> <span class="n">schema</span><span class="o">=</span><span class="n">schema</span><span class="p">,</span> <span class="n">read_all</span><span class="o">=</span><span class="n">read_all</span>
     <span class="p">)</span>
-    <span class="n">header</span> <span class="o">=</span> <span class="n">PointHeader</span><span class="p">(</span>
-        <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">(</span>
-            <span class="n">header</span><span class="p">,</span> <span class="n">geometry</span><span class="o">=</span><span class="n">gpd</span><span class="o">.</span><span class="n">points_from_xy</span><span class="p">(</span><span class="n">header</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">header</span><span class="o">.</span><span class="n">y</span><span class="p">),</span> <span class="n">crs</span><span class="o">=</span><span class="mi">28992</span>
-        <span class="p">),</span>
-        <span class="n">vertical_reference</span><span class="o">=</span><span class="mi">5709</span><span class="p">,</span>
+    <span class="n">header</span> <span class="o">=</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">(</span>
+        <span class="n">header</span><span class="p">,</span> <span class="n">geometry</span><span class="o">=</span><span class="n">gpd</span><span class="o">.</span><span class="n">points_from_xy</span><span class="p">(</span><span class="n">header</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">header</span><span class="o">.</span><span class="n">y</span><span class="p">),</span> <span class="n">crs</span><span class="o">=</span><span class="mi">28992</span>
     <span class="p">)</span>
-    <span class="n">data</span> <span class="o">=</span> <span class="n">LayeredData</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="n">BoreholeCollection</span><span class="p">(</span><span class="n">header</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span></div>
 
@@ -1032,13 +1031,9 @@
     <span class="n">header</span><span class="p">,</span> <span class="n">data</span> <span class="o">=</span> <span class="n">xml</span><span class="o">.</span><span class="n">read</span><span class="p">(</span>
         <span class="n">files</span><span class="p">,</span> <span class="n">xml</span><span class="o">.</span><span class="n">read_bhrg</span><span class="p">,</span> <span class="n">company</span><span class="o">=</span><span class="n">company</span><span class="p">,</span> <span class="n">schema</span><span class="o">=</span><span class="n">schema</span><span class="p">,</span> <span class="n">read_all</span><span class="o">=</span><span class="n">read_all</span>
     <span class="p">)</span>
-    <span class="n">header</span> <span class="o">=</span> <span class="n">PointHeader</span><span class="p">(</span>
-        <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">(</span>
-            <span class="n">header</span><span class="p">,</span> <span class="n">geometry</span><span class="o">=</span><span class="n">gpd</span><span class="o">.</span><span class="n">points_from_xy</span><span class="p">(</span><span class="n">header</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">header</span><span class="o">.</span><span class="n">y</span><span class="p">),</span> <span class="n">crs</span><span class="o">=</span><span class="mi">28992</span>
-        <span class="p">),</span>
-        <span class="n">vertical_reference</span><span class="o">=</span><span class="mi">5709</span><span class="p">,</span>
+    <span class="n">header</span> <span class="o">=</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">(</span>
+        <span class="n">header</span><span class="p">,</span> <span class="n">geometry</span><span class="o">=</span><span class="n">gpd</span><span class="o">.</span><span class="n">points_from_xy</span><span class="p">(</span><span class="n">header</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">header</span><span class="o">.</span><span class="n">y</span><span class="p">),</span> <span class="n">crs</span><span class="o">=</span><span class="mi">28992</span>
     <span class="p">)</span>
-    <span class="n">data</span> <span class="o">=</span> <span class="n">LayeredData</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="n">BoreholeCollection</span><span class="p">(</span><span class="n">header</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span></div>
 
@@ -1094,13 +1089,9 @@
     <span class="n">header</span><span class="p">,</span> <span class="n">data</span> <span class="o">=</span> <span class="n">xml</span><span class="o">.</span><span class="n">read</span><span class="p">(</span>
         <span class="n">files</span><span class="p">,</span> <span class="n">xml</span><span class="o">.</span><span class="n">read_sfr</span><span class="p">,</span> <span class="n">company</span><span class="o">=</span><span class="n">company</span><span class="p">,</span> <span class="n">schema</span><span class="o">=</span><span class="n">schema</span><span class="p">,</span> <span class="n">read_all</span><span class="o">=</span><span class="n">read_all</span>
     <span class="p">)</span>
-    <span class="n">header</span> <span class="o">=</span> <span class="n">PointHeader</span><span class="p">(</span>
-        <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">(</span>
-            <span class="n">header</span><span class="p">,</span> <span class="n">geometry</span><span class="o">=</span><span class="n">gpd</span><span class="o">.</span><span class="n">points_from_xy</span><span class="p">(</span><span class="n">header</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">header</span><span class="o">.</span><span class="n">y</span><span class="p">),</span> <span class="n">crs</span><span class="o">=</span><span class="mi">28992</span>
-        <span class="p">),</span>
-        <span class="n">vertical_reference</span><span class="o">=</span><span class="mi">5709</span><span class="p">,</span>
+    <span class="n">header</span> <span class="o">=</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">(</span>
+        <span class="n">header</span><span class="p">,</span> <span class="n">geometry</span><span class="o">=</span><span class="n">gpd</span><span class="o">.</span><span class="n">points_from_xy</span><span class="p">(</span><span class="n">header</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">header</span><span class="o">.</span><span class="n">y</span><span class="p">),</span> <span class="n">crs</span><span class="o">=</span><span class="mi">28992</span>
     <span class="p">)</span>
-    <span class="n">data</span> <span class="o">=</span> <span class="n">LayeredData</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="n">BoreholeCollection</span><span class="p">(</span><span class="n">header</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span></div>
 
@@ -1125,8 +1116,7 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">data</span> <span class="o">=</span> <span class="n">_parse_cpt_gef_files</span><span class="p">(</span><span class="n">file_or_folder</span><span class="p">)</span>
     <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
-
-    <span class="k">return</span> <span class="n">DiscreteData</span><span class="p">(</span><span class="n">df</span><span class="p">)</span><span class="o">.</span><span class="n">to_collection</span><span class="p">()</span></div>
+    <span class="k">return</span> <span class="n">df</span><span class="o">.</span><span class="n">gstda</span><span class="o">.</span><span class="n">to_collection</span><span class="p">()</span></div>
 
 
 
@@ -1180,14 +1170,11 @@
     <span class="n">header</span><span class="p">,</span> <span class="n">data</span> <span class="o">=</span> <span class="n">xml</span><span class="o">.</span><span class="n">read</span><span class="p">(</span>
         <span class="n">files</span><span class="p">,</span> <span class="n">xml</span><span class="o">.</span><span class="n">read_cpt</span><span class="p">,</span> <span class="n">company</span><span class="o">=</span><span class="n">company</span><span class="p">,</span> <span class="n">schema</span><span class="o">=</span><span class="n">schema</span><span class="p">,</span> <span class="n">read_all</span><span class="o">=</span><span class="n">read_all</span>
     <span class="p">)</span>
-    <span class="n">header</span> <span class="o">=</span> <span class="n">PointHeader</span><span class="p">(</span>
-        <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">(</span>
-            <span class="n">header</span><span class="p">,</span> <span class="n">geometry</span><span class="o">=</span><span class="n">gpd</span><span class="o">.</span><span class="n">points_from_xy</span><span class="p">(</span><span class="n">header</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">header</span><span class="o">.</span><span class="n">y</span><span class="p">),</span> <span class="n">crs</span><span class="o">=</span><span class="mi">28992</span>
-        <span class="p">),</span>
-        <span class="n">vertical_reference</span><span class="o">=</span><span class="mi">5709</span><span class="p">,</span>
+    <span class="n">header</span> <span class="o">=</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">(</span>
+        <span class="n">header</span><span class="p">,</span> <span class="n">geometry</span><span class="o">=</span><span class="n">gpd</span><span class="o">.</span><span class="n">points_from_xy</span><span class="p">(</span><span class="n">header</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">header</span><span class="o">.</span><span class="n">y</span><span class="p">),</span> <span class="n">crs</span><span class="o">=</span><span class="mi">28992</span>
     <span class="p">)</span>
+
     <span class="n">data</span><span class="o">.</span><span class="n">fillna</span><span class="p">({</span><span class="s2">&quot;depth&quot;</span><span class="p">:</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;penetrationlength&quot;</span><span class="p">]},</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-    <span class="n">data</span> <span class="o">=</span> <span class="n">DiscreteData</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="n">CptCollection</span><span class="p">(</span><span class="n">header</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span></div>
 
@@ -1241,13 +1228,13 @@
 
     <span class="n">header</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">dataframe_to_geodataframe</span><span class="p">(</span><span class="n">header</span><span class="p">)</span><span class="o">.</span><span class="n">set_crs</span><span class="p">(</span><span class="n">horizontal_reference</span><span class="p">)</span>
 
-    <span class="n">add_header_cols</span> <span class="o">=</span> <span class="p">[</span><span class="n">c</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="s2">&quot;y&quot;</span><span class="p">,</span> <span class="s2">&quot;surface&quot;</span><span class="p">,</span> <span class="s2">&quot;end&quot;</span><span class="p">]</span> <span class="k">if</span> <span class="n">c</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">columns</span><span class="p">]</span>
+    <span class="n">add_header_cols</span> <span class="o">=</span> <span class="p">[</span><span class="n">c</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="p">{</span><span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="s2">&quot;y&quot;</span><span class="p">,</span> <span class="s2">&quot;surface&quot;</span><span class="p">,</span> <span class="s2">&quot;end&quot;</span><span class="p">}</span> <span class="k">if</span> <span class="n">c</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">columns</span><span class="p">]</span>
     <span class="k">if</span> <span class="n">add_header_cols</span><span class="p">:</span>
         <span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">header</span><span class="p">[[</span><span class="s2">&quot;nr&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="n">add_header_cols</span><span class="p">],</span> <span class="n">on</span><span class="o">=</span><span class="s2">&quot;nr&quot;</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s2">&quot;left&quot;</span><span class="p">)</span>
 
-    <span class="n">header</span> <span class="o">=</span> <span class="n">PointHeader</span><span class="p">(</span><span class="n">header</span><span class="p">,</span> <span class="n">vertical_reference</span><span class="p">)</span>
-    <span class="n">data</span> <span class="o">=</span> <span class="n">LayeredData</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">BoreholeCollection</span><span class="p">(</span><span class="n">header</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span></div>
+    <span class="k">return</span> <span class="n">BoreholeCollection</span><span class="p">(</span>
+        <span class="n">header</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">has_inclined</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">vertical_reference</span><span class="o">=</span><span class="n">vertical_reference</span>
+    <span class="p">)</span></div>
 
 
 
@@ -1256,6 +1243,7 @@
 <span class="k">def</span><span class="w"> </span><span class="nf">read_collection_geopackage</span><span class="p">(</span>
     <span class="n">filepath</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">,</span>
     <span class="n">collection_type</span><span class="p">:</span> <span class="n">Collection</span><span class="p">,</span>
+    <span class="n">has_inclined</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="n">horizontal_reference</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">int</span> <span class="o">|</span> <span class="n">CRS</span> <span class="o">=</span> <span class="mi">28992</span><span class="p">,</span>
     <span class="n">vertical_reference</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">int</span> <span class="o">|</span> <span class="n">CRS</span> <span class="o">=</span> <span class="mi">5709</span><span class="p">,</span>
 <span class="p">):</span>
@@ -1272,6 +1260,8 @@
 <span class="sd">        Type of GeoST Collection object the data needs to be. Subclasses of `Collection`</span>
 <span class="sd">        (e.g. :class:`geost.base.BoreholeCollection`, :class:`geost.base.CptCollection`)</span>
 <span class="sd">        for the available types.</span>
+<span class="sd">    has_inclined : bool, optional</span>
+<span class="sd">        If True, the borehole data table contains inclined data. The default is False.</span>
 <span class="sd">    horizontal_reference : str | int | CRS, optional</span>
 <span class="sd">        EPSG of the data&#39;s horizontal reference. Takes anything that can be interpreted</span>
 <span class="sd">        by pyproj.crs.CRS.from_user_input(). The default is 28992.</span>
@@ -1312,20 +1302,22 @@
 <span class="sd">    # header = 67</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="c1"># TODO: Check collection type inference possibility from geopackage metadata.</span>
-    <span class="k">if</span> <span class="n">collection_type</span> <span class="o">==</span> <span class="n">BoreholeCollection</span><span class="p">:</span>
-        <span class="n">header_type</span> <span class="o">=</span> <span class="n">PointHeader</span>
-        <span class="n">data_type</span> <span class="o">=</span> <span class="n">LayeredData</span>
-    <span class="k">elif</span> <span class="n">collection_type</span> <span class="o">==</span> <span class="n">CptCollection</span><span class="p">:</span>
-        <span class="n">header_type</span> <span class="o">=</span> <span class="n">PointHeader</span>
-        <span class="n">data_type</span> <span class="o">=</span> <span class="n">DiscreteData</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Collection type </span><span class="si">{</span><span class="n">collection_type</span><span class="si">}</span><span class="s2"> not supported.&quot;</span><span class="p">)</span>
 
     <span class="n">header</span> <span class="o">=</span> <span class="n">gpd</span><span class="o">.</span><span class="n">read_file</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="n">layer</span><span class="o">=</span><span class="s2">&quot;header&quot;</span><span class="p">)</span>
     <span class="n">header</span><span class="o">.</span><span class="n">set_crs</span><span class="p">(</span><span class="n">horizontal_reference</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">allow_override</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="n">data</span> <span class="o">=</span> <span class="n">gpd</span><span class="o">.</span><span class="n">read_file</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="n">layer</span><span class="o">=</span><span class="s2">&quot;data&quot;</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">collection_type</span><span class="p">(</span><span class="n">header_type</span><span class="p">(</span><span class="n">header</span><span class="p">,</span> <span class="n">vertical_reference</span><span class="p">),</span> <span class="n">data_type</span><span class="p">(</span><span class="n">data</span><span class="p">))</span></div>
+
+    <span class="c1"># TODO: Check collection type inference possibility from geopackage metadata.</span>
+    <span class="k">if</span> <span class="n">collection_type</span> <span class="o">==</span> <span class="n">BoreholeCollection</span><span class="p">:</span>
+        <span class="k">pass</span>
+    <span class="k">elif</span> <span class="n">collection_type</span> <span class="o">==</span> <span class="n">CptCollection</span><span class="p">:</span>
+        <span class="k">pass</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Collection type </span><span class="si">{</span><span class="n">collection_type</span><span class="si">}</span><span class="s2"> not supported.&quot;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">collection_type</span><span class="p">(</span>
+        <span class="n">header</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">has_inclined</span><span class="o">=</span><span class="n">has_inclined</span><span class="p">,</span> <span class="n">vertical_reference</span><span class="o">=</span><span class="n">vertical_reference</span>
+    <span class="p">)</span></div>
 
 
 

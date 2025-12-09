@@ -1,0 +1,6 @@
+﻿geost.accessors.header.PointHeader.select\_by\_depth
+====================================================
+
+.. currentmodule:: geost.accessors.header
+
+.. automethod:: PointHeader.select_by_depth

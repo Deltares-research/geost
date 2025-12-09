@@ -55,7 +55,7 @@
     <link rel="prev" title="geost.models.VoxelModel.resolution" href="geost.models.VoxelModel.resolution.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="0.3.0" />
+  <meta name="docsearch:version" content="0.4.0" />
   </head>
   
   
@@ -421,147 +421,10 @@
 <li class="toctree-l2"><a class="reference internal" href="../../user_guide/validation.html">Data validation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../user_guide/read_xml.html">Reading XML files</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../user_guide/bro_geotop.html">BRO GeoTOP</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/accessors.html">GeoST accessors</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="../../api_reference.html">API Reference</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
-<li class="toctree-l2 has-children"><a class="reference internal" href="../point_header.html">PointHeader</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l3"><a class="reference internal" href="geost.base.PointHeader.html">geost.base.PointHeader</a></li>
-<li class="toctree-l3"><a class="reference internal" href="geost.base.PointHeader.change_horizontal_reference.html">geost.base.PointHeader.change_horizontal_reference</a></li>
-<li class="toctree-l3"><a class="reference internal" href="geost.base.PointHeader.change_vertical_reference.html">geost.base.PointHeader.change_vertical_reference</a></li>
-<li class="toctree-l3"><a class="reference internal" href="geost.base.PointHeader.get.html">geost.base.PointHeader.get</a></li>
-<li class="toctree-l3"><a class="reference internal" href="geost.base.PointHeader.get_area_labels.html">geost.base.PointHeader.get_area_labels</a></li>
-<li class="toctree-l3"><a class="reference internal" href="geost.base.PointHeader.select_by_depth.html">geost.base.PointHeader.select_by_depth</a></li>
-<li class="toctree-l3"><a class="reference internal" href="geost.base.PointHeader.select_by_length.html">geost.base.PointHeader.select_by_length</a></li>
-<li class="toctree-l3"><a class="reference internal" href="geost.base.PointHeader.select_with_lines.html">geost.base.PointHeader.select_with_lines</a></li>
-<li class="toctree-l3"><a class="reference internal" href="geost.base.PointHeader.select_with_points.html">geost.base.PointHeader.select_with_points</a></li>
-<li class="toctree-l3"><a class="reference internal" href="geost.base.PointHeader.select_within_bbox.html">geost.base.PointHeader.select_within_bbox</a></li>
-<li class="toctree-l3"><a class="reference internal" href="geost.base.PointHeader.select_within_polygons.html">geost.base.PointHeader.select_within_polygons</a></li>
-<li class="toctree-l3"><a class="reference internal" href="geost.base.PointHeader.to_csv.html">geost.base.PointHeader.to_csv</a></li>
-<li class="toctree-l3"><a class="reference internal" href="geost.base.PointHeader.to_geopackage.html">geost.base.PointHeader.to_geopackage</a></li>
-<li class="toctree-l3"><a class="reference internal" href="geost.base.PointHeader.to_geoparquet.html">geost.base.PointHeader.to_geoparquet</a></li>
-<li class="toctree-l3"><a class="reference internal" href="geost.base.PointHeader.to_parquet.html">geost.base.PointHeader.to_parquet</a></li>
-<li class="toctree-l3"><a class="reference internal" href="geost.base.PointHeader.to_shape.html">geost.base.PointHeader.to_shape</a></li>
-<li class="toctree-l3"><a class="reference internal" href="geost.base.PointHeader.gdf.html">geost.base.PointHeader.gdf</a></li>
-<li class="toctree-l3"><a class="reference internal" href="geost.base.PointHeader.horizontal_reference.html">geost.base.PointHeader.horizontal_reference</a></li>
-<li class="toctree-l3"><a class="reference internal" href="geost.base.PointHeader.vertical_reference.html">geost.base.PointHeader.vertical_reference</a></li>
-</ul>
-</details></li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../discrete_data.html">DiscreteData</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l3"><a class="reference internal" href="geost.base.DiscreteData.html">geost.base.DiscreteData</a></li>
-<li class="toctree-l3"><a class="reference internal" href="geost.base.DiscreteData.get_cumulative_thickness.html">geost.base.DiscreteData.get_cumulative_thickness</a></li>
-<li class="toctree-l3"><a class="reference internal" href="geost.base.DiscreteData.get_layer_top.html">geost.base.DiscreteData.get_layer_top</a></li>
-<li class="toctree-l3"><a class="reference internal" href="geost.base.DiscreteData.select_by_condition.html">geost.base.DiscreteData.select_by_condition</a></li>
-<li class="toctree-l3"><a class="reference internal" href="geost.base.DiscreteData.select_by_values.html">geost.base.DiscreteData.select_by_values</a></li>
-<li class="toctree-l3"><a class="reference internal" href="geost.base.DiscreteData.slice_by_values.html">geost.base.DiscreteData.slice_by_values</a></li>
-<li class="toctree-l3"><a class="reference internal" href="geost.base.DiscreteData.slice_depth_interval.html">geost.base.DiscreteData.slice_depth_interval</a></li>
-<li class="toctree-l3"><a class="reference internal" href="geost.base.DiscreteData.to_collection.html">geost.base.DiscreteData.to_collection</a></li>
-<li class="toctree-l3"><a class="reference internal" href="geost.base.DiscreteData.to_csv.html">geost.base.DiscreteData.to_csv</a></li>
-<li class="toctree-l3"><a class="reference internal" href="geost.base.DiscreteData.to_datafusiontools.html">geost.base.DiscreteData.to_datafusiontools</a></li>
-<li class="toctree-l3"><a class="reference internal" href="geost.base.DiscreteData.to_header.html">geost.base.DiscreteData.to_header</a></li>
-<li class="toctree-l3"><a class="reference internal" href="geost.base.DiscreteData.to_pyvista_cylinders.html">geost.base.DiscreteData.to_pyvista_cylinders</a></li>
-<li class="toctree-l3"><a class="reference internal" href="geost.base.DiscreteData.to_pyvista_grid.html">geost.base.DiscreteData.to_pyvista_grid</a></li>
-<li class="toctree-l3"><a class="reference internal" href="geost.base.DiscreteData.to_parquet.html">geost.base.DiscreteData.to_parquet</a></li>
-<li class="toctree-l3"><a class="reference internal" href="geost.base.DiscreteData.datatype.html">geost.base.DiscreteData.datatype</a></li>
-<li class="toctree-l3"><a class="reference internal" href="geost.base.DiscreteData.df.html">geost.base.DiscreteData.df</a></li>
-</ul>
-</details></li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../layered_data.html">LayeredData</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l3"><a class="reference internal" href="geost.base.LayeredData.html">geost.base.LayeredData</a></li>
-<li class="toctree-l3"><a class="reference internal" href="geost.base.LayeredData.get_cumulative_thickness.html">geost.base.LayeredData.get_cumulative_thickness</a></li>
-<li class="toctree-l3"><a class="reference internal" href="geost.base.LayeredData.get_layer_top.html">geost.base.LayeredData.get_layer_top</a></li>
-<li class="toctree-l3"><a class="reference internal" href="geost.base.LayeredData.select_by_condition.html">geost.base.LayeredData.select_by_condition</a></li>
-<li class="toctree-l3"><a class="reference internal" href="geost.base.LayeredData.select_by_values.html">geost.base.LayeredData.select_by_values</a></li>
-<li class="toctree-l3"><a class="reference internal" href="geost.base.LayeredData.slice_by_values.html">geost.base.LayeredData.slice_by_values</a></li>
-<li class="toctree-l3"><a class="reference internal" href="geost.base.LayeredData.slice_depth_interval.html">geost.base.LayeredData.slice_depth_interval</a></li>
-<li class="toctree-l3"><a class="reference internal" href="geost.base.LayeredData.to_collection.html">geost.base.LayeredData.to_collection</a></li>
-<li class="toctree-l3"><a class="reference internal" href="geost.base.LayeredData.to_csv.html">geost.base.LayeredData.to_csv</a></li>
-<li class="toctree-l3"><a class="reference internal" href="geost.base.LayeredData.to_datafusiontools.html">geost.base.LayeredData.to_datafusiontools</a></li>
-<li class="toctree-l3"><a class="reference internal" href="geost.base.LayeredData.to_header.html">geost.base.LayeredData.to_header</a></li>
-<li class="toctree-l3"><a class="reference internal" href="geost.base.LayeredData.to_kingdom.html">geost.base.LayeredData.to_kingdom</a></li>
-<li class="toctree-l3"><a class="reference internal" href="geost.base.LayeredData.to_parquet.html">geost.base.LayeredData.to_parquet</a></li>
-<li class="toctree-l3"><a class="reference internal" href="geost.base.LayeredData.to_qgis3d.html">geost.base.LayeredData.to_qgis3d</a></li>
-<li class="toctree-l3"><a class="reference internal" href="geost.base.LayeredData.to_pyvista_cylinders.html">geost.base.LayeredData.to_pyvista_cylinders</a></li>
-<li class="toctree-l3"><a class="reference internal" href="geost.base.LayeredData.to_pyvista_grid.html">geost.base.LayeredData.to_pyvista_grid</a></li>
-<li class="toctree-l3"><a class="reference internal" href="geost.base.LayeredData.datatype.html">geost.base.LayeredData.datatype</a></li>
-<li class="toctree-l3"><a class="reference internal" href="geost.base.LayeredData.df.html">geost.base.LayeredData.df</a></li>
-</ul>
-</details></li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../borehole_collection.html">BoreholeCollection</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l3"><a class="reference internal" href="geost.base.BoreholeCollection.html">geost.base.BoreholeCollection</a></li>
-<li class="toctree-l3"><a class="reference internal" href="geost.base.BoreholeCollection.add_header_column_to_data.html">geost.base.BoreholeCollection.add_header_column_to_data</a></li>
-<li class="toctree-l3"><a class="reference internal" href="geost.base.BoreholeCollection.change_horizontal_reference.html">geost.base.BoreholeCollection.change_horizontal_reference</a></li>
-<li class="toctree-l3"><a class="reference internal" href="geost.base.BoreholeCollection.change_vertical_reference.html">geost.base.BoreholeCollection.change_vertical_reference</a></li>
-<li class="toctree-l3"><a class="reference internal" href="geost.base.BoreholeCollection.check_header_to_data_alignment.html">geost.base.BoreholeCollection.check_header_to_data_alignment</a></li>
-<li class="toctree-l3"><a class="reference internal" href="geost.base.BoreholeCollection.get.html">geost.base.BoreholeCollection.get</a></li>
-<li class="toctree-l3"><a class="reference internal" href="geost.base.BoreholeCollection.get_area_labels.html">geost.base.BoreholeCollection.get_area_labels</a></li>
-<li class="toctree-l3"><a class="reference internal" href="geost.base.BoreholeCollection.get_cumulative_thickness.html">geost.base.BoreholeCollection.get_cumulative_thickness</a></li>
-<li class="toctree-l3"><a class="reference internal" href="geost.base.BoreholeCollection.get_layer_top.html">geost.base.BoreholeCollection.get_layer_top</a></li>
-<li class="toctree-l3"><a class="reference internal" href="geost.base.BoreholeCollection.reset_header.html">geost.base.BoreholeCollection.reset_header</a></li>
-<li class="toctree-l3"><a class="reference internal" href="geost.base.BoreholeCollection.select_by_condition.html">geost.base.BoreholeCollection.select_by_condition</a></li>
-<li class="toctree-l3"><a class="reference internal" href="geost.base.BoreholeCollection.select_by_depth.html">geost.base.BoreholeCollection.select_by_depth</a></li>
-<li class="toctree-l3"><a class="reference internal" href="geost.base.BoreholeCollection.select_by_length.html">geost.base.BoreholeCollection.select_by_length</a></li>
-<li class="toctree-l3"><a class="reference internal" href="geost.base.BoreholeCollection.select_by_values.html">geost.base.BoreholeCollection.select_by_values</a></li>
-<li class="toctree-l3"><a class="reference internal" href="geost.base.BoreholeCollection.select_with_lines.html">geost.base.BoreholeCollection.select_with_lines</a></li>
-<li class="toctree-l3"><a class="reference internal" href="geost.base.BoreholeCollection.select_with_points.html">geost.base.BoreholeCollection.select_with_points</a></li>
-<li class="toctree-l3"><a class="reference internal" href="geost.base.BoreholeCollection.select_within_bbox.html">geost.base.BoreholeCollection.select_within_bbox</a></li>
-<li class="toctree-l3"><a class="reference internal" href="geost.base.BoreholeCollection.select_within_polygons.html">geost.base.BoreholeCollection.select_within_polygons</a></li>
-<li class="toctree-l3"><a class="reference internal" href="geost.base.BoreholeCollection.slice_by_values.html">geost.base.BoreholeCollection.slice_by_values</a></li>
-<li class="toctree-l3"><a class="reference internal" href="geost.base.BoreholeCollection.slice_depth_interval.html">geost.base.BoreholeCollection.slice_depth_interval</a></li>
-<li class="toctree-l3"><a class="reference internal" href="geost.base.BoreholeCollection.to_csv.html">geost.base.BoreholeCollection.to_csv</a></li>
-<li class="toctree-l3"><a class="reference internal" href="geost.base.BoreholeCollection.to_datafusiontools.html">geost.base.BoreholeCollection.to_datafusiontools</a></li>
-<li class="toctree-l3"><a class="reference internal" href="geost.base.BoreholeCollection.to_geopackage.html">geost.base.BoreholeCollection.to_geopackage</a></li>
-<li class="toctree-l3"><a class="reference internal" href="geost.base.BoreholeCollection.to_geoparquet.html">geost.base.BoreholeCollection.to_geoparquet</a></li>
-<li class="toctree-l3"><a class="reference internal" href="geost.base.BoreholeCollection.to_kingdom.html">geost.base.BoreholeCollection.to_kingdom</a></li>
-<li class="toctree-l3"><a class="reference internal" href="geost.base.BoreholeCollection.to_pyvista_cylinders.html">geost.base.BoreholeCollection.to_pyvista_cylinders</a></li>
-<li class="toctree-l3"><a class="reference internal" href="geost.base.BoreholeCollection.to_pyvista_grid.html">geost.base.BoreholeCollection.to_pyvista_grid</a></li>
-<li class="toctree-l3"><a class="reference internal" href="geost.base.BoreholeCollection.to_parquet.html">geost.base.BoreholeCollection.to_parquet</a></li>
-<li class="toctree-l3"><a class="reference internal" href="geost.base.BoreholeCollection.to_qgis3d.html">geost.base.BoreholeCollection.to_qgis3d</a></li>
-<li class="toctree-l3"><a class="reference internal" href="geost.base.BoreholeCollection.to_shape.html">geost.base.BoreholeCollection.to_shape</a></li>
-<li class="toctree-l3"><a class="reference internal" href="geost.base.BoreholeCollection.data.html">geost.base.BoreholeCollection.data</a></li>
-<li class="toctree-l3"><a class="reference internal" href="geost.base.BoreholeCollection.has_inclined.html">geost.base.BoreholeCollection.has_inclined</a></li>
-<li class="toctree-l3"><a class="reference internal" href="geost.base.BoreholeCollection.header.html">geost.base.BoreholeCollection.header</a></li>
-<li class="toctree-l3"><a class="reference internal" href="geost.base.BoreholeCollection.horizontal_reference.html">geost.base.BoreholeCollection.horizontal_reference</a></li>
-<li class="toctree-l3"><a class="reference internal" href="geost.base.BoreholeCollection.n_points.html">geost.base.BoreholeCollection.n_points</a></li>
-<li class="toctree-l3"><a class="reference internal" href="geost.base.BoreholeCollection.vertical_reference.html">geost.base.BoreholeCollection.vertical_reference</a></li>
-</ul>
-</details></li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../cpt_collection.html">CptCollection</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l3"><a class="reference internal" href="geost.base.CptCollection.html">geost.base.CptCollection</a></li>
-<li class="toctree-l3"><a class="reference internal" href="geost.base.CptCollection.add_header_column_to_data.html">geost.base.CptCollection.add_header_column_to_data</a></li>
-<li class="toctree-l3"><a class="reference internal" href="geost.base.CptCollection.change_horizontal_reference.html">geost.base.CptCollection.change_horizontal_reference</a></li>
-<li class="toctree-l3"><a class="reference internal" href="geost.base.CptCollection.change_vertical_reference.html">geost.base.CptCollection.change_vertical_reference</a></li>
-<li class="toctree-l3"><a class="reference internal" href="geost.base.CptCollection.check_header_to_data_alignment.html">geost.base.CptCollection.check_header_to_data_alignment</a></li>
-<li class="toctree-l3"><a class="reference internal" href="geost.base.CptCollection.get.html">geost.base.CptCollection.get</a></li>
-<li class="toctree-l3"><a class="reference internal" href="geost.base.CptCollection.get_area_labels.html">geost.base.CptCollection.get_area_labels</a></li>
-<li class="toctree-l3"><a class="reference internal" href="geost.base.CptCollection.get_cumulative_thickness.html">geost.base.CptCollection.get_cumulative_thickness</a></li>
-<li class="toctree-l3"><a class="reference internal" href="geost.base.CptCollection.get_layer_top.html">geost.base.CptCollection.get_layer_top</a></li>
-<li class="toctree-l3"><a class="reference internal" href="geost.base.CptCollection.reset_header.html">geost.base.CptCollection.reset_header</a></li>
-<li class="toctree-l3"><a class="reference internal" href="geost.base.CptCollection.select_by_condition.html">geost.base.CptCollection.select_by_condition</a></li>
-<li class="toctree-l3"><a class="reference internal" href="geost.base.CptCollection.select_by_depth.html">geost.base.CptCollection.select_by_depth</a></li>
-<li class="toctree-l3"><a class="reference internal" href="geost.base.CptCollection.select_by_length.html">geost.base.CptCollection.select_by_length</a></li>
-<li class="toctree-l3"><a class="reference internal" href="geost.base.CptCollection.select_by_values.html">geost.base.CptCollection.select_by_values</a></li>
-<li class="toctree-l3"><a class="reference internal" href="geost.base.CptCollection.select_with_lines.html">geost.base.CptCollection.select_with_lines</a></li>
-<li class="toctree-l3"><a class="reference internal" href="geost.base.CptCollection.select_with_points.html">geost.base.CptCollection.select_with_points</a></li>
-<li class="toctree-l3"><a class="reference internal" href="geost.base.CptCollection.select_within_bbox.html">geost.base.CptCollection.select_within_bbox</a></li>
-<li class="toctree-l3"><a class="reference internal" href="geost.base.CptCollection.select_within_polygons.html">geost.base.CptCollection.select_within_polygons</a></li>
-<li class="toctree-l3"><a class="reference internal" href="geost.base.CptCollection.slice_by_values.html">geost.base.CptCollection.slice_by_values</a></li>
-<li class="toctree-l3"><a class="reference internal" href="geost.base.CptCollection.slice_depth_interval.html">geost.base.CptCollection.slice_depth_interval</a></li>
-<li class="toctree-l3"><a class="reference internal" href="geost.base.CptCollection.to_csv.html">geost.base.CptCollection.to_csv</a></li>
-<li class="toctree-l3"><a class="reference internal" href="geost.base.CptCollection.to_datafusiontools.html">geost.base.CptCollection.to_datafusiontools</a></li>
-<li class="toctree-l3"><a class="reference internal" href="geost.base.CptCollection.to_geopackage.html">geost.base.CptCollection.to_geopackage</a></li>
-<li class="toctree-l3"><a class="reference internal" href="geost.base.CptCollection.to_geoparquet.html">geost.base.CptCollection.to_geoparquet</a></li>
-<li class="toctree-l3"><a class="reference internal" href="geost.base.CptCollection.to_pyvista_cylinders.html">geost.base.CptCollection.to_pyvista_cylinders</a></li>
-<li class="toctree-l3"><a class="reference internal" href="geost.base.CptCollection.to_pyvista_grid.html">geost.base.CptCollection.to_pyvista_grid</a></li>
-<li class="toctree-l3"><a class="reference internal" href="geost.base.CptCollection.to_parquet.html">geost.base.CptCollection.to_parquet</a></li>
-<li class="toctree-l3"><a class="reference internal" href="geost.base.CptCollection.to_shape.html">geost.base.CptCollection.to_shape</a></li>
-<li class="toctree-l3"><a class="reference internal" href="geost.base.CptCollection.data.html">geost.base.CptCollection.data</a></li>
-<li class="toctree-l3"><a class="reference internal" href="geost.base.CptCollection.has_inclined.html">geost.base.CptCollection.has_inclined</a></li>
-<li class="toctree-l3"><a class="reference internal" href="geost.base.CptCollection.header.html">geost.base.CptCollection.header</a></li>
-<li class="toctree-l3"><a class="reference internal" href="geost.base.CptCollection.horizontal_reference.html">geost.base.CptCollection.horizontal_reference</a></li>
-<li class="toctree-l3"><a class="reference internal" href="geost.base.CptCollection.n_points.html">geost.base.CptCollection.n_points</a></li>
-<li class="toctree-l3"><a class="reference internal" href="geost.base.CptCollection.vertical_reference.html">geost.base.CptCollection.vertical_reference</a></li>
-</ul>
-</details></li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../io.html">Input/Output</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l3"><a class="reference internal" href="geost.bro_api_read.html">geost.bro_api_read</a></li>
 <li class="toctree-l3"><a class="reference internal" href="geost.read_borehole_table.html">geost.read_borehole_table</a></li>
@@ -584,9 +447,141 @@
 <li class="toctree-l3"><a class="reference internal" href="geost.read_pickle.html">geost.read_pickle</a></li>
 </ul>
 </details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../borehole_collection.html">BoreholeCollection</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="geost.base.BoreholeCollection.html">geost.base.BoreholeCollection</a></li>
+<li class="toctree-l3"><a class="reference internal" href="geost.base.BoreholeCollection.get_area_labels.html">geost.base.BoreholeCollection.get_area_labels</a></li>
+<li class="toctree-l3"><a class="reference internal" href="geost.base.BoreholeCollection.get_cumulative_thickness.html">geost.base.BoreholeCollection.get_cumulative_thickness</a></li>
+<li class="toctree-l3"><a class="reference internal" href="geost.base.BoreholeCollection.get_layer_top.html">geost.base.BoreholeCollection.get_layer_top</a></li>
+<li class="toctree-l3"><a class="reference internal" href="geost.base.BoreholeCollection.change_horizontal_reference.html">geost.base.BoreholeCollection.change_horizontal_reference</a></li>
+<li class="toctree-l3"><a class="reference internal" href="geost.base.BoreholeCollection.change_vertical_reference.html">geost.base.BoreholeCollection.change_vertical_reference</a></li>
+<li class="toctree-l3"><a class="reference internal" href="geost.base.BoreholeCollection.to_csv.html">geost.base.BoreholeCollection.to_csv</a></li>
+<li class="toctree-l3"><a class="reference internal" href="geost.base.BoreholeCollection.to_datafusiontools.html">geost.base.BoreholeCollection.to_datafusiontools</a></li>
+<li class="toctree-l3"><a class="reference internal" href="geost.base.BoreholeCollection.to_geopackage.html">geost.base.BoreholeCollection.to_geopackage</a></li>
+<li class="toctree-l3"><a class="reference internal" href="geost.base.BoreholeCollection.to_geoparquet.html">geost.base.BoreholeCollection.to_geoparquet</a></li>
+<li class="toctree-l3"><a class="reference internal" href="geost.base.BoreholeCollection.to_kingdom.html">geost.base.BoreholeCollection.to_kingdom</a></li>
+<li class="toctree-l3"><a class="reference internal" href="geost.base.BoreholeCollection.to_pyvista_cylinders.html">geost.base.BoreholeCollection.to_pyvista_cylinders</a></li>
+<li class="toctree-l3"><a class="reference internal" href="geost.base.BoreholeCollection.to_pyvista_grid.html">geost.base.BoreholeCollection.to_pyvista_grid</a></li>
+<li class="toctree-l3"><a class="reference internal" href="geost.base.BoreholeCollection.to_parquet.html">geost.base.BoreholeCollection.to_parquet</a></li>
+<li class="toctree-l3"><a class="reference internal" href="geost.base.BoreholeCollection.to_qgis3d.html">geost.base.BoreholeCollection.to_qgis3d</a></li>
+<li class="toctree-l3"><a class="reference internal" href="geost.base.BoreholeCollection.to_shape.html">geost.base.BoreholeCollection.to_shape</a></li>
+<li class="toctree-l3"><a class="reference internal" href="geost.base.BoreholeCollection.add_header_column_to_data.html">geost.base.BoreholeCollection.add_header_column_to_data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="geost.base.BoreholeCollection.check_header_to_data_alignment.html">geost.base.BoreholeCollection.check_header_to_data_alignment</a></li>
+<li class="toctree-l3"><a class="reference internal" href="geost.base.BoreholeCollection.reset_header.html">geost.base.BoreholeCollection.reset_header</a></li>
+<li class="toctree-l3"><a class="reference internal" href="geost.base.BoreholeCollection.get.html">geost.base.BoreholeCollection.get</a></li>
+<li class="toctree-l3"><a class="reference internal" href="geost.base.BoreholeCollection.select_by_condition.html">geost.base.BoreholeCollection.select_by_condition</a></li>
+<li class="toctree-l3"><a class="reference internal" href="geost.base.BoreholeCollection.select_by_depth.html">geost.base.BoreholeCollection.select_by_depth</a></li>
+<li class="toctree-l3"><a class="reference internal" href="geost.base.BoreholeCollection.select_by_length.html">geost.base.BoreholeCollection.select_by_length</a></li>
+<li class="toctree-l3"><a class="reference internal" href="geost.base.BoreholeCollection.select_by_values.html">geost.base.BoreholeCollection.select_by_values</a></li>
+<li class="toctree-l3"><a class="reference internal" href="geost.base.BoreholeCollection.slice_by_values.html">geost.base.BoreholeCollection.slice_by_values</a></li>
+<li class="toctree-l3"><a class="reference internal" href="geost.base.BoreholeCollection.slice_depth_interval.html">geost.base.BoreholeCollection.slice_depth_interval</a></li>
+<li class="toctree-l3"><a class="reference internal" href="geost.base.BoreholeCollection.select_with_lines.html">geost.base.BoreholeCollection.select_with_lines</a></li>
+<li class="toctree-l3"><a class="reference internal" href="geost.base.BoreholeCollection.select_with_points.html">geost.base.BoreholeCollection.select_with_points</a></li>
+<li class="toctree-l3"><a class="reference internal" href="geost.base.BoreholeCollection.select_within_bbox.html">geost.base.BoreholeCollection.select_within_bbox</a></li>
+<li class="toctree-l3"><a class="reference internal" href="geost.base.BoreholeCollection.select_within_polygons.html">geost.base.BoreholeCollection.select_within_polygons</a></li>
+<li class="toctree-l3"><a class="reference internal" href="geost.base.BoreholeCollection.data.html">geost.base.BoreholeCollection.data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="geost.base.BoreholeCollection.has_inclined.html">geost.base.BoreholeCollection.has_inclined</a></li>
+<li class="toctree-l3"><a class="reference internal" href="geost.base.BoreholeCollection.header.html">geost.base.BoreholeCollection.header</a></li>
+<li class="toctree-l3"><a class="reference internal" href="geost.base.BoreholeCollection.horizontal_reference.html">geost.base.BoreholeCollection.horizontal_reference</a></li>
+<li class="toctree-l3"><a class="reference internal" href="geost.base.BoreholeCollection.n_points.html">geost.base.BoreholeCollection.n_points</a></li>
+<li class="toctree-l3"><a class="reference internal" href="geost.base.BoreholeCollection.vertical_reference.html">geost.base.BoreholeCollection.vertical_reference</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../cpt_collection.html">CptCollection</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="geost.base.CptCollection.html">geost.base.CptCollection</a></li>
+<li class="toctree-l3"><a class="reference internal" href="geost.base.CptCollection.get_area_labels.html">geost.base.CptCollection.get_area_labels</a></li>
+<li class="toctree-l3"><a class="reference internal" href="geost.base.CptCollection.get_cumulative_thickness.html">geost.base.CptCollection.get_cumulative_thickness</a></li>
+<li class="toctree-l3"><a class="reference internal" href="geost.base.CptCollection.get_layer_top.html">geost.base.CptCollection.get_layer_top</a></li>
+<li class="toctree-l3"><a class="reference internal" href="geost.base.CptCollection.change_horizontal_reference.html">geost.base.CptCollection.change_horizontal_reference</a></li>
+<li class="toctree-l3"><a class="reference internal" href="geost.base.CptCollection.change_vertical_reference.html">geost.base.CptCollection.change_vertical_reference</a></li>
+<li class="toctree-l3"><a class="reference internal" href="geost.base.CptCollection.to_csv.html">geost.base.CptCollection.to_csv</a></li>
+<li class="toctree-l3"><a class="reference internal" href="geost.base.CptCollection.to_datafusiontools.html">geost.base.CptCollection.to_datafusiontools</a></li>
+<li class="toctree-l3"><a class="reference internal" href="geost.base.CptCollection.to_geopackage.html">geost.base.CptCollection.to_geopackage</a></li>
+<li class="toctree-l3"><a class="reference internal" href="geost.base.CptCollection.to_geoparquet.html">geost.base.CptCollection.to_geoparquet</a></li>
+<li class="toctree-l3"><a class="reference internal" href="geost.base.CptCollection.to_pyvista_cylinders.html">geost.base.CptCollection.to_pyvista_cylinders</a></li>
+<li class="toctree-l3"><a class="reference internal" href="geost.base.CptCollection.to_pyvista_grid.html">geost.base.CptCollection.to_pyvista_grid</a></li>
+<li class="toctree-l3"><a class="reference internal" href="geost.base.CptCollection.to_parquet.html">geost.base.CptCollection.to_parquet</a></li>
+<li class="toctree-l3"><a class="reference internal" href="geost.base.CptCollection.to_shape.html">geost.base.CptCollection.to_shape</a></li>
+<li class="toctree-l3"><a class="reference internal" href="geost.base.CptCollection.add_header_column_to_data.html">geost.base.CptCollection.add_header_column_to_data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="geost.base.CptCollection.check_header_to_data_alignment.html">geost.base.CptCollection.check_header_to_data_alignment</a></li>
+<li class="toctree-l3"><a class="reference internal" href="geost.base.CptCollection.reset_header.html">geost.base.CptCollection.reset_header</a></li>
+<li class="toctree-l3"><a class="reference internal" href="geost.base.CptCollection.get.html">geost.base.CptCollection.get</a></li>
+<li class="toctree-l3"><a class="reference internal" href="geost.base.CptCollection.select_by_condition.html">geost.base.CptCollection.select_by_condition</a></li>
+<li class="toctree-l3"><a class="reference internal" href="geost.base.CptCollection.select_by_depth.html">geost.base.CptCollection.select_by_depth</a></li>
+<li class="toctree-l3"><a class="reference internal" href="geost.base.CptCollection.select_by_length.html">geost.base.CptCollection.select_by_length</a></li>
+<li class="toctree-l3"><a class="reference internal" href="geost.base.CptCollection.select_by_values.html">geost.base.CptCollection.select_by_values</a></li>
+<li class="toctree-l3"><a class="reference internal" href="geost.base.CptCollection.slice_by_values.html">geost.base.CptCollection.slice_by_values</a></li>
+<li class="toctree-l3"><a class="reference internal" href="geost.base.CptCollection.slice_depth_interval.html">geost.base.CptCollection.slice_depth_interval</a></li>
+<li class="toctree-l3"><a class="reference internal" href="geost.base.CptCollection.select_with_lines.html">geost.base.CptCollection.select_with_lines</a></li>
+<li class="toctree-l3"><a class="reference internal" href="geost.base.CptCollection.select_with_points.html">geost.base.CptCollection.select_with_points</a></li>
+<li class="toctree-l3"><a class="reference internal" href="geost.base.CptCollection.select_within_bbox.html">geost.base.CptCollection.select_within_bbox</a></li>
+<li class="toctree-l3"><a class="reference internal" href="geost.base.CptCollection.select_within_polygons.html">geost.base.CptCollection.select_within_polygons</a></li>
+<li class="toctree-l3"><a class="reference internal" href="geost.base.CptCollection.data.html">geost.base.CptCollection.data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="geost.base.CptCollection.has_inclined.html">geost.base.CptCollection.has_inclined</a></li>
+<li class="toctree-l3"><a class="reference internal" href="geost.base.CptCollection.header.html">geost.base.CptCollection.header</a></li>
+<li class="toctree-l3"><a class="reference internal" href="geost.base.CptCollection.horizontal_reference.html">geost.base.CptCollection.horizontal_reference</a></li>
+<li class="toctree-l3"><a class="reference internal" href="geost.base.CptCollection.n_points.html">geost.base.CptCollection.n_points</a></li>
+<li class="toctree-l3"><a class="reference internal" href="geost.base.CptCollection.vertical_reference.html">geost.base.CptCollection.vertical_reference</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../header_accessors.html">Header accessors</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="geost.accessors.header.PointHeader.html">geost.accessors.header.PointHeader</a></li>
+<li class="toctree-l3"><a class="reference internal" href="geost.accessors.header.PointHeader.change_horizontal_reference.html">geost.accessors.header.PointHeader.change_horizontal_reference</a></li>
+<li class="toctree-l3"><a class="reference internal" href="geost.accessors.header.PointHeader.change_vertical_reference.html">geost.accessors.header.PointHeader.change_vertical_reference</a></li>
+<li class="toctree-l3"><a class="reference internal" href="geost.accessors.header.PointHeader.get.html">geost.accessors.header.PointHeader.get</a></li>
+<li class="toctree-l3"><a class="reference internal" href="geost.accessors.header.PointHeader.get_area_labels.html">geost.accessors.header.PointHeader.get_area_labels</a></li>
+<li class="toctree-l3"><a class="reference internal" href="geost.accessors.header.PointHeader.select_by_depth.html">geost.accessors.header.PointHeader.select_by_depth</a></li>
+<li class="toctree-l3"><a class="reference internal" href="geost.accessors.header.PointHeader.select_by_length.html">geost.accessors.header.PointHeader.select_by_length</a></li>
+<li class="toctree-l3"><a class="reference internal" href="geost.accessors.header.PointHeader.select_with_lines.html">geost.accessors.header.PointHeader.select_with_lines</a></li>
+<li class="toctree-l3"><a class="reference internal" href="geost.accessors.header.PointHeader.select_with_points.html">geost.accessors.header.PointHeader.select_with_points</a></li>
+<li class="toctree-l3"><a class="reference internal" href="geost.accessors.header.PointHeader.select_within_bbox.html">geost.accessors.header.PointHeader.select_within_bbox</a></li>
+<li class="toctree-l3"><a class="reference internal" href="geost.accessors.header.PointHeader.select_within_polygons.html">geost.accessors.header.PointHeader.select_within_polygons</a></li>
+<li class="toctree-l3"><a class="reference internal" href="geost.accessors.header.LineHeader.html">geost.accessors.header.LineHeader</a></li>
+<li class="toctree-l3"><a class="reference internal" href="geost.accessors.header.LineHeader.change_horizontal_reference.html">geost.accessors.header.LineHeader.change_horizontal_reference</a></li>
+<li class="toctree-l3"><a class="reference internal" href="geost.accessors.header.LineHeader.change_vertical_reference.html">geost.accessors.header.LineHeader.change_vertical_reference</a></li>
+<li class="toctree-l3"><a class="reference internal" href="geost.accessors.header.LineHeader.get.html">geost.accessors.header.LineHeader.get</a></li>
+<li class="toctree-l3"><a class="reference internal" href="geost.accessors.header.LineHeader.get_area_labels.html">geost.accessors.header.LineHeader.get_area_labels</a></li>
+<li class="toctree-l3"><a class="reference internal" href="geost.accessors.header.LineHeader.select_by_depth.html">geost.accessors.header.LineHeader.select_by_depth</a></li>
+<li class="toctree-l3"><a class="reference internal" href="geost.accessors.header.LineHeader.select_by_length.html">geost.accessors.header.LineHeader.select_by_length</a></li>
+<li class="toctree-l3"><a class="reference internal" href="geost.accessors.header.LineHeader.select_with_lines.html">geost.accessors.header.LineHeader.select_with_lines</a></li>
+<li class="toctree-l3"><a class="reference internal" href="geost.accessors.header.LineHeader.select_with_points.html">geost.accessors.header.LineHeader.select_with_points</a></li>
+<li class="toctree-l3"><a class="reference internal" href="geost.accessors.header.LineHeader.select_within_bbox.html">geost.accessors.header.LineHeader.select_within_bbox</a></li>
+<li class="toctree-l3"><a class="reference internal" href="geost.accessors.header.LineHeader.select_within_polygons.html">geost.accessors.header.LineHeader.select_within_polygons</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../data_accessors.html">Data accessors</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="geost.accessors.data.LayeredData.html">geost.accessors.data.LayeredData</a></li>
+<li class="toctree-l3"><a class="reference internal" href="geost.accessors.data.LayeredData.get_cumulative_thickness.html">geost.accessors.data.LayeredData.get_cumulative_thickness</a></li>
+<li class="toctree-l3"><a class="reference internal" href="geost.accessors.data.LayeredData.get_layer_top.html">geost.accessors.data.LayeredData.get_layer_top</a></li>
+<li class="toctree-l3"><a class="reference internal" href="geost.accessors.data.LayeredData.select_by_condition.html">geost.accessors.data.LayeredData.select_by_condition</a></li>
+<li class="toctree-l3"><a class="reference internal" href="geost.accessors.data.LayeredData.select_by_values.html">geost.accessors.data.LayeredData.select_by_values</a></li>
+<li class="toctree-l3"><a class="reference internal" href="geost.accessors.data.LayeredData.slice_by_values.html">geost.accessors.data.LayeredData.slice_by_values</a></li>
+<li class="toctree-l3"><a class="reference internal" href="geost.accessors.data.LayeredData.slice_depth_interval.html">geost.accessors.data.LayeredData.slice_depth_interval</a></li>
+<li class="toctree-l3"><a class="reference internal" href="geost.accessors.data.LayeredData.to_collection.html">geost.accessors.data.LayeredData.to_collection</a></li>
+<li class="toctree-l3"><a class="reference internal" href="geost.accessors.data.LayeredData.to_datafusiontools.html">geost.accessors.data.LayeredData.to_datafusiontools</a></li>
+<li class="toctree-l3"><a class="reference internal" href="geost.accessors.data.LayeredData.to_header.html">geost.accessors.data.LayeredData.to_header</a></li>
+<li class="toctree-l3"><a class="reference internal" href="geost.accessors.data.LayeredData.to_kingdom.html">geost.accessors.data.LayeredData.to_kingdom</a></li>
+<li class="toctree-l3"><a class="reference internal" href="geost.accessors.data.LayeredData.to_qgis3d.html">geost.accessors.data.LayeredData.to_qgis3d</a></li>
+<li class="toctree-l3"><a class="reference internal" href="geost.accessors.data.LayeredData.to_pyvista_cylinders.html">geost.accessors.data.LayeredData.to_pyvista_cylinders</a></li>
+<li class="toctree-l3"><a class="reference internal" href="geost.accessors.data.LayeredData.to_pyvista_grid.html">geost.accessors.data.LayeredData.to_pyvista_grid</a></li>
+<li class="toctree-l3"><a class="reference internal" href="geost.accessors.data.DiscreteData.html">geost.accessors.data.DiscreteData</a></li>
+<li class="toctree-l3"><a class="reference internal" href="geost.accessors.data.DiscreteData.get_cumulative_thickness.html">geost.accessors.data.DiscreteData.get_cumulative_thickness</a></li>
+<li class="toctree-l3"><a class="reference internal" href="geost.accessors.data.DiscreteData.get_layer_top.html">geost.accessors.data.DiscreteData.get_layer_top</a></li>
+<li class="toctree-l3"><a class="reference internal" href="geost.accessors.data.DiscreteData.select_by_condition.html">geost.accessors.data.DiscreteData.select_by_condition</a></li>
+<li class="toctree-l3"><a class="reference internal" href="geost.accessors.data.DiscreteData.select_by_values.html">geost.accessors.data.DiscreteData.select_by_values</a></li>
+<li class="toctree-l3"><a class="reference internal" href="geost.accessors.data.DiscreteData.slice_by_values.html">geost.accessors.data.DiscreteData.slice_by_values</a></li>
+<li class="toctree-l3"><a class="reference internal" href="geost.accessors.data.DiscreteData.slice_depth_interval.html">geost.accessors.data.DiscreteData.slice_depth_interval</a></li>
+<li class="toctree-l3"><a class="reference internal" href="geost.accessors.data.DiscreteData.to_collection.html">geost.accessors.data.DiscreteData.to_collection</a></li>
+<li class="toctree-l3"><a class="reference internal" href="geost.accessors.data.DiscreteData.to_datafusiontools.html">geost.accessors.data.DiscreteData.to_datafusiontools</a></li>
+<li class="toctree-l3"><a class="reference internal" href="geost.accessors.data.DiscreteData.to_header.html">geost.accessors.data.DiscreteData.to_header</a></li>
+<li class="toctree-l3"><a class="reference internal" href="geost.accessors.data.DiscreteData.to_pyvista_cylinders.html">geost.accessors.data.DiscreteData.to_pyvista_cylinders</a></li>
+<li class="toctree-l3"><a class="reference internal" href="geost.accessors.data.DiscreteData.to_pyvista_grid.html">geost.accessors.data.DiscreteData.to_pyvista_grid</a></li>
+</ul>
+</details></li>
 <li class="toctree-l2 current active has-children"><a class="reference internal" href="../voxelmodel.html">VoxelModel</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
 <li class="toctree-l3"><a class="reference internal" href="geost.models.VoxelModel.html">geost.models.VoxelModel</a></li>
 <li class="toctree-l3"><a class="reference internal" href="geost.models.VoxelModel.from_netcdf.html">geost.models.VoxelModel.from_netcdf</a></li>
+<li class="toctree-l3"><a class="reference internal" href="geost.models.VoxelModel.get_thickness.html">geost.models.VoxelModel.get_thickness</a></li>
+<li class="toctree-l3"><a class="reference internal" href="geost.models.VoxelModel.most_common.html">geost.models.VoxelModel.most_common</a></li>
 <li class="toctree-l3"><a class="reference internal" href="geost.models.VoxelModel.isel.html">geost.models.VoxelModel.isel</a></li>
 <li class="toctree-l3"><a class="reference internal" href="geost.models.VoxelModel.sel.html">geost.models.VoxelModel.sel</a></li>
 <li class="toctree-l3"><a class="reference internal" href="geost.models.VoxelModel.select_bottom.html">geost.models.VoxelModel.select_bottom</a></li>
@@ -598,9 +593,9 @@
 <li class="toctree-l3"><a class="reference internal" href="geost.models.VoxelModel.select_within_bbox.html">geost.models.VoxelModel.select_within_bbox</a></li>
 <li class="toctree-l3"><a class="reference internal" href="geost.models.VoxelModel.select_within_polygons.html">geost.models.VoxelModel.select_within_polygons</a></li>
 <li class="toctree-l3"><a class="reference internal" href="geost.models.VoxelModel.slice_depth_interval.html">geost.models.VoxelModel.slice_depth_interval</a></li>
-<li class="toctree-l3"><a class="reference internal" href="geost.models.VoxelModel.zslice_to_tiff.html">geost.models.VoxelModel.zslice_to_tiff</a></li>
-<li class="toctree-l3"><a class="reference internal" href="geost.models.VoxelModel.get_thickness.html">geost.models.VoxelModel.get_thickness</a></li>
 <li class="toctree-l3"><a class="reference internal" href="geost.models.VoxelModel.to_pyvista_grid.html">geost.models.VoxelModel.to_pyvista_grid</a></li>
+<li class="toctree-l3"><a class="reference internal" href="geost.models.VoxelModel.value_counts.html">geost.models.VoxelModel.value_counts</a></li>
+<li class="toctree-l3"><a class="reference internal" href="geost.models.VoxelModel.zslice_to_tiff.html">geost.models.VoxelModel.zslice_to_tiff</a></li>
 <li class="toctree-l3"><a class="reference internal" href="geost.models.VoxelModel.crs.html">geost.models.VoxelModel.crs</a></li>
 <li class="toctree-l3"><a class="reference internal" href="geost.models.VoxelModel.horizontal_bounds.html">geost.models.VoxelModel.horizontal_bounds</a></li>
 <li class="toctree-l3"><a class="reference internal" href="geost.models.VoxelModel.resolution.html">geost.models.VoxelModel.resolution</a></li>
@@ -614,13 +609,6 @@
 <li class="toctree-l3"><a class="reference internal" href="geost.models.VoxelModel.ymin.html">geost.models.VoxelModel.ymin</a></li>
 <li class="toctree-l3"><a class="reference internal" href="geost.models.VoxelModel.zmax.html">geost.models.VoxelModel.zmax</a></li>
 <li class="toctree-l3"><a class="reference internal" href="geost.models.VoxelModel.zmin.html">geost.models.VoxelModel.zmin</a></li>
-</ul>
-</details></li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../bro.html">BroApi</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l3"><a class="reference internal" href="geost.bro.BroApi.html">geost.bro.BroApi</a></li>
-<li class="toctree-l3"><a class="reference internal" href="geost.bro.BroApi.get_objects.html">geost.bro.BroApi.get_objects</a></li>
-<li class="toctree-l3"><a class="reference internal" href="geost.bro.BroApi.search_objects_in_bbox.html">geost.bro.BroApi.search_objects_in_bbox</a></li>
-<li class="toctree-l3"><a class="reference internal" href="geost.bro.BroApi.apis.html">geost.bro.BroApi.apis</a></li>
 </ul>
 </details></li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../bro_geotop.html">GeoTop</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -673,6 +661,13 @@
 <li class="toctree-l3"><a class="reference internal" href="geost.analysis.interpret_cpt.calc_ic.html">geost.analysis.interpret_cpt.calc_ic</a></li>
 <li class="toctree-l3"><a class="reference internal" href="geost.analysis.interpret_cpt.calc_lithology.html">geost.analysis.interpret_cpt.calc_lithology</a></li>
 <li class="toctree-l3"><a class="reference internal" href="geost.analysis.combine.add_voxelmodel_variable.html">geost.analysis.combine.add_voxelmodel_variable</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../bro.html">BroApi</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="geost.bro.BroApi.html">geost.bro.BroApi</a></li>
+<li class="toctree-l3"><a class="reference internal" href="geost.bro.BroApi.get_objects.html">geost.bro.BroApi.get_objects</a></li>
+<li class="toctree-l3"><a class="reference internal" href="geost.bro.BroApi.search_objects_in_bbox.html">geost.bro.BroApi.search_objects_in_bbox</a></li>
+<li class="toctree-l3"><a class="reference internal" href="geost.bro.BroApi.apis.html">geost.bro.BroApi.apis</a></li>
 </ul>
 </details></li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../readers.html">Readers</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>

@@ -1,0 +1,35 @@
+﻿geost.accessors.data.LayeredData
+================================
+
+.. currentmodule:: geost.accessors.data
+
+.. autoclass:: LayeredData
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~LayeredData.__init__
+      ~LayeredData.get_cumulative_thickness
+      ~LayeredData.get_layer_top
+      ~LayeredData.select_by_condition
+      ~LayeredData.select_by_values
+      ~LayeredData.slice_by_values
+      ~LayeredData.slice_depth_interval
+      ~LayeredData.to_collection
+      ~LayeredData.to_datafusiontools
+      ~LayeredData.to_header
+      ~LayeredData.to_kingdom
+      ~LayeredData.to_pyvista_cylinders
+      ~LayeredData.to_pyvista_grid
+      ~LayeredData.to_qgis3d
+   
+   
+
+   
+   
+   

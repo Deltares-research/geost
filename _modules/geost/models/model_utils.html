@@ -52,7 +52,7 @@
     <link rel="search" title="Search" href="../../../search.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="0.3.0" />
+  <meta name="docsearch:version" content="0.4.0" />
   </head>
   
   
@@ -464,6 +464,15 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">shapely.geometry</span><span class="w"> </span><span class="kn">import</span> <span class="n">LineString</span>
 
 
+<span class="k">def</span><span class="w"> </span><span class="nf">check_dims</span><span class="p">(</span><span class="o">*</span><span class="n">dims</span><span class="p">):</span>  <span class="c1"># pragma: no cover</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">inner_check_dims</span><span class="p">(</span><span class="n">other</span><span class="p">):</span>
+        <span class="n">missing_dims</span> <span class="o">=</span> <span class="p">[</span><span class="n">d</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">dims</span> <span class="k">if</span> <span class="n">d</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">other</span><span class="o">.</span><span class="n">dims</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">missing_dims</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Grid is missing dimensions: </span><span class="si">{</span><span class="n">missing_dims</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">inner_check_dims</span>
+
+
 <div class="viewcode-block" id="sample_with_coords">
 <a class="viewcode-back" href="../../../api_reference/generated/geost.models.model_utils.sample_with_coords.html#geost.models.model_utils.sample_with_coords">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">sample_with_coords</span><span class="p">(</span><span class="n">ds</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span> <span class="o">|</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span> <span class="n">coords</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
@@ -545,13 +554,10 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">dist</span> <span class="ow">and</span> <span class="n">nsamples</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Cannot use &#39;dist&#39; and &#39;nsamples&#39; together, use one option.&quot;</span><span class="p">)</span>
-
     <span class="k">elif</span> <span class="n">dist</span><span class="p">:</span>
         <span class="n">sample_locs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">line</span><span class="o">.</span><span class="n">length</span><span class="p">,</span> <span class="n">dist</span><span class="p">)</span>
-
     <span class="k">elif</span> <span class="n">nsamples</span><span class="p">:</span>
         <span class="n">sample_locs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">line</span><span class="o">.</span><span class="n">length</span><span class="p">,</span> <span class="n">nsamples</span><span class="p">)</span>
-
     <span class="k">else</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;&#39;dist&#39; or &#39;nsamples&#39; not specified, use one option.&quot;</span><span class="p">)</span>
 
@@ -615,6 +621,62 @@
 
     <span class="k">return</span> <span class="n">labels</span></div>
 
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">value_counts</span><span class="p">(</span>
+    <span class="n">da</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span> <span class="n">dim</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">normalize</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Get the value counts of unique values in a DataArray.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    da : xr.DataArray</span>
+<span class="sd">        DataArray to count unique values in.</span>
+<span class="sd">    dim : str, optional</span>
+<span class="sd">        Dimension along which to count unique values. The default is None.</span>
+<span class="sd">    normalize : bool, optional</span>
+<span class="sd">        If True, return the relative frequencies of the unique values instead of the</span>
+<span class="sd">        absolute counts. The default is False.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    xr.DataArray</span>
+<span class="sd">        DataArray containing the counts of unique values.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">var_</span> <span class="o">=</span> <span class="n">da</span><span class="o">.</span><span class="n">values</span>
+    <span class="n">values</span><span class="p">,</span> <span class="n">counts</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">var_</span><span class="p">[</span><span class="o">~</span><span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">var_</span><span class="p">)],</span> <span class="n">return_counts</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">dim</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">counts</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span><span class="n">counts</span><span class="p">,</span> <span class="n">coords</span><span class="o">=</span><span class="p">{</span><span class="n">da</span><span class="o">.</span><span class="n">name</span><span class="p">:</span> <span class="n">values</span><span class="p">})</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">counts</span> <span class="o">=</span> <span class="p">[(</span><span class="n">da</span> <span class="o">==</span> <span class="n">v</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="n">dim</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">values</span><span class="p">]</span>
+        <span class="n">counts</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">counts</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="n">dims</span><span class="o">=</span><span class="n">da</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
+
+    <span class="k">if</span> <span class="n">normalize</span><span class="p">:</span>
+        <span class="n">total</span> <span class="o">=</span> <span class="n">counts</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="n">da</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+        <span class="n">counts</span> <span class="o">=</span> <span class="n">counts</span> <span class="o">/</span> <span class="n">total</span>
+
+    <span class="k">return</span> <span class="n">counts</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">is_ascending</span><span class="p">(</span><span class="n">coordinates</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span> <span class="o">|</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Check if the values in a coordinate DataArray are in ascending order.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    coordinates : xr.DataArray | np.ndarray</span>
+<span class="sd">        Coordinate DataArray or numpy array to check.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    bool</span>
+<span class="sd">        True if the coordinates are in ascending order, False otherwise.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">coordinates</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">coordinates</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
 </pre></div>
 
                 </article>

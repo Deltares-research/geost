@@ -1,6 +1,0 @@
-﻿geost.base.DiscreteData.to\_pyvista\_cylinders
-==============================================
-
-.. currentmodule:: geost.base
-
-.. automethod:: DiscreteData.to_pyvista_cylinders

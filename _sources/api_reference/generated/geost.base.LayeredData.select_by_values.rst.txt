@@ -1,6 +1,0 @@
-﻿geost.base.LayeredData.select\_by\_values
-=========================================
-
-.. currentmodule:: geost.base
-
-.. automethod:: LayeredData.select_by_values

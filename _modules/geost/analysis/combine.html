@@ -52,7 +52,7 @@
     <link rel="search" title="Search" href="../../../search.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="0.3.0" />
+  <meta name="docsearch:version" content="0.4.0" />
   </head>
   
   
@@ -463,7 +463,8 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">geost.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">Collection</span><span class="p">,</span> <span class="n">DiscreteData</span><span class="p">,</span> <span class="n">LayeredData</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">geost.accessors.data</span><span class="w"> </span><span class="kn">import</span> <span class="n">DiscreteData</span><span class="p">,</span> <span class="n">LayeredData</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">geost.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">Collection</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">geost.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">VoxelModel</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">geost.models.model_utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">label_consecutive_2d</span>
 
@@ -509,10 +510,10 @@
 <span class="sd">        :class:`~geost.base.LineData` (future developments).</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="n">variable</span> <span class="ow">in</span> <span class="n">collection</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
-        <span class="n">collection</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="n">variable</span><span class="p">],</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">variable</span> <span class="ow">in</span> <span class="n">collection</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+        <span class="n">collection</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="n">variable</span><span class="p">],</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
-    <span class="n">var_select</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">select_with_points</span><span class="p">(</span><span class="n">collection</span><span class="o">.</span><span class="n">header</span><span class="o">.</span><span class="n">gdf</span><span class="p">)[</span><span class="n">variable</span><span class="p">]</span>
+    <span class="n">var_select</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">select_with_points</span><span class="p">(</span><span class="n">collection</span><span class="o">.</span><span class="n">header</span><span class="p">)[</span><span class="n">variable</span><span class="p">]</span>
     <span class="n">nrs</span> <span class="o">=</span> <span class="n">collection</span><span class="o">.</span><span class="n">header</span><span class="p">[</span><span class="s2">&quot;nr&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">var_select</span><span class="p">[</span><span class="s2">&quot;idx&quot;</span><span class="p">]]</span>
 
     <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">dz</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">resolution</span>
@@ -521,16 +522,16 @@
     <span class="n">var_df</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;values&quot;</span><span class="p">:</span> <span class="n">variable</span><span class="p">},</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="n">var_df</span><span class="p">[</span><span class="s2">&quot;nr&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">nrs</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">var_df</span><span class="p">[</span><span class="s2">&quot;nr&quot;</span><span class="p">]]</span><span class="o">.</span><span class="n">values</span>
 
-    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">collection</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="n">LayeredData</span><span class="p">):</span>
+    <span class="k">if</span> <span class="p">{</span><span class="s2">&quot;top&quot;</span><span class="p">,</span> <span class="s2">&quot;bottom&quot;</span><span class="p">}</span><span class="o">.</span><span class="n">issubset</span><span class="p">(</span><span class="n">collection</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">columns</span><span class="p">):</span>
         <span class="n">result</span> <span class="o">=</span> <span class="n">_add_to_layered</span><span class="p">(</span><span class="n">collection</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="n">var_df</span><span class="p">)</span>
-    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">collection</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="n">DiscreteData</span><span class="p">):</span>
+    <span class="k">elif</span> <span class="s2">&quot;depth&quot;</span> <span class="ow">in</span> <span class="n">collection</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
         <span class="n">result</span> <span class="o">=</span> <span class="n">_add_to_discrete</span><span class="p">(</span><span class="n">collection</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="n">var_df</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span>
             <span class="s2">&quot;Other datatypes than LayeredData or DiscreteData not implemented yet.&quot;</span>
         <span class="p">)</span>
 
-    <span class="k">return</span> <span class="n">result</span><span class="o">.</span><span class="n">to_collection</span><span class="p">()</span></div>
+    <span class="k">return</span> <span class="n">result</span><span class="o">.</span><span class="n">gstda</span><span class="o">.</span><span class="n">to_collection</span><span class="p">()</span></div>
 
 
 
@@ -594,7 +595,7 @@
     <span class="n">variable</span><span class="p">[</span><span class="s2">&quot;bottom&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">variable</span><span class="p">[</span><span class="s2">&quot;surface&quot;</span><span class="p">]</span> <span class="o">-</span> <span class="n">variable</span><span class="p">[</span><span class="s2">&quot;bottom&quot;</span><span class="p">]</span>
 
     <span class="n">result</span> <span class="o">=</span> <span class="p">(</span>
-        <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">data</span><span class="o">.</span><span class="n">df</span><span class="p">,</span> <span class="n">variable</span><span class="p">])</span>
+        <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">data</span><span class="p">,</span> <span class="n">variable</span><span class="p">])</span>
         <span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;nr&quot;</span><span class="p">,</span> <span class="s2">&quot;bottom&quot;</span><span class="p">,</span> <span class="s2">&quot;top&quot;</span><span class="p">])</span>
         <span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="p">)</span>
@@ -603,7 +604,7 @@
     <span class="n">result</span><span class="o">.</span><span class="n">drop_duplicates</span><span class="p">(</span><span class="n">subset</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;nr&quot;</span><span class="p">,</span> <span class="s2">&quot;bottom&quot;</span><span class="p">],</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="n">result</span> <span class="o">=</span> <span class="n">_reset_tops</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
     <span class="n">result</span><span class="o">.</span><span class="n">dropna</span><span class="p">(</span><span class="n">subset</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;top&quot;</span><span class="p">],</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">LayeredData</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">result</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_reset_tops</span><span class="p">(</span><span class="n">layered_df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
@@ -666,7 +667,7 @@
     <span class="n">variable</span><span class="p">[</span><span class="s2">&quot;depth&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">variable</span><span class="p">[</span><span class="s2">&quot;surface&quot;</span><span class="p">]</span> <span class="o">-</span> <span class="n">variable</span><span class="p">[</span><span class="s2">&quot;depth&quot;</span><span class="p">]</span>
 
     <span class="n">result</span> <span class="o">=</span> <span class="p">(</span>
-        <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">data</span><span class="o">.</span><span class="n">df</span><span class="p">,</span> <span class="n">variable</span><span class="p">])</span>
+        <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">data</span><span class="p">,</span> <span class="n">variable</span><span class="p">])</span>
         <span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;nr&quot;</span><span class="p">,</span> <span class="s2">&quot;depth&quot;</span><span class="p">])</span>
         <span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="p">)</span>
@@ -674,7 +675,7 @@
     <span class="n">result</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">nr</span><span class="p">,</span> <span class="n">result</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s2">&quot;nr&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">bfill</span><span class="p">()],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
     <span class="n">result</span><span class="o">.</span><span class="n">drop_duplicates</span><span class="p">(</span><span class="n">subset</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;nr&quot;</span><span class="p">,</span> <span class="s2">&quot;depth&quot;</span><span class="p">],</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="n">result</span><span class="o">.</span><span class="n">dropna</span><span class="p">(</span><span class="n">subset</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;end&quot;</span><span class="p">],</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">DiscreteData</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">result</span>
 </pre></div>
 
                 </article>

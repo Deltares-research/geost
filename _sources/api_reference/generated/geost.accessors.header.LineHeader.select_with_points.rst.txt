@@ -1,0 +1,6 @@
+﻿geost.accessors.header.LineHeader.select\_with\_points
+======================================================
+
+.. currentmodule:: geost.accessors.header
+
+.. automethod:: LineHeader.select_with_points

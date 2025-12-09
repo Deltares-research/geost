@@ -18,6 +18,8 @@ Methods
 .. autosummary::
    :toctree: generated/
 
+   VoxelModel.get_thickness
+   VoxelModel.most_common
    VoxelModel.isel
    VoxelModel.sel
    VoxelModel.select_bottom
@@ -29,9 +31,9 @@ Methods
    VoxelModel.select_within_bbox
    VoxelModel.select_within_polygons
    VoxelModel.slice_depth_interval
-   VoxelModel.zslice_to_tiff
-   VoxelModel.get_thickness
    VoxelModel.to_pyvista_grid
+   VoxelModel.value_counts
+   VoxelModel.zslice_to_tiff
 
 
 Attributes

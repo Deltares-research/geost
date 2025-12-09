@@ -18,6 +18,7 @@
       ~GeoTop.from_opendap
       ~GeoTop.get_thickness
       ~GeoTop.isel
+      ~GeoTop.most_common
       ~GeoTop.sel
       ~GeoTop.select_bottom
       ~GeoTop.select_by_values
@@ -29,6 +30,7 @@
       ~GeoTop.select_within_polygons
       ~GeoTop.slice_depth_interval
       ~GeoTop.to_pyvista_grid
+      ~GeoTop.value_counts
       ~GeoTop.zslice_to_tiff
    
    

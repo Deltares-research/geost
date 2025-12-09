@@ -1,0 +1,6 @@
+﻿geost.accessors.header.LineHeader.get
+=====================================
+
+.. currentmodule:: geost.accessors.header
+
+.. automethod:: LineHeader.get

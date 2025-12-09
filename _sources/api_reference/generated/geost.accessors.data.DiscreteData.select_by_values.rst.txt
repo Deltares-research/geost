@@ -1,0 +1,6 @@
+﻿geost.accessors.data.DiscreteData.select\_by\_values
+====================================================
+
+.. currentmodule:: geost.accessors.data
+
+.. automethod:: DiscreteData.select_by_values

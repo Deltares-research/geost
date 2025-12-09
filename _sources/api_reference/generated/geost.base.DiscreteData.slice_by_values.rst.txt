@@ -1,6 +1,0 @@
-﻿geost.base.DiscreteData.slice\_by\_values
-=========================================
-
-.. currentmodule:: geost.base
-
-.. automethod:: DiscreteData.slice_by_values

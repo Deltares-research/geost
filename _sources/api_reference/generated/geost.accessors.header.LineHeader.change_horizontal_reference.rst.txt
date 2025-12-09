@@ -1,0 +1,6 @@
+﻿geost.accessors.header.LineHeader.change\_horizontal\_reference
+===============================================================
+
+.. currentmodule:: geost.accessors.header
+
+.. automethod:: LineHeader.change_horizontal_reference

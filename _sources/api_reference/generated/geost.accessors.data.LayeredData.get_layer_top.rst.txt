@@ -1,0 +1,6 @@
+﻿geost.accessors.data.LayeredData.get\_layer\_top
+================================================
+
+.. currentmodule:: geost.accessors.data
+
+.. automethod:: LayeredData.get_layer_top

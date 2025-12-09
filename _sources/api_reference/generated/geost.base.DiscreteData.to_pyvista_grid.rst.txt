@@ -1,6 +1,0 @@
-﻿geost.base.DiscreteData.to\_pyvista\_grid
-=========================================
-
-.. currentmodule:: geost.base
-
-.. automethod:: DiscreteData.to_pyvista_grid

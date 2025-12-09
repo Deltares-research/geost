@@ -1,6 +1,0 @@
-﻿geost.base.PointHeader.select\_by\_length
-=========================================
-
-.. currentmodule:: geost.base
-
-.. automethod:: PointHeader.select_by_length

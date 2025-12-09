@@ -1,0 +1,32 @@
+﻿geost.accessors.header.LineHeader
+=================================
+
+.. currentmodule:: geost.accessors.header
+
+.. autoclass:: LineHeader
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~LineHeader.__init__
+      ~LineHeader.change_horizontal_reference
+      ~LineHeader.change_vertical_reference
+      ~LineHeader.get
+      ~LineHeader.get_area_labels
+      ~LineHeader.select_by_depth
+      ~LineHeader.select_by_length
+      ~LineHeader.select_with_lines
+      ~LineHeader.select_with_points
+      ~LineHeader.select_within_bbox
+      ~LineHeader.select_within_polygons
+   
+   
+
+   
+   
+   
