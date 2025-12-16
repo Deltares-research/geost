@@ -12,6 +12,7 @@ Replaced core header and data structures (e.g. `PointHeader`, `LayeredData`) in 
 - **Added** `VoxelModel.value_counts` to determine the value counts of unique values in a
 variable, in the total variable or along a specific dimension.
 - **Added** `VoxelModel.from_opendap` for generic voxel models. DIS3.1 example will follow later.
+- **Added** option to skip data validation in Collections entirely by setting `geost.config.validation.SKIP = True`
 
 
 **Other**

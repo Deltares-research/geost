@@ -102,17 +102,23 @@ class Collection(AbstractCollection):
     @header.setter
     def header(self, header):
         if header is not None:
-            self._header = safe_validate(
-                header, schemas.pointheader
-            )  # TODO: validation schema needs to be inferred
+            if config.validation.SKIP:
+                self._header = header
+            else:
+                self._header = safe_validate(
+                    header, schemas.pointheader
+                )  # TODO: validation schema needs to be inferred
         self.check_header_to_data_alignment()
 
     @data.setter
     def data(self, data):
         if data is not None:
-            self._data = safe_validate(
-                data, schemas.layerdata
-            )  # TODO: validation schema needs to be inferred
+            if config.validation.SKIP:
+                self._data = data
+            else:
+                self._data = safe_validate(
+                    data, schemas.layerdata
+                )  # TODO: validation schema needs to be inferred
         self.check_header_to_data_alignment()
 
     def _clone_with_attrs(self, new_header, new_data):
