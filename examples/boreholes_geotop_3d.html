@@ -568,7 +568,7 @@ Resolution (y, x, z): (100.0, 100.0, 0.5)
 <div class="cell_output docutils container">
 <div class="output traceback highlight-ipythontb notranslate"><div class="highlight"><pre><span></span><span class="gt">---------------------------------------------------------------------------</span>
 <span class="ne">AttributeError</span><span class="g g-Whitespace">                            </span>Traceback (most recent call last)
-<span class="nn">/tmp/ipykernel_2219/2111569231.py</span> in <span class="ni">?</span><span class="nt">()</span>
+<span class="nn">/tmp/ipykernel_4098/2111569231.py</span> in <span class="ni">?</span><span class="nt">()</span>
 <span class="g g-Whitespace">      </span><span class="mi">1</span> <span class="c1"># The boreholes are converted to an unstructured grid of the lithology data. The borehole</span>
 <span class="g g-Whitespace">      </span><span class="mi">2</span> <span class="c1"># geometries are given a radius of 10 meters.</span>
 <span class="ne">----&gt; </span><span class="mi">3</span> <span class="n">boreholes_usp_pyvista</span> <span class="o">=</span> <span class="n">boreholes_usp</span><span class="o">.</span><span class="n">to_pyvista_grid</span><span class="p">(</span><span class="s2">&quot;lith&quot;</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
@@ -577,11 +577,11 @@ Resolution (y, x, z): (100.0, 100.0, 0.5)
 <span class="g g-Whitespace">      </span><span class="mi">6</span> <span class="n">geotop_usp_pyvista</span> <span class="o">=</span> <span class="n">geotop_usp</span><span class="o">.</span><span class="n">to_pyvista_grid</span><span class="p">(</span><span class="s2">&quot;strat&quot;</span><span class="p">)</span>
 
 <span class="nn">~/work/geost/geost/geost/base.py</span> in <span class="ni">?</span><span class="nt">(self, displayed_variables, radius)</span>
-<span class="g g-Whitespace">    </span><span class="mi">989</span>         <span class="n">pyvista</span><span class="o">.</span><span class="n">UniformGrid</span>
-<span class="g g-Whitespace">    </span><span class="mi">990</span>             <span class="n">A</span> <span class="n">grid</span> <span class="k">class</span><span class="w"> </span><span class="nc">holding</span> <span class="n">the</span> <span class="n">data</span> <span class="n">which</span> <span class="n">can</span> <span class="n">be</span> <span class="n">iterated</span> <span class="n">over</span><span class="o">.</span>
-<span class="g g-Whitespace">    </span><span class="mi">991</span> 
-<span class="g g-Whitespace">    </span><span class="mi">992</span>         <span class="s2">&quot;&quot;&quot;</span>
-<span class="ne">--&gt; </span><span class="mi">993</span><span class="s2">         return self.data.to_pyvista_grid(displayed_variables, radius)</span>
+<span class="g g-Whitespace">    </span><span class="mi">995</span>         <span class="n">pyvista</span><span class="o">.</span><span class="n">UniformGrid</span>
+<span class="g g-Whitespace">    </span><span class="mi">996</span>             <span class="n">A</span> <span class="n">grid</span> <span class="k">class</span><span class="w"> </span><span class="nc">holding</span> <span class="n">the</span> <span class="n">data</span> <span class="n">which</span> <span class="n">can</span> <span class="n">be</span> <span class="n">iterated</span> <span class="n">over</span><span class="o">.</span>
+<span class="g g-Whitespace">    </span><span class="mi">997</span> 
+<span class="g g-Whitespace">    </span><span class="mi">998</span>         <span class="s2">&quot;&quot;&quot;</span>
+<span class="ne">--&gt; </span><span class="mi">999</span><span class="s2">         return self.data.to_pyvista_grid(displayed_variables, radius)</span>
 
 <span class="nn">~/work/geost/geost/.pixi/envs/default/lib/python3.13/site-packages/pandas/core/generic.py</span> in <span class="ni">?</span><span class="nt">(self, name)</span>
 <span class="g g-Whitespace">   </span><span class="mi">6317</span><span class="s2">             and name not in self._accessors</span>

@@ -563,17 +563,23 @@
     <span class="nd">@header</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">header</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">header</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">header</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_header</span> <span class="o">=</span> <span class="n">safe_validate</span><span class="p">(</span>
-                <span class="n">header</span><span class="p">,</span> <span class="n">schemas</span><span class="o">.</span><span class="n">pointheader</span>
-            <span class="p">)</span>  <span class="c1"># TODO: validation schema needs to be inferred</span>
+            <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">validation</span><span class="o">.</span><span class="n">SKIP</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_header</span> <span class="o">=</span> <span class="n">header</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_header</span> <span class="o">=</span> <span class="n">safe_validate</span><span class="p">(</span>
+                    <span class="n">header</span><span class="p">,</span> <span class="n">schemas</span><span class="o">.</span><span class="n">pointheader</span>
+                <span class="p">)</span>  <span class="c1"># TODO: validation schema needs to be inferred</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">check_header_to_data_alignment</span><span class="p">()</span>
 
     <span class="nd">@data</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">data</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_data</span> <span class="o">=</span> <span class="n">safe_validate</span><span class="p">(</span>
-                <span class="n">data</span><span class="p">,</span> <span class="n">schemas</span><span class="o">.</span><span class="n">layerdata</span>
-            <span class="p">)</span>  <span class="c1"># TODO: validation schema needs to be inferred</span>
+            <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">validation</span><span class="o">.</span><span class="n">SKIP</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_data</span> <span class="o">=</span> <span class="n">data</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_data</span> <span class="o">=</span> <span class="n">safe_validate</span><span class="p">(</span>
+                    <span class="n">data</span><span class="p">,</span> <span class="n">schemas</span><span class="o">.</span><span class="n">layerdata</span>
+                <span class="p">)</span>  <span class="c1"># TODO: validation schema needs to be inferred</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">check_header_to_data_alignment</span><span class="p">()</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_clone_with_attrs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">new_header</span><span class="p">,</span> <span class="n">new_data</span><span class="p">):</span>

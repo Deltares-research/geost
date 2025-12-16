@@ -44,7 +44,7 @@ print("GeoTOP PyVista grid:\n", geotop_usp_pyvista)
 
 [31m---------------------------------------------------------------------------[39m
 [31mAttributeError[39m                            Traceback (most recent call last)
-[32m/tmp/ipykernel_2219/2111569231.py[39m in [36m?[39m[34m()[39m
+[32m/tmp/ipykernel_4098/2111569231.py[39m in [36m?[39m[34m()[39m
 [32m      1[39m [38;5;66;03m# The boreholes are converted to an unstructured grid of the lithology data. The borehole[39;00m
 [32m      2[39m [38;5;66;03m# geometries are given a radius of 10 meters.[39;00m
 [32m----> [39m[32m3[39m boreholes_usp_pyvista = boreholes_usp.to_pyvista_grid([33m"lith"[39m, radius=[32m10[39m)
@@ -53,11 +53,11 @@ print("GeoTOP PyVista grid:\n", geotop_usp_pyvista)
 [32m      6[39m geotop_usp_pyvista = geotop_usp.to_pyvista_grid([33m"strat"[39m)
 
 [32m~/work/geost/geost/geost/base.py[39m in [36m?[39m[34m(self, displayed_variables, radius)[39m
-[32m    989[39m         pyvista.UniformGrid
-[32m    990[39m             A grid [38;5;28;01mclass[39;00m holding the data which can be iterated over.
-[32m    991[39m 
-[32m    992[39m         """
-[32m--> [39m[32m993[39m         [38;5;28;01mreturn[39;00m self.data.to_pyvista_grid(displayed_variables, radius)
+[32m    995[39m         pyvista.UniformGrid
+[32m    996[39m             A grid [38;5;28;01mclass[39;00m holding the data which can be iterated over.
+[32m    997[39m 
+[32m    998[39m         """
+[32m--> [39m[32m999[39m         [38;5;28;01mreturn[39;00m self.data.to_pyvista_grid(displayed_variables, radius)
 
 [32m~/work/geost/geost/.pixi/envs/default/lib/python3.13/site-packages/pandas/core/generic.py[39m in [36m?[39m[34m(self, name)[39m
 [32m   6317[39m             [38;5;28;01mand[39;00m name [38;5;28;01mnot[39;00m [38;5;28;01min[39;00m self._accessors

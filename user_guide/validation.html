@@ -796,19 +796,23 @@ always work on strictly defined and valid data that leads to reproducible result
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p>VERBOSE</p></td>
+<tr class="row-even"><td><p>SKIP</p></td>
+<td><p>If True, validation will be skipped entirely</p></td>
+<td><p>False</p></td>
+</tr>
+<tr class="row-odd"><td><p>VERBOSE</p></td>
 <td><p>If True, the details of validation errors will be printed to the console</p></td>
 <td><p>True</p></td>
 </tr>
-<tr class="row-odd"><td><p>DROP_INVALID</p></td>
+<tr class="row-even"><td><p>DROP_INVALID</p></td>
 <td><p>If True, invalid rows will automatically be dropped from (Geo)DataFrames</p></td>
 <td><p>True</p></td>
 </tr>
-<tr class="row-even"><td><p>FLAG_INVALID</p></td>
+<tr class="row-odd"><td><p>FLAG_INVALID</p></td>
 <td><p>If True, invalid rows will be flagged in (Geo)DataFrames. Only works if DROP_INVALID is False</p></td>
 <td><p>False</p></td>
 </tr>
-<tr class="row-odd"><td><p>AUTO_ALIGN</p></td>
+<tr class="row-even"><td><p>AUTO_ALIGN</p></td>
 <td><p>If True, collection headers and data tables will automatically be aligned</p></td>
 <td><p>True</p></td>
 </tr>
@@ -960,6 +964,78 @@ DataFrameSchema &#39;Layer data non-inclined&#39; failed element-wise validator 
 </pre></div>
 </div>
 </div>
+</div>
+<p>In some cases, it may be desired to skip the validation in its entirety. For example, when you would like to use functionality associated with a <code class="docutils literal notranslate"><span class="pre">Collection</span></code> but you know that the validation will fail anyway and you do not want update the data to make it pass. Then the validation can be turned off by setting the ‘SKIP’ flag in the configuration to <code class="docutils literal notranslate"><span class="pre">True</span></code> like below.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">geost</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">validation</span><span class="o">.</span><span class="n">SKIP</span> <span class="o">=</span> <span class="kc">True</span>
+
+<span class="n">collection</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="n">df_invalid</span><span class="o">.</span><span class="n">gstda</span><span class="o">.</span><span class="n">to_collection</span><span class="p">()</span>
+<span class="p">)</span>  <span class="c1"># Will not raise any warning, validation is skipped</span>
+
+<span class="n">collection</span><span class="o">.</span><span class="n">data</span>  <span class="c1"># The data in the result will be unchanged</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>nr</th>
+      <th>x</th>
+      <th>y</th>
+      <th>surface</th>
+      <th>end</th>
+      <th>top</th>
+      <th>bottom</th>
+      <th>lithoclass</th>
+      <th>is_valid</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>B-01</td>
+      <td>100</td>
+      <td>200</td>
+      <td>0</td>
+      <td>-1</td>
+      <td>0.0</td>
+      <td>0.5</td>
+      <td>K</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>B-01</td>
+      <td>100</td>
+      <td>200</td>
+      <td>0</td>
+      <td>-1</td>
+      <td>1.1</td>
+      <td>1.0</td>
+      <td>Z</td>
+      <td>False</td>
+    </tr>
+  </tbody>
+</table>
+</div></div></div>
 </div>
 </section>
 <section id="advanced-manually-validating-data">
