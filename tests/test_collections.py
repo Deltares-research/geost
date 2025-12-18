@@ -436,6 +436,16 @@ class TestBoreholeCollection:
         assert_almost_equal(borehole_collection.header["Z_top"], expected_sand_top)
 
     @pytest.mark.unittest
+    def test_get_layer_base(self, borehole_collection):
+        borehole_collection.get_layer_base("lith", ["Z", "K"], include_in_header=True)
+
+        expected_sand_base = [3.7, np.nan, 5.5, 3.0, 3.0]
+        expected_clay_base = [4.2, 3.9, 2.9, 1.8, np.nan]
+
+        assert_almost_equal(borehole_collection.header["K_base"], expected_clay_base)
+        assert_almost_equal(borehole_collection.header["Z_base"], expected_sand_base)
+
+    @pytest.mark.unittest
     def test_to_kingdom(self, borehole_collection):
         outfile = Path("temp_kingdom.csv")
         tdfile = Path(outfile.parent, f"{outfile.stem}_TDCHART{outfile.suffix}")
