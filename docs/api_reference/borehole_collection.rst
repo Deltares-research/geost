@@ -17,6 +17,7 @@ Analysis
 
    BoreholeCollection.get_area_labels
    BoreholeCollection.get_cumulative_thickness
+   BoreholeCollection.get_layer_base
    BoreholeCollection.get_layer_top
 
 
