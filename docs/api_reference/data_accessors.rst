@@ -11,6 +11,7 @@ LayeredData
 
    LayeredData
    LayeredData.get_cumulative_thickness
+   LayeredData.get_layer_base
    LayeredData.get_layer_top
    LayeredData.select_by_condition
    LayeredData.select_by_values
