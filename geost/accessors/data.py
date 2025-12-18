@@ -376,6 +376,7 @@ class LayeredData(AbstractData):
         values: str | List[str],
         min_thickness: float = 0,
         min_depth: float = 0,
+        max_depth: float = None,
     ) -> pd.DataFrame:
         """
         Find the depth at which a specified layer first occurs, starting at min_depth
@@ -392,6 +393,8 @@ class LayeredData(AbstractData):
             Minimal thickness of the layer to be considered. The default is 0.
         min_depth : float, optional
             Minimal depth of the layer to be considered. The default is 0.
+        max_depth : float, optional
+            Maximal depth of the layer to be considered. The default is None.
 
         Returns
         -------
@@ -406,13 +409,68 @@ class LayeredData(AbstractData):
         >>> data.get_layer_top("lith", "Z")
 
         """
+        max_depth = max_depth or 1e34
+
         selection = self.slice_by_values(column, values)
-        selection = selection.gstda.slice_depth_interval(upper_boundary=min_depth)
+        selection = selection.gstda.slice_depth_interval(
+            upper_boundary=min_depth, lower_boundary=max_depth
+        )
         selection = selection.gstda.select_by_condition(
             selection["bottom"] - selection["top"] >= min_thickness
         )
         layer_top = selection.groupby(["nr", column])["top"].first()
         return layer_top.unstack(level=column)
+
+    def get_layer_base(
+        self,
+        column: str,
+        values: str | List[str],
+        min_thickness: float = 0,
+        min_depth: float = 0,
+        max_depth: float = None,
+    ) -> pd.DataFrame:
+        """
+        Find the depth at which a specified layer occurs last, starting at min_depth
+        and looking downwards until the first layer of min_thickness is found of the
+        specified layer.
+
+        Parameters
+        ----------
+        column : str
+            Name of column that contains categorical data.
+        values : str | List[str]
+            Value or values of entries in the column that you want to find base of.
+        min_thickness : float, optional
+            Minimal thickness of the layer to be considered. The default is 0.
+        min_depth : float, optional
+            Minimal depth of the layer to be considered. The default is 0.
+        max_depth : float, optional
+            Maximal depth of the layer to be considered. The default is None.
+
+        Returns
+        -------
+        pd.DataFrame
+            Borehole ids and top levels of selected layers in meters below the surface.
+
+        Examples
+        --------
+        Get the base depth of layers in data where the lithology in the "lith" column
+        is sand ("Z"):
+
+        >>> data.get_layer_base("lith", "Z")
+
+        """
+        max_depth = max_depth or 1e34
+
+        selection = self.slice_by_values(column, values)
+        selection = selection.gstda.slice_depth_interval(
+            upper_boundary=min_depth, lower_boundary=max_depth
+        )
+        selection = selection.gstda.select_by_condition(
+            selection["bottom"] - selection["top"] >= min_thickness
+        )
+        layer_base = selection.groupby(["nr", column])["bottom"].last()
+        return layer_base.unstack(level=column)
 
     def to_pyvista_cylinders(
         self,
