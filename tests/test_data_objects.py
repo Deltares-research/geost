@@ -102,7 +102,6 @@ class TestLayeredData:
 
     @pytest.mark.unittest
     def test_get_layer_top(self, borehole_data):
-        # TODO: add unit test part for added max_depth
         result = borehole_data.gstda.get_layer_top("lith", "V")
         expected_boreholes_returned = ["B", "D"]
         expected_tops = [1.2, 0.5]
@@ -133,9 +132,13 @@ class TestLayeredData:
         assert_array_almost_equal(result["Z"], expected_sand_top)
         assert_array_almost_equal(result["K"], expected_clay_top)
 
+        # Test with a maximum depth to limit the search for the top of the layer.
+        result = borehole_data.gstda.get_layer_top("lith", "V", max_depth=1.1)
+        assert_array_equal(result.index, ["D"])
+        assert_array_almost_equal(result["V"], [0.5])
+
     @pytest.mark.unittest
     def test_get_layer_base(self, borehole_data):
-        # TODO: add unit test part for added max_depth
         result = borehole_data.gstda.get_layer_base("lith", "V")
         expected_boreholes_returned = ["B", "D"]
         expected_bases = [3.1, 2.5]
@@ -165,6 +168,11 @@ class TestLayeredData:
         assert_array_equal(result.index, expected_boreholes_returned)
         assert_array_almost_equal(result["Z"], expected_sand_base)
         assert_array_almost_equal(result["K"], expected_clay_base)
+
+        # Test with a maximum depth to limit the search for the base of the layer.
+        result = borehole_data.gstda.get_layer_base("lith", "V", max_depth=1.1)
+        assert_array_equal(result.index, ["D"])
+        assert_array_almost_equal(result["V"], [1.1])
 
     @pytest.mark.unittest
     def test_slice_depth_interval(self, borehole_data):
