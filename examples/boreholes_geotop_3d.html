@@ -566,31 +566,26 @@ Resolution (y, x, z): (100.0, 100.0, 0.5)
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output traceback highlight-ipythontb notranslate"><div class="highlight"><pre><span></span><span class="gt">---------------------------------------------------------------------------</span>
-<span class="ne">AttributeError</span><span class="g g-Whitespace">                            </span>Traceback (most recent call last)
-<span class="nn">/tmp/ipykernel_4098/2111569231.py</span> in <span class="ni">?</span><span class="nt">()</span>
-<span class="g g-Whitespace">      </span><span class="mi">1</span> <span class="c1"># The boreholes are converted to an unstructured grid of the lithology data. The borehole</span>
-<span class="g g-Whitespace">      </span><span class="mi">2</span> <span class="c1"># geometries are given a radius of 10 meters.</span>
-<span class="ne">----&gt; </span><span class="mi">3</span> <span class="n">boreholes_usp_pyvista</span> <span class="o">=</span> <span class="n">boreholes_usp</span><span class="o">.</span><span class="n">to_pyvista_grid</span><span class="p">(</span><span class="s2">&quot;lith&quot;</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
-<span class="g g-Whitespace">      </span><span class="mi">4</span> 
-<span class="g g-Whitespace">      </span><span class="mi">5</span> <span class="c1"># The GeoTOP model is converted to an structured grid of the stratigraphy data</span>
-<span class="g g-Whitespace">      </span><span class="mi">6</span> <span class="n">geotop_usp_pyvista</span> <span class="o">=</span> <span class="n">geotop_usp</span><span class="o">.</span><span class="n">to_pyvista_grid</span><span class="p">(</span><span class="s2">&quot;strat&quot;</span><span class="p">)</span>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Boreholes PyVista grid:
+ UnstructuredGrid (0x7fbd58111de0)
+  N Cells:    1398
+  N Points:   11184
+  X Bounds:   1.395e+05, 1.413e+05
+  Y Bounds:   4.548e+05, 4.560e+05
+  Z Bounds:   -2.712e+02, 8.037e+00
+  N Arrays:   1
 
-<span class="nn">~/work/geost/geost/geost/base.py</span> in <span class="ni">?</span><span class="nt">(self, displayed_variables, radius)</span>
-<span class="g g-Whitespace">    </span><span class="mi">995</span>         <span class="n">pyvista</span><span class="o">.</span><span class="n">UniformGrid</span>
-<span class="g g-Whitespace">    </span><span class="mi">996</span>             <span class="n">A</span> <span class="n">grid</span> <span class="k">class</span><span class="w"> </span><span class="nc">holding</span> <span class="n">the</span> <span class="n">data</span> <span class="n">which</span> <span class="n">can</span> <span class="n">be</span> <span class="n">iterated</span> <span class="n">over</span><span class="o">.</span>
-<span class="g g-Whitespace">    </span><span class="mi">997</span> 
-<span class="g g-Whitespace">    </span><span class="mi">998</span>         <span class="s2">&quot;&quot;&quot;</span>
-<span class="ne">--&gt; </span><span class="mi">999</span><span class="s2">         return self.data.to_pyvista_grid(displayed_variables, radius)</span>
 
-<span class="nn">~/work/geost/geost/.pixi/envs/default/lib/python3.13/site-packages/pandas/core/generic.py</span> in <span class="ni">?</span><span class="nt">(self, name)</span>
-<span class="g g-Whitespace">   </span><span class="mi">6317</span><span class="s2">             and name not in self._accessors</span>
-<span class="g g-Whitespace">   </span><span class="mi">6318</span><span class="s2">             and self._info_axis._can_hold_identifiers_and_holds_name(name)</span>
-<span class="g g-Whitespace">   </span><span class="mi">6319</span><span class="s2">         ):</span>
-<span class="g g-Whitespace">   </span><span class="mi">6320</span><span class="s2">             return self[name]</span>
-<span class="ne">-&gt; </span><span class="mi">6321</span><span class="s2">         return object.__getattribute__(self, name)</span>
-
-<span class="ne">AttributeError</span>: &#39;DataFrame&#39; object has no attribute &#39;to_pyvista_grid&#39;
+GeoTOP PyVista grid:
+ ImageData (0x7fbd58113400)
+  N Cells:      78876
+  N Points:     89490
+  X Bounds:     1.396e+05, 1.414e+05
+  Y Bounds:     4.548e+05, 4.562e+05
+  Z Bounds:     -4.975e+01, 1.068e+02
+  Dimensions:   19, 15, 314
+  Spacing:      1.000e+02, 1.000e+02, 5.000e-01
+  N Arrays:     1
 </pre></div>
 </div>
 </div>
@@ -618,6 +613,22 @@ to VTK and use <a class="reference external" href="https://www.paraview.org/">Pa
 <span class="n">plotter</span><span class="o">.</span><span class="n">show</span><span class="p">(</span><span class="n">jupyter_backend</span><span class="o">=</span><span class="s2">&quot;static&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span><span class=" -Color -Color-Yellow">2026-01-12 13:08:40.847 (   5.189s) [    7FBE1DB5F740]vtkXOpenGLRenderWindow.:1458  WARN| bad X server connection. DISPLAY=</span>
+<span class=" -Color -Color-Yellow">2026-01-12 13:08:40.848 (   5.190s) [    7FBE1DB5F740] vtkEGLRenderWindow.cxx:391   WARN| vtkEGLRenderWindow (0x5624a5b318e0): Setting an EGL display to device index: -1 require EGL_EXT_device_base EGL_EXT_platform_device EGL_EXT_platform_base extensions</span>
+<span class=" -Color -Color-Yellow">2026-01-12 13:08:40.848 (   5.190s) [    7FBE1DB5F740] vtkEGLRenderWindow.cxx:396   WARN| vtkEGLRenderWindow (0x5624a5b318e0): Attempting to use EGL_DEFAULT_DISPLAY...</span>
+<span class=" -Color -Color-Yellow">2026-01-12 13:08:40.848 (   5.190s) [    7FBE1DB5F740] vtkEGLRenderWindow.cxx:401   WARN| vtkEGLRenderWindow (0x5624a5b318e0): Could not initialize a device. Exiting...</span>
+<span class=" -Color -Color-Yellow">2026-01-12 13:08:40.848 (   5.190s) [    7FBE1DB5F740]vtkOpenGLRenderWindow.c:920   WARN| vtkEGLRenderWindow (0x5624a5b318e0): Failed to initialize OpenGL functions!</span>
+<span class=" -Color -Color-Yellow">2026-01-12 13:08:40.848 (   5.190s) [    7FBE1DB5F740]vtkOpenGLRenderWindow.c:939   WARN| vtkEGLRenderWindow (0x5624a5b318e0): Unable to find a valid OpenGL 3.2 or later implementation. Please update your video card driver to the latest version. If you are using Mesa please make sure you have version 11.2 or later and make sure your driver in Mesa supports OpenGL 3.2 such as llvmpipe or openswr. If you are on windows and using Microsoft remote desktop note that it only supports OpenGL 3.2 with nvidia quadro cards. You can use other remoting software such as nomachine to avoid this issue.</span>
+<span class=" -Color -Color-Yellow">2026-01-12 13:08:40.861 (   5.203s) [    7FBE1DB5F740] vtkEGLRenderWindow.cxx:391   WARN| vtkEGLRenderWindow (0x5624a5b318e0): Setting an EGL display to device index: -1 require EGL_EXT_device_base EGL_EXT_platform_device EGL_EXT_platform_base extensions</span>
+<span class=" -Color -Color-Yellow">2026-01-12 13:08:40.861 (   5.203s) [    7FBE1DB5F740] vtkEGLRenderWindow.cxx:396   WARN| vtkEGLRenderWindow (0x5624a5b318e0): Attempting to use EGL_DEFAULT_DISPLAY...</span>
+<span class=" -Color -Color-Yellow">2026-01-12 13:08:40.861 (   5.203s) [    7FBE1DB5F740] vtkEGLRenderWindow.cxx:401   WARN| vtkEGLRenderWindow (0x5624a5b318e0): Could not initialize a device. Exiting...</span>
+<span class=" -Color -Color-Yellow">2026-01-12 13:08:40.861 (   5.203s) [    7FBE1DB5F740]vtkOpenGLRenderWindow.c:920   WARN| vtkEGLRenderWindow (0x5624a5b318e0): Failed to initialize OpenGL functions!</span>
+<span class=" -Color -Color-Yellow">2026-01-12 13:08:40.861 (   5.203s) [    7FBE1DB5F740]vtkOpenGLRenderWindow.c:939   WARN| vtkEGLRenderWindow (0x5624a5b318e0): Unable to find a valid OpenGL 3.2 or later implementation. Please update your video card driver to the latest version. If you are using Mesa please make sure you have version 11.2 or later and make sure your driver in Mesa supports OpenGL 3.2 such as llvmpipe or openswr. If you are on windows and using Microsoft remote desktop note that it only supports OpenGL 3.2 with nvidia quadro cards. You can use other remoting software such as nomachine to avoid this issue.</span>
+</pre></div>
+</div>
+<img alt="../_images/1d3690c78f6df50cc9340ac9460b33d2aad9c9c1ef267f5df9c6556016125e47.png" src="../_images/1d3690c78f6df50cc9340ac9460b33d2aad9c9c1ef267f5df9c6556016125e47.png" />
 </div>
 </div>
 </section>
@@ -677,7 +688,7 @@ to VTK and use <a class="reference external" href="https://www.paraview.org/">Pa
 
   <p class="copyright">
     
-      © Copyright 2025, Deltares.
+      © Copyright 2026, Deltares.
       <br/>
     
   </p>
