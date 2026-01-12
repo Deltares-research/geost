@@ -3,6 +3,7 @@ from pathlib import Path
 import geopandas as gpd
 import numpy as np
 import pytest
+import pyvista as pv
 import xarray as xr
 from numpy.testing import (
     assert_allclose,
@@ -377,6 +378,18 @@ class TestCollection:
         outfile = tmp_path / r"test_export.pkl"
         borehole_collection.to_pickle(outfile)
         assert outfile.is_file()
+
+    @pytest.mark.unittest
+    def test_to_pyvista_cylinders(self, borehole_collection):
+        # More detailed tests are in TestLayeredData in test_data_objects.py
+        cylinders = borehole_collection.to_pyvista_cylinders("lith", radius=0.1)
+        assert isinstance(cylinders, pv.MultiBlock)
+
+    @pytest.mark.unittest
+    def test_to_pyvista_grid(self, borehole_collection):
+        # More detailed tests are in TestLayeredData in test_data_objects.py
+        grid = borehole_collection.to_pyvista_grid("lith")
+        assert isinstance(grid, pv.UnstructuredGrid)
 
     # @pytest.mark.integrationtest
     # def test_surface_level_update(self, borehole_collection, update_raster):

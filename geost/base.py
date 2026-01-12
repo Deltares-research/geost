@@ -968,7 +968,7 @@ class Collection(AbstractCollection):
             A composite class holding the data which can be iterated over.
 
         """
-        return self.data.to_pyvista_cylinders(
+        return self.data.gstda.to_pyvista_cylinders(
             displayed_variables, radius, vertical_factor, relative_to_vertical_reference
         )
 
@@ -996,7 +996,7 @@ class Collection(AbstractCollection):
             A grid class holding the data which can be iterated over.
 
         """
-        return self.data.to_pyvista_grid(displayed_variables, radius)
+        return self.data.gstda.to_pyvista_grid(displayed_variables, radius)
 
     def to_datafusiontools(
         self,
