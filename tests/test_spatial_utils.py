@@ -39,17 +39,17 @@ class TestSpatialUtils:
         assert isinstance(gdf["geometry"].dtype, gpd.array.GeometryDtype)
 
     # @pytest.mark.unittest
-    # def test_check_geometry_instance(self, point_header_gdf):
-    #     point_header_gdf.to_parquet("temp_file.geoparquet")
-    #     point_header_gdf.to_file("temp_file.gpkg")
-    #     point_header_gdf_geoparquet = "temp_file.geoparquet"
-    #     point_header_gdf_geopackage = "temp_file.gpkg"
-    #     gdf_gdf = spatial.check_geometry_instance(point_header_gdf)
+    # def test_check_geometry_instance(self, point_header):
+    #     point_header.to_parquet("temp_file.geoparquet")
+    #     point_header.to_file("temp_file.gpkg")
+    #     point_header_geoparquet = "temp_file.geoparquet"
+    #     point_header_geopackage = "temp_file.gpkg"
+    #     gdf_gdf = spatial.check_geometry_instance(point_header)
     #     gdf_geoparquet_gdf = spatial.check_geometry_instance(
-    #         point_header_gdf_geoparquet
+    #         point_header_geoparquet
     #     )
     #     gdf_geopackage_gdf = spatial.check_geometry_instance(
-    #         point_header_gdf_geopackage
+    #         point_header_geopackage
     #     )
     #     assert isinstance(gdf_gdf, gpd.GeoDataFrame)
     #     assert isinstance(gdf_geoparquet_gdf, gpd.GeoDataFrame)
@@ -58,9 +58,9 @@ class TestSpatialUtils:
     #     Path("temp_file.gpkg").unlink()
 
     @pytest.mark.unittest
-    def test_check_and_coerce_crs(self, point_header_gdf):
+    def test_check_and_coerce_crs(self, point_header):
         with pytest.warns(UserWarning):
-            referenced_gdf = spatial.check_and_coerce_crs(point_header_gdf, 28992)
+            referenced_gdf = spatial.check_and_coerce_crs(point_header, 28992)
             converted_referenced_gdf = spatial.check_and_coerce_crs(
                 referenced_gdf, 32631
             )

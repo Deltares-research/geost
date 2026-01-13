@@ -1,5 +1,7 @@
 import importlib
+from pathlib import Path
 
+import geopandas as gpd
 import pandas as pd
 import pooch
 import xarray as xr
@@ -83,3 +85,32 @@ def geotop_usp(xarray=False):
         return xr.open_dataset(filename)
     else:
         return GeoTop.from_netcdf(filename)
+
+
+def bhrg_bro():
+    """
+    Download a BRO BHR-G XML file from the GeoST data registry and return a `Pathlib.Path`
+    object pointing to the file for tutorials explaining GeoST's XML parsing.
+
+    Returns
+    -------
+    Pathlib.Path
+        A Pathlib.Path object pointing to the downloaded XML file.
+
+    """
+    return Path(REGISTRY.fetch("bhrg_bro.xml"))
+
+
+def dike_section():
+    """
+    Download a dike section geoparquet file from the GeoST data registry and return a
+    Geopandas `GeoDataFrame` of the dike section for tutorials.
+
+    Returns
+    -------
+    GeoDataFrame
+        A Geopandas GeoDataFrame object containing the dike section data.
+
+    """
+    filename = REGISTRY.fetch("dike_section.geoparquet")
+    return gpd.read_parquet(filename)

@@ -2,26 +2,6 @@ from abc import ABC, abstractmethod
 
 
 class AbstractHeader(ABC):  # pragma: no cover
-    @property
-    @abstractmethod
-    def gdf(self):
-        pass
-
-    @property
-    @abstractmethod
-    def horizontal_reference(self):
-        pass
-
-    @property
-    @abstractmethod
-    def vertical_reference(self):
-        pass
-
-    @gdf.setter
-    @abstractmethod
-    def gdf(self, gdf):
-        pass
-
     @abstractmethod
     def change_horizontal_reference(self):
         pass
@@ -64,21 +44,6 @@ class AbstractHeader(ABC):  # pragma: no cover
 
 
 class AbstractData(ABC):  # pragma: no cover
-    @property
-    @abstractmethod
-    def df(self):
-        pass
-
-    @property
-    @abstractmethod
-    def datatype(self):
-        pass
-
-    @df.setter
-    @abstractmethod
-    def df(self, df):
-        pass
-
     @abstractmethod
     def to_header(self):
         pass
@@ -218,18 +183,18 @@ class AbstractCollection(ABC):  # pragma: no cover
     def slice_by_values(self):
         pass
 
-    @abstractmethod
-    def get_cumulative_thickness(self):
-        # Not sure if this should be here, potentially unsuitable with DiscreteData
-        # These kind of methods should go to a seperate layer_analysis module with
-        # functions to cover such analyses
-        pass
+    # @abstractmethod
+    # def get_cumulative_thickness(self):
+    #     # Not sure if this should be here, potentially unsuitable with DiscreteData
+    #     # These kind of methods should go to a seperate layer_analysis module with
+    #     # functions to cover such analyses
+    #     pass
 
-    @abstractmethod
-    def get_layer_top(self):
-        # These kind of methods should go to a seperate layer_analysis module with
-        # functions to cover such analyses
-        pass
+    # @abstractmethod
+    # def get_layer_top(self):
+    #     # These kind of methods should go to a seperate layer_analysis module with
+    #     # functions to cover such analyses
+    #     pass
 
     @abstractmethod
     def to_pyvista_cylinders(self):

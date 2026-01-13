@@ -3,6 +3,15 @@ import xarray as xr
 from shapely.geometry import LineString
 
 
+def check_dims(*dims):  # pragma: no cover
+    def inner_check_dims(other):
+        missing_dims = [d for d in dims if d not in other.dims]
+        if missing_dims:
+            raise ValueError(f"Grid is missing dimensions: {missing_dims}")
+
+    return inner_check_dims
+
+
 def sample_with_coords(ds: xr.Dataset | xr.DataArray, coords: np.ndarray):
     """
     Sample x and y dims of an Xarray Dataset or DataArray using an array of x and y
@@ -79,13 +88,10 @@ def sample_along_line(
     """
     if dist and nsamples:
         raise ValueError("Cannot use 'dist' and 'nsamples' together, use one option.")
-
     elif dist:
         sample_locs = np.arange(0, line.length, dist)
-
     elif nsamples:
         sample_locs = np.linspace(0, line.length, nsamples)
-
     else:
         raise ValueError("'dist' or 'nsamples' not specified, use one option.")
 
@@ -145,3 +151,59 @@ def label_consecutive_2d(array: np.ndarray, axis: int = 0) -> np.ndarray:
         labels = np.c_[start_labels, labels]
 
     return labels
+
+
+def value_counts(
+    da: xr.DataArray, dim: str = None, normalize: bool = False
+) -> xr.DataArray:
+    """
+    Get the value counts of unique values in a DataArray.
+
+    Parameters
+    ----------
+    da : xr.DataArray
+        DataArray to count unique values in.
+    dim : str, optional
+        Dimension along which to count unique values. The default is None.
+    normalize : bool, optional
+        If True, return the relative frequencies of the unique values instead of the
+        absolute counts. The default is False.
+
+    Returns
+    -------
+    xr.DataArray
+        DataArray containing the counts of unique values.
+
+    """
+    var_ = da.values
+    values, counts = np.unique(var_[~np.isnan(var_)], return_counts=True)
+
+    if dim is None:
+        counts = xr.DataArray(counts, coords={da.name: values})
+    else:
+        counts = [(da == v).sum(dim=dim) for v in values]
+        counts = xr.concat(counts, dim=xr.DataArray(values, dims=da.name))
+
+    if normalize:
+        total = counts.sum(dim=da.name)
+        counts = counts / total
+
+    return counts
+
+
+def is_ascending(coordinates: xr.DataArray | np.ndarray) -> bool:
+    """
+    Check if the values in a coordinate DataArray are in ascending order.
+
+    Parameters
+    ----------
+    coordinates : xr.DataArray | np.ndarray
+        Coordinate DataArray or numpy array to check.
+
+    Returns
+    -------
+    bool
+        True if the coordinates are in ascending order, False otherwise.
+
+    """
+    return coordinates[0] < coordinates[1]

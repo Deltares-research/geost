@@ -1,17 +1,18 @@
+import warnings
 from pathlib import Path
 
+import geopandas as gpd
 import pandas as pd
 import pytest
 from numpy.testing import assert_array_equal
 from shapely import geometry as gmt
 
 import geost
+from geost.accessors.data import DiscreteData, LayeredData
+from geost.accessors.header import PointHeader
 from geost.base import (
     BoreholeCollection,
     CptCollection,
-    DiscreteData,
-    LayeredData,
-    PointHeader,
 )
 from geost.io.read import (
     MANDATORY_LAYERED_DATA_COLUMNS,
@@ -113,7 +114,7 @@ def test_nlog_reader_from_parquet(testdatadir):
     assert_array_equal(
         nlog_cores.header[["nr", "x", "y", "surface", "end"]], desired_df
     )
-    assert nlog_cores.data.has_inclined
+    assert nlog_cores.has_inclined
 
 
 @pytest.mark.unittest
@@ -127,20 +128,18 @@ def test_read_borehole_table(testdatadir):
 
     cores_pq = geost.read_borehole_table(file_pq, as_collection=False)
     cores_csv = geost.read_borehole_table(file_csv, as_collection=False)
-    assert isinstance(cores_pq, LayeredData)
-    assert isinstance(cores_csv, LayeredData)
+    assert isinstance(cores_pq, pd.DataFrame)
+    assert isinstance(cores_csv, pd.DataFrame)
 
-
-@pytest.mark.unittest
-def test_read_inclined_borehole_table(testdatadir):
     file_pq = testdatadir / r"test_inclined_borehole_table.parquet"
     cores_pq = geost.read_borehole_table(file_pq, has_inclined=True)
     assert isinstance(cores_pq, BoreholeCollection)
+    assert cores_pq.has_inclined
 
     cores_pq = geost.read_borehole_table(
         file_pq, has_inclined=True, as_collection=False
     )
-    assert isinstance(cores_pq, LayeredData)
+    assert isinstance(cores_pq, pd.DataFrame)
 
 
 @pytest.mark.unittest
@@ -165,20 +164,23 @@ def test_check_mandatory_columns_with_user_input(table_wrong_columns, monkeypatc
 def test_adjust_z_coordinates(testdatadir):
     file = testdatadir / r"test_borehole_table.parquet"
     cores = geost.read_borehole_table(file, as_collection=False)
-    cores_df = cores.df.copy()
+    test_df = cores.copy()
 
-    # test situation where top and bottoms are already positive downward
-    cores_df_adjusted = adjust_z_coordinates(cores_df.copy())
-    assert cores_df_adjusted["top"].iloc[0] < cores_df_adjusted["top"].iloc[1]
-    assert cores_df_adjusted["bottom"].iloc[0] < cores_df_adjusted["bottom"].iloc[1]
+    # test situation where top and bottoms are already positive downward: no change
+    test_df = adjust_z_coordinates(test_df)
+    assert test_df.equals(cores)
+    assert test_df["top"].iloc[0] < test_df["top"].iloc[1]
+    assert test_df["bottom"].iloc[0] < test_df["bottom"].iloc[1]
 
     # Test situation where top and bottoms are given as negative downward
-    cores_df["top"] *= -1
-    cores_df["bottom"] *= -1
+    test_df = cores.copy()
+    test_df["top"] *= -1
+    test_df["bottom"] *= -1
 
-    cores_df_adjusted = adjust_z_coordinates(cores_df.copy())
-    assert cores_df_adjusted["top"].iloc[0] < cores_df_adjusted["top"].iloc[1]
-    assert cores_df_adjusted["bottom"].iloc[0] < cores_df_adjusted["bottom"].iloc[1]
+    test_df = adjust_z_coordinates(test_df)
+    assert test_df.equals(cores)
+    assert test_df["top"].iloc[0] < test_df["top"].iloc[1]
+    assert test_df["bottom"].iloc[0] < test_df["bottom"].iloc[1]
 
 
 @pytest.mark.unittest
@@ -186,7 +188,7 @@ def test_read_boris_xml(testdatadir):
     boris_collection = geost.read_xml_boris(testdatadir / r"xml/test_boris_xml.xml")
     assert isinstance(boris_collection, BoreholeCollection)
     assert boris_collection.n_points == 16
-    assert len(boris_collection.data.df) == 236
+    assert len(boris_collection.data) == 236
 
 
 @pytest.mark.unittest
@@ -196,19 +198,19 @@ def test_read_uullg_table(
     llg = geost.read_uullg_tables(llg_header_table, llg_data_table)
     assert isinstance(llg, BoreholeCollection)
     expected_header_cols = ["nr", "x", "y", "surface", "end"]
-    header_columns = llg.header.gdf.columns
+    header_columns = llg.header.columns
     assert all([c in header_columns for c in expected_header_cols])
     expected_data_cols = ["nr", "x", "y", "surface", "end"]
-    data_columns = llg.data.df.columns
+    data_columns = llg.data.columns
     assert all([c in data_columns for c in expected_data_cols])
 
     llg = geost.read_uullg_tables(llg_header_table, llg_data_table_duplicate_column)
     assert isinstance(llg, BoreholeCollection)
     expected_header_cols = ["nr", "x", "y", "surface", "end"]
-    header_columns = llg.header.gdf.columns
+    header_columns = llg.header.columns
     assert all([c in header_columns for c in expected_header_cols])
     expected_data_cols = ["nr", "x", "y", "surface", "end"]
-    data_columns = llg.data.df.columns
+    data_columns = llg.data.columns
     assert all([c in data_columns for c in expected_data_cols])
 
 
@@ -217,6 +219,8 @@ def test_read_gef_cpts(testdatadir):
     files = sorted(Path(testdatadir / "gef").glob("*.gef"))
     cpts = geost.read_gef_cpts(files)
     assert isinstance(cpts, CptCollection)
+    assert cpts.horizontal_reference == 28992
+    assert cpts.vertical_reference == 5709
 
     expected_cpts_present = [
         "DKMP_D03",
@@ -237,7 +241,7 @@ def test_read_cpt_table(testdatadir, monkeypatch):
     assert cpts.vertical_reference == 5709
 
     cpts = geost.read_cpt_table(testdatadir / r"test_cpts.parquet", as_collection=False)
-    assert isinstance(cpts, DiscreteData)
+    assert isinstance(cpts, pd.DataFrame)
 
 
 @pytest.mark.unittest
@@ -263,15 +267,17 @@ class TestReadCollectionGeopackage:
     def test_read_collection_geopackage_boreholes(self, borehole_gpkg):
         collection = geost.read_collection_geopackage(borehole_gpkg, BoreholeCollection)
         assert isinstance(collection, BoreholeCollection)
-        assert isinstance(collection.header, PointHeader)
-        assert isinstance(collection.data, LayeredData)
+        assert isinstance(collection.header, gpd.GeoDataFrame)
+        assert isinstance(collection.data, pd.DataFrame)
+        assert not collection.has_inclined
 
     @pytest.mark.unittest
     def test_read_collection_geopackage_cpts(self, cpt_gpkg):
         collection = geost.read_collection_geopackage(cpt_gpkg, CptCollection)
         assert isinstance(collection, CptCollection)
-        assert isinstance(collection.header, PointHeader)
-        assert isinstance(collection.data, DiscreteData)
+        assert isinstance(collection.header, gpd.GeoDataFrame)
+        assert isinstance(collection.data, pd.DataFrame)
+        assert not collection.has_inclined
 
     @pytest.mark.unittest
     def test_read_collection_geopackage_invalid(self, borehole_gpkg):
@@ -384,11 +390,29 @@ class TestReadCollectionGeopackage:
         ),
     ],
 )
+@pytest.mark.unittest
 def test_bro_api_read(object_type, options, expected_bro_ids):
     collection = geost.bro_api_read(object_type, **options)
     assert isinstance(collection, geost.base.Collection)
     assert len(collection) == len(expected_bro_ids)
     assert_array_equal(collection.header["nr"], expected_bro_ids)
+
+
+@pytest.mark.parametrize(
+    "object_type",
+    [
+        "BHR-GT",
+        "BHR-G",
+        "CPT",
+        "BHR-P",
+        "SFR",
+    ],
+)
+@pytest.mark.unittest
+def test_bro_api_read_no_results(object_type):
+    collection = geost.bro_api_read(object_type, bbox=[0, 0, 1, 1])
+    assert isinstance(collection, geost.base.Collection)
+    assert "<EMPTY COLLECTION>" in str(collection)
 
 
 @pytest.mark.unittest

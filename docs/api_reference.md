@@ -1,23 +1,21 @@
 # API reference
 
-This is the API reference.
-
 ```{toctree}
 ---
 maxdepth: 2
+caption: Table of contents
 ---
 
-PointHeader <api_reference/point_header>
-DiscreteData <api_reference/discrete_data>
-LayeredData <api_reference/layered_data>
+Input/Output <api_reference/io>
 BoreholeCollection <api_reference/borehole_collection>
 CptCollection <api_reference/cpt_collection>
-Input/Output <api_reference/io>
+Header accessors <api_reference/header_accessors>
+Data accessors <api_reference/data_accessors>
 VoxelModel <api_reference/voxelmodel>
-BroApi <api_reference/bro>
 GeoTop <api_reference/bro_geotop>
 GeoTop selection <api_reference/geotop_selection.rst>
 Analysis <api_reference/analysis>
+BroApi <api_reference/bro>
 Readers <api_reference/readers>
 Validation <api_reference/validation>
 Utils <api_reference/utils>

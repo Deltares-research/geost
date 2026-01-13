@@ -2,7 +2,8 @@ import numpy as np
 import pandas as pd
 import xarray as xr
 
-from geost.base import Collection, DiscreteData, LayeredData
+from geost.accessors.data import DiscreteData, LayeredData
+from geost.base import Collection
 from geost.models import VoxelModel
 from geost.models.model_utils import label_consecutive_2d
 
@@ -46,10 +47,10 @@ def add_voxelmodel_variable(
         :class:`~geost.base.LineData` (future developments).
 
     """
-    if variable in collection.data.df.columns:
-        collection.data.df.drop(columns=[variable], inplace=True)
+    if variable in collection.data.columns:
+        collection.data.drop(columns=[variable], inplace=True)
 
-    var_select = model.select_with_points(collection.header.gdf)[variable]
+    var_select = model.select_with_points(collection.header)[variable]
     nrs = collection.header["nr"].loc[var_select["idx"]]
 
     _, _, dz = model.resolution
@@ -58,16 +59,16 @@ def add_voxelmodel_variable(
     var_df.rename(columns={"values": variable}, inplace=True)
     var_df["nr"] = nrs.loc[var_df["nr"]].values
 
-    if isinstance(collection.data, LayeredData):
+    if {"top", "bottom"}.issubset(collection.data.columns):
         result = _add_to_layered(collection.data, var_df)
-    elif isinstance(collection.data, DiscreteData):
+    elif "depth" in collection.data.columns:
         result = _add_to_discrete(collection.data, var_df)
     else:
         raise NotImplementedError(
             "Other datatypes than LayeredData or DiscreteData not implemented yet."
         )
 
-    return result.to_collection()
+    return result.gstda.to_collection()
 
 
 def _reduce_to_top_bottom(da: xr.DataArray, dz: int | float) -> pd.DataFrame:
@@ -130,7 +131,7 @@ def _add_to_layered(data: LayeredData, variable: pd.DataFrame) -> LayeredData:
     variable["bottom"] = variable["surface"] - variable["bottom"]
 
     result = (
-        pd.concat([data.df, variable])
+        pd.concat([data, variable])
         .sort_values(by=["nr", "bottom", "top"])
         .reset_index(drop=True)
     )
@@ -139,7 +140,7 @@ def _add_to_layered(data: LayeredData, variable: pd.DataFrame) -> LayeredData:
     result.drop_duplicates(subset=["nr", "bottom"], inplace=True)
     result = _reset_tops(result)
     result.dropna(subset=["top"], inplace=True)
-    return LayeredData(result)
+    return result
 
 
 def _reset_tops(layered_df: pd.DataFrame) -> pd.DataFrame:
@@ -202,7 +203,7 @@ def _add_to_discrete(data: DiscreteData, variable: pd.DataFrame) -> DiscreteData
     variable["depth"] = variable["surface"] - variable["depth"]
 
     result = (
-        pd.concat([data.df, variable])
+        pd.concat([data, variable])
         .sort_values(by=["nr", "depth"])
         .reset_index(drop=True)
     )
@@ -210,4 +211,4 @@ def _add_to_discrete(data: DiscreteData, variable: pd.DataFrame) -> DiscreteData
     result = pd.concat([nr, result.groupby("nr").bfill()], axis=1)
     result.drop_duplicates(subset=["nr", "depth"], inplace=True)
     result.dropna(subset=["end"], inplace=True)
-    return DiscreteData(result)
+    return result

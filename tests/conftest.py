@@ -1,4 +1,4 @@
-from itertools import product
+import itertools
 from pathlib import Path
 
 import geopandas as gpd
@@ -9,7 +9,7 @@ import xarray as xr
 from shapely import geometry as gmt
 
 from geost import read_borehole_table, read_nlog_cores
-from geost.base import DiscreteData, LayeredData
+from geost.accessors.data import DiscreteData, LayeredData
 from geost.models.basemodels import VoxelModel
 
 
@@ -134,7 +134,7 @@ def borehole_collection(borehole_data):
     Fixture containing a BoreholeCollection instance of synthetic borehole data.
 
     """
-    borehole_collection = borehole_data.to_collection()
+    borehole_collection = borehole_data.gstda.to_collection(has_inclined=False)
     return borehole_collection
 
 
@@ -146,29 +146,29 @@ def nlog_borehole_collection(nlog_borehole_file):
 
 @pytest.fixture
 def borehole_data():
+    """
+    Fixture containing synthetic layered borehole data.
+
+    """
     a = borehole_a()
     b = borehole_b()
     c = borehole_c()
     d = borehole_d()
     e = borehole_e()
     df = pd.concat([a, b, c, d, e], ignore_index=True)
-    """
-    Fixture containing a LayeredData instance of synthetic borehole data.
-
-    """
-    return LayeredData(df)
+    return df
 
 
 # Fixtures for header testing
 @pytest.fixture
-def point_header_gdf():
+def point_header():
     """
-    Creates a synthetic header geodataframe for testing
+    Creates a synthetic point header geodataframe for testing.
     """
-    x_coors = [1.0, 2.0, 3.0, 4.0, 5.0]
-    y_coors = [1.0, 2.0, 3.0, 4.0, 5.0]
-    coordinates = np.array([(x, y) for x, y in product(x_coors, y_coors)])
-    nrs = ["nr" + str(i + 1) for i in range(len(coordinates))]
+    xcoords = [1.0, 2.0, 3.0, 4.0, 5.0]
+    ycoords = [1.0, 2.0, 3.0, 4.0, 5.0]
+    coordinates = np.array([(x, y) for x, y in itertools.product(xcoords, ycoords)])
+    nrs = [f"nr{i + 1}" for i in range(len(coordinates))]
     mvs = np.arange(1, 26)
     ends = np.arange(-1, -26, -1)
     geometries = [gmt.Point(c) for c in coordinates]
@@ -181,8 +181,8 @@ def point_header_gdf():
             "end": ends,
         },
         geometry=geometries,
+        crs=28992,
     )
-    gdf.set_crs("epsg:28992", inplace=True)
     return gdf
 
 
@@ -245,31 +245,71 @@ def cpt_data():
 
     """
     df = pd.concat([cpt_a(), cpt_b()], ignore_index=True)
-    return DiscreteData(df)
+    return df
 
 
 @pytest.fixture
 def cpt_collection(cpt_data):
-    return cpt_data.to_collection()
+    return cpt_data.gstda.to_collection()
 
 
 @pytest.fixture
 def xarray_dataset():
     x = np.arange(4) + 0.5
     y = x[::-1]
-    z = np.arange(-2, 0, 0.5) + 0.25
+    z = np.arange(-2.5, 0, 0.5) + 0.25
 
     strat = [
-        [[2, 2, 2, 1], [2, 2, 1, 1], [2, 1, 1, 1], [2, 2, 1, 1]],
-        [[2, 2, 1, 1], [2, 2, 1, 1], [2, 1, 1, 1], [2, 1, 2, 1]],
-        [[2, 2, 2, 1], [2, 1, 1, 1], [2, 2, 1, 1], [2, 2, 2, 1]],
-        [[2, 2, 2, 1], [2, 1, 1, 1], [2, 2, 1, 1], [2, 2, 2, 1]],
+        [
+            [2, 2, 2, 1, 1],
+            [2, 2, 1, 1, np.nan],
+            [2, 1, 1, 1, np.nan],
+            [2, 2, 1, 1, np.nan],
+        ],
+        [
+            [2, 2, 1, 1, 1],
+            [2, 2, 1, 1, 1],
+            [2, 1, 1, 1, np.nan],
+            [2, 1, 2, 1, np.nan],
+        ],
+        [
+            [2, 2, 2, 1, np.nan],
+            [2, 1, 1, 1, 1],
+            [2, 2, 1, 1, 1],
+            [np.nan, 2, 2, 1, np.nan],
+        ],
+        [
+            [2, 2, 2, 1, np.nan],
+            [2, 1, 1, 1, 1],
+            [2, 2, 1, 1, np.nan],
+            [2, 2, 2, 1, 1],
+        ],
     ]
     lith = [
-        [[2, 3, 2, 1], [2, 3, 1, 1], [2, 1, 1, 1], [3, 2, 1, 1]],
-        [[2, 2, 1, 1], [2, 2, 1, 1], [2, 1, 1, 1], [2, 3, 2, 1]],
-        [[2, 3, 2, 1], [2, 1, 1, 3], [2, 2, 1, 1], [2, 2, 2, 1]],
-        [[2, 2, 2, 1], [2, 1, 1, 1], [2, 2, 1, 3], [3, 2, 2, 1]],
+        [
+            [2, 3, 2, 1, 1],
+            [2, 3, 1, 1, np.nan],
+            [2, 1, 1, 1, np.nan],
+            [3, 2, 1, 1, np.nan],
+        ],
+        [
+            [2, 2, 1, 1, 1],
+            [2, 2, 1, 1, 1],
+            [2, 1, 1, 1, np.nan],
+            [2, 3, 2, 1, np.nan],
+        ],
+        [
+            [2, 3, 2, 1, np.nan],
+            [2, 1, 1, 3, 3],
+            [2, 2, 1, 1, 1],
+            [np.nan, 2, 2, 1, np.nan],
+        ],
+        [
+            [2, 2, 2, 1, np.nan],
+            [2, 1, 1, 1, 1],
+            [2, 2, 1, 3, np.nan],
+            [3, 2, 2, 1, 1],
+        ],
     ]
     ds = xr.Dataset(
         data_vars=dict(strat=(["y", "x", "z"], strat), lith=(["y", "x", "z"], lith)),
