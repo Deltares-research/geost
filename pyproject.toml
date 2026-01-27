@@ -29,10 +29,10 @@ classifiers = [
     "License :: OSI Approved :: GNU Lesser General Public License v3 (LGPLv3)",
     "Operating System :: OS Independent",
     "Programming Language :: Python",
-    "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
 ]
-requires-python = ">=3.12,<3.14"
+requires-python = ">=3.13,<3.15"
 dependencies = [
     "numpy",
     "pandas",
@@ -68,7 +68,7 @@ channels = ["conda-forge"]
 platforms = ["win-64", "linux-64", "osx-64", "osx-arm64"]
 
 [tool.pixi.dependencies]
-python = ">=3.12"
+python = ">=3.13"
 numpy = "*"
 pandas = "*"
 pyarrow = "*"
@@ -111,16 +111,16 @@ rm-build = "rm -r ./docs/build"
 rm-generated = "rm -r ./docs/api_reference/generated"
 rebuild-docs = { depends-on = ["rm-jupyter", "rm-build", "rm-generated", "docs"] }
 
-[tool.pixi.feature.py312.dependencies]
-python = "3.12.*"
-
 [tool.pixi.feature.py313.dependencies]
 python = "3.13.*"
 
+[tool.pixi.feature.py314.dependencies]
+python = "3.14.*"
+
 [tool.pixi.environments]
-default = { features = ["py313"], solve-group = "py313" }
-py312 = { features = ["py312"], solve-group = "py312" }
+default = { features = ["py314"], solve-group = "py314" }
 py313 = { features = ["py313"], solve-group = "py313" }
+py314 = { features = ["py314"], solve-group = "py314" }
 
 [tool.pytest.ini_options]
 testpaths = [
@@ -141,7 +141,7 @@ line-length = 88
 
 [tool.ruff]
 line-length = 88
-target-version = "py313"
+target-version = "py314"
 
 [tool.ruff.lint]
 select = ["F", "E", "W", "N", "I001", "NPY201"]

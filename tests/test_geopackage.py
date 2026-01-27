@@ -2,7 +2,7 @@ import sqlite3
 
 import pandas as pd
 import pytest
-from numpy.testing import assert_array_equal
+from numpy.testing import assert_array_equal, assert_equal
 
 from geost.io import Geopackage
 
@@ -20,7 +20,8 @@ class TestGeopackage:
         layers = gp.layers()
         assert isinstance(layers, pd.DataFrame)
         assert_array_equal(layers["name"], ["soilarea", "soilarea_soilunit"])
-        assert_array_equal(layers["geometry_type"], ["Polygon", None])
+        assert_equal(layers["geometry_type"][0], "Polygon")
+        assert_array_equal(layers["geometry_type"].isna(), [False, True])
 
     @pytest.mark.unittest
     def test_context_manager(self, simple_soilmap_gpkg):

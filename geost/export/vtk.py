@@ -144,9 +144,7 @@ def layerdata_to_pyvista_unstructured(
                 f"Variable '{var}' is unavailable in the layerdata. Skipping this variable."
             )
             continue
-        data = layerdata[var].values
-        grid.cell_data[var] = data.flatten(order="C")
-
+        grid.cell_data[var] = layerdata[var].values
     return grid
 
 
