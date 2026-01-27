@@ -366,4 +366,6 @@ class GeoTop(VoxelModel):
             GeoTop instance for the selected area.
 
         """
+        if "engine" not in xr_kwargs:
+            xr_kwargs["engine"] = "pydap"
         return cls.from_netcdf(url, data_vars, bbox, lazy, **xr_kwargs)

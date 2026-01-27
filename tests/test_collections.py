@@ -359,7 +359,8 @@ class TestCollection:
         assert outfile.is_file()
         layers = gpd.list_layers(outfile)
         assert_array_equal(layers["name"], ["header", "data"])
-        assert_array_equal(layers["geometry_type"], ["Point", None])
+        assert_equal(layers["geometry_type"][0], "Point")
+        assert_array_equal(layers["geometry_type"].isna(), [False, True])
 
     @pytest.mark.unittest
     def test_to_parquet(self, borehole_collection, tmp_path):
