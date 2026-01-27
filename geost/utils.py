@@ -7,6 +7,7 @@ import geopandas as gpd
 import pandas as pd
 from pyogrio.errors import FieldError
 from shapely import geometry as gmt
+from shapely import points
 
 type Geometry = gmt.base.BaseGeometry
 
@@ -207,8 +208,8 @@ def dataframe_to_geodataframe(
     IndexError
         If input dataframe does not have a valid column for 'x' or 'y'.
     """
-    points = [gmt.Point([x, y]) for x, y in zip(df[x_col_label], df[y_col_label])]
-    gdf = gpd.GeoDataFrame(df, geometry=points, crs=crs)
+    pts = points(df[x_col_label], df[y_col_label])
+    gdf = gpd.GeoDataFrame(df, geometry=pts, crs=crs)
     return gdf
 
 
