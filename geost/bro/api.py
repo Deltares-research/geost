@@ -14,6 +14,7 @@ class BroApi:
         "CPT": "/sr/cpt/v1",
         "BHR-P": "/sr/bhrp/v2",
         "BHR-GT": "/sr/bhrgt/v2",
+        "BHR-GT-samples": "/sr/bhrgt/v2",
         "BHR-G": "/sr/bhrg/v3",
         "SFR": "/sr/sfr/v2",
     }

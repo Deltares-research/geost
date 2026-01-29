@@ -4,12 +4,12 @@ BRO = {
     "payload_root": "dispatchDocument",
     "nr": {"xpath": "brocom:broId"},
     "location": {
-        "xpath": "deliveredLocation/bhrcommon:location/gml:pos",
+        "xpath": "standardizedLocation/brocom:location/gml:pos",
         "resolver": resolvers.parse_coordinates,
         "el-attr": "text",
     },
     "crs": {
-        "xpath": "deliveredLocation/bhrcommon:location",
+        "xpath": "standardizedLocation/brocom:location",
         "resolver": resolvers.parse_crs,
     },
     "surface": {

@@ -401,6 +401,7 @@ def read_bhrgt(
     files: str | Path | Iterable[str | Path],
     company: str | None = None,
     schema: dict[str, Any] = None,
+    horizontal_reference: str | int | CRS = 28992,
     read_all: bool = False,
 ) -> BoreholeCollection:
     """
@@ -425,6 +426,9 @@ def read_bhrgt(
         Schema to use for reading the data which describes the structure of the XML data.
         If not given and `company` is None, the predefined schema for BRO BHR-GT XML files
         is used.
+    horizontal_reference : str | int | CRS, optional
+        EPSG of the desired data's horizontal reference. Takes anything that can be interpreted
+        by pyproj.crs.CRS.from_user_input(). The default is 28992.
     read_all : bool, optional
         XML files may contain multiple borehole elements per XML file. If True, the function
         will attempt to read all available data. Otherwise, only the first borehole element
@@ -441,20 +445,104 @@ def read_bhrgt(
     https://geost.readthedocs.io/en/latest/examples/bhrgt.html
 
     """
-    header, data = xml.read(
-        files, xml.read_bhrgt, company=company, schema=schema, read_all=read_all
+    header, data, crs = xml.read(
+        files,
+        xml.read_bhrgt,
+        company=company,
+        schema=schema,
+        read_all=read_all,
     )
     header = gpd.GeoDataFrame(
-        header, geometry=gpd.points_from_xy(header.x, header.y), crs=28992
+        header,
+        geometry=gpd.points_from_xy(header.x, header.y),
+        crs=crs,
+    )
+    collection = BoreholeCollection(header, data)
+
+    if collection.horizontal_reference != CRS(horizontal_reference):
+        collection.change_horizontal_reference(horizontal_reference)
+
+    return collection
+
+
+def read_bhrgt_samples(
+    files: str | Path | Iterable[str | Path],
+    company: str | None = None,
+    schema: dict[str, Any] = None,
+    horizontal_reference: str | int | CRS = 28992,
+    read_all: bool = False,
+) -> BoreholeCollection:
+    """
+    Read sample data in a Geotechnical borehole (BHR-GT) XML file or files into a
+    `BoreholeCollection`. This reads the XML files according to a `schema` that describes
+    the structure of the of the XML data to find the relevant sample data. Geost provides
+    predefined schemas for the BHR-GT XML files that are used in the Netherlands from
+    the Dutch national BRO database. A predefined schema may also be present for a specific
+    company, which can be specified using the `company` parameter. Predefined schemas
+    from Geost can be used and extended or you can provide your own schema to extract
+    relevant attributes (see example link below).
+
+    Parameters
+    ----------
+    files : str | Path | Iterable[str  |  Path]
+        File or files to read.
+    company : str | None, optional
+        Company name to use a predefined schema for. See :mod:`geost.io.xml.schemas` for
+        available schemas. If None, the predefined schema for BRO BHR-GT XML files is used
+        by default to read the data. The default is None.
+    schema : dict[str, Any], optional
+        Schema to use for reading the data which describes the structure of the XML data.
+        If not given and `company` is None, the predefined schema for BRO BHR-GT XML files
+        is used.
+    horizontal_reference : str | int | CRS, optional
+        EPSG of the desired data's horizontal reference. Takes anything that can be interpreted
+        by pyproj.crs.CRS.from_user_input(). The default is 28992.
+    read_all : bool, optional
+        XML files may contain multiple borehole elements per XML file. If True, the function
+        will attempt to read all available data. Otherwise, only the first borehole element
+        is read. The default is False.
+
+    Returns
+    -------
+    :class:`~geost.base.BoreholeCollection`
+        BoreholeCollection containing the header and data attributes of the BHR-GT data.
+
+    Examples
+    --------
+    A full example of reading XML files can be found here:
+    https://geost.readthedocs.io/en/latest/examples/bhrgt.html
+
+    """
+    header, data, crs = xml.read(
+        files,
+        xml.read_bhrgt_samples,
+        company=company,
+        schema=schema,
+        read_all=read_all,
+    )
+    header = gpd.GeoDataFrame(
+        header,
+        geometry=gpd.points_from_xy(header.x, header.y),
+        crs=crs,
     )
 
-    return BoreholeCollection(header, data)
+    if "beginDepth" in data.columns or "endDepth" in data.columns:
+        data.rename(columns={"beginDepth": "top", "endDepth": "bottom"}, inplace=True)
+        data[["top", "bottom"]] = data[["top", "bottom"]].astype(float)
+
+    collection = BoreholeCollection(header, data)
+
+    if collection.horizontal_reference != CRS(horizontal_reference):
+        collection.change_horizontal_reference(horizontal_reference)
+
+    return collection
 
 
 def read_bhrp(
     files: str | Path | Iterable[str | Path],
     company: str | None = None,
     schema: dict[str, Any] = None,
+    horizontal_reference: str | int | CRS = 28992,
     read_all: bool = False,
 ) -> BoreholeCollection:
     """
@@ -479,6 +567,9 @@ def read_bhrp(
         Schema to use for reading the data which describes the structure of the XML data.
         If not given and `company` is None, the predefined schema for BRO BHR-P XML files
         is used.
+    horizontal_reference: str | int | CRS, optional
+        EPSG of the desired data's horizontal reference. Takes anything that can be interpreted
+        by pyproj.crs.CRS.from_user_input(). The default is 28992.
     read_all : bool, optional
         XML files may contain multiple borehole elements per XML file. If True, the function
         will attempt to read all available data. Otherwise, only the first borehole element
@@ -495,20 +586,32 @@ def read_bhrp(
     https://geost.readthedocs.io/en/latest/examples/bhrp.html
 
     """
-    header, data = xml.read(
-        files, xml.read_bhrp, company=company, schema=schema, read_all=read_all
+    header, data, crs = xml.read(
+        files,
+        xml.read_bhrp,
+        company=company,
+        schema=schema,
+        read_all=read_all,
     )
     header = gpd.GeoDataFrame(
-        header, geometry=gpd.points_from_xy(header.x, header.y), crs=28992
+        header,
+        geometry=gpd.points_from_xy(header.x, header.y),
+        crs=crs,
     )
 
-    return BoreholeCollection(header, data)
+    collection = BoreholeCollection(header, data)
+
+    if collection.horizontal_reference != CRS(horizontal_reference):
+        collection.change_horizontal_reference(horizontal_reference)
+
+    return collection
 
 
 def read_bhrg(
     files: str | Path | Iterable[str | Path],
     company: str | None = None,
     schema: dict[str, Any] = None,
+    horizontal_reference: str | int | CRS = 28992,
     read_all: bool = False,
 ) -> BoreholeCollection:
     """
@@ -534,6 +637,9 @@ def read_bhrg(
         Schema to use for reading the data which describes the structure of the XML data.
         If not given and `company` is None, the predefined schema for BRO BHR-G) XML file
         or files into a BoreholeCollection. This XML files is used.
+    horizontal_reference : str | int | CRS, optional
+        EPSG of the desired data's horizontal reference. Takes anything that can be interpreted
+        by pyproj.crs.CRS.from_user_input(). The default is 28992.
     read_all : bool, optional
         XML files may contain multiple borehole elements per XML file. If True, the function
         will attempt to read all available data. Otherwise, only the first borehole element
@@ -550,20 +656,26 @@ def read_bhrg(
     https://geost.readthedocs.io/en/latest/examples/bhrgt.html
 
     """
-    header, data = xml.read(
+    header, data, crs = xml.read(
         files, xml.read_bhrg, company=company, schema=schema, read_all=read_all
     )
     header = gpd.GeoDataFrame(
-        header, geometry=gpd.points_from_xy(header.x, header.y), crs=28992
+        header, geometry=gpd.points_from_xy(header.x, header.y), crs=crs
     )
 
-    return BoreholeCollection(header, data)
+    collection = BoreholeCollection(header, data)
+
+    if collection.horizontal_reference != CRS(horizontal_reference):
+        collection.change_horizontal_reference(horizontal_reference)
+
+    return collection
 
 
 def read_sfr(
     files: str | Path | Iterable[str | Path],
     company: str | None = None,
     schema: dict[str, Any] = None,
+    horizontal_reference: str | int | CRS = 28992,
     read_all: bool = False,
 ) -> BoreholeCollection:
     """
@@ -589,6 +701,9 @@ def read_sfr(
         Schema to use for reading the data which describes the structure of the XML data.
         If not given and `company` is None, the predefined schema for BRO SFR XML file or
         files into a BoreholeCollection. This XML files is used.
+    horizontal_reference : str | int | CRS, optional
+        EPSG of the desired data's horizontal reference. Takes anything that can be interpreted
+        by pyproj.crs.CRS.from_user_input(). The default is 28992.
     read_all : bool, optional
         XML files may contain multiple borehole elements per XML file. If True, the function
         will attempt to read all available data. Otherwise, only the first borehole element
@@ -605,14 +720,19 @@ def read_sfr(
     https://geost.readthedocs.io/en/latest/examples/bhrgt.html
 
     """
-    header, data = xml.read(
+    header, data, crs = xml.read(
         files, xml.read_sfr, company=company, schema=schema, read_all=read_all
     )
     header = gpd.GeoDataFrame(
-        header, geometry=gpd.points_from_xy(header.x, header.y), crs=28992
+        header, geometry=gpd.points_from_xy(header.x, header.y), crs=crs
     )
 
-    return BoreholeCollection(header, data)
+    collection = BoreholeCollection(header, data)
+
+    if collection.horizontal_reference != CRS(horizontal_reference):
+        collection.change_horizontal_reference(horizontal_reference)
+
+    return collection
 
 
 def read_gef_cpts(file_or_folder: str | Path) -> CptCollection:
@@ -639,6 +759,7 @@ def read_cpt(
     files: str | Path | Iterable[str | Path],
     company: str | None = None,
     schema: dict[str, Any] = None,
+    horizontal_reference: str | int | CRS = 28992,
     read_all: bool = False,
 ) -> CptCollection:
     """
@@ -664,6 +785,9 @@ def read_cpt(
         Schema to use for reading the data which describes the structure of the XML data.
         If not given and `company` is None, the predefined schema for BRO CPT XML file or
         files into a CptCollection. This XML files is used.
+    horizontal_reference: str | int | CRS, optional
+        EPSG of the desired data's horizontal reference. Takes anything that can be interpreted
+        by pyproj.crs.CRS.from_user_input(). The default is 28992.
     read_all : bool, optional
         XML files may contain multiple CPT elements per XML file. If True, the function
         will attempt to read all available data. Otherwise, only the first CPT element
@@ -680,16 +804,21 @@ def read_cpt(
     https://geost.readthedocs.io/en/latest/examples/bhrgt.html
 
     """
-    header, data = xml.read(
+    header, data, crs = xml.read(
         files, xml.read_cpt, company=company, schema=schema, read_all=read_all
     )
     header = gpd.GeoDataFrame(
-        header, geometry=gpd.points_from_xy(header.x, header.y), crs=28992
+        header, geometry=gpd.points_from_xy(header.x, header.y), crs=crs
     )
 
     data.fillna({"depth": data["penetrationlength"]}, inplace=True)
 
-    return CptCollection(header, data)
+    collection = CptCollection(header, data)
+
+    if collection.horizontal_reference != CRS(horizontal_reference):
+        collection.change_horizontal_reference(horizontal_reference)
+
+    return collection
 
 
 def read_uullg_tables(
@@ -869,6 +998,7 @@ def bro_api_read(
     object_type: BroObject,
     *,
     bro_ids: str | list[str] = None,
+    crs_epsg: int = 28992,
     bbox: tuple[float, float, float, float] = None,
     geometry: gpd.GeoDataFrame = None,
     buffer: int | float = None,
@@ -884,11 +1014,17 @@ def bro_api_read(
     Parameters
     ----------
     object_type : BroObject
-        Type of BRO object to read. This can be one of the following: "BHR-GT", "BHR-P",
-        "BHR-G", "CPT", "SFR".
+        Type of BRO object to read. This can be one of the following: "BHR-GT", "BHR-GT-samples",
+        "BHR-P", "BHR-G", "CPT", "SFR".
     bro_ids : str | list[str], optional (keyword only)
         List of BRO object ids to read. If not given, the bbox or geometry must be
         provided to select the objects to read. If given, bbox and geometry are ignored.
+    crs_epsg : int, optional (keyword only)
+        EPSG code of the coordinate reference system that the collection will be coerced to.
+        If using a bbox for selection, this EPSG code is also used to interpret the bbox coordinates.
+        Note that when using a geometry for selection, the geometry's CRS is used instead unless
+        the geometry has no CRS defined. In that case, this EPSG code is also used.
+        The default is 28992 (RD New).
     bbox : tuple[float, float, float, float], optional
         Bounding box (xmin, ymin, xmax, ymax) to search BRO objects within. The default is
         None.
@@ -925,7 +1061,7 @@ def bro_api_read(
     Or read geological boreholes (BHR-G) within a bounding box:
     >>> import geost
     ... bbox = (126_800, 448_000, 127_800, 449_000)  # xmin, ymin, xmax, ymax
-    ... bhrg = geost.bro_api_read("BHR-G", bbox=bbox)
+    ... bhrg = geost.bro_api_read("BHR-G", bbox=bbox, crs_epsg=28992)
     BoreholeCollection:
     # header = 3
 
@@ -950,6 +1086,7 @@ def bro_api_read(
     """
     readers = {
         "BHR-GT": read_bhrgt,
+        "BHR-GT-samples": read_bhrgt_samples,
         "BHR-P": read_bhrp,
         "BHR-G": read_bhrg,
         "CPT": read_cpt,
@@ -961,17 +1098,20 @@ def bro_api_read(
 
     api = BroApi()
 
-    if bro_ids is not None:
+    if bro_ids:
         bro_data = api.get_objects(bro_ids, object_type=object_type)
     else:
-        if bbox is not None:
+        if bbox:
             xmin, ymin, xmax, ymax = bbox
-        elif geometry is not None:
+        elif geometry:
             geometry = utils.check_geometry_instance(geometry)
-            if buffer is not None:
+            crs_epsg = geometry.crs.to_epsg() or crs_epsg
+            if buffer:
                 geometry = geometry.buffer(buffer)
             xmin, ymin, xmax, ymax = geometry.total_bounds
-        api.search_objects_in_bbox(xmin, ymin, xmax, ymax, object_type=object_type)
+        api.search_objects_in_bbox(
+            xmin, ymin, xmax, ymax, epsg=crs_epsg, object_type=object_type
+        )
         bro_data = api.get_objects(api.object_list, object_type=object_type)
 
     if bro_data:

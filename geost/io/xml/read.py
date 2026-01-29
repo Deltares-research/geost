@@ -14,6 +14,7 @@ from typing import Any, Callable, Iterable
 
 import pandas as pd
 from lxml import etree
+from pyproj import CRS
 
 from . import schemas
 
@@ -26,7 +27,7 @@ def read(
     files: str | Path | io.StringIO | Iterable[str | Path],
     reader: Callable,
     **kwargs: dict[str, Any],
-) -> tuple[pd.DataFrame, pd.DataFrame]:
+) -> tuple[pd.DataFrame, pd.DataFrame, CRS]:
     """
     Read one or multiple XML files or string objects and create `geost` compatible separate
     `header` and `data` DataFrames.
@@ -42,8 +43,9 @@ def read(
 
     Returns
     -------
-    tuple of pandas.DataFrame
-        Tuple containing the header DataFrame and the data DataFrame.
+    tuple of pandas.DataFrame and CRS
+        Tuple containing the header DataFrame, the data DataFrame, and the coordinate
+        reference system as pyproj.CRS object.
 
     """
     if isinstance(files, (str, Path, io.StringIO)):
@@ -55,7 +57,12 @@ def read(
 
     for file in files:
         xml_data = reader(file, **kwargs)
-        xml_data["x"], xml_data["y"] = xml_data.pop("location")
+        crs = CRS(xml_data.pop("crs"))
+        if crs.axis_info[0].direction in ("east", "west"):
+            xml_data["x"], xml_data["y"] = xml_data.pop("location")
+        else:
+            xml_data["y"], xml_data["x"] = xml_data.pop("location")
+
         df = pd.DataFrame(xml_data.pop("data"))
 
         header.append(xml_data)
@@ -77,7 +84,7 @@ def read(
         )
         data[["top", "bottom"]] = data[["top", "bottom"]].astype(float)
 
-    return header, data
+    return header, data, CRS(crs)
 
 
 def _read_xml(
@@ -218,6 +225,95 @@ def read_bhrgt(
             raise ValueError(
                 f"No predefined schema for '{company}' in BHR-GT. Supported companies are: "
                 f"{schemas.bhrgt.keys()}. Define a custom schema or use a supported company."
+            ) from e
+
+    try:
+        result = _read_xml(file, schema, schema.get("payload_root", None), read_all)
+    except SyntaxError as e:
+        raise SyntaxError(f"Invalid xml schema for XML file: {file}.") from e
+
+    return result
+
+
+def read_bhrgt_samples(
+    file: bytes | str | Path,
+    company: str = None,
+    schema: dict[str, Any] = None,
+    read_all: bool = False,
+) -> dict | list[dict]:
+    """
+    Read Geotechnical borehole grain sample data (BHR-GT) from an XML file or bytestring and extract
+    relevant data based on a predefined or custom schema that describes the XML structure.
+
+    Parameters
+    ----------
+    file : bytes | str | Path
+        XML filepath-like or bytestring containing the XML data to read.
+    company : str, optional
+        Specify a company name to use a predefined schema for that company if available.
+        See `bhrgt_samples.SCHEMA` for available companies. The default is None, then company will
+        default to "BRO" and the predefined BRO schema will be used if no custom schema
+        is defined.
+    schema : dict[str, Any], optional
+        Custom schema used to parse the XML structure.
+    read_all : bool, optional
+        Generally, each XML file contains data for a single borehole but in some cases
+        multiple boreholes can be present in the XML file. If set to True, all boreholes
+        will be read from the XML file. The default is False, which reads only the first.
+        A warning will be raised if multiple boreholes are found in the XML file and
+        read_all is False.
+
+    Returns
+    -------
+    dict | list[dict]
+        Dict or list of dictionaries containing the extracted data from the XML file. If
+        the XML file contains data for a single borehole, a dictionary will be returned.
+        If multiple boreholes are found and `read_all` is True, a list of dictionaries
+        will be returned.
+
+    Raises
+    ------
+    ValueError
+        Will raise a ValueError if no custom `schema` is defined and no predefined schema
+        is available for the company.
+    SyntaxError
+        Raises a SyntaxError if the XML file does not conform to the expected schema. For
+        example, with incorrect namespaces in the schema.
+
+    Examples
+    --------
+    Read a BHR-GT XML for a specific company:
+    >>> data = read_bhrgt_samples("bhrgt_file.xml", company="Wiertsema") # Read for specific company
+
+    Read a BHR-GT XML using a custom schema:
+    >>> custom_schema = {
+    ...     "payload_root": "dispatchDocument",
+    ...     "bro_id": {"xpath": "brocom:broId"},
+    ...     "date": {"xpath": "reportHistory/reportStartDate/brocom:date"}
+    ...     "coordinates": {
+    ...         "xpath": "./deliveredLocation/bhrgtcom:location/gml:Point/gml:pos",
+    ...         "resolver": resolvers.parse_coordinates, # Add a custom function to parse coordinates
+    ...         "el-attr": "text"  # Use the text attribute of the element
+    ...     }
+    ... }
+    >>> data = read_bhrgt_samples("bhrgt_file.xml", schema=custom_schema)  # Use custom schema
+
+    Read a BHR-GT XML directly via a BRO API response:
+    >>> from geost.bro import BroApi
+    >>> api = BroApi()
+    >>> response = api.get_objects("BHR000000449853", "BHR-GT") # Returns a list of XML strings
+    >>> data = read_bhrgt_samples(response[0])
+
+    """
+    company = company or "BRO"
+
+    if schema is None:
+        try:
+            schema = schemas.bhrgt_samples[company]
+        except KeyError as e:
+            raise ValueError(
+                f"No predefined schema for '{company}' in BHR-GT-samples. Supported companies are: "
+                f"{schemas.bhrgt_samples.keys()}. Define a custom schema or use a supported company."
             ) from e
 
     try:

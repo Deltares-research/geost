@@ -165,6 +165,55 @@ def process_bhrgt_data(el: etree.Element, attributes: list | None) -> dict:
     return _process_layers(layers, attributes)
 
 
+def process_bhrgt_grain_data(el: etree.Element, attributes: list | None) -> dict:
+    """
+    Process an XML element containing the investigated interval (grainsize samples)
+    descriptions in BHR-GT data objects.
+
+    Parameters
+    ----------
+    el : etree.Element
+        Element containing the grainsize sample descriptions.
+    attributes : list[str] | None
+        List with string names of the attributes to retrieve from each layer. If the input
+        is None, it will be attempted to at least retrieve "beginDepth", "endDepth"
+        and "geotechnicalSoilName" from each layer.
+
+    Returns
+    -------
+    dict
+        Dictionary with the searched layer attributes as keys and lists of each value per
+        layer.
+
+    """
+    if attributes is None:
+        attributes = [
+            "beginDepth",
+            "endDepth",
+            "fractionSmaller63um",
+            "fractionLarger63um",
+            "fraction63to90um",
+            "fraction90to125um",
+            "fraction125to180um",
+            "fraction180to250um",
+            "fraction250to355um",
+            "fraction355to500um",
+            "fraction500to710um",
+            "fraction710to1000um",
+            "fraction1000to1400um",
+            "fraction1400umto2mm",
+            "fraction2to4mm",
+            "fraction4to8mm",
+            "fraction16to31_5mm",
+            "fraction31_5to63mm",
+            "fractionLarger63mm",
+        ]
+
+    layers = el.xpath(".//*[local-name() = 'investigatedInterval']")
+
+    return _process_layers(layers, attributes)
+
+
 def process_bhrg_data(el: etree.Element, attributes: list | None) -> dict:
     """
     Process an XML element containing the layer descriptions in BHR-G data objects.
