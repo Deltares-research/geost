@@ -19,7 +19,7 @@ def test_get_vertical_transformer():
 
 @pytest.mark.unittest
 def test_projected_to_geographic():
-    t = projections.horizontal_reference_transformer(28992, 4326)
+    t = projections.horizontal_reference_transformer(28992, 4326, always_xy=True)
     x, y = 140_000, 440_000
     lon, lat = t.transform(x, y)
     assert_almost_equal(lon, 5.169024734261481)
@@ -28,7 +28,7 @@ def test_projected_to_geographic():
 
 @pytest.mark.unittest
 def test_geographic_to_projected():
-    t = projections.horizontal_reference_transformer(4326, 28992)
+    t = projections.horizontal_reference_transformer(4326, 28992, always_xy=True)
     lon, lat = 5.1, 51.9
     x, y = t.transform(lon, lat)
     assert_almost_equal(x, 135233.28064173012)

@@ -305,7 +305,16 @@ class TestReadCollectionGeopackage:
         ),
         (
             "BHR-GT",
-            {"geometry": gmt.Point(132781.327, 448031.1), "buffer": 2},
+            {
+                "geometry": gpd.GeoDataFrame(
+                    [None],
+                    geometry=[
+                        gmt.Point(641589.8677899896, 5765293.564203509),
+                    ],
+                    crs=32631,
+                ),
+                "buffer": 2,
+            },
             ["BHR000000336600"],
         ),
         (
@@ -325,7 +334,16 @@ class TestReadCollectionGeopackage:
         ),
         (
             "BHR-P",
-            {"geometry": gmt.Point(129491, 452255), "buffer": 2},
+            {
+                "geometry": gpd.GeoDataFrame(
+                    [None],
+                    geometry=[
+                        gmt.Point(638162.819314087, 5769406.789567029),
+                    ],
+                    crs=32631,
+                ),
+                "buffer": 2,
+            },
             ["BHR000000108193"],
         ),
         (
@@ -345,7 +363,16 @@ class TestReadCollectionGeopackage:
         ),
         (
             "BHR-G",
-            {"geometry": gmt.Point(126149, 452162), "buffer": 2},
+            {
+                "geometry": gpd.GeoDataFrame(
+                    [None],
+                    geometry=[
+                        gmt.Point(634825.970503354, 5769204.047473239),
+                    ],
+                    crs=32631,
+                ),
+                "buffer": 2,
+            },
             ["BHR000000396406"],
         ),
         (
@@ -365,7 +392,16 @@ class TestReadCollectionGeopackage:
         ),
         (
             "CPT",
-            {"geometry": gmt.Point(132782.52, 448030.34), "buffer": 2},
+            {
+                "geometry": gpd.GeoDataFrame(
+                    [None],
+                    geometry=[
+                        gmt.Point(641591.0850222938, 5765292.843843447),
+                    ],
+                    crs=32631,
+                ),
+                "buffer": 2,
+            },
             ["CPT000000155283"],
         ),
         (
@@ -385,7 +421,16 @@ class TestReadCollectionGeopackage:
         ),
         (
             "SFR",
-            {"geometry": gmt.Point(132250, 451075), "buffer": 2},
+            {
+                "geometry": gpd.GeoDataFrame(
+                    [None],
+                    geometry=[
+                        gmt.Point(640958.8869981834, 5768318.157526063),
+                    ],
+                    crs=32631,
+                ),
+                "buffer": 2,
+            },
             ["SFR000000000687"],
         ),
     ],

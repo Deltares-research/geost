@@ -445,24 +445,21 @@ def read_bhrgt(
     https://geost.readthedocs.io/en/latest/examples/bhrgt.html
 
     """
-    header, data, crs = xml.read(
+    header, data = xml.read(
         files,
         xml.read_bhrgt,
         company=company,
         schema=schema,
         read_all=read_all,
+        coerce_crs=horizontal_reference,
     )
     header = gpd.GeoDataFrame(
         header,
         geometry=gpd.points_from_xy(header.x, header.y),
-        crs=crs,
+        crs=horizontal_reference,
     )
-    collection = BoreholeCollection(header, data)
 
-    if collection.horizontal_reference != CRS(horizontal_reference):
-        collection.change_horizontal_reference(horizontal_reference)
-
-    return collection
+    return BoreholeCollection(header, data)
 
 
 def read_bhrgt_samples(
@@ -513,29 +510,25 @@ def read_bhrgt_samples(
     https://geost.readthedocs.io/en/latest/examples/bhrgt.html
 
     """
-    header, data, crs = xml.read(
+    header, data = xml.read(
         files,
         xml.read_bhrgt_samples,
         company=company,
         schema=schema,
         read_all=read_all,
+        coerce_crs=horizontal_reference,
     )
     header = gpd.GeoDataFrame(
         header,
         geometry=gpd.points_from_xy(header.x, header.y),
-        crs=crs,
+        crs=horizontal_reference,
     )
 
     if "beginDepth" in data.columns or "endDepth" in data.columns:
         data.rename(columns={"beginDepth": "top", "endDepth": "bottom"}, inplace=True)
         data[["top", "bottom"]] = data[["top", "bottom"]].astype(float)
 
-    collection = BoreholeCollection(header, data)
-
-    if collection.horizontal_reference != CRS(horizontal_reference):
-        collection.change_horizontal_reference(horizontal_reference)
-
-    return collection
+    return BoreholeCollection(header, data)
 
 
 def read_bhrp(
@@ -586,25 +579,21 @@ def read_bhrp(
     https://geost.readthedocs.io/en/latest/examples/bhrp.html
 
     """
-    header, data, crs = xml.read(
+    header, data = xml.read(
         files,
         xml.read_bhrp,
         company=company,
         schema=schema,
         read_all=read_all,
+        coerce_crs=horizontal_reference,
     )
     header = gpd.GeoDataFrame(
         header,
         geometry=gpd.points_from_xy(header.x, header.y),
-        crs=crs,
+        crs=horizontal_reference,
     )
 
-    collection = BoreholeCollection(header, data)
-
-    if collection.horizontal_reference != CRS(horizontal_reference):
-        collection.change_horizontal_reference(horizontal_reference)
-
-    return collection
+    return BoreholeCollection(header, data)
 
 
 def read_bhrg(
@@ -656,19 +645,21 @@ def read_bhrg(
     https://geost.readthedocs.io/en/latest/examples/bhrgt.html
 
     """
-    header, data, crs = xml.read(
-        files, xml.read_bhrg, company=company, schema=schema, read_all=read_all
+    header, data = xml.read(
+        files,
+        xml.read_bhrg,
+        company=company,
+        schema=schema,
+        read_all=read_all,
+        coerce_crs=horizontal_reference,
     )
     header = gpd.GeoDataFrame(
-        header, geometry=gpd.points_from_xy(header.x, header.y), crs=crs
+        header,
+        geometry=gpd.points_from_xy(header.x, header.y),
+        crs=horizontal_reference,
     )
 
-    collection = BoreholeCollection(header, data)
-
-    if collection.horizontal_reference != CRS(horizontal_reference):
-        collection.change_horizontal_reference(horizontal_reference)
-
-    return collection
+    return BoreholeCollection(header, data)
 
 
 def read_sfr(
@@ -720,19 +711,21 @@ def read_sfr(
     https://geost.readthedocs.io/en/latest/examples/bhrgt.html
 
     """
-    header, data, crs = xml.read(
-        files, xml.read_sfr, company=company, schema=schema, read_all=read_all
+    header, data = xml.read(
+        files,
+        xml.read_sfr,
+        company=company,
+        schema=schema,
+        read_all=read_all,
+        coerce_crs=horizontal_reference,
     )
     header = gpd.GeoDataFrame(
-        header, geometry=gpd.points_from_xy(header.x, header.y), crs=crs
+        header,
+        geometry=gpd.points_from_xy(header.x, header.y),
+        crs=horizontal_reference,
     )
 
-    collection = BoreholeCollection(header, data)
-
-    if collection.horizontal_reference != CRS(horizontal_reference):
-        collection.change_horizontal_reference(horizontal_reference)
-
-    return collection
+    return BoreholeCollection(header, data)
 
 
 def read_gef_cpts(file_or_folder: str | Path) -> CptCollection:
@@ -804,21 +797,23 @@ def read_cpt(
     https://geost.readthedocs.io/en/latest/examples/bhrgt.html
 
     """
-    header, data, crs = xml.read(
-        files, xml.read_cpt, company=company, schema=schema, read_all=read_all
+    header, data = xml.read(
+        files,
+        xml.read_cpt,
+        company=company,
+        schema=schema,
+        read_all=read_all,
+        coerce_crs=horizontal_reference,
     )
     header = gpd.GeoDataFrame(
-        header, geometry=gpd.points_from_xy(header.x, header.y), crs=crs
+        header,
+        geometry=gpd.points_from_xy(header.x, header.y),
+        crs=horizontal_reference,
     )
 
     data.fillna({"depth": data["penetrationlength"]}, inplace=True)
 
-    collection = CptCollection(header, data)
-
-    if collection.horizontal_reference != CRS(horizontal_reference):
-        collection.change_horizontal_reference(horizontal_reference)
-
-    return collection
+    return CptCollection(header, data)
 
 
 def read_uullg_tables(
@@ -998,7 +993,7 @@ def bro_api_read(
     object_type: BroObject,
     *,
     bro_ids: str | list[str] = None,
-    crs_epsg: int = 28992,
+    epsg: int = 28992,
     bbox: tuple[float, float, float, float] = None,
     geometry: gpd.GeoDataFrame = None,
     buffer: int | float = None,
@@ -1019,7 +1014,7 @@ def bro_api_read(
     bro_ids : str | list[str], optional (keyword only)
         List of BRO object ids to read. If not given, the bbox or geometry must be
         provided to select the objects to read. If given, bbox and geometry are ignored.
-    crs_epsg : int, optional (keyword only)
+    epsg : int, optional (keyword only)
         EPSG code of the coordinate reference system that the collection will be coerced to.
         If using a bbox for selection, this EPSG code is also used to interpret the bbox coordinates.
         Note that when using a geometry for selection, the geometry's CRS is used instead unless
@@ -1103,14 +1098,14 @@ def bro_api_read(
     else:
         if bbox:
             xmin, ymin, xmax, ymax = bbox
-        elif geometry:
+        elif geometry is not None:
             geometry = utils.check_geometry_instance(geometry)
-            crs_epsg = geometry.crs.to_epsg() or crs_epsg
+            epsg = CRS.from_user_input(geometry.crs or epsg)
             if buffer:
                 geometry = geometry.buffer(buffer)
             xmin, ymin, xmax, ymax = geometry.total_bounds
         api.search_objects_in_bbox(
-            xmin, ymin, xmax, ymax, epsg=crs_epsg, object_type=object_type
+            xmin, ymin, xmax, ymax, epsg=epsg, object_type=object_type
         )
         bro_data = api.get_objects(api.object_list, object_type=object_type)
 

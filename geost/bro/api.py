@@ -161,7 +161,7 @@ class BroApi:
         epsg: str = "28992",
         object_type: str = "CPT",
     ):
-        transformer = horizontal_reference_transformer(epsg, 4326)
+        transformer = horizontal_reference_transformer(epsg, 4326, always_xy=True)
         xmin, ymin = transformer.transform(xmin, ymin)
         xmax, ymax = transformer.transform(xmax, ymax)
         criteria = get_bbox_criteria(xmin, ymin, xmax, ymax)

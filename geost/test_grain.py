@@ -137,7 +137,9 @@ if __name__ == "__main__":
     #     index=False,
     # )
 
-    # bhrp_cores = geost.bro_api_read("BHR-P", bbox=(141_000, 455_200, 142_500, 456_000), crs_epsg=28992)
+    bhrp_cores = geost.bro_api_read(
+        "BHR-P", bbox=(141_000, 455_200, 142_500, 456_000), crs_epsg=28992
+    )
     borehole_descriptions = geost.bro_api_read(
         "BHR-GT", bbox=(114_000, 607_200, 122_500, 613_000), crs_epsg=28992
     )

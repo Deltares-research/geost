@@ -115,8 +115,8 @@ class TestBhrgt:
 
         assert isinstance(data, dict)
         assert data["nr"] == "BHR000000336600"
-        assert data["location"] == (132781.327, 448031.1)
-        assert data["crs"] == "urn:ogc:def:crs:EPSG::28992"
+        assert data["location"] == (52.02018699, 5.06350853)
+        assert data["crs"] == "urn:ogc:def:crs:EPSG::4258"
         assert data["surface"] == 0.09
         assert data["vertical_datum"] == "NAP"
         assert data["groundwater_level"] == 1.6
@@ -207,8 +207,8 @@ class TestBhrg:
 
         assert isinstance(data, dict)
         assert data["nr"] == "BHR000000396406"
-        assert data["location"] == (126149.0, 452162.0)
-        assert data["crs"] == "urn:ogc:def:crs:EPSG::28992"
+        assert data["location"] == (52.057009967, 4.966538731)
+        assert data["crs"] == "urn:ogc:def:crs:EPSG::4258"
         assert data["surface"] == 0.69
         assert data["vertical_datum"] == "NAP"
         assert data["end"] == 3.0
@@ -247,8 +247,8 @@ class TestCpt:
 
         assert isinstance(data, dict)
         assert data["nr"] == "CPT000000155283"
-        assert data["location"] == (132782.52, 448030.34)
-        assert data["crs"] == "urn:ogc:def:crs:EPSG::28992"
+        assert data["location"] == (52.0201802, 5.06352596)
+        assert data["crs"] == "urn:ogc:def:crs:EPSG::4258"
         assert data["surface"] == 0.09
         assert data["vertical_datum"] == "NAP"
         assert data["predrilled_depth"] == 0.5
@@ -309,8 +309,8 @@ class TestBhrp:
 
         assert isinstance(data, dict)
         assert data["nr"] == "BHR000000108193"
-        assert data["location"] == (129491.0, 452255.0)
-        assert data["crs"] == "urn:ogc:def:crs:EPSG::28992"
+        assert data["location"] == (52.05800968, 5.01525895)
+        assert data["crs"] == "urn:ogc:def:crs:EPSG::4258"
         assert data["surface"] == 0.21
         assert data["vertical_datum"] == "NAP"
         assert data["begin_depth"] == 0.0
@@ -353,8 +353,8 @@ class TestSfr:
 
         assert isinstance(data, dict)
         assert data["nr"] == "SFR000000000687"
-        assert data["location"] == (132250.0, 451075.0)
-        assert data["crs"] == "urn:ogc:def:crs:EPSG::28992"
+        assert data["location"] == (52.04752396, 5.05556552)
+        assert data["crs"] == "urn:ogc:def:crs:EPSG::4258"
         assert data["surface"] == 0.87
         assert data["vertical_datum"] == "NAP"
         assert data["landuse"] == "grasland"

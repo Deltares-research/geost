@@ -16,6 +16,8 @@ import pandas as pd
 from lxml import etree
 from pyproj import CRS
 
+from geost.projections import horizontal_reference_transformer
+
 from . import schemas
 
 _BaseParser = etree.XMLParser(
@@ -26,6 +28,7 @@ _BaseParser = etree.XMLParser(
 def read(
     files: str | Path | io.StringIO | Iterable[str | Path],
     reader: Callable,
+    coerce_crs: str | int | CRS = None,
     **kwargs: dict[str, Any],
 ) -> tuple[pd.DataFrame, pd.DataFrame, CRS]:
     """
@@ -54,15 +57,12 @@ def read(
     header = []
     data = []
     lengths = []
+    crss = []
 
     for file in files:
         xml_data = reader(file, **kwargs)
-        crs = CRS(xml_data.pop("crs"))
-        if crs.axis_info[0].direction in ("east", "west"):
-            xml_data["x"], xml_data["y"] = xml_data.pop("location")
-        else:
-            xml_data["y"], xml_data["x"] = xml_data.pop("location")
-
+        crss.append(xml_data.pop("crs"))
+        xml_data["x"], xml_data["y"] = xml_data.pop("location")
         df = pd.DataFrame(xml_data.pop("data"))
 
         header.append(xml_data)
@@ -72,6 +72,16 @@ def read(
     header = pd.DataFrame(header)
     header["end"] = header["surface"] - header["end"]
     data = pd.concat(data, ignore_index=True)
+
+    # Coerce CRS in the header if required
+    if coerce_crs is not None:
+        # Sanity check: should be all the same when using standardizedLocation instead of deliveredLocation
+        if not all(crs == crss[0] for crs in crss):
+            raise ValueError(
+                f"CRS mismatch in XML files. Found multiple CRS: {set(crss)}. "
+            )
+        transformer = horizontal_reference_transformer(crss[0], coerce_crs)
+        header["x"], header["y"] = transformer.transform(header["x"], header["y"])
 
     # Add relevant header attributes to the data DataFrame
     attributes_for_data = ["nr", "x", "y", "surface", "end"]
@@ -84,7 +94,7 @@ def read(
         )
         data[["top", "bottom"]] = data[["top", "bottom"]].astype(float)
 
-    return header, data, CRS(crs)
+    return header, data
 
 
 def _read_xml(
