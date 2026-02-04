@@ -1053,15 +1053,17 @@ def bro_api_read(
     BoreholeCollection:
     # header = 2
 
-    Or read geological boreholes (BHR-G) within a bounding box:
+    Or read geological boreholes (BHR-G) within a bounding box. Note the epsg parameter
+    is used to interpret the bbox coordinates (by default it is 28992 - RD New):
     >>> import geost
     ... bbox = (126_800, 448_000, 127_800, 449_000)  # xmin, ymin, xmax, ymax
-    ... bhrg = geost.bro_api_read("BHR-G", bbox=bbox, crs_epsg=28992)
+    ... bhrg = geost.bro_api_read("BHR-G", bbox=bbox, epsg=28992)
     BoreholeCollection:
     # header = 3
 
     Or within shapefile containing a Polygon geometry of the same bounding box of the
-    previous example (Point or Line geometries are also supported):
+    previous example (Point or Line geometries are also supported). Note that the epsg
+    of the geometry is used if it has a defined CRS, otherwise the epsg parameter must be used:
     >>> import geost
     ... bhrg = geost.bro_api_read("BHR-G", geometry="my_polygon.shp")
     BoreholeCollection:
@@ -1101,6 +1103,13 @@ def bro_api_read(
         elif geometry is not None:
             geometry = utils.check_geometry_instance(geometry)
             epsg = CRS.from_user_input(geometry.crs or epsg)
+            if geometry.crs is None:
+                warnings.warn(
+                    f"Geometry for retrieving '{object_type}' objects has no CRS defined. "
+                    f"Using the provided epsg parameter ({epsg.to_string()}) to interpret "
+                    "the geometry CRS. CHECK IF THIS IS CORRECT!",
+                    category=UserWarning,
+                )
             if buffer:
                 geometry = geometry.buffer(buffer)
             xmin, ymin, xmax, ymax = geometry.total_bounds

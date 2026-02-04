@@ -286,22 +286,25 @@ class TestReadCollectionGeopackage:
 
 
 @pytest.mark.parametrize(
-    "object_type, options, expected_bro_ids",
+    "object_type, options, expected_bro_ids, expected_warning",
     [
         (
             "BHR-GT",
             {"bro_ids": ["BHR000000339682", "BHR000000339733"]},
             ["BHR000000339682", "BHR000000339733"],
+            None,
         ),
         (
             "BHR-GT",
             {"bbox": (132780.327, 448030.0, 132782.327, 448032.1)},
             ["BHR000000336600"],
+            None,
         ),
         (
             "BHR-GT",
             {"geometry": gmt.box(132780.327, 448030.0, 132782.327, 448032.1)},
             ["BHR000000336600"],
+            UserWarning,
         ),
         (
             "BHR-GT",
@@ -316,21 +319,41 @@ class TestReadCollectionGeopackage:
                 "buffer": 2,
             },
             ["BHR000000336600"],
+            None,
+        ),
+        (
+            "BHR-GT",
+            {
+                "geometry": gpd.GeoDataFrame(
+                    [None],
+                    geometry=[
+                        gmt.Point(641589.8677899896, 5765293.564203509),
+                    ],
+                    crs=None,
+                ),
+                "buffer": 2,
+                "epsg": 32631,
+            },
+            ["BHR000000336600"],
+            UserWarning,
         ),
         (
             "BHR-P",
             {"bro_ids": "BHR000000108193"},
             ["BHR000000108193"],
+            None,
         ),
         (
             "BHR-P",
             {"bbox": (129490, 452254, 129492, 452256)},
             ["BHR000000108193"],
+            None,
         ),
         (
             "BHR-P",
             {"geometry": gmt.box(129490, 452254, 129492, 452256)},
             ["BHR000000108193"],
+            UserWarning,
         ),
         (
             "BHR-P",
@@ -345,21 +368,25 @@ class TestReadCollectionGeopackage:
                 "buffer": 2,
             },
             ["BHR000000108193"],
+            None,
         ),
         (
             "BHR-G",
             {"bro_ids": "BHR000000396406"},
             ["BHR000000396406"],
+            None,
         ),
         (
             "BHR-G",
             {"bbox": (126148, 452161, 126150, 452163)},
             ["BHR000000396406"],
+            None,
         ),
         (
             "BHR-G",
             {"geometry": gmt.box(126148, 452161, 126150, 452163)},
             ["BHR000000396406"],
+            UserWarning,
         ),
         (
             "BHR-G",
@@ -374,21 +401,25 @@ class TestReadCollectionGeopackage:
                 "buffer": 2,
             },
             ["BHR000000396406"],
+            None,
         ),
         (
             "CPT",
             {"bro_ids": "CPT000000155283"},
             ["CPT000000155283"],
+            None,
         ),
         (
             "CPT",
             {"bbox": (132781.52, 448029.34, 132783.52, 448031.34)},
             ["CPT000000155283"],
+            None,
         ),
         (
             "CPT",
             {"geometry": gmt.box(132781.52, 448029.34, 132783.52, 448031.34)},
             ["CPT000000155283"],
+            UserWarning,
         ),
         (
             "CPT",
@@ -403,21 +434,25 @@ class TestReadCollectionGeopackage:
                 "buffer": 2,
             },
             ["CPT000000155283"],
+            None,
         ),
         (
             "SFR",
             {"bro_ids": "SFR000000000687"},
             ["SFR000000000687"],
+            None,
         ),
         (
             "SFR",
             {"bbox": (132249, 451074, 132251, 451076)},
             ["SFR000000000687"],
+            None,
         ),
         (
             "SFR",
             {"geometry": gmt.box(132249, 451074, 132251, 451076)},
             ["SFR000000000687"],
+            UserWarning,
         ),
         (
             "SFR",
@@ -432,11 +467,17 @@ class TestReadCollectionGeopackage:
                 "buffer": 2,
             },
             ["SFR000000000687"],
+            None,
         ),
     ],
 )
 @pytest.mark.unittest
-def test_bro_api_read(object_type, options, expected_bro_ids):
+def test_bro_api_read(object_type, options, expected_bro_ids, expected_warning):
+    if expected_warning is not None:
+        with warnings.catch_warnings(record=True) as w:
+            collection = geost.bro_api_read(object_type, **options)
+            assert len(w) == 1
+            assert issubclass(w[-1].category, expected_warning)
     collection = geost.bro_api_read(object_type, **options)
     assert isinstance(collection, geost.base.Collection)
     assert len(collection) == len(expected_bro_ids)
