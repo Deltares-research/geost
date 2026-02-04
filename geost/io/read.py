@@ -18,7 +18,7 @@ from geost.bro import BroApi
 from geost.io import _parse_cpt_gef_files, xml
 from geost.io.parsers import BorisXML
 
-type BroObject = Literal["BHR-GT", "BHR-P", "BHR-G", "CPT", "SFR"]
+type BroObject = Literal["BHR-GT", "BHR-GT-samples", "BHR-P", "BHR-G", "CPT", "SFR"]
 
 MANDATORY_LAYERED_DATA_COLUMNS = ["nr", "x", "y", "surface", "end", "top", "bottom"]
 MANDATORY_DISCRETE_DATA_COLUMNS = ["nr", "x", "y", "surface", "end", "depth"]

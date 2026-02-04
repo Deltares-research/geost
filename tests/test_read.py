@@ -524,6 +524,13 @@ def test_read_bhrgt(testdatadir):
 
 
 @pytest.mark.unittest
+def test_read_bhrgt_samples(testdatadir):
+    file = testdatadir / r"xml/bhrgt_bro_with_samples.xml"
+    collection = geost.read_bhrgt_samples(file)
+    assert isinstance(collection, BoreholeCollection)
+
+
+@pytest.mark.unittest
 def test_read_bhrg(testdatadir):
     file = testdatadir / r"xml/bhrg_bro.xml"
     collection = geost.read_bhrg(file)
