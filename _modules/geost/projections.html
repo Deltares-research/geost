@@ -42,8 +42,8 @@
 <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
     <script src="../../_static/documentation_options.js?v=5929fcd5"></script>
-    <script src="../../_static/doctools.js?v=9bcbadda"></script>
-    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../_static/design-tabs.js?v=f930bc37"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = '_modules/geost/projections';</script>
     <link rel="icon" href="../../_static/geost_logo.png"/>
@@ -466,10 +466,10 @@
 <div class="viewcode-block" id="horizontal_reference_transformer">
 <a class="viewcode-back" href="../../api_reference/generated/geost.projections.horizontal_reference_transformer.html#geost.projections.horizontal_reference_transformer">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">horizontal_reference_transformer</span><span class="p">(</span>
-    <span class="n">epsg_from</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">int</span> <span class="o">|</span> <span class="n">CRS</span><span class="p">,</span> <span class="n">epsg_to</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">int</span> <span class="o">|</span> <span class="n">CRS</span>
+    <span class="n">epsg_from</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">int</span> <span class="o">|</span> <span class="n">CRS</span><span class="p">,</span> <span class="n">epsg_to</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">int</span> <span class="o">|</span> <span class="n">CRS</span><span class="p">,</span> <span class="n">always_xy</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
 <span class="p">):</span>
     <span class="n">transformer</span> <span class="o">=</span> <span class="n">Transformer</span><span class="o">.</span><span class="n">from_crs</span><span class="p">(</span>
-        <span class="n">CRS</span><span class="p">(</span><span class="n">epsg_from</span><span class="p">),</span> <span class="n">CRS</span><span class="p">(</span><span class="n">epsg_to</span><span class="p">),</span> <span class="n">always_xy</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">accuracy</span><span class="o">=</span><span class="mf">1.0</span>
+        <span class="n">CRS</span><span class="p">(</span><span class="n">epsg_from</span><span class="p">),</span> <span class="n">CRS</span><span class="p">(</span><span class="n">epsg_to</span><span class="p">),</span> <span class="n">always_xy</span><span class="o">=</span><span class="n">always_xy</span><span class="p">,</span> <span class="n">accuracy</span><span class="o">=</span><span class="mf">1.0</span>
     <span class="p">)</span>
     <span class="k">return</span> <span class="n">transformer</span></div>
 
@@ -481,12 +481,13 @@
     <span class="n">horizontal_epsg</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">int</span> <span class="o">|</span> <span class="n">CRS</span><span class="p">,</span>
     <span class="n">epsg_from</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">int</span> <span class="o">|</span> <span class="n">CRS</span><span class="p">,</span>
     <span class="n">epsg_to</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">int</span> <span class="o">|</span> <span class="n">CRS</span><span class="p">,</span>
+    <span class="n">always_xy</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
 <span class="p">):</span>
     <span class="n">epsg_from</span> <span class="o">=</span> <span class="n">CompoundCRS</span><span class="p">(</span><span class="s2">&quot;Temporary source CRS&quot;</span><span class="p">,</span> <span class="p">[</span><span class="n">horizontal_epsg</span><span class="p">,</span> <span class="n">epsg_from</span><span class="p">])</span>
     <span class="n">epsg_to</span> <span class="o">=</span> <span class="n">CompoundCRS</span><span class="p">(</span><span class="s2">&quot;Temporary target CRS&quot;</span><span class="p">,</span> <span class="p">[</span><span class="n">horizontal_epsg</span><span class="p">,</span> <span class="n">epsg_to</span><span class="p">])</span>
 
     <span class="k">if</span> <span class="n">epsg_from</span><span class="o">.</span><span class="n">is_vertical</span> <span class="ow">and</span> <span class="n">epsg_to</span><span class="o">.</span><span class="n">is_vertical</span><span class="p">:</span>
-        <span class="n">transformer</span> <span class="o">=</span> <span class="n">Transformer</span><span class="o">.</span><span class="n">from_crs</span><span class="p">(</span><span class="n">epsg_from</span><span class="p">,</span> <span class="n">epsg_to</span><span class="p">,</span> <span class="n">always_xy</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">transformer</span> <span class="o">=</span> <span class="n">Transformer</span><span class="o">.</span><span class="n">from_crs</span><span class="p">(</span><span class="n">epsg_from</span><span class="p">,</span> <span class="n">epsg_to</span><span class="p">,</span> <span class="n">always_xy</span><span class="o">=</span><span class="n">always_xy</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
             <span class="s2">&quot;Given EPSG numbers must be known vertical datums, see spatialreference.org&quot;</span>
@@ -543,7 +544,7 @@
         <div class="footer-item">
 
   <p class="sphinx-version">
-    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.2.3.
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
     <br/>
   </p>
 </div>

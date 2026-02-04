@@ -43,15 +43,15 @@
 <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
     <script src="../../_static/documentation_options.js?v=5929fcd5"></script>
-    <script src="../../_static/doctools.js?v=9bcbadda"></script>
-    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../_static/design-tabs.js?v=f930bc37"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'api_reference/generated/geost.models.VoxelModel.from_netcdf';</script>
     <link rel="icon" href="../../_static/geost_logo.png"/>
     <link rel="author" title="About these documents" href="../../about.html" />
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="geost.models.VoxelModel.get_thickness" href="geost.models.VoxelModel.get_thickness.html" />
+    <link rel="next" title="geost.models.VoxelModel.from_opendap" href="geost.models.VoxelModel.from_opendap.html" />
     <link rel="prev" title="geost.models.VoxelModel" href="geost.models.VoxelModel.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
@@ -434,6 +434,7 @@
 <li class="toctree-l3"><a class="reference internal" href="geost.base.Collection.to_csv.html">geost.base.Collection.to_csv</a></li>
 <li class="toctree-l3"><a class="reference internal" href="geost.base.Collection.to_parquet.html">geost.base.Collection.to_parquet</a></li>
 <li class="toctree-l3"><a class="reference internal" href="geost.read_bhrgt.html">geost.read_bhrgt</a></li>
+<li class="toctree-l3"><a class="reference internal" href="geost.read_bhrgt_samples.html">geost.read_bhrgt_samples</a></li>
 <li class="toctree-l3"><a class="reference internal" href="geost.read_bhrg.html">geost.read_bhrg</a></li>
 <li class="toctree-l3"><a class="reference internal" href="geost.read_bhrp.html">geost.read_bhrp</a></li>
 <li class="toctree-l3"><a class="reference internal" href="geost.read_cpt.html">geost.read_cpt</a></li>
@@ -580,6 +581,7 @@
 <li class="toctree-l2 current active has-children"><a class="reference internal" href="../voxelmodel.html">VoxelModel</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
 <li class="toctree-l3"><a class="reference internal" href="geost.models.VoxelModel.html">geost.models.VoxelModel</a></li>
 <li class="toctree-l3 current active"><a class="current reference internal" href="#">geost.models.VoxelModel.from_netcdf</a></li>
+<li class="toctree-l3"><a class="reference internal" href="geost.models.VoxelModel.from_opendap.html">geost.models.VoxelModel.from_opendap</a></li>
 <li class="toctree-l3"><a class="reference internal" href="geost.models.VoxelModel.get_thickness.html">geost.models.VoxelModel.get_thickness</a></li>
 <li class="toctree-l3"><a class="reference internal" href="geost.models.VoxelModel.most_common.html">geost.models.VoxelModel.most_common</a></li>
 <li class="toctree-l3"><a class="reference internal" href="geost.models.VoxelModel.isel.html">geost.models.VoxelModel.isel</a></li>
@@ -782,7 +784,7 @@
 <h1>geost.models.VoxelModel.from_netcdf<a class="headerlink" href="#geost-models-voxelmodel-from-netcdf" title="Link to this heading">#</a></h1>
 <dl class="py method">
 <dt class="sig sig-object py" id="geost.models.VoxelModel.from_netcdf">
-<em class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">VoxelModel.</span></span><span class="sig-name descname"><span class="pre">from_netcdf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nc_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_vars</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bbox</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lazy</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">xr_kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/geost/models/basemodels.html#VoxelModel.from_netcdf"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#geost.models.VoxelModel.from_netcdf" title="Link to this definition">#</a></dt>
+<span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">VoxelModel.</span></span><span class="sig-name descname"><span class="pre">from_netcdf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nc_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_vars</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bbox</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lazy</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">xr_kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/geost/models/basemodels.html#VoxelModel.from_netcdf"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#geost.models.VoxelModel.from_netcdf" title="Link to this definition">#</a></dt>
 <dd><p>Read data from a NetCDF file of a voxelmodel data into a VoxelModel instance.</p>
 <p>This assumes the voxelmodel is according to the following conventions:
 - The coordinate dimensions of the voxelmodel are: “x”, “y” (horizontal) and “z”
@@ -793,7 +795,7 @@
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>nc_path</strong> (<em>str</em><em> | </em><em>Path</em>) – Path to the netcdf file of the voxelmodel.</p></li>
 <li><p><strong>data_vars</strong> (<em>ArrayLike</em>) – List or array-like object specifying which data variables to return.</p></li>
-<li><p><strong>bbox</strong> (<em>tuple</em><em> (</em><em>xmin</em><em>, </em><em>ymin</em><em>, </em><em>xmax</em><em>, </em><em>ymax</em><em>)</em><em>, </em><em>optional</em>) – Specify a bounding box (xmin, ymin, xmax, ymax) to return a selected area of
+<li><p><strong>bbox</strong> (<em>tuple</em><em> (</em><a class="reference internal" href="geost.models.VoxelModel.xmin.html#geost.models.VoxelModel.xmin" title="geost.models.VoxelModel.xmin"><em>xmin</em></a><em>, </em><a class="reference internal" href="geost.models.VoxelModel.ymin.html#geost.models.VoxelModel.ymin" title="geost.models.VoxelModel.ymin"><em>ymin</em></a><em>, </em><a class="reference internal" href="geost.models.VoxelModel.xmax.html#geost.models.VoxelModel.xmax" title="geost.models.VoxelModel.xmax"><em>xmax</em></a><em>, </em><a class="reference internal" href="geost.models.VoxelModel.ymax.html#geost.models.VoxelModel.ymax" title="geost.models.VoxelModel.ymax"><em>ymax</em></a><em>)</em><em>, </em><em>optional</em>) – Specify a bounding box (xmin, ymin, xmax, ymax) to return a selected area of
 the voxelmodel. The default is None.</p></li>
 <li><p><strong>lazy</strong> (<em>bool</em><em>, </em><em>optional</em>) – If True, netcdf loads lazily. Use False for speed improvements for larger
 areas but that still fit into memory. The default is False.</p></li>
@@ -853,11 +855,11 @@ ascending coordinates change ymin and ymax coordinates:</p>
       </div>
     </a>
     <a class="right-next"
-       href="geost.models.VoxelModel.get_thickness.html"
+       href="geost.models.VoxelModel.from_opendap.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">geost.models.VoxelModel.get_thickness</p>
+        <p class="prev-next-title">geost.models.VoxelModel.from_opendap</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -927,7 +929,7 @@ ascending coordinates change ymin and ymax coordinates:</p>
         <div class="footer-item">
 
   <p class="sphinx-version">
-    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.2.3.
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
     <br/>
   </p>
 </div>

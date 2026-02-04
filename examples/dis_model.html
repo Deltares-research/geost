@@ -1,0 +1,736 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>DIS3.1 from the Deltares OpenDAP server &#8212; Geological Subsurface Toolbox  documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/mystnb.8ecb98da25f57f5357bf6f572d296f466b2cfe2517ffebfabe82451661e28f02.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=6e1425e8" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=6e1425e8" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+    <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/design-tabs.js?v=f930bc37"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'examples/dis_model';</script>
+    <link rel="icon" href="../_static/geost_logo.png"/>
+    <link rel="author" title="About these documents" href="../about.html" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="0.4.0" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class=" navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../_static/geost_logo.png" class="logo__image only-light" alt="Geological Subsurface Toolbox  documentation - Home"/>
+    <img src="../_static/geost_logo.png" class="logo__image only-dark pst-js-only" alt="Geological Subsurface Toolbox  documentation - Home"/>
+  
+  
+</a></div>
+    
+  </div>
+  
+  <div class=" navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../index.html">
+    Home
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../about.html">
+    About
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../getting_started.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../documentation.html">
+    Documentation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../examples.html">
+    Examples
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../community.html">
+    Community
+  </a>
+</li>
+
+            <li class="nav-item dropdown">
+                <button class="btn dropdown-toggle nav-item" type="button"
+                data-bs-toggle="dropdown" aria-expanded="false"
+                aria-controls="pst-nav-more-links">
+                    More
+                </button>
+                <ul id="pst-nav-more-links" class="dropdown-menu">
+                    
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../changelog.html">
+    Changelog
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-external" href="https://www.deltares.nl/en">
+    Deltares website
+  </a>
+</li>
+
+                </ul>
+            </li>
+            
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/Deltares-research/geost" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/geost" title="PyPI" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-solid fa-cubes fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">PyPI</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar hide-on-wide">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../index.html">
+    Home
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../about.html">
+    About
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../getting_started.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../documentation.html">
+    Documentation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../examples.html">
+    Examples
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../community.html">
+    Community
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../changelog.html">
+    Changelog
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-external" href="https://www.deltares.nl/en">
+    Deltares website
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/Deltares-research/geost" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/geost" title="PyPI" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-solid fa-cubes fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">PyPI</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">DIS3.1 from the Deltares OpenDAP server</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="dis3-1-from-the-deltares-opendap-server">
+<h1>DIS3.1 from the Deltares OpenDAP server<a class="headerlink" href="#dis3-1-from-the-deltares-opendap-server" title="Link to this heading">#</a></h1>
+<p>DIS (Delfstoffen Informatie Systeem) is a geological voxelmodel created for sand mining
+within in the 12-mile zone of the Dutch North Sea. See <a class="reference external" href="https://www.deltares.nl/en/expertise/projects/sand-from-the-north-sea">this Deltares webpage</a> for more information on the DIS</p>
+<blockquote>
+<div><p><strong>ℹ️ This example is work-in-progress. Additional features and examples will follow in future versions of GeoST</strong></p>
+</div></blockquote>
+<p>In this example we will download a small part of the DIS model using a bounding box in WGS84 UTM 31N coordinates (EPSG:32631) that roughly covers the offshore sand mining areas Q16-6 and Q16-4.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">geost.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">VoxelModel</span>
+
+<span class="c1"># Load DIS voxel model from OpenDAP server with bounding box</span>
+<span class="n">dis</span> <span class="o">=</span> <span class="n">VoxelModel</span><span class="o">.</span><span class="n">from_opendap</span><span class="p">(</span>
+    <span class="sa">r</span><span class="s2">&quot;https://opendap.deltares.nl/thredds/dodsC/opendap/rijkswaterstaat/DIS/DIS3.1.nc&quot;</span><span class="p">,</span>
+    <span class="n">bbox</span><span class="o">=</span><span class="p">(</span><span class="mi">561_000</span><span class="p">,</span> <span class="mi">577_000_0</span><span class="p">,</span> <span class="mi">569_000</span><span class="p">,</span> <span class="mi">577_550_0</span><span class="p">),</span>
+<span class="p">)</span>
+
+<span class="c1"># You will get a VoxelModel object containing an xarray.Dataset</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">dis</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>VoxelModel
+Data variables:
+    spatial_ref           int32 4B ...
+    lithoklasse           (y, x, z) float32 421kB ...
+    slibklasse            (y, x, z) float32 421kB ...
+    schelpenklasse        (y, x, z) float32 421kB ...
+    stratunit             (y, x, z) float32 421kB ...
+    kans_lithoklasse_1    (y, x, z) float32 421kB ...
+    kans_lithoklasse_2    (y, x, z) float32 421kB ...
+    kans_lithoklasse_3    (y, x, z) float32 421kB ...
+    kans_lithoklasse_4    (y, x, z) float32 421kB ...
+    kans_lithoklasse_5    (y, x, z) float32 421kB ...
+    kans_lithoklasse_6    (y, x, z) float32 421kB ...
+    kans_lithoklasse_7    (y, x, z) float32 421kB ...
+    kans_lithoklasse_8    (y, x, z) float32 421kB ...
+    kans_lithoklasse_9    (y, x, z) float32 421kB ...
+    litho_realisatie_001  (y, x, z) float32 421kB ...
+    litho_realisatie_002  (y, x, z) float32 421kB ...
+    litho_realisatie_003  (y, x, z) float32 421kB ...
+    litho_realisatie_004  (y, x, z) float32 421kB ...
+    litho_realisatie_005  (y, x, z) float32 421kB ...
+    litho_realisatie_006  (y, x, z) float32 421kB ...
+    litho_realisatie_007  (y, x, z) float32 421kB ...
+    litho_realisatie_008  (y, x, z) float32 421kB ...
+    litho_realisatie_009  (y, x, z) float32 421kB ...
+    litho_realisatie_010  (y, x, z) float32 421kB ...
+    litho_realisatie_011  (y, x, z) float32 421kB ...
+    litho_realisatie_012  (y, x, z) float32 421kB ...
+    litho_realisatie_013  (y, x, z) float32 421kB ...
+    litho_realisatie_014  (y, x, z) float32 421kB ...
+    litho_realisatie_015  (y, x, z) float32 421kB ...
+    litho_realisatie_016  (y, x, z) float32 421kB ...
+    litho_realisatie_017  (y, x, z) float32 421kB ...
+    litho_realisatie_018  (y, x, z) float32 421kB ...
+    litho_realisatie_019  (y, x, z) float32 421kB ...
+    litho_realisatie_020  (y, x, z) float32 421kB ...
+    litho_realisatie_021  (y, x, z) float32 421kB ...
+    litho_realisatie_022  (y, x, z) float32 421kB ...
+    litho_realisatie_023  (y, x, z) float32 421kB ...
+    litho_realisatie_024  (y, x, z) float32 421kB ...
+    litho_realisatie_025  (y, x, z) float32 421kB ...
+    litho_realisatie_026  (y, x, z) float32 421kB ...
+    litho_realisatie_027  (y, x, z) float32 421kB ...
+    litho_realisatie_028  (y, x, z) float32 421kB ...
+    litho_realisatie_029  (y, x, z) float32 421kB ...
+    litho_realisatie_030  (y, x, z) float32 421kB ...
+    litho_realisatie_031  (y, x, z) float32 421kB ...
+    litho_realisatie_032  (y, x, z) float32 421kB ...
+    litho_realisatie_033  (y, x, z) float32 421kB ...
+    litho_realisatie_034  (y, x, z) float32 421kB ...
+    litho_realisatie_035  (y, x, z) float32 421kB ...
+    litho_realisatie_036  (y, x, z) float32 421kB ...
+    litho_realisatie_037  (y, x, z) float32 421kB ...
+    litho_realisatie_038  (y, x, z) float32 421kB ...
+    litho_realisatie_039  (y, x, z) float32 421kB ...
+    litho_realisatie_040  (y, x, z) float32 421kB ...
+    litho_realisatie_041  (y, x, z) float32 421kB ...
+    litho_realisatie_042  (y, x, z) float32 421kB ...
+    litho_realisatie_043  (y, x, z) float32 421kB ...
+    litho_realisatie_044  (y, x, z) float32 421kB ...
+    litho_realisatie_045  (y, x, z) float32 421kB ...
+    litho_realisatie_046  (y, x, z) float32 421kB ...
+    litho_realisatie_047  (y, x, z) float32 421kB ...
+    litho_realisatie_048  (y, x, z) float32 421kB ...
+    litho_realisatie_049  (y, x, z) float32 421kB ...
+    litho_realisatie_050  (y, x, z) float32 421kB ...
+    litho_realisatie_051  (y, x, z) float32 421kB ...
+    litho_realisatie_052  (y, x, z) float32 421kB ...
+    litho_realisatie_053  (y, x, z) float32 421kB ...
+    litho_realisatie_054  (y, x, z) float32 421kB ...
+    litho_realisatie_055  (y, x, z) float32 421kB ...
+    litho_realisatie_056  (y, x, z) float32 421kB ...
+    litho_realisatie_057  (y, x, z) float32 421kB ...
+    litho_realisatie_058  (y, x, z) float32 421kB ...
+    litho_realisatie_059  (y, x, z) float32 421kB ...
+    litho_realisatie_060  (y, x, z) float32 421kB ...
+    litho_realisatie_061  (y, x, z) float32 421kB ...
+    litho_realisatie_062  (y, x, z) float32 421kB ...
+    litho_realisatie_063  (y, x, z) float32 421kB ...
+    litho_realisatie_064  (y, x, z) float32 421kB ...
+    litho_realisatie_065  (y, x, z) float32 421kB ...
+    litho_realisatie_066  (y, x, z) float32 421kB ...
+    litho_realisatie_067  (y, x, z) float32 421kB ...
+    litho_realisatie_068  (y, x, z) float32 421kB ...
+    litho_realisatie_069  (y, x, z) float32 421kB ...
+    litho_realisatie_070  (y, x, z) float32 421kB ...
+    litho_realisatie_071  (y, x, z) float32 421kB ...
+    litho_realisatie_072  (y, x, z) float32 421kB ...
+    litho_realisatie_073  (y, x, z) float32 421kB ...
+    litho_realisatie_074  (y, x, z) float32 421kB ...
+    litho_realisatie_075  (y, x, z) float32 421kB ...
+    litho_realisatie_076  (y, x, z) float32 421kB ...
+    litho_realisatie_077  (y, x, z) float32 421kB ...
+    litho_realisatie_078  (y, x, z) float32 421kB ...
+    litho_realisatie_079  (y, x, z) float32 421kB ...
+    litho_realisatie_080  (y, x, z) float32 421kB ...
+    litho_realisatie_081  (y, x, z) float32 421kB ...
+    litho_realisatie_082  (y, x, z) float32 421kB ...
+    litho_realisatie_083  (y, x, z) float32 421kB ...
+    litho_realisatie_084  (y, x, z) float32 421kB ...
+    litho_realisatie_085  (y, x, z) float32 421kB ...
+    litho_realisatie_086  (y, x, z) float32 421kB ...
+    litho_realisatie_087  (y, x, z) float32 421kB ...
+    litho_realisatie_088  (y, x, z) float32 421kB ...
+    litho_realisatie_089  (y, x, z) float32 421kB ...
+    litho_realisatie_090  (y, x, z) float32 421kB ...
+    litho_realisatie_091  (y, x, z) float32 421kB ...
+    litho_realisatie_092  (y, x, z) float32 421kB ...
+    litho_realisatie_093  (y, x, z) float32 421kB ...
+    litho_realisatie_094  (y, x, z) float32 421kB ...
+    litho_realisatie_095  (y, x, z) float32 421kB ...
+    litho_realisatie_096  (y, x, z) float32 421kB ...
+    litho_realisatie_097  (y, x, z) float32 421kB ...
+    litho_realisatie_098  (y, x, z) float32 421kB ...
+    litho_realisatie_099  (y, x, z) float32 421kB ...
+    litho_realisatie_100  (y, x, z) float32 421kB ...
+    bathy                 (y, x) float32 4kB ...
+Dimensions: {&#39;y&#39;: 28, &#39;x&#39;: 40, &#39;z&#39;: 94}
+Resolution (y, x, z): (200.0, 200.0, 0.5)
+</pre></div>
+</div>
+</div>
+</div>
+<p>We can apply methods of <a class="reference internal" href="../api_reference/voxelmodel.html"><span class="std std-doc"><code class="docutils literal notranslate"><span class="pre">VoxelModel</span></code></span></a> to further select and analyse the downloaded DIS model. Let’s e.g. find the total thickness of (very) fine sand between the -20 and -25 m MSL depth interval. For this we will use the ‘lithoklasse’ data variable which classifies lithology as follows:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Let&#39;s inspect the lithology variable attributes to see how lithoclasses are defined in the DIS</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">dis</span><span class="p">[</span><span class="s2">&quot;lithoklasse&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>{&#39;1&#39;: &#39;Zand uiterst fijn (63-105)&#39;, &#39;2&#39;: &#39;Zand matig fijn-zeer fijn (105-210)&#39;, &#39;3&#39;: &#39;Zand matig grof (210-300)&#39;, &#39;4&#39;: &#39;Zand zeer grof (300-420)&#39;, &#39;5&#39;: &#39;Zand uiterst grof (420-2000)&#39;, &#39;6&#39;: &#39;Zand (ongedifferentieerd)&#39;, &#39;7&#39;: &#39;Klei/Leem&#39;, &#39;8&#39;: &#39;Veen&#39;, &#39;9&#39;: &#39;Schelpen&#39;, &#39;_ChunkSizes&#39;: array([30, 60, 12], dtype=int32)}
+</pre></div>
+</div>
+</div>
+</div>
+<p>So we will use lithoclasses 1 and 2 to determine the total thickness of (very) fine sand within our depth interval:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Compute thickness of sand layer between -20 and -25 m depth</span>
+<span class="n">dis_sand</span> <span class="o">=</span> <span class="n">dis</span><span class="o">.</span><span class="n">get_thickness</span><span class="p">((</span><span class="n">dis</span><span class="p">[</span><span class="s2">&quot;lithoklasse&quot;</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="mi">2</span><span class="p">),</span> <span class="n">depth_range</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="mi">20</span><span class="p">,</span> <span class="o">-</span><span class="mi">25</span><span class="p">))</span>
+
+<span class="n">dis_sand</span><span class="o">.</span><span class="n">plot</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span>
+    <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mi">6</span><span class="p">),</span>
+    <span class="n">cmap</span><span class="o">=</span><span class="s2">&quot;YlOrBr&quot;</span><span class="p">,</span>
+    <span class="n">vmin</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+    <span class="n">vmax</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>
+    <span class="n">cbar_kwargs</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="s2">&quot;Total thickness of fine sand (m)&quot;</span><span class="p">},</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>&lt;matplotlib.image.AxesImage at 0x28286c7da90&gt;
+</pre></div>
+</div>
+<img alt="../_images/93b71fd3151050be5a7acc88d487b1e5f7a58034d3b8d056df04c6b7466d3d56.png" src="../_images/93b71fd3151050be5a7acc88d487b1e5f7a58034d3b8d056df04c6b7466d3d56.png" />
+</div>
+</div>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/examples/dis_model.ipynb.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2026, Deltares.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

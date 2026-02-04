@@ -30,6 +30,7 @@ Data from specific file formats
    :toctree: generated/
 
    read_bhrgt
+   read_bhrgt_samples
    read_bhrg
    read_bhrp
    read_cpt

@@ -43,8 +43,8 @@
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
     <script src="../_static/documentation_options.js?v=5929fcd5"></script>
-    <script src="../_static/doctools.js?v=9bcbadda"></script>
-    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'examples/boreholes_geotop_3d';</script>
     <link rel="icon" href="../_static/geost_logo.png"/>
@@ -491,6 +491,12 @@ Utrecht Science Park (USP).</p>
 <div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Downloading file &#39;boreholes_usp.parquet&#39; from &#39;https://github.com/Deltares-research/geost/raw/main/data/boreholes_usp.parquet&#39; to &#39;/home/runner/.cache/geost&#39;.
 </pre></div>
 </div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>/home/runner/work/geost/geost/.pixi/envs/default/lib/python3.14/site-packages/pydap/handlers/dap.py:143: UserWarning: PyDAP was unable to determine the DAP protocol defaulting to DAP2. DAP2 is consider legacy and may result in slower responses. 
+Consider replacing `http` in your `url` with either `dap2` or `dap4` to specify the DAP protocol (e.g. `dap2://&lt;data_url&gt;` or `dap4://&lt;data_url&gt;`).  For more 
+information, go to https://www.opendap.org/faq-page.
+  warnings.warn(
+</pre></div>
+</div>
 <div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Boreholes:
  BoreholeCollection:
 # header = 67
@@ -567,7 +573,7 @@ Resolution (y, x, z): (100.0, 100.0, 0.5)
 </div>
 <div class="cell_output docutils container">
 <div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Boreholes PyVista grid:
- UnstructuredGrid (0x7fbd58111de0)
+ UnstructuredGrid (0x7f36a08526e0)
   N Cells:    1398
   N Points:   11184
   X Bounds:   1.395e+05, 1.413e+05
@@ -577,7 +583,7 @@ Resolution (y, x, z): (100.0, 100.0, 0.5)
 
 
 GeoTOP PyVista grid:
- ImageData (0x7fbd58113400)
+ ImageData (0x7f375c494400)
   N Cells:      78876
   N Points:     89490
   X Bounds:     1.396e+05, 1.414e+05
@@ -615,17 +621,17 @@ to VTK and use <a class="reference external" href="https://www.paraview.org/">Pa
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span><span class=" -Color -Color-Yellow">2026-01-12 13:08:40.847 (   5.189s) [    7FBE1DB5F740]vtkXOpenGLRenderWindow.:1458  WARN| bad X server connection. DISPLAY=</span>
-<span class=" -Color -Color-Yellow">2026-01-12 13:08:40.848 (   5.190s) [    7FBE1DB5F740] vtkEGLRenderWindow.cxx:391   WARN| vtkEGLRenderWindow (0x5624a5b318e0): Setting an EGL display to device index: -1 require EGL_EXT_device_base EGL_EXT_platform_device EGL_EXT_platform_base extensions</span>
-<span class=" -Color -Color-Yellow">2026-01-12 13:08:40.848 (   5.190s) [    7FBE1DB5F740] vtkEGLRenderWindow.cxx:396   WARN| vtkEGLRenderWindow (0x5624a5b318e0): Attempting to use EGL_DEFAULT_DISPLAY...</span>
-<span class=" -Color -Color-Yellow">2026-01-12 13:08:40.848 (   5.190s) [    7FBE1DB5F740] vtkEGLRenderWindow.cxx:401   WARN| vtkEGLRenderWindow (0x5624a5b318e0): Could not initialize a device. Exiting...</span>
-<span class=" -Color -Color-Yellow">2026-01-12 13:08:40.848 (   5.190s) [    7FBE1DB5F740]vtkOpenGLRenderWindow.c:920   WARN| vtkEGLRenderWindow (0x5624a5b318e0): Failed to initialize OpenGL functions!</span>
-<span class=" -Color -Color-Yellow">2026-01-12 13:08:40.848 (   5.190s) [    7FBE1DB5F740]vtkOpenGLRenderWindow.c:939   WARN| vtkEGLRenderWindow (0x5624a5b318e0): Unable to find a valid OpenGL 3.2 or later implementation. Please update your video card driver to the latest version. If you are using Mesa please make sure you have version 11.2 or later and make sure your driver in Mesa supports OpenGL 3.2 such as llvmpipe or openswr. If you are on windows and using Microsoft remote desktop note that it only supports OpenGL 3.2 with nvidia quadro cards. You can use other remoting software such as nomachine to avoid this issue.</span>
-<span class=" -Color -Color-Yellow">2026-01-12 13:08:40.861 (   5.203s) [    7FBE1DB5F740] vtkEGLRenderWindow.cxx:391   WARN| vtkEGLRenderWindow (0x5624a5b318e0): Setting an EGL display to device index: -1 require EGL_EXT_device_base EGL_EXT_platform_device EGL_EXT_platform_base extensions</span>
-<span class=" -Color -Color-Yellow">2026-01-12 13:08:40.861 (   5.203s) [    7FBE1DB5F740] vtkEGLRenderWindow.cxx:396   WARN| vtkEGLRenderWindow (0x5624a5b318e0): Attempting to use EGL_DEFAULT_DISPLAY...</span>
-<span class=" -Color -Color-Yellow">2026-01-12 13:08:40.861 (   5.203s) [    7FBE1DB5F740] vtkEGLRenderWindow.cxx:401   WARN| vtkEGLRenderWindow (0x5624a5b318e0): Could not initialize a device. Exiting...</span>
-<span class=" -Color -Color-Yellow">2026-01-12 13:08:40.861 (   5.203s) [    7FBE1DB5F740]vtkOpenGLRenderWindow.c:920   WARN| vtkEGLRenderWindow (0x5624a5b318e0): Failed to initialize OpenGL functions!</span>
-<span class=" -Color -Color-Yellow">2026-01-12 13:08:40.861 (   5.203s) [    7FBE1DB5F740]vtkOpenGLRenderWindow.c:939   WARN| vtkEGLRenderWindow (0x5624a5b318e0): Unable to find a valid OpenGL 3.2 or later implementation. Please update your video card driver to the latest version. If you are using Mesa please make sure you have version 11.2 or later and make sure your driver in Mesa supports OpenGL 3.2 such as llvmpipe or openswr. If you are on windows and using Microsoft remote desktop note that it only supports OpenGL 3.2 with nvidia quadro cards. You can use other remoting software such as nomachine to avoid this issue.</span>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span><span class=" -Color -Color-Yellow">2026-02-04 12:38:54.157 (  47.181s) [    7F3766839740]vtkXOpenGLRenderWindow.:1458  WARN| bad X server connection. DISPLAY=</span>
+<span class=" -Color -Color-Yellow">2026-02-04 12:38:54.158 (  47.182s) [    7F3766839740] vtkEGLRenderWindow.cxx:391   WARN| vtkEGLRenderWindow (0x55b303840ea0): Setting an EGL display to device index: -1 require EGL_EXT_device_base EGL_EXT_platform_device EGL_EXT_platform_base extensions</span>
+<span class=" -Color -Color-Yellow">2026-02-04 12:38:54.158 (  47.182s) [    7F3766839740] vtkEGLRenderWindow.cxx:396   WARN| vtkEGLRenderWindow (0x55b303840ea0): Attempting to use EGL_DEFAULT_DISPLAY...</span>
+<span class=" -Color -Color-Yellow">2026-02-04 12:38:54.158 (  47.182s) [    7F3766839740] vtkEGLRenderWindow.cxx:401   WARN| vtkEGLRenderWindow (0x55b303840ea0): Could not initialize a device. Exiting...</span>
+<span class=" -Color -Color-Yellow">2026-02-04 12:38:54.158 (  47.182s) [    7F3766839740]vtkOpenGLRenderWindow.c:920   WARN| vtkEGLRenderWindow (0x55b303840ea0): Failed to initialize OpenGL functions!</span>
+<span class=" -Color -Color-Yellow">2026-02-04 12:38:54.158 (  47.182s) [    7F3766839740]vtkOpenGLRenderWindow.c:939   WARN| vtkEGLRenderWindow (0x55b303840ea0): Unable to find a valid OpenGL 3.2 or later implementation. Please update your video card driver to the latest version. If you are using Mesa please make sure you have version 11.2 or later and make sure your driver in Mesa supports OpenGL 3.2 such as llvmpipe or openswr. If you are on windows and using Microsoft remote desktop note that it only supports OpenGL 3.2 with nvidia quadro cards. You can use other remoting software such as nomachine to avoid this issue.</span>
+<span class=" -Color -Color-Yellow">2026-02-04 12:38:54.170 (  47.194s) [    7F3766839740] vtkEGLRenderWindow.cxx:391   WARN| vtkEGLRenderWindow (0x55b303840ea0): Setting an EGL display to device index: -1 require EGL_EXT_device_base EGL_EXT_platform_device EGL_EXT_platform_base extensions</span>
+<span class=" -Color -Color-Yellow">2026-02-04 12:38:54.170 (  47.194s) [    7F3766839740] vtkEGLRenderWindow.cxx:396   WARN| vtkEGLRenderWindow (0x55b303840ea0): Attempting to use EGL_DEFAULT_DISPLAY...</span>
+<span class=" -Color -Color-Yellow">2026-02-04 12:38:54.170 (  47.194s) [    7F3766839740] vtkEGLRenderWindow.cxx:401   WARN| vtkEGLRenderWindow (0x55b303840ea0): Could not initialize a device. Exiting...</span>
+<span class=" -Color -Color-Yellow">2026-02-04 12:38:54.170 (  47.194s) [    7F3766839740]vtkOpenGLRenderWindow.c:920   WARN| vtkEGLRenderWindow (0x55b303840ea0): Failed to initialize OpenGL functions!</span>
+<span class=" -Color -Color-Yellow">2026-02-04 12:38:54.170 (  47.194s) [    7F3766839740]vtkOpenGLRenderWindow.c:939   WARN| vtkEGLRenderWindow (0x55b303840ea0): Unable to find a valid OpenGL 3.2 or later implementation. Please update your video card driver to the latest version. If you are using Mesa please make sure you have version 11.2 or later and make sure your driver in Mesa supports OpenGL 3.2 such as llvmpipe or openswr. If you are on windows and using Microsoft remote desktop note that it only supports OpenGL 3.2 with nvidia quadro cards. You can use other remoting software such as nomachine to avoid this issue.</span>
 </pre></div>
 </div>
 <img alt="../_images/1d3690c78f6df50cc9340ac9460b33d2aad9c9c1ef267f5df9c6556016125e47.png" src="../_images/1d3690c78f6df50cc9340ac9460b33d2aad9c9c1ef267f5df9c6556016125e47.png" />
@@ -697,7 +703,7 @@ to VTK and use <a class="reference external" href="https://www.paraview.org/">Pa
         <div class="footer-item">
 
   <p class="sphinx-version">
-    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.2.3.
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
     <br/>
   </p>
 </div>

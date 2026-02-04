@@ -43,8 +43,8 @@
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
     <script src="../_static/documentation_options.js?v=5929fcd5"></script>
-    <script src="../_static/doctools.js?v=9bcbadda"></script>
-    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'user_guide/reading_data';</script>
     <link rel="icon" href="../_static/geost_logo.png"/>
@@ -434,6 +434,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.Collection.to_csv.html">geost.base.Collection.to_csv</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.Collection.to_parquet.html">geost.base.Collection.to_parquet</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.read_bhrgt.html">geost.read_bhrgt</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.read_bhrgt_samples.html">geost.read_bhrgt_samples</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.read_bhrg.html">geost.read_bhrg</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.read_bhrp.html">geost.read_bhrp</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.read_cpt.html">geost.read_cpt</a></li>
@@ -580,6 +581,7 @@
 <li class="toctree-l2 has-children"><a class="reference internal" href="../api_reference/voxelmodel.html">VoxelModel</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.models.VoxelModel.html">geost.models.VoxelModel</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.models.VoxelModel.from_netcdf.html">geost.models.VoxelModel.from_netcdf</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.models.VoxelModel.from_opendap.html">geost.models.VoxelModel.from_opendap</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.models.VoxelModel.get_thickness.html">geost.models.VoxelModel.get_thickness</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.models.VoxelModel.most_common.html">geost.models.VoxelModel.most_common</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.models.VoxelModel.isel.html">geost.models.VoxelModel.isel</a></li>
@@ -807,47 +809,52 @@ data (e.g. CPT, well logs) at a single x,y- or lat,lon-location (see <a class="r
 <td><p><a class="reference internal" href="../api_reference/borehole_collection.html"><span class="std std-doc"><code class="docutils literal notranslate"><span class="pre">BoreholeCollection</span></code></span></a></p></td>
 <td><p>(BRO) Geotechnical boreholes from xml</p></td>
 </tr>
-<tr class="row-even"><td><p>BHR-P</p></td>
+<tr class="row-even"><td><p>BHR-GT-samples</p></td>
+<td><p><a class="reference internal" href="../api_reference/generated/geost.read_bhrgt_samples.html"><span class="std std-doc"><code class="docutils literal notranslate"><span class="pre">read_bhrgt_samples</span></code></span></a></p></td>
+<td><p><a class="reference internal" href="../api_reference/borehole_collection.html"><span class="std std-doc"><code class="docutils literal notranslate"><span class="pre">BoreholeCollection</span></code></span></a></p></td>
+<td><p>(BRO) Geotechnical boreholes - grainsize samples from xml</p></td>
+</tr>
+<tr class="row-odd"><td><p>BHR-P</p></td>
 <td><p><a class="reference internal" href="../api_reference/generated/geost.read_bhrp.html"><span class="std std-doc"><code class="docutils literal notranslate"><span class="pre">read_bhrp</span></code></span></a></p></td>
 <td><p><a class="reference internal" href="../api_reference/borehole_collection.html"><span class="std std-doc"><code class="docutils literal notranslate"><span class="pre">BoreholeCollection</span></code></span></a></p></td>
 <td><p>(BRO) Pedological boreholes from xml</p></td>
 </tr>
-<tr class="row-odd"><td><p>CPT</p></td>
+<tr class="row-even"><td><p>CPT</p></td>
 <td><p><a class="reference internal" href="../api_reference/generated/geost.read_cpt.html"><span class="std std-doc"><code class="docutils literal notranslate"><span class="pre">read_cpt</span></code></span></a> <a class="reference internal" href="../api_reference/generated/geost.read_gef_cpts.html"><span class="std std-doc"><code class="docutils literal notranslate"><span class="pre">read_gef_cpts</span></code></span></a></p></td>
 <td><p><a class="reference internal" href="../api_reference/cpt_collection.html"><span class="std std-doc"><code class="docutils literal notranslate"><span class="pre">CptCollection</span></code></span></a></p></td>
 <td><p>(BRO) Cone Penetration Tests from xml or gef</p></td>
 </tr>
-<tr class="row-even"><td><p>SFR</p></td>
+<tr class="row-odd"><td><p>SFR</p></td>
 <td><p><a class="reference internal" href="../api_reference/generated/geost.read_sfr.html"><span class="std std-doc"><code class="docutils literal notranslate"><span class="pre">read_sfr</span></code></span></a></p></td>
 <td><p><a class="reference internal" href="../api_reference/borehole_collection.html"><span class="std std-doc"><code class="docutils literal notranslate"><span class="pre">BoreholeCollection</span></code></span></a></p></td>
 <td><p>(BRO) Pedological soilprofile descriptions from xml</p></td>
 </tr>
-<tr class="row-odd"><td><p>BRO REST-API</p></td>
+<tr class="row-even"><td><p>BRO REST-API</p></td>
 <td><p><a class="reference internal" href="../api_reference/generated/geost.bro_api_read.html"><span class="std std-doc"><code class="docutils literal notranslate"><span class="pre">bro_api_read</span></code></span></a></p></td>
 <td><p><a class="reference internal" href="../api_reference/borehole_collection.html"><span class="std std-doc"><code class="docutils literal notranslate"><span class="pre">BoreholeCollection</span></code></span></a> or <a class="reference internal" href="../api_reference/cpt_collection.html"><span class="std std-doc"><code class="docutils literal notranslate"><span class="pre">CptCollection</span></code></span></a></p></td>
-<td><p>BRO BHR-G, BHR-GT, BHR-P, CPT or SFR objects</p></td>
+<td><p>BRO BHR-G, BHR-GT, BHR-GT-samples, BHR-P, CPT or SFR objects</p></td>
 </tr>
-<tr class="row-even"><td><p>GeoST borehole parquet or csv</p></td>
+<tr class="row-odd"><td><p>GeoST borehole parquet or csv</p></td>
 <td><p><a class="reference internal" href="../api_reference/generated/geost.read_borehole_table.html"><span class="std std-doc"><code class="docutils literal notranslate"><span class="pre">read_borehole_table</span></code></span></a></p></td>
 <td><p><a class="reference internal" href="../api_reference/borehole_collection.html"><span class="std std-doc"><code class="docutils literal notranslate"><span class="pre">BoreholeCollection</span></code></span></a> or <a class="reference external" href="https://pandas.pydata.org/docs/reference/frame.html"><code class="docutils literal notranslate"><span class="pre">DataFrame</span></code></a></p></td>
 <td><p>GeoST native format. Result of to_parquet or to_csv exports</p></td>
 </tr>
-<tr class="row-odd"><td><p>GeoST CPT parquet or csv</p></td>
+<tr class="row-even"><td><p>GeoST CPT parquet or csv</p></td>
 <td><p><a class="reference internal" href="../api_reference/generated/geost.read_cpt_table.html"><span class="std std-doc"><code class="docutils literal notranslate"><span class="pre">read_cpt_table</span></code></span></a></p></td>
 <td><p><a class="reference internal" href="../api_reference/cpt_collection.html"><span class="std std-doc"><code class="docutils literal notranslate"><span class="pre">CptCollection</span></code></span></a> or <a class="reference external" href="https://pandas.pydata.org/docs/reference/frame.html"><code class="docutils literal notranslate"><span class="pre">DataFrame</span></code></a></p></td>
 <td><p>GeoST native format. Result of to_parquet or to_csv exports</p></td>
 </tr>
-<tr class="row-even"><td><p>NLOG excel export</p></td>
+<tr class="row-odd"><td><p>NLOG excel export</p></td>
 <td><p><a class="reference internal" href="../api_reference/generated/geost.read_nlog_cores.html"><span class="std std-doc"><code class="docutils literal notranslate"><span class="pre">read_nlog_cores</span></code></span></a></p></td>
 <td><p><a class="reference internal" href="../api_reference/borehole_collection.html"><span class="std std-doc"><code class="docutils literal notranslate"><span class="pre">BoreholeCollection</span></code></span></a> or <a class="reference external" href="https://pandas.pydata.org/docs/reference/frame.html"><code class="docutils literal notranslate"><span class="pre">DataFrame</span></code></a></p></td>
 <td><p>Reader for NLOG deep cores, see <a class="reference external" href="https://www.nlog.nl/boringen">here</a></p></td>
 </tr>
-<tr class="row-odd"><td><p>UU LLG cores</p></td>
+<tr class="row-even"><td><p>UU LLG cores</p></td>
 <td><p><a class="reference internal" href="../api_reference/generated/geost.read_uullg_tables.html"><span class="std std-doc"><code class="docutils literal notranslate"><span class="pre">read_uullg_tables</span></code></span></a></p></td>
 <td><p><a class="reference internal" href="../api_reference/borehole_collection.html"><span class="std std-doc"><code class="docutils literal notranslate"><span class="pre">BoreholeCollection</span></code></span></a> or <a class="reference external" href="https://pandas.pydata.org/docs/reference/frame.html"><code class="docutils literal notranslate"><span class="pre">DataFrame</span></code></a></p></td>
 <td><p>Reader for csv distribution of Utrecht University student boreholes</p></td>
 </tr>
-<tr class="row-even"><td><p>BORIS XML</p></td>
+<tr class="row-odd"><td><p>BORIS XML</p></td>
 <td><p><a class="reference internal" href="#../api_reference/generated/geost.read_xml_boris.rst"><span class="xref myst"><code class="docutils literal notranslate"><span class="pre">read_xml_boris</span></code></span></a></p></td>
 <td><p><a class="reference internal" href="../api_reference/borehole_collection.html"><span class="std std-doc"><code class="docutils literal notranslate"><span class="pre">BoreholeCollection</span></code></span></a> or <a class="reference external" href="https://pandas.pydata.org/docs/reference/frame.html"><code class="docutils literal notranslate"><span class="pre">DataFrame</span></code></a></p></td>
 <td><p>Reader for XML exports of the BORIS borehole description software</p></td>
@@ -874,12 +881,17 @@ data (e.g. CPT, well logs) at a single x,y- or lat,lon-location (see <a class="r
 <td><p><a class="reference internal" href="../api_reference/voxelmodel.html"><span class="std std-doc"><code class="docutils literal notranslate"><span class="pre">VoxelModel</span></code></span></a></p></td>
 <td><p>Generic reader for a voxelmodel presented in NetCDF format (readable as xarray dataset)</p></td>
 </tr>
-<tr class="row-odd"><td><p>GeoTOP NetCDF</p></td>
+<tr class="row-odd"><td><p>Generic Voxelmodel OpenDAP</p></td>
+<td><p><a class="reference internal" href="../api_reference/generated/geost.models.VoxelModel.from_opendap.html"><span class="std std-doc"><code class="docutils literal notranslate"><span class="pre">VoxelModel.from_opendap</span></code></span></a></p></td>
+<td><p><a class="reference internal" href="../api_reference/voxelmodel.html"><span class="std std-doc"><code class="docutils literal notranslate"><span class="pre">VoxelModel</span></code></span></a></p></td>
+<td><p>Generic reader for a voxelmodel from an OpenDAP server</p></td>
+</tr>
+<tr class="row-even"><td><p>GeoTOP NetCDF</p></td>
 <td><p><a class="reference internal" href="../api_reference/generated/geost.bro.bro_geotop.GeoTop.from_netcdf.html"><span class="std std-doc"><code class="docutils literal notranslate"><span class="pre">GeoTop.from_netcdf</span></code></span></a></p></td>
 <td><p><a class="reference internal" href="../api_reference/voxelmodel.html"><span class="std std-doc"><code class="docutils literal notranslate"><span class="pre">VoxelModel</span></code></span></a></p></td>
 <td><p>Reader for GeoTOP NetCDF distribution</p></td>
 </tr>
-<tr class="row-even"><td><p>GeoTOP OpenDAP</p></td>
+<tr class="row-odd"><td><p>GeoTOP OpenDAP</p></td>
 <td><p><a class="reference internal" href="../api_reference/generated/geost.bro.bro_geotop.GeoTop.from_opendap.html"><span class="std std-doc"><code class="docutils literal notranslate"><span class="pre">GeoTop.from_opendap</span></code></span></a></p></td>
 <td><p><a class="reference internal" href="../api_reference/voxelmodel.html"><span class="std std-doc"><code class="docutils literal notranslate"><span class="pre">VoxelModel</span></code></span></a></p></td>
 <td><p>Reader for GeoTOP OpenDAP distribution</p></td>
@@ -926,7 +938,6 @@ data (e.g. CPT, well logs) at a single x,y- or lat,lon-location (see <a class="r
     <tr style="text-align: right;">
       <th></th>
       <th>nr</th>
-      <th>crs</th>
       <th>surface</th>
       <th>vertical_datum</th>
       <th>begin_depth</th>
@@ -943,7 +954,6 @@ data (e.g. CPT, well logs) at a single x,y- or lat,lon-location (see <a class="r
     <tr>
       <th>0</th>
       <td>BHR000000085497</td>
-      <td>urn:ogc:def:crs:EPSG::28992</td>
       <td>1.99</td>
       <td>NAP</td>
       <td>0.0</td>
@@ -951,14 +961,13 @@ data (e.g. CPT, well logs) at a single x,y- or lat,lon-location (see <a class="r
       <td>0.5</td>
       <td>None</td>
       <td>graslandBlijvend</td>
-      <td>141671.0</td>
-      <td>455122.0</td>
-      <td>POINT (141671 455122)</td>
+      <td>141670.998864</td>
+      <td>455121.998169</td>
+      <td>POINT (141670.999 455121.998)</td>
     </tr>
     <tr>
       <th>1</th>
       <td>BHR000000114014</td>
-      <td>urn:ogc:def:crs:EPSG::28992</td>
       <td>2.05</td>
       <td>NAP</td>
       <td>0.0</td>
@@ -966,14 +975,13 @@ data (e.g. CPT, well logs) at a single x,y- or lat,lon-location (see <a class="r
       <td>0.5</td>
       <td>None</td>
       <td>graslandBlijvend</td>
-      <td>141523.0</td>
-      <td>455073.0</td>
-      <td>POINT (141523 455073)</td>
+      <td>141522.999044</td>
+      <td>455072.997521</td>
+      <td>POINT (141522.999 455072.998)</td>
     </tr>
     <tr>
       <th>2</th>
       <td>BHR000000120513</td>
-      <td>urn:ogc:def:crs:EPSG::28992</td>
       <td>2.01</td>
       <td>NAP</td>
       <td>0.0</td>
@@ -981,14 +989,13 @@ data (e.g. CPT, well logs) at a single x,y- or lat,lon-location (see <a class="r
       <td>0.5</td>
       <td>None</td>
       <td>graslandBlijvend</td>
-      <td>141580.0</td>
-      <td>455167.0</td>
-      <td>POINT (141580 455167)</td>
+      <td>141579.998672</td>
+      <td>455166.997208</td>
+      <td>POINT (141579.999 455166.997)</td>
     </tr>
     <tr>
       <th>3</th>
       <td>BHR000000160549</td>
-      <td>urn:ogc:def:crs:EPSG::28992</td>
       <td>2.03</td>
       <td>NAP</td>
       <td>0.0</td>
@@ -996,14 +1003,13 @@ data (e.g. CPT, well logs) at a single x,y- or lat,lon-location (see <a class="r
       <td>0.6</td>
       <td>None</td>
       <td>graslandBlijvend</td>
-      <td>141622.0</td>
-      <td>455034.0</td>
-      <td>POINT (141622 455034)</td>
+      <td>141621.999280</td>
+      <td>455033.997319</td>
+      <td>POINT (141621.999 455033.997)</td>
     </tr>
     <tr>
       <th>4</th>
       <td>BHR000000206176</td>
-      <td>urn:ogc:def:crs:EPSG::28992</td>
       <td>1.89</td>
       <td>NAP</td>
       <td>0.0</td>
@@ -1011,14 +1017,13 @@ data (e.g. CPT, well logs) at a single x,y- or lat,lon-location (see <a class="r
       <td>0.3</td>
       <td>None</td>
       <td>graslandBlijvend</td>
-      <td>141522.0</td>
-      <td>455275.0</td>
-      <td>POINT (141522 455275)</td>
+      <td>141521.998939</td>
+      <td>455274.997287</td>
+      <td>POINT (141521.999 455274.997)</td>
     </tr>
     <tr>
       <th>5</th>
       <td>BHR000000247842</td>
-      <td>urn:ogc:def:crs:EPSG::28992</td>
       <td>2.12</td>
       <td>NAP</td>
       <td>0.0</td>
@@ -1026,9 +1031,9 @@ data (e.g. CPT, well logs) at a single x,y- or lat,lon-location (see <a class="r
       <td>0.4</td>
       <td>None</td>
       <td>graslandBlijvend</td>
-      <td>141642.0</td>
-      <td>455278.0</td>
-      <td>POINT (141642 455278)</td>
+      <td>141641.998690</td>
+      <td>455277.998008</td>
+      <td>POINT (141641.999 455277.998)</td>
     </tr>
   </tbody>
 </table>
@@ -1046,6 +1051,12 @@ data (e.g. CPT, well logs) at a single x,y- or lat,lon-location (see <a class="r
 </div>
 </div>
 <div class="cell_output docutils container">
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>/home/runner/work/geost/geost/.pixi/envs/default/lib/python3.14/site-packages/pydap/handlers/dap.py:143: UserWarning: PyDAP was unable to determine the DAP protocol defaulting to DAP2. DAP2 is consider legacy and may result in slower responses. 
+Consider replacing `http` in your `url` with either `dap2` or `dap4` to specify the DAP protocol (e.g. `dap2://&lt;data_url&gt;` or `dap4://&lt;data_url&gt;`).  For more 
+information, go to https://www.opendap.org/faq-page.
+  warnings.warn(
+</pre></div>
+</div>
 <div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>GeoTop
 Data variables:
     strat    (y, x, z) float32 25kB dask.array&lt;chunksize=(5, 4, 76), meta=np.ndarray&gt;
@@ -1169,7 +1180,7 @@ Resolution (y, x, z): (100.0, 100.0, 0.5)
         <div class="footer-item">
 
   <p class="sphinx-version">
-    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.2.3.
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
     <br/>
   </p>
 </div>

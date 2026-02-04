@@ -2,24 +2,26 @@
 
 ## v0.4.0
 
-Replaced core header and data structures (e.g. `PointHeader`, `LayeredData`) in `Collection` instances by accessors on GeoDataFrames (header) and DataFrames (data). Now the header and data attributes of Collections have direct access to all Geopandas and Pandas methods. See the [GeoST accessors](./user_guide/accessors.ipynb) section in the User guide for detailed explanation of the new accessors.
+Replaced core header and data structures (e.g. `PointHeader`, `LayeredData`) in `Collection` instances by accessors on GeoDataFrames (header) and DataFrames (data). Now the header and data attributes of Collections have direct access to all Geopandas and Pandas methods. See the [GeoST accessors](./user_guide/accessors.ipynb) section in the User guide for detailed explanation of the new accessors. Other notable changes are Python 3.14 support and BHRGT grain size sample support in `geost.bro_api_read`
 
 **Added**
+- **Added** Python 3.14 support
+- **Added** `geost.bro_api_read` now supports geotechnical borehole grainsize sample data: use "BHR-GT-samples" as object_type argument.
+- **Added** `geost.bro_api_read` now supports selection bounding boxes and geometries in any coordinate reference system.
 - **Added** `.gsthd` for Geopandas GeoDataFrames, see also [GeoST accessors](./user_guide/accessors.ipynb#header-gsthd-accessor).
 - **Added** `.gstda` for Pandas DataFrames, see also [GeoST accessors](./user_guide/accessors.ipynb#data-gstda-accessor).
 - **Added** `VoxelModel.slice_depth_interval` to slice voxelmodels between specific depth intervals using single values or 1D/2D elevation grids.
 - **Added** `VoxelModel.most_common` to determine the most common unit (i.e. value) and corresponding thickness at every x,y-location.
 - **Added** `VoxelModel.value_counts` to determine the value counts of unique values in a
 variable, in the total variable or along a specific dimension.
-- **Added** `VoxelModel.from_opendap` for generic voxel models. DIS3.1 example will follow later.
+- **Added** `VoxelModel.from_opendap` for generic voxel models.
 - **Added** option to skip data validation in Collections entirely by setting `geost.config.validation.SKIP = True`
-
 
 **Other**
 - Move `BoreholeCollection` and `CptCollection` to top-level import of package.
 - Make Pyvista imports lazy to only import when used.
 - Removed unused points in PyVista.UnstructuredGrid exports, reducing file size when saved to vtk file.
-
+- Significantly sped up creation of geometries from x/y arrays in `geost.utils.dataframe_to_geodataframe` (e.g. used for creating headers from data)
 
 [**Full Changelog**](https://github.com/Deltares-research/geost/compare/0.3.0...0.4.0)
 
@@ -27,7 +29,6 @@ variable, in the total variable or along a specific dimension.
 
 Milestone update introducing improved integration with the BRO, 3D viewing/VTK features,
 better data validation and configuration options.
-
 
 **Added**
 - **Added** XML file parsing functionality for BHR-P, BHR-G, BHR-GT, CPT and SFR objects

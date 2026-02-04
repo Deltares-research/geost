@@ -42,8 +42,8 @@
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
     <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
-    <script src="../../../_static/doctools.js?v=9bcbadda"></script>
-    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = '_modules/geost/bro/bro_geotop';</script>
     <link rel="icon" href="../../../_static/geost_logo.png"/>
@@ -849,6 +849,8 @@
 <span class="sd">            GeoTop instance for the selected area.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="s2">&quot;engine&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">xr_kwargs</span><span class="p">:</span>
+            <span class="n">xr_kwargs</span><span class="p">[</span><span class="s2">&quot;engine&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;pydap&quot;</span>
         <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">from_netcdf</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">data_vars</span><span class="p">,</span> <span class="n">bbox</span><span class="p">,</span> <span class="n">lazy</span><span class="p">,</span> <span class="o">**</span><span class="n">xr_kwargs</span><span class="p">)</span></div>
 </div>
 
@@ -902,7 +904,7 @@
         <div class="footer-item">
 
   <p class="sphinx-version">
-    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.2.3.
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
     <br/>
   </p>
 </div>

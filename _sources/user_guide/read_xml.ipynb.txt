@@ -14,7 +14,7 @@
     "Borehole and CPT data in the Netherlands is distributed via a public national database: the BRO (\"Basis Registratie Ondergrond\"). The BRO contains five main sources of subsurface data: \n",
     "\n",
     "- Geological boreholes (BHR-G objects)\n",
-    "- Geotechnical boreholes (BHR-GT objects)\n",
+    "- Geotechnical boreholes (BHR-GT objects or BHR-GT-samples if retrieving grainsize sample data from them)\n",
     "- Pedological boreholes (BHR-P objects)\n",
     "- Cone Penetration Tests (CPT objects)\n",
     "- Pedological soilprofile descriptions (SFR objects)\n",

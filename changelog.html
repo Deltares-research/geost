@@ -43,8 +43,8 @@
 <link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
     <script src="_static/documentation_options.js?v=5929fcd5"></script>
-    <script src="_static/doctools.js?v=9bcbadda"></script>
-    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="_static/design-tabs.js?v=f930bc37"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'changelog';</script>
     <link rel="icon" href="_static/geost_logo.png"/>
@@ -472,16 +472,19 @@
 <h1>Release notes<a class="headerlink" href="#release-notes" title="Link to this heading">#</a></h1>
 <section id="v0-4-0">
 <h2>v0.4.0<a class="headerlink" href="#v0-4-0" title="Link to this heading">#</a></h2>
-<p>Replaced core header and data structures (e.g. <code class="docutils literal notranslate"><span class="pre">PointHeader</span></code>, <code class="docutils literal notranslate"><span class="pre">LayeredData</span></code>) in <code class="docutils literal notranslate"><span class="pre">Collection</span></code> instances by accessors on GeoDataFrames (header) and DataFrames (data). Now the header and data attributes of Collections have direct access to all Geopandas and Pandas methods. See the <a class="reference internal" href="user_guide/accessors.html"><span class="std std-doc">GeoST accessors</span></a> section in the User guide for detailed explanation of the new accessors.</p>
+<p>Replaced core header and data structures (e.g. <code class="docutils literal notranslate"><span class="pre">PointHeader</span></code>, <code class="docutils literal notranslate"><span class="pre">LayeredData</span></code>) in <code class="docutils literal notranslate"><span class="pre">Collection</span></code> instances by accessors on GeoDataFrames (header) and DataFrames (data). Now the header and data attributes of Collections have direct access to all Geopandas and Pandas methods. See the <a class="reference internal" href="user_guide/accessors.html"><span class="std std-doc">GeoST accessors</span></a> section in the User guide for detailed explanation of the new accessors. Other notable changes are Python 3.14 support and BHRGT grain size sample support in <code class="docutils literal notranslate"><span class="pre">geost.bro_api_read</span></code></p>
 <p><strong>Added</strong></p>
 <ul class="simple">
+<li><p><strong>Added</strong> Python 3.14 support</p></li>
+<li><p><strong>Added</strong> <code class="docutils literal notranslate"><span class="pre">geost.bro_api_read</span></code> now supports geotechnical borehole grainsize sample data: use “BHR-GT-samples” as object_type argument.</p></li>
+<li><p><strong>Added</strong> <code class="docutils literal notranslate"><span class="pre">geost.bro_api_read</span></code> now supports selection bounding boxes and geometries in any coordinate reference system.</p></li>
 <li><p><strong>Added</strong> <code class="docutils literal notranslate"><span class="pre">.gsthd</span></code> for Geopandas GeoDataFrames, see also <a class="reference internal" href="user_guide/accessors.html#header-gsthd-accessor"><span class="std std-ref">GeoST accessors</span></a>.</p></li>
 <li><p><strong>Added</strong> <code class="docutils literal notranslate"><span class="pre">.gstda</span></code> for Pandas DataFrames, see also <a class="reference internal" href="user_guide/accessors.html#data-gstda-accessor"><span class="std std-ref">GeoST accessors</span></a>.</p></li>
 <li><p><strong>Added</strong> <code class="docutils literal notranslate"><span class="pre">VoxelModel.slice_depth_interval</span></code> to slice voxelmodels between specific depth intervals using single values or 1D/2D elevation grids.</p></li>
 <li><p><strong>Added</strong> <code class="docutils literal notranslate"><span class="pre">VoxelModel.most_common</span></code> to determine the most common unit (i.e. value) and corresponding thickness at every x,y-location.</p></li>
 <li><p><strong>Added</strong> <code class="docutils literal notranslate"><span class="pre">VoxelModel.value_counts</span></code> to determine the value counts of unique values in a
 variable, in the total variable or along a specific dimension.</p></li>
-<li><p><strong>Added</strong> <code class="docutils literal notranslate"><span class="pre">VoxelModel.from_opendap</span></code> for generic voxel models. DIS3.1 example will follow later.</p></li>
+<li><p><strong>Added</strong> <code class="docutils literal notranslate"><span class="pre">VoxelModel.from_opendap</span></code> for generic voxel models.</p></li>
 <li><p><strong>Added</strong> option to skip data validation in Collections entirely by setting <code class="docutils literal notranslate"><span class="pre">geost.config.validation.SKIP</span> <span class="pre">=</span> <span class="pre">True</span></code></p></li>
 </ul>
 <p><strong>Other</strong></p>
@@ -489,6 +492,7 @@ variable, in the total variable or along a specific dimension.</p></li>
 <li><p>Move <code class="docutils literal notranslate"><span class="pre">BoreholeCollection</span></code> and <code class="docutils literal notranslate"><span class="pre">CptCollection</span></code> to top-level import of package.</p></li>
 <li><p>Make Pyvista imports lazy to only import when used.</p></li>
 <li><p>Removed unused points in PyVista.UnstructuredGrid exports, reducing file size when saved to vtk file.</p></li>
+<li><p>Significantly sped up creation of geometries from x/y arrays in <code class="docutils literal notranslate"><span class="pre">geost.utils.dataframe_to_geodataframe</span></code> (e.g. used for creating headers from data)</p></li>
 </ul>
 <p><a class="reference external" href="https://github.com/Deltares-research/geost/compare/0.3.0...0.4.0"><strong>Full Changelog</strong></a></p>
 </section>
@@ -710,7 +714,7 @@ better data validation and configuration options.</p>
         <div class="footer-item">
 
   <p class="sphinx-version">
-    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.2.3.
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
     <br/>
   </p>
 </div>

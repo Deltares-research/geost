@@ -16,6 +16,13 @@ managing subsurface data.
 :img-bottom: ./_static/dike_section.png
 Extract boreholes and CPTs from the BRO database with just a few lines of code.
 ```
+```{grid-item-card} BHR-GT grainsize samples (WIP)
+:text-align: center
+:link: ./examples/bhrgt_samples.html
+:link-type: url
+:img-bottom: ./_static/vibrocore.png
+Extract and work with BHR-GT grainsize sample data directly from the BRO
+```
 ```{grid-item-card} Working with BRO soil cores
 :text-align: center
 :link: ./examples/bro_soil_cores.html
@@ -26,20 +33,30 @@ A simple analysis of soil cores that are directly retrieved from the BRO.
 ```{grid-item-card} Combining GeoTOP and CPTs
 :text-align: center
 :link: ./examples/combine_geotop_with_cpts.html
+:link-type: url
 :img-bottom: ./_static/cpts_usp.png
 Combining information from a voxelmodel (GeoTOP) with point data (CPTs).
 ```
 ```{grid-item-card} Thickness maps from GeoTOP
 :text-align: center
 :link: ./examples/geotop_thickness_maps.html
+:link-type: url
 :img-bottom: ./_static/geotop_thickness_example.png
 Create thickness maps of GeoTOP units with only a few lines of code.
 ```
 ```{grid-item-card} GeoST + PyVista: 3D export features
 :text-align: center
 :link: ./examples/boreholes_geotop_3d.html
+:link-type: url
 :img-bottom: ./_static/geotop_cpt_ic_model.png
 Showcasing GeoST's VTK export and 3D viewing features powered by PyVista.
+```
+```{grid-item-card} DIS3.1 Voxelmodel (WIP)
+:text-align: center
+:link: ./examples/dis_model.html
+:link-type: url
+:img-bottom: ./_static/dis.png
+Retrieving DIS3.1 from the Deltares OpenDAP server and basic analysis
 ```
 ````
 

@@ -43,8 +43,8 @@
 <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
     <script src="../../_static/documentation_options.js?v=5929fcd5"></script>
-    <script src="../../_static/doctools.js?v=9bcbadda"></script>
-    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../_static/design-tabs.js?v=f930bc37"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'api_reference/generated/geost.bro_api_read';</script>
     <link rel="icon" href="../../_static/geost_logo.png"/>
@@ -434,6 +434,7 @@
 <li class="toctree-l3"><a class="reference internal" href="geost.base.Collection.to_csv.html">geost.base.Collection.to_csv</a></li>
 <li class="toctree-l3"><a class="reference internal" href="geost.base.Collection.to_parquet.html">geost.base.Collection.to_parquet</a></li>
 <li class="toctree-l3"><a class="reference internal" href="geost.read_bhrgt.html">geost.read_bhrgt</a></li>
+<li class="toctree-l3"><a class="reference internal" href="geost.read_bhrgt_samples.html">geost.read_bhrgt_samples</a></li>
 <li class="toctree-l3"><a class="reference internal" href="geost.read_bhrg.html">geost.read_bhrg</a></li>
 <li class="toctree-l3"><a class="reference internal" href="geost.read_bhrp.html">geost.read_bhrp</a></li>
 <li class="toctree-l3"><a class="reference internal" href="geost.read_cpt.html">geost.read_cpt</a></li>
@@ -580,6 +581,7 @@
 <li class="toctree-l2 has-children"><a class="reference internal" href="../voxelmodel.html">VoxelModel</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l3"><a class="reference internal" href="geost.models.VoxelModel.html">geost.models.VoxelModel</a></li>
 <li class="toctree-l3"><a class="reference internal" href="geost.models.VoxelModel.from_netcdf.html">geost.models.VoxelModel.from_netcdf</a></li>
+<li class="toctree-l3"><a class="reference internal" href="geost.models.VoxelModel.from_opendap.html">geost.models.VoxelModel.from_opendap</a></li>
 <li class="toctree-l3"><a class="reference internal" href="geost.models.VoxelModel.get_thickness.html">geost.models.VoxelModel.get_thickness</a></li>
 <li class="toctree-l3"><a class="reference internal" href="geost.models.VoxelModel.most_common.html">geost.models.VoxelModel.most_common</a></li>
 <li class="toctree-l3"><a class="reference internal" href="geost.models.VoxelModel.isel.html">geost.models.VoxelModel.isel</a></li>
@@ -782,7 +784,7 @@
 <h1>geost.bro_api_read<a class="headerlink" href="#geost-bro-api-read" title="Link to this heading">#</a></h1>
 <dl class="py function">
 <dt class="sig sig-object py" id="geost.bro_api_read">
-<span class="sig-prename descclassname"><span class="pre">geost.</span></span><span class="sig-name descname"><span class="pre">bro_api_read</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">object_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">BroObject</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">bro_ids</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bbox</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">geometry</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">GeoDataFrame</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">buffer</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">schema</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/geost/io/read.html#bro_api_read"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#geost.bro_api_read" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">geost.</span></span><span class="sig-name descname"><span class="pre">bro_api_read</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">object_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">BroObject</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">bro_ids</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">epsg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">28992</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bbox</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">geometry</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">GeoDataFrame</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">buffer</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">schema</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/geost/io/read.html#bro_api_read"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#geost.bro_api_read" title="Link to this definition">#</a></dt>
 <dd><p>Read data directly from the BRO API. This allows to read BHR-GT, BHR-P, BHR-G and
 CPT data from the BRO API into <cite>geost</cite> objects without having to download the data
 first. Note, API requests are relatively slow, so this function is not meant for bulk
@@ -791,10 +793,15 @@ more than 2000 objects, the API will return an error.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>object_type</strong> (<em>BroObject</em>) – Type of BRO object to read. This can be one of the following: “BHR-GT”, “BHR-P”,
-“BHR-G”, “CPT”, “SFR”.</p></li>
+<li><p><strong>object_type</strong> (<em>BroObject</em>) – Type of BRO object to read. This can be one of the following: “BHR-GT”, “BHR-GT-samples”,
+“BHR-P”, “BHR-G”, “CPT”, “SFR”.</p></li>
 <li><p><strong>bro_ids</strong> (<em>str</em><em> | </em><em>list</em><em>[</em><em>str</em><em>]</em><em>, </em><em>optional</em><em> (</em><em>keyword only</em><em>)</em>) – List of BRO object ids to read. If not given, the bbox or geometry must be
 provided to select the objects to read. If given, bbox and geometry are ignored.</p></li>
+<li><p><strong>epsg</strong> (<em>int</em><em>, </em><em>optional</em><em> (</em><em>keyword only</em><em>)</em>) – EPSG code of the coordinate reference system that the collection will be coerced to.
+If using a bbox for selection, this EPSG code is also used to interpret the bbox coordinates.
+Note that when using a geometry for selection, the geometry’s CRS is used instead unless
+the geometry has no CRS defined. In that case, this EPSG code is also used.
+The default is 28992 (RD New).</p></li>
 <li><p><strong>bbox</strong> (<em>tuple</em><em>[</em><em>float</em><em>, </em><em>float</em><em>, </em><em>float</em><em>, </em><em>float</em><em>]</em><em>, </em><em>optional</em>) – Bounding box (xmin, ymin, xmax, ymax) to search BRO objects within. The default is
 None.</p></li>
 <li><p><strong>geometry</strong> (<em>gpd.GeoDataFrame</em><em>, </em><em>optional</em><em> (</em><em>keyword only</em><em>)</em>) – Geometry to search within. Can be any Shapely geometry object (Point, Line, Polygon),
@@ -825,14 +832,16 @@ modify the schema accordingly (see usage examples).</p></li>
 … bhrgt
 BoreholeCollection:
 # header = 2</p>
-<p>Or read geological boreholes (BHR-G) within a bounding box:
+<p>Or read geological boreholes (BHR-G) within a bounding box. Note the epsg parameter
+is used to interpret the bbox coordinates (by default it is 28992 - RD New):
 &gt;&gt;&gt; import geost
 … bbox = (126_800, 448_000, 127_800, 449_000)  # xmin, ymin, xmax, ymax
-… bhrg = geost.bro_api_read(“BHR-G”, bbox=bbox)
+… bhrg = geost.bro_api_read(“BHR-G”, bbox=bbox, epsg=28992)
 BoreholeCollection:
 # header = 3</p>
 <p>Or within shapefile containing a Polygon geometry of the same bounding box of the
-previous example (Point or Line geometries are also supported):
+previous example (Point or Line geometries are also supported). Note that the epsg
+of the geometry is used if it has a defined CRS, otherwise the epsg parameter must be used:
 &gt;&gt;&gt; import geost
 … bhrg = geost.bro_api_read(“BHR-G”, geometry=”my_polygon.shp”)
 BoreholeCollection:
@@ -945,7 +954,7 @@ Collection:
         <div class="footer-item">
 
   <p class="sphinx-version">
-    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.2.3.
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
     <br/>
   </p>
 </div>

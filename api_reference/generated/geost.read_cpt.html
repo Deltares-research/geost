@@ -43,8 +43,8 @@
 <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
     <script src="../../_static/documentation_options.js?v=5929fcd5"></script>
-    <script src="../../_static/doctools.js?v=9bcbadda"></script>
-    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../_static/design-tabs.js?v=f930bc37"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'api_reference/generated/geost.read_cpt';</script>
     <link rel="icon" href="../../_static/geost_logo.png"/>
@@ -434,6 +434,7 @@
 <li class="toctree-l3"><a class="reference internal" href="geost.base.Collection.to_csv.html">geost.base.Collection.to_csv</a></li>
 <li class="toctree-l3"><a class="reference internal" href="geost.base.Collection.to_parquet.html">geost.base.Collection.to_parquet</a></li>
 <li class="toctree-l3"><a class="reference internal" href="geost.read_bhrgt.html">geost.read_bhrgt</a></li>
+<li class="toctree-l3"><a class="reference internal" href="geost.read_bhrgt_samples.html">geost.read_bhrgt_samples</a></li>
 <li class="toctree-l3"><a class="reference internal" href="geost.read_bhrg.html">geost.read_bhrg</a></li>
 <li class="toctree-l3"><a class="reference internal" href="geost.read_bhrp.html">geost.read_bhrp</a></li>
 <li class="toctree-l3 current active"><a class="current reference internal" href="#">geost.read_cpt</a></li>
@@ -580,6 +581,7 @@
 <li class="toctree-l2 has-children"><a class="reference internal" href="../voxelmodel.html">VoxelModel</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l3"><a class="reference internal" href="geost.models.VoxelModel.html">geost.models.VoxelModel</a></li>
 <li class="toctree-l3"><a class="reference internal" href="geost.models.VoxelModel.from_netcdf.html">geost.models.VoxelModel.from_netcdf</a></li>
+<li class="toctree-l3"><a class="reference internal" href="geost.models.VoxelModel.from_opendap.html">geost.models.VoxelModel.from_opendap</a></li>
 <li class="toctree-l3"><a class="reference internal" href="geost.models.VoxelModel.get_thickness.html">geost.models.VoxelModel.get_thickness</a></li>
 <li class="toctree-l3"><a class="reference internal" href="geost.models.VoxelModel.most_common.html">geost.models.VoxelModel.most_common</a></li>
 <li class="toctree-l3"><a class="reference internal" href="geost.models.VoxelModel.isel.html">geost.models.VoxelModel.isel</a></li>
@@ -782,7 +784,7 @@
 <h1>geost.read_cpt<a class="headerlink" href="#geost-read-cpt" title="Link to this heading">#</a></h1>
 <dl class="py function">
 <dt class="sig sig-object py" id="geost.read_cpt">
-<span class="sig-prename descclassname"><span class="pre">geost.</span></span><span class="sig-name descname"><span class="pre">read_cpt</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">files</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Path</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Path</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">company</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">schema</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">read_all</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="geost.base.CptCollection.html#geost.base.CptCollection" title="geost.base.CptCollection"><span class="pre">CptCollection</span></a></span></span><a class="reference internal" href="../../_modules/geost/io/read.html#read_cpt"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#geost.read_cpt" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">geost.</span></span><span class="sig-name descname"><span class="pre">read_cpt</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">files</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Path</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Path</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">company</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">schema</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">horizontal_reference</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">CRS</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">28992</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">read_all</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="geost.base.CptCollection.html#geost.base.CptCollection" title="geost.base.CptCollection"><span class="pre">CptCollection</span></a></span></span><a class="reference internal" href="../../_modules/geost/io/read.html#read_cpt"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#geost.read_cpt" title="Link to this definition">#</a></dt>
 <dd><p>Read Cone Penetration Test (CPT) XML file or files into a <cite>CptCollection</cite>. This reads
 the XML files according to a <cite>schema</cite> that describes the structure of the of the XML
 data to find the relevant CPT data. Geost provides predefined schemas for the CPT XML
@@ -802,6 +804,8 @@ default is None.</p></li>
 <li><p><strong>schema</strong> (<em>dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em><em>, </em><em>optional</em>) – Schema to use for reading the data which describes the structure of the XML data.
 If not given and <cite>company</cite> is None, the predefined schema for BRO CPT XML file or
 files into a CptCollection. This XML files is used.</p></li>
+<li><p><strong>horizontal_reference</strong> (<em>str</em><em> | </em><em>int</em><em> | </em><em>CRS</em><em>, </em><em>optional</em>) – EPSG of the desired data’s horizontal reference. Takes anything that can be interpreted
+by pyproj.crs.CRS.from_user_input(). The default is 28992.</p></li>
 <li><p><strong>read_all</strong> (<em>bool</em><em>, </em><em>optional</em>) – XML files may contain multiple CPT elements per XML file. If True, the function
 will attempt to read all available data. Otherwise, only the first CPT element
 is read. The default is False.</p></li>
@@ -816,7 +820,7 @@ is read. The default is False.</p></li>
 </dl>
 <p class="rubric">Examples</p>
 <p>A full example of reading XML files can be found here:
-<a class="reference external" href="https://geost.readthedocs.io/en/latest/examples/bhrgt.html">https://geost.readthedocs.io/en/latest/examples/bhrgt.html</a></p>
+<a class="reference external" href="https://deltares-research.github.io/geost/api_reference/generated/geost.bro_api_read.html">https://deltares-research.github.io/geost/api_reference/generated/geost.bro_api_read.html</a></p>
 </dd></dl>
 
 </section>
@@ -915,7 +919,7 @@ is read. The default is False.</p></li>
         <div class="footer-item">
 
   <p class="sphinx-version">
-    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.2.3.
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
     <br/>
   </p>
 </div>

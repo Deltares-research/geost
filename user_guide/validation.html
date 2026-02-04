@@ -43,8 +43,8 @@
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
     <script src="../_static/documentation_options.js?v=5929fcd5"></script>
-    <script src="../_static/doctools.js?v=9bcbadda"></script>
-    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'user_guide/validation';</script>
     <link rel="icon" href="../_static/geost_logo.png"/>
@@ -434,6 +434,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.Collection.to_csv.html">geost.base.Collection.to_csv</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.Collection.to_parquet.html">geost.base.Collection.to_parquet</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.read_bhrgt.html">geost.read_bhrgt</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.read_bhrgt_samples.html">geost.read_bhrgt_samples</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.read_bhrg.html">geost.read_bhrg</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.read_bhrp.html">geost.read_bhrp</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.read_cpt.html">geost.read_cpt</a></li>
@@ -580,6 +581,7 @@
 <li class="toctree-l2 has-children"><a class="reference internal" href="../api_reference/voxelmodel.html">VoxelModel</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.models.VoxelModel.html">geost.models.VoxelModel</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.models.VoxelModel.from_netcdf.html">geost.models.VoxelModel.from_netcdf</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.models.VoxelModel.from_opendap.html">geost.models.VoxelModel.from_opendap</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.models.VoxelModel.get_thickness.html">geost.models.VoxelModel.get_thickness</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.models.VoxelModel.most_common.html">geost.models.VoxelModel.most_common</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.models.VoxelModel.isel.html">geost.models.VoxelModel.isel</a></li>
@@ -929,7 +931,7 @@ own risk as GeoST functions may break because of this.</p>
 <div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>/home/runner/work/geost/geost/geost/validation/validate.py:55: ValidationWarning: 
 Validation failed for schema &#39;Layer data non-inclined&#39;.
 Details:
-DataFrameSchema &#39;Layer data non-inclined&#39; failed element-wise validator number 0: &lt;Check &lt;lambda&gt;&gt; failure cases: B-01, 100.0, 200.0, 0.0, -1.0, 1.1, 1.0, Z
+DataFrameSchema &#39;Layer data non-inclined&#39; failed element-wise validator number 0: &lt;Check &lt;lambda&gt;: Bottom depth must be greater than or equal to top depth&gt; failure cases: B-01, 100.0, 200.0, 0.0, -1.0, 1.1, 1.0, Z
 
   warnings.warn(
 </pre></div>
@@ -958,7 +960,7 @@ row passed through validation or not.</p>
 <div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>/home/runner/work/geost/geost/geost/validation/validate.py:55: ValidationWarning: 
 Validation failed for schema &#39;Layer data non-inclined&#39;.
 Details:
-DataFrameSchema &#39;Layer data non-inclined&#39; failed element-wise validator number 0: &lt;Check &lt;lambda&gt;&gt; failure cases: B-01, 100.0, 200.0, 0.0, -1.0, 1.1, 1.0, Z
+DataFrameSchema &#39;Layer data non-inclined&#39; failed element-wise validator number 0: &lt;Check &lt;lambda&gt;: Bottom depth must be greater than or equal to top depth&gt; failure cases: B-01, 100.0, 200.0, 0.0, -1.0, 1.1, 1.0, Z
 
   warnings.warn(
 </pre></div>
@@ -1079,7 +1081,7 @@ found in this module.</p>
 <div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>/home/runner/work/geost/geost/geost/validation/validate.py:55: ValidationWarning: 
 Validation failed for schema &#39;Layer data non-inclined&#39;.
 Details:
-DataFrameSchema &#39;Layer data non-inclined&#39; failed element-wise validator number 0: &lt;Check &lt;lambda&gt;&gt; failure cases: B-01, 100.0, 200.0, 0.0, -1.0, 1.1, 1.0, Z, False
+DataFrameSchema &#39;Layer data non-inclined&#39; failed element-wise validator number 0: &lt;Check &lt;lambda&gt;: Bottom depth must be greater than or equal to top depth&gt; failure cases: B-01, 100.0, 200.0, 0.0, -1.0, 1.1, 1.0, Z, False
 
   warnings.warn(
 </pre></div>
@@ -1214,7 +1216,7 @@ Dropped indices: [1]
         <div class="footer-item">
 
   <p class="sphinx-version">
-    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.2.3.
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
     <br/>
   </p>
 </div>

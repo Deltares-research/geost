@@ -43,8 +43,8 @@
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
     <script src="../_static/documentation_options.js?v=5929fcd5"></script>
-    <script src="../_static/doctools.js?v=9bcbadda"></script>
-    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'user_guide/accessors';</script>
     <link rel="icon" href="../_static/geost_logo.png"/>
@@ -434,6 +434,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.Collection.to_csv.html">geost.base.Collection.to_csv</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.Collection.to_parquet.html">geost.base.Collection.to_parquet</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.read_bhrgt.html">geost.read_bhrgt</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.read_bhrgt_samples.html">geost.read_bhrgt_samples</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.read_bhrg.html">geost.read_bhrg</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.read_bhrp.html">geost.read_bhrp</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.read_cpt.html">geost.read_cpt</a></li>
@@ -580,6 +581,7 @@
 <li class="toctree-l2 has-children"><a class="reference internal" href="../api_reference/voxelmodel.html">VoxelModel</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.models.VoxelModel.html">geost.models.VoxelModel</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.models.VoxelModel.from_netcdf.html">geost.models.VoxelModel.from_netcdf</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.models.VoxelModel.from_opendap.html">geost.models.VoxelModel.from_opendap</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.models.VoxelModel.get_thickness.html">geost.models.VoxelModel.get_thickness</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.models.VoxelModel.most_common.html">geost.models.VoxelModel.most_common</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.models.VoxelModel.isel.html">geost.models.VoxelModel.isel</a></li>
@@ -830,10 +832,10 @@ use the <code class="docutils literal notranslate"><span class="pre">.gsthd</spa
 2    Point
 3    Point
 4    Point
-dtype: object
+dtype: str
 </pre></div>
 </div>
-<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>&lt;geost.accessors.accessor.Header at 0x7f6c1e1c92b0&gt;
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>&lt;geost.accessors.accessor.Header at 0x7f12ffcb7b60&gt;
 </pre></div>
 </div>
 </div>
@@ -850,7 +852,7 @@ the resulting backend.</p>
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>&lt;geost.accessors.header.PointHeader at 0x7f6c1e1c9010&gt;
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>&lt;geost.accessors.header.PointHeader at 0x7f12ffbe5950&gt;
 </pre></div>
 </div>
 </div>
@@ -976,8 +978,8 @@ data) and “cpts_data” (discrete data), we see that this indeed results in di
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>&lt;geost.accessors.data.LayeredData object at 0x7f6c5ed8bb10&gt;
-&lt;geost.accessors.data.DiscreteData object at 0x7f6c1e2402d0&gt;
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>&lt;geost.accessors.data.LayeredData object at 0x7f12ffcff750&gt;
+&lt;geost.accessors.data.DiscreteData object at 0x7f12ffcff750&gt;
 </pre></div>
 </div>
 </div>
@@ -1004,25 +1006,25 @@ Collection instances.</p>
 </pre></div>
 </div>
 <div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>(          nr         x         y  surface   end   top  bottom lith  zm   zmk  \
- 1   B31H0541  139585.0  456000.0      1.2  -9.9  0.50    0.60    K NaN  None   
- 2   B31H0541  139585.0  456000.0      1.2  -9.9  0.60    0.95    V NaN  None   
+ 1   B31H0541  139585.0  456000.0      1.2  -9.9  0.50    0.60    K NaN   NaN   
+ 2   B31H0541  139585.0  456000.0      1.2  -9.9  0.60    0.95    V NaN   NaN   
  3   B31H0541  139585.0  456000.0      1.2  -9.9  0.95    1.50    Z NaN  ZMFO   
- 9   B31H0611  139600.0  455060.0      1.2 -23.0  0.50    1.10    K NaN  None   
- 10  B31H0611  139600.0  455060.0      1.2 -23.0  1.10    1.50    V NaN  None   
+ 9   B31H0611  139600.0  455060.0      1.2 -23.0  0.50    1.10    K NaN   NaN   
+ 10  B31H0611  139600.0  455060.0      1.2 -23.0  1.10    1.50    V NaN   NaN   
  
-     ...  cons color lutum_pct plants shells  kleibrokjes strat_1975  \
- 1   ...  None    BR       NaN      0      0            0       None   
- 2   ...  None    BR       NaN      0      0            0       None   
- 3   ...  None    GR       NaN      0      0            0       None   
- 9   ...  None    GR       NaN      0      0            0         WE   
- 10  ...  None    BR       NaN      1      0            0         WE   
+     ... cons color lutum_pct plants shells  kleibrokjes strat_1975 strat_2003  \
+ 1   ...  NaN    BR       NaN      0      0            0        NaN         EC   
+ 2   ...  NaN    BR       NaN      0      0            0        NaN         NI   
+ 3   ...  NaN    GR       NaN      0      0            0        NaN         EC   
+ 9   ...  NaN    GR       NaN      0      0            0         WE         EC   
+ 10  ...  NaN    BR       NaN      1      0            0         WE         NI   
  
-    strat_2003 strat_inter                                               desc  
- 1          EC         NaN                       [KLEI#***#****#*] grysbruin.  
- 2          NI         NaN                     [VEEN#***#****#*] donkerbruin.  
- 3          EC         NaN  [ZAND#***#****#*] FYN TOT matig fyn# iets slib...  
- 9          EC         NaN              [KLEI#***#****#1] vet# grys# roestig.  
- 10         NI         NaN  [VEEN#***#****#*] donkerbruin# bosveen MET vee...  
+    strat_inter                                               desc  
+ 1          NaN                       [KLEI#***#****#*] grysbruin.  
+ 2          NaN                     [VEEN#***#****#*] donkerbruin.  
+ 3          NaN  [ZAND#***#****#*] FYN TOT matig fyn# iets slib...  
+ 9          NaN              [KLEI#***#****#1] vet# grys# roestig.  
+ 10         NaN  [VEEN#***#****#*] donkerbruin# bosveen MET vee...  
  
  [5 rows x 32 columns],
                  nr              x              y vertical_datum  surface  \
@@ -1226,7 +1228,7 @@ See the <a class="reference internal" href="data_structures.html#data-table"><sp
         <div class="footer-item">
 
   <p class="sphinx-version">
-    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.2.3.
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
     <br/>
   </p>
 </div>
