@@ -4,6 +4,7 @@ from geost.io.read import (
     bro_api_read,
     read_bhrg,
     read_bhrgt,
+    read_bhrgt_samples,
     read_bhrp,
     read_borehole_table,
     read_collection_geopackage,

@@ -38,53 +38,16 @@ Finally install the pre-commit hooks that enable automatic checks upon committin
     pre-commit install
 
 
+## Documentation
+All documentation can be found on our [GitHub pages](https://deltares-research.github.io/geost)
+
 ## Examples
-For an overview of examples, see the [examples on our GitHub pages](https://deltares-research.github.io/geost/examples.html).
+For an overview of examples, go directly to the [examples on our GitHub pages](https://deltares-research.github.io/geost/examples.html).
 
 We collect additional examples that make use of GeoST and other Subsurface Toolbox developments in
 the [Deltares sst-examples repository](https://github.com/Deltares-research/sst-examples).
 
-## Supported data and file formats
-**From local files**:
-- Tabular data of borehole, CPT, etc. (.parquet, .csv)
-- Geological boreholes xml (BHR-G)
-- Geotechnical boreholes xml (BHR-GT)
-- Pedological boreholes xml (BHR-P)
-- Cone Penetration Test xml/gef (CPT)
-- Pedological soilprofile descriptions xml (SFR)
-- BORIS (TNO borehole description software) xml
-
-**Directly from the [BRO REST-API](https://www.bro-productomgeving.nl/bpo/latest/url-s-publieke-rest-services)**:
-- BHR-G
-- BHR-GT
-- BHR-P
-- CPT
-- SFR
-
-**BRO models**:
-- GeoTOP: from local NetCDF or directly via [OPeNDAP server](https://dinodata.nl/opendap/)
-
-*Planned*:
-- BRO/PDOK geopackages: [BHR-G](https://service.pdok.nl/bzk/bro-geologisch-booronderzoek/atom/index.xml), [BHR-GT](https://service.pdok.nl/bzk/bro-geotechnischbooronderzoek/atom/v1_0/index.xml), [BHR-P](https://service.pdok.nl/bzk/brobhrpvolledigeset/atom/v1_1/index.xml), [CPT](https://service.pdok.nl/bzk/brocptvolledigeset/atom/v1_0/index.xml), [SFR](https://service.pdok.nl/bzk/bodem/bro-wandonderzoek/atom/index.xml)
-- Well logs LAS/ASCII
-- REGIS II
-- Dino xml geological boreholes
-- BHR-G gef
-
-## Features
-After loading data from one of the supported formats it will automatically be validated. If the validation is succesful, a Collection object will be returned depending on your input data type (mixed CPT/well log/borehole collections are not allowed). A collection object consists of two main attributes: the **header** and **data**. The header contains a table with one entry per object and provides information about the name, location, surface level, and borehole/log/cpt start and end depths. The data attribute is a table that includes the data for every described layer (boreholes) or measurement (well logs, cpt's).
-
-The collection object comes with a comprehensive set of methods that can be applied generically while ensuring that the header and data remain synchronized:
-
-- Selection/slicing methods (e.g., objects within bounding box, within or close to geometries, based on depth and other conditions)
-- Export methods (e.g. to csv, parquet, geopackage, VTK, DataFusionTools, Kingdom , etc)
-- Datafusion methods (e.g. combining collections*, combining with data from maps, conversion of description protocols*)
-- Miscellaneous methods (e.g. changing vertical/horizontal position reference system)
-
-For a better overview of basic functionality, see the [Basics Tutorial](https://github.com/Deltares-research/geost/tree/main/tutorials).
-
 ## Contributing
-
 You can contribute by testing, raising issues and making pull requests. Some general guidelines:
 
 - Use new branches for developing new features or bugfixes. Use prefixes such as feature/ bugfix/ experimental/ to indicate the type of branch

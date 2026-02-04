@@ -442,7 +442,7 @@ def read_bhrgt(
     Examples
     --------
     A full example of reading XML files can be found here:
-    https://geost.readthedocs.io/en/latest/examples/bhrgt.html
+    https://deltares-research.github.io/geost/api_reference/generated/geost.bro_api_read.html
 
     """
     header, data = xml.read(
@@ -507,7 +507,7 @@ def read_bhrgt_samples(
     Examples
     --------
     A full example of reading XML files can be found here:
-    https://geost.readthedocs.io/en/latest/examples/bhrgt.html
+    https://deltares-research.github.io/geost/api_reference/generated/bhrgt_samples.html
 
     """
     header, data = xml.read(
@@ -576,7 +576,7 @@ def read_bhrp(
     Examples
     --------
     A full example of reading XML files can be found here:
-    https://geost.readthedocs.io/en/latest/examples/bhrp.html
+    https://deltares-research.github.io/geost/api_reference/generated/geost.bro_api_read.html
 
     """
     header, data = xml.read(
@@ -642,7 +642,7 @@ def read_bhrg(
     Examples
     --------
     A full example of reading XML files can be found here:
-    https://geost.readthedocs.io/en/latest/examples/bhrgt.html
+    https://deltares-research.github.io/geost/api_reference/generated/geost.bro_api_read.html
 
     """
     header, data = xml.read(
@@ -708,7 +708,7 @@ def read_sfr(
     Examples
     --------
     A full example of reading XML files can be found here:
-    https://geost.readthedocs.io/en/latest/examples/bhrgt.html
+    https://deltares-research.github.io/geost/api_reference/generated/geost.bro_api_read.html
 
     """
     header, data = xml.read(
@@ -794,7 +794,7 @@ def read_cpt(
     Examples
     --------
     A full example of reading XML files can be found here:
-    https://geost.readthedocs.io/en/latest/examples/bhrgt.html
+    https://deltares-research.github.io/geost/api_reference/generated/geost.bro_api_read.html
 
     """
     header, data = xml.read(

@@ -11,6 +11,7 @@ Constructor
 
    VoxelModel
    VoxelModel.from_netcdf
+   VoxelModel.from_opendap
 
 
 Methods
