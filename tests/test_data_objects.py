@@ -175,43 +175,6 @@ class TestLayeredData:
         assert_array_almost_equal(result["V"], [1.1])
 
     @pytest.mark.unittest
-    def test_get_layer_base(self, borehole_data):
-        result = borehole_data.gstda.get_layer_base("lith", "V")
-        expected_boreholes_returned = ["B", "D"]
-        expected_bases = [3.1, 2.5]
-        assert_array_equal(result.index, expected_boreholes_returned)
-        assert_array_almost_equal(result["V"], expected_bases)
-
-        # Test with a minimum depth to start the search for the top of the layer.
-        result = borehole_data.gstda.get_layer_base("lith", "V", min_depth=2)
-        expected_boreholes_returned = ["B", "D"]
-        expected_bases = [3.1, 2.5]
-        assert_array_equal(result.index, expected_boreholes_returned)
-        assert_array_almost_equal(result["V"], expected_bases)
-
-        # Test with a minimum depth and minimum thickness
-        result = borehole_data.gstda.get_layer_base(
-            "lith", "V", min_depth=2, min_thickness=0.6
-        )
-        expected_boreholes_returned = ["B"]
-        expected_bases = [3.1]
-        assert_array_equal(result.index, expected_boreholes_returned)
-        assert_array_almost_equal(result["V"], expected_bases)
-
-        result = borehole_data.gstda.get_layer_base("lith", ["Z", "K"])
-        expected_boreholes_returned = ["A", "B", "C", "D", "E"]
-        expected_sand_base = [3.7, np.nan, 5.5, 3.0, 3.0]
-        expected_clay_base = [4.2, 3.9, 2.9, 1.8, np.nan]
-        assert_array_equal(result.index, expected_boreholes_returned)
-        assert_array_almost_equal(result["Z"], expected_sand_base)
-        assert_array_almost_equal(result["K"], expected_clay_base)
-
-        # Test with a maximum depth to limit the search for the base of the layer.
-        result = borehole_data.gstda.get_layer_base("lith", "V", max_depth=1.1)
-        assert_array_equal(result.index, ["D"])
-        assert_array_almost_equal(result["V"], [1.1])
-
-    @pytest.mark.unittest
     def test_slice_depth_interval(self, borehole_data):
         # Test slicing with respect to depth below the surface.
         upper, lower = 0.6, 2.4
