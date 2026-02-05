@@ -8374,7 +8374,7 @@ packages:
 - pypi: ./
   name: geost
   version: 0.4.0
-  sha256: 0fcf5809ba8f2c33cd5ca56e38eede89e013b4b187c952ce9761e46b32be4bb9
+  sha256: 88f10c96af4204686bfed9c69db2e25b09f89033c1889b5b21f348a08088ba18
   requires_dist:
   - geopandas
   - lxml
@@ -8384,6 +8384,7 @@ packages:
   - pandera
   - pooch
   - pyarrow
+  - pydap
   - pyproj
   - pyvista
   - rioxarray
