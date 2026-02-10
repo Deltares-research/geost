@@ -109,7 +109,9 @@ def safe_get(el: etree.Element):
             return clean_string(value)
 
 
-def _process_layers(layers: list[etree.Element], attributes: list[str]) -> dict:
+def _process_layers(
+    layers: list[etree.Element], attributes: list[str], coerce_dtype: type | None = None
+) -> dict:
     """
     Process a list of XML elements representing layers and extract specified attributes.
 
@@ -119,6 +121,8 @@ def _process_layers(layers: list[etree.Element], attributes: list[str]) -> dict:
         List of XML elements representing layers.
     attributes : list[str]
         List of attribute names to extract from each layer.
+    coerce_dtype : type, optional
+        If provided, the extracted attribute values will be coerced to this data type.
 
     Returns
     -------
@@ -132,6 +136,7 @@ def _process_layers(layers: list[etree.Element], attributes: list[str]) -> dict:
         for attr in attributes:
             attribute = layer.xpath(f".//*[local-name() = '{attr}']")
             value = safe_get(attribute[0]) if attribute else None
+            value = coerce_dtype(value) if coerce_dtype is not None else value
             data[attr].append(value)
 
     return data
@@ -204,6 +209,7 @@ def process_bhrgt_grain_data(el: etree.Element, attributes: list | None) -> dict
             "fraction1400umto2mm",
             "fraction2to4mm",
             "fraction4to8mm",
+            "fraction8to16mm",
             "fraction16to31_5mm",
             "fraction31_5to63mm",
             "fractionLarger63mm",
@@ -211,7 +217,7 @@ def process_bhrgt_grain_data(el: etree.Element, attributes: list | None) -> dict
 
     layers = el.xpath(".//*[local-name() = 'investigatedInterval']")
 
-    return _process_layers(layers, attributes)
+    return _process_layers(layers, attributes, coerce_dtype=float)
 
 
 def process_bhrg_data(el: etree.Element, attributes: list | None) -> dict:

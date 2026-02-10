@@ -62,7 +62,8 @@ def read(
     for file in files:
         xml_data = reader(file, **kwargs)
         crss.append(xml_data.pop("crs"))
-        xml_data["x"], xml_data["y"] = xml_data.pop("location")
+        y, x = xml_data.pop("location")
+        xml_data["x"], xml_data["y"] = x, y
         df = pd.DataFrame(xml_data.pop("data"))
 
         header.append(xml_data)
@@ -80,7 +81,9 @@ def read(
             raise ValueError(
                 f"CRS mismatch in XML files. Found multiple CRS: {set(crss)}. "
             )
-        transformer = horizontal_reference_transformer(crss[0], coerce_crs)
+        transformer = horizontal_reference_transformer(
+            crss[0], coerce_crs, always_xy=True
+        )
         header["x"], header["y"] = transformer.transform(header["x"], header["y"])
 
     # Add relevant header attributes to the data DataFrame

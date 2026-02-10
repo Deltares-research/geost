@@ -51,6 +51,7 @@ BRO = {
             "fraction1400umto2mm",
             "fraction2to4mm",
             "fraction4to8mm",
+            "fraction8to16mm",
             "fraction16to31_5mm",
             "fraction31_5to63mm",
             "fractionLarger63mm",

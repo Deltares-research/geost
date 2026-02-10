@@ -1119,7 +1119,7 @@ def bro_api_read(
         bro_data = api.get_objects(api.object_list, object_type=object_type)
 
     if bro_data:
-        collection = reader(bro_data, schema=schema)
+        collection = reader(bro_data, schema=schema, horizontal_reference=epsg)
     else:
         collection = Collection(None, None)
 
