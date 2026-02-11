@@ -465,21 +465,16 @@
 <p>In this example, we will download BHR-GT geotechnical boreholes (BRO BHR-GT objects) and
 associated grainsize sample data.</p>
 <blockquote>
-<div><p><strong>ℹ️ This example is work-in-progress. Additional features developed for working with grainsize data will follow in future versions of GeoST</strong></p>
+<div><p><strong>ℹ️ This example is work-in-progress. Additional features developed for working with grainsize data will follow in future versions of GeoST.</strong></p>
 </div></blockquote>
-<p>You must download the BHR-GT borehole data (i.e. layer descriptions) and grainsize sample data seperately. In this example we will use a bounding box in WGS84 UTM 31N coordinates (EPSG:32631) that roughly covers the offshore sand mining area L12-2 in the Dutch North Sea</p>
+<p>You must download the BHR-GT borehole data (i.e. layer descriptions) and grainsize sample data seperately. In this example we will only download grainsize sample data using a bounding box in WGS84 UTM 31N coordinates (EPSG:32631) that roughly covers the offshore sand mining area L12-2 in the Dutch North Sea.</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">geost</span>
 
-<span class="c1"># BHR-GT cores in sand mining area L12-2, using the object type &#39;BHR-GT&#39;</span>
-<span class="n">bhrgt_cores</span> <span class="o">=</span> <span class="n">geost</span><span class="o">.</span><span class="n">bro_api_read</span><span class="p">(</span>
-    <span class="s2">&quot;BHR-GT&quot;</span><span class="p">,</span> <span class="n">bbox</span><span class="o">=</span><span class="p">(</span><span class="mi">619_000</span><span class="p">,</span> <span class="mi">592_400_0</span><span class="p">,</span> <span class="mi">625_000</span><span class="p">,</span> <span class="mi">593_000_0</span><span class="p">),</span> <span class="n">epsg</span><span class="o">=</span><span class="mi">32631</span>
-<span class="p">)</span>
-
 <span class="c1"># Corresponding samples, using the object type &#39;BHR-GT-samples&#39;</span>
 <span class="n">bhrgt_samples</span> <span class="o">=</span> <span class="n">geost</span><span class="o">.</span><span class="n">bro_api_read</span><span class="p">(</span>
-    <span class="s2">&quot;BHR-GT-samples&quot;</span><span class="p">,</span> <span class="n">bbox</span><span class="o">=</span><span class="p">(</span><span class="mi">619_000</span><span class="p">,</span> <span class="mi">592_400_0</span><span class="p">,</span> <span class="mi">625_000</span><span class="p">,</span> <span class="mi">593_000_0</span><span class="p">),</span> <span class="n">epsg</span><span class="o">=</span><span class="mi">32631</span>
+    <span class="s2">&quot;BHR-GT-samples&quot;</span><span class="p">,</span> <span class="n">bbox</span><span class="o">=</span><span class="p">(</span><span class="mi">619_000</span><span class="p">,</span> <span class="mi">5_924_000</span><span class="p">,</span> <span class="mi">625_000</span><span class="p">,</span> <span class="mi">5_930_000</span><span class="p">),</span> <span class="n">epsg</span><span class="o">=</span><span class="mi">32631</span>
 <span class="p">)</span>
 
 <span class="c1"># Show results of downloaded samples</span>
@@ -490,47 +485,99 @@ associated grainsize sample data.</p>
 </div>
 <div class="cell_output docutils container">
 <div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>The data tables look like this:
-                nr              x              y  surface    end   top  \
-0  BHR000000451643  119007.510234  610338.277226   -27.13 -32.08  0.20   
-1  BHR000000451643  119007.510234  610338.277226   -27.13 -32.08  0.65   
-2  BHR000000451643  119007.510234  610338.277226   -27.13 -32.08  1.60   
-3  BHR000000451643  119007.510234  610338.277226   -27.13 -32.08  2.20   
-4  BHR000000451643  119007.510234  610338.277226   -27.13 -32.08  3.20   
+                nr              x             y  surface    end   top  bottom  \
+0  BHR000000451643  622448.566157  5.927032e+06   -27.13 -32.08  0.20    0.40   
+1  BHR000000451643  622448.566157  5.927032e+06   -27.13 -32.08  0.65    0.85   
+2  BHR000000451643  622448.566157  5.927032e+06   -27.13 -32.08  1.60    1.80   
+3  BHR000000451643  622448.566157  5.927032e+06   -27.13 -32.08  2.20    2.40   
+4  BHR000000451643  622448.566157  5.927032e+06   -27.13 -32.08  3.20    3.40   
 
-   bottom fractionSmaller63um fractionLarger63um fraction63to90um  ...  \
-0    0.40                 0.0              100.0              0.2  ...   
-1    0.85                 2.2               97.8              2.6  ...   
-2    1.80                 1.7               98.3              1.8  ...   
-3    2.40                 1.9               98.1              2.1  ...   
-4    3.40                 1.0               99.0              0.4  ...   
+   fractionSmaller63um  fractionLarger63um  fraction63to90um  ...  \
+0                  0.0               100.0               0.2  ...   
+1                  2.2                97.8               2.6  ...   
+2                  1.7                98.3               1.8  ...   
+3                  1.9                98.1               2.1  ...   
+4                  1.0                99.0               0.4  ...   
 
-  fraction355to500um fraction500to710um fraction710to1000um  \
-0                6.6                0.8                 0.3   
-1                0.5                0.1                 0.1   
-2                0.8                0.3                 0.1   
-3                0.9                0.4                 0.1   
-4               13.6               49.4                  17   
+   fraction500to710um  fraction710to1000um  fraction1000to1400um  \
+0                 0.8                  0.3                   0.2   
+1                 0.1                  0.1                   0.0   
+2                 0.3                  0.1                   0.0   
+3                 0.4                  0.1                   0.0   
+4                49.4                 17.0                   3.0   
 
-  fraction1000to1400um fraction1400umto2mm fraction2to4mm fraction4to8mm  \
-0                  0.2                 0.2            1.2              0   
-1                    0                 0.1            0.2              0   
-2                    0                   0              0              0   
-3                    0                   0              0              0   
-4                    3                 0.7            2.7              0   
+   fraction1400umto2mm  fraction2to4mm  fraction4to8mm  fraction8to16mm  \
+0                  0.2             1.2             0.0              0.0   
+1                  0.1             0.2             0.0              0.0   
+2                  0.0             0.0             0.0              0.0   
+3                  0.0             0.0             0.0              0.0   
+4                  0.7             2.7             0.0              0.0   
 
-  fraction16to31_5mm fraction31_5to63mm fractionLarger63mm  
-0                  0                  0                  0  
-1                  0                  0                  0  
-2                  0                  0                  0  
-3                  0                  0                  0  
-4                  0                  0                  0  
+   fraction16to31_5mm  fraction31_5to63mm  fractionLarger63mm  
+0                 0.0                 0.0                 0.0  
+1                 0.0                 0.0                 0.0  
+2                 0.0                 0.0                 0.0  
+3                 0.0                 0.0                 0.0  
+4                 0.0                 0.0                 0.0  
 
-[5 rows x 24 columns]
+[5 rows x 25 columns]
 </pre></div>
 </div>
 </div>
 </div>
-<p>For more info, see the API reference of the <a class="reference internal" href="../api_reference/generated/geost.bro_api_read.html"><span class="std std-doc"><code class="docutils literal notranslate"><span class="pre">bro_api_read</span></code></span></a> function.</p>
+<p>Currently there are two analysis functions available for BHR-GT grainsize sample data: <a class="reference internal" href="../api_reference/generated/geost.analysis.grainsize.calculate_bhrgt_grainsize_percentiles.html"><span class="std std-doc"><code class="docutils literal notranslate"><span class="pre">calculate_bhrgt_grainsize_percentiles</span></code></span></a> and <a class="reference internal" href="../api_reference/generated/geost.analysis.grainsize.calculate_bhrgt_grainsize_fractions.html"><span class="std std-doc"><code class="docutils literal notranslate"><span class="pre">calculate_bhrgt_grainsize_fractions</span></code></span></a>. Let’s apply both to get some commonly used grain size metrics:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">geost.analysis.grainsize</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">calculate_bhrgt_grainsize_fractions</span><span class="p">,</span>
+    <span class="n">calculate_bhrgt_grainsize_percentiles</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="c1"># Calculate grain size percentiles and fractions for the downloaded samples</span>
+<span class="n">bhrgt_samples</span> <span class="o">=</span> <span class="n">calculate_bhrgt_grainsize_percentiles</span><span class="p">(</span>
+    <span class="n">bhrgt_samples</span><span class="p">,</span> <span class="n">percentiles</span><span class="o">=</span><span class="p">[</span><span class="mi">10</span><span class="p">,</span> <span class="mi">50</span><span class="p">,</span> <span class="mi">90</span><span class="p">],</span> <span class="n">only_sand</span><span class="o">=</span><span class="kc">True</span>
+<span class="p">)</span>
+<span class="n">bhrgt_samples</span> <span class="o">=</span> <span class="n">calculate_bhrgt_grainsize_fractions</span><span class="p">(</span><span class="n">bhrgt_samples</span><span class="p">)</span>
+
+<span class="c1"># Show results</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">The data tables look like this:&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span>
+    <span class="n">bhrgt_samples</span><span class="o">.</span><span class="n">data</span><span class="p">[</span>
+        <span class="p">[</span>
+            <span class="s2">&quot;nr&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;top&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;bottom&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;d10&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;d50&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;d90&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;perc_fines&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;perc_sand&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;perc_gravel&quot;</span><span class="p">,</span>
+        <span class="p">]</span>
+    <span class="p">]</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>The data tables look like this:
+                nr   top  bottom         d10         d50         d90  \
+0  BHR000000451643  0.20    0.40  132.826923  199.699769  297.426710   
+1  BHR000000451643  0.65    0.85   99.148980  132.777778  189.650838   
+2  BHR000000451643  1.60    1.80  108.852217  137.906404  197.633764   
+3  BHR000000451643  2.20    2.40  100.888776  132.048458  184.681677   
+4  BHR000000451643  3.20    3.40  144.561798  506.368927  767.794118   
+
+   perc_fines  perc_sand  perc_gravel  
+0         0.0       98.8          1.2  
+1         2.2       97.6          0.2  
+2         1.7       98.3          0.0  
+3         1.9       98.1          0.0  
+4         1.0       96.3          2.7  
+</pre></div>
+</div>
+</div>
+</div>
 </section>
 
 

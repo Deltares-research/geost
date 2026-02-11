@@ -470,8 +470,8 @@
                   
   <section id="release-notes">
 <h1>Release notes<a class="headerlink" href="#release-notes" title="Link to this heading">#</a></h1>
-<section id="v0-4-1">
-<h2>v0.4.1<a class="headerlink" href="#v0-4-1" title="Link to this heading">#</a></h2>
+<section id="v0-4-2">
+<h2>v0.4.2<a class="headerlink" href="#v0-4-2" title="Link to this heading">#</a></h2>
 <p>Replaced core header and data structures (e.g. <code class="docutils literal notranslate"><span class="pre">PointHeader</span></code>, <code class="docutils literal notranslate"><span class="pre">LayeredData</span></code>) in <code class="docutils literal notranslate"><span class="pre">Collection</span></code> instances by accessors on GeoDataFrames (header) and DataFrames (data). Now the header and data attributes of Collections have direct access to all Geopandas and Pandas methods. See the <a class="reference internal" href="user_guide/accessors.html"><span class="std std-doc">GeoST accessors</span></a> section in the User guide for detailed explanation of the new accessors. Other notable changes are Python 3.14 support and BHRGT grain size sample support in <code class="docutils literal notranslate"><span class="pre">geost.bro_api_read</span></code></p>
 <p><strong>Added</strong></p>
 <ul class="simple">
@@ -486,6 +486,7 @@
 variable, in the total variable or along a specific dimension.</p></li>
 <li><p><strong>Added</strong> <code class="docutils literal notranslate"><span class="pre">VoxelModel.from_opendap</span></code> for generic voxel models.</p></li>
 <li><p><strong>Added</strong> option to skip data validation in Collections entirely by setting <code class="docutils literal notranslate"><span class="pre">geost.config.validation.SKIP</span> <span class="pre">=</span> <span class="pre">True</span></code></p></li>
+<li><p><strong>Added</strong> Added basic analysis functions for BHR-GT sample data</p></li>
 </ul>
 <p><strong>Other</strong></p>
 <ul class="simple">
@@ -494,7 +495,7 @@ variable, in the total variable or along a specific dimension.</p></li>
 <li><p>Removed unused points in PyVista.UnstructuredGrid exports, reducing file size when saved to vtk file.</p></li>
 <li><p>Significantly sped up creation of geometries from x/y arrays in <code class="docutils literal notranslate"><span class="pre">geost.utils.dataframe_to_geodataframe</span></code> (e.g. used for creating headers from data)</p></li>
 </ul>
-<p><a class="reference external" href="https://github.com/Deltares-research/geost/compare/0.3.0...0.4.0"><strong>Full Changelog</strong></a></p>
+<p><a class="reference external" href="https://github.com/Deltares-research/geost/compare/0.3.0...0.4.2"><strong>Full Changelog</strong></a></p>
 </section>
 <section id="v0-3-0">
 <h2>v0.3.0<a class="headerlink" href="#v0-3-0" title="Link to this heading">#</a></h2>
@@ -659,7 +660,7 @@ better data validation and configuration options.</p>
   </div>
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#v0-4-1">v0.4.1</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#v0-4-2">v0.4.2</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#v0-3-0">v0.3.0</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#v0-2-9">v0.2.9</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#v0-2-8">v0.2.8</a></li>

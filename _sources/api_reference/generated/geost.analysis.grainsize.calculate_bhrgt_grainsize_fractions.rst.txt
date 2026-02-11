@@ -1,0 +1,6 @@
+﻿geost.analysis.grainsize.calculate\_bhrgt\_grainsize\_fractions
+===============================================================
+
+.. currentmodule:: geost.analysis.grainsize
+
+.. autofunction:: calculate_bhrgt_grainsize_fractions
