@@ -1,6 +1,6 @@
 # Release notes
 
-## v0.4.1
+## v0.4.2
 
 Replaced core header and data structures (e.g. `PointHeader`, `LayeredData`) in `Collection` instances by accessors on GeoDataFrames (header) and DataFrames (data). Now the header and data attributes of Collections have direct access to all Geopandas and Pandas methods. See the [GeoST accessors](./user_guide/accessors.ipynb) section in the User guide for detailed explanation of the new accessors. Other notable changes are Python 3.14 support and BHRGT grain size sample support in `geost.bro_api_read`
 
@@ -16,6 +16,7 @@ Replaced core header and data structures (e.g. `PointHeader`, `LayeredData`) in 
 variable, in the total variable or along a specific dimension.
 - **Added** `VoxelModel.from_opendap` for generic voxel models.
 - **Added** option to skip data validation in Collections entirely by setting `geost.config.validation.SKIP = True`
+- **Added** Added basic analysis functions for BHR-GT sample data
 
 **Other**
 - Move `BoreholeCollection` and `CptCollection` to top-level import of package.
@@ -23,7 +24,7 @@ variable, in the total variable or along a specific dimension.
 - Removed unused points in PyVista.UnstructuredGrid exports, reducing file size when saved to vtk file.
 - Significantly sped up creation of geometries from x/y arrays in `geost.utils.dataframe_to_geodataframe` (e.g. used for creating headers from data)
 
-[**Full Changelog**](https://github.com/Deltares-research/geost/compare/0.3.0...0.4.0)
+[**Full Changelog**](https://github.com/Deltares-research/geost/compare/0.3.0...0.4.2)
 
 ## v0.3.0
 
