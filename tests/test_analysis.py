@@ -14,6 +14,10 @@ from geost.analysis.combine import (
     _add_to_layered,
     add_voxelmodel_variable,
 )
+from geost.analysis.grainsize import (
+    calculate_bhrgt_grainsize_fractions,
+    calculate_bhrgt_grainsize_percentiles,
+)
 from geost.analysis.interpret_cpt import calc_ic, calc_lithology
 from geost.analysis.layer_analysis import find_top_sand
 from geost.base import Collection
@@ -105,6 +109,89 @@ class TestAnalysis:
         assert_array_equal(
             lith, np.array(["V", "Kh", "Kh", "K", "K", "K", "K", "Kz", "Z", "Z", "Z"])
         )
+
+
+class TestGrainsize:
+    @pytest.fixture
+    def bhrgt_samples_data(self):
+        df = pd.DataFrame(
+            {
+                "nr": ["B01", "B01", "B01"],
+                "x": [619_500, 619_500, 619_500],
+                "y": [5_924_500, 5_924_500, 5_924_500],
+                "surface": [-20.0, -20.0, -20.0],
+                "end": [-23.0, -23.0, -23.0],
+                "top": [0.4, 1.4, 2.4],
+                "bottom": [0.6, 2.6, 3.6],
+                "fractionSmaller63um": [10.0, 20.0, 30.0],
+                "fractionLarger63um": [90.0, 80.0, 70.0],
+                "fraction63to90um": [5.0, 30.0, 40.0],
+                "fraction90to125um": [10.0, 15.0, 10.0],
+                "fraction125to180um": [15.0, 15.0, 10.0],
+                "fraction180to250um": [20.0, 10.0, 5.0],
+                "fraction250to355um": [10.0, 5.0, 5.0],
+                "fraction355to500um": [10.0, 5.0, 0.0],
+                "fraction500to710um": [8.0, 0.0, 0.0],
+                "fraction710to1000um": [4.0, 0.0, 0.0],
+                "fraction1000to1400um": [3.0, 0.0, 0.0],
+                "fraction1400umto2mm": [2.0, 0.0, 0.0],
+                "fraction2to4mm": [2.0, 0.0, 0.0],
+                "fraction4to8mm": [1.0, 0.0, 0.0],
+                "fraction8to16mm": [0.0, 0.0, 0.0],
+                "fraction16to31_5mm": [0.0, 0.0, 0.0],
+                "fraction31_5to63mm": [0.0, 0.0, 0.0],
+                "fractionLarger63mm": [0.0, 0.0, 0.0],
+            }
+        )
+        return df
+
+    @pytest.fixture
+    def bhrgt_samples_collection(self, bhrgt_samples_data):
+        return bhrgt_samples_data.gstda.to_collection(horizontal_reference=32631)
+
+    @pytest.mark.unittest
+    def test_calculate_bhrgt_grainsize_percentiles(
+        self, bhrgt_samples_data, bhrgt_samples_collection
+    ):
+        result_df = calculate_bhrgt_grainsize_percentiles(
+            bhrgt_samples_data, percentiles=[10, 50, 90], only_sand=True
+        )
+        assert_array_equal(
+            result_df.columns, list(bhrgt_samples_data.columns) + ["d10", "d50", "d90"]
+        )
+        assert_array_almost_equal(result_df["d10"], [87.97, 76.5, 76.5], decimal=2)
+        assert_array_almost_equal(result_df["d50"], [194.6875, 97.167, 76.5], decimal=2)
+        assert_array_almost_equal(result_df["d90"], [623.75, 250.0, 190.0], decimal=2)
+
+        result_df = calculate_bhrgt_grainsize_percentiles(
+            bhrgt_samples_data, percentiles=[10, 50, 90], only_sand=False
+        )
+        assert_array_almost_equal(result_df["d10"], [31.5, 31.5, 31.5], decimal=2)
+        assert_array_almost_equal(result_df["d50"], [183.75, 76.5, 54.0], decimal=2)
+        assert_array_almost_equal(result_df["d90"], [730.0, 215.0, 152.5], decimal=2)
+
+        # Test run implementation for BoreholeCollection without assertions
+        result_collection = calculate_bhrgt_grainsize_percentiles(
+            bhrgt_samples_collection, percentiles=[10, 50, 90], only_sand=True
+        )
+        assert isinstance(result_collection, Collection)
+
+    @pytest.mark.unittest
+    def test_calculate_bhrgt_grainsize_fractions(
+        self, bhrgt_samples_data, bhrgt_samples_collection
+    ):
+        result_df = calculate_bhrgt_grainsize_fractions(bhrgt_samples_data)
+        assert_array_almost_equal(
+            result_df["perc_fines"], [10.0, 20.0, 30.0], decimal=2
+        )
+        assert_array_almost_equal(result_df["perc_sand"], [87.0, 80.0, 70.0], decimal=2)
+        assert_array_almost_equal(result_df["perc_gravel"], [3.0, 0.0, 0.0], decimal=2)
+
+        # Test run implementation for BoreholeCollection without assertions
+        result_collection = calculate_bhrgt_grainsize_fractions(
+            bhrgt_samples_collection
+        )
+        assert isinstance(result_collection, Collection)
 
 
 class TestCombine:

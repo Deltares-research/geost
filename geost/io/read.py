@@ -528,7 +528,15 @@ def read_bhrgt_samples(
         data.rename(columns={"beginDepth": "top", "endDepth": "bottom"}, inplace=True)
         data[["top", "bottom"]] = data[["top", "bottom"]].astype(float)
 
-    return BoreholeCollection(header, data)
+    # If no sample data was found, the data table will be empty. In that case, we can
+    # just return an empty collection.
+    if "top" in data.columns and "bottom" in data.columns:
+        return BoreholeCollection(header, data)
+    else:
+        warnings.warn(
+            "No sample data found in the provided XML file(s). Returning an empty collection."
+        )
+        return Collection(None, None)
 
 
 def read_bhrp(

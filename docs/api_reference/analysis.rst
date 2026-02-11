@@ -23,6 +23,15 @@ Cpts
     interpret_cpt.calc_lithology
 
 
+Grainsize samples
+------
+.. autosummary::
+    :toctree: generated/
+
+    grainsize.calculate_bhrgt_grainsize_percentiles
+    grainsize.calculate_bhrgt_grainsize_fractions
+
+
 Combine
 --------
 .. autosummary::
