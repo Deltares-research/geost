@@ -19,4 +19,4 @@ from geost.io.read import (
 )
 from geost.utils import csv_to_parquet, excel_to_parquet
 
-__version__ = "0.4.1"
+__version__ = "0.4.2"
