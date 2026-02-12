@@ -462,27 +462,27 @@
 <span></span><span class="kn">from</span><span class="w"> </span><span class="nn">functools</span><span class="w"> </span><span class="kn">import</span> <span class="n">singledispatch</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">numpy.core.multiarray</span><span class="w"> </span><span class="kn">import</span> <span class="n">interp</span> <span class="k">as</span> <span class="n">compiled_interp</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">numpy._core.multiarray</span><span class="w"> </span><span class="kn">import</span> <span class="n">interp</span> <span class="k">as</span> <span class="n">compiled_interp</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">geost</span><span class="w"> </span><span class="kn">import</span> <span class="n">BoreholeCollection</span>
 
 <span class="n">BHRGT_CLASSIFICATION</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s2">&quot;fractionSmaller63um&quot;</span><span class="p">:</span> <span class="mf">31.5</span><span class="p">,</span>
-    <span class="s2">&quot;fraction63to90um&quot;</span><span class="p">:</span> <span class="mf">76.5</span><span class="p">,</span>
-    <span class="s2">&quot;fraction90to125um&quot;</span><span class="p">:</span> <span class="mf">107.5</span><span class="p">,</span>
-    <span class="s2">&quot;fraction125to180um&quot;</span><span class="p">:</span> <span class="mf">152.5</span><span class="p">,</span>
-    <span class="s2">&quot;fraction180to250um&quot;</span><span class="p">:</span> <span class="mf">215.0</span><span class="p">,</span>
-    <span class="s2">&quot;fraction250to355um&quot;</span><span class="p">:</span> <span class="mf">302.5</span><span class="p">,</span>
-    <span class="s2">&quot;fraction355to500um&quot;</span><span class="p">:</span> <span class="mf">427.5</span><span class="p">,</span>
-    <span class="s2">&quot;fraction500to710um&quot;</span><span class="p">:</span> <span class="mf">605.0</span><span class="p">,</span>
-    <span class="s2">&quot;fraction710to1000um&quot;</span><span class="p">:</span> <span class="mf">855.0</span><span class="p">,</span>
-    <span class="s2">&quot;fraction1000to1400um&quot;</span><span class="p">:</span> <span class="mf">1200.0</span><span class="p">,</span>
-    <span class="s2">&quot;fraction1400umto2mm&quot;</span><span class="p">:</span> <span class="mf">1700.0</span><span class="p">,</span>
-    <span class="s2">&quot;fraction2to4mm&quot;</span><span class="p">:</span> <span class="mf">3000.0</span><span class="p">,</span>
-    <span class="s2">&quot;fraction4to8mm&quot;</span><span class="p">:</span> <span class="mf">6000.0</span><span class="p">,</span>
-    <span class="s2">&quot;fraction8to16mm&quot;</span><span class="p">:</span> <span class="mf">12000.0</span><span class="p">,</span>
-    <span class="s2">&quot;fraction16to31_5mm&quot;</span><span class="p">:</span> <span class="mf">24250.0</span><span class="p">,</span>
-    <span class="s2">&quot;fraction31_5to63mm&quot;</span><span class="p">:</span> <span class="mf">47500.0</span><span class="p">,</span>
+    <span class="s2">&quot;fractionSmaller63um&quot;</span><span class="p">:</span> <span class="mi">63</span><span class="p">,</span>
+    <span class="s2">&quot;fraction63to90um&quot;</span><span class="p">:</span> <span class="mi">90</span><span class="p">,</span>
+    <span class="s2">&quot;fraction90to125um&quot;</span><span class="p">:</span> <span class="mi">125</span><span class="p">,</span>
+    <span class="s2">&quot;fraction125to180um&quot;</span><span class="p">:</span> <span class="mi">180</span><span class="p">,</span>
+    <span class="s2">&quot;fraction180to250um&quot;</span><span class="p">:</span> <span class="mi">250</span><span class="p">,</span>
+    <span class="s2">&quot;fraction250to355um&quot;</span><span class="p">:</span> <span class="mi">355</span><span class="p">,</span>
+    <span class="s2">&quot;fraction355to500um&quot;</span><span class="p">:</span> <span class="mi">500</span><span class="p">,</span>
+    <span class="s2">&quot;fraction500to710um&quot;</span><span class="p">:</span> <span class="mi">710</span><span class="p">,</span>
+    <span class="s2">&quot;fraction710to1000um&quot;</span><span class="p">:</span> <span class="mi">1000</span><span class="p">,</span>
+    <span class="s2">&quot;fraction1000to1400um&quot;</span><span class="p">:</span> <span class="mi">1400</span><span class="p">,</span>
+    <span class="s2">&quot;fraction1400umto2mm&quot;</span><span class="p">:</span> <span class="mi">2000</span><span class="p">,</span>
+    <span class="s2">&quot;fraction2to4mm&quot;</span><span class="p">:</span> <span class="mi">4000</span><span class="p">,</span>
+    <span class="s2">&quot;fraction4to8mm&quot;</span><span class="p">:</span> <span class="mi">8000</span><span class="p">,</span>
+    <span class="s2">&quot;fraction8to16mm&quot;</span><span class="p">:</span> <span class="mi">16000</span><span class="p">,</span>
+    <span class="s2">&quot;fraction16to31_5mm&quot;</span><span class="p">:</span> <span class="mi">31500</span><span class="p">,</span>
+    <span class="s2">&quot;fraction31_5to63mm&quot;</span><span class="p">:</span> <span class="mi">63000</span><span class="p">,</span>
 <span class="p">}</span>
 
 
@@ -533,13 +533,23 @@
 <span class="sd">        DataFrame containing the grain size distribution data for multiple boreholes and</span>
 <span class="sd">        samples following the minimum requirements for a GeoST-BHRGT-samples grainsize</span>
 <span class="sd">        data table.</span>
+<span class="sd">    percentiles : int | float | list[int | float], optional</span>
+<span class="sd">        Percentiles to calculate (e.g. 10, 50, 90). The default is 50 (D50).</span>
+<span class="sd">    only_sand : bool, optional</span>
+<span class="sd">        If True, only calculate percentiles based on the sand fractions (i.e. ignore</span>
+<span class="sd">        fractions smaller than 63um and larger than 2mm). The default is False.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    pd.DataFrame</span>
-<span class="sd">        DataFrame containing the estimated grain size percentiles (D10, D50, D90) for each sample.</span>
+<span class="sd">        DataFrame containing the estimated grain size percentiles for each sample. The</span>
+<span class="sd">        percentile columns are named &quot;d{percentile}&quot; (e.g. &quot;d50&quot;) or &quot;d{percentile}_sand&quot;</span>
+<span class="sd">        (e.g. &quot;d50_sand&quot;) if only_sand is True.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">sample_data_result</span> <span class="o">=</span> <span class="n">sample_data</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">percentiles</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">)):</span>
+        <span class="n">percentiles</span> <span class="o">=</span> <span class="p">[</span><span class="n">percentiles</span><span class="p">]</span>
 
     <span class="n">converted_sample_data</span> <span class="o">=</span> <span class="n">sample_data_result</span><span class="p">[</span><span class="n">BHRGT_CLASSIFICATION</span><span class="o">.</span><span class="n">keys</span><span class="p">()]</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span>
         <span class="n">columns</span><span class="o">=</span><span class="n">BHRGT_CLASSIFICATION</span>
@@ -547,8 +557,11 @@
 
     <span class="k">if</span> <span class="n">only_sand</span><span class="p">:</span>
         <span class="n">converted_sample_data</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span>
-            <span class="p">[</span><span class="mf">31.5</span><span class="p">,</span> <span class="mf">3000.0</span><span class="p">,</span> <span class="mf">6000.0</span><span class="p">,</span> <span class="mf">12000.0</span><span class="p">,</span> <span class="mf">24250.0</span><span class="p">,</span> <span class="mf">47500.0</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span>
+            <span class="p">[</span><span class="mi">63</span><span class="p">,</span> <span class="mi">4000</span><span class="p">,</span> <span class="mi">8000</span><span class="p">,</span> <span class="mi">16000</span><span class="p">,</span> <span class="mi">31500</span><span class="p">,</span> <span class="mi">63000</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span>
         <span class="p">)</span>
+        <span class="n">converted_sample_data</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">63</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">converted_sample_data</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
 
     <span class="n">cumsum_sample_data</span> <span class="o">=</span> <span class="n">converted_sample_data</span><span class="o">.</span><span class="n">cumsum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
     <span class="n">normalized_cumsum</span> <span class="o">=</span> <span class="p">(</span>
@@ -556,7 +569,8 @@
     <span class="p">)</span>
 
     <span class="k">for</span> <span class="n">percentile</span> <span class="ow">in</span> <span class="n">percentiles</span><span class="p">:</span>
-        <span class="n">sample_data_result</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;d</span><span class="si">{</span><span class="n">percentile</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">percentile_col_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;d</span><span class="si">{</span><span class="n">percentile</span><span class="si">}</span><span class="s2">_sand&quot;</span> <span class="k">if</span> <span class="n">only_sand</span> <span class="k">else</span> <span class="sa">f</span><span class="s2">&quot;d</span><span class="si">{</span><span class="n">percentile</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="n">sample_data_result</span><span class="p">[</span><span class="n">percentile_col_name</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
             <span class="n">compiled_interp</span><span class="p">(</span>
                 <span class="n">percentile</span><span class="p">,</span> <span class="n">normalized_cumsum</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">normalized_cumsum</span><span class="o">.</span><span class="n">columns</span>
             <span class="p">)</span>
