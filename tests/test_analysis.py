@@ -157,11 +157,18 @@ class TestGrainsize:
             bhrgt_samples_data, percentiles=[10, 50, 90], only_sand=True
         )
         assert_array_equal(
-            result_df.columns, list(bhrgt_samples_data.columns) + ["d10", "d50", "d90"]
+            result_df.columns,
+            list(bhrgt_samples_data.columns) + ["d10_sand", "d50_sand", "d90_sand"],
         )
-        assert_array_almost_equal(result_df["d10"], [102.95, 70.2, 67.725], decimal=2)
-        assert_array_almost_equal(result_df["d50"], [227.25, 113.33, 86.625], decimal=2)
-        assert_array_almost_equal(result_df["d90"], [731.75, 292.0, 222.0], decimal=2)
+        assert_array_almost_equal(
+            result_df["d10_sand"], [102.95, 70.2, 67.725], decimal=2
+        )
+        assert_array_almost_equal(
+            result_df["d50_sand"], [227.25, 113.33, 86.625], decimal=2
+        )
+        assert_array_almost_equal(
+            result_df["d90_sand"], [731.75, 292.0, 222.0], decimal=2
+        )
 
         result_df = calculate_bhrgt_grainsize_percentiles(
             bhrgt_samples_data, percentiles=[10, 50, 90], only_sand=False

@@ -1,7 +1,7 @@
 from functools import singledispatch
 
 import pandas as pd
-from numpy.core.multiarray import interp as compiled_interp
+from numpy._core.multiarray import interp as compiled_interp
 
 from geost import BoreholeCollection
 
@@ -69,11 +69,18 @@ def _(
         DataFrame containing the grain size distribution data for multiple boreholes and
         samples following the minimum requirements for a GeoST-BHRGT-samples grainsize
         data table.
+    percentiles : int | float | list[int | float], optional
+        Percentiles to calculate (e.g. 10, 50, 90). The default is 50 (D50).
+    only_sand : bool, optional
+        If True, only calculate percentiles based on the sand fractions (i.e. ignore
+        fractions smaller than 63um and larger than 2mm). The default is False.
 
     Returns
     -------
     pd.DataFrame
-        DataFrame containing the estimated grain size percentiles (D10, D50, D90) for each sample.
+        DataFrame containing the estimated grain size percentiles for each sample. The
+        percentile columns are named "d{percentile}" (e.g. "d50") or "d{percentile}_sand"
+        (e.g. "d50_sand") if only_sand is True.
     """
     sample_data_result = sample_data.copy()
 
@@ -98,7 +105,8 @@ def _(
     )
 
     for percentile in percentiles:
-        sample_data_result[f"d{percentile}"] = [
+        percentile_col_name = f"d{percentile}_sand" if only_sand else f"d{percentile}"
+        sample_data_result[percentile_col_name] = [
             compiled_interp(
                 percentile, normalized_cumsum.values[i], normalized_cumsum.columns
             )
