@@ -105,5 +105,3 @@ jobs:
         uses: codecov/codecov-action@v5
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
-      - name: Build docs
-        run: pixi run docs

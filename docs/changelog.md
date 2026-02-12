@@ -16,7 +16,7 @@ Replaced core header and data structures (e.g. `PointHeader`, `LayeredData`) in 
 variable, in the total variable or along a specific dimension.
 - **Added** `VoxelModel.from_opendap` for generic voxel models.
 - **Added** option to skip data validation in Collections entirely by setting `geost.config.validation.SKIP = True`
-- **Added** Added basic analysis functions for BHR-GT sample data
+- **Added** Added basic analysis functions to calculate percentiles and fractions of BHR-GT grainsize sample data.
 
 **Other**
 - Move `BoreholeCollection` and `CptCollection` to top-level import of package.
