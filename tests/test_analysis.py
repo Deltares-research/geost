@@ -159,20 +159,20 @@ class TestGrainsize:
         assert_array_equal(
             result_df.columns, list(bhrgt_samples_data.columns) + ["d10", "d50", "d90"]
         )
-        assert_array_almost_equal(result_df["d10"], [87.97, 76.5, 76.5], decimal=2)
-        assert_array_almost_equal(result_df["d50"], [194.6875, 97.167, 76.5], decimal=2)
-        assert_array_almost_equal(result_df["d90"], [623.75, 250.0, 190.0], decimal=2)
+        assert_array_almost_equal(result_df["d10"], [102.95, 70.2, 67.725], decimal=2)
+        assert_array_almost_equal(result_df["d50"], [227.25, 113.33, 86.625], decimal=2)
+        assert_array_almost_equal(result_df["d90"], [731.75, 292.0, 222.0], decimal=2)
 
         result_df = calculate_bhrgt_grainsize_percentiles(
             bhrgt_samples_data, percentiles=[10, 50, 90], only_sand=False
         )
-        assert_array_almost_equal(result_df["d10"], [31.5, 31.5, 31.5], decimal=2)
-        assert_array_almost_equal(result_df["d50"], [183.75, 76.5, 54.0], decimal=2)
-        assert_array_almost_equal(result_df["d90"], [730.0, 215.0, 152.5], decimal=2)
+        assert_array_almost_equal(result_df["d10"], [63.0, 31.5, 21.0], decimal=2)
+        assert_array_almost_equal(result_df["d50"], [215.0, 90.0, 76.5], decimal=2)
+        assert_array_almost_equal(result_df["d90"], [855.0, 250.0, 180.0], decimal=2)
 
-        # Test run implementation for BoreholeCollection without assertions
+        # Test run implementation for BoreholeCollection and percentile as integer.
         result_collection = calculate_bhrgt_grainsize_percentiles(
-            bhrgt_samples_collection, percentiles=[10, 50, 90], only_sand=True
+            bhrgt_samples_collection, percentiles=50, only_sand=True
         )
         assert isinstance(result_collection, Collection)
 

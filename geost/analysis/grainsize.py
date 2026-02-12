@@ -6,22 +6,22 @@ from numpy.core.multiarray import interp as compiled_interp
 from geost import BoreholeCollection
 
 BHRGT_CLASSIFICATION = {
-    "fractionSmaller63um": 31.5,
-    "fraction63to90um": 76.5,
-    "fraction90to125um": 107.5,
-    "fraction125to180um": 152.5,
-    "fraction180to250um": 215.0,
-    "fraction250to355um": 302.5,
-    "fraction355to500um": 427.5,
-    "fraction500to710um": 605.0,
-    "fraction710to1000um": 855.0,
-    "fraction1000to1400um": 1200.0,
-    "fraction1400umto2mm": 1700.0,
-    "fraction2to4mm": 3000.0,
-    "fraction4to8mm": 6000.0,
-    "fraction8to16mm": 12000.0,
-    "fraction16to31_5mm": 24250.0,
-    "fraction31_5to63mm": 47500.0,
+    "fractionSmaller63um": 63,
+    "fraction63to90um": 90,
+    "fraction90to125um": 125,
+    "fraction125to180um": 180,
+    "fraction180to250um": 250,
+    "fraction250to355um": 355,
+    "fraction355to500um": 500,
+    "fraction500to710um": 710,
+    "fraction710to1000um": 1000,
+    "fraction1000to1400um": 1400,
+    "fraction1400umto2mm": 2000,
+    "fraction2to4mm": 4000,
+    "fraction4to8mm": 8000,
+    "fraction8to16mm": 16000,
+    "fraction16to31_5mm": 31500,
+    "fraction31_5to63mm": 63000,
 }
 
 
@@ -77,14 +77,20 @@ def _(
     """
     sample_data_result = sample_data.copy()
 
+    if isinstance(percentiles, (int, float)):
+        percentiles = [percentiles]
+
     converted_sample_data = sample_data_result[BHRGT_CLASSIFICATION.keys()].rename(
         columns=BHRGT_CLASSIFICATION
     )
 
     if only_sand:
         converted_sample_data.drop(
-            [31.5, 3000.0, 6000.0, 12000.0, 24250.0, 47500.0], axis=1, inplace=True
+            [63, 4000, 8000, 16000, 31500, 63000], axis=1, inplace=True
         )
+        converted_sample_data.insert(0, 63, 0)
+    else:
+        converted_sample_data.insert(0, 0, 0)
 
     cumsum_sample_data = converted_sample_data.cumsum(axis=1)
     normalized_cumsum = (
