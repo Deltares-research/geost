@@ -52,7 +52,7 @@
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
     <link rel="next" title="geost.base.BoreholeCollection.change_horizontal_reference" href="geost.base.BoreholeCollection.change_horizontal_reference.html" />
-    <link rel="prev" title="geost.base.BoreholeCollection.get_cumulative_thickness" href="geost.base.BoreholeCollection.get_cumulative_thickness.html" />
+    <link rel="prev" title="geost.base.BoreholeCollection.get_layer_base" href="geost.base.BoreholeCollection.get_layer_base.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   <meta name="docsearch:version" content="0.4.1" />
@@ -452,6 +452,7 @@
 <li class="toctree-l3"><a class="reference internal" href="geost.base.BoreholeCollection.html">geost.base.BoreholeCollection</a></li>
 <li class="toctree-l3"><a class="reference internal" href="geost.base.BoreholeCollection.get_area_labels.html">geost.base.BoreholeCollection.get_area_labels</a></li>
 <li class="toctree-l3"><a class="reference internal" href="geost.base.BoreholeCollection.get_cumulative_thickness.html">geost.base.BoreholeCollection.get_cumulative_thickness</a></li>
+<li class="toctree-l3"><a class="reference internal" href="geost.base.BoreholeCollection.get_layer_base.html">geost.base.BoreholeCollection.get_layer_base</a></li>
 <li class="toctree-l3 current active"><a class="current reference internal" href="#">geost.base.BoreholeCollection.get_layer_top</a></li>
 <li class="toctree-l3"><a class="reference internal" href="geost.base.BoreholeCollection.change_horizontal_reference.html">geost.base.BoreholeCollection.change_horizontal_reference</a></li>
 <li class="toctree-l3"><a class="reference internal" href="geost.base.BoreholeCollection.change_vertical_reference.html">geost.base.BoreholeCollection.change_vertical_reference</a></li>
@@ -552,6 +553,7 @@
 <li class="toctree-l2 has-children"><a class="reference internal" href="../data_accessors.html">Data accessors</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l3"><a class="reference internal" href="geost.accessors.data.LayeredData.html">geost.accessors.data.LayeredData</a></li>
 <li class="toctree-l3"><a class="reference internal" href="geost.accessors.data.LayeredData.get_cumulative_thickness.html">geost.accessors.data.LayeredData.get_cumulative_thickness</a></li>
+<li class="toctree-l3"><a class="reference internal" href="geost.accessors.data.LayeredData.get_layer_base.html">geost.accessors.data.LayeredData.get_layer_base</a></li>
 <li class="toctree-l3"><a class="reference internal" href="geost.accessors.data.LayeredData.get_layer_top.html">geost.accessors.data.LayeredData.get_layer_top</a></li>
 <li class="toctree-l3"><a class="reference internal" href="geost.accessors.data.LayeredData.select_by_condition.html">geost.accessors.data.LayeredData.select_by_condition</a></li>
 <li class="toctree-l3"><a class="reference internal" href="geost.accessors.data.LayeredData.select_by_values.html">geost.accessors.data.LayeredData.select_by_values</a></li>
@@ -786,7 +788,7 @@
 <h1>geost.base.BoreholeCollection.get_layer_top<a class="headerlink" href="#geost-base-boreholecollection-get-layer-top" title="Link to this heading">#</a></h1>
 <dl class="py method">
 <dt class="sig sig-object py" id="geost.base.BoreholeCollection.get_layer_top">
-<span class="sig-prename descclassname"><span class="pre">BoreholeCollection.</span></span><span class="sig-name descname"><span class="pre">get_layer_top</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">column</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">values</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_thickness</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_depth</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">include_in_header</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/geost/base.html#BoreholeCollection.get_layer_top"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#geost.base.BoreholeCollection.get_layer_top" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">BoreholeCollection.</span></span><span class="sig-name descname"><span class="pre">get_layer_top</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">column</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">values</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_thickness</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_depth</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_depth</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">include_in_header</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/geost/base.html#BoreholeCollection.get_layer_top"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#geost.base.BoreholeCollection.get_layer_top" title="Link to this definition">#</a></dt>
 <dd><p>Find the depth at which a specified layer first occurs, starting at min_depth
 and looking downwards until the first layer of min_thickness is found of the
 specified layer.</p>
@@ -797,6 +799,7 @@ specified layer.</p>
 <li><p><strong>values</strong> (<em>str</em><em> | </em><em>List</em><em>[</em><em>str</em><em>]</em>) – Value or values of entries in the column that you want to find top of.</p></li>
 <li><p><strong>min_thickness</strong> (<em>float</em><em>, </em><em>optional</em>) – Minimal thickness of the layer to be considered. The default is 0.</p></li>
 <li><p><strong>min_depth</strong> (<em>float</em><em>, </em><em>optional</em>) – Minimal depth of the layer to be considered. The default is 0.</p></li>
+<li><p><strong>max_depth</strong> (<em>float</em><em>, </em><em>optional</em>) – Maximal depth of the layer to be considered. The default is None.</p></li>
 <li><p><strong>include_in_header</strong> (<em>bool</em><em>, </em><em>optional</em>) – If True, include the result in the header table of the collection. In this
 case, the method does not return a DataFrame. The default is False.</p></li>
 </ul>
@@ -834,12 +837,12 @@ is sand (“Z”):</p>
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="geost.base.BoreholeCollection.get_cumulative_thickness.html"
+       href="geost.base.BoreholeCollection.get_layer_base.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">geost.base.BoreholeCollection.get_cumulative_thickness</p>
+        <p class="prev-next-title">geost.base.BoreholeCollection.get_layer_base</p>
       </div>
     </a>
     <a class="right-next"

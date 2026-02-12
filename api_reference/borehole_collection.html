@@ -452,6 +452,7 @@
 <li class="toctree-l3"><a class="reference internal" href="generated/geost.base.BoreholeCollection.html">geost.base.BoreholeCollection</a></li>
 <li class="toctree-l3"><a class="reference internal" href="generated/geost.base.BoreholeCollection.get_area_labels.html">geost.base.BoreholeCollection.get_area_labels</a></li>
 <li class="toctree-l3"><a class="reference internal" href="generated/geost.base.BoreholeCollection.get_cumulative_thickness.html">geost.base.BoreholeCollection.get_cumulative_thickness</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/geost.base.BoreholeCollection.get_layer_base.html">geost.base.BoreholeCollection.get_layer_base</a></li>
 <li class="toctree-l3"><a class="reference internal" href="generated/geost.base.BoreholeCollection.get_layer_top.html">geost.base.BoreholeCollection.get_layer_top</a></li>
 <li class="toctree-l3"><a class="reference internal" href="generated/geost.base.BoreholeCollection.change_horizontal_reference.html">geost.base.BoreholeCollection.change_horizontal_reference</a></li>
 <li class="toctree-l3"><a class="reference internal" href="generated/geost.base.BoreholeCollection.change_vertical_reference.html">geost.base.BoreholeCollection.change_vertical_reference</a></li>
@@ -552,6 +553,7 @@
 <li class="toctree-l2 has-children"><a class="reference internal" href="data_accessors.html">Data accessors</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l3"><a class="reference internal" href="generated/geost.accessors.data.LayeredData.html">geost.accessors.data.LayeredData</a></li>
 <li class="toctree-l3"><a class="reference internal" href="generated/geost.accessors.data.LayeredData.get_cumulative_thickness.html">geost.accessors.data.LayeredData.get_cumulative_thickness</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/geost.accessors.data.LayeredData.get_layer_base.html">geost.accessors.data.LayeredData.get_layer_base</a></li>
 <li class="toctree-l3"><a class="reference internal" href="generated/geost.accessors.data.LayeredData.get_layer_top.html">geost.accessors.data.LayeredData.get_layer_top</a></li>
 <li class="toctree-l3"><a class="reference internal" href="generated/geost.accessors.data.LayeredData.select_by_condition.html">geost.accessors.data.LayeredData.select_by_condition</a></li>
 <li class="toctree-l3"><a class="reference internal" href="generated/geost.accessors.data.LayeredData.select_by_values.html">geost.accessors.data.LayeredData.select_by_values</a></li>
@@ -802,7 +804,10 @@
 <tr class="row-even"><td><p><a class="reference internal" href="generated/geost.base.BoreholeCollection.get_cumulative_thickness.html#geost.base.BoreholeCollection.get_cumulative_thickness" title="geost.base.BoreholeCollection.get_cumulative_thickness"><code class="xref py py-obj docutils literal notranslate"><span class="pre">BoreholeCollection.get_cumulative_thickness</span></code></a>(...)</p></td>
 <td><p>Get the cumulative thickness of layers where a column contains a specified search value or values.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/geost.base.BoreholeCollection.get_layer_top.html#geost.base.BoreholeCollection.get_layer_top" title="geost.base.BoreholeCollection.get_layer_top"><code class="xref py py-obj docutils literal notranslate"><span class="pre">BoreholeCollection.get_layer_top</span></code></a>(column, values)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/geost.base.BoreholeCollection.get_layer_base.html#geost.base.BoreholeCollection.get_layer_base" title="geost.base.BoreholeCollection.get_layer_base"><code class="xref py py-obj docutils literal notranslate"><span class="pre">BoreholeCollection.get_layer_base</span></code></a>(column, values)</p></td>
+<td><p>Find the depth at which a specified layer occurs last, starting at min_depth and looking downwards until the first layer of min_thickness is found of the specified layer.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/geost.base.BoreholeCollection.get_layer_top.html#geost.base.BoreholeCollection.get_layer_top" title="geost.base.BoreholeCollection.get_layer_top"><code class="xref py py-obj docutils literal notranslate"><span class="pre">BoreholeCollection.get_layer_top</span></code></a>(column, values)</p></td>
 <td><p>Find the depth at which a specified layer first occurs, starting at min_depth and looking downwards until the first layer of min_thickness is found of the specified layer.</p></td>
 </tr>
 </tbody>

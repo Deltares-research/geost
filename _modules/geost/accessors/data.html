@@ -865,6 +865,7 @@
         <span class="n">values</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
         <span class="n">min_thickness</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
         <span class="n">min_depth</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+        <span class="n">max_depth</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Find the depth at which a specified layer first occurs, starting at min_depth</span>
@@ -881,6 +882,8 @@
 <span class="sd">            Minimal thickness of the layer to be considered. The default is 0.</span>
 <span class="sd">        min_depth : float, optional</span>
 <span class="sd">            Minimal depth of the layer to be considered. The default is 0.</span>
+<span class="sd">        max_depth : float, optional</span>
+<span class="sd">            Maximal depth of the layer to be considered. The default is None.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
@@ -895,13 +898,71 @@
 <span class="sd">        &gt;&gt;&gt; data.get_layer_top(&quot;lith&quot;, &quot;Z&quot;)</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">max_depth</span> <span class="o">=</span> <span class="n">max_depth</span> <span class="ow">or</span> <span class="mf">1e34</span>
+
         <span class="n">selection</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">slice_by_values</span><span class="p">(</span><span class="n">column</span><span class="p">,</span> <span class="n">values</span><span class="p">)</span>
-        <span class="n">selection</span> <span class="o">=</span> <span class="n">selection</span><span class="o">.</span><span class="n">gstda</span><span class="o">.</span><span class="n">slice_depth_interval</span><span class="p">(</span><span class="n">upper_boundary</span><span class="o">=</span><span class="n">min_depth</span><span class="p">)</span>
+        <span class="n">selection</span> <span class="o">=</span> <span class="n">selection</span><span class="o">.</span><span class="n">gstda</span><span class="o">.</span><span class="n">slice_depth_interval</span><span class="p">(</span>
+            <span class="n">upper_boundary</span><span class="o">=</span><span class="n">min_depth</span><span class="p">,</span> <span class="n">lower_boundary</span><span class="o">=</span><span class="n">max_depth</span>
+        <span class="p">)</span>
         <span class="n">selection</span> <span class="o">=</span> <span class="n">selection</span><span class="o">.</span><span class="n">gstda</span><span class="o">.</span><span class="n">select_by_condition</span><span class="p">(</span>
             <span class="n">selection</span><span class="p">[</span><span class="s2">&quot;bottom&quot;</span><span class="p">]</span> <span class="o">-</span> <span class="n">selection</span><span class="p">[</span><span class="s2">&quot;top&quot;</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">min_thickness</span>
         <span class="p">)</span>
         <span class="n">layer_top</span> <span class="o">=</span> <span class="n">selection</span><span class="o">.</span><span class="n">groupby</span><span class="p">([</span><span class="s2">&quot;nr&quot;</span><span class="p">,</span> <span class="n">column</span><span class="p">])[</span><span class="s2">&quot;top&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">first</span><span class="p">()</span>
         <span class="k">return</span> <span class="n">layer_top</span><span class="o">.</span><span class="n">unstack</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="n">column</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="LayeredData.get_layer_base">
+<a class="viewcode-back" href="../../../api_reference/generated/geost.accessors.data.LayeredData.get_layer_base.html#geost.accessors.data.LayeredData.get_layer_base">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_layer_base</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">column</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">values</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+        <span class="n">min_thickness</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+        <span class="n">min_depth</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+        <span class="n">max_depth</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Find the depth at which a specified layer occurs last, starting at min_depth</span>
+<span class="sd">        and looking downwards until the first layer of min_thickness is found of the</span>
+<span class="sd">        specified layer.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        column : str</span>
+<span class="sd">            Name of column that contains categorical data.</span>
+<span class="sd">        values : str | List[str]</span>
+<span class="sd">            Value or values of entries in the column that you want to find base of.</span>
+<span class="sd">        min_thickness : float, optional</span>
+<span class="sd">            Minimal thickness of the layer to be considered. The default is 0.</span>
+<span class="sd">        min_depth : float, optional</span>
+<span class="sd">            Minimal depth of the layer to be considered. The default is 0.</span>
+<span class="sd">        max_depth : float, optional</span>
+<span class="sd">            Maximal depth of the layer to be considered. The default is None.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        pd.DataFrame</span>
+<span class="sd">            Borehole ids and top levels of selected layers in meters below the surface.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        Get the base depth of layers in data where the lithology in the &quot;lith&quot; column</span>
+<span class="sd">        is sand (&quot;Z&quot;):</span>
+
+<span class="sd">        &gt;&gt;&gt; data.get_layer_base(&quot;lith&quot;, &quot;Z&quot;)</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">max_depth</span> <span class="o">=</span> <span class="n">max_depth</span> <span class="ow">or</span> <span class="mf">1e34</span>
+
+        <span class="n">selection</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">slice_by_values</span><span class="p">(</span><span class="n">column</span><span class="p">,</span> <span class="n">values</span><span class="p">)</span>
+        <span class="n">selection</span> <span class="o">=</span> <span class="n">selection</span><span class="o">.</span><span class="n">gstda</span><span class="o">.</span><span class="n">slice_depth_interval</span><span class="p">(</span>
+            <span class="n">upper_boundary</span><span class="o">=</span><span class="n">min_depth</span><span class="p">,</span> <span class="n">lower_boundary</span><span class="o">=</span><span class="n">max_depth</span>
+        <span class="p">)</span>
+        <span class="n">selection</span> <span class="o">=</span> <span class="n">selection</span><span class="o">.</span><span class="n">gstda</span><span class="o">.</span><span class="n">select_by_condition</span><span class="p">(</span>
+            <span class="n">selection</span><span class="p">[</span><span class="s2">&quot;bottom&quot;</span><span class="p">]</span> <span class="o">-</span> <span class="n">selection</span><span class="p">[</span><span class="s2">&quot;top&quot;</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">min_thickness</span>
+        <span class="p">)</span>
+        <span class="n">layer_base</span> <span class="o">=</span> <span class="n">selection</span><span class="o">.</span><span class="n">groupby</span><span class="p">([</span><span class="s2">&quot;nr&quot;</span><span class="p">,</span> <span class="n">column</span><span class="p">])[</span><span class="s2">&quot;bottom&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">last</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">layer_base</span><span class="o">.</span><span class="n">unstack</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="n">column</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="LayeredData.to_pyvista_cylinders">

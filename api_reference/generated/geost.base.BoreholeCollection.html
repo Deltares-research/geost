@@ -452,6 +452,7 @@
 <li class="toctree-l3 current active"><a class="current reference internal" href="#">geost.base.BoreholeCollection</a></li>
 <li class="toctree-l3"><a class="reference internal" href="geost.base.BoreholeCollection.get_area_labels.html">geost.base.BoreholeCollection.get_area_labels</a></li>
 <li class="toctree-l3"><a class="reference internal" href="geost.base.BoreholeCollection.get_cumulative_thickness.html">geost.base.BoreholeCollection.get_cumulative_thickness</a></li>
+<li class="toctree-l3"><a class="reference internal" href="geost.base.BoreholeCollection.get_layer_base.html">geost.base.BoreholeCollection.get_layer_base</a></li>
 <li class="toctree-l3"><a class="reference internal" href="geost.base.BoreholeCollection.get_layer_top.html">geost.base.BoreholeCollection.get_layer_top</a></li>
 <li class="toctree-l3"><a class="reference internal" href="geost.base.BoreholeCollection.change_horizontal_reference.html">geost.base.BoreholeCollection.change_horizontal_reference</a></li>
 <li class="toctree-l3"><a class="reference internal" href="geost.base.BoreholeCollection.change_vertical_reference.html">geost.base.BoreholeCollection.change_vertical_reference</a></li>
@@ -552,6 +553,7 @@
 <li class="toctree-l2 has-children"><a class="reference internal" href="../data_accessors.html">Data accessors</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l3"><a class="reference internal" href="geost.accessors.data.LayeredData.html">geost.accessors.data.LayeredData</a></li>
 <li class="toctree-l3"><a class="reference internal" href="geost.accessors.data.LayeredData.get_cumulative_thickness.html">geost.accessors.data.LayeredData.get_cumulative_thickness</a></li>
+<li class="toctree-l3"><a class="reference internal" href="geost.accessors.data.LayeredData.get_layer_base.html">geost.accessors.data.LayeredData.get_layer_base</a></li>
 <li class="toctree-l3"><a class="reference internal" href="geost.accessors.data.LayeredData.get_layer_top.html">geost.accessors.data.LayeredData.get_layer_top</a></li>
 <li class="toctree-l3"><a class="reference internal" href="geost.accessors.data.LayeredData.select_by_condition.html">geost.accessors.data.LayeredData.select_by_condition</a></li>
 <li class="toctree-l3"><a class="reference internal" href="geost.accessors.data.LayeredData.select_by_values.html">geost.accessors.data.LayeredData.select_by_values</a></li>
@@ -832,73 +834,76 @@ when applying methods.</p>
 <tr class="row-odd"><td><p><a class="reference internal" href="geost.base.BoreholeCollection.get_cumulative_thickness.html#geost.base.BoreholeCollection.get_cumulative_thickness" title="geost.base.BoreholeCollection.get_cumulative_thickness"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_cumulative_thickness</span></code></a>(column, values[, ...])</p></td>
 <td><p>Get the cumulative thickness of layers where a column contains a specified search value or values.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="geost.base.BoreholeCollection.get_layer_top.html#geost.base.BoreholeCollection.get_layer_top" title="geost.base.BoreholeCollection.get_layer_top"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_layer_top</span></code></a>(column, values[, ...])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="geost.base.BoreholeCollection.get_layer_base.html#geost.base.BoreholeCollection.get_layer_base" title="geost.base.BoreholeCollection.get_layer_base"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_layer_base</span></code></a>(column, values[, ...])</p></td>
+<td><p>Find the depth at which a specified layer occurs last, starting at min_depth and looking downwards until the first layer of min_thickness is found of the specified layer.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="geost.base.BoreholeCollection.get_layer_top.html#geost.base.BoreholeCollection.get_layer_top" title="geost.base.BoreholeCollection.get_layer_top"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_layer_top</span></code></a>(column, values[, ...])</p></td>
 <td><p>Find the depth at which a specified layer first occurs, starting at min_depth and looking downwards until the first layer of min_thickness is found of the specified layer.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="geost.base.BoreholeCollection.reset_header.html#geost.base.BoreholeCollection.reset_header" title="geost.base.BoreholeCollection.reset_header"><code class="xref py py-obj docutils literal notranslate"><span class="pre">reset_header</span></code></a>()</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="geost.base.BoreholeCollection.reset_header.html#geost.base.BoreholeCollection.reset_header" title="geost.base.BoreholeCollection.reset_header"><code class="xref py py-obj docutils literal notranslate"><span class="pre">reset_header</span></code></a>()</p></td>
 <td><p>Refresh the header based on the loaded data in case the header got messed up.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="geost.base.BoreholeCollection.select_by_condition.html#geost.base.BoreholeCollection.select_by_condition" title="geost.base.BoreholeCollection.select_by_condition"><code class="xref py py-obj docutils literal notranslate"><span class="pre">select_by_condition</span></code></a>(condition[, invert])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="geost.base.BoreholeCollection.select_by_condition.html#geost.base.BoreholeCollection.select_by_condition" title="geost.base.BoreholeCollection.select_by_condition"><code class="xref py py-obj docutils literal notranslate"><span class="pre">select_by_condition</span></code></a>(condition[, invert])</p></td>
 <td><p>Select from collection.data using a manual condition that results in a boolean mask.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="geost.base.BoreholeCollection.select_by_depth.html#geost.base.BoreholeCollection.select_by_depth" title="geost.base.BoreholeCollection.select_by_depth"><code class="xref py py-obj docutils literal notranslate"><span class="pre">select_by_depth</span></code></a>([top_min, top_max, end_min, ...])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="geost.base.BoreholeCollection.select_by_depth.html#geost.base.BoreholeCollection.select_by_depth" title="geost.base.BoreholeCollection.select_by_depth"><code class="xref py py-obj docutils literal notranslate"><span class="pre">select_by_depth</span></code></a>([top_min, top_max, end_min, ...])</p></td>
 <td><p>Select data from depth constraints.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="geost.base.BoreholeCollection.select_by_length.html#geost.base.BoreholeCollection.select_by_length" title="geost.base.BoreholeCollection.select_by_length"><code class="xref py py-obj docutils literal notranslate"><span class="pre">select_by_length</span></code></a>([min_length, max_length])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="geost.base.BoreholeCollection.select_by_length.html#geost.base.BoreholeCollection.select_by_length" title="geost.base.BoreholeCollection.select_by_length"><code class="xref py py-obj docutils literal notranslate"><span class="pre">select_by_length</span></code></a>([min_length, max_length])</p></td>
 <td><p>Select data from length constraints: e.g. all boreholes between 50 and 150 m long.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="geost.base.BoreholeCollection.select_by_values.html#geost.base.BoreholeCollection.select_by_values" title="geost.base.BoreholeCollection.select_by_values"><code class="xref py py-obj docutils literal notranslate"><span class="pre">select_by_values</span></code></a>(column, selection_values[, how])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="geost.base.BoreholeCollection.select_by_values.html#geost.base.BoreholeCollection.select_by_values" title="geost.base.BoreholeCollection.select_by_values"><code class="xref py py-obj docutils literal notranslate"><span class="pre">select_by_values</span></code></a>(column, selection_values[, how])</p></td>
 <td><p>Select data based on the presence of given values in a given column.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="geost.base.BoreholeCollection.select_with_lines.html#geost.base.BoreholeCollection.select_with_lines" title="geost.base.BoreholeCollection.select_with_lines"><code class="xref py py-obj docutils literal notranslate"><span class="pre">select_with_lines</span></code></a>(lines, buffer[, invert])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="geost.base.BoreholeCollection.select_with_lines.html#geost.base.BoreholeCollection.select_with_lines" title="geost.base.BoreholeCollection.select_with_lines"><code class="xref py py-obj docutils literal notranslate"><span class="pre">select_with_lines</span></code></a>(lines, buffer[, invert])</p></td>
 <td><p>Make a selection of the collection based on line geometries.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="geost.base.BoreholeCollection.select_with_points.html#geost.base.BoreholeCollection.select_with_points" title="geost.base.BoreholeCollection.select_with_points"><code class="xref py py-obj docutils literal notranslate"><span class="pre">select_with_points</span></code></a>(points, buffer[, invert])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="geost.base.BoreholeCollection.select_with_points.html#geost.base.BoreholeCollection.select_with_points" title="geost.base.BoreholeCollection.select_with_points"><code class="xref py py-obj docutils literal notranslate"><span class="pre">select_with_points</span></code></a>(points, buffer[, invert])</p></td>
 <td><p>Make a selection of the collection based on point geometries.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="geost.base.BoreholeCollection.select_within_bbox.html#geost.base.BoreholeCollection.select_within_bbox" title="geost.base.BoreholeCollection.select_within_bbox"><code class="xref py py-obj docutils literal notranslate"><span class="pre">select_within_bbox</span></code></a>(xmin, ymin, xmax, ymax[, ...])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="geost.base.BoreholeCollection.select_within_bbox.html#geost.base.BoreholeCollection.select_within_bbox" title="geost.base.BoreholeCollection.select_within_bbox"><code class="xref py py-obj docutils literal notranslate"><span class="pre">select_within_bbox</span></code></a>(xmin, ymin, xmax, ymax[, ...])</p></td>
 <td><p>Make a selection of the collection based on a bounding box.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="geost.base.BoreholeCollection.select_within_polygons.html#geost.base.BoreholeCollection.select_within_polygons" title="geost.base.BoreholeCollection.select_within_polygons"><code class="xref py py-obj docutils literal notranslate"><span class="pre">select_within_polygons</span></code></a>(polygons[, buffer, ...])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="geost.base.BoreholeCollection.select_within_polygons.html#geost.base.BoreholeCollection.select_within_polygons" title="geost.base.BoreholeCollection.select_within_polygons"><code class="xref py py-obj docutils literal notranslate"><span class="pre">select_within_polygons</span></code></a>(polygons[, buffer, ...])</p></td>
 <td><p>Make a selection of the collection based on polygon geometries.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="geost.base.BoreholeCollection.slice_by_values.html#geost.base.BoreholeCollection.slice_by_values" title="geost.base.BoreholeCollection.slice_by_values"><code class="xref py py-obj docutils literal notranslate"><span class="pre">slice_by_values</span></code></a>(column, selection_values[, ...])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="geost.base.BoreholeCollection.slice_by_values.html#geost.base.BoreholeCollection.slice_by_values" title="geost.base.BoreholeCollection.slice_by_values"><code class="xref py py-obj docutils literal notranslate"><span class="pre">slice_by_values</span></code></a>(column, selection_values[, ...])</p></td>
 <td><p>Slice rows from data based on matching condition.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="geost.base.BoreholeCollection.slice_depth_interval.html#geost.base.BoreholeCollection.slice_depth_interval" title="geost.base.BoreholeCollection.slice_depth_interval"><code class="xref py py-obj docutils literal notranslate"><span class="pre">slice_depth_interval</span></code></a>([upper_boundary, ...])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="geost.base.BoreholeCollection.slice_depth_interval.html#geost.base.BoreholeCollection.slice_depth_interval" title="geost.base.BoreholeCollection.slice_depth_interval"><code class="xref py py-obj docutils literal notranslate"><span class="pre">slice_depth_interval</span></code></a>([upper_boundary, ...])</p></td>
 <td><p>Slice data based on given upper and lower boundaries.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="geost.base.BoreholeCollection.to_csv.html#geost.base.BoreholeCollection.to_csv" title="geost.base.BoreholeCollection.to_csv"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_csv</span></code></a>(outfile[, data_table])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="geost.base.BoreholeCollection.to_csv.html#geost.base.BoreholeCollection.to_csv" title="geost.base.BoreholeCollection.to_csv"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_csv</span></code></a>(outfile[, data_table])</p></td>
 <td><p>Export the data or header table to a csv file.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="geost.base.BoreholeCollection.to_datafusiontools.html#geost.base.BoreholeCollection.to_datafusiontools" title="geost.base.BoreholeCollection.to_datafusiontools"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_datafusiontools</span></code></a>(columns[, outfile, ...])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="geost.base.BoreholeCollection.to_datafusiontools.html#geost.base.BoreholeCollection.to_datafusiontools" title="geost.base.BoreholeCollection.to_datafusiontools"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_datafusiontools</span></code></a>(columns[, outfile, ...])</p></td>
 <td><p>Export all data to the core &quot;Data&quot; class of Deltares DataFusionTools.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="geost.base.BoreholeCollection.to_geopackage.html#geost.base.BoreholeCollection.to_geopackage" title="geost.base.BoreholeCollection.to_geopackage"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_geopackage</span></code></a>(outfile[, metadata])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="geost.base.BoreholeCollection.to_geopackage.html#geost.base.BoreholeCollection.to_geopackage" title="geost.base.BoreholeCollection.to_geopackage"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_geopackage</span></code></a>(outfile[, metadata])</p></td>
 <td><p>Write header and data to a geopackage.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="geost.base.BoreholeCollection.to_geoparquet.html#geost.base.BoreholeCollection.to_geoparquet" title="geost.base.BoreholeCollection.to_geoparquet"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_geoparquet</span></code></a>(outfile, **kwargs)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="geost.base.BoreholeCollection.to_geoparquet.html#geost.base.BoreholeCollection.to_geoparquet" title="geost.base.BoreholeCollection.to_geoparquet"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_geoparquet</span></code></a>(outfile, **kwargs)</p></td>
 <td><p>Write header data to geoparquet.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="geost.base.BoreholeCollection.to_kingdom.html#geost.base.BoreholeCollection.to_kingdom" title="geost.base.BoreholeCollection.to_kingdom"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_kingdom</span></code></a>(outfile[, tdstart, vw, vs])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="geost.base.BoreholeCollection.to_kingdom.html#geost.base.BoreholeCollection.to_kingdom" title="geost.base.BoreholeCollection.to_kingdom"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_kingdom</span></code></a>(outfile[, tdstart, vw, vs])</p></td>
 <td><p>Write data to 2 csv files: interval data and time-depth chart,</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="geost.base.BoreholeCollection.to_parquet.html#geost.base.BoreholeCollection.to_parquet" title="geost.base.BoreholeCollection.to_parquet"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_parquet</span></code></a>(outfile[, data_table])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="geost.base.BoreholeCollection.to_parquet.html#geost.base.BoreholeCollection.to_parquet" title="geost.base.BoreholeCollection.to_parquet"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_parquet</span></code></a>(outfile[, data_table])</p></td>
 <td><p>Export the data or header table to a parquet file.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_pickle</span></code>(outfile, **kwargs)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_pickle</span></code>(outfile, **kwargs)</p></td>
 <td><p>Export the complete Collection to a pickle file.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="geost.base.BoreholeCollection.to_pyvista_cylinders.html#geost.base.BoreholeCollection.to_pyvista_cylinders" title="geost.base.BoreholeCollection.to_pyvista_cylinders"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_pyvista_cylinders</span></code></a>(displayed_variables[, ...])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="geost.base.BoreholeCollection.to_pyvista_cylinders.html#geost.base.BoreholeCollection.to_pyvista_cylinders" title="geost.base.BoreholeCollection.to_pyvista_cylinders"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_pyvista_cylinders</span></code></a>(displayed_variables[, ...])</p></td>
 <td><p>Create a Pyvista MultiBlock object of cylinder-shaped geometries to represent boreholes.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="geost.base.BoreholeCollection.to_pyvista_grid.html#geost.base.BoreholeCollection.to_pyvista_grid" title="geost.base.BoreholeCollection.to_pyvista_grid"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_pyvista_grid</span></code></a>(displayed_variables[, radius])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="geost.base.BoreholeCollection.to_pyvista_grid.html#geost.base.BoreholeCollection.to_pyvista_grid" title="geost.base.BoreholeCollection.to_pyvista_grid"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_pyvista_grid</span></code></a>(displayed_variables[, radius])</p></td>
 <td><p>Create a Pyvista UnstructuredGrid object to represent boreholes.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="geost.base.BoreholeCollection.to_qgis3d.html#geost.base.BoreholeCollection.to_qgis3d" title="geost.base.BoreholeCollection.to_qgis3d"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_qgis3d</span></code></a>(outfile[, ...])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="geost.base.BoreholeCollection.to_qgis3d.html#geost.base.BoreholeCollection.to_qgis3d" title="geost.base.BoreholeCollection.to_qgis3d"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_qgis3d</span></code></a>(outfile[, ...])</p></td>
 <td><p>Write data to geopackage file that can be directly loaded in the Qgis2threejs plugin.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="geost.base.BoreholeCollection.to_shape.html#geost.base.BoreholeCollection.to_shape" title="geost.base.BoreholeCollection.to_shape"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_shape</span></code></a>(outfile, **kwargs)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="geost.base.BoreholeCollection.to_shape.html#geost.base.BoreholeCollection.to_shape" title="geost.base.BoreholeCollection.to_shape"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_shape</span></code></a>(outfile, **kwargs)</p></td>
 <td><p>Write header data to shapefile.</p></td>
 </tr>
 </tbody>

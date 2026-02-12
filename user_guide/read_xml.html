@@ -452,6 +452,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.BoreholeCollection.html">geost.base.BoreholeCollection</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.BoreholeCollection.get_area_labels.html">geost.base.BoreholeCollection.get_area_labels</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.BoreholeCollection.get_cumulative_thickness.html">geost.base.BoreholeCollection.get_cumulative_thickness</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.BoreholeCollection.get_layer_base.html">geost.base.BoreholeCollection.get_layer_base</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.BoreholeCollection.get_layer_top.html">geost.base.BoreholeCollection.get_layer_top</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.BoreholeCollection.change_horizontal_reference.html">geost.base.BoreholeCollection.change_horizontal_reference</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.BoreholeCollection.change_vertical_reference.html">geost.base.BoreholeCollection.change_vertical_reference</a></li>
@@ -552,6 +553,7 @@
 <li class="toctree-l2 has-children"><a class="reference internal" href="../api_reference/data_accessors.html">Data accessors</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.accessors.data.LayeredData.html">geost.accessors.data.LayeredData</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.accessors.data.LayeredData.get_cumulative_thickness.html">geost.accessors.data.LayeredData.get_cumulative_thickness</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.accessors.data.LayeredData.get_layer_base.html">geost.accessors.data.LayeredData.get_layer_base</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.accessors.data.LayeredData.get_layer_top.html">geost.accessors.data.LayeredData.get_layer_top</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.accessors.data.LayeredData.select_by_condition.html">geost.accessors.data.LayeredData.select_by_condition</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.accessors.data.LayeredData.select_by_values.html">geost.accessors.data.LayeredData.select_by_values</a></li>
@@ -870,20 +872,20 @@ Retrieved data attributes: Index([&#39;nr&#39;, &#39;x&#39;, &#39;y&#39;, &#39;s
 <div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>{&#39;payload_root&#39;: &#39;dispatchDocument&#39;,
  &#39;nr&#39;: {&#39;xpath&#39;: &#39;brocom:broId&#39;},
  &#39;location&#39;: {&#39;xpath&#39;: &#39;standardizedLocation/brocom:location/gml:pos&#39;,
-              &#39;resolver&#39;: &lt;function parse_coordinates at 0x7fadccf54a90&gt;,
+              &#39;resolver&#39;: &lt;function parse_coordinates at 0x7f1de8f70ca0&gt;,
               &#39;el-attr&#39;: &#39;text&#39;},
  &#39;crs&#39;: {&#39;xpath&#39;: &#39;standardizedLocation/brocom:location&#39;,
-         &#39;resolver&#39;: &lt;function parse_crs at 0x7fadccf54930&gt;},
+         &#39;resolver&#39;: &lt;function parse_crs at 0x7f1de8f70b40&gt;},
  &#39;surface&#39;: {&#39;xpath&#39;: &#39;deliveredVerticalPosition/bhrgcom:offset&#39;,
-             &#39;resolver&#39;: &lt;function safe_float at 0x7fadccf54bf0&gt;,
+             &#39;resolver&#39;: &lt;function safe_float at 0x7f1de8f70e00&gt;,
              &#39;el-attr&#39;: &#39;text&#39;},
  &#39;vertical_datum&#39;: {&#39;xpath&#39;: &#39;deliveredVerticalPosition/bhrgcom:verticalDatum&#39;,
                     &#39;el-attr&#39;: &#39;text&#39;},
  &#39;end&#39;: {&#39;xpath&#39;: &#39;boring/bhrgcom:Boring/bhrgcom:finalDepthBoring&#39;,
-         &#39;resolver&#39;: &lt;function safe_float at 0x7fadccf54bf0&gt;,
+         &#39;resolver&#39;: &lt;function safe_float at 0x7f1de8f70e00&gt;,
          &#39;el-attr&#39;: &#39;text&#39;},
  &#39;data&#39;: {&#39;xpath&#39;: &#39;boreholeSampleDescription/bhrgcom:BoreholeSampleDescription/bhrgcom:descriptiveBoreholeLog/bhrgcom:DescriptiveBoreholeLog&#39;,
-          &#39;resolver&#39;: &lt;function process_bhrgt_data at 0x7fadccf55170&gt;,
+          &#39;resolver&#39;: &lt;function process_bhrgt_data at 0x7f1de8f71380&gt;,
           &#39;layer-attributes&#39;: [&#39;upperBoundary&#39;,
                                &#39;lowerBoundary&#39;,
                                &#39;soilNameNEN5104&#39;]}}

@@ -452,6 +452,7 @@
 <li class="toctree-l3"><a class="reference internal" href="generated/geost.base.BoreholeCollection.html">geost.base.BoreholeCollection</a></li>
 <li class="toctree-l3"><a class="reference internal" href="generated/geost.base.BoreholeCollection.get_area_labels.html">geost.base.BoreholeCollection.get_area_labels</a></li>
 <li class="toctree-l3"><a class="reference internal" href="generated/geost.base.BoreholeCollection.get_cumulative_thickness.html">geost.base.BoreholeCollection.get_cumulative_thickness</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/geost.base.BoreholeCollection.get_layer_base.html">geost.base.BoreholeCollection.get_layer_base</a></li>
 <li class="toctree-l3"><a class="reference internal" href="generated/geost.base.BoreholeCollection.get_layer_top.html">geost.base.BoreholeCollection.get_layer_top</a></li>
 <li class="toctree-l3"><a class="reference internal" href="generated/geost.base.BoreholeCollection.change_horizontal_reference.html">geost.base.BoreholeCollection.change_horizontal_reference</a></li>
 <li class="toctree-l3"><a class="reference internal" href="generated/geost.base.BoreholeCollection.change_vertical_reference.html">geost.base.BoreholeCollection.change_vertical_reference</a></li>
@@ -552,6 +553,7 @@
 <li class="toctree-l2 current active has-children"><a class="current reference internal" href="#">Data accessors</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l3"><a class="reference internal" href="generated/geost.accessors.data.LayeredData.html">geost.accessors.data.LayeredData</a></li>
 <li class="toctree-l3"><a class="reference internal" href="generated/geost.accessors.data.LayeredData.get_cumulative_thickness.html">geost.accessors.data.LayeredData.get_cumulative_thickness</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/geost.accessors.data.LayeredData.get_layer_base.html">geost.accessors.data.LayeredData.get_layer_base</a></li>
 <li class="toctree-l3"><a class="reference internal" href="generated/geost.accessors.data.LayeredData.get_layer_top.html">geost.accessors.data.LayeredData.get_layer_top</a></li>
 <li class="toctree-l3"><a class="reference internal" href="generated/geost.accessors.data.LayeredData.select_by_condition.html">geost.accessors.data.LayeredData.select_by_condition</a></li>
 <li class="toctree-l3"><a class="reference internal" href="generated/geost.accessors.data.LayeredData.select_by_values.html">geost.accessors.data.LayeredData.select_by_values</a></li>
@@ -791,40 +793,43 @@
 <tr class="row-even"><td><p><a class="reference internal" href="generated/geost.accessors.data.LayeredData.get_cumulative_thickness.html#geost.accessors.data.LayeredData.get_cumulative_thickness" title="geost.accessors.data.LayeredData.get_cumulative_thickness"><code class="xref py py-obj docutils literal notranslate"><span class="pre">LayeredData.get_cumulative_thickness</span></code></a>(column, ...)</p></td>
 <td><p>Get the cumulative thickness of layers where a column contains a specified search value or values.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/geost.accessors.data.LayeredData.get_layer_top.html#geost.accessors.data.LayeredData.get_layer_top" title="geost.accessors.data.LayeredData.get_layer_top"><code class="xref py py-obj docutils literal notranslate"><span class="pre">LayeredData.get_layer_top</span></code></a>(column, values[, ...])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/geost.accessors.data.LayeredData.get_layer_base.html#geost.accessors.data.LayeredData.get_layer_base" title="geost.accessors.data.LayeredData.get_layer_base"><code class="xref py py-obj docutils literal notranslate"><span class="pre">LayeredData.get_layer_base</span></code></a>(column, values[, ...])</p></td>
+<td><p>Find the depth at which a specified layer occurs last, starting at min_depth and looking downwards until the first layer of min_thickness is found of the specified layer.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/geost.accessors.data.LayeredData.get_layer_top.html#geost.accessors.data.LayeredData.get_layer_top" title="geost.accessors.data.LayeredData.get_layer_top"><code class="xref py py-obj docutils literal notranslate"><span class="pre">LayeredData.get_layer_top</span></code></a>(column, values[, ...])</p></td>
 <td><p>Find the depth at which a specified layer first occurs, starting at min_depth and looking downwards until the first layer of min_thickness is found of the specified layer.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/geost.accessors.data.LayeredData.select_by_condition.html#geost.accessors.data.LayeredData.select_by_condition" title="geost.accessors.data.LayeredData.select_by_condition"><code class="xref py py-obj docutils literal notranslate"><span class="pre">LayeredData.select_by_condition</span></code></a>(condition[, ...])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/geost.accessors.data.LayeredData.select_by_condition.html#geost.accessors.data.LayeredData.select_by_condition" title="geost.accessors.data.LayeredData.select_by_condition"><code class="xref py py-obj docutils literal notranslate"><span class="pre">LayeredData.select_by_condition</span></code></a>(condition[, ...])</p></td>
 <td><p>Select data using a manual condition that results in a boolean mask.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/geost.accessors.data.LayeredData.select_by_values.html#geost.accessors.data.LayeredData.select_by_values" title="geost.accessors.data.LayeredData.select_by_values"><code class="xref py py-obj docutils literal notranslate"><span class="pre">LayeredData.select_by_values</span></code></a>(column, ...[, how])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/geost.accessors.data.LayeredData.select_by_values.html#geost.accessors.data.LayeredData.select_by_values" title="geost.accessors.data.LayeredData.select_by_values"><code class="xref py py-obj docutils literal notranslate"><span class="pre">LayeredData.select_by_values</span></code></a>(column, ...[, how])</p></td>
 <td><p>Select data based on the presence of given values in a given column.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/geost.accessors.data.LayeredData.slice_by_values.html#geost.accessors.data.LayeredData.slice_by_values" title="geost.accessors.data.LayeredData.slice_by_values"><code class="xref py py-obj docutils literal notranslate"><span class="pre">LayeredData.slice_by_values</span></code></a>(column, ...[, ...])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/geost.accessors.data.LayeredData.slice_by_values.html#geost.accessors.data.LayeredData.slice_by_values" title="geost.accessors.data.LayeredData.slice_by_values"><code class="xref py py-obj docutils literal notranslate"><span class="pre">LayeredData.slice_by_values</span></code></a>(column, ...[, ...])</p></td>
 <td><p>Slice rows from data based on matching condition.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/geost.accessors.data.LayeredData.slice_depth_interval.html#geost.accessors.data.LayeredData.slice_depth_interval" title="geost.accessors.data.LayeredData.slice_depth_interval"><code class="xref py py-obj docutils literal notranslate"><span class="pre">LayeredData.slice_depth_interval</span></code></a>([...])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/geost.accessors.data.LayeredData.slice_depth_interval.html#geost.accessors.data.LayeredData.slice_depth_interval" title="geost.accessors.data.LayeredData.slice_depth_interval"><code class="xref py py-obj docutils literal notranslate"><span class="pre">LayeredData.slice_depth_interval</span></code></a>([...])</p></td>
 <td><p>Slice data based on given upper and lower boundaries.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/geost.accessors.data.LayeredData.to_collection.html#geost.accessors.data.LayeredData.to_collection" title="geost.accessors.data.LayeredData.to_collection"><code class="xref py py-obj docutils literal notranslate"><span class="pre">LayeredData.to_collection</span></code></a>([has_inclined, ...])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/geost.accessors.data.LayeredData.to_collection.html#geost.accessors.data.LayeredData.to_collection" title="geost.accessors.data.LayeredData.to_collection"><code class="xref py py-obj docutils literal notranslate"><span class="pre">LayeredData.to_collection</span></code></a>([has_inclined, ...])</p></td>
 <td><p>Create a collection from this instance of LayeredData.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/geost.accessors.data.LayeredData.to_datafusiontools.html#geost.accessors.data.LayeredData.to_datafusiontools" title="geost.accessors.data.LayeredData.to_datafusiontools"><code class="xref py py-obj docutils literal notranslate"><span class="pre">LayeredData.to_datafusiontools</span></code></a>(columns[, ...])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/geost.accessors.data.LayeredData.to_datafusiontools.html#geost.accessors.data.LayeredData.to_datafusiontools" title="geost.accessors.data.LayeredData.to_datafusiontools"><code class="xref py py-obj docutils literal notranslate"><span class="pre">LayeredData.to_datafusiontools</span></code></a>(columns[, ...])</p></td>
 <td><p>Export all data to the core &quot;Data&quot; class of Deltares DataFusionTools.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/geost.accessors.data.LayeredData.to_header.html#geost.accessors.data.LayeredData.to_header" title="geost.accessors.data.LayeredData.to_header"><code class="xref py py-obj docutils literal notranslate"><span class="pre">LayeredData.to_header</span></code></a>([horizontal_reference])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/geost.accessors.data.LayeredData.to_header.html#geost.accessors.data.LayeredData.to_header" title="geost.accessors.data.LayeredData.to_header"><code class="xref py py-obj docutils literal notranslate"><span class="pre">LayeredData.to_header</span></code></a>([horizontal_reference])</p></td>
 <td><p>Generate a <code class="xref py py-class docutils literal notranslate"><span class="pre">PointHeader</span></code> from this instance of LayeredData.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/geost.accessors.data.LayeredData.to_kingdom.html#geost.accessors.data.LayeredData.to_kingdom" title="geost.accessors.data.LayeredData.to_kingdom"><code class="xref py py-obj docutils literal notranslate"><span class="pre">LayeredData.to_kingdom</span></code></a>(outfile[, tdstart, ...])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/geost.accessors.data.LayeredData.to_kingdom.html#geost.accessors.data.LayeredData.to_kingdom" title="geost.accessors.data.LayeredData.to_kingdom"><code class="xref py py-obj docutils literal notranslate"><span class="pre">LayeredData.to_kingdom</span></code></a>(outfile[, tdstart, ...])</p></td>
 <td><p>Write data to 2 csv files: 1) interval data and 2) time-depth chart.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/geost.accessors.data.LayeredData.to_qgis3d.html#geost.accessors.data.LayeredData.to_qgis3d" title="geost.accessors.data.LayeredData.to_qgis3d"><code class="xref py py-obj docutils literal notranslate"><span class="pre">LayeredData.to_qgis3d</span></code></a>(outfile[, ...])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/geost.accessors.data.LayeredData.to_qgis3d.html#geost.accessors.data.LayeredData.to_qgis3d" title="geost.accessors.data.LayeredData.to_qgis3d"><code class="xref py py-obj docutils literal notranslate"><span class="pre">LayeredData.to_qgis3d</span></code></a>(outfile[, ...])</p></td>
 <td><p>Write data to geopackage file that can be directly loaded in the Qgis2threejs plugin.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/geost.accessors.data.LayeredData.to_pyvista_cylinders.html#geost.accessors.data.LayeredData.to_pyvista_cylinders" title="geost.accessors.data.LayeredData.to_pyvista_cylinders"><code class="xref py py-obj docutils literal notranslate"><span class="pre">LayeredData.to_pyvista_cylinders</span></code></a>(...[, ...])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/geost.accessors.data.LayeredData.to_pyvista_cylinders.html#geost.accessors.data.LayeredData.to_pyvista_cylinders" title="geost.accessors.data.LayeredData.to_pyvista_cylinders"><code class="xref py py-obj docutils literal notranslate"><span class="pre">LayeredData.to_pyvista_cylinders</span></code></a>(...[, ...])</p></td>
 <td><p>Create a Pyvista MultiBlock object of cylinder-shaped geometries to represent boreholes.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/geost.accessors.data.LayeredData.to_pyvista_grid.html#geost.accessors.data.LayeredData.to_pyvista_grid" title="geost.accessors.data.LayeredData.to_pyvista_grid"><code class="xref py py-obj docutils literal notranslate"><span class="pre">LayeredData.to_pyvista_grid</span></code></a>(displayed_variables)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/geost.accessors.data.LayeredData.to_pyvista_grid.html#geost.accessors.data.LayeredData.to_pyvista_grid" title="geost.accessors.data.LayeredData.to_pyvista_grid"><code class="xref py py-obj docutils literal notranslate"><span class="pre">LayeredData.to_pyvista_grid</span></code></a>(displayed_variables)</p></td>
 <td><p>Create a PyVista UnstructuredGrid object of the data in this instance.</p></td>
 </tr>
 </tbody>
