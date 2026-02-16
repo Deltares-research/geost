@@ -26,6 +26,8 @@ class TestGeostFrame:
     def test_accessor(self, dataframe: pd.DataFrame):
         assert hasattr(dataframe, "gst")
         assert isinstance(dataframe.gst, GeostFrame)
+        assert dataframe.gst._top is None
+        assert dataframe.gst._bottom is None
 
         with pytest.raises(
             KeyError,
@@ -34,23 +36,75 @@ class TestGeostFrame:
             df_invalid = pd.DataFrame({"x": [1, 2], "y": [3, 4]})
             df_invalid.gst  # Should raise an error because 'nr' column is missing
 
+    @pytest.mark.parametrize(
+        "df, top, bottom",
+        [
+            (pd.DataFrame(columns=["nr", "top", "bottom"]), "top", "bottom"),
+            (
+                pd.DataFrame(columns=["nr", "top", "bottom", "depth"]),
+                "top",
+                "depth",
+            ),  # 'depth' should take precedence over 'bottom'
+            (pd.DataFrame(columns=["nr", "bottom"]), None, "bottom"),
+            (pd.DataFrame(columns=["nr", "depth"]), None, "depth"),
+            (pd.DataFrame(columns=["nr"]), None, None),  # No depth columns present
+        ],
+    )
+    def test_set_depth_columns(self, df, top, bottom):
+        if top is None:
+            assert df.gst._top is None
+        else:
+            assert df.gst._top == top
+
+        if bottom is None:
+            assert df.gst._bottom is None
+        else:
+            assert df.gst._bottom == bottom
+
     @pytest.mark.unittest
     def test_has_geometry(
         self, dataframe: pd.DataFrame, geodataframe: gpd.GeoDataFrame
     ):
         assert not dataframe.gst.has_geometry
-        assert geodataframe.gst.has_geometry
-
-    @pytest.mark.unittest
-    def test_check_has_spatial(
-        self, dataframe: pd.DataFrame, geodataframe: gpd.GeoDataFrame
-    ):
         with pytest.raises(
             TypeError,
             match="Object is not a GeoDataFrame with a valid geometry column.",
         ):
-            dataframe.gst._check_has_spatial()
-        geodataframe.gst._check_has_spatial()  # Should not raise an error for geodataframe
+            dataframe.gst._check_has_geometry()
+
+        assert geodataframe.gst.has_geometry
+        geodataframe.gst._check_has_geometry()  # Should not raise an error for geodataframe
+
+    @pytest.mark.parametrize(
+        "df",
+        [
+            pd.DataFrame(columns=["nr", "surface", "top", "bottom"]),
+            pd.DataFrame(columns=["nr", "surface", "bottom"]),
+            pd.DataFrame(columns=["nr", "surface", "depth"]),
+            pd.DataFrame(columns=["nr", "surface"]),
+            pd.DataFrame(columns=["nr", "top", "bottom"]),
+            pd.DataFrame(columns=["nr", "bottom"]),
+            pd.DataFrame(columns=["nr", "depth"]),
+        ],
+        ids=[
+            "surface-top-bottom",
+            "surface-bottom",
+            "surface-depth",
+            "surface-missing-depth",
+            "top-bottom-missing-surface",
+            "bottom-missing-surface",
+            "depth-missing-surface",
+        ],
+    )
+    def test_has_depth_columns(self, df, request):
+        test_id = request.node.callspec.id
+        if test_id in {"surface-top-bottom", "surface-bottom", "surface-depth"}:
+            assert df.gst.has_depth_columns
+            df.gst._check_has_depth()  # Should not raise an error for valid depth column combinations
+        else:
+            assert not df.gst.has_depth_columns
+            with pytest.raises(KeyError):
+                df.gst._check_has_depth()
 
     @pytest.mark.unittest
     def test_to_iterable(self, borehole_data):
@@ -224,6 +278,88 @@ class TestGeostFrame:
         )
         assert len(selected) == 21
         assert not (selected["lith"] == "V").all()
+
+    @pytest.mark.unittest
+    def test_slice_depth_interval_layered(self, borehole_data):
+        # Test slicing with respect to depth below the surface.
+        upper, lower = 0.6, 2.4
+        sliced = borehole_data.gst.slice_depth_interval(upper, lower)
+        assert isinstance(sliced, pd.DataFrame)
+
+        layers_per_borehole = sliced["nr"].value_counts()
+        expected_layer_count = [3, 3, 3, 3, 2]
+
+        assert len(sliced) == 14
+        assert sliced["top"].min() == upper
+        assert sliced["bottom"].max() == lower
+        assert_array_equal(layers_per_borehole, expected_layer_count)
+
+        # Test slicing without updating layer boundaries.
+        sliced = borehole_data.gst.slice_depth_interval(
+            upper, lower, update_layer_boundaries=False
+        )
+
+        expected_tops_of_slice = [0.0, 0.6, 0.0, 0.5, 0.5]
+        expected_bottoms_of_slice = [2.5, 2.5, 2.9, 2.5, 2.5]
+
+        tops_of_slice = sliced.groupby("nr")["top"].min()
+        bottoms_of_slice = sliced.groupby("nr")["bottom"].max()
+
+        assert len(sliced) == 14
+        assert_array_equal(tops_of_slice, expected_tops_of_slice)
+        assert_array_equal(bottoms_of_slice, expected_bottoms_of_slice)
+
+        # Test slicing with respect to a vertical reference plane.
+        nap_upper, nap_lower = -2, -3
+        sliced = borehole_data.gst.slice_depth_interval(
+            nap_upper, nap_lower, relative_to_vertical_reference=True
+        )
+
+        expected_tops_of_slice = [2.2, 2.3, 2.25, 2.1, 1.9]
+        expected_bottoms_of_slice = [3.2, 3.3, 3.25, 3.0, 2.9]
+
+        tops_of_slice = sliced.groupby("nr")["top"].min()
+        bottoms_of_slice = sliced.groupby("nr")["bottom"].max()
+
+        assert len(sliced) == 11
+        assert_array_equal(tops_of_slice, expected_tops_of_slice)
+        assert_array_equal(bottoms_of_slice, expected_bottoms_of_slice)
+
+        # Test slices that return empty objects.
+        empty_slice = borehole_data.gst.slice_depth_interval(-2, -1)
+        empty_slice_nap = borehole_data.gst.slice_depth_interval(
+            3, 2, relative_to_vertical_reference=True
+        )
+
+        assert len(empty_slice) == 0
+        assert len(empty_slice_nap) == 0
+
+        # Test slicing using only an upper boundary or lower boundary.
+        upper = 4
+        sliced = borehole_data.gst.slice_depth_interval(upper)
+
+        expected_boreholes = ["A", "C"]
+
+        assert len(sliced) == 2
+        assert_array_equal(sliced["nr"], expected_boreholes)
+
+        nap_lower = -0.5
+        sliced = borehole_data.gst.slice_depth_interval(
+            lower_boundary=nap_lower, relative_to_vertical_reference=True
+        )
+
+        bottoms_of_slice = sliced.groupby("nr")["bottom"].max()
+        expected_bottoms_of_slice = [0.7, 0.8, 0.75, 0.6, 0.4]
+
+        assert len(sliced) == 7
+        assert_array_equal(bottoms_of_slice, expected_bottoms_of_slice)
+
+    @pytest.mark.unittest
+    def test_slice_depth_interval_discrete(self, cpt_data):
+        upper, lower = 0.6, 4.4
+        sliced = cpt_data.gst.slice_depth_interval(upper, lower)
+
+        assert_array_equal(sliced["depth"], [1, 2, 3, 4, 1, 2, 3, 4])
 
 
 class TestHeaderAccessor:

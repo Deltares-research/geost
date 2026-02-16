@@ -21,6 +21,17 @@ class GeostFrame:
     def __init__(self, dataframe: DataFrame):
         self._validate_dataframe(dataframe)
         self._obj = dataframe
+        self._set_depth_columns()
+
+    def _set_depth_columns(self):
+        self._top = "top" if "top" in self._obj.columns else None
+
+        if "depth" in self._obj.columns:
+            self._bottom = "depth"
+        elif "bottom" in self._obj.columns:
+            self._bottom = "bottom"
+        else:
+            self._bottom = None
 
     @staticmethod
     def _validate_dataframe(dataframe):
@@ -51,19 +62,10 @@ class GeostFrame:
         selection operations can be performed on the object.
 
         """
-        # Check if the dataframe contains columns that indicate depth information.
+        if "surface" in self._obj.columns and self._bottom is not None:
+            return True
 
-        # This can be:
-        # - 'top' and 'bottom' columns (layered data)
-        # - 'depth' column (discrete data)
-        # - Only 'bottom' column (also discrete data)
-
-        # We also need to check the presence of a 'surface' column
-
-        if "surface" not in self._obj.columns:
-            return False
-
-        return "bottom" in self._obj.columns  # will be changed to 'depth' in the future
+        return False
 
     @staticmethod
     def _to_iterable(selection_values: str | Iterable) -> Iterable:
@@ -71,7 +73,7 @@ class GeostFrame:
             selection_values = [selection_values]
         return selection_values
 
-    def _check_has_spatial(self):
+    def _check_has_geometry(self):
         if not self.has_geometry:
             raise TypeError(
                 "Object is not a GeoDataFrame with a valid geometry column."
@@ -79,9 +81,12 @@ class GeostFrame:
 
     def _check_has_depth(self):
         if not self.has_depth_columns:
-            raise TypeError(
-                "Object does not contain depth information (e.g., 'top' and 'bottom' or "
-                "'depth' columns)."
+            raise KeyError(  # TODO: Check formatting of this error message
+                "Object does not contain depth information needed 'surface' and 'depth'\n"
+                "columns. One of the following combinations of columns is required:\n"
+                " - 'surface', 'top' and 'bottom'\n"
+                " - 'surface' and 'bottom'\n"
+                " - 'surface' and 'depth'\n"
             )
 
     def change_horizontal_reference(self, to_epsg: str | int | CRS) -> None:
@@ -123,7 +128,7 @@ class GeostFrame:
             GeoDataFrame instance containing only the selected geometries.
 
         """
-        self._check_has_spatial()
+        self._check_has_geometry()
         selection = spatial.select_points_within_bbox(
             self._obj, xmin, ymin, xmax, ymax, invert=invert
         )
@@ -155,7 +160,7 @@ class GeostFrame:
             GeoDataFrame instance containing only the selected geometries.
 
         """
-        self._check_has_spatial()
+        self._check_has_geometry()
         selection = spatial.select_points_near_points(
             self._obj, points, max_distance, invert=invert
         )
@@ -187,7 +192,7 @@ class GeostFrame:
             GeoDataFrame instance containing only the selected geometries.
 
         """
-        self._check_has_spatial()
+        self._check_has_geometry()
         selection = spatial.select_points_near_lines(
             self._obj, lines, max_distance, invert=invert
         )
@@ -220,7 +225,7 @@ class GeostFrame:
             GeoDataFrame instance containing only the selected geometries.
 
         """
-        self._check_has_spatial()
+        self._check_has_geometry()
         selection = spatial.select_points_within_polygons(
             self._obj, polygons, buffer, invert=invert
         )
@@ -319,8 +324,89 @@ class GeostFrame:
         relative_to_vertical_reference: bool = False,
         update_layer_boundaries: bool = True,
     ) -> pd.DataFrame:
+        """
+        Slice data based on given upper and lower boundaries. This returns a new object
+        containing only the sliced data.
+
+        Parameters
+        ----------
+        upper_boundary : float | int, optional
+            Every layer that starts above this is removed. The default is None.
+        lower_boundary : float | int, optional
+            Every layer that starts below this is removed. The default is None.
+        relative_to_vertical_reference : bool, optional
+            If True, the slicing is done with respect to any kind of vertical reference
+            plane (e.g. "NAP", "TAW"). If False, the slice is done with respect to depth
+            below the surface. The default is False.
+        update_layer_boundaries : bool, optional
+            Only used when the data is layered, i.e. the data contains tops and bottoms for
+            individual layers. If True, the layer boundaries in the sliced data are updated
+            according to the upper and lower boundaries used with the slice. If False, the
+            original layer boundaries are kept in the sliced object. The default is False.
+
+        Returns
+        -------
+        pd.DataFrame
+            New DataFrame containing only the data selected by this method.
+
+        Examples
+        --------
+        Usage depends on whether the slicing is done with respect to depth below the
+        surface or to a vertical reference plane.
+
+        For example, select layers in data that are between 2 and 3 meters below the
+        surface:
+
+        >>> data.slice_depth_interval(2, 3)
+
+        By default, the method updates the layer boundaries in sliced object according to
+        the upper and lower boundaries. To suppress this behaviour use:
+
+        >>> data.slice_depth_interval(2, 3, update_layer_boundaries=False)
+
+        Slicing can also be done with respect to a vertical reference plane like "NAP".
+        For example, to select layers in boreholes that are between -3 and -5 m NAP, use:
+
+        >>> data.slice_depth_interval(-3, -5, relative_to_vertical_reference=True)
+
+        """
         self._check_has_depth()
-        raise NotImplementedError("Method not implemented yet.")
+        sliced = self._obj
+
+        if not upper_boundary:
+            upper_boundary = 1e34 if relative_to_vertical_reference else -1e34
+
+        if not lower_boundary:
+            lower_boundary = -1e34 if relative_to_vertical_reference else 1e34
+
+        if relative_to_vertical_reference:
+            upper_boundary = self._obj["surface"] - upper_boundary
+            lower_boundary = self._obj["surface"] - lower_boundary
+
+        if layered_selection := self._top and self._bottom:
+            sliced = sliced[
+                (sliced[self._bottom] > upper_boundary)
+                & (sliced[self._top] < lower_boundary)
+            ]
+        else:
+            sliced = sliced[
+                (sliced[self._bottom] >= upper_boundary)
+                & (sliced[self._bottom] <= lower_boundary)
+            ]
+
+        # We do not update layer boundaries when slicing discrete data
+        if update_layer_boundaries and layered_selection:
+            bounds_are_series = True if relative_to_vertical_reference else False
+            if bounds_are_series:
+                upper_boundary = upper_boundary.loc[sliced.index]
+                lower_boundary = lower_boundary.loc[sliced.index]
+
+            sliced.loc[sliced[self._top] <= upper_boundary, self._top] = upper_boundary
+            sliced.loc[sliced[self._bottom] >= lower_boundary, self._bottom] = (
+                lower_boundary
+            )
+
+        return sliced
 
     def slice_by_values(
         self, column: str, selection_values: str | Iterable, invert: bool = False
@@ -359,7 +445,7 @@ class GeostFrame:
         """
         selection_values = self._to_iterable(selection_values)
 
-        sliced = self._obj.copy()
+        sliced = self._obj
 
         if invert:
             sliced = sliced[~sliced[column].isin(selection_values)]
