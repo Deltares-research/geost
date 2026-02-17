@@ -5,11 +5,12 @@ import pandas as pd
 from pyproj import CRS
 from shapely import buffer
 
-from geost import spatial
+from geost import spatial, validation
 
 if TYPE_CHECKING:
     from pathlib import Path
 
+    from pandera import DataFrameSchema
     from shapely.geometry.base import BaseGeometry
 
 type DataFrame = pd.DataFrame | gpd.GeoDataFrame
@@ -42,7 +43,7 @@ class GeostFrame:
             self._bottom = None
 
     @staticmethod
-    def _validate_dataframe(dataframe):
+    def _validate_dataframe(dataframe: DataFrame):
         """
         Check if crucial information is present in a DataFrame to see if methods in the
         accessor can be used.
@@ -106,6 +107,17 @@ class GeostFrame:
                 " - 'surface' and 'bottom'\n"
                 " - 'surface' and 'depth'\n"
             )
+
+    def validate_with_schema(self, schema: DataFrameSchema):
+        """
+        Validate the DataFrame using a specified Pandera schema.
+
+        Parameters
+        ----------
+        schema : DataFrameSchema
+            DataFrameSchema to validate the DataFrame with.
+        """
+        self._obj = validation.safe_validate(self._obj, schema)
 
     def change_horizontal_reference(self, to_epsg: str | int | CRS) -> None:
         raise NotImplementedError("Method not implemented yet.")
