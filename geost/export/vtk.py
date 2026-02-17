@@ -21,8 +21,10 @@ def _get_pyvista():  # pragma: no cover
         )
 
 
-def prepare_borehole(borehole: pd.DataFrame, vertical_factor: float) -> np.ndarray:
-    borehole_xyz = borehole[["x", "y", "bottom"]].to_numpy()
+def prepare_borehole(
+    borehole: pd.DataFrame, depth_column: str, vertical_factor: float
+) -> np.ndarray:
+    borehole_xyz = borehole[["x", "y", depth_column]].to_numpy()
     surface_xyz = np.array(
         [borehole_xyz[0, 0], borehole_xyz[0, 1], borehole["surface"].iloc[0]]
     )
@@ -33,6 +35,7 @@ def prepare_borehole(borehole: pd.DataFrame, vertical_factor: float) -> np.ndarr
 
 def generate_cylinders(
     table: pd.DataFrame,
+    depth_column: str,
     data_columns: list[str],
     radius: float,
     vertical_factor: float,
@@ -41,7 +44,7 @@ def generate_cylinders(
 
     boreholes = table.groupby("nr")
     for _, borehole in boreholes:
-        borehole_prepared = prepare_borehole(borehole, vertical_factor)
+        borehole_prepared = prepare_borehole(borehole, depth_column, vertical_factor)
         poly = pv.PolyData(borehole_prepared)
         line_segments = np.arange(0, len(borehole_prepared), dtype=np.int_)
         line_segments = np.insert(line_segments, 0, len(borehole_prepared))
@@ -57,10 +60,11 @@ def generate_cylinders(
 
 def borehole_to_multiblock(
     table: pd.DataFrame,
+    depth_column: str,
     data_columns: list[str],
     radius: float,
     vertical_factor: float,
-) -> "pv.MultiBlock":
+) -> pv.MultiBlock:
     """
     Create a PyVista MultiBlock object from the parsed boreholes/cpt's.
 
@@ -69,6 +73,8 @@ def borehole_to_multiblock(
     table : pd.DataFrame
         Table of borehole/CPT objects. This is CptCollection.data or
         BoreholeCollection.data.
+    depth_column : str
+        Name of the column representing depth. The default is "depth".
     data_columns : List[str]
         Column names of data arrays to write in the vtk file
     radius : float
@@ -84,7 +90,9 @@ def borehole_to_multiblock(
     """
     pv = _get_pyvista()
 
-    cylinders = generate_cylinders(table, data_columns, radius, vertical_factor)
+    cylinders = generate_cylinders(
+        table, depth_column, data_columns, radius, vertical_factor
+    )
     cylinders_multiblock = pv.MultiBlock(list(cylinders))
     return cylinders_multiblock
 
@@ -93,7 +101,7 @@ def layerdata_to_pyvista_unstructured(
     layerdata: pd.DataFrame,
     displayed_variables: list[str],
     radius: float = 1.0,
-) -> "pv.UnstructuredGrid":
+) -> pv.UnstructuredGrid:
     """
     Convert a layerdata object to a PyVista UnstructuredGrid.
 
@@ -152,7 +160,7 @@ def voxelmodel_to_pyvista_structured(
     dataset: xr.Dataset,
     resolution: tuple[float, float, float],
     displayed_variables: list[str] = None,
-) -> "pv.StructuredGrid":
+) -> pv.StructuredGrid:
     """
     Convert an xarray dataset to a PyVista voxel model (StructuredGrid).
 
@@ -211,7 +219,7 @@ def voxelmodel_to_pyvista_unstructured(
     dataset: xr.Dataset,
     resolution: tuple[float, float, float],
     displayed_variables: list[str] = None,
-) -> "pv.UnstructuredGrid":
+) -> pv.UnstructuredGrid:
     """
     Convert an xarray dataset to a PyVista voxel model (UnstructuredGrid).
 

@@ -5,7 +5,7 @@ import pandas as pd
 from pyproj import CRS
 from shapely import buffer
 
-from geost import spatial, validation
+from geost import export, spatial, validation
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -552,13 +552,80 @@ class GeostFrame:
         vertical_factor: float = 1.0,
         relative_to_vertical_reference: bool = True,
     ):
-        raise NotImplementedError("Method not implemented yet.")
+        """
+        Create a Pyvista MultiBlock object of cylinder-shaped geometries to represent
+        boreholes. Although cylinders are prettier when visualized, they are quite costly
+        to render in large numbers. Consider using
+        :meth:`~geost.base.LayeredData.to_pyvista_grid` instead for large datasets.
+
+        Parameters
+        ----------
+        displayed_variables : str | List[str]
+            Name or names of data columns to include for visualisation. Can be columns that
+            contain an array of floats, ints and strings.
+        radius : float, optional
+            Radius of the cylinders in m in the MultiBlock. The default is 1.
+        vertical_factor : float, optional
+            Factor to correct vertical scale. For example, when layer boundaries are given
+            in cm, use 0.01 to convert to m. The default is 1.0, so no correction is applied.
+            It is not recommended to use this for vertical exaggeration, use viewer functionality
+            for that instead.
+        relative_to_vertical_reference : bool, optional
+            If True, the depth of the objects in the vtm file will be with respect to a
+            reference plane (e.g. "NAP", "TAW"). If False, the depth will be with respect
+            to 0.0. The default is True.
+
+        Returns
+        -------
+        pyvista.MultiBlock
+            A composite class holding the data which can be iterated over.
+
+        """
+        self._check_has_depth()
+        data_columns = self._to_iterable(displayed_variables)
+
+        data = self._obj.copy()
+        if relative_to_vertical_reference:
+            data.loc[:, self._bottom] = data["surface"] - data[self._bottom]
+        else:
+            data["surface"] = 0
+
+        vtk_object = export.borehole_to_multiblock(
+            data, self._bottom, data_columns, radius, vertical_factor
+        )
+        return vtk_object
 
     def to_pyvista_grid(
         self,
         displayed_variables: str | list[str],
         radius: float = 1,
     ):
+        """
+        Create a PyVista UnstructuredGrid object of the data in this instance. This
+        method is more efficient than :meth:`~geost.base.LayeredData.to_pyvista_cylinders`
+        for large datasets, as it uses a grid representation instead of cylinders.
+
+        Parameters
+        ----------
+        data_columns : str | list[str]
+            Name or names of data columns to include for visualisation. Can be columns that
+            contain an array of floats, ints and strings.
+        radius : float, optional
+            Radius cells in m, by default 1.
+
+        Returns
+        -------
+        pyvista.UnstructuredGrid
+            A PyVista UnstructuredGrid object containing the data that can be used for
+            3D visualisation in PyVista or other VTK viewers.
+
+        """
+        # self._check_has_depth
+        # displayed_variables = self._to_iterable(displayed_variables)
+        # vtk_object = export.layerdata_to_pyvista_unstructured(
+        #     self._obj, displayed_variables, radius=radius
+        # )
+        # return vtk_object
         raise NotImplementedError("Method not implemented yet.")
 
     def to_datafusiontools(
