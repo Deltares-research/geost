@@ -1,8 +1,9 @@
 import geopandas as gpd
+import numpy as np
 import pandas as pd
 import pytest
 import shapely
-from numpy.testing import assert_array_equal
+from numpy.testing import assert_array_almost_equal, assert_array_equal
 from shapely.geometry import LineString, Polygon
 
 from geost.accessor import GeostFrame
@@ -360,26 +361,48 @@ class TestGeostFrame:
         sliced = cpt_data.gst.slice_depth_interval(upper, lower)
 
         assert_array_equal(sliced["depth"], [1, 2, 3, 4, 1, 2, 3, 4])
+        assert_array_equal(sliced.index, [0, 1, 2, 3, 10, 11, 12, 13])
 
         upper, lower = 0.1, -3.2
         sliced = cpt_data.gst.slice_depth_interval(
             upper, lower, relative_to_vertical_reference=True
         )
         assert_array_equal(sliced["depth"], [2, 3, 4, 5, 1, 2, 3, 4])
+        assert_array_equal(sliced.index, [1, 2, 3, 4, 10, 11, 12, 13])
 
         # Selection with respect to surface level using one limit
-        selected = cpt_data.gst.slice_depth_interval(lower_boundary=0.9)
-        assert len(selected) == 2
-        assert_array_equal(selected["depth"], [0, 0])
-        assert_array_equal(selected["nr"], ["a", "b"])
+        sliced = cpt_data.gst.slice_depth_interval(lower_boundary=1.9)
+        assert len(sliced) == 2
+        assert_array_equal(sliced["depth"], [1, 1])
+        assert_array_equal(sliced["nr"], ["a", "b"])
 
         # Selection with respect to vertical reference plane using one limit
-        selected = cpt_data.gst.slice_depth_interval(
-            lower_boundary=0.9, relative_to_vertical_reference=True
+        sliced = cpt_data.gst.slice_depth_interval(
+            lower_boundary=-0.1, relative_to_vertical_reference=True
         )
-        assert len(selected) == 2
-        assert_array_equal(selected["depth"], [0, 1])
-        assert (selected["nr"] == "a").all()
+        assert len(sliced) == 2
+        assert_array_equal(sliced["depth"], [1, 2])
+        assert (sliced["nr"] == "a").all()
+
+    @pytest.mark.unittest
+    def test_cumulative_thickness_layered(self, borehole_data):
+        result = borehole_data.gst.get_cumulative_thickness("lith", "V")
+
+        assert isinstance(result, pd.Series)
+        assert_array_equal(result.index, ["B", "D"])
+        assert_array_almost_equal(result, [1.9, 1.4])
+
+        result = borehole_data.gst.get_cumulative_thickness("lith", ["Z", "K"])
+        assert isinstance(result, pd.Series)
+        assert_array_equal(result.index, ["A", "B", "C", "D", "E"])
+        assert_array_almost_equal(result, [4.2, 2.0, 5.5, 1.6, 3.0])
+
+    @pytest.mark.unittest
+    def test_cumulative_thickness_discrete(self, cpt_data):
+        result = cpt_data.gst.get_cumulative_thickness("qc", slice(0.7, 13))
+
+        assert_array_equal(result.index, ["a", "b"])
+        assert_array_equal(result, [2, 2])
 
 
 class TestHeaderAccessor:

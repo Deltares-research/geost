@@ -1,6 +1,7 @@
 from typing import TYPE_CHECKING, Any, Iterable, List
 
 import geopandas as gpd
+import numpy as np
 import pandas as pd
 from pyproj import CRS
 from shapely import buffer
@@ -284,7 +285,7 @@ class GeostFrame:
     ) -> pd.DataFrame:
         """
         Select data based on the presence of given values in a given column. Can be used
-        for example to select boreholes that contain peat in the lithology column.
+        for example to select data that contain peat in the lithology column.
 
         Parameters
         ----------
@@ -305,15 +306,15 @@ class GeostFrame:
 
         Examples
         --------
-        To select boreholes where both clay ("K") and peat ("V") are present at the same
+        To select data where both clay ("K") and peat ("V") are present at the same
         time, use "and" as a selection method:
 
-        >>> boreholes.select_by_values("lith", ["V", "K"], how="and")
+        >>> data.gst.select_by_values("lith", ["V", "K"], how="and")
 
-        To select boreholes that can have one, or both lithologies, use or as the selection
+        To select data that can have one, or both lithologies, use or as the selection
         method:
 
-        >>> boreholes.select_by_values("lith", ["V", "K"], how="and")
+        >>> data.gst.select_by_values("lith", ["V", "K"], how="or")
 
         """
         if column not in self._obj.columns:
@@ -375,17 +376,17 @@ class GeostFrame:
         For example, select layers in data that are between 2 and 3 meters below the
         surface:
 
-        >>> data.slice_depth_interval(2, 3)
+        >>> data.gst.slice_depth_interval(2, 3)
 
         By default, the method updates the layer boundaries in sliced object according to
         the upper and lower boundaries. To suppress this behaviour use:
 
-        >>> data.slice_depth_interval(2, 3, update_layer_boundaries=False)
+        >>> data.gst.slice_depth_interval(2, 3, update_layer_boundaries=False)
 
         Slicing can also be done with respect to a vertical reference plane like "NAP".
         For example, to select layers in boreholes that are between -3 and -5 m NAP, use:
 
-        >>> data.slice_depth_interval(-3, -5, relative_to_vertical_reference=True)
+        >>> data.gst.slice_depth_interval(-3, -5, relative_to_vertical_reference=True)
 
         """
         self._check_has_depth()
@@ -408,8 +409,7 @@ class GeostFrame:
             ]
         else:
             sliced = sliced[
-                (sliced[self._bottom] >= upper_boundary)
-                & (sliced[self._bottom] <= lower_boundary)
+                sliced[self._bottom].between(upper_boundary, lower_boundary)
             ]
 
         # We do not update layer boundaries when slicing discrete data
@@ -453,12 +453,12 @@ class GeostFrame:
         --------
         Return only rows in data contain sand ("Z") as lithology:
 
-        >>> data.slice_by_values("lith", "Z")
+        >>> data.gst.slice_by_values("lith", "Z")
 
         If you want all the rows that may contain everything but sand, use the "invert"
         option:
 
-        >>> data.slice_by_values("lith", "Z", invert=True)
+        >>> data.gst.slice_by_values("lith", "Z", invert=True)
 
         """
         selection_values = self._to_iterable(selection_values)
@@ -496,11 +496,11 @@ class GeostFrame:
         --------
         Select rows in data that contain a specific value:
 
-        >>> data.select_by_condition(data["lith"]=="V")
+        >>> data.gst.select_by_condition(data["lith"]=="V")
 
         Or select rows in the data that contain a specific (part of) string or strings:
 
-        >>> data.select_by_condition(data["column"].str.contains("foo|bar"))
+        >>> data.gst.select_by_condition(data["column"].str.contains("foo|bar"))
 
         """
         if invert:
@@ -511,9 +511,66 @@ class GeostFrame:
         return selected
 
     def get_cumulative_thickness(
-        self, column: str, values: str | List[str]
-    ) -> pd.DataFrame:
-        raise NotImplementedError("Method not implemented yet.")
+        self, column: str, values: str | List[str] | slice
+    ) -> pd.Series:
+        """
+        Get the cumulative thickness of layers where a column contains a specified search
+        value or values.
+
+        Parameters
+        ----------
+        column : str
+            Name of column that must contain the search value or values.
+        values : str | List[str] | slice
+            Search value or values in the column to find the cumulative thickness for. In
+            case of numerical values, a slice can be used to specify a range of values to
+            search for, see example below.
+
+        Returns
+        -------
+        pd.Series
+            Series containing the cumulative thickness for each survey "nr" in the data.
+
+        Examples
+        --------
+        Get the cumulative thickness of the layers with lithology "K" in the column "lith"
+        use:
+
+        >>> data.gst.get_cumulative_thickness("lith", "K")
+
+        Or get the cumulative thickness for multiple selection values. This calculates
+        the cumulative thickness of the combined values:
+
+        >>> data.gst.get_cumulative_thickness("lith", ["K", "Z"])
+
+        In case of numerical values, a slice can be used to specify a range of values to
+        search for. For example, to get the cumulative thickness of layers with a cone
+        resistance ("qc") between 15 and 20 MPa:
+
+        >>> data.gst.get_cumulative_thickness("qc", slice(15, 20))
+
+        """
+        self._check_has_depth()
+
+        if isinstance(values, slice):
+            search_mask = self._obj[column].between(values.start, values.stop)
+            selected_layers = self._obj[search_mask]
+        else:
+            selected_layers = self.slice_by_values(column, values)
+
+        grouped = selected_layers.groupby("nr")
+        if self._top and self._bottom:
+            thickness = grouped.apply(
+                lambda df: np.abs(df[self._top] - df[self._bottom]).sum()
+            )
+        else:
+            selected_layers["thickness"] = grouped[self._bottom].diff()
+            selected_layers["thickness"] = selected_layers["thickness"].fillna(
+                grouped["thickness"].transform("mean")
+            )
+            thickness = grouped["thickness"].sum()
+
+        return thickness
 
     def get_layer_top(
         self,
