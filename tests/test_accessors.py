@@ -361,6 +361,26 @@ class TestGeostFrame:
 
         assert_array_equal(sliced["depth"], [1, 2, 3, 4, 1, 2, 3, 4])
 
+        upper, lower = 0.1, -3.2
+        sliced = cpt_data.gst.slice_depth_interval(
+            upper, lower, relative_to_vertical_reference=True
+        )
+        assert_array_equal(sliced["depth"], [2, 3, 4, 5, 1, 2, 3, 4])
+
+        # Selection with respect to surface level using one limit
+        selected = cpt_data.gst.slice_depth_interval(lower_boundary=0.9)
+        assert len(selected) == 2
+        assert_array_equal(selected["depth"], [0, 0])
+        assert_array_equal(selected["nr"], ["a", "b"])
+
+        # Selection with respect to vertical reference plane using one limit
+        selected = cpt_data.gst.slice_depth_interval(
+            lower_boundary=0.9, relative_to_vertical_reference=True
+        )
+        assert len(selected) == 2
+        assert_array_equal(selected["depth"], [0, 1])
+        assert (selected["nr"] == "a").all()
+
 
 class TestHeaderAccessor:
     @pytest.fixture

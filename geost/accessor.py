@@ -24,6 +24,14 @@ class GeostFrame:
         self._set_depth_columns()
 
     def _set_depth_columns(self):
+        """
+        Determine which columns in the DataFrame contain depth information and set them
+        as attributes of the accessor. The method looks for the presence of either "top"
+        and "bottom" like columns for layered data, or a single "depth" like column for
+        discrete data.
+
+        """
+        # NOTE: Now more rigid than necessary, we can add more flexibility in the future if needed.
         self._top = "top" if "top" in self._obj.columns else None
 
         if "depth" in self._obj.columns:
@@ -35,6 +43,16 @@ class GeostFrame:
 
     @staticmethod
     def _validate_dataframe(dataframe):
+        """
+        Check if crucial information is present in a DataFrame to see if methods in the
+        accessor can be used.
+
+        Raises
+        ------
+        KeyError
+            If the DataFrame does not contain the required information.
+
+        """
         if "nr" not in dataframe.columns:
             raise KeyError(
                 "DataFrame must contain an 'nr' column identifying individual objects."
