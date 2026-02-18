@@ -3,6 +3,89 @@ from pandera.pandas import Check, Column, DataFrameSchema
 
 from geost import config
 
+geostframe_header = DataFrameSchema(
+    columns={
+        "nr": Column(str, unique=True, nullable=False),
+        "x": Column(float, nullable=False),
+        "y": Column(float, nullable=False),
+        "surface": Column(float, nullable=False, required=False),
+        "geometry": Column(GeometryDtype(), required=False),
+    },
+    coerce=True,
+    strict=False,
+    drop_invalid_rows=config.validation.DROP_INVALID,
+    name="GeostFrame header type schema",
+    description="Schema for validating GeostFrame that represents a header",
+)
+
+geostframe_data_top_bottom = DataFrameSchema(
+    columns={
+        "nr": Column(str, nullable=False),
+        "x": Column(float, nullable=False),
+        "y": Column(float, nullable=False),
+        "surface": Column(float, nullable=False, required=False),
+        "top": Column(float, nullable=False),
+        "bottom": Column(float, nullable=False),
+    },
+    checks=[
+        Check(
+            lambda df: df["bottom"] >= df["top"] and df["top"] >= 0,
+            element_wise=False,
+            error="Bottom depth must be greater than or equal to top depth and top depth must be non-negative",
+        ),
+    ],
+    coerce=True,
+    strict=False,
+    drop_invalid_rows=config.validation.DROP_INVALID,
+    name="GeostFrame data type schema with top/bottom depth data",
+    description="Schema for validating GeostFrame that represents depth data with top and bottom columns",
+)
+
+geostframe_data_only_bottom = DataFrameSchema(
+    columns={
+        "nr": Column(str, nullable=False),
+        "x": Column(float, nullable=False),
+        "y": Column(float, nullable=False),
+        "surface": Column(float, nullable=False, required=False),
+        "bottom": Column(float, nullable=False),
+    },
+    checks=[
+        Check(
+            lambda df: df["bottom"] >= 0,
+            element_wise=False,
+            error="Bottom depth must be greater than 0",
+        ),
+    ],
+    coerce=True,
+    strict=False,
+    drop_invalid_rows=config.validation.DROP_INVALID,
+    name="GeostFrame data type schema with only bottom depth data",
+    description="Schema for validating GeostFrame that represents depth data with only bottom column",
+)
+
+geostframe_data_only_depth = DataFrameSchema(
+    columns={
+        "nr": Column(str, nullable=False),
+        "x": Column(float, nullable=False),
+        "y": Column(float, nullable=False),
+        "surface": Column(float, nullable=False, required=False),
+        "depth": Column(float, nullable=False),
+    },
+    checks=[
+        Check(
+            lambda df: df["depth"] >= 0,
+            element_wise=False,
+            error="Depth must be greater than 0",
+        ),
+    ],
+    coerce=True,
+    strict=False,
+    drop_invalid_rows=config.validation.DROP_INVALID,
+    name="GeostFrame data type schema with only depth data",
+    description="Schema for validating GeostFrame that represents depth data with only depth column",
+)
+
+
 # Point header schema
 pointheader = DataFrameSchema(
     columns={
