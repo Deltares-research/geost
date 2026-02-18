@@ -549,6 +549,7 @@ class GeostFrame:
         self,
         displayed_variables: str | List[str],
         radius: float = 1,
+        n_sides: int = 8,
         vertical_factor: float = 1.0,
         relative_to_vertical_reference: bool = True,
     ):
@@ -565,6 +566,9 @@ class GeostFrame:
             contain an array of floats, ints and strings.
         radius : float, optional
             Radius of the cylinders in m in the MultiBlock. The default is 1.
+        n_sides : int, optional
+            Number of sides for the cylinder. The default is 8, which gives a good balance
+            between visual quality and rendering performance.
         vertical_factor : float, optional
             Factor to correct vertical scale. For example, when layer boundaries are given
             in cm, use 0.01 to convert to m. The default is 1.0, so no correction is applied.
@@ -587,12 +591,25 @@ class GeostFrame:
         data = self._obj.copy()
         if relative_to_vertical_reference:
             data.loc[:, self._bottom] = data["surface"] - data[self._bottom]
+            if self._top:
+                data.loc[:, self._top] = data["surface"] - data[self._top]
         else:
             data["surface"] = 0
 
-        vtk_object = export.borehole_to_multiblock(
-            data, self._bottom, data_columns, radius, vertical_factor
-        )
+        if self._top:
+            vtk_object = export.borehole_to_multiblock(
+                data,
+                [self._top, self._bottom],
+                data_columns,
+                radius,
+                n_sides,
+                vertical_factor,
+            )
+        else:
+            vtk_object = export.borehole_to_multiblock(
+                data, self._bottom, data_columns, radius, n_sides, vertical_factor
+            )
+
         return vtk_object
 
     def to_pyvista_grid(

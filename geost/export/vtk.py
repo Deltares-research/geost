@@ -1,4 +1,5 @@
-from typing import TYPE_CHECKING, Iterable
+from itertools import batched
+from typing import TYPE_CHECKING, Iterable, Literal
 
 import numpy as np
 import pandas as pd
@@ -21,48 +22,110 @@ def _get_pyvista():  # pragma: no cover
         )
 
 
-def prepare_borehole(
-    borehole: pd.DataFrame, depth_column: str, vertical_factor: float
+def prepare_as_continuous(
+    data: pd.DataFrame,
+    depth_column: Literal["depth", "bottom"],
+    vertical_factor: float,
 ) -> np.ndarray:
-    borehole_xyz = borehole[["x", "y", depth_column]].to_numpy()
-    surface_xyz = np.array(
-        [borehole_xyz[0, 0], borehole_xyz[0, 1], borehole["surface"].iloc[0]]
-    )
-    borehole_xyz = np.vstack([surface_xyz, borehole_xyz], dtype="float64")
-    borehole_xyz[:, 2] *= vertical_factor
-    return borehole_xyz
+    """
+    Prepare data for PyVista cylinder objects as continuous depth representation (e.g.
+    using 'depth' or 'bottom' as depth column). This is typical for CPTs and well logs.
+    """
+    data_xyz = data[["x", "y", depth_column]].to_numpy(copy=True)
+    data_xyz[:, -1] *= vertical_factor
+    return data_xyz
+
+
+def prepare_as_layers(
+    data: pd.DataFrame,
+    depth_column: list[Literal["top"], Literal["bottom"]],
+    vertical_factor: float,
+) -> np.ndarray:
+    """
+    Prepare data for PyVista cylinder objects using layer representation (e.g. using
+    'top' and 'bottom' as depth columns). This is typical for boreholes with layer
+    descriptions and e.g. non-continuous layer intervals of grainsize sample data.
+    """
+    data_xyz_top = data[["x", "y", depth_column[0]]].to_numpy()
+    data_xyz_bottom = data[["x", "y", depth_column[-1]]].to_numpy()
+    data_xyz = np.vstack([data_xyz_top, data_xyz_bottom])
+    data_xyz[:, -1] = np.column_stack(
+        (data_xyz_top[:, -1], data_xyz_bottom[:, -1])
+    ).ravel()
+    data_xyz[:, -1] *= vertical_factor
+    return data_xyz
 
 
 def generate_cylinders(
     table: pd.DataFrame,
-    depth_column: str,
+    depth_column: Literal["depth", "bottom"] | list[Literal["top"], Literal["bottom"]],
     data_columns: list[str],
     radius: float,
+    n_sides: int,
     vertical_factor: float,
 ) -> Iterable:
     pv = _get_pyvista()
 
     boreholes = table.groupby("nr")
     for _, borehole in boreholes:
-        borehole_prepared = prepare_borehole(borehole, depth_column, vertical_factor)
-        poly = pv.PolyData(borehole_prepared)
-        line_segments = np.arange(0, len(borehole_prepared), dtype=np.int_)
-        line_segments = np.insert(line_segments, 0, len(borehole_prepared))
-        poly.lines = line_segments
-
-        for data_column in data_columns:
-            poly[data_column] = np.hstack(
-                [borehole[data_column].values[0], borehole[data_column].values]
+        # Case I  - depth_column is a single column representing depth from surface
+        # (e.g. 'depth' or only 'bottom')
+        if isinstance(depth_column, str):
+            borehole_prepared = prepare_as_continuous(
+                borehole, depth_column, vertical_factor
             )
-        cylinder = poly.tube(radius=radius)
+            poly = pv.PolyData(borehole_prepared)
+            line_segments = np.arange(0, len(borehole_prepared), dtype=np.int_)
+            line_segments = np.insert(line_segments, 0, len(borehole_prepared))
+            poly.lines = line_segments
+
+            # Apply data fields
+            poly.point_data.update(
+                {
+                    data_column: borehole[data_column].values
+                    for data_column in data_columns
+                }
+            )
+            cylinder = poly.tube(radius=radius, n_sides=n_sides)
+
+        # Case II - depth_column is a list of two column names representing top and
+        # bottom depths (e.g. ['top', 'bottom'])
+        elif isinstance(depth_column, list):
+            borehole_prepared = prepare_as_layers(
+                borehole, depth_column, vertical_factor
+            )
+            cylinder = pv.merge(
+                [
+                    pv.Tube(
+                        pointa=b[0],
+                        pointb=b[1],
+                        radius=radius,
+                        n_sides=n_sides,
+                        capping=True,
+                    )
+                    for b in batched(borehole_prepared, 2, strict=True)
+                ],
+                merge_points=True,
+            )
+
+            # Apply data fields
+            cylinder.cell_data.update(
+                {
+                    data_column: np.repeat(
+                        borehole[data_column].values, repeats=n_sides + 2
+                    )
+                    for data_column in data_columns
+                }
+            )
         yield cylinder
 
 
 def borehole_to_multiblock(
     table: pd.DataFrame,
-    depth_column: str,
+    depth_column: Literal["depth", "bottom"] | list[Literal["top"], Literal["bottom"]],
     data_columns: list[str],
     radius: float,
+    n_sides: int,
     vertical_factor: float,
 ) -> pv.MultiBlock:
     """
@@ -73,12 +136,14 @@ def borehole_to_multiblock(
     table : pd.DataFrame
         Table of borehole/CPT objects. This is CptCollection.data or
         BoreholeCollection.data.
-    depth_column : str
+    depth_column : Literal['depth', 'bottom'] | list[Literal["top"], Literal["bottom"]]
         Name of the column representing depth. The default is "depth".
     data_columns : List[str]
         Column names of data arrays to write in the vtk file
     radius : float
         Radius of borehole cylinders
+    n_sides : int
+        Number of sides for the cylinder
     vertical_factor : float
         Vertical adjustment factor to convert e.g. heights in cm to m.
 
@@ -91,7 +156,7 @@ def borehole_to_multiblock(
     pv = _get_pyvista()
 
     cylinders = generate_cylinders(
-        table, depth_column, data_columns, radius, vertical_factor
+        table, depth_column, data_columns, radius, n_sides, vertical_factor
     )
     cylinders_multiblock = pv.MultiBlock(list(cylinders))
     return cylinders_multiblock
