@@ -485,10 +485,29 @@ class TestGeostFrame:
         assert_array_equal(result, [2, 1])
 
     @pytest.mark.unittest
-    def test_get_layer_top(self, borehole_data):
+    def test_get_layer_top_layered(self, borehole_data):
         result = borehole_data.gst.get_layer_top("lith", "V")
+        assert (
+            "thickness" not in borehole_data.columns
+        )  # Ensure thickness column is not added to original DataFrame
         assert_array_equal(result.index, ["B", "D"])
         assert_array_almost_equal(result, [1.2, 0.5])
+
+        result = borehole_data.gst.get_layer_top("lith", "V", min_thickness=1.0)
+        assert_array_equal(result.index, ["B"])
+        assert_array_almost_equal(result, [1.2])
+
+        result = borehole_data.gst.get_layer_top("lith", ["Z", "K"])
+
+        # TODO: finish unittest
+
+    @pytest.mark.unittest
+    def test_get_layer_top_discrete(self, cpt_data):
+        result = cpt_data.gst.get_layer_top("qc", slice(0.7, 13))
+        assert_array_equal(result.index, ["a", "b"])
+        assert_array_equal(result, [8.0, 0.0])
+
+        # TODO: finish unittest
 
 
 class TestHeaderAccessor:

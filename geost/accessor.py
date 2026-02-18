@@ -588,34 +588,57 @@ class GeostFrame:
 
         selected_layers = self.slice_by_values(column, values)
 
-        grouped = selected_layers.groupby("nr", sort=False)
-        if self._top and self._bottom:
-            thickness = grouped.apply(
-                lambda df: np.sum(np.abs(df[self._top] - df[self._bottom]))
-            )
-        else:
-            selected_layers["thickness"] = grouped[self._bottom].diff().bfill()
-            thickness = grouped["thickness"].sum()
+        if "thickness" not in self._obj.columns:
+            thickness = self.calculate_thickness()
+            selected_layers["thickness"] = thickness.loc[selected_layers.index]
 
+        grouped = selected_layers.groupby("nr", sort=False)
+        thickness = grouped["thickness"].sum()
         return thickness
 
     def get_layer_top(
-        self, column: str, values: str | List[str] | slice, min_thickness: float = 0
+        self, column: str, values: str | List[str] | slice, min_thickness: float = None
     ) -> pd.Series:
+        self._check_has_depth()
+
         selection = self.slice_by_values(column, values)
 
-        selection = selection.gst.select_by_condition(
-            selection["bottom"] - selection["top"] >= min_thickness
-        )
+        if "thickness" not in self._obj.columns:
+            thickness = self.calculate_thickness()
+            selection["thickness"] = thickness.loc[selection.index]
+
+        if min_thickness is not None:
+            selection = selection[selection["thickness"] >= min_thickness]
+
+        if self._top is None:
+            _top = "top"
+            selection[_top] = selection[self._bottom] - selection["thickness"]
+            # In case of discrete data, we calculate the top of the layer because the depth
+            # is not the actual top of the layer.
+        else:
+            _top = self._top
 
         grouped = selection.groupby("nr", sort=False)
-        layer_top = grouped["top"].first()
+        layer_top = grouped[_top].first()
         return layer_top
 
     def get_layer_base(
-        self, column: str, values: str | List[str] | slice, min_thickness: float = 0
+        self, column: str, values: str | List[str] | slice, min_thickness: float = None
     ) -> pd.Series:
-        raise NotImplementedError("Method not implemented yet.")
+        self._check_has_depth()
+
+        selection = self.slice_by_values(column, values)
+
+        if "thickness" not in self._obj.columns:
+            thickness = self.calculate_thickness()
+            selection["thickness"] = thickness.loc[selection.index]
+
+        if min_thickness is not None:
+            selection = selection[selection["thickness"] >= min_thickness]
+
+        grouped = selection.groupby("nr", sort=False)
+        layer_base = grouped[self._bottom].last()
+        return layer_base
 
     def to_pyvista_cylinders(
         self,
