@@ -217,7 +217,7 @@ def cpt_b():
     Helper function for a synthetic CPT containing qs, fs and u2 "measurements".
 
     """
-    depth = np.arange(10) + 1
+    depth = np.arange(0.5, 5.5, 0.5)
     surface = 0.8
     end = surface - depth.max()
     qc = [8.721, 12.733, 17.324, 17.036, 16.352, 15.781, 15.365, 15.509, 15.884, 15.982]

@@ -247,22 +247,36 @@ class TestGeostFrame:
     def test_slice_by_values(self, borehole_data):
         sliced = borehole_data.gst.slice_by_values("lith", "Z")
         assert isinstance(sliced, pd.DataFrame)
-
-        expected_boreholes_with_sand = ["A", "C", "D", "E"]
-        expected_length = 10
-
-        assert_array_equal(sliced["nr"].unique(), expected_boreholes_with_sand)
+        assert_array_equal(sliced.index, [2, 3, 13, 14, 19, 20, 21, 22, 23, 24])
         assert (sliced["lith"] == "Z").all()
-        assert len(sliced) == expected_length
 
+        # Test slicing everything except "Z"
         sliced = borehole_data.gst.slice_by_values("lith", "Z", invert=True)
-
-        expected_boreholes_without_sand = ["A", "B", "C", "D"]
-        expected_length = 15
-
-        assert_array_equal(sliced["nr"].unique(), expected_boreholes_without_sand)
+        assert_array_equal(
+            sliced.index, [0, 1, 4, 5, 6, 7, 8, 9, 10, 11, 12, 15, 16, 17, 18]
+        )
         assert not (sliced["lith"] == "Z").any()
-        assert len(sliced) == expected_length
+
+        # Test using a list of values
+        sliced = borehole_data.gst.slice_by_values("lith", ["V", "K"])
+        assert_array_equal(
+            sliced.index, [0, 1, 4, 5, 6, 7, 8, 9, 10, 11, 12, 15, 16, 17, 18]
+        )
+        assert not ~(sliced["lith"].isin(["V", "K"])).any()
+
+        sliced = borehole_data.gst.slice_by_values("lith", ["V", "K"], invert=True)
+        assert_array_equal(sliced.index, [2, 3, 13, 14, 19, 20, 21, 22, 23, 24])
+        assert (sliced["lith"] == "Z").all()
+
+        sliced = borehole_data.gst.slice_by_values("bottom", slice(1.5, 3.1))
+        assert_array_equal(sliced.index, [1, 2, 7, 8, 11, 12, 17, 18, 19, 22, 23, 24])
+        assert sliced["bottom"].between(1.5, 3.1).all()
+
+        sliced = borehole_data.gst.slice_by_values(
+            "bottom", slice(1.5, 3.1), invert=True
+        )
+        assert_array_equal(sliced.index, [0, 3, 4, 5, 6, 9, 10, 13, 14, 15, 16, 20, 21])
+        assert not sliced["bottom"].between(1.5, 3.1).any()
 
     @pytest.mark.unittest
     def test_select_by_condition(self, borehole_data):
@@ -360,29 +374,96 @@ class TestGeostFrame:
         upper, lower = 0.6, 4.4
         sliced = cpt_data.gst.slice_depth_interval(upper, lower)
 
-        assert_array_equal(sliced["depth"], [1, 2, 3, 4, 1, 2, 3, 4])
-        assert_array_equal(sliced.index, [0, 1, 2, 3, 10, 11, 12, 13])
+        assert_array_equal(
+            sliced["depth"], [1.0, 2.0, 3.0, 4.0, 1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0]
+        )
+        assert_array_equal(sliced.index, [0, 1, 2, 3, 11, 12, 13, 14, 15, 16, 17])
 
         upper, lower = 0.1, -3.2
         sliced = cpt_data.gst.slice_depth_interval(
             upper, lower, relative_to_vertical_reference=True
         )
-        assert_array_equal(sliced["depth"], [2, 3, 4, 5, 1, 2, 3, 4])
-        assert_array_equal(sliced.index, [1, 2, 3, 4, 10, 11, 12, 13])
+        assert_array_equal(
+            sliced["depth"], [2.0, 3.0, 4.0, 5.0, 1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0]
+        )
+        assert_array_equal(sliced.index, [1, 2, 3, 4, 11, 12, 13, 14, 15, 16, 17])
 
         # Selection with respect to surface level using one limit
         sliced = cpt_data.gst.slice_depth_interval(lower_boundary=1.9)
-        assert len(sliced) == 2
-        assert_array_equal(sliced["depth"], [1, 1])
-        assert_array_equal(sliced["nr"], ["a", "b"])
+        assert_array_equal(sliced["depth"], [1.0, 0.5, 1.0, 1.5])
+        assert_array_equal(sliced.index, [0, 10, 11, 12])
 
         # Selection with respect to vertical reference plane using one limit
         sliced = cpt_data.gst.slice_depth_interval(
             lower_boundary=-0.1, relative_to_vertical_reference=True
         )
-        assert len(sliced) == 2
-        assert_array_equal(sliced["depth"], [1, 2])
-        assert (sliced["nr"] == "a").all()
+        assert_array_equal(sliced["depth"], [1.0, 2.0, 0.5])
+        assert_array_equal(sliced.index, [0, 1, 10])
+
+    @pytest.mark.unittest
+    def test_calculate_thickness_layered(self, borehole_data):
+        result = borehole_data.gst.calculate_thickness()
+        assert isinstance(result, pd.Series)
+        assert_array_almost_equal(
+            result,
+            [
+                0.8,
+                0.7,
+                1.0,
+                1.2,
+                0.5,
+                0.6,
+                0.6,
+                1.3,
+                0.6,
+                0.8,
+                1.4,
+                0.4,
+                1.1,
+                0.9,
+                1.7,
+                0.5,
+                0.7,
+                0.6,
+                0.7,
+                0.5,
+                0.5,
+                0.7,
+                0.6,
+                0.7,
+                0.5,
+            ],
+        )
+
+    @pytest.mark.unittest
+    def test_calculate_thickness_discrete(self, cpt_data):
+        result = cpt_data.gst.calculate_thickness()
+        assert isinstance(result, pd.Series)
+        assert_array_almost_equal(
+            result,
+            [
+                1.0,
+                1.0,
+                1.0,
+                1.0,
+                1.0,
+                1.0,
+                1.0,
+                1.0,
+                1.0,
+                1.0,
+                0.5,
+                0.5,
+                0.5,
+                0.5,
+                0.5,
+                0.5,
+                0.5,
+                0.5,
+                0.5,
+                0.5,
+            ],
+        )
 
     @pytest.mark.unittest
     def test_cumulative_thickness_layered(self, borehole_data):
@@ -400,9 +481,14 @@ class TestGeostFrame:
     @pytest.mark.unittest
     def test_cumulative_thickness_discrete(self, cpt_data):
         result = cpt_data.gst.get_cumulative_thickness("qc", slice(0.7, 13))
-
         assert_array_equal(result.index, ["a", "b"])
-        assert_array_equal(result, [2, 2])
+        assert_array_equal(result, [2, 1])
+
+    @pytest.mark.unittest
+    def test_get_layer_top(self, borehole_data):
+        result = borehole_data.gst.get_layer_top("lith", "V")
+        assert_array_equal(result.index, ["B", "D"])
+        assert_array_almost_equal(result, [1.2, 0.5])
 
 
 class TestHeaderAccessor:

@@ -87,10 +87,10 @@ class GeostFrame:
         return False
 
     @staticmethod
-    def _to_iterable(selection_values: str | Iterable) -> Iterable:
-        if isinstance(selection_values, str):
-            selection_values = [selection_values]
-        return selection_values
+    def _to_iterable(value: str | Iterable) -> Iterable:
+        if isinstance(value, str):
+            value = [value]
+        return value
 
     def _check_has_geometry(self):
         if not self.has_geometry:
@@ -281,7 +281,7 @@ class GeostFrame:
         raise NotImplementedError("Method not implemented yet.")
 
     def select_by_values(
-        self, column: str, selection_values: str | Iterable, how: str = "or"
+        self, column: str, values: str | Iterable, how: str = "or"
     ) -> pd.DataFrame:
         """
         Select data based on the presence of given values in a given column. Can be used
@@ -292,12 +292,12 @@ class GeostFrame:
         column : str
             Name of column that contains categorical data to use when looking for
             values.
-        selection_values : str | Iterable
-            Value or values to look for in the column.
+        values : str | Iterable
+            Selection value or values to look for in the column.
         how : str, optional
             Either "and" or "or". "and" requires all selection values to be present in
-            column for selection. "or" will select the core if any one of the
-            selection_values are found in the column. Default is "and".
+            column for selection. "or" will select the core if any one of the values are
+            found in the column. Default is "and".
 
         Returns
         -------
@@ -322,15 +322,15 @@ class GeostFrame:
                 f"The column '{column}' does not exist and cannot be used for selection"
             )
 
-        selection_values = self._to_iterable(selection_values)
+        values = self._to_iterable(values)
 
         selected = self._obj
         if how == "or":
-            valid = self._obj["nr"][self._obj[column].isin(selection_values)].unique()
+            valid = self._obj["nr"][self._obj[column].isin(values)].unique()
             selected = selected[selected["nr"].isin(valid)]
 
         elif how == "and":
-            for value in selection_values:
+            for value in values:
                 valid = self._obj["nr"][self._obj[column] == value].unique()
                 selected = selected[selected["nr"].isin(valid)]
 
@@ -427,7 +427,7 @@ class GeostFrame:
         return sliced
 
     def slice_by_values(
-        self, column: str, selection_values: str | Iterable, invert: bool = False
+        self, column: str, values: str | list[str] | slice, invert: bool = False
     ) -> pd.DataFrame:
         """
         Slice rows from data based on matching condition. E.g. only return rows with
@@ -438,8 +438,9 @@ class GeostFrame:
         column : str
             Name of column that contains categorical data to use when looking for
             values.
-        selection_values : str | Iterable
-            Values to look for in the column.
+        values : str | list[str] | slice
+            Values to look for in the column. In case of numerical values, a slice can be
+            used to slice a range of values, see example below.
         invert : bool, optional
             If True, invert the slicing action, so remove layers with selected values
             instead of keeping them. The default is False.
@@ -460,15 +461,22 @@ class GeostFrame:
 
         >>> data.gst.slice_by_values("lith", "Z", invert=True)
 
-        """
-        selection_values = self._to_iterable(selection_values)
+        If you want to slice a range of numerical values, you can use a slice. For example,
+        to slice all rows with a cone resistance ("qc") between 15 and 20 MPa:
 
-        sliced = self._obj
+        >>> data.gst.slice_by_values("qc", slice(15, 20))
+
+        """
+        if isinstance(values, slice):
+            search_mask = self._obj[column].between(values.start, values.stop)
+            sliced = self._obj[search_mask]
+        else:
+            values = self._to_iterable(values)
+            sliced = self._obj[self._obj[column].isin(values)]
 
         if invert:
-            sliced = sliced[~sliced[column].isin(selection_values)]
-        else:
-            sliced = sliced[sliced[column].isin(selection_values)]
+            exclude_indices = sliced.index
+            sliced = self._obj[~self._obj.index.isin(exclude_indices)]
 
         return sliced
 
@@ -510,12 +518,38 @@ class GeostFrame:
 
         return selected
 
+    def calculate_thickness(self) -> pd.Series:
+        """
+        Calculate the thickness of layers in the data. This method requires the presence
+        of depth information in the data. See the `has_depth_columns` property for more
+        information on what kind of depth columns are required.
+
+        Returns
+        -------
+        pd.Series
+            Series containing the thickness for each layer in the data.
+
+        """
+        self._check_has_depth()
+
+        if self._top and self._bottom:
+            thickness = np.abs(self._obj[self._top] - self._obj[self._bottom])
+        else:
+            thickness = self._obj[self._bottom].diff()
+
+            new_survey_id = self._obj["nr"] != self._obj["nr"].shift()
+            thickness[new_survey_id] = self._obj[
+                self._bottom
+            ]  # Thickness of first layer is equal to depth of first layer data is discrete
+
+        return thickness
+
     def get_cumulative_thickness(
         self, column: str, values: str | List[str] | slice
     ) -> pd.Series:
         """
         Get the cumulative thickness of layers where a column contains a specified search
-        value or values.
+        value or values, or falls within a specified range.
 
         Parameters
         ----------
@@ -552,42 +586,35 @@ class GeostFrame:
         """
         self._check_has_depth()
 
-        if isinstance(values, slice):
-            search_mask = self._obj[column].between(values.start, values.stop)
-            selected_layers = self._obj[search_mask]
-        else:
-            selected_layers = self.slice_by_values(column, values)
+        selected_layers = self.slice_by_values(column, values)
 
-        grouped = selected_layers.groupby("nr")
+        grouped = selected_layers.groupby("nr", sort=False)
         if self._top and self._bottom:
             thickness = grouped.apply(
-                lambda df: np.abs(df[self._top] - df[self._bottom]).sum()
+                lambda df: np.sum(np.abs(df[self._top] - df[self._bottom]))
             )
         else:
-            selected_layers["thickness"] = grouped[self._bottom].diff()
-            selected_layers["thickness"] = selected_layers["thickness"].fillna(
-                grouped["thickness"].transform("mean")
-            )
+            selected_layers["thickness"] = grouped[self._bottom].diff().bfill()
             thickness = grouped["thickness"].sum()
 
         return thickness
 
     def get_layer_top(
-        self,
-        column: str,
-        values: str | List[str],
-        min_thickness: float = 0,
-        min_depth: float = 0,
-    ) -> pd.DataFrame:
-        raise NotImplementedError("Method not implemented yet.")
+        self, column: str, values: str | List[str] | slice, min_thickness: float = 0
+    ) -> pd.Series:
+        selection = self.slice_by_values(column, values)
+
+        selection = selection.gst.select_by_condition(
+            selection["bottom"] - selection["top"] >= min_thickness
+        )
+
+        grouped = selection.groupby("nr", sort=False)
+        layer_top = grouped["top"].first()
+        return layer_top
 
     def get_layer_base(
-        self,
-        column: str,
-        values: str | List[str],
-        min_thickness: float = 0,
-        min_depth: float = 0,
-    ) -> pd.DataFrame:
+        self, column: str, values: str | List[str] | slice, min_thickness: float = 0
+    ) -> pd.Series:
         raise NotImplementedError("Method not implemented yet.")
 
     def to_pyvista_cylinders(
