@@ -8,6 +8,7 @@ from shapely.geometry import LineString, Polygon
 
 from geost.accessor import GeostFrame
 from geost.accessors.accessor import DATA_BACKEND, HEADER_BACKEND
+from tests.conftest import borehole_data
 
 
 @pytest.fixture
@@ -231,17 +232,26 @@ class TestGeostFrame:
     def test_select_by_values(self, borehole_data):
         selected = borehole_data.gst.select_by_values("lith", ["V", "K"], how="or")
         assert isinstance(selected, pd.DataFrame)
-
-        expected_nrs = ["A", "B", "C", "D"]
-        selected_nrs = selected["nr"].unique()
-        assert_array_equal(selected_nrs, expected_nrs)
+        assert_array_equal(selected["nr"].unique(), ["A", "B", "C", "D"])
+        assert selected.shape == (20, 8)
 
         selected = borehole_data.gst.select_by_values("lith", ["V", "K"], how="and")
+        assert_array_equal(selected["nr"].unique(), ["B", "D"])
+        assert selected.shape == (10, 8)
 
-        expected_nrs = ["B", "D"]
-        selected_nrs = selected["nr"].unique()
+        # Test inverted selection of the previous test case
+        selected = borehole_data.gst.select_by_values(
+            "lith", ["V", "K"], how="and", invert=True
+        )
+        assert_array_equal(selected["nr"].unique(), ["A", "C", "E"])
+        assert selected.shape == (15, 8)
 
-        assert_array_equal(selected_nrs, expected_nrs)
+        selected = borehole_data.gst.select_by_values("bottom", slice(4, 10))
+        assert_array_equal(selected["nr"].unique(), ["A", "C"])
+        assert selected.shape == (10, 8)
+
+        with pytest.raises(TypeError, match="Unsupported type of selection values"):
+            borehole_data.gst.select_by_values("lith", {"a": "V"})
 
     @pytest.mark.unittest
     def test_slice_by_values(self, borehole_data):
@@ -468,7 +478,9 @@ class TestGeostFrame:
     @pytest.mark.unittest
     def test_cumulative_thickness_layered(self, borehole_data):
         result = borehole_data.gst.get_cumulative_thickness("lith", "V")
-
+        assert (
+            "thickness" not in borehole_data.columns
+        )  # Ensure thickness column is not added to original DataFrame
         assert isinstance(result, pd.Series)
         assert_array_equal(result.index, ["B", "D"])
         assert_array_almost_equal(result, [1.9, 1.4])
@@ -481,6 +493,9 @@ class TestGeostFrame:
     @pytest.mark.unittest
     def test_cumulative_thickness_discrete(self, cpt_data):
         result = cpt_data.gst.get_cumulative_thickness("qc", slice(0.7, 13))
+        assert (
+            "thickness" not in cpt_data.columns
+        )  # Ensure thickness column is not added to original DataFrame
         assert_array_equal(result.index, ["a", "b"])
         assert_array_equal(result, [2, 1])
 
@@ -497,17 +512,28 @@ class TestGeostFrame:
         assert_array_equal(result.index, ["B"])
         assert_array_almost_equal(result, [1.2])
 
-        result = borehole_data.gst.get_layer_top("lith", ["Z", "K"])
+        result = borehole_data.gst.get_layer_top("lith", ["Z", "V"])
+        assert_array_equal(result.index, ["A", "B", "C", "D", "E"])
+        assert_array_almost_equal(result, [1.5, 1.2, 2.9, 0.5, 0.0])
 
-        # TODO: finish unittest
+        result = borehole_data.gst.get_layer_top("lith", ["Z", "V"], min_thickness=1.0)
+        assert_array_equal(result.index, ["A", "B", "C"])
+        assert_array_almost_equal(result, [1.5, 1.2, 3.8])
+
+        result = borehole_data.gst.get_layer_top("bottom", slice(1.5, 3.1))
+        assert_array_equal(result.index, ["A", "B", "C", "D", "E"])
+        assert_array_almost_equal(result, [0.8, 1.2, 1.4, 1.2, 1.2])
 
     @pytest.mark.unittest
     def test_get_layer_top_discrete(self, cpt_data):
-        result = cpt_data.gst.get_layer_top("qc", slice(0.7, 13))
+        result = cpt_data.gst.get_layer_top("qc", slice(0.7, 18))
+        assert (
+            "thickness" not in cpt_data.columns
+        )  # Ensure thickness column is not added to original DataFrame
         assert_array_equal(result.index, ["a", "b"])
         assert_array_equal(result, [8.0, 0.0])
 
-        # TODO: finish unittest
+        result = cpt_data.gst.get_layer_top("qc", slice(0.7, 18), min_thickness=2.0)
 
 
 class TestHeaderAccessor:

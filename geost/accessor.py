@@ -1,4 +1,5 @@
-from typing import TYPE_CHECKING, Any, Iterable, List
+from functools import singledispatchmethod
+from typing import TYPE_CHECKING, Any, Iterable, Literal
 
 import geopandas as gpd
 import numpy as np
@@ -293,7 +294,11 @@ class GeostFrame:
         raise NotImplementedError("Method not implemented yet.")
 
     def select_by_values(
-        self, column: str, values: str | Iterable, how: str = "or"
+        self,
+        column: str,
+        values: str | Iterable | slice,
+        how: Literal["and", "or"] = "or",
+        invert: bool = False,
     ) -> pd.DataFrame:
         """
         Select data based on the presence of given values in a given column. Can be used
@@ -302,14 +307,18 @@ class GeostFrame:
         Parameters
         ----------
         column : str
-            Name of column that contains categorical data to use when looking for
-            values.
-        values : str | Iterable
-            Selection value or values to look for in the column.
-        how : str, optional
-            Either "and" or "or". "and" requires all selection values to be present in
-            column for selection. "or" will select the core if any one of the values are
-            found in the column. Default is "and".
+            Name of the column to look for the selection values in.
+        values : str | Iterable | slice
+            Selection value or values to look for in the column. In case of numerical values,
+            a slice can be used to select data that contain a specific range of values, see
+            example below.
+        how : Literal["and", "or"], optional
+            Either "and" or "or", only used when multiple values are provided. "and" requires
+            all selection values to be present in column for selection. "or" will select the
+            core if any one of the values are found in the column. The default is "and".
+        invert : bool, optional
+            If True, the selection is inverted so that data that does not match the selection
+            criteria is returned instead. The default is False.
 
         Returns
         -------
@@ -328,24 +337,57 @@ class GeostFrame:
 
         >>> data.gst.select_by_values("lith", ["V", "K"], how="or")
 
+        In case of numerical values, use a slice to select data that contain a specific
+        range of values. For example, to select data that contain cone resistances ("qc")
+        between 15 and 20 MPa:
+
+        >>> data.gst.select_by_values("qc", slice(15, 20))
+
         """
         if column not in self._obj.columns:
             raise IndexError(
                 f"The column '{column}' does not exist and cannot be used for selection"
             )
 
-        values = self._to_iterable(values)
+        selected = self._select_by_values(values, column, how)
 
+        if invert:
+            exclude_indices = selected.index
+            selected = self._obj.loc[~self._obj.index.isin(exclude_indices)]
+
+        return selected
+
+    @singledispatchmethod
+    def _select_by_values(self, values: Any, column: str, how: str) -> pd.DataFrame:
+        raise TypeError(f"Unsupported type of selection values: {type(values)}")
+
+    @_select_by_values.register(str)
+    def _(self, values, column, _) -> pd.DataFrame:
+        selected = self._obj
+        valid = selected["nr"][selected[column] == values].unique()
+        selected = selected[selected["nr"].isin(valid)]
+        return selected
+
+    @_select_by_values.register(set | list | np.ndarray | pd.Series)
+    def _(self, values, column, how) -> pd.DataFrame:
         selected = self._obj
         if how == "or":
-            valid = self._obj["nr"][self._obj[column].isin(values)].unique()
+            valid = selected["nr"][selected[column].isin(values)].unique()
             selected = selected[selected["nr"].isin(valid)]
 
         elif how == "and":
             for value in values:
-                valid = self._obj["nr"][self._obj[column] == value].unique()
+                valid = selected["nr"][selected[column] == value].unique()
                 selected = selected[selected["nr"].isin(valid)]
+        return selected
 
+    @_select_by_values.register(slice)
+    def _(self, values, column, _) -> pd.DataFrame:
+        selected = self._obj
+        valid = selected["nr"][
+            selected[column].between(values.start, values.stop)
+        ].unique()
+        selected = selected[selected["nr"].isin(valid)]
         return selected
 
     def slice_depth_interval(
@@ -474,7 +516,7 @@ class GeostFrame:
         >>> data.gst.slice_by_values("lith", "Z", invert=True)
 
         If you want to slice a range of numerical values, you can use a slice. For example,
-        to slice all rows with a cone resistance ("qc") between 15 and 20 MPa:
+        to return only rows where the cone resistance ("qc") is between 15 and 20 MPa:
 
         >>> data.gst.slice_by_values("qc", slice(15, 20))
 
@@ -488,7 +530,7 @@ class GeostFrame:
 
         if invert:
             exclude_indices = sliced.index
-            sliced = self._obj[~self._obj.index.isin(exclude_indices)]
+            sliced = self._obj.loc[~self._obj.index.isin(exclude_indices)]
 
         return sliced
 
@@ -557,7 +599,7 @@ class GeostFrame:
         return thickness
 
     def get_cumulative_thickness(
-        self, column: str, values: str | List[str] | slice
+        self, column: str, values: str | list[str] | slice
     ) -> pd.Series:
         """
         Get the cumulative thickness of layers where a column contains a specified search
@@ -609,7 +651,7 @@ class GeostFrame:
         return thickness
 
     def get_layer_top(
-        self, column: str, values: str | List[str] | slice, min_thickness: float = None
+        self, column: str, values: str | list[str] | slice, min_thickness: float = None
     ) -> pd.Series:
         self._check_has_depth()
 
@@ -623,19 +665,17 @@ class GeostFrame:
             selection = selection[selection["thickness"] >= min_thickness]
 
         if self._top is None:
-            _top = "top"
-            selection[_top] = selection[self._bottom] - selection["thickness"]
+            selection[self._bottom] = selection[self._bottom] - selection["thickness"]
             # In case of discrete data, we calculate the top of the layer because the depth
-            # is not the actual top of the layer.
+            # is not the actual top of the layer but its base.
+            layer_top = selection.groupby("nr", sort=False)[self._bottom].first()
         else:
-            _top = self._top
+            layer_top = selection.groupby("nr", sort=False)[self._top].first()
 
-        grouped = selection.groupby("nr", sort=False)
-        layer_top = grouped[_top].first()
         return layer_top
 
     def get_layer_base(
-        self, column: str, values: str | List[str] | slice, min_thickness: float = None
+        self, column: str, values: str | list[str] | slice, min_thickness: float = None
     ) -> pd.Series:
         self._check_has_depth()
 
@@ -654,7 +694,7 @@ class GeostFrame:
 
     def to_pyvista_cylinders(
         self,
-        displayed_variables: str | List[str],
+        displayed_variables: str | list[str],
         radius: float = 1,
         vertical_factor: float = 1.0,
         relative_to_vertical_reference: bool = True,
@@ -670,7 +710,7 @@ class GeostFrame:
 
     def to_datafusiontools(
         self,
-        columns: List[str],
+        columns: list[str],
         outfile: str | Path = None,
         encode: bool = False,
         relative_to_vertical_reference: bool = True,
