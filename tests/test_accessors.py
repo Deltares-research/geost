@@ -246,12 +246,23 @@ class TestGeostFrame:
         assert_array_equal(selected["nr"].unique(), ["A", "C", "E"])
         assert selected.shape == (15, 8)
 
-        selected = borehole_data.gst.select_by_values("bottom", slice(4, 10))
+        selected = borehole_data.gst.select_by_values("bottom", slice(3.9, 10))
+        assert_array_equal(selected["nr"].unique(), ["A", "B", "C"])
+        assert selected.shape == (15, 8)
+
+        selected = borehole_data.gst.select_by_values(
+            "bottom", slice(3.9, 10), inclusive="neither"
+        )
         assert_array_equal(selected["nr"].unique(), ["A", "C"])
         assert selected.shape == (10, 8)
 
         with pytest.raises(TypeError, match="Unsupported type of selection values"):
             borehole_data.gst.select_by_values("lith", {"a": "V"})
+
+        with pytest.raises(
+            TypeError, match="Can only use a slice selection on numerical columns."
+        ):
+            borehole_data.gst.select_by_values("lith", slice(0, 1))
 
     @pytest.mark.unittest
     def test_slice_by_values(self, borehole_data):
@@ -287,6 +298,14 @@ class TestGeostFrame:
         )
         assert_array_equal(sliced.index, [0, 3, 4, 5, 6, 9, 10, 13, 14, 15, 16, 20, 21])
         assert not sliced["bottom"].between(1.5, 3.1).any()
+
+        with pytest.raises(TypeError, match="Unsupported type of selection values"):
+            borehole_data.gst.slice_by_values("lith", {"a": "V"})
+
+        with pytest.raises(
+            TypeError, match="Can only use a slice selection on numerical columns."
+        ):
+            borehole_data.gst.slice_by_values("lith", slice(0, 1))
 
     @pytest.mark.unittest
     def test_select_by_condition(self, borehole_data):

@@ -297,8 +297,9 @@ class GeostFrame:
         self,
         column: str,
         values: str | Iterable | slice,
-        how: Literal["and", "or"] = "or",
+        how: str = "or",
         invert: bool = False,
+        inclusive: str = "both",
     ) -> pd.DataFrame:
         """
         Select data based on the presence of given values in a given column. Can be used
@@ -309,16 +310,20 @@ class GeostFrame:
         column : str
             Name of the column to look for the selection values in.
         values : str | Iterable | slice
-            Selection value or values to look for in the column. In case of numerical values,
-            a slice can be used to select data that contain a specific range of values, see
-            example below.
-        how : Literal["and", "or"], optional
-            Either "and" or "or", only used when multiple values are provided. "and" requires
-            all selection values to be present in column for selection. "or" will select the
-            core if any one of the values are found in the column. The default is "and".
+            Value or array-like set of values to look for in the column. In case of numerical
+            values, a slice can be used to select data that contain a specific range of values,
+            see example below.
+        how : {"and", "or"}, optional
+            Either "and" or "or", only used when multiple categorical values are provided.
+            "and" requires all selection values to be present in the column for selection. "or"
+            will select the data if any one of the values are found in the column. The default
+            is "and".
         invert : bool, optional
             If True, the selection is inverted so that data that does not match the selection
             criteria is returned instead. The default is False.
+        inclusive : {"both", "neither", "left", "right"}, optional
+            When a slice is used for selection to include boundaries or not. The
+            default is "both".
 
         Returns
         -------
@@ -349,7 +354,7 @@ class GeostFrame:
                 f"The column '{column}' does not exist and cannot be used for selection"
             )
 
-        selected = self._select_by_values(values, column, how)
+        selected = self._select_by_values(values, column, how, inclusive)
 
         if invert:
             exclude_indices = selected.index
@@ -358,18 +363,23 @@ class GeostFrame:
         return selected
 
     @singledispatchmethod
-    def _select_by_values(self, values: Any, column: str, how: str) -> pd.DataFrame:
-        raise TypeError(f"Unsupported type of selection values: {type(values)}")
+    def _select_by_values(
+        self, values: Any, column: str, how: str, inclusive: str
+    ) -> pd.DataFrame:
+        raise TypeError(
+            f"Unsupported type of selection values: {type(values)} values must be "
+            "either a string\n, an iterable, or a slice for numerical values."
+        )
 
     @_select_by_values.register(str)
-    def _(self, values, column, _) -> pd.DataFrame:
+    def _(self, values, column, *_) -> pd.DataFrame:
         selected = self._obj
         valid = selected["nr"][selected[column] == values].unique()
         selected = selected[selected["nr"].isin(valid)]
         return selected
 
     @_select_by_values.register(set | list | np.ndarray | pd.Series)
-    def _(self, values, column, how) -> pd.DataFrame:
+    def _(self, values, column, how, _) -> pd.DataFrame:
         selected = self._obj
         if how == "or":
             valid = selected["nr"][selected[column].isin(values)].unique()
@@ -382,10 +392,13 @@ class GeostFrame:
         return selected
 
     @_select_by_values.register(slice)
-    def _(self, values, column, _) -> pd.DataFrame:
+    def _(self, values, column, _, inclusive) -> pd.DataFrame:
+        if not pd.api.types.is_numeric_dtype(self._obj[column]):
+            raise TypeError("Can only use a slice selection on numerical columns.")
+
         selected = self._obj
         valid = selected["nr"][
-            selected[column].between(values.start, values.stop)
+            selected[column].between(values.start, values.stop, inclusive)
         ].unique()
         selected = selected[selected["nr"].isin(valid)]
         return selected
@@ -481,7 +494,11 @@ class GeostFrame:
         return sliced
 
     def slice_by_values(
-        self, column: str, values: str | list[str] | slice, invert: bool = False
+        self,
+        column: str,
+        values: str | Iterable | slice,
+        invert: bool = False,
+        inclusive: str = "both",
     ) -> pd.DataFrame:
         """
         Slice rows from data based on matching condition. E.g. only return rows with
@@ -492,12 +509,15 @@ class GeostFrame:
         column : str
             Name of column that contains categorical data to use when looking for
             values.
-        values : str | list[str] | slice
-            Values to look for in the column. In case of numerical values, a slice can be
-            used to slice a range of values, see example below.
+        values : str | Iterable | slice
+            Value or array-like set of values to look for in the column. In case of numerical
+            values, a slice can be used to slice a range of values, see example below.
         invert : bool, optional
             If True, invert the slicing action, so remove layers with selected values
             instead of keeping them. The default is False.
+        inclusive : {"both", "neither", "left", "right"}, optional
+            When a slice is used for selection to include boundaries or not. The
+            default is "both".
 
         Returns
         -------
@@ -521,18 +541,36 @@ class GeostFrame:
         >>> data.gst.slice_by_values("qc", slice(15, 20))
 
         """
-        if isinstance(values, slice):
-            search_mask = self._obj[column].between(values.start, values.stop)
-            sliced = self._obj[search_mask]
-        else:
-            values = self._to_iterable(values)
-            sliced = self._obj[self._obj[column].isin(values)]
+        sliced = self._slice_by_values(values, column, inclusive)
 
         if invert:
             exclude_indices = sliced.index
             sliced = self._obj.loc[~self._obj.index.isin(exclude_indices)]
 
         return sliced
+
+    @singledispatchmethod
+    def _slice_by_values(
+        self, values: Any, column: str, inclusive: str
+    ) -> pd.DataFrame:
+        raise TypeError(f"Unsupported type of selection values: {type(values)}")
+
+    @_slice_by_values.register(str)
+    def _(self, values, column, _) -> pd.DataFrame:
+        return self._obj[self._obj[column] == values]
+
+    @_slice_by_values.register(set | list | np.ndarray | pd.Series)
+    def _(self, values, column, _) -> pd.DataFrame:
+        return self._obj[self._obj[column].isin(values)]
+
+    @_slice_by_values.register(slice)
+    def _(self, values, column, inclusive) -> pd.DataFrame:
+        if not pd.api.types.is_numeric_dtype(self._obj[column]):
+            raise TypeError("Can only use a slice selection on numerical columns.")
+
+        return self._obj[
+            self._obj[column].between(values.start, values.stop, inclusive)
+        ]
 
     def select_by_condition(self, condition: Any, invert: bool = False) -> pd.DataFrame:
         """
