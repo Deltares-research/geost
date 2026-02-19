@@ -108,6 +108,17 @@ class GeostFrame:
                 " - 'surface' and 'depth'\n"
             )
 
+    def _get_depth_relative_to_surface(self):
+        """
+        Get copy of the self._obj with depth columns converted to depth relative
+        to surface level.
+        """
+        data = self._obj.copy()
+        data[self._bottom] = data["surface"] - data[self._bottom]
+        if self._top:
+            data[self._top] = data["surface"] - data[self._top]
+        return data
+
     def validate_with_schema(self, schema: DataFrameSchema):
         """
         Validate the DataFrame using a specified Pandera schema.
@@ -551,7 +562,6 @@ class GeostFrame:
         radius: float = 1,
         n_sides: int = 8,
         vertical_factor: float = 1.0,
-        relative_to_vertical_reference: bool = True,
     ):
         """
         Create a Pyvista MultiBlock object of cylinder-shaped geometries to represent
@@ -568,16 +578,13 @@ class GeostFrame:
             Radius of the cylinders in m in the MultiBlock. The default is 1.
         n_sides : int, optional
             Number of sides for the cylinder. The default is 8, which gives a good balance
-            between visual quality and rendering performance.
+            between visual quality and rendering performance. Increase for enhanced visual
+            quality, decrease for better performance.
         vertical_factor : float, optional
             Factor to correct vertical scale. For example, when layer boundaries are given
             in cm, use 0.01 to convert to m. The default is 1.0, so no correction is applied.
             It is not recommended to use this for vertical exaggeration, use viewer functionality
             for that instead.
-        relative_to_vertical_reference : bool, optional
-            If True, the depth of the objects in the vtm file will be with respect to a
-            reference plane (e.g. "NAP", "TAW"). If False, the depth will be with respect
-            to 0.0. The default is True.
 
         Returns
         -------
@@ -586,28 +593,26 @@ class GeostFrame:
 
         """
         self._check_has_depth()
-        data_columns = self._to_iterable(displayed_variables)
-
-        data = self._obj.copy()
-        if relative_to_vertical_reference:
-            data.loc[:, self._bottom] = data["surface"] - data[self._bottom]
-            if self._top:
-                data.loc[:, self._top] = data["surface"] - data[self._top]
-        else:
-            data["surface"] = 0
+        data = self._get_depth_relative_to_surface()
+        displayed_variables = self._to_iterable(displayed_variables)
 
         if self._top:
             vtk_object = export.borehole_to_multiblock(
                 data,
                 [self._top, self._bottom],
-                data_columns,
+                displayed_variables,
                 radius,
                 n_sides,
                 vertical_factor,
             )
         else:
             vtk_object = export.borehole_to_multiblock(
-                data, self._bottom, data_columns, radius, n_sides, vertical_factor
+                data,
+                self._bottom,
+                displayed_variables,
+                radius,
+                n_sides,
+                vertical_factor,
             )
 
         return vtk_object
@@ -624,11 +629,12 @@ class GeostFrame:
 
         Parameters
         ----------
-        data_columns : str | list[str]
+        displayed_variables : str | list[str]
             Name or names of data columns to include for visualisation. Can be columns that
             contain an array of floats, ints and strings.
-        radius : float, optional
-            Radius cells in m, by default 1.
+        radius : float
+            The 'radius' of the voxels. This will determine the
+            horizontal size of the voxels in the resulting unstructured grid.
 
         Returns
         -------
@@ -637,13 +643,23 @@ class GeostFrame:
             3D visualisation in PyVista or other VTK viewers.
 
         """
-        # self._check_has_depth
-        # displayed_variables = self._to_iterable(displayed_variables)
-        # vtk_object = export.layerdata_to_pyvista_unstructured(
-        #     self._obj, displayed_variables, radius=radius
-        # )
-        # return vtk_object
-        raise NotImplementedError("Method not implemented yet.")
+        self._check_has_depth()
+        data = self._get_depth_relative_to_surface()
+        displayed_variables = self._to_iterable(displayed_variables)
+
+        if self._top:
+            vtk_object = export.layerdata_to_pyvista_unstructured(
+                data,
+                [self._top, self._bottom],
+                displayed_variables,
+                radius=radius,
+            )
+        else:
+            vtk_object = export.layerdata_to_pyvista_unstructured(
+                data, self._bottom, displayed_variables, radius=radius
+            )
+
+        return vtk_object
 
     def to_datafusiontools(
         self,

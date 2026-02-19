@@ -48,16 +48,13 @@ def prepare_as_layers(
     """
     data_xyz_top = data[["x", "y", depth_column[0]]].to_numpy()
     data_xyz_bottom = data[["x", "y", depth_column[-1]]].to_numpy()
-    data_xyz = np.vstack([data_xyz_top, data_xyz_bottom])
-    data_xyz[:, -1] = np.column_stack(
-        (data_xyz_top[:, -1], data_xyz_bottom[:, -1])
-    ).ravel()
+    data_xyz = np.column_stack([data_xyz_top, data_xyz_bottom]).reshape(-1, 3)
     data_xyz[:, -1] *= vertical_factor
     return data_xyz
 
 
 def generate_cylinders(
-    table: pd.DataFrame,
+    data: pd.DataFrame,
     depth_column: Literal["depth", "bottom"] | list[Literal["top"], Literal["bottom"]],
     data_columns: list[str],
     radius: float,
@@ -66,7 +63,7 @@ def generate_cylinders(
 ) -> Iterable:
     pv = _get_pyvista()
 
-    boreholes = table.groupby("nr")
+    boreholes = data.groupby("nr")
     for _, borehole in boreholes:
         # Case I  - depth_column is a single column representing depth from surface
         # (e.g. 'depth' or only 'bottom')
@@ -121,25 +118,26 @@ def generate_cylinders(
 
 
 def borehole_to_multiblock(
-    table: pd.DataFrame,
+    data: pd.DataFrame,
     depth_column: Literal["depth", "bottom"] | list[Literal["top"], Literal["bottom"]],
-    data_columns: list[str],
+    displayed_variables: list[str],
     radius: float,
     n_sides: int,
     vertical_factor: float,
+    fixed_surface: bool,
 ) -> pv.MultiBlock:
     """
     Create a PyVista MultiBlock object from the parsed boreholes/cpt's.
 
     Parameters
     ----------
-    table : pd.DataFrame
+    data : pd.DataFrame
         Table of borehole/CPT objects. This is CptCollection.data or
         BoreholeCollection.data.
     depth_column : Literal['depth', 'bottom'] | list[Literal["top"], Literal["bottom"]]
-        Name of the column representing depth. The default is "depth".
-    data_columns : List[str]
-        Column names of data arrays to write in the vtk file
+        Name of the column or columns representing depth.
+    displayed_variables : List[str]
+        Column names of data columns to write in the vtk file
     radius : float
         Radius of borehole cylinders
     n_sides : int
@@ -156,14 +154,20 @@ def borehole_to_multiblock(
     pv = _get_pyvista()
 
     cylinders = generate_cylinders(
-        table, depth_column, data_columns, radius, n_sides, vertical_factor
+        data,
+        depth_column,
+        displayed_variables,
+        radius,
+        n_sides,
+        vertical_factor,
     )
     cylinders_multiblock = pv.MultiBlock(list(cylinders))
     return cylinders_multiblock
 
 
 def layerdata_to_pyvista_unstructured(
-    layerdata: pd.DataFrame,
+    data: pd.DataFrame,
+    depth_column: Literal["depth", "bottom"] | list[Literal["top"], Literal["bottom"]],
     displayed_variables: list[str],
     radius: float = 1.0,
 ) -> pv.UnstructuredGrid:
@@ -172,9 +176,15 @@ def layerdata_to_pyvista_unstructured(
 
     Parameters
     ----------
-    layerdata : LayerData
-        The input layerdata object containing 3D grid data with coordinates 'x', 'y',
-        and 'z'.
+    data : pd.DataFrame
+        The input data containing at least columns x, y, surface, top, and bottom.
+    depth_column : Literal['depth', 'bottom'] | list[Literal["top"], Literal["bottom"]]
+        Name of the column or columns representing depth.
+    displayed_variables : list of str
+        List of variable names in the data to include as cell data in the voxel model.
+    radius : float
+        The 'radius' of the voxels. This will determine the
+        horizontal size of the voxels in the resulting unstructured grid.
 
     Returns
     -------
@@ -183,11 +193,20 @@ def layerdata_to_pyvista_unstructured(
     """
     pv = _get_pyvista()
 
-    # Get the data from the layerdata object
-    x = layerdata["x"].values
-    y = layerdata["y"].values
-    top = layerdata["surface"].values - layerdata["top"].values
-    bottom = layerdata["surface"].values - layerdata["bottom"].values
+    x = data["x"].values
+    y = data["y"].values
+
+    # Case I  - depth_column is a single column representing depth from surface
+    # (e.g. 'depth' or only 'bottom'). In this case we compute the top depth.
+    if isinstance(depth_column, str):
+        top = data[depth_column].shift(1)
+        top[data["nr"] != data["nr"].shift(1)] = data["surface"]
+        bottom = data[depth_column].values
+    # Case II - depth_column is a list of two column names representing top and
+    # bottom depths (e.g. ['top', 'bottom'])
+    elif isinstance(depth_column, list):
+        top = data[depth_column[0]].values
+        bottom = data[depth_column[-1]].values
 
     # Define all cell corner coordinates in the required order
     voxels = np.array(
@@ -212,12 +231,12 @@ def layerdata_to_pyvista_unstructured(
     # Create unstructured grid and assign data variables
     grid = pv.UnstructuredGrid({pv.CellType.VOXEL: cells_voxel}, points)
     for var in displayed_variables:
-        if var not in layerdata.columns:
+        if var not in data.columns:
             print(
-                f"Variable '{var}' is unavailable in the layerdata. Skipping this variable."
+                f"Variable '{var}' is unavailable in the data. Skipping this variable."
             )
             continue
-        grid.cell_data[var] = layerdata[var].values
+        grid.cell_data[var] = data[var].values
     return grid
 
 
