@@ -820,6 +820,7 @@ def read_cpt(
     )
 
     data.fillna({"depth": data["penetrationlength"]}, inplace=True)
+    data.sort_values(["nr", "depth"], inplace=True)
 
     return CptCollection(header, data)
 
