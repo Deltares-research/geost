@@ -5,7 +5,7 @@ import geopandas as gpd
 import numpy as np
 import pandas as pd
 from pyproj import CRS
-from shapely import buffer
+from shapely import buffer, linestrings
 
 from geost import export, spatial, validation
 
@@ -857,21 +857,108 @@ class GeostFrame:
 
     def _create_geodataframe_3d(
         self,
-        relative_to_vertical_reference: bool = True,
         crs: str | int | CRS = None,
-        has_inclined: bool = False,
     ):
-        raise NotImplementedError("Method not implemented yet.")
+        """
+        Helper method for export method "to_qgis3d" to create the necessary GeoDataFrame
+        containing 3D Shapely objects and associated information.
+
+        Parameters
+        ----------
+        relative_to_vertical_reference : bool, optional
+            If True, the depth of all data objects will converted to a depth with respect to
+            a reference plane (e.g. "NAP", "TAW"). If False, the depth will be kept as original
+            in the "top" and "bottom" columns which is in meter below the surface. The default
+            is True.
+        crs : str | int | CRS
+            EPSG of the target crs. Takes anything that can be interpreted by
+            pyproj.crs.CRS.from_user_input().
+        has_inclined : bool, optional
+            If True, the data also contains inclined objects which means the top of layers
+            is not in the same x,y-location as the bottom of layers. The default is False.
+
+        """
+        self._check_has_depth()
+        data = self._get_depth_relative_to_surface()
+
+        data_columns = [
+            col
+            for col in data.columns
+            if col not in {"nr", "x", "y", "surface", "depth", "top", "bottom"}
+        ]
+
+        # Prepare top, bottom and corresponding x and y values for geometry creation.
+        # Infer the top of layers from the bottom of layers if the top column is not present.
+        if self._top is None:
+            new_nr_mask = data["nr"] != data["nr"].shift(1)
+            top = data[self._bottom].shift(1).mask(new_nr_mask, data["surface"])
+            x_bot, y_bot = data["x"], data["y"]
+            x_top = data["x"].shift(1).mask(new_nr_mask, data["x"])
+            y_top = data["y"].shift(1).mask(new_nr_mask, data["y"])
+        else:
+            last_row_mask = data["nr"] != data["nr"].shift(-1)
+            top = data[self._top]
+            x_top, y_top = data["x"], data["y"]
+            x_bot = data["x"].shift(-1).mask(last_row_mask, data["x"])
+            y_bot = data["y"].shift(-1).mask(last_row_mask, data["y"])
+
+        # TODO: slight problem persists here for inclined boreholes. The last layer will
+        # always be non-inclined because we miss information on the bottom x/y coords.
+        # This cannot be correctly inferred from the data.
+
+        data_to_write = dict(
+            nr=data["nr"].values,
+            top=top.values.astype(float),
+            bottom=data[self._bottom].values.astype(float),
+        )
+
+        data_to_write.update(data[data_columns].to_dict(orient="list"))
+
+        geometries = linestrings(
+            [
+                [[x, y, top + 0.01], [x_bot, y_bot, bottom + 0.01]]
+                for x, y, x_bot, y_bot, top, bottom in zip(
+                    x_top.values.astype(float),
+                    y_top.values.astype(float),
+                    x_bot.values.astype(float),
+                    y_bot.values.astype(float),
+                    top.values.astype(float),
+                    data[self._bottom].values.astype(float),
+                )
+            ]
+        )
+
+        return gpd.GeoDataFrame(
+            data=data_to_write,
+            geometry=geometries,
+            crs=crs,
+        )
 
     def to_qgis3d(
         self,
         outfile: str | Path,
-        relative_to_vertical_reference: bool = True,
         crs: str | int | CRS = None,
-        has_inclined: bool = False,
         **kwargs,
     ):
-        raise NotImplementedError("Method not implemented yet.")
+        """
+        Write data to geopackage file that can be directly loaded in the Qgis2threejs
+        plugin. Works only for layered (borehole) data.
+
+        Parameters
+        ----------
+        outfile : str | Path
+            Path to geopackage file to be written.
+        crs : str | int | CRS
+            EPSG of the target crs. Takes anything that can be interpreted by
+            pyproj.crs.CRS.from_user_input().
+
+        **kwargs
+            geopandas.GeodataFrame.to_file kwargs. See relevant Geopandas documentation.
+
+        """
+        self._check_has_depth()
+        qgis3d = self._create_geodataframe_3d(crs=crs)
+        qgis3d.to_file(outfile, driver="GPKG", **kwargs)
 
     def to_kingdom(
         self,
