@@ -173,7 +173,7 @@ class Collection(AbstractCollection):
             to the data table.
 
         """
-        self._data = pd.merge(self.data, self.header[["nr", column_name]], on="nr")
+        self._data = self._data.merge(self.header[["nr", column_name]], on="nr")
 
     def get(self, selection_values: str | Iterable, column: str = "nr") -> Collection:
         """
@@ -363,10 +363,10 @@ class Collection(AbstractCollection):
     @_requires_geometry
     def select_within_bbox(
         self,
-        xmin: Coordinate,
-        ymin: Coordinate,
-        xmax: Coordinate,
-        ymax: Coordinate,
+        xmin: int | float,
+        ymin: int | float,
+        xmax: int | float,
+        ymax: int | float,
         invert: bool = False,
     ):
         """
@@ -374,24 +374,23 @@ class Collection(AbstractCollection):
 
         Parameters
         ----------
-        xmin : float | int
+        xmin : int | float
             Minimum x-coordinate of the bounding box.
-        ymin : float | int
+        ymin : int | float
             Minimum y-coordinate of the bounding box.
-        xmax : float | int
+        xmax : int | float
             Maximum x-coordinate of the bounding box.
-        ymax : float | int
+        ymax : int | float
             Maximum y-coordinate of the bounding box.
         invert : bool, optional
-            Invert the selection, so select all objects outside of the
-            bounding box in this case, by default False.
+            Invert the selection, then selects all objects outside of the bounding box.
+            The default is False.
 
         Returns
         -------
-        New instance of the current object.
-            New instance of the current object containing only the selection resulting
-            from application of this method. e.g. if you are calling this method from a
-            Collection, you will get an instance of a Collection back.
+        :class:`~geost.base.Collection`
+            New Collection instance containing only the surveys that are located within
+            the bounding box.
 
         """
         selected_header = self.header.gst.select_within_bbox(
@@ -407,14 +406,15 @@ class Collection(AbstractCollection):
             vertical_reference=self.vertical_reference,
         )
 
+    @_requires_geometry
     def select_with_points(
         self,
         points: str | Path | gpd.GeoDataFrame | GeometryType,
-        buffer: float | int,
+        max_distance: float | int,
         invert: bool = False,
     ):
         """
-        Make a selection of the collection based on point geometries.
+        Select all data that lie within a maximum distance from given point geometries.
 
         Parameters
         ----------
@@ -422,37 +422,41 @@ class Collection(AbstractCollection):
             Any type of point geometries that can be used for the selection: GeoDataFrame
             containing points or filepath to a shapefile like file, or Shapely Point,
             MultiPoint or list containing Point objects.
-        buffer : float | int
-            Buffer distance for selection geometries.
+        max_distance : float | int
+            Maximum distance from the selection points.
         invert : bool, optional
-            Invert the selection, by default False.
+            Invert the selection, selects all data that lie outside the specified maximum
+            distance from the given point geometries. The default is False.
 
         Returns
         -------
-        New instance of the current object.
-            New instance of the current object containing only the selection resulting
-            from application of this method. e.g. if you are calling this method from a
-            Collection, you will get an instance of a Collection back.
+        :class:`~geost.base.Collection`
+            New Collection instance containing only the surveys that are located within
+            the specified maximum distance from the given point geometries.
 
         """
-        selected_header = self.header.gsthd.select_with_points(
-            points, buffer, invert=invert
+        selected_header = self.header.gst.select_with_points(
+            points, max_distance, invert=invert
         )
-        selected_data = self.data.gstda.select_by_values(
+        selected_data = self.data.gst.select_by_values(
             "nr", selected_header["nr"].unique()
         )
         return self.__class__(
-            selected_header, selected_data, self.has_inclined, self.vertical_reference
+            selected_data,
+            header=selected_header,
+            has_inclined=self.has_inclined,
+            vertical_reference=self.vertical_reference,
         )
 
+    @_requires_geometry
     def select_with_lines(
         self,
         lines: str | Path | gpd.GeoDataFrame | GeometryType,
-        buffer: float | int,
+        max_distance: float | int,
         invert: bool = False,
     ):
         """
-        Make a selection of the collection based on line geometries.
+        Select all data that lie within a maximum distance from given line geometries.
 
         Parameters
         ----------
@@ -460,29 +464,33 @@ class Collection(AbstractCollection):
             Any type of line geometries that can be used for the selection: GeoDataFrame
             containing lines or filepath to a shapefile like file, or Shapely LineString,
             MultiLineString or list containing LineString objects.
-        buffer : float | int
-            Buffer distance for selection geometries.
+        max_distance : float | int
+            Maximum distance from the selection lines.
         invert : bool, optional
-            Invert the selection, by default False.
+            Invert the selection, selects all data that lie outside the specified maximum
+            distance from the given line geometries. The default is False.
 
         Returns
         -------
-        New instance of the current object.
-            New instance of the current object containing only the selection resulting
-            from application of this method. e.g. if you are calling this method from a
-            Collection, you will get an instance of a Collection back.
+        :class:`~geost.base.Collection`
+            New Collection instance containing only the surveys that are located within
+            the specified maximum distance from the given line geometries.
 
         """
-        selected_header = self.header.gsthd.select_with_lines(
-            lines, buffer, invert=invert
+        selected_header = self.header.gst.select_with_lines(
+            lines, max_distance, invert=invert
         )
-        selected_data = self.data.gstda.select_by_values(
+        selected_data = self.data.gst.select_by_values(
             "nr", selected_header["nr"].unique()
         )
         return self.__class__(
-            selected_header, selected_data, self.has_inclined, self.vertical_reference
+            selected_data,
+            header=selected_header,
+            has_inclined=self.has_inclined,
+            vertical_reference=self.vertical_reference,
         )
 
+    @_requires_geometry
     def select_within_polygons(
         self,
         polygons: str | Path | gpd.GeoDataFrame | GeometryType,
@@ -490,7 +498,7 @@ class Collection(AbstractCollection):
         invert: bool = False,
     ):
         """
-        Make a selection of the collection based on polygon geometries.
+        Select all data that lie within given polygon geometries.
 
         Parameters
         ----------
@@ -499,27 +507,29 @@ class Collection(AbstractCollection):
             containing polygons or filepath to a shapefile like file, or Shapely Polygon,
             MultiPolygon or list containing Polygon objects.
         buffer : float | int, optional
-            Optional buffer distance around the polygon selection geometries, by default
-            0.
+            Optional buffer distance around the polygon selection geometries. The default
+            is 0.
         invert : bool, optional
-            Invert the selection, by default False.
+            Invert the selection, selects all data that lie outside the selection polygons.
 
         Returns
         -------
-        New instance of the current object.
-            New instance of the current object containing only the selection resulting
-            from application of this method. e.g. if you are calling this method from a
-            Collection, you will get an instance of a Collection back.
+        :class:`~geost.base.Collection`
+            New Collection instance containing only the surveys that are located within
+            the given polygon geometries.
 
         """
-        selected_header = self.header.gsthd.select_within_polygons(
+        selected_header = self.header.gst.select_within_polygons(
             polygons, buffer=buffer, invert=invert
         )
-        selected_data = self.data.gstda.select_by_values(
+        selected_data = self.data.gst.select_by_values(
             "nr", selected_header["nr"].unique()
         )
         return self.__class__(
-            selected_header, selected_data, self.has_inclined, self.vertical_reference
+            selected_data,
+            header=selected_header,
+            has_inclined=self.has_inclined,
+            vertical_reference=self.vertical_reference,
         )
 
     def select_by_depth(

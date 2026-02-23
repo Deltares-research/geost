@@ -106,18 +106,24 @@ class TestCollection:
             i for i in range(len(borehole_collection.header))
         ]
         borehole_collection.add_header_column_to_data("test_data")
-
-        assert_allclose(borehole_collection.get("A").data["test_data"], 0)
-        assert_allclose(borehole_collection.get("B").data["test_data"], 1)
+        assert_array_equal(
+            borehole_collection.data["test_data"], np.repeat([0, 1, 2, 3, 4], 5)
+        )
 
     @pytest.mark.unittest
     def test_change_vertical_reference(self, borehole_collection):
+        assert (
+            1 == 2
+        )  # Make test fail to not forget to update the implementation of this method
         assert borehole_collection.vertical_reference == 5709
         borehole_collection.change_vertical_reference("Ostend height")
         assert borehole_collection.vertical_reference == 5710
 
     @pytest.mark.unittest
     def test_change_horizontal_reference(self, borehole_collection):
+        assert (
+            1 == 2
+        )  # Make test fail to not forget to update the implementation of this method
         assert borehole_collection.horizontal_reference == 28992
         borehole_collection.change_horizontal_reference(32631)
         assert borehole_collection.horizontal_reference == 32631
@@ -160,11 +166,13 @@ class TestCollection:
         assert all(selected.header["nr"].unique() == ["A", "D"])
         assert all(selected.data["nr"].unique() == ["A", "D"])
 
-        borehole_collection.header = borehole_collection.header.drop(columns="geometry")
         with pytest.raises(
             TypeError,
             match="Method 'select_within_bbox' requires a header with a valid geometry column.",
         ):
+            borehole_collection.header = borehole_collection.header.drop(
+                columns="geometry"
+            )
             borehole_collection.select_within_bbox(1.5, 1.5, 3.5, 5)
 
     @pytest.mark.unittest
@@ -181,6 +189,15 @@ class TestCollection:
         )
         assert selection_inverted.n_points == 2
 
+        with pytest.raises(
+            TypeError,
+            match="Method 'select_with_points' requires a header with a valid geometry column.",
+        ):
+            borehole_collection.header = borehole_collection.header.drop(
+                columns="geometry"
+            )
+            borehole_collection.select_with_points(selection_gdf, 1.1)
+
     @pytest.mark.unittest
     def test_select_with_lines(self, borehole_collection):
         selection_lines = [LineString([[1, 1], [5, 5]]), LineString([[1, 5], [5, 1]])]
@@ -191,6 +208,15 @@ class TestCollection:
             selection_gdf, 0.6, invert=True
         )
         assert selection_inverted.n_points == 3
+
+        with pytest.raises(
+            TypeError,
+            match="Method 'select_with_lines' requires a header with a valid geometry column.",
+        ):
+            borehole_collection.header = borehole_collection.header.drop(
+                columns="geometry"
+            )
+            borehole_collection.select_with_lines(selection_gdf, 0.6)
 
     @pytest.mark.unittest
     def test_select_within_polygons(self, borehole_collection):
@@ -214,6 +240,15 @@ class TestCollection:
             selection_gdf, buffer=0.7, invert=True
         )
         assert selection_inverted_buffer.n_points == 3
+
+        with pytest.raises(
+            TypeError,
+            match="Method 'select_within_polygons' requires a header with a valid geometry column.",
+        ):
+            borehole_collection.header = borehole_collection.header.drop(
+                columns="geometry"
+            )
+            borehole_collection.select_within_polygons(selection_gdf, 0.6)
 
     @pytest.mark.unittest
     def test_select_by_depth(self, borehole_collection):

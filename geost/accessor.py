@@ -350,7 +350,7 @@ class GeostFrame:
         invert: bool = False,
     ) -> gpd.GeoDataFrame:
         """
-        Select data based on the distance to given point geometries.
+        Select all data that lie within a maximum distance from given point geometries.
 
         Parameters
         ----------
@@ -359,7 +359,7 @@ class GeostFrame:
             containing points or filepath to a shapefile like file, or Shapely Point,
             MultiPoint or list containing Point objects.
         max_distance : float | int
-            Maximum distance for selection geometries.
+            Maximum distance from the selection points.
         invert : bool, optional
             Invert the selection, by default False.
 
@@ -382,7 +382,7 @@ class GeostFrame:
         invert: bool = False,
     ) -> gpd.GeoDataFrame:
         """
-        Select data based on the distance to given line geometries.
+        Select all data that lie within a maximum distance from given line geometries.
 
         Parameters
         ----------
@@ -391,9 +391,10 @@ class GeostFrame:
             containing lines or filepath to a shapefile like file, or Shapely LineString,
             MultiLineString or list containing LineString objects.
         max_distance : float | int
-            Maximum distance for selection geometries.
+            Maximum distance from the selection lines.
         invert : bool, optional
-            Invert the selection, by default False.
+            Invert the selection, selects all data that lie outside the specified maximum
+            distance from the given line geometries. The default is False.
 
         Returns
         -------
@@ -414,7 +415,7 @@ class GeostFrame:
         invert: bool = False,
     ) -> gpd.GeoDataFrame:
         """
-        Select data based on polygon geometries.
+        Select all data that lie within given polygon geometries.
 
         Parameters
         ----------
@@ -423,10 +424,10 @@ class GeostFrame:
             containing polygons or filepath to a shapefile like file, or Shapely Polygon,
             MultiPolygon or list containing Polygon objects.
         buffer : float | int, optional
-            Optional buffer distance around the polygon selection geometries, by default
-            0.
+            Optional buffer distance around the polygon selection geometries. The default
+            is 0.
         invert : bool, optional
-            Invert the selection, by default False.
+            Invert the selection, selects all data that lie outside the selection polygons.
 
         Returns
         -------
