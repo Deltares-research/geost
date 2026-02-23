@@ -4,13 +4,12 @@ from pandera.pandas import Check, Column, DataFrameSchema
 from geost import config
 
 
-def combine_schemas(*schemas: DataFrameSchema | None) -> DataFrameSchema:
+def combine_schemas(*schemas: DataFrameSchema) -> DataFrameSchema:
     """
     Combine multiple DataFrameSchema objects into a single schema.
 
     Parameters:
-        *schemas: Variable number of DataFrameSchema objects to combine. Can also be None,
-        which will be ignored.
+        *schemas: Variable number of DataFrameSchema objects to combine.
 
     Returns:
         A new DataFrameSchema that combines the columns and checks of all input schemas.
@@ -18,9 +17,8 @@ def combine_schemas(*schemas: DataFrameSchema | None) -> DataFrameSchema:
     combined_columns = {}
     combined_checks = []
     for schema in schemas:
-        if schema is not None:
-            combined_columns.update(schema.columns)
-            combined_checks.extend(schema.checks)
+        combined_columns.update(schema.columns)
+        combined_checks.extend(schema.checks)
     return DataFrameSchema(
         columns=combined_columns,
         checks=combined_checks,

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from functools import singledispatchmethod
+from pathlib import Path
 from typing import TYPE_CHECKING, Any, Iterable
 
 import geopandas as gpd
@@ -17,9 +18,6 @@ from geost import (
 )  # FIXME: spatial triggers import of xarray, rioxarray. We don't want this automatically.
 
 if TYPE_CHECKING:
-    from pathlib import Path
-
-    from pandera import DataFrameSchema
     from pyproj import CRS
     from shapely.geometry.base import BaseGeometry
 
@@ -33,7 +31,6 @@ class GeostFrame:
         self._validate_dataframe(dataframe)
         self._obj = dataframe
         self._set_depth_columns()
-        self.validate()
 
     def _set_depth_columns(self):
         """
@@ -85,7 +82,7 @@ class GeostFrame:
         return False
 
     @property
-    def has_xy(self):
+    def has_xy_columns(self):
         """
         Returns True if the object contains x and y columns, False otherwise. Used to
         determine whether specific selection operations can be performed on the object.
@@ -107,6 +104,36 @@ class GeostFrame:
             return True
         return False
 
+    @property
+    def _new_survey_id(self):
+        """
+        Get a boolean mask indicating the locations of new survey IDs in the data. This
+        is used to identify the first layer of each survey.
+
+        Returns
+        -------
+        pd.Series
+            Boolean Series with True at locations where a new survey ID starts, and False
+            elsewhere.
+
+        """
+        return self._obj["nr"] != self._obj["nr"].shift()
+
+    @property
+    def _last_row_in_survey(self):
+        """
+        Get a boolean mask indicating the locations of the last row in each survey. This
+        is used to identify the last layer of each survey.
+
+        Returns
+        -------
+        pd.Series
+            Boolean Series with True at locations where the last row of a survey is, and False
+            elsewhere.
+
+        """
+        return self._obj["nr"] != self._obj["nr"].shift(-1)
+
     @staticmethod
     def _to_iterable(value: str | Iterable) -> Iterable:
         if isinstance(value, str):
@@ -120,7 +147,7 @@ class GeostFrame:
             )
 
     def _check_has_xy(self):
-        if not self.has_xy:
+        if not self.has_xy_columns:
             raise KeyError("Object does not contain 'x' and 'y' columns.")
 
     def _check_has_depth(self):
@@ -161,7 +188,7 @@ class GeostFrame:
 
             if self.has_geometry:
                 schemas.append(validation.schemas.geostframe_with_geometry)
-            if self.has_xy:
+            if self.has_xy_columns:
                 schemas.append(validation.schemas.geostframe_with_xy)
 
             validation_schema = validation.combine_schemas(*schemas)
@@ -676,8 +703,7 @@ class GeostFrame:
         else:
             thickness = self._obj[self._bottom].diff()
 
-            new_survey_id = self._obj["nr"] != self._obj["nr"].shift()
-            thickness[new_survey_id] = self._obj[
+            thickness[self._new_survey_id] = self._obj[
                 self._bottom
             ]  # Thickness of first layer is equal to depth of first layer data is discrete
 
@@ -927,17 +953,15 @@ class GeostFrame:
         # Prepare top, bottom and corresponding x and y values for geometry creation.
         # Infer the top of layers from the bottom of layers if the top column is not present.
         if self._top is None:
-            new_nr_mask = data["nr"] != data["nr"].shift(1)
-            top = data[self._bottom].shift(1).mask(new_nr_mask, data["surface"])
+            top = data[self._bottom].shift().mask(self._new_survey_id, data["surface"])
             x_bot, y_bot = data["x"], data["y"]
-            x_top = data["x"].shift(1).mask(new_nr_mask, data["x"])
-            y_top = data["y"].shift(1).mask(new_nr_mask, data["y"])
+            x_top = data["x"].shift().mask(self._new_survey_id, data["x"])
+            y_top = data["y"].shift().mask(self._new_survey_id, data["y"])
         else:
-            last_row_mask = data["nr"] != data["nr"].shift(-1)
             top = data[self._top]
             x_top, y_top = data["x"], data["y"]
-            x_bot = data["x"].shift(-1).mask(last_row_mask, data["x"])
-            y_bot = data["y"].shift(-1).mask(last_row_mask, data["y"])
+            x_bot = data["x"].shift(-1).mask(self._last_row_in_survey, data["x"])
+            y_bot = data["y"].shift(-1).mask(self._last_row_in_survey, data["y"])
 
         # TODO: slight problem persists here for inclined boreholes. The last layer will
         # always be non-inclined because we miss information on the bottom x/y coords.
@@ -1005,4 +1029,73 @@ class GeostFrame:
         vw: float = 1500.0,
         vs: float = 1600.0,
     ):
-        raise NotImplementedError("Method not implemented yet.")
+        """
+        Write data to 2 csv files: 1) interval data and 2) time-depth chart. These files
+        can be imported in the Kingdom seismic interpretation software.
+
+        Parameters
+        ----------
+        outfile : str | Path
+            Path to csv file to be written.
+        tdstart : int
+            startindex for TDchart, default is 1
+        vw : float
+            sound velocity in water in m/s, default is 1500 m/s
+        vs : float
+            sound velocity in sediment in m/s, default is 1600 m/s
+
+        """
+        self._check_has_depth()
+        self._check_has_xy()
+
+        # 1. add columns needed in kingdom and write interval data
+        kingdom_df = self._get_depth_relative_to_surface()
+
+        if self._top is None:
+            kingdom_df["top"] = (
+                kingdom_df[self._bottom]
+                .shift()
+                .mask(self._new_survey_id, kingdom_df["surface"])
+            )
+
+        # Add total depth NOTE: is the insert at idx 7 really necessary?
+        kingdom_df.insert(
+            7,
+            "Total depth",
+            (kingdom_df["surface"] - kingdom_df[self._bottom])[
+                self._last_row_in_survey
+            ],
+        )
+        kingdom_df["Total depth"] = kingdom_df["Total depth"].bfill()
+
+        # Rename bottom and top columns to Kingdom requirements
+        kingdom_df.rename(
+            columns={"top": "Start depth", self._bottom: "End depth"}, inplace=True
+        )
+        kingdom_df.to_csv(outfile, index=False)
+
+        # 2. create and write time-depth chart
+        tdchart = self._obj[["nr", "surface"]]
+        tdchart.drop_duplicates(inplace=True)
+        tdchart.insert(0, "id", range(tdstart, tdstart + len(tdchart)))
+
+        # Add measured depth (predefined depths of 0 and 1 m below surface)
+        tdchart = pd.concat(
+            [
+                tdchart.assign(MD=np.zeros(len(tdchart), dtype=np.int64)),
+                tdchart.assign(MD=np.ones(len(tdchart), dtype=np.int64)),
+            ]
+        )
+        # Add two-way travel time
+        tdchart["TWT"] = (-tdchart["surface"] / (vw / 2 / 1000)) + (
+            tdchart["MD"] * 1 / (vs / 2 / 1000)
+        )
+
+        tdchart.drop("surface", axis=1, inplace=True)
+        tdchart.sort_values(by=["id", "MD"], inplace=True)
+        if not isinstance(outfile, Path):
+            outfile = Path(outfile)
+        tdchart.to_csv(
+            outfile.parent.joinpath(f"{outfile.stem}_TDCHART{outfile.suffix}"),
+            index=False,
+        )
