@@ -8,7 +8,7 @@ def _requires_geometry(func):
         from geost.base import Collection
 
         if isinstance(self, Collection):
-            if not self._header_has_geometry:
+            if not self.header_has_geometry:
                 raise TypeError(
                     f"Method '{func.__name__}' requires a header with a valid geometry column. "
                     "Use `set_header_from_data` to set the header from the data and ensure "

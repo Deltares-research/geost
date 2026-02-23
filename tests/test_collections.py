@@ -46,7 +46,7 @@ class TestCollection:
         assert isinstance(collection, Collection)
         assert isinstance(collection.header, gpd.GeoDataFrame)
         assert isinstance(collection.data, pd.DataFrame)
-        assert not collection._header_has_geometry
+        assert not collection.header_has_geometry
         assert not collection.has_inclined
         assert collection.vertical_reference == 5709
 
@@ -68,15 +68,15 @@ class TestCollection:
         assert isinstance(col1, Collection)
         assert isinstance(col1.header, gpd.GeoDataFrame)
         assert isinstance(col1.data, pd.DataFrame)
-        assert not col1._header_has_geometry
+        assert not col1.header_has_geometry
 
         header = gpd.GeoDataFrame(
             header, geometry=gpd.points_from_xy(header["x"], header["y"]), crs=28992
         )
         col2 = Collection(borehole_data, header=header)
-        assert col2._header_has_geometry
+        assert col2.header_has_geometry
         assert (
-            not col1._header_has_geometry
+            not col1.header_has_geometry
         )  # Make sure the attribute is not shared between instances
 
     @pytest.mark.unittest
@@ -88,7 +88,7 @@ class TestCollection:
         assert isinstance(collection, Collection)
         assert collection.header.empty
         assert collection.data.empty
-        assert not collection._header_has_geometry
+        assert not collection.header_has_geometry
 
     @pytest.mark.unittest
     def test_get(self, borehole_collection):

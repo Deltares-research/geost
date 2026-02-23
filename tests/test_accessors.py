@@ -166,7 +166,7 @@ class TestGeostFrame:
         assert isinstance(collection, Collection)
         assert isinstance(collection.header, gpd.GeoDataFrame)
         assert isinstance(collection.data, pd.DataFrame)
-        assert not collection._header_has_geometry
+        assert not collection.header_has_geometry
         assert collection.horizontal_reference is None
         assert collection.vertical_reference is None
 
@@ -180,7 +180,7 @@ class TestGeostFrame:
             )
         assert isinstance(collection, Collection)
         assert collection.has_inclined
-        assert collection._header_has_geometry
+        assert collection.header_has_geometry
         assert collection.horizontal_reference == 28992
         assert collection.vertical_reference == 5709
 

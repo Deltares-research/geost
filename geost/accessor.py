@@ -165,6 +165,138 @@ class GeostFrame:
         """
         self._obj = validation.safe_validate(self._obj, schema)
 
+    def to_header(
+        self,
+        include_columns: str | Iterable[str] | None = None,
+        exclude_columns: str | Iterable[str] | None = None,
+        coordinate_names: tuple[str, str] = None,
+        crs: str | int | CRS = None,
+    ) -> gpd.GeoDataFrame:
+        """
+        Create a header GeoDataFrame from the DataFrame to be used as a header table for
+        the creation of a :class:`~geost.base.Collection` object. The header contains one
+        row per unique object in the DataFrame, identified by the "nr" column. The header
+        can contain a geometry column with point geometries created from specified coordinate
+        columns in the DataFrame. Optional columns can be given to be included or excluded
+        in the header.
+
+        Parameters
+        ----------
+        include_columns : str | Iterable[str] | None, optional
+            Columns to include in the header. The default is None, which includes all
+            columns. If "nr" is not included in the specified columns, it will be added
+            automatically as it is required.
+        exclude_columns : str | Iterable[str] | None, optional
+            Columns to exclude from the header. The default is None, which excludes no
+            columns. If "nr" is included in the specified columns, an error is raised as
+            it is required.
+        coordinate_names : tuple[str, str], optional
+            Tuple specifying the names of the columns to be used as coordinates for the
+            geometry column. The default is None, which means no geometry column will be
+            created.
+        crs : str | int | CRS, optional
+            Coordinate reference system for the geometry column. The default is None,
+            which means no CRS will be assigned to the resulting GeoDataFrame.
+
+        Returns
+        -------
+        gpd.GeoDataFrame
+            GeoDataFrame containing one row per unique object in the DataFrame, with optional
+            geometry column and specified columns included or excluded.
+
+        Raises
+        ------
+        KeyError
+            Raised if the specified coordinate columns are not found in the DataFrame.
+        ValueError
+            Raised if both 'include_columns' and 'exclude_columns' are specified, or if
+            'nr' is given in the exclude_columns parameter.
+
+        Examples
+        --------
+        To create a header GeoDataFrame with all columns from the DataFrame and no geometry
+        column:
+
+        >>> data.gst.to_header()
+
+        To create a header GeoDataFrame with only specific columns from the DataFrame and
+        no geometry column:
+
+        >>> data.gst.to_header(include_columns=["nr", "column1", "column2"])
+
+        To create a header GeoDataFrame with a geometry column created from specified coordinate
+        names, a specific CRS and with columns excluded:
+
+        >>> data.gst.to_header(
+        ...     coordinate_names=("x", "y"), crs=28992, exclude_columns=["column1", "column2"]
+        ... )
+
+        """
+        import shapely
+
+        header = self._obj.drop_duplicates(subset="nr", ignore_index=True)
+
+        if coordinate_names is not None:
+            x_col, y_col = coordinate_names
+            if not {x_col, y_col}.issubset(header.columns):
+                raise KeyError(
+                    f"Coordinate columns '{x_col}' and/or '{y_col}' not found in DataFrame."
+                )
+            geometry = shapely.points(header[[x_col, y_col]])
+            # NOTE: future versions may require other geometry types too
+        else:
+            geometry = None
+
+        if include_columns is not None and exclude_columns is not None:
+            raise ValueError(
+                "Cannot specify both 'include_columns' and 'exclude_columns'."
+            )
+        elif include_columns is not None:
+            if "nr" not in include_columns:
+                include_columns = ["nr"] + list(include_columns)
+            header = header[include_columns]
+        elif exclude_columns is not None:
+            if "nr" in exclude_columns:
+                raise ValueError("Cannot exclude 'nr' column from header.")
+            header = header.drop(columns=exclude_columns)
+
+        return gpd.GeoDataFrame(header, geometry=geometry, crs=crs)
+
+    def to_collection(
+        self,
+        has_inclined: bool = False,
+        vertical_reference: str | int | CRS = None,
+        **header_kwargs,
+    ):
+        """
+        Create a :class:`geost.base.Collection` from the current GeoDataFrame or DataFrame.
+
+        Parameters
+        ----------
+        has_inclined : bool, optional
+            Indicates whether the collection has inclined data. The default is False.
+        vertical_reference : str | int | CRS, optional
+            Vertical reference system for the collection. The default is None.
+        **header_kwargs
+            Keyword arguments to be passed to the :class:`geost.accessor.GeostFrame.to_header`
+            method for creating the header table.
+
+        Returns
+        -------
+        :class:`geost.base.Collection`
+            A Collection instance created from the current GeoDataFrame or DataFrame.
+
+        """
+        from geost.base import Collection  # Avoid circular import
+
+        header = self.to_header(**header_kwargs)
+        return Collection(
+            self._obj,
+            header=header,
+            has_inclined=has_inclined,
+            vertical_reference=vertical_reference,
+        )
+
     def change_horizontal_reference(self, to_epsg: str | int | CRS) -> None:
         raise NotImplementedError("Method not implemented yet.")
 
