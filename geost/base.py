@@ -34,8 +34,6 @@ class Collection(AbstractCollection):
         Instance of a data object corresponding to the header.
     """
 
-    _header_has_geometry: bool = False
-
     def __init__(
         self,
         data: pd.DataFrame = None,
@@ -109,6 +107,10 @@ class Collection(AbstractCollection):
         """
         return self._has_inclined
 
+    @property
+    def _header_has_geometry(self):
+        return self.header._geometry_column_name is not None
+
     @header.setter
     def header(self, header):
         if header is not None:
@@ -132,8 +134,6 @@ class Collection(AbstractCollection):
                     "will not work. Use collection.set_geometry to set an active geometry "
                     "column."
                 )
-            else:
-                self._header_has_geometry = True
 
         self._header = header
         self.check_header_to_data_alignment()
@@ -341,6 +341,7 @@ class Collection(AbstractCollection):
                     " is enabled in the GeoST configuration.",
                 )
 
+    @_requires_geometry
     def select_within_bbox(
         self,
         xmin: Coordinate,
@@ -374,14 +375,17 @@ class Collection(AbstractCollection):
             Collection, you will get an instance of a Collection back.
 
         """
-        selected_header = self.header.gsthd.select_within_bbox(
+        selected_header = self.header.gst.select_within_bbox(
             xmin, ymin, xmax, ymax, invert=invert
         )
-        selected_data = self.data.gstda.select_by_values(
+        selected_data = self.data.gst.select_by_values(
             "nr", selected_header["nr"].unique()
         )
         return self.__class__(
-            selected_header, selected_data, self.has_inclined, self.vertical_reference
+            selected_data,
+            header=selected_header,
+            has_inclined=self.has_inclined,
+            vertical_reference=self.vertical_reference,
         )
 
     def select_with_points(

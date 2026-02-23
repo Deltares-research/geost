@@ -88,6 +88,7 @@ class TestCollection:
         assert isinstance(collection, Collection)
         assert collection.header.empty
         assert collection.data.empty
+        assert not collection._header_has_geometry
 
     @pytest.mark.unittest
     def test_get(self, borehole_collection):
@@ -157,6 +158,13 @@ class TestCollection:
         selected = borehole_collection.select_within_bbox(1.5, 1.5, 3.5, 5)
         assert all(selected.header["nr"].unique() == ["A", "D"])
         assert all(selected.data["nr"].unique() == ["A", "D"])
+
+        borehole_collection.header = borehole_collection.header.drop(columns="geometry")
+        with pytest.raises(
+            TypeError,
+            match="Method 'select_within_bbox' requires a header with a valid geometry column.",
+        ):
+            borehole_collection.select_within_bbox(1.5, 1.5, 3.5, 5)
 
     @pytest.mark.unittest
     def test_select_with_points(self, borehole_collection):

@@ -380,7 +380,9 @@ class GeostFrame:
         selected = selected[selected["nr"].isin(valid)]
         return selected
 
-    @_select_by_values.register(set | list | np.ndarray | pd.Series)
+    @_select_by_values.register(
+        set | list | np.ndarray | pd.Series | pd.arrays.ArrowStringArray
+    )
     def _(self, values, column, how, _) -> pd.DataFrame:
         selected = self._obj
         if how == "or":
