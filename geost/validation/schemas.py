@@ -3,27 +3,47 @@ from pandera.pandas import Check, Column, DataFrameSchema
 
 from geost import config
 
-geostframe_header = DataFrameSchema(
+
+def combine_schemas(*schemas: DataFrameSchema) -> DataFrameSchema:
+    """
+    Combine multiple DataFrameSchema objects into a single schema.
+
+    Parameters:
+        *schemas: Variable number of DataFrameSchema objects to combine.
+
+    Returns:
+        A new DataFrameSchema that combines the columns and checks of all input schemas.
+    """
+    combined_columns = {}
+    combined_checks = []
+    for schema in schemas:
+        combined_columns.update(schema.columns)
+        combined_checks.extend(schema.checks)
+    return DataFrameSchema(
+        columns=combined_columns,
+        checks=combined_checks,
+        coerce=True,
+        strict=False,
+        drop_invalid_rows=config.validation.DROP_INVALID,
+        name="Combined schema",
+        description="A schema that combines multiple schemas",
+    )
+
+
+geostframe_base = DataFrameSchema(
     columns={
-        "nr": Column(str, unique=True, nullable=False),
-        "x": Column(float, nullable=False),
-        "y": Column(float, nullable=False),
-        "surface": Column(float, nullable=False, required=False),
-        "geometry": Column(GeometryDtype(), required=False),
+        "nr": Column(str, nullable=False),
+        "surface": Column(float, nullable=False),
     },
     coerce=True,
     strict=False,
     drop_invalid_rows=config.validation.DROP_INVALID,
-    name="GeostFrame header type schema",
-    description="Schema for validating GeostFrame that represents a header",
+    name="GeostFrame most basic type schema",
+    description="Schema for validating GeostFrame that represents the most basic type of data with only nr and surface columns",
 )
 
-geostframe_data_top_bottom = DataFrameSchema(
+geostframe_with_top_bottom = DataFrameSchema(
     columns={
-        "nr": Column(str, nullable=False),
-        "x": Column(float, nullable=False),
-        "y": Column(float, nullable=False),
-        "surface": Column(float, nullable=False, required=False),
         "top": Column(float, nullable=False),
         "bottom": Column(float, nullable=False),
     },
@@ -41,11 +61,9 @@ geostframe_data_top_bottom = DataFrameSchema(
     description="Schema for validating GeostFrame that represents depth data with top and bottom columns",
 )
 
-geostframe_data_only_bottom = DataFrameSchema(
+geostframe_with_bottom = DataFrameSchema(
     columns={
         "nr": Column(str, nullable=False),
-        "x": Column(float, nullable=False),
-        "y": Column(float, nullable=False),
         "surface": Column(float, nullable=False, required=False),
         "bottom": Column(float, nullable=False),
     },
@@ -63,11 +81,9 @@ geostframe_data_only_bottom = DataFrameSchema(
     description="Schema for validating GeostFrame that represents depth data with only bottom column",
 )
 
-geostframe_data_only_depth = DataFrameSchema(
+geostframe_with_depth = DataFrameSchema(
     columns={
         "nr": Column(str, nullable=False),
-        "x": Column(float, nullable=False),
-        "y": Column(float, nullable=False),
         "surface": Column(float, nullable=False, required=False),
         "depth": Column(float, nullable=False),
     },
@@ -85,6 +101,28 @@ geostframe_data_only_depth = DataFrameSchema(
     description="Schema for validating GeostFrame that represents depth data with only depth column",
 )
 
+geostframe_with_geometry = DataFrameSchema(
+    columns={
+        "geometry": Column(GeometryDtype(), nullable=False),
+    },
+    coerce=True,
+    strict=False,
+    drop_invalid_rows=config.validation.DROP_INVALID,
+    name="GeostFrame with geometry",
+    description="Addition for GeoSTFrame schemas that includes geometry column",
+)
+
+geostframe_with_xy = DataFrameSchema(
+    columns={
+        "x": Column(float, nullable=False),
+        "y": Column(float, nullable=False),
+    },
+    coerce=True,
+    strict=False,
+    drop_invalid_rows=config.validation.DROP_INVALID,
+    name="GeostFrame with XY coordinates",
+    description="Addition for GeoSTFrame schemas that includes x and y coordinates",
+)
 
 # Point header schema
 pointheader = DataFrameSchema(

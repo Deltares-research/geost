@@ -6,7 +6,10 @@ from typing import TYPE_CHECKING, Any, Iterable
 import geopandas as gpd
 import numpy as np
 import pandas as pd
+from pyproj import CRS
+from shapely import buffer, linestrings
 
+import geost
 from geost import (
     export,
     spatial,
@@ -82,6 +85,17 @@ class GeostFrame:
         return False
 
     @property
+    def has_xy_columns(self):
+        """
+        Returns True if the object contains x and y columns, False otherwise. Used to
+        determine whether specific selection operations can be performed on the object.
+
+        """
+        if "x" in self._obj.columns and "y" in self._obj.columns:
+            return True
+        return False
+
+    @property
     def has_depth_columns(self):
         """
         Returns True if the object contains information about depth, such as 'top' and
@@ -91,8 +105,37 @@ class GeostFrame:
         """
         if "surface" in self._obj.columns and self._bottom is not None:
             return True
-
         return False
+
+    @property
+    def _new_survey_id(self):
+        """
+        Get a boolean mask indicating the locations of new survey IDs in the data. This
+        is used to identify the first layer of each survey.
+
+        Returns
+        -------
+        pd.Series
+            Boolean Series with True at locations where a new survey ID starts, and False
+            elsewhere.
+
+        """
+        return self._obj["nr"] != self._obj["nr"].shift()
+
+    @property
+    def _last_row_in_survey(self):
+        """
+        Get a boolean mask indicating the locations of the last row in each survey. This
+        is used to identify the last layer of each survey.
+
+        Returns
+        -------
+        pd.Series
+            Boolean Series with True at locations where the last row of a survey is, and False
+            elsewhere.
+
+        """
+        return self._obj["nr"] != self._obj["nr"].shift(-1)
 
     @staticmethod
     def _to_iterable(value: str | Iterable) -> Iterable:
@@ -110,118 +153,6 @@ class GeostFrame:
         if self._top:
             data[self._top] = data["surface"] - data[self._top]
         return data
-
-    def to_header(
-        self,
-        include_columns: str | Iterable[str] | None = None,
-        exclude_columns: str | Iterable[str] | None = None,
-        coordinate_names: tuple[str, str] = None,
-        crs: str | int | CRS = None,
-    ) -> gpd.GeoDataFrame:
-        """
-        Create a header GeoDataFrame from the DataFrame to be used as a header table for
-        the creation of a :class:`~geost.base.Collection` object. The header contains one
-        row per unique object in the DataFrame, identified by the "nr" column. The header
-        can contain a geometry column with point geometries created from specified coordinate
-        columns in the DataFrame. Optional columns can be given to be included or excluded
-        in the header.
-
-        Parameters
-        ----------
-        include_columns : str | Iterable[str] | None, optional
-            Columns to include in the header. The default is None, which includes all
-            columns. If "nr" is not included in the specified columns, it will be added
-            automatically as it is required.
-        exclude_columns : str | Iterable[str] | None, optional
-            Columns to exclude from the header. The default is None, which excludes no
-            columns. If "nr" is included in the specified columns, an error is raised as
-            it is required.
-        coordinate_names : tuple[str, str], optional
-            Tuple specifying the names of the columns to be used as coordinates for the
-            geometry column. The default is None, which means no geometry column will be
-            created.
-        crs : str | int | CRS, optional
-            Coordinate reference system for the geometry column. The default is None,
-            which means no CRS will be assigned to the resulting GeoDataFrame.
-
-        Returns
-        -------
-        gpd.GeoDataFrame
-            GeoDataFrame containing one row per unique object in the DataFrame, with optional
-            geometry column and specified columns included or excluded.
-
-        Raises
-        ------
-        KeyError
-            Raised if the specified coordinate columns are not found in the DataFrame.
-        ValueError
-            Raised if both 'include_columns' and 'exclude_columns' are specified, or if
-            'nr' is given in the exclude_columns parameter.
-
-        Examples
-        --------
-        To create a header GeoDataFrame with all columns from the DataFrame and no geometry
-        column:
-
-        >>> data.gst.to_header()
-
-        To create a header GeoDataFrame with only specific columns from the DataFrame and
-        no geometry column:
-
-        >>> data.gst.to_header(include_columns=["nr", "column1", "column2"])
-
-        To create a header GeoDataFrame with a geometry column created from specified coordinate
-        names, a specific CRS and with columns excluded:
-
-        >>> data.gst.to_header(
-        ...     coordinate_names=("x", "y"), crs=28992, exclude_columns=["column1", "column2"]
-        ... )
-
-        """
-        import shapely
-
-        header = self._obj.drop_duplicates(subset="nr", ignore_index=True)
-
-        if coordinate_names is not None:
-            x_col, y_col = coordinate_names
-            if x_col not in header.columns or y_col not in header.columns:
-                raise KeyError(
-                    f"Coordinate columns '{x_col}' and/or '{y_col}' not found in DataFrame."
-                )
-            geometry = shapely.points(header[[x_col, y_col]])
-        else:
-            geometry = None
-
-        if include_columns is not None and exclude_columns is not None:
-            raise ValueError(
-                "Cannot specify both 'include_columns' and 'exclude_columns'."
-            )
-        if include_columns is not None:
-            if "nr" not in include_columns:
-                include_columns = ["nr"] + list(include_columns)
-            header = header[include_columns]
-        elif exclude_columns is not None:
-            if "nr" in exclude_columns:
-                raise ValueError("Cannot exclude 'nr' column from header.")
-            header = header.drop(columns=exclude_columns)
-
-        return gpd.GeoDataFrame(header, geometry=geometry, crs=crs)
-
-    def to_collection(
-        self,
-        has_inclined: bool = False,
-        vertical_reference: str | int | CRS = None,
-        **header_kwargs,
-    ):
-        from geost.base import Collection  # Avoid circular import
-
-        header = self.to_header(**header_kwargs)
-        return Collection(
-            self._obj,
-            header=header,
-            has_inclined=has_inclined,
-            vertical_reference=vertical_reference,
-        )
 
     def validate_with_schema(self, schema: DataFrameSchema):
         """
@@ -731,8 +662,7 @@ class GeostFrame:
         else:
             thickness = self._obj[self._bottom].diff()
 
-            new_survey_id = self._obj["nr"] != self._obj["nr"].shift()
-            thickness[new_survey_id] = self._obj[
+            thickness[self._new_survey_id] = self._obj[
                 self._bottom
             ]  # Thickness of first layer is equal to depth of first layer data is discrete
 
@@ -866,6 +796,7 @@ class GeostFrame:
             A composite class holding the data which can be iterated over.
 
         """
+        self._check_has_xy()
         data = self._get_depth_relative_to_surface()
         displayed_variables = self._to_iterable(displayed_variables)
 
@@ -917,6 +848,7 @@ class GeostFrame:
             3D visualisation in PyVista or other VTK viewers.
 
         """
+        self._check_has_xy()
         data = self._get_depth_relative_to_surface()
         displayed_variables = self._to_iterable(displayed_variables)
 
@@ -946,24 +878,107 @@ class GeostFrame:
 
     def _create_geodataframe_3d(
         self,
-        relative_to_vertical_reference: bool = True,
         crs: str | int | CRS = None,
-        has_inclined: bool = False,
     ):
-        raise NotImplementedError("Method not implemented yet.")
+        """
+        Helper method for export method "to_qgis3d" to create the necessary GeoDataFrame
+        containing 3D Shapely objects and associated information.
 
-    @_requires_depth
+        Parameters
+        ----------
+        relative_to_vertical_reference : bool, optional
+            If True, the depth of all data objects will converted to a depth with respect to
+            a reference plane (e.g. "NAP", "TAW"). If False, the depth will be kept as original
+            in the "top" and "bottom" columns which is in meter below the surface. The default
+            is True.
+        crs : str | int | CRS
+            EPSG of the target crs. Takes anything that can be interpreted by
+            pyproj.crs.CRS.from_user_input().
+        has_inclined : bool, optional
+            If True, the data also contains inclined objects which means the top of layers
+            is not in the same x,y-location as the bottom of layers. The default is False.
+
+        """
+        data = self._get_depth_relative_to_surface()
+
+        data_columns = [
+            col
+            for col in data.columns
+            if col not in {"nr", "x", "y", "surface", "depth", "top", "bottom"}
+        ]
+
+        # Prepare top, bottom and corresponding x and y values for geometry creation.
+        # Infer the top of layers from the bottom of layers if the top column is not present.
+        if self._top is None:
+            top = data[self._bottom].shift().mask(self._new_survey_id, data["surface"])
+            x_bot, y_bot = data["x"], data["y"]
+            x_top = data["x"].shift().mask(self._new_survey_id, data["x"])
+            y_top = data["y"].shift().mask(self._new_survey_id, data["y"])
+        else:
+            top = data[self._top]
+            x_top, y_top = data["x"], data["y"]
+            x_bot = data["x"].shift(-1).mask(self._last_row_in_survey, data["x"])
+            y_bot = data["y"].shift(-1).mask(self._last_row_in_survey, data["y"])
+
+        # TODO: slight problem persists here for inclined boreholes. The last layer will
+        # always be non-inclined because we miss information on the bottom x/y coords.
+        # This cannot be correctly inferred from the data.
+
+        data_to_write = dict(
+            nr=data["nr"].values,
+            top=top.values.astype(float),
+            bottom=data[self._bottom].values.astype(float),
+        )
+
+        data_to_write.update(data[data_columns].to_dict(orient="list"))
+
+        geometries = linestrings(
+            [
+                [[x, y, top + 0.01], [x_bot, y_bot, bottom + 0.01]]
+                for x, y, x_bot, y_bot, top, bottom in zip(
+                    x_top.values.astype(float),
+                    y_top.values.astype(float),
+                    x_bot.values.astype(float),
+                    y_bot.values.astype(float),
+                    top.values.astype(float),
+                    data[self._bottom].values.astype(float),
+                )
+            ]
+        )
+
+        return gpd.GeoDataFrame(
+            data=data_to_write,
+            geometry=geometries,
+            crs=crs,
+        )
+
     def to_qgis3d(
         self,
         outfile: str | Path,
-        relative_to_vertical_reference: bool = True,
         crs: str | int | CRS = None,
-        has_inclined: bool = False,
         **kwargs,
     ):
-        raise NotImplementedError("Method not implemented yet.")
+        """
+        Write data to geopackage file that can be directly loaded in the Qgis2threejs
+        plugin. Works only for layered (borehole) data.
 
-    @_requires_depth
+        Parameters
+        ----------
+        outfile : str | Path
+            Path to geopackage file to be written.
+        crs : str | int | CRS
+            EPSG of the target crs. Takes anything that can be interpreted by
+            pyproj.crs.CRS.from_user_input().
+
+        **kwargs
+            geopandas.GeodataFrame.to_file kwargs. See relevant Geopandas documentation.
+
+        """
+        self._check_has_depth()
+        self._check_has_xy()
+        qgis3d = self._create_geodataframe_3d(crs=crs)
+        qgis3d.to_file(outfile, driver="GPKG", **kwargs)
+
     def to_kingdom(
         self,
         outfile: str | Path,
@@ -971,4 +986,73 @@ class GeostFrame:
         vw: float = 1500.0,
         vs: float = 1600.0,
     ):
-        raise NotImplementedError("Method not implemented yet.")
+        """
+        Write data to 2 csv files: 1) interval data and 2) time-depth chart. These files
+        can be imported in the Kingdom seismic interpretation software.
+
+        Parameters
+        ----------
+        outfile : str | Path
+            Path to csv file to be written.
+        tdstart : int
+            startindex for TDchart, default is 1
+        vw : float
+            sound velocity in water in m/s, default is 1500 m/s
+        vs : float
+            sound velocity in sediment in m/s, default is 1600 m/s
+
+        """
+        self._check_has_depth()
+        self._check_has_xy()
+
+        # 1. add columns needed in kingdom and write interval data
+        kingdom_df = self._get_depth_relative_to_surface()
+
+        if self._top is None:
+            kingdom_df["top"] = (
+                kingdom_df[self._bottom]
+                .shift()
+                .mask(self._new_survey_id, kingdom_df["surface"])
+            )
+
+        # Add total depth NOTE: is the insert at idx 7 really necessary?
+        kingdom_df.insert(
+            7,
+            "Total depth",
+            (kingdom_df["surface"] - kingdom_df[self._bottom])[
+                self._last_row_in_survey
+            ],
+        )
+        kingdom_df["Total depth"] = kingdom_df["Total depth"].bfill()
+
+        # Rename bottom and top columns to Kingdom requirements
+        kingdom_df.rename(
+            columns={"top": "Start depth", self._bottom: "End depth"}, inplace=True
+        )
+        kingdom_df.to_csv(outfile, index=False)
+
+        # 2. create and write time-depth chart
+        tdchart = self._obj[["nr", "surface"]]
+        tdchart.drop_duplicates(inplace=True)
+        tdchart.insert(0, "id", range(tdstart, tdstart + len(tdchart)))
+
+        # Add measured depth (predefined depths of 0 and 1 m below surface)
+        tdchart = pd.concat(
+            [
+                tdchart.assign(MD=np.zeros(len(tdchart), dtype=np.int64)),
+                tdchart.assign(MD=np.ones(len(tdchart), dtype=np.int64)),
+            ]
+        )
+        # Add two-way travel time
+        tdchart["TWT"] = (-tdchart["surface"] / (vw / 2 / 1000)) + (
+            tdchart["MD"] * 1 / (vs / 2 / 1000)
+        )
+
+        tdchart.drop("surface", axis=1, inplace=True)
+        tdchart.sort_values(by=["id", "MD"], inplace=True)
+        if not isinstance(outfile, Path):
+            outfile = Path(outfile)
+        tdchart.to_csv(
+            outfile.parent.joinpath(f"{outfile.stem}_TDCHART{outfile.suffix}"),
+            index=False,
+        )

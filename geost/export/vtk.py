@@ -199,8 +199,8 @@ def layerdata_to_pyvista_unstructured(
     # Case I  - depth_column is a single column representing depth from surface
     # (e.g. 'depth' or only 'bottom'). In this case we compute the top depth.
     if isinstance(depth_column, str):
-        top = data[depth_column].shift(1)
-        top[data["nr"] != data["nr"].shift(1)] = data["surface"]
+        top = data[depth_column].shift()
+        top[data["nr"] != data["nr"].shift()] = data["surface"]
         bottom = data[depth_column].values
     # Case II - depth_column is a list of two column names representing top and
     # bottom depths (e.g. ['top', 'bottom'])
