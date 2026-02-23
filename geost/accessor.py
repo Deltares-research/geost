@@ -7,6 +7,7 @@ import pandas as pd
 from pyproj import CRS
 from shapely import buffer, linestrings
 
+import geost
 from geost import export, spatial, validation
 
 if TYPE_CHECKING:
@@ -25,6 +26,7 @@ class GeostFrame:
         self._validate_dataframe(dataframe)
         self._obj = dataframe
         self._set_depth_columns()
+        self.validate()
 
     def _set_depth_columns(self):
         """
@@ -76,6 +78,17 @@ class GeostFrame:
         return False
 
     @property
+    def has_xy(self):
+        """
+        Returns True if the object contains x and y columns, False otherwise. Used to
+        determine whether specific selection operations can be performed on the object.
+
+        """
+        if "x" in self._obj.columns and "y" in self._obj.columns:
+            return True
+        return False
+
+    @property
     def has_depth_columns(self):
         """
         Returns True if the object contains information about depth, such as 'top' and
@@ -85,7 +98,6 @@ class GeostFrame:
         """
         if "surface" in self._obj.columns and self._bottom is not None:
             return True
-
         return False
 
     @staticmethod
@@ -99,6 +111,10 @@ class GeostFrame:
             raise TypeError(
                 "Object is not a GeoDataFrame with a valid geometry column."
             )
+
+    def _check_has_xy(self):
+        if not self.has_xy:
+            raise KeyError("Object does not contain 'x' and 'y' columns.")
 
     def _check_has_depth(self):
         if not self.has_depth_columns:
@@ -121,16 +137,29 @@ class GeostFrame:
             data[self._top] = data["surface"] - data[self._top]
         return data
 
-    def validate_with_schema(self, schema: DataFrameSchema):
+    def validate(self):
         """
-        Validate the DataFrame using a specified Pandera schema.
+        Validate the DataFrame by combining the relevant schemas in `geost.validation.schemas`
+        based on the presence of specific columns and the type of data contained in the DataFrame.
+        """
+        if not geost.config.validation.SKIP:
+            schemas = [validation.schemas.geostframe_base]
 
-        Parameters
-        ----------
-        schema : DataFrameSchema
-            DataFrameSchema to validate the DataFrame with.
-        """
-        self._obj = validation.safe_validate(self._obj, schema)
+            if self._bottom == "bottom" and not self._top:
+                schemas.append(validation.schemas.geostframe_with_bottom)
+            elif self._bottom == "depth" and not self._top:
+                schemas.append(validation.schemas.geostframe_with_depth)
+            elif self._top and self._bottom:
+                schemas.append(validation.schemas.geostframe_with_top_bottom)
+
+            if self.has_geometry:
+                schemas.append(validation.schemas.geostframe_with_geometry)
+            if self.has_xy:
+                schemas.append(validation.schemas.geostframe_with_xy)
+
+            validation_schema = validation.combine_schemas(*schemas)
+
+            self._obj = validation.safe_validate(self._obj, validation_schema)
 
     def change_horizontal_reference(self, to_epsg: str | int | CRS) -> None:
         raise NotImplementedError("Method not implemented yet.")
@@ -778,6 +807,7 @@ class GeostFrame:
 
         """
         self._check_has_depth()
+        self._check_has_xy()
         data = self._get_depth_relative_to_surface()
         displayed_variables = self._to_iterable(displayed_variables)
 
@@ -829,6 +859,7 @@ class GeostFrame:
 
         """
         self._check_has_depth()
+        self._check_has_xy()
         data = self._get_depth_relative_to_surface()
         displayed_variables = self._to_iterable(displayed_variables)
 
@@ -878,7 +909,6 @@ class GeostFrame:
             is not in the same x,y-location as the bottom of layers. The default is False.
 
         """
-        self._check_has_depth()
         data = self._get_depth_relative_to_surface()
 
         data_columns = [
@@ -957,6 +987,7 @@ class GeostFrame:
 
         """
         self._check_has_depth()
+        self._check_has_xy()
         qgis3d = self._create_geodataframe_3d(crs=crs)
         qgis3d.to_file(outfile, driver="GPKG", **kwargs)
 
