@@ -1,7 +1,9 @@
+import warnings
 from pathlib import Path
 
 import geopandas as gpd
 import numpy as np
+import pandas as pd
 import pytest
 import pyvista as pv
 import xarray as xr
@@ -13,18 +15,79 @@ from numpy.testing import (
 )
 from shapely.geometry import LineString, Point, Polygon
 
-from geost.base import BoreholeCollection
+from geost.base import BoreholeCollection, Collection
 from geost.export import geodataclass
 
 
+@pytest.fixture
+def update_raster():
+    x_coors = np.arange(127000, 128500, 500)
+    y_coors = np.arange(503000, 501500, -500)
+    data = np.ones((3, 3))
+    array = xr.DataArray(data, {"x": x_coors, "y": y_coors})
+    return array
+
+
 class TestCollection:
-    @pytest.fixture
-    def update_raster(self):
-        x_coors = np.arange(127000, 128500, 500)
-        y_coors = np.arange(503000, 501500, -500)
-        data = np.ones((3, 3))
-        array = xr.DataArray(data, {"x": x_coors, "y": y_coors})
-        return array
+    @pytest.mark.unittest
+    def test_init_from_data(self, borehole_data):
+        with pytest.warns() as record:
+            collection = Collection(borehole_data)
+
+        assert (
+            str(record[0].message)
+            == "Header is None, setting the header from the given data."
+        )
+        # TODO: `record[1]` has unexpected validation warning is thrown, check
+        assert ("Setting the header without an active geometry column.") in str(
+            record[2].message
+        )
+
+        assert isinstance(collection, Collection)
+        assert isinstance(collection.header, gpd.GeoDataFrame)
+        assert isinstance(collection.data, pd.DataFrame)
+        assert not collection._header_has_geometry
+        assert not collection.has_inclined
+        assert collection.vertical_reference == 5709
+
+    @pytest.mark.unittest
+    def test_init_from_header_and_data(self, borehole_data):
+        header = borehole_data.drop_duplicates("nr").reset_index(drop=True)
+        assert isinstance(
+            header, pd.DataFrame
+        )  # Just to be sure it is a DataFrame and not a GeoDataFrame
+
+        with pytest.warns() as record:
+            col1 = Collection(borehole_data, header=header)
+
+        # TODO: `record[0]` has unexpected validation warning is thrown, check
+        assert ("Setting the header without an active geometry column.") in str(
+            record[1].message
+        )
+
+        assert isinstance(col1, Collection)
+        assert isinstance(col1.header, gpd.GeoDataFrame)
+        assert isinstance(col1.data, pd.DataFrame)
+        assert not col1._header_has_geometry
+
+        header = gpd.GeoDataFrame(
+            header, geometry=gpd.points_from_xy(header["x"], header["y"]), crs=28992
+        )
+        col2 = Collection(borehole_data, header=header)
+        assert col2._header_has_geometry
+        assert (
+            not col1._header_has_geometry
+        )  # Make sure the attribute is not shared between instances
+
+    @pytest.mark.unittest
+    def test_init_empty(self):
+        with warnings.catch_warnings():
+            warnings.simplefilter("error")
+            collection = Collection()  # Should not raise warnings
+
+        assert isinstance(collection, Collection)
+        assert collection.header.empty
+        assert collection.data.empty
 
     @pytest.mark.unittest
     def test_get(self, borehole_collection):

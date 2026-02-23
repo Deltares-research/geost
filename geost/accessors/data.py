@@ -104,8 +104,8 @@ class LayeredData(AbstractData):
 
         header = self.to_header(horizontal_reference)
         return BoreholeCollection(
-            header,
             self._df,
+            header=header,
             has_inclined=has_inclined,
             vertical_reference=vertical_reference,
         )  # NOTE: Type of Collection may need to be inferred in the future.
@@ -845,8 +845,8 @@ class DiscreteData(AbstractData):
         header = self.to_header(horizontal_reference)
 
         return CptCollection(
-            header,
             self._df,
+            header=header,
             has_inclined=has_inclined,
             vertical_reference=vertical_reference,
         )  # NOTE: Type of Collection may need to be inferred in the future.

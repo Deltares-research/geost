@@ -1,5 +1,4 @@
 import warnings
-from copy import deepcopy
 from pathlib import Path
 from typing import Any, Iterable, List
 
@@ -20,8 +19,6 @@ from geost.validation.method_checks import _requires_depth, _requires_geometry
 
 type Coordinate = int | float
 type GeometryType = gmt.base.BaseGeometry | list[gmt.base.BaseGeometry]
-type HeaderObject = Any
-type DataObject = Any
 
 
 class Collection(AbstractCollection):
@@ -37,23 +34,35 @@ class Collection(AbstractCollection):
         Instance of a data object corresponding to the header.
     """
 
+    _header_has_geometry: bool = False
+
     def __init__(
         self,
-        header: gpd.GeoDataFrame = None,
         data: pd.DataFrame = None,
+        *,
+        header: gpd.GeoDataFrame = None,
         has_inclined: bool = False,
         vertical_reference: str | int | CRS = 5709,
     ):
-        self._has_inclined = has_inclined
-        self._vertical_reference = CRS(vertical_reference)
-        self.header = header
         self.data = data
 
-    def __repr__(self):
-        if "_header" in self.__dict__:
-            return f"{self.__class__.__name__}:\n# header = {self.n_points}"
+        if header is None and data is not None:
+            warnings.warn("Header is None, setting the header from the given data.")
+            self.header = self.data.drop_duplicates("nr").reset_index(drop=True)
         else:
-            return f"{self.__class__.__name__}:\n<EMPTY COLLECTION>"
+            self.header = header
+
+        self._has_inclined = has_inclined
+        self._vertical_reference = CRS(vertical_reference)
+
+    def __repr__(self):
+        repr_ = (
+            f"{self.__class__.__name__}:\n"
+            f"  header (rows, columns): {self.header.shape}\n"
+            f"  data (rows, columns): {self.data.shape}\n"
+            f"  # surveys = {self.n_points}\n"
+        )
+        return repr_
 
     def __len__(self):
         return len(self.header)
@@ -103,49 +112,44 @@ class Collection(AbstractCollection):
     @header.setter
     def header(self, header):
         if header is not None:
-            if config.validation.SKIP:
-                self._header = header
-            else:
-                self._header = safe_validate(
+            if not config.validation.SKIP:
+                header = safe_validate(
                     header, schemas.pointheader
                 )  # TODO: validation schema needs to be inferred
+        else:
+            header = gpd.GeoDataFrame()
+
+        self.set_header(header)  # This ensures header will always be a GeoDataFrame
+
+    def set_header(self, header: pd.DataFrame | gpd.GeoDataFrame):
+        if not isinstance(header, gpd.GeoDataFrame):
+            header = gpd.GeoDataFrame(header)
+
+        if not header.empty:
+            if header._geometry_column_name is None:
+                warnings.warn(
+                    "Setting the header without an active geometry column. Spatial methods "
+                    "will not work. Use collection.set_geometry to set an active geometry "
+                    "column."
+                )
+            else:
+                self._header_has_geometry = True
+
+        self._header = header
         self.check_header_to_data_alignment()
 
     @data.setter
     def data(self, data):
         if data is not None:
             if config.validation.SKIP:
-                self._data = data
-            else:
-                self._data = safe_validate(
+                data = safe_validate(
                     data, schemas.layerdata
                 )  # TODO: validation schema needs to be inferred
+        else:
+            data = pd.DataFrame()
+
+        self._data = data
         self.check_header_to_data_alignment()
-
-    def _clone_with_attrs(self, new_header, new_data):
-        """
-        Create a deep copy of the current object with new header and data attributes.
-        This is used to return a new instance of the collection in methods that modify
-        the number of collection objects through e.g. selection and slicing methods.
-        Using this method over the self.__class__ constructor ensures that the new
-        object only has the header and data attributes updated, while keeping all other
-        attributes intact.
-
-        Parameters
-        ----------
-        new_header : Any Header object
-            The new header to be assigned to the cloned collection.
-        new_data : Any Data object
-            The new data to be assigned to the cloned collection.
-
-        Returns
-        -------
-        new_collection : New instance of self
-            A deep copy of the current object with updated header and data attributes.
-        """
-        new_collection = deepcopy(self)
-        new_collection._header, new_collection._data = new_header, new_data
-        return new_collection
 
     def add_header_column_to_data(self, column_name: str):  # No change
         """
@@ -310,6 +314,10 @@ class Collection(AbstractCollection):
         """
         warning_given = False
         if hasattr(self, "_header") and hasattr(self, "_data"):
+            # In initialization of the object, _header and _data attributes do not exist yet.
+            if self.header.empty and self.data.empty:
+                return
+
             if any(~self.header["nr"].isin(self.data["nr"].unique())):
                 warnings.warn(
                     "Header covers more/other objects than present in the data table. "
