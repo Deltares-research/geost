@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import Any, Iterable, List, Literal, get_args
+from typing import Any, Collection, Iterable, List, Literal, get_args
 
 import geopandas as gpd
 import numpy as np
@@ -96,14 +96,14 @@ class LayeredData(AbstractData):
 
         Returns
         -------
-        :class:`~geost.base.BoreholeCollection`
-            An instance of :class:`~geost.base.BoreholeCollection`
+        :class:`~geost.base.Collection`
+            An instance of :class:`~geost.base.Collection`
 
         """
-        from geost.base import BoreholeCollection  # Avoid circular import
+        from geost.base import Collection  # Avoid circular import
 
         header = self.to_header(horizontal_reference)
-        return BoreholeCollection(
+        return Collection(
             self._df,
             header=header,
             has_inclined=has_inclined,

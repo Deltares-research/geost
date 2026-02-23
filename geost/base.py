@@ -51,7 +51,11 @@ class Collection(AbstractCollection):
             self.header = header
 
         self._has_inclined = has_inclined
-        self._vertical_reference = CRS(vertical_reference)
+
+        if vertical_reference is not None:
+            vertical_reference = CRS(vertical_reference)
+
+        self._vertical_reference = vertical_reference
 
     def __repr__(self):
         repr_ = (
@@ -91,7 +95,7 @@ class Collection(AbstractCollection):
         """
         Coordinate reference system represented by an instance of pyproj.crs.CRS.
         """
-        return self.header.crs
+        return self.header.crs if self._header_has_geometry else None
 
     @property
     def vertical_reference(self):

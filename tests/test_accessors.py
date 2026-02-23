@@ -1,14 +1,14 @@
+import warnings
+
 import geopandas as gpd
-import numpy as np
 import pandas as pd
 import pytest
-import shapely
 from numpy.testing import assert_array_almost_equal, assert_array_equal
 from shapely.geometry import LineString, Polygon
 
 from geost.accessor import GeostFrame
 from geost.accessors.accessor import DATA_BACKEND, HEADER_BACKEND
-from tests.conftest import borehole_data
+from geost.base import Collection
 
 
 @pytest.fixture
@@ -107,6 +107,82 @@ class TestGeostFrame:
         inst = ["list of strings"]
         inst = borehole_data.gst._to_iterable(inst)
         assert isinstance(inst, list)
+
+    @pytest.mark.unittest
+    def test_to_header(self, borehole_data):
+        header = borehole_data.gst.to_header()
+        assert isinstance(header, gpd.GeoDataFrame)
+        assert not header.gst.has_geometry
+        assert_array_equal(header.columns, borehole_data.columns)
+
+        header = borehole_data.gst.to_header(
+            exclude_columns=["top", "bottom", "lith"], coordinate_names=("x", "y")
+        )
+        assert isinstance(header, gpd.GeoDataFrame)
+        assert header.gst.has_geometry
+        assert_array_equal(
+            header.columns, ["nr", "x", "y", "surface", "end", "geometry"]
+        )
+
+        header = borehole_data.gst.to_header(
+            include_columns=["nr", "surface"], coordinate_names=["x", "y"], crs=28992
+        )
+        assert isinstance(header, gpd.GeoDataFrame)
+        assert header.gst.has_geometry
+        assert header.crs == 28992
+        assert_array_equal(header.columns, ["nr", "surface", "geometry"])
+
+        # Test that 'nr' is included in the header even if not specified in include_columns
+        header = borehole_data.gst.to_header(include_columns=["surface"])
+        assert isinstance(header, gpd.GeoDataFrame)
+        assert_array_equal(header.columns, ["nr", "surface"])
+
+        with pytest.raises(
+            ValueError,
+            match="Cannot specify both 'include_columns' and 'exclude_columns'.",
+        ):
+            borehole_data.gst.to_header(
+                include_columns=["surface"], exclude_columns=["lith"]
+            )
+
+        with pytest.raises(ValueError, match="Cannot exclude 'nr' column from header."):
+            borehole_data.gst.to_header(exclude_columns=["nr"])
+
+        with pytest.raises(
+            KeyError,
+            match="Coordinate columns 'missing_x' and/or 'missing_y' not found in DataFrame.",
+        ):
+            borehole_data.gst.to_header(coordinate_names=["missing_x", "missing_y"])
+
+    @pytest.mark.unittest
+    def test_to_collection(self, borehole_data):
+        with pytest.warns() as record:
+            collection = borehole_data.gst.to_collection()
+
+        # TODO: `record[0]` has unexpected validation warning is thrown, check
+        assert ("Setting the header without an active geometry column.") in str(
+            record[1].message
+        )
+        assert isinstance(collection, Collection)
+        assert isinstance(collection.header, gpd.GeoDataFrame)
+        assert isinstance(collection.data, pd.DataFrame)
+        assert not collection._header_has_geometry
+        assert collection.horizontal_reference is None
+        assert collection.vertical_reference is None
+
+        with warnings.catch_warnings():
+            warnings.simplefilter("error")
+            collection = borehole_data.gst.to_collection(
+                coordinate_names=["x", "y"],
+                crs=28992,
+                vertical_reference=5709,
+                has_inclined=True,
+            )
+        assert isinstance(collection, Collection)
+        assert collection.has_inclined
+        assert collection._header_has_geometry
+        assert collection.horizontal_reference == 28992
+        assert collection.vertical_reference == 5709
 
     @pytest.mark.unittest
     def test_select_within_bbox(self, point_header):

@@ -134,7 +134,12 @@ def borehole_collection(borehole_data):
     Fixture containing a BoreholeCollection instance of synthetic borehole data.
 
     """
-    borehole_collection = borehole_data.gstda.to_collection(has_inclined=False)
+    borehole_collection = borehole_data.gst.to_collection(
+        exclude_columns=["top", "bottom", "lith"],
+        coordinate_names=["x", "y"],
+        crs=28992,
+        vertical_reference=5709,
+    )
     return borehole_collection
 
 
@@ -250,7 +255,12 @@ def cpt_data():
 
 @pytest.fixture
 def cpt_collection(cpt_data):
-    return cpt_data.gstda.to_collection()
+    return cpt_data.gst.to_collection(
+        exclude_columns=["depth", "qc", "fs", "u2"],
+        coordinate_names=["x", "y"],
+        crs=28992,
+        vertical_reference=5709,
+    )
 
 
 @pytest.fixture

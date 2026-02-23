@@ -156,6 +156,7 @@ class TestCollection:
     @pytest.mark.unittest
     def test_select_within_bbox(self, borehole_collection):
         selected = borehole_collection.select_within_bbox(1.5, 1.5, 3.5, 5)
+        assert isinstance(selected, Collection)
         assert all(selected.header["nr"].unique() == ["A", "D"])
         assert all(selected.data["nr"].unique() == ["A", "D"])
 
