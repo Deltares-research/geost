@@ -1,18 +1,23 @@
+from __future__ import annotations
+
 from functools import singledispatchmethod
-from typing import TYPE_CHECKING, Any, Iterable, Literal
+from typing import TYPE_CHECKING, Any, Iterable
 
 import geopandas as gpd
 import numpy as np
 import pandas as pd
-from pyproj import CRS
-from shapely import buffer
 
-from geost import export, spatial, validation
+from geost import (
+    export,
+    spatial,
+    validation,
+)  # FIXME: spatial triggers import of xarray, rioxarray. We don't want this automatically.
 
 if TYPE_CHECKING:
     from pathlib import Path
 
     from pandera import DataFrameSchema
+    from pyproj import CRS
     from shapely.geometry.base import BaseGeometry
 
 type DataFrame = pd.DataFrame | gpd.GeoDataFrame
@@ -636,7 +641,7 @@ class GeostFrame:
         self._check_has_depth()
 
         if self._top and self._bottom:
-            thickness = np.abs(self._obj[self._top] - self._obj[self._bottom])
+            thickness = (self._obj[self._top] - self._obj[self._bottom]).abs()
         else:
             thickness = self._obj[self._bottom].diff()
 
