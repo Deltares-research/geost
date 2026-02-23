@@ -155,7 +155,7 @@ class Collection(AbstractCollection):
         self._data = data
         self.check_header_to_data_alignment()
 
-    def add_header_column_to_data(self, column_name: str):  # No change
+    def add_header_column_to_data(self, column_name: str) -> None:  # No change
         """
         Add a column from the header to the data table. Useful if you e.g. add some data
         to the header table, but would like to add this to each layer (row in the data
@@ -166,47 +166,62 @@ class Collection(AbstractCollection):
         column_name : str
             Name of the column in the header table to add.
 
+        Returns
+        -------
+        None
+            Updates the data table in place by adding the specified column from the header
+            to the data table.
+
         """
         self._data = pd.merge(self.data, self.header[["nr", column_name]], on="nr")
 
-    def get(self, selection_values: str | Iterable, column: str = "nr"):
+    def get(self, selection_values: str | Iterable, column: str = "nr") -> Collection:
         """
-        Get a subset of a collection through a string or iterable of object id(s).
-        Optionally uses a different column than "nr" (the column with object ids).
+        Select all survey data by selecting a subset of the header table of the `Collection`
+        instance. Can be used to select surveys by ids directly or by information available
+        in another column of the header table. Optionally uses a different column than "nr"
+        (the column with survey ids).
 
         Parameters
         ----------
         selection_values : str | Iterable
-            Values to select
+            Survey id or ids to select or values in another column of the header table
+            to select.
         column : str, optional
-            In which column of the header to look for selection values, by default "nr"
+            If not selecting by survey ids, in which column of the header to look for the
+            selection values. The default is "nr".
 
         Returns
         -------
-        New instance of the current object.
-            New instance of the current object containing only the selection resulting
-            from application of this method. e.g. if you are calling this method from a
-            Collection, you will get an instance of a Collection back.
+        :class:`geost.base.Collection`
+            New Collection instance containing only the selected surveys.
 
         Examples
         --------
-        self.get(["obj1", "obj2"]) will return a collection with only these objects.
+        To select surveys with object ids "obj1" and "obj2" from the collection, use:
+
+        >>> collection.get(["obj1", "obj2"])
 
         Suppose we have a collection of boreholes that we have joined with geological
-        map units using the method
-        :meth:`~geost.base.PointDataCollection.get_area_labels`. We have added this data
-        to the header table in the column 'geological_unit'. Using:
+        map units using the method :meth:`~geost.base.PointDataCollection.get_area_labels`,
+        which is then available information in the header table. We can use:
 
-        self.get(["unit1", "unit2"], column="geological_unit")
+        >>> collection.get(["unit1", "unit2"], column="geological_unit")
 
-        will return a :class:`~geost.base.BoreholeCollection` with all boreholes
-        that are located in "unit1" and "unit2" geological map areas.
+        which selects all surveys that are located in "unit1" and "unit2" geological map
+        areas.
+
         """
-        selected_header = self.header.gsthd.get(selection_values, column)
-        selected_data = self.data.gstda.select_by_values(column, selection_values)
+        selected_header = self.header.gst.select_by_values(column, selection_values)
+        selected_data = self.data.gst.select_by_values(
+            "nr", selected_header["nr"].unique()
+        )
 
         return self.__class__(
-            selected_header, selected_data, self.has_inclined, self.vertical_reference
+            selected_data,
+            header=selected_header,
+            has_inclined=self.has_inclined,
+            vertical_reference=self.vertical_reference,
         )
 
     def change_horizontal_reference(self, to_epsg: str | int | CRS):
