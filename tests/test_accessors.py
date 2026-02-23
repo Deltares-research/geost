@@ -68,14 +68,7 @@ class TestGeostFrame:
         self, dataframe: pd.DataFrame, geodataframe: gpd.GeoDataFrame
     ):
         assert not dataframe.gst.has_geometry
-        with pytest.raises(
-            TypeError,
-            match="Object is not a GeoDataFrame with a valid geometry column.",
-        ):
-            dataframe.gst._check_has_geometry()
-
         assert geodataframe.gst.has_geometry
-        geodataframe.gst._check_has_geometry()  # Should not raise an error for geodataframe
 
     @pytest.mark.parametrize(
         "df",
@@ -102,11 +95,8 @@ class TestGeostFrame:
         test_id = request.node.callspec.id
         if test_id in {"surface-top-bottom", "surface-bottom", "surface-depth"}:
             assert df.gst.has_depth_columns
-            df.gst._check_has_depth()  # Should not raise an error for valid depth column combinations
         else:
             assert not df.gst.has_depth_columns
-            with pytest.raises(KeyError):
-                df.gst._check_has_depth()
 
     @pytest.mark.unittest
     def test_to_iterable(self, borehole_data):
@@ -127,7 +117,10 @@ class TestGeostFrame:
         selected = point_header.gst.select_within_bbox(1, 1, 3, 3, invert=True)
         assert len(selected) == 16
 
-        with pytest.raises(TypeError):
+        with pytest.raises(
+            TypeError,
+            match="Method 'select_within_bbox' requires a GeoDataFrame with a valid geometry column.",
+        ):
             point_header = point_header.drop(columns="geometry")
             # Remove geometry column to make it invalid for spatial selection
             point_header.gst.select_within_bbox(1, 1, 3, 3)
@@ -397,6 +390,13 @@ class TestGeostFrame:
 
         assert len(sliced) == 7
         assert_array_equal(bottoms_of_slice, expected_bottoms_of_slice)
+
+        with pytest.raises(
+            KeyError,
+            match="Method 'slice_depth_interval' requires depth information in the DataFrame.",
+        ):
+            borehole_data_no_depth = borehole_data.drop(columns=["top", "bottom"])
+            borehole_data_no_depth.gst.slice_depth_interval(0, 1)
 
     @pytest.mark.unittest
     def test_slice_depth_interval_discrete(self, cpt_data):

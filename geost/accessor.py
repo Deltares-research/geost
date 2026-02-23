@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from functools import singledispatchmethod
+from functools import singledispatchmethod, wraps
 from typing import TYPE_CHECKING, Any, Iterable
 
 import geopandas as gpd
@@ -12,6 +12,7 @@ from geost import (
     spatial,
     validation,
 )  # FIXME: spatial triggers import of xarray, rioxarray. We don't want this automatically.
+from geost.validation.method_checks import _requires_depth, _requires_geometry
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -99,22 +100,6 @@ class GeostFrame:
             value = [value]
         return value
 
-    def _check_has_geometry(self):
-        if not self.has_geometry:
-            raise TypeError(
-                "Object is not a GeoDataFrame with a valid geometry column."
-            )
-
-    def _check_has_depth(self):
-        if not self.has_depth_columns:
-            raise KeyError(  # TODO: Check formatting of this error message
-                "Object does not contain depth information needed 'surface' and 'depth'\n"
-                "columns. One of the following combinations of columns is required:\n"
-                " - 'surface', 'top' and 'bottom'\n"
-                " - 'surface' and 'bottom'\n"
-                " - 'surface' and 'depth'\n"
-            )
-
     def _get_depth_relative_to_surface(self):
         """
         Get copy of the self._obj with depth columns converted to depth relative
@@ -125,6 +110,19 @@ class GeostFrame:
         if self._top:
             data[self._top] = data["surface"] - data[self._top]
         return data
+
+    def to_header(
+        self, horizontal_reference: str | int | CRS = 28992
+    ) -> gpd.GeoDataFrame:
+        raise NotImplementedError("Method not implemented yet.")
+
+    def to_collection(
+        self,
+        has_inclined: bool = False,
+        horizontal_reference: str | int | CRS = 28992,
+        vertical_reference: str | int | CRS = 5709,
+    ):
+        raise NotImplementedError("Method not implemented yet.")
 
     def validate_with_schema(self, schema: DataFrameSchema):
         """
@@ -145,6 +143,7 @@ class GeostFrame:
     ) -> None:
         raise NotImplementedError("Method not implemented yet.")
 
+    @_requires_geometry
     def select_within_bbox(
         self,
         xmin: int | float,
@@ -176,12 +175,12 @@ class GeostFrame:
             GeoDataFrame instance containing only the selected geometries.
 
         """
-        self._check_has_geometry()
         selection = spatial.select_points_within_bbox(
             self._obj, xmin, ymin, xmax, ymax, invert=invert
         )
         return selection
 
+    @_requires_geometry
     def select_with_points(
         self,
         points: str | Path | gpd.GeoDataFrame | GeometryType,
@@ -208,12 +207,12 @@ class GeostFrame:
             GeoDataFrame instance containing only the selected geometries.
 
         """
-        self._check_has_geometry()
         selection = spatial.select_points_near_points(
             self._obj, points, max_distance, invert=invert
         )
         return selection
 
+    @_requires_geometry
     def select_with_lines(
         self,
         lines: str | Path | gpd.GeoDataFrame | GeometryType,
@@ -240,12 +239,12 @@ class GeostFrame:
             GeoDataFrame instance containing only the selected geometries.
 
         """
-        self._check_has_geometry()
         selection = spatial.select_points_near_lines(
             self._obj, lines, max_distance, invert=invert
         )
         return selection
 
+    @_requires_geometry
     def select_within_polygons(
         self,
         polygons: str | Path | gpd.GeoDataFrame | GeometryType,
@@ -273,7 +272,6 @@ class GeostFrame:
             GeoDataFrame instance containing only the selected geometries.
 
         """
-        self._check_has_geometry()
         selection = spatial.select_points_within_polygons(
             self._obj, polygons, buffer, invert=invert
         )
@@ -288,25 +286,13 @@ class GeostFrame:
     ) -> gpd.GeoDataFrame:
         raise NotImplementedError("Method not implemented yet.")
 
+    @_requires_geometry
     def get_area_labels(
         self,
         polygon_gdf: str | Path | gpd.GeoDataFrame,
         column_name: str | Iterable,
         include_in_header=False,
     ) -> pd.DataFrame:
-        raise NotImplementedError("Method not implemented yet.")
-
-    def to_header(
-        self, horizontal_reference: str | int | CRS = 28992
-    ) -> gpd.GeoDataFrame:
-        raise NotImplementedError("Method not implemented yet.")
-
-    def to_collection(
-        self,
-        has_inclined: bool = False,
-        horizontal_reference: str | int | CRS = 28992,
-        vertical_reference: str | int | CRS = 5709,
-    ):
         raise NotImplementedError("Method not implemented yet.")
 
     def select_by_values(
@@ -419,6 +405,7 @@ class GeostFrame:
         selected = selected[selected["nr"].isin(valid)]
         return selected
 
+    @_requires_depth
     def slice_depth_interval(
         self,
         upper_boundary: float | int = None,
@@ -472,7 +459,6 @@ class GeostFrame:
         >>> data.gst.slice_depth_interval(-3, -5, relative_to_vertical_reference=True)
 
         """
-        self._check_has_depth()
         sliced = self._obj
 
         if not upper_boundary:
@@ -626,6 +612,7 @@ class GeostFrame:
 
         return selected
 
+    @_requires_depth
     def calculate_thickness(self) -> pd.Series:
         """
         Calculate the thickness of layers in the data. This method requires the presence
@@ -638,8 +625,6 @@ class GeostFrame:
             Series containing the thickness for each layer in the data.
 
         """
-        self._check_has_depth()
-
         if self._top and self._bottom:
             thickness = (self._obj[self._top] - self._obj[self._bottom]).abs()
         else:
@@ -652,6 +637,7 @@ class GeostFrame:
 
         return thickness
 
+    @_requires_depth
     def get_cumulative_thickness(
         self, column: str, values: str | list[str] | slice
     ) -> pd.Series:
@@ -692,8 +678,6 @@ class GeostFrame:
         >>> data.gst.get_cumulative_thickness("qc", slice(15, 20))
 
         """
-        self._check_has_depth()
-
         selected_layers = self.slice_by_values(column, values)
 
         if "thickness" not in self._obj.columns:
@@ -704,11 +688,10 @@ class GeostFrame:
         thickness = grouped["thickness"].sum()
         return thickness
 
+    @_requires_depth
     def get_layer_top(
         self, column: str, values: str | list[str] | slice, min_thickness: float = None
     ) -> pd.Series:
-        self._check_has_depth()
-
         selection = self.slice_by_values(column, values)
 
         if "thickness" not in self._obj.columns:
@@ -728,11 +711,10 @@ class GeostFrame:
 
         return layer_top
 
+    @_requires_depth
     def get_layer_base(
         self, column: str, values: str | list[str] | slice, min_thickness: float = None
     ) -> pd.Series:
-        self._check_has_depth()
-
         selection = self.slice_by_values(column, values)
 
         if "thickness" not in self._obj.columns:
@@ -746,6 +728,7 @@ class GeostFrame:
         layer_base = grouped[self._bottom].last()
         return layer_base
 
+    @_requires_depth
     def to_pyvista_cylinders(
         self,
         displayed_variables: str | list[str],
@@ -782,7 +765,6 @@ class GeostFrame:
             A composite class holding the data which can be iterated over.
 
         """
-        self._check_has_depth()
         data = self._get_depth_relative_to_surface()
         displayed_variables = self._to_iterable(displayed_variables)
 
@@ -807,6 +789,7 @@ class GeostFrame:
 
         return vtk_object
 
+    @_requires_depth
     def to_pyvista_grid(
         self,
         displayed_variables: str | list[str],
@@ -833,7 +816,6 @@ class GeostFrame:
             3D visualisation in PyVista or other VTK viewers.
 
         """
-        self._check_has_depth()
         data = self._get_depth_relative_to_surface()
         displayed_variables = self._to_iterable(displayed_variables)
 
@@ -851,6 +833,7 @@ class GeostFrame:
 
         return vtk_object
 
+    @_requires_depth
     def to_datafusiontools(
         self,
         columns: list[str],
@@ -868,6 +851,7 @@ class GeostFrame:
     ):
         raise NotImplementedError("Method not implemented yet.")
 
+    @_requires_depth
     def to_qgis3d(
         self,
         outfile: str | Path,
@@ -878,6 +862,7 @@ class GeostFrame:
     ):
         raise NotImplementedError("Method not implemented yet.")
 
+    @_requires_depth
     def to_kingdom(
         self,
         outfile: str | Path,

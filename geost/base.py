@@ -16,6 +16,7 @@ from geost.projections import (
     vertical_reference_transformer,
 )
 from geost.validation import safe_validate, schemas
+from geost.validation.method_checks import _requires_depth, _requires_geometry
 
 type Coordinate = int | float
 type GeometryType = gmt.base.BaseGeometry | list[gmt.base.BaseGeometry]
