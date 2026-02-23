@@ -2,6 +2,14 @@ import numpy as np
 import pandas as pd
 
 
+def get_layer_top_layered(data: pd.DataFrame, column: str, value: str):
+    pass
+
+
+def get_layer_top_discrete(data: pd.DataFrame, column: str, value: str):
+    pass
+
+
 def find_top_sand(
     lith: np.ndarray,
     top: np.ndarray,
