@@ -49,9 +49,14 @@ geostframe_with_top_bottom = DataFrameSchema(
     },
     checks=[
         Check(
-            lambda df: df["bottom"] >= df["top"] and df["top"] >= 0,
+            lambda df: df["bottom"] >= df["top"],
             element_wise=False,
-            error="Bottom depth must be greater than or equal to top depth and top depth must be non-negative",
+            error="Bottom depth must be greater than or equal to top depth",
+        ),
+        Check(
+            lambda df: df["top"] >= 0,
+            element_wise=False,
+            error="Top depth must be non-negative",
         ),
     ],
     coerce=True,
