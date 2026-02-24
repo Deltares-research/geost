@@ -1,10 +1,10 @@
 from typing import Iterable
 
 possible_column_naming = {
-    "x_coordinate": set(["x", "x-coord", "longitude", "lon", "easting", "x_bottom_rd"]),
-    "y_coordinate": set(["y", "y-coord", "latitude", "lat", "northing", "y_bottom_rd"]),
-    "top": set(["top", "tv_top_nap"]),
-    "depth": set(["depth", "bottom", "tv_bottom_nap"]),
+    "x_coordinate": {"x", "x-coord", "longitude", "lon", "easting", "x_bottom_rd"},
+    "y_coordinate": {"y", "y-coord", "latitude", "lat", "northing", "y_bottom_rd"},
+    "top": {"top", "tv_top_nap"},
+    "depth": {"depth", "bottom", "tv_bottom_nap"},
 }
 
 

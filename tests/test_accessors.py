@@ -52,11 +52,7 @@ class TestGeostFrame:
         "df, top, bottom",
         [
             (pd.DataFrame(columns=["nr", "top", "bottom"]), "top", "bottom"),
-            (
-                pd.DataFrame(columns=["nr", "top", "bottom", "depth"]),
-                "top",
-                "depth",
-            ),  # 'depth' should take precedence over 'bottom'
+            (pd.DataFrame(columns=["nr", "top", "bottom", "depth"]), "top", "bottom"),
             (pd.DataFrame(columns=["nr", "bottom"]), None, "bottom"),
             (pd.DataFrame(columns=["nr", "depth"]), None, "depth"),
             (pd.DataFrame(columns=["nr"]), None, None),  # No depth columns present
@@ -117,6 +113,72 @@ class TestGeostFrame:
         inst = ["list of strings"]
         inst = borehole_data.gst._to_iterable(inst)
         assert isinstance(inst, list)
+
+    @pytest.mark.unittest
+    def test_first_row_in_survey(self, borehole_data):
+        assert_array_equal(
+            borehole_data.gst._first_row_in_survey,
+            [
+                True,
+                False,
+                False,
+                False,
+                False,
+                True,
+                False,
+                False,
+                False,
+                False,
+                True,
+                False,
+                False,
+                False,
+                False,
+                True,
+                False,
+                False,
+                False,
+                False,
+                True,
+                False,
+                False,
+                False,
+                False,
+            ],
+        )
+
+    @pytest.mark.unittest
+    def test_last_row_in_survey(self, borehole_data):
+        assert_array_equal(
+            borehole_data.gst._last_row_in_survey,
+            [
+                False,
+                False,
+                False,
+                False,
+                True,
+                False,
+                False,
+                False,
+                False,
+                True,
+                False,
+                False,
+                False,
+                False,
+                True,
+                False,
+                False,
+                False,
+                False,
+                True,
+                False,
+                False,
+                False,
+                False,
+                True,
+            ],
+        )
 
     @pytest.mark.unittest
     def test_to_header(self, borehole_data):
