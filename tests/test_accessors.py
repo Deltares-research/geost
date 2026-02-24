@@ -24,6 +24,15 @@ def geodataframe(dataframe):
     )
 
 
+@pytest.fixture
+def test_polygon():
+    return gpd.GeoDataFrame(
+        {"id": [1], "letter": ["A"]},
+        geometry=[Polygon(((2, 1), (5, 4), (4, 5), (1, 2)))],
+        crs=28992,
+    )
+
+
 class TestGeostFrame:
     @pytest.mark.unittest
     def test_accessor(self, dataframe: pd.DataFrame):
@@ -299,12 +308,7 @@ class TestGeostFrame:
             point_header.gst.select_within_polygons(selection_gdf)
 
     @pytest.mark.unittest
-    def test_spatial_join(self, point_header, tmp_path):
-        test_polygon = gpd.GeoDataFrame(
-            {"id": [1], "letter": ["A"]},
-            geometry=[Polygon(((2, 1), (5, 4), (4, 5), (1, 2)))],
-            crs=28992,
-        )
+    def test_spatial_join(self, point_header, test_polygon, tmp_path):
         result = point_header.gst.spatial_join(test_polygon, label_id="id")
         assert isinstance(result, gpd.GeoDataFrame)
         assert result.shape == (11, 7)
@@ -389,6 +393,13 @@ class TestGeostFrame:
         )
         assert result.shape == (11, 7)
         assert (result["id"] == 1).all()
+
+        with pytest.raises(
+            TypeError,
+            match="Method 'spatial_join' requires a GeoDataFrame with a valid geometry column.",
+        ):
+            point_header = point_header.drop(columns="geometry")
+            point_header.gst.spatial_join(test_polygon, label_id="id")
 
     @pytest.mark.unittest
     def test_spatial_join_nearest(self, point_header):

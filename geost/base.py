@@ -1,6 +1,6 @@
 import warnings
 from pathlib import Path
-from typing import Any, Iterable, List
+from typing import Any, Iterable
 
 import geopandas as gpd
 import pandas as pd
@@ -532,6 +532,66 @@ class Collection(AbstractCollection):
             vertical_reference=self.vertical_reference,
         )
 
+    @_requires_geometry
+    def spatial_join(
+        self,
+        geometries: str | Path | gpd.GeoDataFrame,
+        label_id: str | list[str],
+        drop_label_if_exists: bool = True,
+        include_in_header: bool = False,
+        **kwargs,
+    ) -> gpd.GeoDataFrame | None:
+        """
+        Join information from another GeoDataFrame by a spatial relationship (e.g. overlap)
+        between the geometries in the header table of the Collection with the geometries in
+        the other GeoDataFrame.
+
+        Parameters
+        ----------
+        geometries : str | Path | gpd.GeoDataFrame
+            Geometries to join with the information from. Can be a GeoDataFrame or a
+            file path to a geospatial file that can be read as a GeoDataFrame.
+        label_id : str | Iterable
+            Column name(s) in the geometries GeoDataFrame to join the information from.
+        drop_label_if_exists : bool, optional
+            If True, will drop the specified 'label_id' from the original GeoDataFrame if
+            these already exist as a column or columns, before the spatial join. Otherwise,
+            suffixes will automatically be added to the joined columns to avoid naming conflicts.
+            The default is False.
+        **kwargs
+            Keyword arguments to be passed to the GeoPandas :meth:`geopandas.GeoDataFrame.sjoin`
+            function. See relevant documentation for more information. Note that the "how"
+            parameter is not allowed when `include_in_header` is True (error is raised), as
+            the spatial join will always be performed with "how='left'" in that case.
+
+        Returns
+        -------
+        gpd.GeoDataFrame | None
+            GeoDataFrame resulting from the spatial join if `include_in_header` is False.
+            Otherwise, returns `None` and the result is included in the header of the
+            Collection instance.
+
+        """
+        if include_in_header:
+            if "how" in kwargs:
+                raise ValueError(
+                    "The 'how' parameter is not allowed when include_in_header is True."
+                )
+            self.header = self.header.gst.spatial_join(
+                geometries,
+                label_id,
+                drop_label_if_exists=drop_label_if_exists,
+                how="left",
+                **kwargs,
+            )
+        else:
+            return self.header.gst.spatial_join(
+                geometries,
+                label_id,
+                drop_label_if_exists=drop_label_if_exists,
+                **kwargs,
+            )
+
     def select_by_depth(
         self,
         top_min: float = None,
@@ -1033,7 +1093,7 @@ class Collection(AbstractCollection):
 
     def to_pyvista_cylinders(
         self,
-        displayed_variables: str | List[str],
+        displayed_variables: str | list[str],
         radius: float = 1,
         vertical_factor: float = 1.0,
         relative_to_vertical_reference: bool = True,
@@ -1046,7 +1106,7 @@ class Collection(AbstractCollection):
 
         Parameters
         ----------
-        displayed_variables : str | List[str]
+        displayed_variables : str | list[str]
             Name or names of data columns to include for visualisation. Can be columns that
             contain an array of floats, ints and strings.
         radius : float, optional
@@ -1073,7 +1133,7 @@ class Collection(AbstractCollection):
 
     def to_pyvista_grid(
         self,
-        displayed_variables: str | List[str],
+        displayed_variables: str | list[str],
         radius: float = 1.0,
     ):
         """
@@ -1083,7 +1143,7 @@ class Collection(AbstractCollection):
 
         Parameters
         ----------
-        displayed_variables : str | List[str]
+        displayed_variables : str | list[str]
             Name or names of data columns to include for visualisation. Can be columns that
             contain an array of floats, ints and strings.
         radius : float, optional
@@ -1099,7 +1159,7 @@ class Collection(AbstractCollection):
 
     def to_datafusiontools(
         self,
-        columns: List[str],
+        columns: list[str],
         outfile: str | Path = None,
         encode: bool = False,
         relative_to_vertical_reference: bool = True,
@@ -1115,7 +1175,7 @@ class Collection(AbstractCollection):
 
         Parameters
         ----------
-        columns : List[str]
+        columns : list[str]
             Which columns in the data to include for the export. These will become variables
             in the DataFusionTools "Data" class.
         outfile : str | Path, optional
@@ -1135,7 +1195,7 @@ class Collection(AbstractCollection):
 
         Returns
         -------
-        List[Data]
+        list[Data]
             List containing the DataFusionTools Data objects.
 
         """
@@ -1178,7 +1238,7 @@ class BoreholeCollection(Collection):
         raise NotImplementedError
 
     def get_cumulative_thickness(
-        self, column: str, values: str | List[str], include_in_header: bool = False
+        self, column: str, values: str | list[str], include_in_header: bool = False
     ):
         """
         Get the cumulative thickness of layers where a column contains a specified search
@@ -1188,7 +1248,7 @@ class BoreholeCollection(Collection):
         ----------
         column : str
             Name of column that must contain the search value or values.
-        values : str | List[str]
+        values : str | list[str]
             Search value or values in the column to find the cumulative thickness for.
         include_in_header : bool, optional
             If True, include the result in the header table of the collection. In this
@@ -1239,7 +1299,7 @@ class BoreholeCollection(Collection):
     def get_layer_top(
         self,
         column: str,
-        values: str | List[str],
+        values: str | list[str],
         min_thickness: float = 0,
         min_depth: float = 0,
         max_depth: float = None,
@@ -1254,7 +1314,7 @@ class BoreholeCollection(Collection):
         ----------
         column : str
             Name of column that contains categorical data.
-        values : str | List[str]
+        values : str | list[str]
             Value or values of entries in the column that you want to find top of.
         min_thickness : float, optional
             Minimal thickness of the layer to be considered. The default is 0.
@@ -1307,7 +1367,7 @@ class BoreholeCollection(Collection):
     def get_layer_base(
         self,
         column: str,
-        values: str | List[str],
+        values: str | list[str],
         min_thickness: float = 0,
         min_depth: float = 0,
         max_depth: float = None,
@@ -1322,7 +1382,7 @@ class BoreholeCollection(Collection):
         ----------
         column : str
             Name of column that contains categorical data.
-        values : str | List[str]
+        values : str | list[str]
             Value or values of entries in the column that you want to find base of.
         min_thickness : float, optional
             Minimal thickness of the layer to be considered. The default is 0.

@@ -251,6 +251,39 @@ class TestCollection:
             borehole_collection.select_within_polygons(selection_gdf, 0.6)
 
     @pytest.mark.unittest
+    def test_spatial_join(self, borehole_collection):
+        label_gdf = gpd.GeoDataFrame(
+            {"id": [1]}, geometry=[Polygon(((2, 1), (5, 4), (4, 5), (1, 4)))], crs=28992
+        )
+        # Return variant
+        output = borehole_collection.spatial_join(label_gdf, "id")
+        assert isinstance(output, gpd.GeoDataFrame)
+        assert "id" in output.columns
+        assert output.shape == (2, 7)
+
+        # In-place variant
+        borehole_collection.spatial_join(label_gdf, "id", include_in_header=True)
+        assert "id" in borehole_collection.header.columns
+        assert borehole_collection.header.shape == (5, 7)
+
+        with pytest.raises(
+            ValueError,
+            match="The 'how' parameter is not allowed when include_in_header is True.",
+        ):
+            borehole_collection.spatial_join(
+                label_gdf, "id", how="left", include_in_header=True
+            )
+
+        with pytest.raises(
+            TypeError,
+            match="Method 'spatial_join' requires a header with a valid geometry column.",
+        ):
+            borehole_collection.header = borehole_collection.header.drop(
+                columns="geometry"
+            )
+            borehole_collection.spatial_join(label_gdf, "id")
+
+    @pytest.mark.unittest
     def test_select_by_depth(self, borehole_collection):
         assert borehole_collection.select_by_depth(top_min=0).n_points == 4
         assert borehole_collection.select_by_depth(top_max=0).n_points == 1

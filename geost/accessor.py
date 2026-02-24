@@ -490,16 +490,16 @@ class GeostFrame:
     ) -> gpd.GeoDataFrame:
         """
         Join information from another GeoDataFrame by a spatial relationship (e.g. overlap)
-        between the geometries in the other GeoDataFrame and the geometries in the original
+        between the geometries in the original GeoDataFrame with the geometries in the other
         GeoDataFrame.
 
         Parameters
         ----------
         geometries : str | Path | gpd.GeoDataFrame
-            Geometries to join with the header GeoDataFrame. Can be a GeoDataFrame or a
+            Geometries to join with the information from. Can be a GeoDataFrame or a
             file path to a geospatial file that can be read as a GeoDataFrame.
         label_id : str | Iterable
-            Column name(s) in the geometries GeoDataFrame to join with the header GeoDataFrame.
+            Column name(s) in the geometries GeoDataFrame to join the information from.
         drop_label_if_exists : bool, optional
             If True, will drop the specified 'label_id' from the original GeoDataFrame if
             these already exist as a column or columns, before the spatial join. Otherwise,
@@ -515,25 +515,18 @@ class GeostFrame:
             GeoDataFrame resulting from the spatial join.
 
         """
+        geometries = utils.check_geometry_instance(geometries)
+        geometries = spatial.check_and_coerce_crs(geometries, self._obj.crs)
+
         result = self._obj.copy()
 
         if drop_label_if_exists:
             result.drop(columns=label_id, errors="ignore", inplace=True)
 
-        geometries = utils.check_geometry_instance(geometries)
-        geometries = spatial.check_and_coerce_crs(geometries, self._obj.crs)
-
         label_id = [label_id] if isinstance(label_id, str) else list(label_id)
 
         result = result.sjoin(geometries[["geometry"] + label_id], **kwargs)
         return result.drop(columns="index_right")
-
-    @_requires_geometry
-    def spatial_join_nearest(
-        self,
-        **kwargs,
-    ) -> gpd.GeoDataFrame:
-        raise NotImplementedError("Method not implemented yet.")
 
     def select_by_values(
         self,
