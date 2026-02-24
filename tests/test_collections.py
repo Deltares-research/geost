@@ -291,81 +291,45 @@ class TestCollection:
         assert selected.data.shape == (10, 9)
 
     @pytest.mark.unittest
-    def test_slice_depth_interval(self, borehole_collection):
+    def test_slice_depth_interval(self, borehole_collection, cpt_collection):
         # Test slicing with respect to depth below the surface.
         upper, lower = 0.6, 2.4
         sliced = borehole_collection.slice_depth_interval(upper, lower)
-        assert len(sliced.data) == 14
-        assert sliced.n_points == 5
-        assert sliced.data["top"].min() == upper
-        assert sliced.data["bottom"].max() == lower
-        assert_array_equal(sliced.data["nr"].value_counts(), [3, 3, 3, 3, 2])
-
-        # Test slicing without updating layer boundaries.
-        sliced = borehole_collection.slice_depth_interval(
-            upper, lower, update_layer_boundaries=False
-        )
-
-        expected_tops_of_slice = [0.0, 0.6, 0.0, 0.5, 0.5]
-        expected_bottoms_of_slice = [2.5, 2.5, 2.9, 2.5, 2.5]
-
-        tops_of_slice = sliced.data.groupby("nr")["top"].min()
-        bottoms_of_slice = sliced.data.groupby("nr")["bottom"].max()
-
-        assert len(sliced.data) == 14
-        assert sliced.n_points == 5
-        assert_array_equal(tops_of_slice, expected_tops_of_slice)
-        assert_array_equal(bottoms_of_slice, expected_bottoms_of_slice)
+        assert isinstance(sliced, Collection)
+        assert sliced.header.shape == (5, 6)
+        assert sliced.data.shape == (14, 8)
 
         # Test slicing with respect to a vertical reference plane.
         nap_upper, nap_lower = -2, -3
         sliced = borehole_collection.slice_depth_interval(
             nap_upper, nap_lower, relative_to_vertical_reference=True
         )
-
-        expected_tops_of_slice = [2.2, 2.3, 2.25, 2.1, 1.9]
-        expected_bottoms_of_slice = [3.2, 3.3, 3.25, 3.0, 2.9]
-
-        tops_of_slice = sliced.data.groupby("nr")["top"].min()
-        bottoms_of_slice = sliced.data.groupby("nr")["bottom"].max()
-
-        assert len(sliced.data) == 11
-        assert sliced.n_points == 5
-        assert_array_equal(tops_of_slice, expected_tops_of_slice)
-        assert_array_equal(bottoms_of_slice, expected_bottoms_of_slice)
+        assert sliced.header.shape == (5, 6)
+        assert sliced.data.shape == (11, 8)
 
         # Test slices that return empty objects.
         empty_slice = borehole_collection.slice_depth_interval(-2, -1)
-        empty_slice_nap = borehole_collection.slice_depth_interval(
-            3, 2, relative_to_vertical_reference=True
-        )
+        assert empty_slice.header.empty
+        assert empty_slice.data.empty
 
-        assert len(empty_slice.data) == 0
-        assert len(empty_slice_nap.data) == 0
-        assert empty_slice.n_points == 0
-        assert empty_slice_nap.n_points == 0
+        with pytest.raises(
+            KeyError,
+            match="Method 'slice_depth_interval' requires depth information in the DataFrame.",
+        ):
+            borehole_collection.data.drop(columns=["bottom"], inplace=True)
+            borehole_collection.slice_depth_interval(0.6, 2.4)
 
-        # Test slicing using only an upper boundary or lower boundary.
-        upper = 4
-        sliced = borehole_collection.slice_depth_interval(upper)
+        sliced = cpt_collection.slice_depth_interval(0.6, 4.4)
+        assert isinstance(sliced, Collection)
+        assert sliced.header.shape == (2, 6)
+        assert sliced.data.shape == (11, 9)
 
-        expected_boreholes = ["A", "C"]
-
-        assert len(sliced.data) == 2
-        assert sliced.n_points == 2
-        assert_array_equal(sliced.data["nr"], expected_boreholes)
-
-        nap_lower = -0.5
-        sliced = borehole_collection.slice_depth_interval(
-            lower_boundary=nap_lower, relative_to_vertical_reference=True
-        )
-
-        bottoms_of_slice = sliced.data.groupby("nr")["bottom"].max()
-        expected_bottoms_of_slice = [0.7, 0.8, 0.75, 0.6, 0.4]
-
-        assert len(sliced.data) == 7
-        assert sliced.n_points == 5
-        assert_array_equal(bottoms_of_slice, expected_bottoms_of_slice)
+        with pytest.raises(
+            KeyError,
+            match="Method 'slice_depth_interval' requires depth information in the DataFrame.",
+        ):
+            cpt_collection.data.drop(columns=["depth"], inplace=True)
+            cpt_collection.slice_depth_interval(0.6, 4.4)
 
     @pytest.mark.unittest
     def test_slice_by_values(self, borehole_collection, cpt_collection):

@@ -9,7 +9,6 @@ Spatial
 .. autosummary::
     :toctree: generated/
 
-    spatial.find_area_labels
     spatial.get_raster_values
     spatial.select_points_near_lines
     spatial.select_points_near_points

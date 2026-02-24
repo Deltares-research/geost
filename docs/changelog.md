@@ -1,5 +1,9 @@
 # Release notes
 
+## v0.5.0
+
+- **Deprecate** `spatial.find_area_labels`.
+
 ## v0.4.2
 
 Replaced core header and data structures (e.g. `PointHeader`, `LayeredData`) in `Collection` instances by accessors on GeoDataFrames (header) and DataFrames (data). Now the header and data attributes of Collections have direct access to all Geopandas and Pandas methods. See the [GeoST accessors](./user_guide/accessors.ipynb) section in the User guide for detailed explanation of the new accessors. Other notable changes are Python 3.14 support and BHRGT grain size sample support in `geost.bro_api_read`

@@ -226,40 +226,6 @@ def select_points_within_polygons(
     return gdf_selected
 
 
-def find_area_labels(
-    point_geodataframe: gpd.GeoDataFrame,
-    polygon_geodataframe: gpd.GeoDataFrame,
-    column_name: str | Iterable,
-) -> pd.Series:
-    """
-    Function to find labels associated with polygon geometries for a series of queried
-    point geometries. Basically a spatial join between the point and polygon dataframe.
-
-    Parameters
-    ----------
-    point_geodataframe : gpd.GeoDataFrame
-        Geodataframe with point geometries for which you want to find in which polygon
-        geometries they are located.
-    polygon_geodataframe : gpd.GeoDataFrame
-        Geodataframe with polygon geometries
-    column_name : str | Iterable
-        Label of the polygon geometries to use for assigning to the queried points.
-        Given as a string or iterable of strings in case you'd like to find multiple
-        labels.
-
-    Returns
-    -------
-    pandas.Series
-        Series with labels from the polygon geometries for each point.
-    """
-    if not isinstance(column_name, str):
-        column_name = list(column_name)
-    joined = gpd.sjoin(point_geodataframe, polygon_geodataframe)[column_name]
-    # Remove any duplicated indices, which may sometimes happen
-    area_labels = joined[~joined.index.duplicated()]
-    return area_labels
-
-
 def get_raster_values(
     x: np.ndarray, y: np.ndarray, raster_to_read: str | Path | xr.DataArray
 ) -> np.ndarray:
