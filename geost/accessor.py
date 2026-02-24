@@ -13,6 +13,7 @@ import geost
 from geost import (
     export,
     spatial,
+    utils,
     validation,
 )  # FIXME: spatial triggers import of xarray, rioxarray. We don't want this automatically.
 from geost.validation.method_checks import _requires_depth, _requires_geometry
@@ -450,12 +451,58 @@ class GeostFrame:
         raise NotImplementedError("Method not implemented yet.")
 
     @_requires_geometry
-    def get_area_labels(
+    def spatial_join(
         self,
-        polygon_gdf: str | Path | gpd.GeoDataFrame,
-        column_name: str | Iterable,
-        include_in_header=False,
-    ) -> pd.DataFrame:
+        geometries: str | Path | gpd.GeoDataFrame,
+        label_id: str | Iterable,
+        drop_label_if_exists: bool = False,
+        **kwargs,
+    ) -> gpd.GeoDataFrame:
+        """
+        Join information from another GeoDataFrame by a spatial relationship (e.g. overlap)
+        between the geometries in the other GeoDataFrame and the geometries in the original
+        GeoDataFrame.
+
+        Parameters
+        ----------
+        geometries : str | Path | gpd.GeoDataFrame
+            Geometries to join with the header GeoDataFrame. Can be a GeoDataFrame or a
+            file path to a geospatial file that can be read as a GeoDataFrame.
+        label_id : str | Iterable
+            Column name(s) in the geometries GeoDataFrame to join with the header GeoDataFrame.
+        drop_label_if_exists : bool, optional
+            If True, will drop the specified 'label_id' from the original GeoDataFrame if
+            these already exist as a column or columns, before the spatial join. Otherwise,
+            suffixes will automatically be added to the joined columns to avoid naming conflicts.
+            The default is False.
+        **kwargs
+            Keyword arguments to be passed to the GeoPandas :meth:`geopandas.GeoDataFrame.sjoin`
+            function. See relevant documentation for more information.
+
+        Returns
+        -------
+        gpd.GeoDataFrame
+            GeoDataFrame resulting from the spatial join.
+
+        """
+        result = self._obj.copy()
+
+        if drop_label_if_exists:
+            result.drop(columns=label_id, errors="ignore", inplace=True)
+
+        geometries = utils.check_geometry_instance(geometries)
+        geometries = spatial.check_and_coerce_crs(geometries, self._obj.crs)
+
+        label_id = [label_id] if isinstance(label_id, str) else list(label_id)
+
+        result = result.sjoin(geometries[["geometry"] + label_id], **kwargs)
+        return result.drop(columns="index_right")
+
+    @_requires_geometry
+    def spatial_join_nearest(
+        self,
+        **kwargs,
+    ) -> gpd.GeoDataFrame:
         raise NotImplementedError("Method not implemented yet.")
 
     def select_by_values(

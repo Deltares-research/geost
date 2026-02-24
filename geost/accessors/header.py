@@ -379,7 +379,7 @@ class PointHeader(AbstractHeader):
         polygon_gdf = spatial.check_and_coerce_crs(polygon_gdf, self._gdf.crs)
 
         all_nrs = self._gdf["nr"]
-        area_labels = spatial.find_area_labels(self._gdf, polygon_gdf, column_name)
+        area_labels = spatial.get_area_labels(self._gdf, polygon_gdf, column_name)
         area_labels = pd.concat([all_nrs, area_labels], axis=1)
 
         if include_in_header:

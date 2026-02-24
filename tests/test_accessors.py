@@ -1,6 +1,7 @@
 import warnings
 
 import geopandas as gpd
+import numpy as np
 import pandas as pd
 import pytest
 from numpy.testing import assert_array_almost_equal, assert_array_equal
@@ -296,6 +297,102 @@ class TestGeostFrame:
             point_header = point_header.drop(columns="geometry")
             # Remove geometry column to make it invalid for spatial selection
             point_header.gst.select_within_polygons(selection_gdf)
+
+    @pytest.mark.unittest
+    def test_spatial_join(self, point_header, tmp_path):
+        test_polygon = gpd.GeoDataFrame(
+            {"id": [1], "letter": ["A"]},
+            geometry=[Polygon(((2, 1), (5, 4), (4, 5), (1, 2)))],
+            crs=28992,
+        )
+        result = point_header.gst.spatial_join(test_polygon, label_id="id")
+        assert isinstance(result, gpd.GeoDataFrame)
+        assert result.shape == (11, 7)
+        assert_array_equal(
+            result["nr"],
+            [
+                "nr2",
+                "nr6",
+                "nr7",
+                "nr8",
+                "nr12",
+                "nr13",
+                "nr14",
+                "nr18",
+                "nr19",
+                "nr20",
+                "nr24",
+            ],
+        )
+        assert (result["id"] == 1).all()
+        assert "letter" not in result.columns
+        assert "index_right" not in result.columns  # We throw this away in the method
+
+        result = point_header.gst.spatial_join(test_polygon, label_id=["id", "letter"])
+        assert result.shape == (11, 8)
+        assert (result["id"] == 1).all()
+        assert (result["letter"] == "A").all()
+
+        result = point_header.gst.spatial_join(test_polygon, label_id="id", how="left")
+        assert len(result) == len(
+            point_header
+        )  # Left join should keep all original rows
+        assert len(result.columns) == len(point_header.columns) + 1
+        assert_array_equal(
+            result["id"],
+            [
+                np.nan,
+                1.0,
+                np.nan,
+                np.nan,
+                np.nan,
+                1.0,
+                1.0,
+                1.0,
+                np.nan,
+                np.nan,
+                np.nan,
+                1.0,
+                1.0,
+                1.0,
+                np.nan,
+                np.nan,
+                np.nan,
+                1.0,
+                1.0,
+                1.0,
+                np.nan,
+                np.nan,
+                np.nan,
+                1.0,
+                np.nan,
+            ],
+        )
+
+        # Test from a file path instead of a GeoDataFrame
+        outfile = tmp_path / r"test_polygon.geoparquet"
+        test_polygon.to_parquet(outfile)
+        result = point_header.gst.spatial_join(outfile, label_id="id")
+        assert isinstance(result, gpd.GeoDataFrame)
+        assert result.shape == (11, 7)
+        assert "id" in result.columns
+
+        # Test if the "label_id" column already exists in the original GeoDataFrame
+        point_header["id"] = 0
+        result = point_header.gst.spatial_join(test_polygon, label_id="id")
+        assert result.shape == (11, 8)
+        assert (result["id_left"] == 0).all()
+        assert (result["id_right"] == 1).all()
+
+        result = point_header.gst.spatial_join(
+            test_polygon, label_id="id", drop_label_if_exists=True
+        )
+        assert result.shape == (11, 7)
+        assert (result["id"] == 1).all()
+
+    @pytest.mark.unittest
+    def test_spatial_join_nearest(self, point_header):
+        assert 1 == 2
 
     @pytest.mark.unittest
     def test_select_by_values(self, borehole_data):

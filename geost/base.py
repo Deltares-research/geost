@@ -1002,10 +1002,10 @@ class Collection(AbstractCollection):
         Examples
         --------
         Export the data table:
-        >>> collection.to_parquet("example.csv")
+        >>> collection.to_csv("example.csv")
 
         Export the header table:
-        >>> collection.to_parquet("example.csv", data_table=False)
+        >>> collection.to_csv("example.csv", data_table=False)
 
         """
         if data_table:
@@ -1506,12 +1506,4 @@ class CptCollection(Collection):
         raise NotImplementedError()
 
     def get_layer_top(self):  # pragma: no cover
-        raise NotImplementedError()
-
-
-class LogCollection(Collection):  # pragma: no cover
-    def get_cumulative_thickness(self):
-        raise NotImplementedError()
-
-    def get_layer_top(self):
         raise NotImplementedError()
