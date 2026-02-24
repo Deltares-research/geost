@@ -603,52 +603,78 @@ class Collection(AbstractCollection):
         )
 
     def select_by_values(
-        self, column: str, selection_values: str | Iterable, how: str = "or"
+        self,
+        column: str,
+        values: str | Iterable | slice,
+        how: str = "or",
+        invert: bool = False,
+        inclusive: str = "both",
     ):
         """
-        Select data based on the presence of given values in a given column. Can be used
-        for example to select boreholes that contain peat in the lithology column.
+        Select data based on the presence of values in a given column. Can be used for
+        example to select boreholes that contain peat in the lithology column.
 
         Parameters
         ----------
         column : str
-            Name of column that contains categorical data to use when looking for
-            values.
-        selection_values : str | Iterable
-            Value or values to look for in the column.
-        how : str, optional
-            Either "and" or "or". "and" requires all selection values to be present in
-            column for selection. "or" will select the core if any one of the
-            selection_values are found in the column. Default is "and".
+            Name of the column to look for the selection values in.
+        values : str | Iterable | slice
+            Value or array-like set of values to look for in the column. In case of numerical
+            values, a slice can be used to select data that contain a specific range of values,
+            see example below.
+        how : {"and", "or"}, optional
+            Either "and" or "or", only used when multiple categorical values are provided.
+            "and" requires all selection values to be present in the column for selection. "or"
+            will select the data if any one of the values are found in the column. The default
+            is "and".
+        invert : bool, optional
+            If True, the selection is inverted so that data that does not match the selection
+            criteria is returned instead. The default is False.
+        inclusive : {"both", "neither", "left", "right"}, optional
+            When a slice is used for selection to include boundaries or not. The
+            default is "both".
 
         Returns
         -------
-        New instance of the current object.
-            New instance of the current object containing only the selection resulting
-            from application of this method. e.g. if you are calling this method from a
-            Collection, you will get an instance of a Collection back.
+        :class:`~geost.base.Collection`
+            New Collection instance containing the all data from the selection result. The
+            data table contains the entire data for the selected surveys, so not only the
+            rows that match the selection. If that is desired, use the method
+            :meth:`~geost.base.Collection.slice_by_values` instead.
 
         Examples
         --------
-        To select boreholes where both clay ("K") and peat ("V") are present at the same
+        To select data where both clay ("K") and peat ("V") are present at the same
         time, use "and" as a selection method:
 
-        >>> boreholes.select_by_values("lith", ["V", "K"], how="and")
+        >>> data.select_by_values("lith", ["V", "K"], how="and")
 
-        To select boreholes that can have one, or both lithologies, use or as the selection
+        To select data that can have one, or both lithologies, use or as the selection
         method:
 
-        >>> boreholes.select_by_values("lith", ["V", "K"], how="and")
+        >>> data.select_by_values("lith", ["V", "K"], how="or")
+
+        In case of numerical values, use a slice to select data that contain a specific
+        range of values. For example, to select data that contain cone resistances ("qc")
+        between 15 and 20 MPa:
+
+        >>> data.select_by_values("qc", slice(15, 20))
 
         """
-        selected_data = self.data.gstda.select_by_values(
-            column, selection_values, how=how
+        selected_data = self.data.gst.select_by_values(
+            column, values, how=how, invert=invert, inclusive=inclusive
         )
-        selected_header = self.header.gsthd.get(selected_data["nr"].unique())
+        selected_header = self.header.gst.select_by_values(
+            "nr", selected_data["nr"].unique()
+        )
         return self.__class__(
-            selected_header, selected_data, self.has_inclined, self.vertical_reference
+            selected_data,
+            header=selected_header,
+            has_inclined=self.has_inclined,
+            vertical_reference=self.vertical_reference,
         )
 
+    @_requires_depth
     def slice_depth_interval(
         self,
         upper_boundary: float | int = None,
@@ -677,10 +703,9 @@ class Collection(AbstractCollection):
 
         Returns
         -------
-        New instance of the current object.
-            New instance of the current object containing only the selection resulting
-            from application of this method. e.g. if you are calling this method from a
-            Collection, you will get an instance of a Collection back.
+        :class:`~geost.base.Collection`
+            New Collection instance containing only the data within the specified depth
+            boundaries.
 
         Examples
         --------
@@ -703,19 +728,28 @@ class Collection(AbstractCollection):
         >>> data.slice_depth_interval(-3, -5, relative_to_vertical_reference=True)
 
         """
-        selected_data = self.data.gstda.slice_depth_interval(
+        selected_data = self.data.gst.slice_depth_interval(
             upper_boundary=upper_boundary,
             lower_boundary=lower_boundary,
             relative_to_vertical_reference=relative_to_vertical_reference,
             update_layer_boundaries=update_layer_boundaries,
         )
-        selected_header = self.header.gsthd.get(selected_data["nr"].unique())
+        selected_header = self.header.gst.select_by_values(
+            "nr", selected_data["nr"].unique()
+        )
         return self.__class__(
-            selected_header, selected_data, self.has_inclined, self.vertical_reference
+            selected_data,
+            header=selected_header,
+            has_inclined=self.has_inclined,
+            vertical_reference=self.vertical_reference,
         )
 
     def slice_by_values(
-        self, column: str, selection_values: str | Iterable, invert: bool = False
+        self,
+        column: str,
+        values: str | Iterable | slice,
+        invert: bool = False,
+        inclusive: str = "both",
     ):
         """
         Slice rows from data based on matching condition. E.g. only return rows with
@@ -726,18 +760,24 @@ class Collection(AbstractCollection):
         column : str
             Name of column that contains categorical data to use when looking for
             values.
-        selection_values : str | Iterable
-            Values to look for in the column.
+        values : str | Iterable | slice
+            Value or array-like set of values to look for in the column. In case of numerical
+            values, a slice can be used to slice a range of values, see example below.
         invert : bool, optional
             If True, invert the slicing action, so remove layers with selected values
             instead of keeping them. The default is False.
+        inclusive : {"both", "neither", "left", "right"}, optional
+            When a slice is used for selection to include boundaries or not. The
+            default is "both".
 
         Returns
         -------
-        New instance of the current object.
-            New instance of the current object containing only the selection resulting
-            from application of this method. e.g. if you are calling this method from a
-            Collection, you will get an instance of a Collection back.
+        :class:`~geost.base.Collection`
+            New Collection instance containing only the data that match the slicing condition
+            in the data table. The data table contains only the rows that match the slicing
+            condition, so not the entire data for the selected surveys. If you want to select
+            entire surveys based on the presence of certain values, use the method
+            :meth:`~geost.base.Collection.select_by_values` instead.
 
         Examples
         --------
@@ -750,19 +790,30 @@ class Collection(AbstractCollection):
 
         >>> boreholes.slice_by_values("lith", "Z", invert=True)
 
+        In case of numerical values, use a slice object to slice data that contain a specific
+        range of values. For example, to slice data that contain cone resistances ("qc")
+        between 15 and 20 MPa:
+
+        >>> data.slice_by_values("qc", slice(15, 20))
+
         """
-        selected_data = self.data.gstda.slice_by_values(
-            column, selection_values, invert=invert
+        selected_data = self.data.gst.slice_by_values(
+            column, values, invert=invert, inclusive=inclusive
         )
-        selected_header = self.header.gsthd.get(selected_data["nr"].unique())
+        selected_header = self.header.gst.select_by_values(
+            "nr", selected_data["nr"].unique()
+        )
         return self.__class__(
-            selected_header, selected_data, self.has_inclined, self.vertical_reference
+            selected_data,
+            header=selected_header,
+            has_inclined=self.has_inclined,
+            vertical_reference=self.vertical_reference,
         )
 
     def select_by_condition(self, condition: Any, invert: bool = False):
         """
-        Select from collection.data using a manual condition that results in a boolean
-        mask. Returns the rows in the data where the 'condition' evaluates to True.
+        Do a condition-based selection on the data table of the `Collection: return the
+        rows in the data where the 'condition' evaluates to True, see examples below.
 
         Parameters
         ----------
@@ -776,14 +827,15 @@ class Collection(AbstractCollection):
 
         Returns
         -------
-        :class:`~geost.base.LayeredData`
-            New instance containing only the data objects selected by this method.
+        :class:`~geost.base.Collection`
+            New instance containing only the rows obtained by the selection in the data
+            table.
 
         Examples
         --------
         Select rows in data that contain a specific value:
 
-        >>> data.select_by_condition(data["lith"]=="V")
+        >>> data.select_by_condition(data["lith"] == "V")
 
         Select rows in the data that contain a specific (part of) string or strings:
 
@@ -798,10 +850,15 @@ class Collection(AbstractCollection):
         >>> data.select_by_condition((data["column1"] > 2) & (data["column2] < 1))
 
         """
-        selected_data = self.data.gstda.select_by_condition(condition, invert)
-        selected_header = self.header.gsthd.get(selected_data["nr"].unique())
+        selected_data = self.data.gst.select_by_condition(condition, invert)
+        selected_header = self.header.gst.select_by_values(
+            "nr", selected_data["nr"].unique()
+        )
         return self.__class__(
-            selected_header, selected_data, self.has_inclined, self.vertical_reference
+            selected_data,
+            header=selected_header,
+            has_inclined=self.has_inclined,
+            vertical_reference=self.vertical_reference,
         )
 
     def get_area_labels(

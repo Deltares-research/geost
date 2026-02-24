@@ -467,8 +467,8 @@ class GeostFrame:
         inclusive: str = "both",
     ) -> pd.DataFrame:
         """
-        Select data based on the presence of given values in a given column. Can be used
-        for example to select data that contain peat in the lithology column.
+        Select data based on the presence of values in a given column. Can be used for
+        example to select data that contain peat in the lithology column.
 
         Parameters
         ----------
@@ -601,7 +601,8 @@ class GeostFrame:
         Returns
         -------
         pd.DataFrame
-            New DataFrame containing only the data selected by this method.
+            New DataFrame or GeoDataFrame containing only the data within the specified
+            depth boundaries.
 
         Examples
         --------
@@ -741,8 +742,8 @@ class GeostFrame:
 
     def select_by_condition(self, condition: Any, invert: bool = False) -> pd.DataFrame:
         """
-        Select data using a manual condition that results in a boolean mask. Returns the
-        rows in the data where the 'condition' evaluates to True.
+        Do a condition-based selection on the DataFrame or GeoDataFrame: return the rows
+        in the data where the 'condition' evaluates to True, see examples below.
 
         Parameters
         ----------
@@ -763,11 +764,15 @@ class GeostFrame:
         --------
         Select rows in data that contain a specific value:
 
-        >>> data.gst.select_by_condition(data["lith"]=="V")
+        >>> data.gst.select_by_condition(data["lith"] == "V")
 
         Or select rows in the data that contain a specific (part of) string or strings:
 
         >>> data.gst.select_by_condition(data["column"].str.contains("foo|bar"))
+
+        Or select rows in the data based on multiple conditions:
+
+        >>> data.select_by_condition((data["column1"] > 2) & (data["column2] < 1))
 
         """
         if invert:

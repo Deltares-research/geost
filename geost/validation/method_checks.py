@@ -32,7 +32,7 @@ def _requires_depth(func):
         from geost.base import Collection
 
         if isinstance(self, Collection):
-            has_depth = self.data.has_depth_columns
+            has_depth = self.data.gst.has_depth_columns
         elif isinstance(self, GeostFrame):
             has_depth = self.has_depth_columns
 

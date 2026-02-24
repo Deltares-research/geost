@@ -272,35 +272,34 @@ class TestCollection:
         )
 
     @pytest.mark.unittest
-    def test_select_by_values(self, borehole_collection):
+    def test_select_by_values(self, borehole_collection, cpt_collection):
         selected = borehole_collection.select_by_values("lith", ["V", "K"], how="or")
-
-        expected_nrs = ["A", "B", "C", "D"]
-        selected_nrs = selected.data["nr"].unique()
-
-        assert_array_equal(selected_nrs, expected_nrs)
-
+        assert_array_equal(selected.data["nr"].unique(), ["A", "B", "C", "D"])
+        assert selected.data.shape == (20, 8)
         selected = borehole_collection.select_by_values("lith", ["V", "K"], how="and")
+        assert_array_equal(selected.data["nr"].unique(), ["B", "D"])
+        assert selected.data.shape == (10, 8)
 
-        expected_nrs = ["B", "D"]
-        selected_nrs = selected.data["nr"].unique()
+        selected = borehole_collection.select_by_values(
+            "lith", ["V", "K"], how="and", invert=True
+        )
+        assert_array_equal(selected.data["nr"].unique(), ["A", "C", "E"])
+        assert selected.data.shape == (15, 8)
 
-        assert_array_equal(selected_nrs, expected_nrs)
+        selected = cpt_collection.select_by_values("qc", slice(15, 20))
+        assert_array_equal(selected.data["nr"].unique(), ["b"])
+        assert selected.data.shape == (10, 9)
 
     @pytest.mark.unittest
     def test_slice_depth_interval(self, borehole_collection):
         # Test slicing with respect to depth below the surface.
         upper, lower = 0.6, 2.4
         sliced = borehole_collection.slice_depth_interval(upper, lower)
-
-        layers_per_borehole = sliced.data["nr"].value_counts()
-        expected_layer_count = [3, 3, 3, 3, 2]
-
         assert len(sliced.data) == 14
         assert sliced.n_points == 5
         assert sliced.data["top"].min() == upper
         assert sliced.data["bottom"].max() == lower
-        assert_array_equal(layers_per_borehole, expected_layer_count)
+        assert_array_equal(sliced.data["nr"].value_counts(), [3, 3, 3, 3, 2])
 
         # Test slicing without updating layer boundaries.
         sliced = borehole_collection.slice_depth_interval(
@@ -369,26 +368,23 @@ class TestCollection:
         assert_array_equal(bottoms_of_slice, expected_bottoms_of_slice)
 
     @pytest.mark.unittest
-    def test_slice_by_values(self, borehole_collection):
+    def test_slice_by_values(self, borehole_collection, cpt_collection):
         sliced = borehole_collection.slice_by_values("lith", "Z")
-
-        expected_boreholes_with_sand = ["A", "C", "D", "E"]
-        expected_length = 10
-
-        assert_array_equal(sliced.data["nr"].unique(), expected_boreholes_with_sand)
+        assert_array_equal(sliced.header["nr"], ["A", "C", "D", "E"])
         assert np.all(sliced.data["lith"] == "Z")
-        assert len(sliced.data) == expected_length
+        assert sliced.data.shape == (10, 8)
         assert sliced.n_points == 4
 
         sliced = borehole_collection.slice_by_values("lith", "Z", invert=True)
-
-        expected_boreholes_without_sand = ["A", "B", "C", "D"]
-        expected_length = 15
-
-        assert_array_equal(sliced.data["nr"].unique(), expected_boreholes_without_sand)
+        assert_array_equal(sliced.header["nr"], ["A", "B", "C", "D"])
         assert ~np.any(sliced.data["lith"] == "Z")
-        assert len(sliced.data) == expected_length
+        assert sliced.data.shape == (15, 8)
         assert sliced.n_points == 4
+
+        sliced = cpt_collection.slice_by_values("qc", slice(15, 20))
+        assert_array_equal(sliced.header["nr"], ["b"])
+        assert sliced.data["qc"].between(15, 20, inclusive="both").all()
+        assert sliced.data.shape == (8, 9)
 
     @pytest.mark.unittest
     def test_select_by_condition(self, borehole_collection):
@@ -396,8 +392,27 @@ class TestCollection:
         selected = borehole_collection.select_by_condition(
             borehole_collection.data["lith"] == "V"
         )
-        assert isinstance(selected, BoreholeCollection)
-        assert selected.n_points == 2
+        assert isinstance(selected, Collection)
+        assert_array_equal(selected.header["nr"], ["B", "D"])
+        assert (selected.data["lith"] == "V").all()
+        assert selected.data.shape == (4, 8)
+
+        selected = borehole_collection.select_by_condition(
+            borehole_collection.data["lith"] == "V", invert=True
+        )
+        assert_array_equal(selected.header["nr"], ["A", "B", "C", "D", "E"])
+        assert not (selected.data["lith"] == "V").any()
+        assert selected.data.shape == (21, 8)
+
+        selected = borehole_collection.select_by_condition(
+            (borehole_collection.data["lith"] == "V")
+            & (borehole_collection.data["bottom"] <= 2.5)
+        )
+        assert isinstance(selected, Collection)
+        assert_array_equal(selected.header["nr"], ["B", "D"])
+        assert (selected.data["lith"] == "V").all()
+        assert (selected.data["bottom"] <= 2.5).all()
+        assert selected.data.shape == (3, 8)
 
     @pytest.mark.unittest
     def test_get_area_labels(self, borehole_collection):
