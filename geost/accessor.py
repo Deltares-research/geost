@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from functools import singledispatchmethod, wraps
+from functools import singledispatchmethod
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Iterable
 
@@ -8,7 +8,6 @@ import geopandas as gpd
 import numpy as np
 import pandas as pd
 from pyproj import CRS
-from shapely import buffer, linestrings
 
 import geost
 from geost import (
@@ -35,26 +34,23 @@ class GeostFrame:
     def __init__(self, dataframe: DataFrame):
         self._validate_dataframe(dataframe)
         self._obj = dataframe
-        self._set_depth_columns()
-        self.validate()
+        self._set_positional_columns()
 
-    def _set_depth_columns(self):
+    def _set_positional_columns(self):
         """
-        Determine which columns in the DataFrame contain depth information and set them
-        as attributes of the accessor. The method looks for the presence of either "top"
-        and "bottom" like columns for layered data, or a single "depth" like column for
-        discrete data.
+        Determine which columns in the DataFrame contain x, y and depth information and
+        set them as attributes of the accessor. The method looks for the presence of x, y,
+        top and bottom columns in the DataFrame by comparing the column names to a set of
+        possible names for these types of columns defined in `geost.validation.column_names`.
+
+        If a column is not found for a specific type of positional information,
+        the corresponding attribute will be set to None.
 
         """
-        # NOTE: Now more rigid than necessary, we can add more flexibility in the future if needed.
-        self._top = "top" if "top" in self._obj.columns else None
-
-        if "depth" in self._obj.columns:
-            self._bottom = "depth"
-        elif "bottom" in self._obj.columns:
-            self._bottom = "bottom"
-        else:
-            self._bottom = None
+        self._x = validation.check_column_name(self._obj.columns, "x_coordinate")
+        self._y = validation.check_column_name(self._obj.columns, "y_coordinate")
+        self._top = validation.check_column_name(self._obj.columns, "top")
+        self._bottom = validation.check_column_name(self._obj.columns, "depth")
 
     @staticmethod
     def _validate_dataframe(dataframe: DataFrame):
@@ -111,7 +107,7 @@ class GeostFrame:
         return False
 
     @property
-    def _new_survey_id(self):
+    def _first_row_in_survey(self):
         """
         Get a boolean mask indicating the locations of new survey IDs in the data. This
         is used to identify the first layer of each survey.
@@ -312,6 +308,24 @@ class GeostFrame:
             has_inclined=has_inclined,
             vertical_reference=vertical_reference,
         )
+
+    def standardize_column_names(self):
+        """
+        Standardize column names to a consistent format. This is useful if you want to
+        combine data from different sources that may have different naming conventions
+        for essential columns sucht as x, y, top, bottom and depth. The method looks
+        for the presence of these columns in the DataFrame and renames them to our
+        standard naming convention.
+        """
+        if self._top:
+            self._obj.rename(
+                {self._x: "x", self._y: "y", self._top: "top", self._bottom: "depth"},
+                inplace=True,
+            )
+        else:
+            self._obj.rename(
+                {self._x: "x", self._y: "y", self._bottom: "depth"}, inplace=True
+            )
 
     def change_horizontal_reference(self, to_epsg: str | int | CRS) -> None:
         raise NotImplementedError("Method not implemented yet.")
@@ -1056,6 +1070,8 @@ class GeostFrame:
             is not in the same x,y-location as the bottom of layers. The default is False.
 
         """
+        from shapely import linestrings
+
         data = self._get_depth_relative_to_surface()
 
         data_columns = [
@@ -1067,10 +1083,14 @@ class GeostFrame:
         # Prepare top, bottom and corresponding x and y values for geometry creation.
         # Infer the top of layers from the bottom of layers if the top column is not present.
         if self._top is None:
-            top = data[self._bottom].shift().mask(self._new_survey_id, data["surface"])
+            top = (
+                data[self._bottom]
+                .shift()
+                .mask(self._first_row_in_survey, data["surface"])
+            )
             x_bot, y_bot = data["x"], data["y"]
-            x_top = data["x"].shift().mask(self._new_survey_id, data["x"])
-            y_top = data["y"].shift().mask(self._new_survey_id, data["y"])
+            x_top = data["x"].shift().mask(self._first_row_in_survey, data["x"])
+            y_top = data["y"].shift().mask(self._first_row_in_survey, data["y"])
         else:
             top = data[self._top]
             x_top, y_top = data["x"], data["y"]
@@ -1168,7 +1188,7 @@ class GeostFrame:
             kingdom_df["top"] = (
                 kingdom_df[self._bottom]
                 .shift()
-                .mask(self._new_survey_id, kingdom_df["surface"])
+                .mask(self._first_row_in_survey, kingdom_df["surface"])
             )
 
         # Add total depth NOTE: is the insert at idx 7 really necessary?
