@@ -48,3 +48,24 @@ def _requires_depth(func):
         return func(self, *args, **kwargs)
 
     return wrapper
+
+
+def _requires_xy(func):
+    @wraps(func)
+    def wrapper(self, *args, **kwargs):
+        from geost.accessor import GeostFrame  # Avoid circular imports
+        from geost.base import Collection
+
+        if isinstance(self, Collection):
+            has_xy = self.data.gst.has_xy_columns
+        elif isinstance(self, GeostFrame):
+            has_xy = self.has_xy_columns
+
+        if not has_xy:
+            raise KeyError(  # TODO: Check formatting of this error message
+                f"Method '{func.__name__}' requires x, y information in the DataFrame. "
+                "Please ensure that the DataFrame contains 'x' and 'y' columns."
+            )
+        return func(self, *args, **kwargs)
+
+    return wrapper

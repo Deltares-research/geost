@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from functools import singledispatchmethod, wraps
+from pathlib import Path
 from typing import TYPE_CHECKING, Any, Iterable
 
 import geopandas as gpd
@@ -15,12 +16,13 @@ from geost import (
     spatial,
     validation,
 )  # FIXME: spatial triggers import of xarray, rioxarray. We don't want this automatically.
-from geost.validation.method_checks import _requires_depth, _requires_geometry
+from geost.validation.method_checks import (
+    _requires_depth,
+    _requires_geometry,
+    _requires_xy,
+)
 
 if TYPE_CHECKING:
-    from pathlib import Path
-
-    from pandera import DataFrameSchema
     from pyproj import CRS
     from shapely.geometry.base import BaseGeometry
 
@@ -34,6 +36,7 @@ class GeostFrame:
         self._validate_dataframe(dataframe)
         self._obj = dataframe
         self._set_depth_columns()
+        self.validate()
 
     def _set_depth_columns(self):
         """
@@ -154,16 +157,29 @@ class GeostFrame:
             data[self._top] = data["surface"] - data[self._top]
         return data
 
-    def validate_with_schema(self, schema: DataFrameSchema):
+    def validate(self):
         """
-        Validate the DataFrame using a specified Pandera schema.
+        Validate the DataFrame by combining the relevant schemas in `geost.validation.schemas`
+        based on the presence of specific columns and the type of data contained in the DataFrame.
+        """
+        if not geost.config.validation.SKIP:
+            schemas = [validation.schemas.geostframe_base]
 
-        Parameters
-        ----------
-        schema : DataFrameSchema
-            DataFrameSchema to validate the DataFrame with.
-        """
-        self._obj = validation.safe_validate(self._obj, schema)
+            if self._bottom == "bottom" and not self._top:
+                schemas.append(validation.schemas.geostframe_with_bottom)
+            elif self._bottom == "depth" and not self._top:
+                schemas.append(validation.schemas.geostframe_with_depth)
+            elif self._top and self._bottom:
+                schemas.append(validation.schemas.geostframe_with_top_bottom)
+
+            if self.has_geometry:
+                schemas.append(validation.schemas.geostframe_with_geometry)
+            if self.has_xy_columns:
+                schemas.append(validation.schemas.geostframe_with_xy)
+
+            validation_schema = validation.combine_schemas(*schemas)
+
+            self._obj = validation.safe_validate(self._obj, validation_schema)
 
     def to_header(
         self,
@@ -898,6 +914,7 @@ class GeostFrame:
         return layer_base
 
     @_requires_depth
+    @_requires_xy
     def to_pyvista_cylinders(
         self,
         displayed_variables: str | list[str],
@@ -934,7 +951,6 @@ class GeostFrame:
             A composite class holding the data which can be iterated over.
 
         """
-        self._check_has_xy()
         data = self._get_depth_relative_to_surface()
         displayed_variables = self._to_iterable(displayed_variables)
 
@@ -960,6 +976,7 @@ class GeostFrame:
         return vtk_object
 
     @_requires_depth
+    @_requires_xy
     def to_pyvista_grid(
         self,
         displayed_variables: str | list[str],
@@ -986,7 +1003,6 @@ class GeostFrame:
             3D visualisation in PyVista or other VTK viewers.
 
         """
-        self._check_has_xy()
         data = self._get_depth_relative_to_surface()
         displayed_variables = self._to_iterable(displayed_variables)
 
@@ -1005,6 +1021,7 @@ class GeostFrame:
         return vtk_object
 
     @_requires_depth
+    @_requires_xy
     def to_datafusiontools(
         self,
         columns: list[str],
@@ -1014,6 +1031,8 @@ class GeostFrame:
     ):
         raise NotImplementedError("Method not implemented yet.")
 
+    @_requires_depth
+    @_requires_xy
     def _create_geodataframe_3d(
         self,
         crs: str | int | CRS = None,
@@ -1090,6 +1109,8 @@ class GeostFrame:
             crs=crs,
         )
 
+    @_requires_depth
+    @_requires_xy
     def to_qgis3d(
         self,
         outfile: str | Path,
@@ -1112,11 +1133,11 @@ class GeostFrame:
             geopandas.GeodataFrame.to_file kwargs. See relevant Geopandas documentation.
 
         """
-        self._check_has_depth()
-        self._check_has_xy()
         qgis3d = self._create_geodataframe_3d(crs=crs)
         qgis3d.to_file(outfile, driver="GPKG", **kwargs)
 
+    @_requires_depth
+    @_requires_xy
     def to_kingdom(
         self,
         outfile: str | Path,
@@ -1140,9 +1161,6 @@ class GeostFrame:
             sound velocity in sediment in m/s, default is 1600 m/s
 
         """
-        self._check_has_depth()
-        self._check_has_xy()
-
         # 1. add columns needed in kingdom and write interval data
         kingdom_df = self._get_depth_relative_to_surface()
 
