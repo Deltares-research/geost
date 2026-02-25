@@ -9,7 +9,7 @@ from shapely import geometry as gmt
 
 from geost import export, utils
 from geost.abstract_classes import AbstractData
-from geost.analysis import cumulative_thickness
+from geost.analysis.layers import cumulative_thickness
 
 type Coordinate = int | float
 type GeometryType = gmt.base.BaseGeometry | list[gmt.base.BaseGeometry]

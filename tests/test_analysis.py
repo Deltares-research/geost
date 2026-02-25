@@ -14,11 +14,11 @@ from geost.analysis.combine import (
     _add_to_layered,
     add_voxelmodel_variable,
 )
+from geost.analysis.cpt import calc_ic, calc_lithology
 from geost.analysis.grainsize import (
     calculate_bhrgt_grainsize_fractions,
     calculate_bhrgt_grainsize_percentiles,
 )
-from geost.analysis.interpret_cpt import calc_ic, calc_lithology
 from geost.analysis.layers import find_top_sand
 from geost.base import Collection
 
