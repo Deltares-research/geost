@@ -1076,17 +1076,6 @@ class GeostFrame:
 
     @_requires_depth
     @_requires_xy
-    def to_datafusiontools(
-        self,
-        columns: list[str],
-        outfile: str | Path = None,
-        encode: bool = False,
-        relative_to_vertical_reference: bool = True,
-    ):
-        raise NotImplementedError("Method not implemented yet.")
-
-    @_requires_depth
-    @_requires_xy
     def _create_geodataframe_3d(
         self,
         crs: str | int | CRS = None,
