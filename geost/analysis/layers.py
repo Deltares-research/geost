@@ -2,11 +2,23 @@ import numpy as np
 import pandas as pd
 
 
-def get_layer_top_layered(data: pd.DataFrame, column: str, value: str):
+def get_layer_top(
+    data: pd.DataFrame,
+    column: str,
+    value: str | list[str] | slice,
+    min_thickness: float = 0,
+    min_fraction: float = 0,
+) -> pd.DataFrame:
     pass
 
 
-def get_layer_top_discrete(data: pd.DataFrame, column: str, value: str):
+def get_layer_base(
+    data: pd.DataFrame,
+    column: str,
+    value: str | list[str] | slice,
+    min_thickness: float = 0,
+    min_fraction: float = 0,
+) -> pd.DataFrame:
     pass
 
 

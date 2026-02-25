@@ -524,7 +524,7 @@ class GeostFrame:
     def select_by_values(
         self,
         column: str,
-        values: str | Iterable | slice,
+        values: int | float | str | Iterable | slice,
         how: str = "or",
         invert: bool = False,
         inclusive: str = "both",
@@ -537,7 +537,7 @@ class GeostFrame:
         ----------
         column : str
             Name of the column to look for the selection values in.
-        values : str | Iterable | slice
+        values : int | float | str | Iterable | slice
             Value or array-like set of values to look for in the column. In case of numerical
             values, a slice can be used to select data that contain a specific range of values,
             see example below.
@@ -599,7 +599,7 @@ class GeostFrame:
             "either a string\n, an iterable, or a slice for numerical values."
         )
 
-    @_select_by_values.register(str)
+    @_select_by_values.register(int | float | str)
     def _(self, values, column, *_) -> pd.DataFrame:
         selected = self._obj
         valid = selected["nr"][selected[column] == values].unique()
@@ -626,9 +626,12 @@ class GeostFrame:
         if not pd.api.types.is_numeric_dtype(self._obj[column]):
             raise TypeError("Can only use a slice selection on numerical columns.")
 
+        start = values.start or -1e34
+        stop = values.stop or 1e34
+
         selected = self._obj
         valid = selected["nr"][
-            selected[column].between(values.start, values.stop, inclusive)
+            selected[column].between(start, stop, inclusive)
         ].unique()
         selected = selected[selected["nr"].isin(valid)]
         return selected
@@ -727,7 +730,7 @@ class GeostFrame:
     def slice_by_values(
         self,
         column: str,
-        values: str | Iterable | slice,
+        values: int | float | str | Iterable | slice,
         invert: bool = False,
         inclusive: str = "both",
     ) -> pd.DataFrame:
@@ -740,7 +743,7 @@ class GeostFrame:
         column : str
             Name of column that contains categorical data to use when looking for
             values.
-        values : str | Iterable | slice
+        values : int | float | str | Iterable | slice
             Value or array-like set of values to look for in the column. In case of numerical
             values, a slice can be used to slice a range of values, see example below.
         invert : bool, optional
@@ -786,7 +789,7 @@ class GeostFrame:
     ) -> pd.DataFrame:
         raise TypeError(f"Unsupported type of selection values: {type(values)}")
 
-    @_slice_by_values.register(str)
+    @_slice_by_values.register(int | float | str)
     def _(self, values, column, _) -> pd.DataFrame:
         return self._obj[self._obj[column] == values]
 
@@ -799,9 +802,9 @@ class GeostFrame:
         if not pd.api.types.is_numeric_dtype(self._obj[column]):
             raise TypeError("Can only use a slice selection on numerical columns.")
 
-        return self._obj[
-            self._obj[column].between(values.start, values.stop, inclusive)
-        ]
+        start = values.start or -1e34
+        stop = values.stop or 1e34
+        return self._obj[self._obj[column].between(start, stop, inclusive)]
 
     def select_by_condition(self, condition: Any, invert: bool = False) -> pd.DataFrame:
         """
