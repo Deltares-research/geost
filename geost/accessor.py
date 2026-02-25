@@ -248,7 +248,9 @@ class GeostFrame:
 
         header = self._obj.drop_duplicates(subset="nr", ignore_index=True)
 
-        if coordinate_names is not None:
+        if self._x and self._y:
+            geometry = shapely.points(header[[self._x, self._y]])
+        elif coordinate_names is not None:
             x_col, y_col = coordinate_names
             if not {x_col, y_col}.issubset(header.columns):
                 raise KeyError(
@@ -326,14 +328,6 @@ class GeostFrame:
             self._obj.rename(
                 {self._x: "x", self._y: "y", self._bottom: "depth"}, inplace=True
             )
-
-    def change_horizontal_reference(self, to_epsg: str | int | CRS) -> None:
-        raise NotImplementedError("Method not implemented yet.")
-
-    def change_vertical_reference(
-        self, from_epsg: str | int | CRS, to_epsg: str | int | CRS
-    ) -> None:
-        raise NotImplementedError("Method not implemented yet.")
 
     @_requires_geometry
     def select_within_bbox(
@@ -1081,17 +1075,6 @@ class GeostFrame:
             )
 
         return vtk_object
-
-    @_requires_depth
-    @_requires_xy
-    def to_datafusiontools(
-        self,
-        columns: list[str],
-        outfile: str | Path = None,
-        encode: bool = False,
-        relative_to_vertical_reference: bool = True,
-    ):
-        raise NotImplementedError("Method not implemented yet.")
 
     @_requires_depth
     @_requires_xy
