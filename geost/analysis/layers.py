@@ -1,3 +1,5 @@
+from functools import singledispatch
+
 import numpy as np
 import pandas as pd
 
@@ -5,21 +7,98 @@ import pandas as pd
 def get_layer_top(
     data: pd.DataFrame,
     column: str,
-    value: str | list[str] | slice,
+    value: int | float | str | list[str] | slice,
     min_thickness: float = 0,
     min_fraction: float = 0,
 ) -> pd.DataFrame:
-    pass
+    if not data.gst.has_depth_columns:
+        raise ValueError(
+            "Data must contain columns specifying depth intervals. See "
+            "GeostFrame.has_depth_columns for more information."
+        )
+
+    data = data.copy()
+    if data.gst._top and data.gst._bottom:
+        tops = _get_layer_top_layered(data, column, value, min_thickness, min_fraction)
+    else:
+        tops = _get_layer_top_discrete(data, column, value, min_thickness, min_fraction)
+
+    return tops
 
 
 def get_layer_base(
     data: pd.DataFrame,
     column: str,
-    value: str | list[str] | slice,
+    value: int | float | str | list[str] | slice,
     min_thickness: float = 0,
     min_fraction: float = 0,
 ) -> pd.DataFrame:
+    if not data.gst.has_depth_columns:
+        raise ValueError(
+            "Data must contain columns specifying depth intervals. See "
+            "GeostFrame.has_depth_columns for more information."
+        )
+
+    data = data.copy()
     pass
+
+
+def _get_layer_top_layered(
+    data: pd.DataFrame,
+    column: str,
+    value: int | float | str | list[str] | slice,
+    min_thickness: float = 0,
+    min_fraction: float = 0,
+) -> pd.DataFrame:
+    value_mask = _mask(value, data[column])
+
+    return value_mask
+
+
+def _get_layer_top_discrete(
+    data: pd.DataFrame,
+    column: str,
+    value: int | float | str | list[str] | slice,
+    min_thickness: float = 0,
+    min_fraction: float = 0,
+) -> pd.DataFrame:
+    if "thickness" not in data.columns:
+        data["thickness"] = data.gst.calculate_thickness()
+
+    value_mask = _mask(value, data[column])
+
+    return value_mask
+
+
+@singledispatch
+def _mask(values, series):
+    """
+    Helper function to create a Boolean Series by checking equality of values using different
+    object types.
+
+    """
+    raise TypeError(
+        f"Unsupported type of selection values: {type(values)}. Values must be str, list[str], or slice."
+    )
+
+
+@_mask.register(int | float | str)
+def _(values, series):
+    return series == values
+
+
+@_mask.register(set | list | np.ndarray | pd.Series)
+def _(values, series):
+    return series.isin(values)
+
+
+@_mask.register(slice)
+def _(values, series):
+    if not pd.api.types.is_numeric_dtype(series):
+        raise TypeError("Can only use a slice on numerical columns.")
+    start = values.start or -1e34
+    stop = values.stop or 1e34
+    return series.between(start, stop)
 
 
 def find_top_sand(
@@ -33,7 +112,7 @@ def find_top_sand(
     Find the top of sand depth in a borehole described in NEN5104 format. The top of sand
     is defined by the first layer of a specified thickness that contains a minimum
     percentage of sand. By default: when the first layer of sand is detected, the next 1
-    meter is scanned. Within this meter, if more than 50% of the lenght has a main
+    meter is scanned. Within this meter, if more than 50% of the length has a main
     lithology of sand, the initially detected layer of sand is regarded as the top
     of sand. If not, continue downward until the next layer of sand is detected and
     repeat.
@@ -129,16 +208,3 @@ def top_of_sand(
         result.append((nr, top_sand))
 
     return pd.DataFrame(result, columns=["nr", "top"])
-
-
-def cumulative_thickness(data, top: str = "top", bottom: str = "bottom"):
-    return np.abs(np.sum(data[top] - data[bottom]))
-
-
-def layer_top(data, column: str, value: str):  # TODO
-    for nr, obj in data.groupby("nr"):
-        try:
-            layer_top = obj[obj[column] == value].iloc[0]["top"]
-        except IndexError:
-            layer_top = np.nan
-        yield (nr, layer_top)
