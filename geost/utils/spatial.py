@@ -8,7 +8,7 @@ import pandas as pd
 import rioxarray
 import xarray as xr
 
-from geost import utils
+from geost.utils import casting
 
 
 def check_and_coerce_crs(gdf: gpd.GeoDataFrame, to_crs: int):
@@ -86,7 +86,7 @@ def select_points_within_bbox(
 
     """
     # Instance checks and coerce to geodataframe if required
-    gdf = utils.check_geometry_instance(gdf)
+    gdf = casting.check_geometry_instance(gdf)
     selected = gdf.cx[xmin:xmax, ymin:ymax]
 
     if invert:
@@ -121,8 +121,8 @@ def select_points_near_points(
         Geodataframe containing only selected geometries.
     """
     # Instance checks and coerce to geodataframe if required
-    gdf = utils.check_geometry_instance(gdf)
-    point_gdf = utils.check_geometry_instance(point_gdf)
+    gdf = casting.check_geometry_instance(gdf)
+    point_gdf = casting.check_geometry_instance(point_gdf)
 
     # Selection logic
     data_points = np.array([gdf["geometry"].x, gdf["geometry"].y]).transpose()
@@ -169,8 +169,8 @@ def select_points_near_lines(
         Geodataframe containing only selected geometries.
     """
     # Instance checks and coerce to geodataframe if required
-    gdf = utils.check_geometry_instance(gdf)
-    line_gdf = utils.check_geometry_instance(line_gdf)
+    gdf = casting.check_geometry_instance(gdf)
+    line_gdf = casting.check_geometry_instance(line_gdf)
 
     # Selection logic
     line_gdf["geometry"] = line_gdf.buffer(distance=buffer)
@@ -206,10 +206,11 @@ def select_points_within_polygons(
     -------
     gpd.GeoDataFrame
         Geodataframe containing only selected geometries.
+
     """
     # Instance checks and coerce to geodataframe if required
-    gdf = utils.check_geometry_instance(gdf)
-    polygon_gdf = utils.check_geometry_instance(polygon_gdf)
+    gdf = casting.check_geometry_instance(gdf)
+    polygon_gdf = casting.check_geometry_instance(polygon_gdf)
 
     # Selection logic
     if buffer > 0:

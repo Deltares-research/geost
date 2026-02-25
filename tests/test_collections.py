@@ -546,6 +546,11 @@ class TestBoreholeCollection:
 
     @pytest.mark.unittest
     def test_get_layer_top(self, borehole_collection):
+        from geost.base import BoreholeCollection
+
+        borehole_collection = BoreholeCollection(
+            borehole_collection.data, header=borehole_collection.header
+        )
         borehole_collection.get_layer_top("lith", ["Z", "K"], include_in_header=True)
 
         expected_sand_top = [1.5, np.nan, 2.9, 2.5, 0.0]

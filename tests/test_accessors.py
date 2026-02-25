@@ -464,10 +464,6 @@ class TestGeostFrame:
             point_header.gst.spatial_join(test_polygon, label_id="id")
 
     @pytest.mark.unittest
-    def test_spatial_join_nearest(self, point_header):
-        assert 1 == 2
-
-    @pytest.mark.unittest
     def test_select_by_values(self, borehole_data):
         selected = borehole_data.gst.select_by_values("lith", ["V", "K"], how="or")
         assert isinstance(selected, pd.DataFrame)

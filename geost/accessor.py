@@ -12,10 +12,9 @@ from pyproj import CRS
 import geost
 from geost import (
     export,
-    spatial,
-    utils,
     validation,
 )  # FIXME: spatial triggers import of xarray, rioxarray. We don't want this automatically.
+from geost.utils import casting, spatial
 from geost.validation.method_checks import (
     _requires_depth,
     _requires_geometry,
@@ -515,7 +514,7 @@ class GeostFrame:
             GeoDataFrame resulting from the spatial join.
 
         """
-        geometries = utils.check_geometry_instance(geometries)
+        geometries = casting.check_geometry_instance(geometries)
         geometries = spatial.check_and_coerce_crs(geometries, self._obj.crs)
 
         result = self._obj.copy()
@@ -870,7 +869,7 @@ class GeostFrame:
         else:
             thickness = self._obj[self._bottom].diff()
 
-            thickness[self._new_survey_id] = self._obj[
+            thickness[self._first_row_in_survey] = self._obj[
                 self._bottom
             ]  # Thickness of first layer is equal to depth of first layer data is discrete
 
@@ -931,7 +930,12 @@ class GeostFrame:
     def get_layer_top(
         self, column: str, values: str | list[str] | slice, min_thickness: float = None
     ) -> pd.Series:
+        from geost.analysis import layers
+
         selection = self.slice_by_values(column, values)
+
+        # 1 determine layer nrs by taking consecutive layers that meet the condition
+        # 2 calculate the thickness per layer
 
         if "thickness" not in self._obj.columns:
             thickness = self.calculate_thickness()
@@ -944,11 +948,15 @@ class GeostFrame:
             selection[self._bottom] = selection[self._bottom] - selection["thickness"]
             # In case of discrete data, we calculate the top of the layer because the depth
             # is not the actual top of the layer but its base.
-            layer_top = selection.groupby("nr", sort=False)[self._bottom].first()
+            layer_top = selection[["nr", self._bottom]].drop_duplicates(
+                subset="nr", keep="first"
+            )
         else:
-            layer_top = selection.groupby("nr", sort=False)[self._top].first()
+            layer_top = selection[["nr", self._top]].drop_duplicates(
+                subset="nr", keep="first"
+            )
 
-        return layer_top
+        return layer_top.set_index("nr")
 
     @_requires_depth
     def get_layer_base(

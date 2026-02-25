@@ -11,7 +11,7 @@ import geost
 @pytest.mark.unittest
 def test_boreholes_usp():
     boreholes = geost.data.boreholes_usp()
-    assert isinstance(boreholes, geost.BoreholeCollection)
+    assert isinstance(boreholes, geost.Collection)
     boreholes = geost.data.boreholes_usp(pandas=True)
     assert isinstance(boreholes, pd.DataFrame)
 
@@ -19,7 +19,7 @@ def test_boreholes_usp():
 @pytest.mark.unittest
 def test_cpts_usp():
     cpts = geost.data.cpts_usp()
-    assert isinstance(cpts, geost.CptCollection)
+    assert isinstance(cpts, geost.Collection)
     cpts = geost.data.cpts_usp(pandas=True)
     assert isinstance(cpts, pd.DataFrame)
 

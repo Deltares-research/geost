@@ -19,7 +19,7 @@ from geost.analysis.grainsize import (
     calculate_bhrgt_grainsize_percentiles,
 )
 from geost.analysis.interpret_cpt import calc_ic, calc_lithology
-from geost.analysis.layer_analysis import find_top_sand
+from geost.analysis.layers import find_top_sand
 from geost.base import Collection
 
 

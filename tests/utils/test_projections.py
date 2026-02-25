@@ -2,7 +2,7 @@ import pyproj
 import pytest
 from numpy.testing import assert_almost_equal
 
-from geost import projections
+from geost.utils import projections
 
 
 @pytest.mark.unittest

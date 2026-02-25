@@ -6,7 +6,6 @@ import geopandas as gpd
 import pandas as pd
 from pyproj import CRS
 
-from geost import utils
 from geost.accessors.data import DiscreteData, LayeredData
 from geost.accessors.header import PointHeader
 from geost.base import (
@@ -17,6 +16,7 @@ from geost.base import (
 from geost.bro import BroApi
 from geost.io import _parse_cpt_gef_files, xml
 from geost.io.parsers import BorisXML
+from geost.utils import casting, io_helpers
 
 type BroObject = Literal["BHR-GT", "BHR-GT-samples", "BHR-P", "BHR-G", "CPT", "SFR"]
 
@@ -186,7 +186,7 @@ def read_borehole_table(
     >>> read_borehole_table(file, 32631, 'Ostend height', column_mapper={'maaiveld': 'surface'})
 
     """
-    boreholes = utils._pandas_read(file, **kwargs)
+    boreholes = io_helpers._pandas_read(file, **kwargs)
 
     if has_inclined:
         boreholes = _check_mandatory_column_presence(
@@ -262,7 +262,7 @@ def read_cpt_table(
         Instance of :class:`~geost.base.CptCollection`.
 
     """
-    cpts = utils._pandas_read(file, **kwargs)
+    cpts = io_helpers._pandas_read(file, **kwargs)
 
     cpts = _check_mandatory_column_presence(
         cpts, MANDATORY_DISCRETE_DATA_COLUMNS, column_mapper
@@ -283,8 +283,8 @@ def read_nlog_cores(file: str | Path) -> BoreholeCollection:
     distribution of borehole data here: https://www.nlog.nl/boringen
 
     Warning: reading this Excel file is really slow (~10 minutes). Converting it to
-    parquet using :func:`~geost.utils.excel_to_parquet` once and using that file instead
-    allows for much faster reading of nlog data.
+    parquet using :func:`~geost.utils.io_helpers.excel_to_parquet` once and using that
+    file instead allows for much faster reading of nlog data.
 
     Parameters
     ----------
@@ -296,7 +296,7 @@ def read_nlog_cores(file: str | Path) -> BoreholeCollection:
     :class:`~geost.borehole.BoreholeCollection`
         :class:`~geost.borehole.BoreholeCollection`
     """
-    nlog_cores = utils._pandas_read(file)
+    nlog_cores = io_helpers._pandas_read(file)
 
     nlog_cores.rename(
         columns={
@@ -459,7 +459,7 @@ def read_bhrgt(
         crs=horizontal_reference,
     )
 
-    return BoreholeCollection(header, data)
+    return Collection(data, header=header)
 
 
 def read_bhrgt_samples(
@@ -531,12 +531,12 @@ def read_bhrgt_samples(
     # If no sample data was found, the data table will be empty. In that case, we can
     # just return an empty collection.
     if "top" in data.columns and "bottom" in data.columns:
-        return BoreholeCollection(header, data)
+        return Collection(data, header=header)
     else:
         warnings.warn(
             "No sample data found in the provided XML file(s). Returning an empty collection."
         )
-        return Collection(None, None)
+        return Collection(None, header=None)
 
 
 def read_bhrp(
@@ -601,7 +601,7 @@ def read_bhrp(
         crs=horizontal_reference,
     )
 
-    return BoreholeCollection(header, data)
+    return Collection(data, header=header)
 
 
 def read_bhrg(
@@ -667,7 +667,7 @@ def read_bhrg(
         crs=horizontal_reference,
     )
 
-    return BoreholeCollection(header, data)
+    return Collection(data, header=header)
 
 
 def read_sfr(
@@ -733,7 +733,7 @@ def read_sfr(
         crs=horizontal_reference,
     )
 
-    return BoreholeCollection(header, data)
+    return Collection(data, header=header)
 
 
 def read_gef_cpts(file_or_folder: str | Path) -> CptCollection:
@@ -822,7 +822,7 @@ def read_cpt(
     data.fillna({"depth": data["penetrationlength"]}, inplace=True)
     data.sort_values(["nr", "depth"], inplace=True)
 
-    return CptCollection(header, data)
+    return Collection(data, header=header)
 
 
 def read_uullg_tables(
@@ -860,8 +860,8 @@ def read_uullg_tables(
         Instance of :class:`~geost.base.BoreholeCollection` of the UU-LLG data.
 
     """
-    header = utils._pandas_read(header_table, **kwargs)
-    data = utils._pandas_read(data_table, **kwargs)
+    header = io_helpers._pandas_read(header_table, **kwargs)
+    data = io_helpers._pandas_read(data_table, **kwargs)
 
     header.rename(columns=LLG_COLUMN_MAPPING, inplace=True)
     data.rename(columns=LLG_COLUMN_MAPPING, inplace=True)
@@ -869,7 +869,7 @@ def read_uullg_tables(
     header = header.astype({"nr": str})
     data = data.astype({"nr": str})
 
-    header = utils.dataframe_to_geodataframe(header).set_crs(horizontal_reference)
+    header = casting.dataframe_to_geodataframe(header).set_crs(horizontal_reference)
 
     add_header_cols = [c for c in {"x", "y", "surface", "end"} if c not in data.columns]
     if add_header_cols:
@@ -1110,7 +1110,7 @@ def bro_api_read(
         if bbox:
             xmin, ymin, xmax, ymax = bbox
         elif geometry is not None:
-            geometry = utils.check_geometry_instance(geometry)
+            geometry = casting.check_geometry_instance(geometry)
             epsg = CRS.from_user_input(geometry.crs or epsg)
             if geometry.crs is None:
                 warnings.warn(
@@ -1130,6 +1130,6 @@ def bro_api_read(
     if bro_data:
         collection = reader(bro_data, schema=schema, horizontal_reference=epsg)
     else:
-        collection = Collection(None, None)
+        collection = Collection(None, header=None)
 
     return collection
