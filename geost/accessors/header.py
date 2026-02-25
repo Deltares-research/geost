@@ -6,9 +6,10 @@ import pandas as pd
 from pyproj import CRS
 from shapely import geometry as gmt
 
-from geost import spatial, utils
+from geost import utils
 from geost.abstract_classes import AbstractHeader
-from geost.projections import vertical_reference_transformer
+from geost.utils import spatial
+from geost.utils.projections import vertical_reference_transformer
 
 type Coordinate = int | float
 type GeometryType = gmt.base.BaseGeometry | list[gmt.base.BaseGeometry]

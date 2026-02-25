@@ -67,7 +67,9 @@ class LayeredData(AbstractData):
         """
         header_columns = ["nr", "x", "y", "surface", "end"]
         header = self._df[header_columns].drop_duplicates("nr").reset_index(drop=True)
-        header = utils.dataframe_to_geodataframe(header).set_crs(horizontal_reference)
+        header = utils.casting.dataframe_to_geodataframe(header).set_crs(
+            horizontal_reference
+        )
         return header
 
     def to_collection(
@@ -807,7 +809,9 @@ class DiscreteData(AbstractData):
         """
         header_columns = ["nr", "x", "y", "surface", "end"]
         header = self._df[header_columns].drop_duplicates("nr").reset_index(drop=True)
-        header = utils.dataframe_to_geodataframe(header).set_crs(horizontal_reference)
+        header = utils.casting.dataframe_to_geodataframe(header).set_crs(
+            horizontal_reference
+        )
         return header
 
     def to_collection(
@@ -836,15 +840,15 @@ class DiscreteData(AbstractData):
 
         Returns
         -------
-        :class:`~geost.base.CptCollection`
+        :class:`~geost.base.Collection`
             An instance of :class:`~geost.base.CptCollection`
 
         """
-        from geost.base import CptCollection
+        from geost.base import Collection
 
         header = self.to_header(horizontal_reference)
 
-        return CptCollection(
+        return Collection(
             self._df,
             header=header,
             has_inclined=has_inclined,

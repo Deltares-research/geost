@@ -16,7 +16,7 @@ import pandas as pd
 from lxml import etree
 from pyproj import CRS
 
-from geost.projections import horizontal_reference_transformer
+from geost.utils.projections import horizontal_reference_transformer
 
 from . import schemas
 

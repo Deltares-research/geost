@@ -7,8 +7,8 @@ import pytest
 import xarray as xr
 from numpy.testing import assert_allclose
 
-from geost import spatial
-from geost.utils import dataframe_to_geodataframe
+from geost.utils import spatial
+from geost.utils.casting import dataframe_to_geodataframe
 
 
 class TestSpatialUtils:

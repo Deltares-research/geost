@@ -10,7 +10,7 @@ from shapely import geometry as gmt
 from geost import config, utils
 from geost._warnings import AlignmentWarning
 from geost.abstract_classes import AbstractCollection
-from geost.projections import (
+from geost.utils.projections import (
     horizontal_reference_transformer,
     vertical_reference_transformer,
 )
@@ -998,7 +998,7 @@ class Collection(AbstractCollection):
             The default is None.
 
         """
-        utils._to_geopackage(
+        utils.io_helpers._to_geopackage(
             self.header,
             outfile,
             "Header",
@@ -1007,7 +1007,7 @@ class Collection(AbstractCollection):
             index=False,
             metadata=metadata,
         )
-        utils._to_geopackage(
+        utils.io_helpers._to_geopackage(
             gpd.GeoDataFrame(self.data),
             outfile,
             "Data",
@@ -1089,7 +1089,7 @@ class Collection(AbstractCollection):
         >>> collection.to_pickle("example.pkl")
 
         """
-        utils.save_pickle(self, outfile, **kwargs)
+        utils.io_helpers.save_pickle(self, outfile, **kwargs)
 
     def to_pyvista_cylinders(
         self,

@@ -9,7 +9,7 @@ import rioxarray as rio
 import xarray as xr
 
 from geost.export import vtk
-from geost.utils import check_geometry_instance
+from geost.utils.casting import check_geometry_instance
 
 from . import model_utils
 

@@ -4,7 +4,7 @@ import requests
 from lxml import etree
 
 from geost.bro.bro_utils import get_bbox_criteria
-from geost.projections import horizontal_reference_transformer
+from geost.utils.projections import horizontal_reference_transformer
 
 Coordinate = TypeVar("Coordinate", int, float)
 

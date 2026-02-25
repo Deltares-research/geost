@@ -498,7 +498,8 @@ def test_bro_api_read(object_type, options, expected_bro_ids, expected_warning):
 def test_bro_api_read_no_results(object_type):
     collection = geost.bro_api_read(object_type, bbox=[0, 0, 1, 1])
     assert isinstance(collection, geost.base.Collection)
-    assert "<EMPTY COLLECTION>" in str(collection)
+    assert collection.header.empty
+    assert collection.data.empty
 
 
 @pytest.mark.unittest
