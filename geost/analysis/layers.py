@@ -8,14 +8,20 @@ def get_layer_top(
     data: pd.DataFrame,
     column: str,
     value: int | float | str | list[str] | slice,
-    min_thickness: float = 0,
-    min_fraction: float = 0,
+    min_thickness: float = None,
+    min_fraction: float = None,
 ) -> pd.DataFrame:
     if not data.gst.has_depth_columns:
         raise ValueError(
             "Data must contain columns specifying depth intervals. See "
             "GeostFrame.has_depth_columns for more information."
         )
+
+    if min_thickness is not None and min_thickness <= 0:
+        raise ValueError("min_thickness must be positive and zero or greater.")
+
+    if min_fraction is not None and not (0 <= min_fraction <= 1):
+        raise ValueError("min_fraction must be between 0 and 1.")
 
     data = data.copy()
     if data.gst._top and data.gst._bottom:
@@ -30,8 +36,8 @@ def get_layer_base(
     data: pd.DataFrame,
     column: str,
     value: int | float | str | list[str] | slice,
-    min_thickness: float = 0,
-    min_fraction: float = 0,
+    min_thickness: float = None,
+    min_fraction: float = None,
 ) -> pd.DataFrame:
     if not data.gst.has_depth_columns:
         raise ValueError(
@@ -47,20 +53,27 @@ def _get_layer_top_layered(
     data: pd.DataFrame,
     column: str,
     value: int | float | str | list[str] | slice,
-    min_thickness: float = 0,
-    min_fraction: float = 0,
+    min_thickness: float = None,
+    min_fraction: float = None,
 ) -> pd.DataFrame:
     value_mask = _mask(value, data[column])
+    top_col = data.gst._top
 
-    return value_mask
+    tops = (
+        data.loc[value_mask, ["nr", top_col]]
+        .drop_duplicates(subset="nr")
+        .reset_index(drop=True)
+    )
+
+    return tops
 
 
 def _get_layer_top_discrete(
     data: pd.DataFrame,
     column: str,
     value: int | float | str | list[str] | slice,
-    min_thickness: float = 0,
-    min_fraction: float = 0,
+    min_thickness: float = None,
+    min_fraction: float = None,
 ) -> pd.DataFrame:
     if "thickness" not in data.columns:
         data["thickness"] = data.gst.calculate_thickness()
@@ -208,3 +221,7 @@ def top_of_sand(
         result.append((nr, top_sand))
 
     return pd.DataFrame(result, columns=["nr", "top"])
+
+
+def cumulative_thickness():
+    pass
