@@ -1,7 +1,7 @@
-from functools import singledispatch
-
 import numpy as np
 import pandas as pd
+
+from geost.utils import series
 
 
 def get_layer_top(
@@ -17,19 +17,38 @@ def get_layer_top(
             "GeostFrame.has_depth_columns for more information."
         )
 
-    if min_thickness is not None and min_thickness <= 0:
-        raise ValueError("min_thickness must be positive and zero or greater.")
+    data = data.copy()
+    data["values_mask"] = series.mask(value, data[column])
+
+    if data.gst._top is None:
+        data["thickness"] = data.gst.calculate_thickness()
+        data["top"] = data[data.gst._bottom] - data["thickness"]
+
+    if min_thickness is not None:
+        if min_thickness <= 0:
+            raise ValueError("min_thickness must be positive and zero or greater.")
+
+        data["layer_nrs"] = series.label_consecutive_elements(data["values_mask"])
+
+        data = _get_layer_top_bottom(data)
+        data["thickness"] = data.gst.calculate_thickness()
 
     if min_fraction is not None and not (0 <= min_fraction <= 1):
         raise ValueError("min_fraction must be between 0 and 1.")
 
-    data = data.copy()
-    if data.gst._top and data.gst._bottom:
-        tops = _get_layer_top_layered(data, column, value, min_thickness, min_fraction)
-    else:
-        tops = _get_layer_top_discrete(data, column, value, min_thickness, min_fraction)
-
+    tops = _get_layer_top(data, min_thickness, min_fraction)
     return tops
+
+
+def _get_layer_top_bottom(data: pd.DataFrame) -> pd.DataFrame:
+    top_col = data.gst._top
+    bottom_col = data.gst._bottom
+
+    top_bottom = data.groupby(["nr", "layer_nrs"], as_index=False).agg(
+        {"surface": "first", top_col: "min", bottom_col: "max", "values_mask": "first"}
+    )
+
+    return top_bottom
 
 
 def get_layer_base(
@@ -49,69 +68,28 @@ def get_layer_base(
     pass
 
 
-def _get_layer_top_layered(
+def _get_layer_top(
     data: pd.DataFrame,
-    column: str,
-    value: int | float | str | list[str] | slice,
     min_thickness: float = None,
     min_fraction: float = None,
 ) -> pd.DataFrame:
-    value_mask = _mask(value, data[column])
     top_col = data.gst._top
 
-    tops = (
-        data.loc[value_mask, ["nr", top_col]]
-        .drop_duplicates(subset="nr")
-        .reset_index(drop=True)
-    )
+    if min_thickness is not None:
+        if min_fraction is not None:
+            return _find_top(data.groupby("nr"), min_thickness, min_fraction)
+
+        selection = data[data["values_mask"] & (data["thickness"] >= min_thickness)]
+    else:
+        selection = data[data["values_mask"]]
+
+    tops = selection.groupby("nr", as_index=False)[top_col].min()
 
     return tops
 
 
-def _get_layer_top_discrete(
-    data: pd.DataFrame,
-    column: str,
-    value: int | float | str | list[str] | slice,
-    min_thickness: float = None,
-    min_fraction: float = None,
-) -> pd.DataFrame:
-    if "thickness" not in data.columns:
-        data["thickness"] = data.gst.calculate_thickness()
-
-    value_mask = _mask(value, data[column])
-
-    return value_mask
-
-
-@singledispatch
-def _mask(values, series):
-    """
-    Helper function to create a Boolean Series by checking equality of values using different
-    object types.
-
-    """
-    raise TypeError(
-        f"Unsupported type of selection values: {type(values)}. Values must be str, list[str], or slice."
-    )
-
-
-@_mask.register(int | float | str)
-def _(values, series):
-    return series == values
-
-
-@_mask.register(set | list | np.ndarray | pd.Series)
-def _(values, series):
-    return series.isin(values)
-
-
-@_mask.register(slice)
-def _(values, series):
-    if not pd.api.types.is_numeric_dtype(series):
-        raise TypeError("Can only use a slice on numerical columns.")
-    start = values.start or -1e34
-    stop = values.stop or 1e34
-    return series.between(start, stop)
+def _find_top(grouped, min_thickness, min_fraction):
+    pass
 
 
 def find_top_sand(

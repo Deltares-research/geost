@@ -100,8 +100,8 @@ def discrete_data(layered_data):
     [
         ("layered_data", "Z", None, None, [0.7, 0.5]),
         ("discrete_data", "Z", None, None, [0.7, 0.5]),
-        ("layered_data", "Z", 0.5, None, [1.2, 2.1]),
-        ("discrete_data", "Z", 0.5, None, [1.2, 2.1]),
+        ("layered_data", "Z", 0.5, None, [1.2, 2.05]),
+        ("discrete_data", "Z", 0.5, None, [1.2, 2.05]),
         ("layered_data", "Z", 0.5, 0.8, [0.7, 1.6]),
         ("discrete_data", "Z", 0.5, 0.8, [0.7, 1.6]),
         ("layered_data", ["L", "Z"], 0.5, None, [0.5, 1.4]),
