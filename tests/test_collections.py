@@ -16,7 +16,6 @@ from numpy.testing import (
 from shapely.geometry import LineString, Point, Polygon
 
 from geost.base import BoreholeCollection, Collection
-from geost.export import geodataclass
 
 
 @pytest.fixture
@@ -440,17 +439,6 @@ class TestCollection:
         assert_equal(
             borehole_collection.header["col2"].value_counts()["string_data"], 2
         )
-
-    @pytest.mark.unittest
-    def test_to_datafusiontools(self, borehole_collection):
-        # More detailed tests are in TestLayeredData in test_data_objects.py
-        dft = borehole_collection.to_datafusiontools("lith")
-        assert np.all([isinstance(d, geodataclass.Data) for d in dft])
-
-        outfile = Path("dft.pkl")
-        borehole_collection.to_datafusiontools("lith", outfile)
-        assert outfile.is_file()
-        outfile.unlink()
 
     @pytest.mark.unittest
     def test_to_qgis3d(self, borehole_collection):
