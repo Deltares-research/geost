@@ -928,33 +928,45 @@ class GeostFrame:
     def get_layer_top(
         self, column: str, values: str | list[str] | slice, min_thickness: float = None
     ) -> pd.Series:
-        from geost.analysis import layers
+        """
+        Find the top depth in individual survey ids where a column in a Pandas DataFrame contains
+        specified search value or values, or falls within a specified range.
 
-        selection = self.slice_by_values(column, values)
+        Parameters
+        ----------
+        column : str
+            Name of the column to search for the specified value or values.
+        values : int | float | str | list[str] | slice
+            Value or values to search for in the specified column. If a slice is provided, the
+            function will search for values within the specified range.
+        min_thickness : float, optional
+            Minimum thickness of the layer to consider. Layers thinner than this value will be
+            ignored. The thickness of a layer is calculated as the difference uppermost top
+            and the lowermost bottom of consecutive elements that meet the value criteria. If
+            None, no minimum thickness is applied which returns the first encountered layer.
+        min_fraction : float, optional
+            Whether or not to allow for disturbing layers: layers that do not meet the value
+            criteria in between. The minimum fraction is the minimal fraction of the 'min_thickness'
+            that must meet the value criteria. If None, the entire layer must meet the criteria.
+            Note that 'min_fraction' is only applied when 'min_thickness' is specified.
 
-        # 1 determine layer nrs by taking consecutive layers that meet the condition
-        # 2 calculate the thickness per layer
+        Returns
+        -------
+        pd.DataFrame
+            DataFrame containing the top depth of the layers that meet the specified criteria
+            for each survey id.
 
-        if "thickness" not in self._obj.columns:
-            thickness = self.calculate_thickness()
-            selection["thickness"] = thickness.loc[selection.index]
+        Raises
+        ------
+        ValueError
+            - If the input DataFrame does not contain columns specifying depth intervals
+            - If min_thickness is below zero
+            - If min_fraction is not between 0 and 1
 
-        if min_thickness is not None:
-            selection = selection[selection["thickness"] >= min_thickness]
+        """
+        from geost.analysis.layers import get_layer_top
 
-        if self._top is None:
-            selection[self._bottom] = selection[self._bottom] - selection["thickness"]
-            # In case of discrete data, we calculate the top of the layer because the depth
-            # is not the actual top of the layer but its base.
-            layer_top = selection[["nr", self._bottom]].drop_duplicates(
-                subset="nr", keep="first"
-            )
-        else:
-            layer_top = selection[["nr", self._top]].drop_duplicates(
-                subset="nr", keep="first"
-            )
-
-        return layer_top.set_index("nr")
+        return get_layer_top(self._obj, column, values, min_thickness)
 
     @_requires_depth
     def get_layer_base(

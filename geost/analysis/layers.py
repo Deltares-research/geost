@@ -11,44 +11,72 @@ def get_layer_top(
     min_thickness: float = None,
     min_fraction: float = None,
 ) -> pd.DataFrame:
+    """
+    Find the top depth in individual survey ids where a column in a Pandas DataFrame contains
+    specified search value or values, or falls within a specified range.
+
+    Parameters
+    ----------
+    data : pd.DataFrame
+        Pandas DataFrame containing the data. The DataFrame must contain columns specifying
+        depth intervals, such as "top" and "bottom" or "depth" and "thickness". See
+        GeostFrame.has_depth_columns for more information.
+    column : str
+        Name of the column to search for the specified value or values.
+    value : int | float | str | list[str] | slice
+        Value or values to search for in the specified column. If a slice is provided, the
+        function will search for values within the specified range.
+    min_thickness : float, optional
+        Minimum thickness of the layer to consider. Layers thinner than this value will be
+        ignored. The thickness of a layer is calculated as the difference uppermost top
+        and the lowermost bottom of consecutive elements that meet the value criteria. If
+        None, no minimum thickness is applied which returns the first encountered layer.
+    min_fraction : float, optional
+        Whether or not to allow for disturbing layers: layers that do not meet the value
+        criteria in between. The minimum fraction is the minimal fraction of the 'min_thickness'
+        that must meet the value criteria. If None, the entire layer must meet the criteria.
+        Note that 'min_fraction' is only applied when 'min_thickness' is specified.
+
+    Returns
+    -------
+    pd.DataFrame
+        DataFrame containing the top depth of the layers that meet the specified criteria
+        for each survey id.
+
+    Raises
+    ------
+    ValueError
+        - If the input DataFrame does not contain columns specifying depth intervals
+        - If min_thickness is below zero
+        - If min_fraction is not between 0 and 1
+
+    """
     if not data.gst.has_depth_columns:
         raise ValueError(
             "Data must contain columns specifying depth intervals. See "
             "GeostFrame.has_depth_columns for more information."
         )
 
-    data = data.copy()
+    data = data.gst.select_by_values(column, value)
     data["values_mask"] = series.mask(value, data[column])
 
     if data.gst._top is None:
+        # If we have discrete data, we need to calculate top depths because depth indicates bottom depths
         data["thickness"] = data.gst.calculate_thickness()
         data["top"] = data[data.gst._bottom] - data["thickness"]
 
     if min_thickness is not None:
         if min_thickness <= 0:
-            raise ValueError("min_thickness must be positive and zero or greater.")
+            raise ValueError("'min_thickness' cannot be below zero.")
 
         data["layer_nrs"] = series.label_consecutive_elements(data["values_mask"])
-
         data = _get_layer_top_bottom(data)
         data["thickness"] = data.gst.calculate_thickness()
 
     if min_fraction is not None and not (0 <= min_fraction <= 1):
-        raise ValueError("min_fraction must be between 0 and 1.")
+        raise ValueError("'min_fraction' must be between 0 and 1.")
 
-    tops = _get_layer_top(data, min_thickness, min_fraction)
-    return tops
-
-
-def _get_layer_top_bottom(data: pd.DataFrame) -> pd.DataFrame:
-    top_col = data.gst._top
-    bottom_col = data.gst._bottom
-
-    top_bottom = data.groupby(["nr", "layer_nrs"], as_index=False).agg(
-        {"surface": "first", top_col: "min", bottom_col: "max", "values_mask": "first"}
-    )
-
-    return top_bottom
+    return _get_layer_top(data, min_thickness, min_fraction)
 
 
 def get_layer_base(
@@ -64,8 +92,20 @@ def get_layer_base(
             "GeostFrame.has_depth_columns for more information."
         )
 
-    data = data.copy()
-    pass
+    data = data.gst.select_by_values(column, value)
+
+    return
+
+
+def _get_layer_top_bottom(data: pd.DataFrame) -> pd.DataFrame:
+    top_col = data.gst._top
+    bottom_col = data.gst._bottom
+
+    top_bottom = data.groupby(["nr", "layer_nrs"], as_index=False).agg(
+        {"surface": "first", top_col: "min", bottom_col: "max", "values_mask": "first"}
+    )
+
+    return top_bottom
 
 
 def _get_layer_top(
@@ -77,7 +117,16 @@ def _get_layer_top(
 
     if min_thickness is not None:
         if min_fraction is not None:
-            return _find_top(data.groupby("nr"), min_thickness, min_fraction)
+            tops = data.groupby("nr", as_index=False).apply(
+                lambda df: _find_top(
+                    df["values_mask"].values,
+                    df[top_col].values,
+                    df[data.gst._bottom].values,
+                    min_thickness,
+                    min_fraction,
+                )
+            )
+            return tops.rename(columns={None: "top"}).dropna(subset="top")
 
         selection = data[data["values_mask"] & (data["thickness"] >= min_thickness)]
     else:
@@ -88,8 +137,31 @@ def _get_layer_top(
     return tops
 
 
-def _find_top(grouped, min_thickness, min_fraction):
-    pass
+def _find_top(
+    valid, top, bottom, min_thickness: float, min_fraction: float
+) -> pd.DataFrame:
+    idx_valid = np.flatnonzero(valid)
+
+    for idx in idx_valid:
+        t_idx = top[idx]
+        search_depth = t_idx + min_thickness
+
+        search_mask = (top >= t_idx) & (top < search_depth)
+
+        tmp_top = top[search_mask].copy()
+        tmp_bottom = bottom[search_mask].copy()
+
+        if tmp_bottom[-1] > search_depth:
+            tmp_bottom[-1] = search_depth
+
+        length = tmp_bottom - tmp_top
+
+        frac = length[valid[search_mask]].sum() / min_thickness
+
+        if frac >= min_fraction:
+            return t_idx
+    else:
+        return np.nan
 
 
 def find_top_sand(
