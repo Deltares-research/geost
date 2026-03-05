@@ -98,6 +98,11 @@ def get_layer_base(
 
 
 def _get_layer_top_bottom(data: pd.DataFrame) -> pd.DataFrame:
+    """
+    Helper for get_layer_top and get_layer_base to find the top and bottom depths of
+    data that have been labelled in terms of layers of consecutive array elements.
+
+    """
     top_col = data.gst._top
     bottom_col = data.gst._bottom
 
@@ -113,6 +118,11 @@ def _get_layer_top(
     min_thickness: float = None,
     min_fraction: float = None,
 ) -> pd.DataFrame:
+    """
+    Helper for get_layer_top to find the top depth of layers in different ways using the
+    options 'min_thickness' and 'min_fraction'.
+
+    """
     top_col = data.gst._top
 
     if min_thickness is not None:
@@ -140,6 +150,12 @@ def _get_layer_top(
 def _find_top(
     valid, top, bottom, min_thickness: float, min_fraction: float
 ) -> pd.DataFrame:
+    """
+    Helper function to find the top depth of a layer in a single data survey when `min_fraction`
+    is used in `get_layer_top`. The 'min_fraction' option allows for disturbing layers: invalid
+    elements in between the valid elements.
+
+    """
     idx_valid = np.flatnonzero(valid)
 
     for idx in idx_valid:
@@ -156,9 +172,9 @@ def _find_top(
 
         length = tmp_bottom - tmp_top
 
-        frac = length[valid[search_mask]].sum() / min_thickness
+        fraction = length[valid[search_mask]].sum() / min_thickness
 
-        if frac >= min_fraction:
+        if fraction >= min_fraction:
             return t_idx
     else:
         return np.nan
