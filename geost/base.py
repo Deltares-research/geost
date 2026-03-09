@@ -969,22 +969,19 @@ class Collection(AbstractBase):
         >>> boreholes.get_cumulative_thickness("lith", ["K"], include_in_header=True)
 
         """
-        cum_thickness = self.data.gstda.get_cumulative_thickness(column, values)
-        cum_thickness.columns = cum_thickness.columns.astype(str)
+        thickness = self.data.gst.get_cumulative_thickness(column, values)
 
         if include_in_header:
-            columns = [c + "_thickness" for c in cum_thickness.columns]
-            self.header.drop(
-                columns=columns,
-                errors="ignore",
-                inplace=True,
+            prefix = f"{column}[" if isinstance(values, slice) else ""
+            suffix = "]_thickness" if isinstance(values, slice) else "_thickness"
+            column_name = utils.columns.column_name_from(
+                values, prefix=prefix, suffix=suffix
             )
-            self.header = self.header.merge(
-                cum_thickness.add_suffix("_thickness"), on="nr", how="left"
-            )
-            self.header[columns] = self.header[columns].fillna(0)
+            thickness.name = column_name
+            self.header.drop(columns=column_name, errors="ignore", inplace=True)
+            self.header = self.header.merge(thickness, on="nr", how="left")
         else:
-            return cum_thickness
+            return thickness
 
     def to_geoparquet(self, outfile: str | Path, **kwargs):
         """

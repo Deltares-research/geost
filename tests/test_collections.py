@@ -8,8 +8,8 @@ import pytest
 import pyvista as pv
 import xarray as xr
 from numpy.testing import (
-    assert_allclose,
     assert_almost_equal,
+    assert_array_almost_equal,
     assert_array_equal,
     assert_equal,
 )
@@ -469,6 +469,46 @@ class TestCollection:
         grid = borehole_collection.to_pyvista_grid("lith")
         assert isinstance(grid, pv.UnstructuredGrid)
 
+    @pytest.mark.parametrize(
+        "collection, column, value, expected_column, expected_thickness",
+        [
+            (
+                "borehole_collection",
+                "lith",
+                "Z",
+                "Z_thickness",
+                [2.2, np.nan, 2.6, 0.5, 3.0],
+            ),
+            (
+                "borehole_collection",
+                "lith",
+                ["L", "Z"],
+                "L,Z_thickness",
+                [2.2, np.nan, 2.6, 0.5, 3.0],
+            ),
+            (
+                "cpt_collection",
+                "qc",
+                slice(0.7, 13),
+                "qc[0.7:13]_thickness",
+                [2, 1],
+            ),
+        ],
+        ids=["Z", "L, Z", "slice"],
+    )
+    def test_get_cumulative_thickness(
+        self, collection, column, value, expected_column, expected_thickness, request
+    ):
+        collection = request.getfixturevalue(collection)
+
+        thickness = collection.get_cumulative_thickness(column, value)
+        assert isinstance(thickness, pd.Series)
+
+        collection.get_cumulative_thickness(column, value, include_in_header=True)
+        assert_array_almost_equal(
+            collection.header[expected_column], expected_thickness
+        )
+
     # @pytest.mark.integrationtest
     # def test_surface_level_update(self, borehole_collection, update_raster):
     #     borehole_collection.update_surface_level_from_raster(update_raster, how="replace")
@@ -476,32 +516,6 @@ class TestCollection:
 
 
 class TestBoreholeCollection:
-    @pytest.mark.unittest
-    def test_get_cumulative_thickness(self, borehole_collection):
-        expected_sand_thickness = [2.2, 0.0, 2.6, 0.5, 3.0]
-
-        # Test single lithology
-        borehole_collection.get_cumulative_thickness(
-            "lith", "Z", include_in_header=True
-        )
-        assert_almost_equal(
-            borehole_collection.header["Z_thickness"], expected_sand_thickness
-        )
-
-        # Test multiple lithologies
-        borehole_collection.get_cumulative_thickness(
-            "lith", ["Z", "K"], include_in_header=True
-        )
-        expected_clay_thickness = [2.0, 2.0, 2.9, 1.1, 0.0]
-        expected_sand_thickness = [2.2, 0.0, 2.6, 0.5, 3.0]
-
-        assert_almost_equal(
-            borehole_collection.header["K_thickness"], expected_clay_thickness
-        )
-        assert_almost_equal(
-            borehole_collection.header["Z_thickness"], expected_sand_thickness
-        )
-
     @pytest.mark.unittest
     def test_get_layer_top(self, borehole_collection):
         from geost.base import BoreholeCollection
