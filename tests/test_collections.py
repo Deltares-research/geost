@@ -411,36 +411,6 @@ class TestCollection:
         assert selected.data.shape == (3, 8)
 
     @pytest.mark.unittest
-    def test_get_area_labels(self, borehole_collection):
-        label_polygon = [Polygon(((2, 1), (5, 4), (4, 5), (1, 4)))]
-        label_gdf = gpd.GeoDataFrame({"id": [1]}, geometry=label_polygon, crs=28992)
-        # Return variant
-        output = borehole_collection.get_area_labels(label_gdf, "id")
-        assert_almost_equal(output["id"].sum(), 2)
-        # In-place variant
-        borehole_collection.get_area_labels(label_gdf, "id", include_in_header=True)
-        assert_almost_equal(borehole_collection.header["id"].sum(), 2)
-
-    @pytest.mark.unittest
-    def test_get_area_labels_multiple(self, borehole_collection):
-        label_polygon = [Polygon(((2, 1), (5, 4), (4, 5), (1, 4)))]
-        label_gdf = gpd.GeoDataFrame(
-            {"id": [1], "col2": ["string_data"]}, geometry=label_polygon, crs=28992
-        )
-        # Return variant
-        output = borehole_collection.get_area_labels(label_gdf, ["id", "col2"])
-        assert_almost_equal(output["id"].sum(), 2)
-        assert_equal(output["col2"].value_counts()["string_data"], 2)
-        # In-place variant
-        borehole_collection.get_area_labels(
-            label_gdf, ["id", "col2"], include_in_header=True
-        )
-        assert_almost_equal(borehole_collection.header["id"].sum(), 2)
-        assert_equal(
-            borehole_collection.header["col2"].value_counts()["string_data"], 2
-        )
-
-    @pytest.mark.unittest
     def test_to_qgis3d(self, borehole_collection):
         outfile = Path("temp.gpkg")
         borehole_collection.to_qgis3d(outfile)

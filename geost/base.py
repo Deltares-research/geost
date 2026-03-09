@@ -921,37 +921,64 @@ class Collection(AbstractCollection):
             vertical_reference=self.vertical_reference,
         )
 
-    def get_area_labels(
-        self,
-        polygon_gdf: str | Path | gpd.GeoDataFrame,
-        column_name: str | Iterable,
-        include_in_header=False,
-    ) -> pd.DataFrame:
+    def get_cumulative_thickness(
+        self, column: str, values: str | list[str], include_in_header: bool = False
+    ):
         """
-        Find in which area (polygons) the point data locations fall. e.g. to determine
-        in which geomorphological unit points are located.
+        Get the cumulative thickness of layers where a column contains a specified search
+        value or values.
 
         Parameters
         ----------
-        polygon_gdf : str | Path | gpd.GeoDataFrame
-            GeoDataFrame with polygons.
-        column_name : str | Iterable
-            The column name to find the labels in. Given as a string or iterable of
-            strings in case you'd like to find multiple labels.
+        column : str
+            Name of column that must contain the search value or values.
+        values : str | list[str]
+            Search value or values in the column to find the cumulative thickness for.
         include_in_header : bool, optional
-            Whether to add the acquired data to the header table or not, by default
-            False.
+            If True, include the result in the header table of the collection. In this
+            case, the method does not return a DataFrame. The default is False.
 
         Returns
         -------
         pd.DataFrame
-            Borehole ids and the polygon label they are in. If include_in_header = True,
-            a column containing the generated data will be added inplace to the header.
+            Borehole ids and cumulative thickness of selected layers if the "include_in_header"
+            option is set to False.
+
+        Examples
+        --------
+        Get the cumulative thickness of the layers with lithology "K" in the column "lith"
+        use:
+
+        >>> boreholes.get_cumulative_thickness("lith", "K")
+
+        Or get the cumulative thickness for multiple selection values. In this case, a
+        Pandas DataFrame is returned with a column per selection value containing the
+        cumulative thicknesses:
+
+        >>> boreholes.get_cumulative_thickness("lith", ["K", "Z"])
+
+        To include the result in the header object of the collection, use the
+        "include_in_header" option:
+
+        >>> boreholes.get_cumulative_thickness("lith", ["K"], include_in_header=True)
+
         """
-        result = self.header.gsthd.get_area_labels(
-            polygon_gdf, column_name, include_in_header=include_in_header
-        )
-        return result
+        cum_thickness = self.data.gstda.get_cumulative_thickness(column, values)
+        cum_thickness.columns = cum_thickness.columns.astype(str)
+
+        if include_in_header:
+            columns = [c + "_thickness" for c in cum_thickness.columns]
+            self.header.drop(
+                columns=columns,
+                errors="ignore",
+                inplace=True,
+            )
+            self.header = self.header.merge(
+                cum_thickness.add_suffix("_thickness"), on="nr", how="left"
+            )
+            self.header[columns] = self.header[columns].fillna(0)
+        else:
+            return cum_thickness
 
     def to_geoparquet(self, outfile: str | Path, **kwargs):
         """
@@ -1236,65 +1263,6 @@ class BoreholeCollection(Collection):
         # )
         # self.sample_data = sample_data
         raise NotImplementedError
-
-    def get_cumulative_thickness(
-        self, column: str, values: str | list[str], include_in_header: bool = False
-    ):
-        """
-        Get the cumulative thickness of layers where a column contains a specified search
-        value or values.
-
-        Parameters
-        ----------
-        column : str
-            Name of column that must contain the search value or values.
-        values : str | list[str]
-            Search value or values in the column to find the cumulative thickness for.
-        include_in_header : bool, optional
-            If True, include the result in the header table of the collection. In this
-            case, the method does not return a DataFrame. The default is False.
-
-        Returns
-        -------
-        pd.DataFrame
-            Borehole ids and cumulative thickness of selected layers if the "include_in_header"
-            option is set to False.
-
-        Examples
-        --------
-        Get the cumulative thickness of the layers with lithology "K" in the column "lith"
-        use:
-
-        >>> boreholes.get_cumulative_thickness("lith", "K")
-
-        Or get the cumulative thickness for multiple selection values. In this case, a
-        Pandas DataFrame is returned with a column per selection value containing the
-        cumulative thicknesses:
-
-        >>> boreholes.get_cumulative_thickness("lith", ["K", "Z"])
-
-        To include the result in the header object of the collection, use the
-        "include_in_header" option:
-
-        >>> boreholes.get_cumulative_thickness("lith", ["K"], include_in_header=True)
-
-        """
-        cum_thickness = self.data.gstda.get_cumulative_thickness(column, values)
-        cum_thickness.columns = cum_thickness.columns.astype(str)
-
-        if include_in_header:
-            columns = [c + "_thickness" for c in cum_thickness.columns]
-            self.header.drop(
-                columns=columns,
-                errors="ignore",
-                inplace=True,
-            )
-            self.header = self.header.merge(
-                cum_thickness.add_suffix("_thickness"), on="nr", how="left"
-            )
-            self.header[columns] = self.header[columns].fillna(0)
-        else:
-            return cum_thickness
 
     def get_layer_top(
         self,
