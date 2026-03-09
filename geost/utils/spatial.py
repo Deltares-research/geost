@@ -8,7 +8,7 @@ import pandas as pd
 import rioxarray
 import xarray as xr
 
-from geost import utils
+from geost.utils import casting
 
 
 def check_and_coerce_crs(gdf: gpd.GeoDataFrame, to_crs: int):
@@ -86,7 +86,7 @@ def select_points_within_bbox(
 
     """
     # Instance checks and coerce to geodataframe if required
-    gdf = utils.check_geometry_instance(gdf)
+    gdf = casting.check_geometry_instance(gdf)
     selected = gdf.cx[xmin:xmax, ymin:ymax]
 
     if invert:
@@ -121,8 +121,8 @@ def select_points_near_points(
         Geodataframe containing only selected geometries.
     """
     # Instance checks and coerce to geodataframe if required
-    gdf = utils.check_geometry_instance(gdf)
-    point_gdf = utils.check_geometry_instance(point_gdf)
+    gdf = casting.check_geometry_instance(gdf)
+    point_gdf = casting.check_geometry_instance(point_gdf)
 
     # Selection logic
     data_points = np.array([gdf["geometry"].x, gdf["geometry"].y]).transpose()
@@ -169,8 +169,8 @@ def select_points_near_lines(
         Geodataframe containing only selected geometries.
     """
     # Instance checks and coerce to geodataframe if required
-    gdf = utils.check_geometry_instance(gdf)
-    line_gdf = utils.check_geometry_instance(line_gdf)
+    gdf = casting.check_geometry_instance(gdf)
+    line_gdf = casting.check_geometry_instance(line_gdf)
 
     # Selection logic
     line_gdf["geometry"] = line_gdf.buffer(distance=buffer)
@@ -206,10 +206,11 @@ def select_points_within_polygons(
     -------
     gpd.GeoDataFrame
         Geodataframe containing only selected geometries.
+
     """
     # Instance checks and coerce to geodataframe if required
-    gdf = utils.check_geometry_instance(gdf)
-    polygon_gdf = utils.check_geometry_instance(polygon_gdf)
+    gdf = casting.check_geometry_instance(gdf)
+    polygon_gdf = casting.check_geometry_instance(polygon_gdf)
 
     # Selection logic
     if buffer > 0:
@@ -224,40 +225,6 @@ def select_points_within_polygons(
         gdf_selected = gdf[gdf.geometry.within(polygon_select.union_all())]
 
     return gdf_selected
-
-
-def find_area_labels(
-    point_geodataframe: gpd.GeoDataFrame,
-    polygon_geodataframe: gpd.GeoDataFrame,
-    column_name: str | Iterable,
-) -> pd.Series:
-    """
-    Function to find labels associated with polygon geometries for a series of queried
-    point geometries. Basically a spatial join between the point and polygon dataframe.
-
-    Parameters
-    ----------
-    point_geodataframe : gpd.GeoDataFrame
-        Geodataframe with point geometries for which you want to find in which polygon
-        geometries they are located.
-    polygon_geodataframe : gpd.GeoDataFrame
-        Geodataframe with polygon geometries
-    column_name : str | Iterable
-        Label of the polygon geometries to use for assigning to the queried points.
-        Given as a string or iterable of strings in case you'd like to find multiple
-        labels.
-
-    Returns
-    -------
-    pandas.Series
-        Series with labels from the polygon geometries for each point.
-    """
-    if not isinstance(column_name, str):
-        column_name = list(column_name)
-    joined = gpd.sjoin(point_geodataframe, polygon_geodataframe)[column_name]
-    # Remove any duplicated indices, which may sometimes happen
-    area_labels = joined[~joined.index.duplicated()]
-    return area_labels
 
 
 def get_raster_values(

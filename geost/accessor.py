@@ -1,16 +1,29 @@
-from typing import TYPE_CHECKING, Any, Iterable, List
+from __future__ import annotations
+
+from collections.abc import Iterable
+from functools import singledispatchmethod
+from pathlib import Path
+from typing import TYPE_CHECKING, Any, Iterable
 
 import geopandas as gpd
+import numpy as np
 import pandas as pd
 from pyproj import CRS
-from shapely import buffer
 
-from geost import spatial, validation
+import geost
+from geost import (
+    export,
+    validation,
+)  # FIXME: spatial triggers import of xarray, rioxarray. We don't want this automatically.
+from geost.utils import casting, spatial
+from geost.validation.method_checks import (
+    _requires_depth,
+    _requires_geometry,
+    _requires_xy,
+)
 
 if TYPE_CHECKING:
-    from pathlib import Path
-
-    from pandera import DataFrameSchema
+    from pyproj import CRS
     from shapely.geometry.base import BaseGeometry
 
 type DataFrame = pd.DataFrame | gpd.GeoDataFrame
@@ -22,25 +35,23 @@ class GeostFrame:
     def __init__(self, dataframe: DataFrame):
         self._validate_dataframe(dataframe)
         self._obj = dataframe
-        self._set_depth_columns()
+        self._set_positional_columns()
 
-    def _set_depth_columns(self):
+    def _set_positional_columns(self):
         """
-        Determine which columns in the DataFrame contain depth information and set them
-        as attributes of the accessor. The method looks for the presence of either "top"
-        and "bottom" like columns for layered data, or a single "depth" like column for
-        discrete data.
+        Determine which columns in the DataFrame contain x, y and depth information and
+        set them as attributes of the accessor. The method looks for the presence of x, y,
+        top and bottom columns in the DataFrame by comparing the column names to a set of
+        possible names for these types of columns defined in `geost.validation.column_names`.
+
+        If a column is not found for a specific type of positional information,
+        the corresponding attribute will be set to None.
 
         """
-        # NOTE: Now more rigid than necessary, we can add more flexibility in the future if needed.
-        self._top = "top" if "top" in self._obj.columns else None
-
-        if "depth" in self._obj.columns:
-            self._bottom = "depth"
-        elif "bottom" in self._obj.columns:
-            self._bottom = "bottom"
-        else:
-            self._bottom = None
+        self._x = validation.check_column_name(self._obj.columns, "x_coordinate")
+        self._y = validation.check_column_name(self._obj.columns, "y_coordinate")
+        self._top = validation.check_column_name(self._obj.columns, "top")
+        self._bottom = validation.check_column_name(self._obj.columns, "depth")
 
     @staticmethod
     def _validate_dataframe(dataframe: DataFrame):
@@ -74,6 +85,17 @@ class GeostFrame:
         return False
 
     @property
+    def has_xy_columns(self):
+        """
+        Returns True if the object contains x and y columns, False otherwise. Used to
+        determine whether specific selection operations can be performed on the object.
+
+        """
+        if "x" in self._obj.columns and "y" in self._obj.columns:
+            return True
+        return False
+
+    @property
     def has_depth_columns(self):
         """
         Returns True if the object contains information about depth, such as 'top' and
@@ -83,50 +105,232 @@ class GeostFrame:
         """
         if "surface" in self._obj.columns and self._bottom is not None:
             return True
-
         return False
 
-    @staticmethod
-    def _to_iterable(selection_values: str | Iterable) -> Iterable:
-        if isinstance(selection_values, str):
-            selection_values = [selection_values]
-        return selection_values
-
-    def _check_has_geometry(self):
-        if not self.has_geometry:
-            raise TypeError(
-                "Object is not a GeoDataFrame with a valid geometry column."
-            )
-
-    def _check_has_depth(self):
-        if not self.has_depth_columns:
-            raise KeyError(  # TODO: Check formatting of this error message
-                "Object does not contain depth information needed 'surface' and 'depth'\n"
-                "columns. One of the following combinations of columns is required:\n"
-                " - 'surface', 'top' and 'bottom'\n"
-                " - 'surface' and 'bottom'\n"
-                " - 'surface' and 'depth'\n"
-            )
-
-    def validate_with_schema(self, schema: DataFrameSchema):
+    @property
+    def _first_row_in_survey(self):
         """
-        Validate the DataFrame using a specified Pandera schema.
+        Get a boolean mask indicating the locations of new survey IDs in the data. This
+        is used to identify the first layer of each survey.
+
+        Returns
+        -------
+        pd.Series
+            Boolean Series with True at locations where a new survey ID starts, and False
+            elsewhere.
+
+        """
+        return self._obj["nr"] != self._obj["nr"].shift()
+
+    @property
+    def _last_row_in_survey(self):
+        """
+        Get a boolean mask indicating the locations of the last row in each survey. This
+        is used to identify the last layer of each survey.
+
+        Returns
+        -------
+        pd.Series
+            Boolean Series with True at locations where the last row of a survey is, and False
+            elsewhere.
+
+        """
+        return self._obj["nr"] != self._obj["nr"].shift(-1)
+
+    @staticmethod
+    def _to_iterable(value: str | Iterable) -> Iterable:
+        if isinstance(value, str):
+            value = [value]
+        return value
+
+    def _get_depth_relative_to_surface(self):
+        """
+        Get copy of the self._obj with depth columns converted to depth relative
+        to surface level.
+        """
+        data = self._obj.copy()
+        data[self._bottom] = data["surface"] - data[self._bottom]
+        if self._top:
+            data[self._top] = data["surface"] - data[self._top]
+        return data
+
+    def validate(self):
+        """
+        Validate the DataFrame by combining the relevant schemas in `geost.validation.schemas`
+        based on the presence of specific columns and the type of data contained in the DataFrame.
+        """
+        if not geost.config.validation.SKIP:
+            schemas = [validation.schemas.geostframe_base]
+
+            if self._bottom == "bottom" and not self._top:
+                schemas.append(validation.schemas.geostframe_with_bottom)
+            elif self._bottom == "depth" and not self._top:
+                schemas.append(validation.schemas.geostframe_with_depth)
+            elif self._top and self._bottom:
+                schemas.append(validation.schemas.geostframe_with_top_bottom)
+
+            if self.has_geometry:
+                schemas.append(validation.schemas.geostframe_with_geometry)
+            if self.has_xy_columns:
+                schemas.append(validation.schemas.geostframe_with_xy)
+
+            validation_schema = validation.combine_schemas(*schemas)
+
+            self._obj = validation.safe_validate(self._obj, validation_schema)
+
+    def to_header(
+        self,
+        include_columns: str | Iterable[str] | None = None,
+        exclude_columns: str | Iterable[str] | None = None,
+        coordinate_names: tuple[str, str] = None,
+        crs: str | int | CRS = None,
+    ) -> gpd.GeoDataFrame:
+        """
+        Create a header GeoDataFrame from the DataFrame to be used as a header table for
+        the creation of a :class:`~geost.base.Collection` object. The header contains one
+        row per unique object in the DataFrame, identified by the "nr" column. The header
+        can contain a geometry column with point geometries created from specified coordinate
+        columns in the DataFrame. Optional columns can be given to be included or excluded
+        in the header.
 
         Parameters
         ----------
-        schema : DataFrameSchema
-            DataFrameSchema to validate the DataFrame with.
+        include_columns : str | Iterable[str] | None, optional
+            Columns to include in the header. The default is None, which includes all
+            columns. If "nr" is not included in the specified columns, it will be added
+            automatically as it is required.
+        exclude_columns : str | Iterable[str] | None, optional
+            Columns to exclude from the header. The default is None, which excludes no
+            columns. If "nr" is included in the specified columns, an error is raised as
+            it is required.
+        coordinate_names : tuple[str, str], optional
+            Tuple specifying the names of the columns to be used as coordinates for the
+            geometry column. The default is None, which means no geometry column will be
+            created.
+        crs : str | int | CRS, optional
+            Coordinate reference system for the geometry column. The default is None,
+            which means no CRS will be assigned to the resulting GeoDataFrame.
+
+        Returns
+        -------
+        gpd.GeoDataFrame
+            GeoDataFrame containing one row per unique object in the DataFrame, with optional
+            geometry column and specified columns included or excluded.
+
+        Raises
+        ------
+        KeyError
+            Raised if the specified coordinate columns are not found in the DataFrame.
+        ValueError
+            Raised if both 'include_columns' and 'exclude_columns' are specified, or if
+            'nr' is given in the exclude_columns parameter.
+
+        Examples
+        --------
+        To create a header GeoDataFrame with all columns from the DataFrame and no geometry
+        column:
+
+        >>> data.gst.to_header()
+
+        To create a header GeoDataFrame with only specific columns from the DataFrame and
+        no geometry column:
+
+        >>> data.gst.to_header(include_columns=["nr", "column1", "column2"])
+
+        To create a header GeoDataFrame with a geometry column created from specified coordinate
+        names, a specific CRS and with columns excluded:
+
+        >>> data.gst.to_header(
+        ...     coordinate_names=("x", "y"), crs=28992, exclude_columns=["column1", "column2"]
+        ... )
+
         """
-        self._obj = validation.safe_validate(self._obj, schema)
+        import shapely
 
-    def change_horizontal_reference(self, to_epsg: str | int | CRS) -> None:
-        raise NotImplementedError("Method not implemented yet.")
+        header = self._obj.drop_duplicates(subset="nr", ignore_index=True)
 
-    def change_vertical_reference(
-        self, from_epsg: str | int | CRS, to_epsg: str | int | CRS
-    ) -> None:
-        raise NotImplementedError("Method not implemented yet.")
+        if self._x and self._y:
+            geometry = shapely.points(header[[self._x, self._y]])
+        elif coordinate_names is not None:
+            x_col, y_col = coordinate_names
+            if not {x_col, y_col}.issubset(header.columns):
+                raise KeyError(
+                    f"Coordinate columns '{x_col}' and/or '{y_col}' not found in DataFrame."
+                )
+            geometry = shapely.points(header[[x_col, y_col]])
+            # NOTE: future versions may require other geometry types too
+        else:
+            geometry = None
 
+        if include_columns is not None and exclude_columns is not None:
+            raise ValueError(
+                "Cannot specify both 'include_columns' and 'exclude_columns'."
+            )
+        elif include_columns is not None:
+            if "nr" not in include_columns:
+                include_columns = ["nr"] + list(include_columns)
+            header = header[include_columns]
+        elif exclude_columns is not None:
+            if "nr" in exclude_columns:
+                raise ValueError("Cannot exclude 'nr' column from header.")
+            header = header.drop(columns=exclude_columns)
+
+        return gpd.GeoDataFrame(header, geometry=geometry, crs=crs)
+
+    def to_collection(
+        self,
+        has_inclined: bool = False,
+        vertical_reference: str | int | CRS = None,
+        **header_kwargs,
+    ):
+        """
+        Create a :class:`geost.base.Collection` from the current GeoDataFrame or DataFrame.
+
+        Parameters
+        ----------
+        has_inclined : bool, optional
+            Indicates whether the collection has inclined data. The default is False.
+        vertical_reference : str | int | CRS, optional
+            Vertical reference system for the collection. The default is None.
+        **header_kwargs
+            Keyword arguments to be passed to the :class:`geost.accessor.GeostFrame.to_header`
+            method for creating the header table.
+
+        Returns
+        -------
+        :class:`geost.base.Collection`
+            A Collection instance created from the current GeoDataFrame or DataFrame.
+
+        """
+        from geost.base import Collection  # Avoid circular import
+
+        header = self.to_header(**header_kwargs)
+        return Collection(
+            self._obj,
+            header=header,
+            has_inclined=has_inclined,
+            vertical_reference=vertical_reference,
+        )
+
+    def standardize_column_names(self):
+        """
+        Standardize column names to a consistent format. This is useful if you want to
+        combine data from different sources that may have different naming conventions
+        for essential columns sucht as x, y, top, bottom and depth. The method looks
+        for the presence of these columns in the DataFrame and renames them to our
+        standard naming convention.
+        """
+        if self._top:
+            self._obj.rename(
+                {self._x: "x", self._y: "y", self._top: "top", self._bottom: "depth"},
+                inplace=True,
+            )
+        else:
+            self._obj.rename(
+                {self._x: "x", self._y: "y", self._bottom: "depth"}, inplace=True
+            )
+
+    @_requires_geometry
     def select_within_bbox(
         self,
         xmin: int | float,
@@ -158,12 +362,12 @@ class GeostFrame:
             GeoDataFrame instance containing only the selected geometries.
 
         """
-        self._check_has_geometry()
         selection = spatial.select_points_within_bbox(
             self._obj, xmin, ymin, xmax, ymax, invert=invert
         )
         return selection
 
+    @_requires_geometry
     def select_with_points(
         self,
         points: str | Path | gpd.GeoDataFrame | GeometryType,
@@ -171,7 +375,7 @@ class GeostFrame:
         invert: bool = False,
     ) -> gpd.GeoDataFrame:
         """
-        Select data based on the distance to given point geometries.
+        Select all data that lie within a maximum distance from given point geometries.
 
         Parameters
         ----------
@@ -180,7 +384,7 @@ class GeostFrame:
             containing points or filepath to a shapefile like file, or Shapely Point,
             MultiPoint or list containing Point objects.
         max_distance : float | int
-            Maximum distance for selection geometries.
+            Maximum distance from the selection points.
         invert : bool, optional
             Invert the selection, by default False.
 
@@ -190,12 +394,12 @@ class GeostFrame:
             GeoDataFrame instance containing only the selected geometries.
 
         """
-        self._check_has_geometry()
         selection = spatial.select_points_near_points(
             self._obj, points, max_distance, invert=invert
         )
         return selection
 
+    @_requires_geometry
     def select_with_lines(
         self,
         lines: str | Path | gpd.GeoDataFrame | GeometryType,
@@ -203,7 +407,7 @@ class GeostFrame:
         invert: bool = False,
     ) -> gpd.GeoDataFrame:
         """
-        Select data based on the distance to given line geometries.
+        Select all data that lie within a maximum distance from given line geometries.
 
         Parameters
         ----------
@@ -212,9 +416,10 @@ class GeostFrame:
             containing lines or filepath to a shapefile like file, or Shapely LineString,
             MultiLineString or list containing LineString objects.
         max_distance : float | int
-            Maximum distance for selection geometries.
+            Maximum distance from the selection lines.
         invert : bool, optional
-            Invert the selection, by default False.
+            Invert the selection, selects all data that lie outside the specified maximum
+            distance from the given line geometries. The default is False.
 
         Returns
         -------
@@ -222,12 +427,12 @@ class GeostFrame:
             GeoDataFrame instance containing only the selected geometries.
 
         """
-        self._check_has_geometry()
         selection = spatial.select_points_near_lines(
             self._obj, lines, max_distance, invert=invert
         )
         return selection
 
+    @_requires_geometry
     def select_within_polygons(
         self,
         polygons: str | Path | gpd.GeoDataFrame | GeometryType,
@@ -235,7 +440,7 @@ class GeostFrame:
         invert: bool = False,
     ) -> gpd.GeoDataFrame:
         """
-        Select data based on polygon geometries.
+        Select all data that lie within given polygon geometries.
 
         Parameters
         ----------
@@ -244,10 +449,10 @@ class GeostFrame:
             containing polygons or filepath to a shapefile like file, or Shapely Polygon,
             MultiPolygon or list containing Polygon objects.
         buffer : float | int, optional
-            Optional buffer distance around the polygon selection geometries, by default
-            0.
+            Optional buffer distance around the polygon selection geometries. The default
+            is 0.
         invert : bool, optional
-            Invert the selection, by default False.
+            Invert the selection, selects all data that lie outside the selection polygons.
 
         Returns
         -------
@@ -255,7 +460,6 @@ class GeostFrame:
             GeoDataFrame instance containing only the selected geometries.
 
         """
-        self._check_has_geometry()
         selection = spatial.select_points_within_polygons(
             self._obj, polygons, buffer, invert=invert
         )
@@ -291,45 +495,85 @@ class GeostFrame:
 
         return selected
 
-    def get_area_labels(
+    @_requires_geometry
+    def spatial_join(
         self,
-        polygon_gdf: str | Path | gpd.GeoDataFrame,
-        column_name: str | Iterable,
-        include_in_header=False,
-    ) -> pd.DataFrame:
-        raise NotImplementedError("Method not implemented yet.")
-
-    def to_header(
-        self, horizontal_reference: str | int | CRS = 28992
+        geometries: str | Path | gpd.GeoDataFrame,
+        label_id: str | Iterable,
+        drop_label_if_exists: bool = False,
+        **kwargs,
     ) -> gpd.GeoDataFrame:
-        raise NotImplementedError("Method not implemented yet.")
+        """
+        Join information from another GeoDataFrame by a spatial relationship (e.g. overlap)
+        between the geometries in the original GeoDataFrame with the geometries in the other
+        GeoDataFrame.
 
-    def to_collection(
-        self,
-        has_inclined: bool = False,
-        horizontal_reference: str | int | CRS = 28992,
-        vertical_reference: str | int | CRS = 5709,
-    ):
-        raise NotImplementedError("Method not implemented yet.")
+        Parameters
+        ----------
+        geometries : str | Path | gpd.GeoDataFrame
+            Geometries to join with the information from. Can be a GeoDataFrame or a
+            file path to a geospatial file that can be read as a GeoDataFrame.
+        label_id : str | Iterable
+            Column name(s) in the geometries GeoDataFrame to join the information from.
+        drop_label_if_exists : bool, optional
+            If True, will drop the specified 'label_id' from the original GeoDataFrame if
+            these already exist as a column or columns, before the spatial join. Otherwise,
+            suffixes will automatically be added to the joined columns to avoid naming conflicts.
+            The default is False.
+        **kwargs
+            Keyword arguments to be passed to the GeoPandas :meth:`geopandas.GeoDataFrame.sjoin`
+            function. See relevant documentation for more information.
+
+        Returns
+        -------
+        gpd.GeoDataFrame
+            GeoDataFrame resulting from the spatial join.
+
+        """
+        geometries = casting.check_geometry_instance(geometries)
+        geometries = spatial.check_and_coerce_crs(geometries, self._obj.crs)
+
+        result = self._obj.copy()
+
+        if drop_label_if_exists:
+            result.drop(columns=label_id, errors="ignore", inplace=True)
+
+        label_id = [label_id] if isinstance(label_id, str) else list(label_id)
+
+        result = result.sjoin(geometries[["geometry"] + label_id], **kwargs)
+        return result.drop(columns="index_right")
 
     def select_by_values(
-        self, column: str, selection_values: str | Iterable, how: str = "or"
+        self,
+        column: str,
+        values: int | float | str | Iterable | slice,
+        how: str = "or",
+        invert: bool = False,
+        inclusive: str = "both",
     ) -> pd.DataFrame:
         """
-        Select data based on the presence of given values in a given column. Can be used
-        for example to select boreholes that contain peat in the lithology column.
+        Select data based on the presence of values in a given column. Can be used for
+        example to select data that contain peat in the lithology column.
 
         Parameters
         ----------
         column : str
-            Name of column that contains categorical data to use when looking for
-            values.
-        selection_values : str | Iterable
-            Value or values to look for in the column.
-        how : str, optional
-            Either "and" or "or". "and" requires all selection values to be present in
-            column for selection. "or" will select the core if any one of the
-            selection_values are found in the column. Default is "and".
+            Name of the column to look for the selection values in.
+        values : int | float | str | Iterable | slice
+            Value or array-like set of values to look for in the column. In case of numerical
+            values, a slice can be used to select data that contain a specific range of values,
+            see example below.
+        how : {"and", "or"}, optional
+            Either "and" or "or", only used when multiple categorical values are provided.
+            "and" requires all selection values to be present in the column for selection. "or"
+            will select the data if any one of the values are found in the column. The default
+            is "and".
+        invert : bool, optional
+            If True, the selection is inverted so that data that does not match the selection
+            criteria is returned instead. The default is False.
+        inclusive : {"both", "neither", "left", "right"}, optional
+            When a slice is used for selection to include boundaries or not. The
+            default is "both".
 
         Returns
         -------
@@ -338,15 +582,21 @@ class GeostFrame:
 
         Examples
         --------
-        To select boreholes where both clay ("K") and peat ("V") are present at the same
+        To select data where both clay ("K") and peat ("V") are present at the same
         time, use "and" as a selection method:
 
-        >>> boreholes.select_by_values("lith", ["V", "K"], how="and")
+        >>> data.gst.select_by_values("lith", ["V", "K"], how="and")
 
-        To select boreholes that can have one, or both lithologies, use or as the selection
+        To select data that can have one, or both lithologies, use or as the selection
         method:
 
-        >>> boreholes.select_by_values("lith", ["V", "K"], how="and")
+        >>> data.gst.select_by_values("lith", ["V", "K"], how="or")
+
+        In case of numerical values, use a slice to select data that contain a specific
+        range of values. For example, to select data that contain cone resistances ("qc")
+        between 15 and 20 MPa:
+
+        >>> data.gst.select_by_values("qc", slice(15, 20))
 
         """
         if column not in self._obj.columns:
@@ -354,20 +604,61 @@ class GeostFrame:
                 f"The column '{column}' does not exist and cannot be used for selection"
             )
 
-        selection_values = self._to_iterable(selection_values)
+        selected = self._select_by_values(values, column, how, inclusive)
 
-        selected = self._obj
-        if how == "or":
-            valid = self._obj["nr"][self._obj[column].isin(selection_values)].unique()
-            selected = selected[selected["nr"].isin(valid)]
-
-        elif how == "and":
-            for value in selection_values:
-                valid = self._obj["nr"][self._obj[column] == value].unique()
-                selected = selected[selected["nr"].isin(valid)]
+        if invert:
+            exclude_indices = selected.index
+            selected = self._obj.loc[~self._obj.index.isin(exclude_indices)]
 
         return selected
 
+    @singledispatchmethod
+    def _select_by_values(
+        self, values: Any, column: str, how: str, inclusive: str
+    ) -> pd.DataFrame:
+        raise TypeError(
+            f"Unsupported type of selection values: {type(values)} values must be "
+            "either a string\n, an iterable, or a slice for numerical values."
+        )
+
+    @_select_by_values.register(int | float | str)
+    def _(self, values, column, *_) -> pd.DataFrame:
+        selected = self._obj
+        valid = selected["nr"][selected[column] == values].unique()
+        selected = selected[selected["nr"].isin(valid)]
+        return selected
+
+    @_select_by_values.register(
+        set | list | np.ndarray | pd.Series | pd.arrays.ArrowStringArray
+    )
+    def _(self, values, column, how, _) -> pd.DataFrame:
+        selected = self._obj
+        if how == "or":
+            valid = selected["nr"][selected[column].isin(values)].unique()
+            selected = selected[selected["nr"].isin(valid)]
+
+        elif how == "and":
+            for value in values:
+                valid = selected["nr"][selected[column] == value].unique()
+                selected = selected[selected["nr"].isin(valid)]
+        return selected
+
+    @_select_by_values.register(slice)
+    def _(self, values, column, _, inclusive) -> pd.DataFrame:
+        if not pd.api.types.is_numeric_dtype(self._obj[column]):
+            raise TypeError("Can only use a slice selection on numerical columns.")
+
+        start = values.start or -1e34
+        stop = values.stop or 1e34
+
+        selected = self._obj
+        valid = selected["nr"][
+            selected[column].between(start, stop, inclusive)
+        ].unique()
+        selected = selected[selected["nr"].isin(valid)]
+        return selected
+
+    @_requires_depth
     def slice_depth_interval(
         self,
         upper_boundary: float | int = None,
@@ -398,7 +689,8 @@ class GeostFrame:
         Returns
         -------
         pd.DataFrame
-            New DataFrame containing only the data selected by this method.
+            New DataFrame or GeoDataFrame containing only the data within the specified
+            depth boundaries.
 
         Examples
         --------
@@ -408,20 +700,19 @@ class GeostFrame:
         For example, select layers in data that are between 2 and 3 meters below the
         surface:
 
-        >>> data.slice_depth_interval(2, 3)
+        >>> data.gst.slice_depth_interval(2, 3)
 
         By default, the method updates the layer boundaries in sliced object according to
         the upper and lower boundaries. To suppress this behaviour use:
 
-        >>> data.slice_depth_interval(2, 3, update_layer_boundaries=False)
+        >>> data.gst.slice_depth_interval(2, 3, update_layer_boundaries=False)
 
         Slicing can also be done with respect to a vertical reference plane like "NAP".
         For example, to select layers in boreholes that are between -3 and -5 m NAP, use:
 
-        >>> data.slice_depth_interval(-3, -5, relative_to_vertical_reference=True)
+        >>> data.gst.slice_depth_interval(-3, -5, relative_to_vertical_reference=True)
 
         """
-        self._check_has_depth()
         sliced = self._obj
 
         if not upper_boundary:
@@ -441,8 +732,7 @@ class GeostFrame:
             ]
         else:
             sliced = sliced[
-                (sliced[self._bottom] >= upper_boundary)
-                & (sliced[self._bottom] <= lower_boundary)
+                sliced[self._bottom].between(upper_boundary, lower_boundary)
             ]
 
         # We do not update layer boundaries when slicing discrete data
@@ -460,7 +750,11 @@ class GeostFrame:
         return sliced
 
     def slice_by_values(
-        self, column: str, selection_values: str | Iterable, invert: bool = False
+        self,
+        column: str,
+        values: int | float | str | Iterable | slice,
+        invert: bool = False,
+        inclusive: str = "both",
     ) -> pd.DataFrame:
         """
         Slice rows from data based on matching condition. E.g. only return rows with
@@ -471,11 +765,15 @@ class GeostFrame:
         column : str
             Name of column that contains categorical data to use when looking for
             values.
-        selection_values : str | Iterable
-            Values to look for in the column.
+        values : int | float | str | Iterable | slice
+            Value or array-like set of values to look for in the column. In case of numerical
+            values, a slice can be used to slice a range of values, see example below.
         invert : bool, optional
             If True, invert the slicing action, so remove layers with selected values
             instead of keeping them. The default is False.
+        inclusive : {"both", "neither", "left", "right"}, optional
+            When a slice is used for selection to include boundaries or not. The
+            default is "both".
 
         Returns
         -------
@@ -486,29 +784,54 @@ class GeostFrame:
         --------
         Return only rows in data contain sand ("Z") as lithology:
 
-        >>> data.slice_by_values("lith", "Z")
+        >>> data.gst.slice_by_values("lith", "Z")
 
         If you want all the rows that may contain everything but sand, use the "invert"
         option:
 
-        >>> data.slice_by_values("lith", "Z", invert=True)
+        >>> data.gst.slice_by_values("lith", "Z", invert=True)
+
+        If you want to slice a range of numerical values, you can use a slice. For example,
+        to return only rows where the cone resistance ("qc") is between 15 and 20 MPa:
+
+        >>> data.gst.slice_by_values("qc", slice(15, 20))
 
         """
-        selection_values = self._to_iterable(selection_values)
-
-        sliced = self._obj
+        sliced = self._slice_by_values(values, column, inclusive)
 
         if invert:
-            sliced = sliced[~sliced[column].isin(selection_values)]
-        else:
-            sliced = sliced[sliced[column].isin(selection_values)]
+            exclude_indices = sliced.index
+            sliced = self._obj.loc[~self._obj.index.isin(exclude_indices)]
 
         return sliced
 
+    @singledispatchmethod
+    def _slice_by_values(
+        self, values: Any, column: str, inclusive: str
+    ) -> pd.DataFrame:
+        raise TypeError(f"Unsupported type of selection values: {type(values)}")
+
+    @_slice_by_values.register(int | float | str)
+    def _(self, values, column, _) -> pd.DataFrame:
+        return self._obj[self._obj[column] == values]
+
+    @_slice_by_values.register(set | list | np.ndarray | pd.Series)
+    def _(self, values, column, _) -> pd.DataFrame:
+        return self._obj[self._obj[column].isin(values)]
+
+    @_slice_by_values.register(slice)
+    def _(self, values, column, inclusive) -> pd.DataFrame:
+        if not pd.api.types.is_numeric_dtype(self._obj[column]):
+            raise TypeError("Can only use a slice selection on numerical columns.")
+
+        start = values.start or -1e34
+        stop = values.stop or 1e34
+        return self._obj[self._obj[column].between(start, stop, inclusive)]
+
     def select_by_condition(self, condition: Any, invert: bool = False) -> pd.DataFrame:
         """
-        Select data using a manual condition that results in a boolean mask. Returns the
-        rows in the data where the 'condition' evaluates to True.
+        Do a condition-based selection on the DataFrame or GeoDataFrame: return the rows
+        in the data where the 'condition' evaluates to True, see examples below.
 
         Parameters
         ----------
@@ -529,11 +852,15 @@ class GeostFrame:
         --------
         Select rows in data that contain a specific value:
 
-        >>> data.select_by_condition(data["lith"]=="V")
+        >>> data.gst.select_by_condition(data["lith"] == "V")
 
         Or select rows in the data that contain a specific (part of) string or strings:
 
-        >>> data.select_by_condition(data["column"].str.contains("foo|bar"))
+        >>> data.gst.select_by_condition(data["column"].str.contains("foo|bar"))
+
+        Or select rows in the data based on multiple conditions:
+
+        >>> data.select_by_condition((data["column1"] > 2) & (data["column2] < 1))
 
         """
         if invert:
@@ -543,72 +870,362 @@ class GeostFrame:
 
         return selected
 
+    @_requires_depth
+    def calculate_thickness(self) -> pd.Series:
+        """
+        Calculate the thickness of layers in the data. This method requires the presence
+        of depth information in the data. See the `has_depth_columns` property for more
+        information on what kind of depth columns are required.
+
+        Returns
+        -------
+        pd.Series
+            Series containing the thickness for each layer in the data.
+
+        """
+        if self._top and self._bottom:
+            thickness = (self._obj[self._top] - self._obj[self._bottom]).abs()
+        else:
+            thickness = self._obj[self._bottom].diff()
+
+            thickness[self._first_row_in_survey] = self._obj[
+                self._bottom
+            ]  # Thickness of first layer is equal to depth of first layer data is discrete
+
+        return thickness
+
+    @_requires_depth
     def get_cumulative_thickness(
-        self, column: str, values: str | List[str]
-    ) -> pd.DataFrame:
-        raise NotImplementedError("Method not implemented yet.")
+        self, column: str, values: str | list[str] | slice
+    ) -> pd.Series:
+        """
+        Get the cumulative thickness of layers where a column contains a specified search
+        value or values, or falls within a specified range.
 
+        Parameters
+        ----------
+        column : str
+            Name of column that must contain the search value or values.
+        values : str | List[str] | slice
+            Search value or values in the column to find the cumulative thickness for. In
+            case of numerical values, a slice can be used to specify a range of values to
+            search for, see example below.
+
+        Returns
+        -------
+        pd.Series
+            Series containing the cumulative thickness for each survey "nr" in the data.
+
+        Examples
+        --------
+        Get the cumulative thickness of the layers with lithology "K" in the column "lith"
+        use:
+
+        >>> data.gst.get_cumulative_thickness("lith", "K")
+
+        Or get the cumulative thickness for multiple selection values. This calculates
+        the cumulative thickness of the combined values:
+
+        >>> data.gst.get_cumulative_thickness("lith", ["K", "Z"])
+
+        In case of numerical values, a slice can be used to specify a range of values to
+        search for. For example, to get the cumulative thickness of layers with a cone
+        resistance ("qc") between 15 and 20 MPa:
+
+        >>> data.gst.get_cumulative_thickness("qc", slice(15, 20))
+
+        """
+        selected_layers = self.slice_by_values(column, values)
+
+        if "thickness" not in self._obj.columns:
+            thickness = self.calculate_thickness()
+            selected_layers["thickness"] = thickness.loc[selected_layers.index]
+
+        grouped = selected_layers.groupby("nr", sort=False)
+        thickness = grouped["thickness"].sum()
+        return thickness
+
+    @_requires_depth
     def get_layer_top(
-        self,
-        column: str,
-        values: str | List[str],
-        min_thickness: float = 0,
-        min_depth: float = 0,
-    ) -> pd.DataFrame:
-        raise NotImplementedError("Method not implemented yet.")
+        self, column: str, values: str | list[str] | slice, min_thickness: float = None
+    ) -> pd.Series:
+        """
+        Find the top depth in individual survey ids where a column in a Pandas DataFrame contains
+        specified search value or values, or falls within a specified range.
 
+        Parameters
+        ----------
+        column : str
+            Name of the column to search for the specified value or values.
+        values : int | float | str | list[str] | slice
+            Value or values to search for in the specified column. If a slice is provided, the
+            function will search for values within the specified range.
+        min_thickness : float, optional
+            Minimum thickness of the layer to consider. Layers thinner than this value will be
+            ignored. The thickness of a layer is calculated as the difference uppermost top
+            and the lowermost bottom of consecutive elements that meet the value criteria. If
+            None, no minimum thickness is applied which returns the first encountered layer.
+        min_fraction : float, optional
+            Whether or not to allow for disturbing layers: layers that do not meet the value
+            criteria in between. The minimum fraction is the minimal fraction of the 'min_thickness'
+            that must meet the value criteria. If None, the entire layer must meet the criteria.
+            Note that 'min_fraction' is only applied when 'min_thickness' is specified.
+
+        Returns
+        -------
+        pd.DataFrame
+            DataFrame containing the top depth of the layers that meet the specified criteria
+            for each survey id.
+
+        Raises
+        ------
+        ValueError
+            - If the input DataFrame does not contain columns specifying depth intervals
+            - If min_thickness is below zero
+            - If min_fraction is not between 0 and 1
+
+        """
+        from geost.analysis.layers import get_layer_top
+
+        return get_layer_top(self._obj, column, values, min_thickness)
+
+    @_requires_depth
     def get_layer_base(
-        self,
-        column: str,
-        values: str | List[str],
-        min_thickness: float = 0,
-        min_depth: float = 0,
-    ) -> pd.DataFrame:
-        raise NotImplementedError("Method not implemented yet.")
+        self, column: str, values: str | list[str] | slice, min_thickness: float = None
+    ) -> pd.Series:
+        selection = self.slice_by_values(column, values)
 
+        if "thickness" not in self._obj.columns:
+            thickness = self.calculate_thickness()
+            selection["thickness"] = thickness.loc[selection.index]
+
+        if min_thickness is not None:
+            selection = selection[selection["thickness"] >= min_thickness]
+
+        grouped = selection.groupby("nr", sort=False)
+        layer_base = grouped[self._bottom].last()
+        return layer_base
+
+    @_requires_depth
+    @_requires_xy
     def to_pyvista_cylinders(
         self,
-        displayed_variables: str | List[str],
+        displayed_variables: str | list[str],
         radius: float = 1,
+        n_sides: int = 8,
         vertical_factor: float = 1.0,
-        relative_to_vertical_reference: bool = True,
     ):
-        raise NotImplementedError("Method not implemented yet.")
+        """
+        Create a Pyvista MultiBlock object of cylinder-shaped geometries to represent
+        boreholes. Although cylinders are prettier when visualized, they are quite costly
+        to render in large numbers. Consider using
+        :meth:`~geost.base.LayeredData.to_pyvista_grid` instead for large datasets.
 
+        Parameters
+        ----------
+        displayed_variables : str | List[str]
+            Name or names of data columns to include for visualisation. Can be columns that
+            contain an array of floats, ints and strings.
+        radius : float, optional
+            Radius of the cylinders in m in the MultiBlock. The default is 1.
+        n_sides : int, optional
+            Number of sides for the cylinder. The default is 8, which gives a good balance
+            between visual quality and rendering performance. Increase for enhanced visual
+            quality, decrease for better performance.
+        vertical_factor : float, optional
+            Factor to correct vertical scale. For example, when layer boundaries are given
+            in cm, use 0.01 to convert to m. The default is 1.0, so no correction is applied.
+            It is not recommended to use this for vertical exaggeration, use viewer functionality
+            for that instead.
+
+        Returns
+        -------
+        pyvista.MultiBlock
+            A composite class holding the data which can be iterated over.
+
+        """
+        data = self._get_depth_relative_to_surface()
+        displayed_variables = self._to_iterable(displayed_variables)
+
+        if self._top:
+            vtk_object = export.borehole_to_multiblock(
+                data,
+                [self._top, self._bottom],
+                displayed_variables,
+                radius,
+                n_sides,
+                vertical_factor,
+            )
+        else:
+            vtk_object = export.borehole_to_multiblock(
+                data,
+                self._bottom,
+                displayed_variables,
+                radius,
+                n_sides,
+                vertical_factor,
+            )
+
+        return vtk_object
+
+    @_requires_depth
+    @_requires_xy
     def to_pyvista_grid(
         self,
         displayed_variables: str | list[str],
         radius: float = 1,
     ):
-        raise NotImplementedError("Method not implemented yet.")
+        """
+        Create a PyVista UnstructuredGrid object of the data in this instance. This
+        method is more efficient than :meth:`~geost.base.LayeredData.to_pyvista_cylinders`
+        for large datasets, as it uses a grid representation instead of cylinders.
 
-    def to_datafusiontools(
-        self,
-        columns: List[str],
-        outfile: str | Path = None,
-        encode: bool = False,
-        relative_to_vertical_reference: bool = True,
-    ):
-        raise NotImplementedError("Method not implemented yet.")
+        Parameters
+        ----------
+        displayed_variables : str | list[str]
+            Name or names of data columns to include for visualisation. Can be columns that
+            contain an array of floats, ints and strings.
+        radius : float
+            The 'radius' of the voxels. This will determine the
+            horizontal size of the voxels in the resulting unstructured grid.
 
+        Returns
+        -------
+        pyvista.UnstructuredGrid
+            A PyVista UnstructuredGrid object containing the data that can be used for
+            3D visualisation in PyVista or other VTK viewers.
+
+        """
+        data = self._get_depth_relative_to_surface()
+        displayed_variables = self._to_iterable(displayed_variables)
+
+        if self._top:
+            vtk_object = export.layerdata_to_pyvista_unstructured(
+                data,
+                [self._top, self._bottom],
+                displayed_variables,
+                radius=radius,
+            )
+        else:
+            vtk_object = export.layerdata_to_pyvista_unstructured(
+                data, self._bottom, displayed_variables, radius=radius
+            )
+
+        return vtk_object
+
+    @_requires_depth
+    @_requires_xy
     def _create_geodataframe_3d(
         self,
-        relative_to_vertical_reference: bool = True,
         crs: str | int | CRS = None,
-        has_inclined: bool = False,
     ):
-        raise NotImplementedError("Method not implemented yet.")
+        """
+        Helper method for export method "to_qgis3d" to create the necessary GeoDataFrame
+        containing 3D Shapely objects and associated information.
 
+        Parameters
+        ----------
+        relative_to_vertical_reference : bool, optional
+            If True, the depth of all data objects will converted to a depth with respect to
+            a reference plane (e.g. "NAP", "TAW"). If False, the depth will be kept as original
+            in the "top" and "bottom" columns which is in meter below the surface. The default
+            is True.
+        crs : str | int | CRS
+            EPSG of the target crs. Takes anything that can be interpreted by
+            pyproj.crs.CRS.from_user_input().
+        has_inclined : bool, optional
+            If True, the data also contains inclined objects which means the top of layers
+            is not in the same x,y-location as the bottom of layers. The default is False.
+
+        """
+        from shapely import linestrings
+
+        data = self._get_depth_relative_to_surface()
+
+        data_columns = [
+            col
+            for col in data.columns
+            if col not in {"nr", "x", "y", "surface", "depth", "top", "bottom"}
+        ]
+
+        # Prepare top, bottom and corresponding x and y values for geometry creation.
+        # Infer the top of layers from the bottom of layers if the top column is not present.
+        if self._top is None:
+            top = (
+                data[self._bottom]
+                .shift()
+                .mask(self._first_row_in_survey, data["surface"])
+            )
+            x_bot, y_bot = data["x"], data["y"]
+            x_top = data["x"].shift().mask(self._first_row_in_survey, data["x"])
+            y_top = data["y"].shift().mask(self._first_row_in_survey, data["y"])
+        else:
+            top = data[self._top]
+            x_top, y_top = data["x"], data["y"]
+            x_bot = data["x"].shift(-1).mask(self._last_row_in_survey, data["x"])
+            y_bot = data["y"].shift(-1).mask(self._last_row_in_survey, data["y"])
+
+        # TODO: slight problem persists here for inclined boreholes. The last layer will
+        # always be non-inclined because we miss information on the bottom x/y coords.
+        # This cannot be correctly inferred from the data.
+
+        data_to_write = dict(
+            nr=data["nr"].values,
+            top=top.values.astype(float),
+            bottom=data[self._bottom].values.astype(float),
+        )
+
+        data_to_write.update(data[data_columns].to_dict(orient="list"))
+
+        geometries = linestrings(
+            [
+                [[x, y, top + 0.01], [x_bot, y_bot, bottom + 0.01]]
+                for x, y, x_bot, y_bot, top, bottom in zip(
+                    x_top.values.astype(float),
+                    y_top.values.astype(float),
+                    x_bot.values.astype(float),
+                    y_bot.values.astype(float),
+                    top.values.astype(float),
+                    data[self._bottom].values.astype(float),
+                )
+            ]
+        )
+
+        return gpd.GeoDataFrame(
+            data=data_to_write,
+            geometry=geometries,
+            crs=crs,
+        )
+
+    @_requires_depth
+    @_requires_xy
     def to_qgis3d(
         self,
         outfile: str | Path,
-        relative_to_vertical_reference: bool = True,
         crs: str | int | CRS = None,
-        has_inclined: bool = False,
         **kwargs,
     ):
-        raise NotImplementedError("Method not implemented yet.")
+        """
+        Write data to geopackage file that can be directly loaded in the Qgis2threejs
+        plugin. Works only for layered (borehole) data.
 
+        Parameters
+        ----------
+        outfile : str | Path
+            Path to geopackage file to be written.
+        crs : str | int | CRS
+            EPSG of the target crs. Takes anything that can be interpreted by
+            pyproj.crs.CRS.from_user_input().
+
+        **kwargs
+            geopandas.GeodataFrame.to_file kwargs. See relevant Geopandas documentation.
+
+        """
+        qgis3d = self._create_geodataframe_3d(crs=crs)
+        qgis3d.to_file(outfile, driver="GPKG", **kwargs)
+
+    @_requires_depth
+    @_requires_xy
     def to_kingdom(
         self,
         outfile: str | Path,
@@ -616,4 +1233,70 @@ class GeostFrame:
         vw: float = 1500.0,
         vs: float = 1600.0,
     ):
-        raise NotImplementedError("Method not implemented yet.")
+        """
+        Write data to 2 csv files: 1) interval data and 2) time-depth chart. These files
+        can be imported in the Kingdom seismic interpretation software.
+
+        Parameters
+        ----------
+        outfile : str | Path
+            Path to csv file to be written.
+        tdstart : int
+            startindex for TDchart, default is 1
+        vw : float
+            sound velocity in water in m/s, default is 1500 m/s
+        vs : float
+            sound velocity in sediment in m/s, default is 1600 m/s
+
+        """
+        # 1. add columns needed in kingdom and write interval data
+        kingdom_df = self._get_depth_relative_to_surface()
+
+        if self._top is None:
+            kingdom_df["top"] = (
+                kingdom_df[self._bottom]
+                .shift()
+                .mask(self._first_row_in_survey, kingdom_df["surface"])
+            )
+
+        # Add total depth NOTE: is the insert at idx 7 really necessary?
+        kingdom_df.insert(
+            7,
+            "Total depth",
+            (kingdom_df["surface"] - kingdom_df[self._bottom])[
+                self._last_row_in_survey
+            ],
+        )
+        kingdom_df["Total depth"] = kingdom_df["Total depth"].bfill()
+
+        # Rename bottom and top columns to Kingdom requirements
+        kingdom_df.rename(
+            columns={"top": "Start depth", self._bottom: "End depth"}, inplace=True
+        )
+        kingdom_df.to_csv(outfile, index=False)
+
+        # 2. create and write time-depth chart
+        tdchart = self._obj[["nr", "surface"]]
+        tdchart.drop_duplicates(inplace=True)
+        tdchart.insert(0, "id", range(tdstart, tdstart + len(tdchart)))
+
+        # Add measured depth (predefined depths of 0 and 1 m below surface)
+        tdchart = pd.concat(
+            [
+                tdchart.assign(MD=np.zeros(len(tdchart), dtype=np.int64)),
+                tdchart.assign(MD=np.ones(len(tdchart), dtype=np.int64)),
+            ]
+        )
+        # Add two-way travel time
+        tdchart["TWT"] = (-tdchart["surface"] / (vw / 2 / 1000)) + (
+            tdchart["MD"] * 1 / (vs / 2 / 1000)
+        )
+
+        tdchart.drop("surface", axis=1, inplace=True)
+        tdchart.sort_values(by=["id", "MD"], inplace=True)
+        if not isinstance(outfile, Path):
+            outfile = Path(outfile)
+        tdchart.to_csv(
+            outfile.parent.joinpath(f"{outfile.stem}_TDCHART{outfile.suffix}"),
+            index=False,
+        )

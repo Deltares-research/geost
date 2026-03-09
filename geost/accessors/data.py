@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import Any, Iterable, List, Literal, get_args
+from typing import Any, Collection, Iterable, List, Literal, get_args
 
 import geopandas as gpd
 import numpy as np
@@ -9,7 +9,7 @@ from shapely import geometry as gmt
 
 from geost import export, utils
 from geost.abstract_classes import AbstractData
-from geost.analysis import cumulative_thickness
+from geost.analysis.layers import cumulative_thickness
 
 type Coordinate = int | float
 type GeometryType = gmt.base.BaseGeometry | list[gmt.base.BaseGeometry]
@@ -67,7 +67,9 @@ class LayeredData(AbstractData):
         """
         header_columns = ["nr", "x", "y", "surface", "end"]
         header = self._df[header_columns].drop_duplicates("nr").reset_index(drop=True)
-        header = utils.dataframe_to_geodataframe(header).set_crs(horizontal_reference)
+        header = utils.casting.dataframe_to_geodataframe(header).set_crs(
+            horizontal_reference
+        )
         return header
 
     def to_collection(
@@ -96,16 +98,16 @@ class LayeredData(AbstractData):
 
         Returns
         -------
-        :class:`~geost.base.BoreholeCollection`
-            An instance of :class:`~geost.base.BoreholeCollection`
+        :class:`~geost.base.Collection`
+            An instance of :class:`~geost.base.Collection`
 
         """
-        from geost.base import BoreholeCollection  # Avoid circular import
+        from geost.base import Collection  # Avoid circular import
 
         header = self.to_header(horizontal_reference)
-        return BoreholeCollection(
-            header,
+        return Collection(
             self._df,
+            header=header,
             has_inclined=has_inclined,
             vertical_reference=vertical_reference,
         )  # NOTE: Type of Collection may need to be inferred in the future.
@@ -807,7 +809,9 @@ class DiscreteData(AbstractData):
         """
         header_columns = ["nr", "x", "y", "surface", "end"]
         header = self._df[header_columns].drop_duplicates("nr").reset_index(drop=True)
-        header = utils.dataframe_to_geodataframe(header).set_crs(horizontal_reference)
+        header = utils.casting.dataframe_to_geodataframe(header).set_crs(
+            horizontal_reference
+        )
         return header
 
     def to_collection(
@@ -836,17 +840,17 @@ class DiscreteData(AbstractData):
 
         Returns
         -------
-        :class:`~geost.base.CptCollection`
+        :class:`~geost.base.Collection`
             An instance of :class:`~geost.base.CptCollection`
 
         """
-        from geost.base import CptCollection
+        from geost.base import Collection
 
         header = self.to_header(horizontal_reference)
 
-        return CptCollection(
-            header,
+        return Collection(
             self._df,
+            header=header,
             has_inclined=has_inclined,
             vertical_reference=vertical_reference,
         )  # NOTE: Type of Collection may need to be inferred in the future.

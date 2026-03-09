@@ -1,7 +1,6 @@
 import warnings
-from copy import deepcopy
 from pathlib import Path
-from typing import Any, Iterable, List
+from typing import Any, Iterable
 
 import geopandas as gpd
 import pandas as pd
@@ -11,16 +10,15 @@ from shapely import geometry as gmt
 from geost import config, utils
 from geost._warnings import AlignmentWarning
 from geost.abstract_classes import AbstractCollection
-from geost.projections import (
+from geost.utils.projections import (
     horizontal_reference_transformer,
     vertical_reference_transformer,
 )
 from geost.validation import safe_validate, schemas
+from geost.validation.method_checks import _requires_depth, _requires_geometry
 
 type Coordinate = int | float
 type GeometryType = gmt.base.BaseGeometry | list[gmt.base.BaseGeometry]
-type HeaderObject = Any
-type DataObject = Any
 
 
 class Collection(AbstractCollection):
@@ -38,21 +36,35 @@ class Collection(AbstractCollection):
 
     def __init__(
         self,
-        header: gpd.GeoDataFrame = None,
         data: pd.DataFrame = None,
+        *,
+        header: gpd.GeoDataFrame = None,
         has_inclined: bool = False,
         vertical_reference: str | int | CRS = 5709,
     ):
-        self._has_inclined = has_inclined
-        self._vertical_reference = CRS(vertical_reference)
-        self.header = header
         self.data = data
 
-    def __repr__(self):
-        if "_header" in self.__dict__:
-            return f"{self.__class__.__name__}:\n# header = {self.n_points}"
+        if header is None and data is not None:
+            warnings.warn("Header is None, setting the header from the given data.")
+            self.header = self.data.drop_duplicates("nr").reset_index(drop=True)
         else:
-            return f"{self.__class__.__name__}:\n<EMPTY COLLECTION>"
+            self.header = header
+
+        self._has_inclined = has_inclined
+
+        if vertical_reference is not None:
+            vertical_reference = CRS(vertical_reference)
+
+        self._vertical_reference = vertical_reference
+
+    def __repr__(self):
+        repr_ = (
+            f"{self.__class__.__name__}:\n"
+            f"  header (rows, columns): {self.header.shape}\n"
+            f"  data (rows, columns): {self.data.shape}\n"
+            f"  # surveys = {self.n_points}\n"
+        )
+        return repr_
 
     def __len__(self):
         return len(self.header)
@@ -83,7 +95,7 @@ class Collection(AbstractCollection):
         """
         Coordinate reference system represented by an instance of pyproj.crs.CRS.
         """
-        return self.header.crs
+        return self.header.crs if self.header_has_geometry else None
 
     @property
     def vertical_reference(self):
@@ -99,54 +111,51 @@ class Collection(AbstractCollection):
         """
         return self._has_inclined
 
+    @property
+    def header_has_geometry(self):
+        return self.header._geometry_column_name is not None
+
     @header.setter
     def header(self, header):
         if header is not None:
-            if config.validation.SKIP:
-                self._header = header
-            else:
-                self._header = safe_validate(
+            if not config.validation.SKIP:
+                header = safe_validate(
                     header, schemas.pointheader
                 )  # TODO: validation schema needs to be inferred
+        else:
+            header = gpd.GeoDataFrame()
+
+        self.set_header(header)  # This ensures header will always be a GeoDataFrame
+
+    def set_header(self, header: pd.DataFrame | gpd.GeoDataFrame):
+        if not isinstance(header, gpd.GeoDataFrame):
+            header = gpd.GeoDataFrame(header)
+
+        if not header.empty:
+            if header._geometry_column_name is None:
+                warnings.warn(
+                    "Setting the header without an active geometry column. Spatial methods "
+                    "will not work. Use collection.set_geometry to set an active geometry "
+                    "column."
+                )
+
+        self._header = header
         self.check_header_to_data_alignment()
 
     @data.setter
     def data(self, data):
         if data is not None:
             if config.validation.SKIP:
-                self._data = data
-            else:
-                self._data = safe_validate(
+                data = safe_validate(
                     data, schemas.layerdata
                 )  # TODO: validation schema needs to be inferred
+        else:
+            data = pd.DataFrame()
+
+        self._data = data
         self.check_header_to_data_alignment()
 
-    def _clone_with_attrs(self, new_header, new_data):
-        """
-        Create a deep copy of the current object with new header and data attributes.
-        This is used to return a new instance of the collection in methods that modify
-        the number of collection objects through e.g. selection and slicing methods.
-        Using this method over the self.__class__ constructor ensures that the new
-        object only has the header and data attributes updated, while keeping all other
-        attributes intact.
-
-        Parameters
-        ----------
-        new_header : Any Header object
-            The new header to be assigned to the cloned collection.
-        new_data : Any Data object
-            The new data to be assigned to the cloned collection.
-
-        Returns
-        -------
-        new_collection : New instance of self
-            A deep copy of the current object with updated header and data attributes.
-        """
-        new_collection = deepcopy(self)
-        new_collection._header, new_collection._data = new_header, new_data
-        return new_collection
-
-    def add_header_column_to_data(self, column_name: str):  # No change
+    def add_header_column_to_data(self, column_name: str) -> None:  # No change
         """
         Add a column from the header to the data table. Useful if you e.g. add some data
         to the header table, but would like to add this to each layer (row in the data
@@ -157,47 +166,62 @@ class Collection(AbstractCollection):
         column_name : str
             Name of the column in the header table to add.
 
-        """
-        self._data = pd.merge(self.data, self.header[["nr", column_name]], on="nr")
+        Returns
+        -------
+        None
+            Updates the data table in place by adding the specified column from the header
+            to the data table.
 
-    def get(self, selection_values: str | Iterable, column: str = "nr"):
         """
-        Get a subset of a collection through a string or iterable of object id(s).
-        Optionally uses a different column than "nr" (the column with object ids).
+        self._data = self._data.merge(self.header[["nr", column_name]], on="nr")
+
+    def get(self, selection_values: str | Iterable, column: str = "nr") -> Collection:
+        """
+        Select all survey data by selecting a subset of the header table of the `Collection`
+        instance. Can be used to select surveys by ids directly or by information available
+        in another column of the header table. Optionally uses a different column than "nr"
+        (the column with survey ids).
 
         Parameters
         ----------
         selection_values : str | Iterable
-            Values to select
+            Survey id or ids to select or values in another column of the header table
+            to select.
         column : str, optional
-            In which column of the header to look for selection values, by default "nr"
+            If not selecting by survey ids, in which column of the header to look for the
+            selection values. The default is "nr".
 
         Returns
         -------
-        New instance of the current object.
-            New instance of the current object containing only the selection resulting
-            from application of this method. e.g. if you are calling this method from a
-            Collection, you will get an instance of a Collection back.
+        :class:`geost.base.Collection`
+            New Collection instance containing only the selected surveys.
 
         Examples
         --------
-        self.get(["obj1", "obj2"]) will return a collection with only these objects.
+        To select surveys with object ids "obj1" and "obj2" from the collection, use:
+
+        >>> collection.get(["obj1", "obj2"])
 
         Suppose we have a collection of boreholes that we have joined with geological
-        map units using the method
-        :meth:`~geost.base.PointDataCollection.get_area_labels`. We have added this data
-        to the header table in the column 'geological_unit'. Using:
+        map units using the method :meth:`~geost.base.PointDataCollection.get_area_labels`,
+        which is then available information in the header table. We can use:
 
-        self.get(["unit1", "unit2"], column="geological_unit")
+        >>> collection.get(["unit1", "unit2"], column="geological_unit")
 
-        will return a :class:`~geost.base.BoreholeCollection` with all boreholes
-        that are located in "unit1" and "unit2" geological map areas.
+        which selects all surveys that are located in "unit1" and "unit2" geological map
+        areas.
+
         """
-        selected_header = self.header.gsthd.get(selection_values, column)
-        selected_data = self.data.gstda.select_by_values(column, selection_values)
+        selected_header = self.header.gst.select_by_values(column, selection_values)
+        selected_data = self.data.gst.select_by_values(
+            "nr", selected_header["nr"].unique()
+        )
 
         return self.__class__(
-            selected_header, selected_data, self.has_inclined, self.vertical_reference
+            selected_data,
+            header=selected_header,
+            has_inclined=self.has_inclined,
+            vertical_reference=self.vertical_reference,
         )
 
     def change_horizontal_reference(self, to_epsg: str | int | CRS):
@@ -309,6 +333,10 @@ class Collection(AbstractCollection):
         """
         warning_given = False
         if hasattr(self, "_header") and hasattr(self, "_data"):
+            # In initialization of the object, _header and _data attributes do not exist yet.
+            if self.header.empty and self.data.empty:
+                return
+
             if any(~self.header["nr"].isin(self.data["nr"].unique())):
                 warnings.warn(
                     "Header covers more/other objects than present in the data table. "
@@ -332,12 +360,13 @@ class Collection(AbstractCollection):
                     " is enabled in the GeoST configuration.",
                 )
 
+    @_requires_geometry
     def select_within_bbox(
         self,
-        xmin: Coordinate,
-        ymin: Coordinate,
-        xmax: Coordinate,
-        ymax: Coordinate,
+        xmin: int | float,
+        ymin: int | float,
+        xmax: int | float,
+        ymax: int | float,
         invert: bool = False,
     ):
         """
@@ -345,44 +374,47 @@ class Collection(AbstractCollection):
 
         Parameters
         ----------
-        xmin : float | int
+        xmin : int | float
             Minimum x-coordinate of the bounding box.
-        ymin : float | int
+        ymin : int | float
             Minimum y-coordinate of the bounding box.
-        xmax : float | int
+        xmax : int | float
             Maximum x-coordinate of the bounding box.
-        ymax : float | int
+        ymax : int | float
             Maximum y-coordinate of the bounding box.
         invert : bool, optional
-            Invert the selection, so select all objects outside of the
-            bounding box in this case, by default False.
+            Invert the selection, then selects all objects outside of the bounding box.
+            The default is False.
 
         Returns
         -------
-        New instance of the current object.
-            New instance of the current object containing only the selection resulting
-            from application of this method. e.g. if you are calling this method from a
-            Collection, you will get an instance of a Collection back.
+        :class:`~geost.base.Collection`
+            New Collection instance containing only the surveys that are located within
+            the bounding box.
 
         """
-        selected_header = self.header.gsthd.select_within_bbox(
+        selected_header = self.header.gst.select_within_bbox(
             xmin, ymin, xmax, ymax, invert=invert
         )
-        selected_data = self.data.gstda.select_by_values(
+        selected_data = self.data.gst.select_by_values(
             "nr", selected_header["nr"].unique()
         )
         return self.__class__(
-            selected_header, selected_data, self.has_inclined, self.vertical_reference
+            selected_data,
+            header=selected_header,
+            has_inclined=self.has_inclined,
+            vertical_reference=self.vertical_reference,
         )
 
+    @_requires_geometry
     def select_with_points(
         self,
         points: str | Path | gpd.GeoDataFrame | GeometryType,
-        buffer: float | int,
+        max_distance: float | int,
         invert: bool = False,
     ):
         """
-        Make a selection of the collection based on point geometries.
+        Select all data that lie within a maximum distance from given point geometries.
 
         Parameters
         ----------
@@ -390,37 +422,41 @@ class Collection(AbstractCollection):
             Any type of point geometries that can be used for the selection: GeoDataFrame
             containing points or filepath to a shapefile like file, or Shapely Point,
             MultiPoint or list containing Point objects.
-        buffer : float | int
-            Buffer distance for selection geometries.
+        max_distance : float | int
+            Maximum distance from the selection points.
         invert : bool, optional
-            Invert the selection, by default False.
+            Invert the selection, selects all data that lie outside the specified maximum
+            distance from the given point geometries. The default is False.
 
         Returns
         -------
-        New instance of the current object.
-            New instance of the current object containing only the selection resulting
-            from application of this method. e.g. if you are calling this method from a
-            Collection, you will get an instance of a Collection back.
+        :class:`~geost.base.Collection`
+            New Collection instance containing only the surveys that are located within
+            the specified maximum distance from the given point geometries.
 
         """
-        selected_header = self.header.gsthd.select_with_points(
-            points, buffer, invert=invert
+        selected_header = self.header.gst.select_with_points(
+            points, max_distance, invert=invert
         )
-        selected_data = self.data.gstda.select_by_values(
+        selected_data = self.data.gst.select_by_values(
             "nr", selected_header["nr"].unique()
         )
         return self.__class__(
-            selected_header, selected_data, self.has_inclined, self.vertical_reference
+            selected_data,
+            header=selected_header,
+            has_inclined=self.has_inclined,
+            vertical_reference=self.vertical_reference,
         )
 
+    @_requires_geometry
     def select_with_lines(
         self,
         lines: str | Path | gpd.GeoDataFrame | GeometryType,
-        buffer: float | int,
+        max_distance: float | int,
         invert: bool = False,
     ):
         """
-        Make a selection of the collection based on line geometries.
+        Select all data that lie within a maximum distance from given line geometries.
 
         Parameters
         ----------
@@ -428,29 +464,33 @@ class Collection(AbstractCollection):
             Any type of line geometries that can be used for the selection: GeoDataFrame
             containing lines or filepath to a shapefile like file, or Shapely LineString,
             MultiLineString or list containing LineString objects.
-        buffer : float | int
-            Buffer distance for selection geometries.
+        max_distance : float | int
+            Maximum distance from the selection lines.
         invert : bool, optional
-            Invert the selection, by default False.
+            Invert the selection, selects all data that lie outside the specified maximum
+            distance from the given line geometries. The default is False.
 
         Returns
         -------
-        New instance of the current object.
-            New instance of the current object containing only the selection resulting
-            from application of this method. e.g. if you are calling this method from a
-            Collection, you will get an instance of a Collection back.
+        :class:`~geost.base.Collection`
+            New Collection instance containing only the surveys that are located within
+            the specified maximum distance from the given line geometries.
 
         """
-        selected_header = self.header.gsthd.select_with_lines(
-            lines, buffer, invert=invert
+        selected_header = self.header.gst.select_with_lines(
+            lines, max_distance, invert=invert
         )
-        selected_data = self.data.gstda.select_by_values(
+        selected_data = self.data.gst.select_by_values(
             "nr", selected_header["nr"].unique()
         )
         return self.__class__(
-            selected_header, selected_data, self.has_inclined, self.vertical_reference
+            selected_data,
+            header=selected_header,
+            has_inclined=self.has_inclined,
+            vertical_reference=self.vertical_reference,
         )
 
+    @_requires_geometry
     def select_within_polygons(
         self,
         polygons: str | Path | gpd.GeoDataFrame | GeometryType,
@@ -458,7 +498,7 @@ class Collection(AbstractCollection):
         invert: bool = False,
     ):
         """
-        Make a selection of the collection based on polygon geometries.
+        Select all data that lie within given polygon geometries.
 
         Parameters
         ----------
@@ -467,28 +507,90 @@ class Collection(AbstractCollection):
             containing polygons or filepath to a shapefile like file, or Shapely Polygon,
             MultiPolygon or list containing Polygon objects.
         buffer : float | int, optional
-            Optional buffer distance around the polygon selection geometries, by default
-            0.
+            Optional buffer distance around the polygon selection geometries. The default
+            is 0.
         invert : bool, optional
-            Invert the selection, by default False.
+            Invert the selection, selects all data that lie outside the selection polygons.
 
         Returns
         -------
-        New instance of the current object.
-            New instance of the current object containing only the selection resulting
-            from application of this method. e.g. if you are calling this method from a
-            Collection, you will get an instance of a Collection back.
+        :class:`~geost.base.Collection`
+            New Collection instance containing only the surveys that are located within
+            the given polygon geometries.
 
         """
-        selected_header = self.header.gsthd.select_within_polygons(
+        selected_header = self.header.gst.select_within_polygons(
             polygons, buffer=buffer, invert=invert
         )
-        selected_data = self.data.gstda.select_by_values(
+        selected_data = self.data.gst.select_by_values(
             "nr", selected_header["nr"].unique()
         )
         return self.__class__(
-            selected_header, selected_data, self.has_inclined, self.vertical_reference
+            selected_data,
+            header=selected_header,
+            has_inclined=self.has_inclined,
+            vertical_reference=self.vertical_reference,
         )
+
+    @_requires_geometry
+    def spatial_join(
+        self,
+        geometries: str | Path | gpd.GeoDataFrame,
+        label_id: str | list[str],
+        drop_label_if_exists: bool = True,
+        include_in_header: bool = False,
+        **kwargs,
+    ) -> gpd.GeoDataFrame | None:
+        """
+        Join information from another GeoDataFrame by a spatial relationship (e.g. overlap)
+        between the geometries in the header table of the Collection with the geometries in
+        the other GeoDataFrame.
+
+        Parameters
+        ----------
+        geometries : str | Path | gpd.GeoDataFrame
+            Geometries to join with the information from. Can be a GeoDataFrame or a
+            file path to a geospatial file that can be read as a GeoDataFrame.
+        label_id : str | Iterable
+            Column name(s) in the geometries GeoDataFrame to join the information from.
+        drop_label_if_exists : bool, optional
+            If True, will drop the specified 'label_id' from the original GeoDataFrame if
+            these already exist as a column or columns, before the spatial join. Otherwise,
+            suffixes will automatically be added to the joined columns to avoid naming conflicts.
+            The default is False.
+        **kwargs
+            Keyword arguments to be passed to the GeoPandas :meth:`geopandas.GeoDataFrame.sjoin`
+            function. See relevant documentation for more information. Note that the "how"
+            parameter is not allowed when `include_in_header` is True (error is raised), as
+            the spatial join will always be performed with "how='left'" in that case.
+
+        Returns
+        -------
+        gpd.GeoDataFrame | None
+            GeoDataFrame resulting from the spatial join if `include_in_header` is False.
+            Otherwise, returns `None` and the result is included in the header of the
+            Collection instance.
+
+        """
+        if include_in_header:
+            if "how" in kwargs:
+                raise ValueError(
+                    "The 'how' parameter is not allowed when include_in_header is True."
+                )
+            self.header = self.header.gst.spatial_join(
+                geometries,
+                label_id,
+                drop_label_if_exists=drop_label_if_exists,
+                how="left",
+                **kwargs,
+            )
+        else:
+            return self.header.gst.spatial_join(
+                geometries,
+                label_id,
+                drop_label_if_exists=drop_label_if_exists,
+                **kwargs,
+            )
 
     def select_by_depth(
         self,
@@ -561,52 +663,78 @@ class Collection(AbstractCollection):
         )
 
     def select_by_values(
-        self, column: str, selection_values: str | Iterable, how: str = "or"
+        self,
+        column: str,
+        values: str | Iterable | slice,
+        how: str = "or",
+        invert: bool = False,
+        inclusive: str = "both",
     ):
         """
-        Select data based on the presence of given values in a given column. Can be used
-        for example to select boreholes that contain peat in the lithology column.
+        Select data based on the presence of values in a given column. Can be used for
+        example to select boreholes that contain peat in the lithology column.
 
         Parameters
         ----------
         column : str
-            Name of column that contains categorical data to use when looking for
-            values.
-        selection_values : str | Iterable
-            Value or values to look for in the column.
-        how : str, optional
-            Either "and" or "or". "and" requires all selection values to be present in
-            column for selection. "or" will select the core if any one of the
-            selection_values are found in the column. Default is "and".
+            Name of the column to look for the selection values in.
+        values : str | Iterable | slice
+            Value or array-like set of values to look for in the column. In case of numerical
+            values, a slice can be used to select data that contain a specific range of values,
+            see example below.
+        how : {"and", "or"}, optional
+            Either "and" or "or", only used when multiple categorical values are provided.
+            "and" requires all selection values to be present in the column for selection. "or"
+            will select the data if any one of the values are found in the column. The default
+            is "and".
+        invert : bool, optional
+            If True, the selection is inverted so that data that does not match the selection
+            criteria is returned instead. The default is False.
+        inclusive : {"both", "neither", "left", "right"}, optional
+            When a slice is used for selection to include boundaries or not. The
+            default is "both".
 
         Returns
         -------
-        New instance of the current object.
-            New instance of the current object containing only the selection resulting
-            from application of this method. e.g. if you are calling this method from a
-            Collection, you will get an instance of a Collection back.
+        :class:`~geost.base.Collection`
+            New Collection instance containing the all data from the selection result. The
+            data table contains the entire data for the selected surveys, so not only the
+            rows that match the selection. If that is desired, use the method
+            :meth:`~geost.base.Collection.slice_by_values` instead.
 
         Examples
         --------
-        To select boreholes where both clay ("K") and peat ("V") are present at the same
+        To select data where both clay ("K") and peat ("V") are present at the same
         time, use "and" as a selection method:
 
-        >>> boreholes.select_by_values("lith", ["V", "K"], how="and")
+        >>> data.select_by_values("lith", ["V", "K"], how="and")
 
-        To select boreholes that can have one, or both lithologies, use or as the selection
+        To select data that can have one, or both lithologies, use or as the selection
         method:
 
-        >>> boreholes.select_by_values("lith", ["V", "K"], how="and")
+        >>> data.select_by_values("lith", ["V", "K"], how="or")
+
+        In case of numerical values, use a slice to select data that contain a specific
+        range of values. For example, to select data that contain cone resistances ("qc")
+        between 15 and 20 MPa:
+
+        >>> data.select_by_values("qc", slice(15, 20))
 
         """
-        selected_data = self.data.gstda.select_by_values(
-            column, selection_values, how=how
+        selected_data = self.data.gst.select_by_values(
+            column, values, how=how, invert=invert, inclusive=inclusive
         )
-        selected_header = self.header.gsthd.get(selected_data["nr"].unique())
+        selected_header = self.header.gst.select_by_values(
+            "nr", selected_data["nr"].unique()
+        )
         return self.__class__(
-            selected_header, selected_data, self.has_inclined, self.vertical_reference
+            selected_data,
+            header=selected_header,
+            has_inclined=self.has_inclined,
+            vertical_reference=self.vertical_reference,
         )
 
+    @_requires_depth
     def slice_depth_interval(
         self,
         upper_boundary: float | int = None,
@@ -635,10 +763,9 @@ class Collection(AbstractCollection):
 
         Returns
         -------
-        New instance of the current object.
-            New instance of the current object containing only the selection resulting
-            from application of this method. e.g. if you are calling this method from a
-            Collection, you will get an instance of a Collection back.
+        :class:`~geost.base.Collection`
+            New Collection instance containing only the data within the specified depth
+            boundaries.
 
         Examples
         --------
@@ -661,19 +788,28 @@ class Collection(AbstractCollection):
         >>> data.slice_depth_interval(-3, -5, relative_to_vertical_reference=True)
 
         """
-        selected_data = self.data.gstda.slice_depth_interval(
+        selected_data = self.data.gst.slice_depth_interval(
             upper_boundary=upper_boundary,
             lower_boundary=lower_boundary,
             relative_to_vertical_reference=relative_to_vertical_reference,
             update_layer_boundaries=update_layer_boundaries,
         )
-        selected_header = self.header.gsthd.get(selected_data["nr"].unique())
+        selected_header = self.header.gst.select_by_values(
+            "nr", selected_data["nr"].unique()
+        )
         return self.__class__(
-            selected_header, selected_data, self.has_inclined, self.vertical_reference
+            selected_data,
+            header=selected_header,
+            has_inclined=self.has_inclined,
+            vertical_reference=self.vertical_reference,
         )
 
     def slice_by_values(
-        self, column: str, selection_values: str | Iterable, invert: bool = False
+        self,
+        column: str,
+        values: str | Iterable | slice,
+        invert: bool = False,
+        inclusive: str = "both",
     ):
         """
         Slice rows from data based on matching condition. E.g. only return rows with
@@ -684,18 +820,24 @@ class Collection(AbstractCollection):
         column : str
             Name of column that contains categorical data to use when looking for
             values.
-        selection_values : str | Iterable
-            Values to look for in the column.
+        values : str | Iterable | slice
+            Value or array-like set of values to look for in the column. In case of numerical
+            values, a slice can be used to slice a range of values, see example below.
         invert : bool, optional
             If True, invert the slicing action, so remove layers with selected values
             instead of keeping them. The default is False.
+        inclusive : {"both", "neither", "left", "right"}, optional
+            When a slice is used for selection to include boundaries or not. The
+            default is "both".
 
         Returns
         -------
-        New instance of the current object.
-            New instance of the current object containing only the selection resulting
-            from application of this method. e.g. if you are calling this method from a
-            Collection, you will get an instance of a Collection back.
+        :class:`~geost.base.Collection`
+            New Collection instance containing only the data that match the slicing condition
+            in the data table. The data table contains only the rows that match the slicing
+            condition, so not the entire data for the selected surveys. If you want to select
+            entire surveys based on the presence of certain values, use the method
+            :meth:`~geost.base.Collection.select_by_values` instead.
 
         Examples
         --------
@@ -708,19 +850,30 @@ class Collection(AbstractCollection):
 
         >>> boreholes.slice_by_values("lith", "Z", invert=True)
 
+        In case of numerical values, use a slice object to slice data that contain a specific
+        range of values. For example, to slice data that contain cone resistances ("qc")
+        between 15 and 20 MPa:
+
+        >>> data.slice_by_values("qc", slice(15, 20))
+
         """
-        selected_data = self.data.gstda.slice_by_values(
-            column, selection_values, invert=invert
+        selected_data = self.data.gst.slice_by_values(
+            column, values, invert=invert, inclusive=inclusive
         )
-        selected_header = self.header.gsthd.get(selected_data["nr"].unique())
+        selected_header = self.header.gst.select_by_values(
+            "nr", selected_data["nr"].unique()
+        )
         return self.__class__(
-            selected_header, selected_data, self.has_inclined, self.vertical_reference
+            selected_data,
+            header=selected_header,
+            has_inclined=self.has_inclined,
+            vertical_reference=self.vertical_reference,
         )
 
     def select_by_condition(self, condition: Any, invert: bool = False):
         """
-        Select from collection.data using a manual condition that results in a boolean
-        mask. Returns the rows in the data where the 'condition' evaluates to True.
+        Do a condition-based selection on the data table of the `Collection: return the
+        rows in the data where the 'condition' evaluates to True, see examples below.
 
         Parameters
         ----------
@@ -734,14 +887,15 @@ class Collection(AbstractCollection):
 
         Returns
         -------
-        :class:`~geost.base.LayeredData`
-            New instance containing only the data objects selected by this method.
+        :class:`~geost.base.Collection`
+            New instance containing only the rows obtained by the selection in the data
+            table.
 
         Examples
         --------
         Select rows in data that contain a specific value:
 
-        >>> data.select_by_condition(data["lith"]=="V")
+        >>> data.select_by_condition(data["lith"] == "V")
 
         Select rows in the data that contain a specific (part of) string or strings:
 
@@ -756,10 +910,15 @@ class Collection(AbstractCollection):
         >>> data.select_by_condition((data["column1"] > 2) & (data["column2] < 1))
 
         """
-        selected_data = self.data.gstda.select_by_condition(condition, invert)
-        selected_header = self.header.gsthd.get(selected_data["nr"].unique())
+        selected_data = self.data.gst.select_by_condition(condition, invert)
+        selected_header = self.header.gst.select_by_values(
+            "nr", selected_data["nr"].unique()
+        )
         return self.__class__(
-            selected_header, selected_data, self.has_inclined, self.vertical_reference
+            selected_data,
+            header=selected_header,
+            has_inclined=self.has_inclined,
+            vertical_reference=self.vertical_reference,
         )
 
     def get_area_labels(
@@ -839,7 +998,7 @@ class Collection(AbstractCollection):
             The default is None.
 
         """
-        utils._to_geopackage(
+        utils.io_helpers._to_geopackage(
             self.header,
             outfile,
             "Header",
@@ -848,7 +1007,7 @@ class Collection(AbstractCollection):
             index=False,
             metadata=metadata,
         )
-        utils._to_geopackage(
+        utils.io_helpers._to_geopackage(
             gpd.GeoDataFrame(self.data),
             outfile,
             "Data",
@@ -903,10 +1062,10 @@ class Collection(AbstractCollection):
         Examples
         --------
         Export the data table:
-        >>> collection.to_parquet("example.csv")
+        >>> collection.to_csv("example.csv")
 
         Export the header table:
-        >>> collection.to_parquet("example.csv", data_table=False)
+        >>> collection.to_csv("example.csv", data_table=False)
 
         """
         if data_table:
@@ -930,11 +1089,11 @@ class Collection(AbstractCollection):
         >>> collection.to_pickle("example.pkl")
 
         """
-        utils.save_pickle(self, outfile, **kwargs)
+        utils.io_helpers.save_pickle(self, outfile, **kwargs)
 
     def to_pyvista_cylinders(
         self,
-        displayed_variables: str | List[str],
+        displayed_variables: str | list[str],
         radius: float = 1,
         vertical_factor: float = 1.0,
         relative_to_vertical_reference: bool = True,
@@ -947,7 +1106,7 @@ class Collection(AbstractCollection):
 
         Parameters
         ----------
-        displayed_variables : str | List[str]
+        displayed_variables : str | list[str]
             Name or names of data columns to include for visualisation. Can be columns that
             contain an array of floats, ints and strings.
         radius : float, optional
@@ -974,7 +1133,7 @@ class Collection(AbstractCollection):
 
     def to_pyvista_grid(
         self,
-        displayed_variables: str | List[str],
+        displayed_variables: str | list[str],
         radius: float = 1.0,
     ):
         """
@@ -984,7 +1143,7 @@ class Collection(AbstractCollection):
 
         Parameters
         ----------
-        displayed_variables : str | List[str]
+        displayed_variables : str | list[str]
             Name or names of data columns to include for visualisation. Can be columns that
             contain an array of floats, ints and strings.
         radius : float, optional
@@ -1000,7 +1159,7 @@ class Collection(AbstractCollection):
 
     def to_datafusiontools(
         self,
-        columns: List[str],
+        columns: list[str],
         outfile: str | Path = None,
         encode: bool = False,
         relative_to_vertical_reference: bool = True,
@@ -1016,7 +1175,7 @@ class Collection(AbstractCollection):
 
         Parameters
         ----------
-        columns : List[str]
+        columns : list[str]
             Which columns in the data to include for the export. These will become variables
             in the DataFusionTools "Data" class.
         outfile : str | Path, optional
@@ -1036,7 +1195,7 @@ class Collection(AbstractCollection):
 
         Returns
         -------
-        List[Data]
+        list[Data]
             List containing the DataFusionTools Data objects.
 
         """
@@ -1079,7 +1238,7 @@ class BoreholeCollection(Collection):
         raise NotImplementedError
 
     def get_cumulative_thickness(
-        self, column: str, values: str | List[str], include_in_header: bool = False
+        self, column: str, values: str | list[str], include_in_header: bool = False
     ):
         """
         Get the cumulative thickness of layers where a column contains a specified search
@@ -1089,7 +1248,7 @@ class BoreholeCollection(Collection):
         ----------
         column : str
             Name of column that must contain the search value or values.
-        values : str | List[str]
+        values : str | list[str]
             Search value or values in the column to find the cumulative thickness for.
         include_in_header : bool, optional
             If True, include the result in the header table of the collection. In this
@@ -1140,7 +1299,7 @@ class BoreholeCollection(Collection):
     def get_layer_top(
         self,
         column: str,
-        values: str | List[str],
+        values: str | list[str],
         min_thickness: float = 0,
         min_depth: float = 0,
         max_depth: float = None,
@@ -1155,7 +1314,7 @@ class BoreholeCollection(Collection):
         ----------
         column : str
             Name of column that contains categorical data.
-        values : str | List[str]
+        values : str | list[str]
             Value or values of entries in the column that you want to find top of.
         min_thickness : float, optional
             Minimal thickness of the layer to be considered. The default is 0.
@@ -1208,7 +1367,7 @@ class BoreholeCollection(Collection):
     def get_layer_base(
         self,
         column: str,
-        values: str | List[str],
+        values: str | list[str],
         min_thickness: float = 0,
         min_depth: float = 0,
         max_depth: float = None,
@@ -1223,7 +1382,7 @@ class BoreholeCollection(Collection):
         ----------
         column : str
             Name of column that contains categorical data.
-        values : str | List[str]
+        values : str | list[str]
             Value or values of entries in the column that you want to find base of.
         min_thickness : float, optional
             Minimal thickness of the layer to be considered. The default is 0.
@@ -1407,12 +1566,4 @@ class CptCollection(Collection):
         raise NotImplementedError()
 
     def get_layer_top(self):  # pragma: no cover
-        raise NotImplementedError()
-
-
-class LogCollection(Collection):  # pragma: no cover
-    def get_cumulative_thickness(self):
-        raise NotImplementedError()
-
-    def get_layer_top(self):
         raise NotImplementedError()

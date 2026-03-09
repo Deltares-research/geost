@@ -1,11 +1,16 @@
+from typing import TYPE_CHECKING
+
 import numpy as np
 import pandas as pd
-import xarray as xr
 
-from geost.accessors.data import DiscreteData, LayeredData
-from geost.base import Collection
-from geost.models import VoxelModel
 from geost.models.model_utils import label_consecutive_2d
+
+if TYPE_CHECKING:
+    import xarray as xr
+
+    from geost.accessors.data import DiscreteData, LayeredData
+    from geost.base import Collection
+    from geost.models import VoxelModel
 
 
 def add_voxelmodel_variable(

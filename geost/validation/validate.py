@@ -1,5 +1,6 @@
 import contextlib
 import warnings
+from functools import wraps
 
 import pandas as pd
 from pandera.errors import SchemaError, SchemaErrors

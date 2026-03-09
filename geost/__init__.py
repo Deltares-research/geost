@@ -1,5 +1,5 @@
-from geost import accessor, accessors, data
-from geost.base import BoreholeCollection, CptCollection
+from geost import accessor, data
+from geost.base import BoreholeCollection, Collection, CptCollection
 from geost.io.read import (
     bro_api_read,
     read_bhrg,
@@ -17,6 +17,5 @@ from geost.io.read import (
     read_uullg_tables,
     read_xml_boris,
 )
-from geost.utils import csv_to_parquet, excel_to_parquet
 
 __version__ = "0.4.2"

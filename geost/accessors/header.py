@@ -6,9 +6,10 @@ import pandas as pd
 from pyproj import CRS
 from shapely import geometry as gmt
 
-from geost import spatial, utils
+from geost import utils
 from geost.abstract_classes import AbstractHeader
-from geost.projections import vertical_reference_transformer
+from geost.utils import spatial
+from geost.utils.projections import vertical_reference_transformer
 
 type Coordinate = int | float
 type GeometryType = gmt.base.BaseGeometry | list[gmt.base.BaseGeometry]
@@ -379,7 +380,7 @@ class PointHeader(AbstractHeader):
         polygon_gdf = spatial.check_and_coerce_crs(polygon_gdf, self._gdf.crs)
 
         all_nrs = self._gdf["nr"]
-        area_labels = spatial.find_area_labels(self._gdf, polygon_gdf, column_name)
+        area_labels = spatial.get_area_labels(self._gdf, polygon_gdf, column_name)
         area_labels = pd.concat([all_nrs, area_labels], axis=1)
 
         if include_in_header:
