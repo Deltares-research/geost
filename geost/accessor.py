@@ -465,6 +465,7 @@ class GeostFrame:
         )
         return selection
 
+    @_requires_depth
     def select_by_elevation(
         self,
         top_min: float | int = None,
@@ -472,7 +473,6 @@ class GeostFrame:
         end_min: float | int = None,
         end_max: float | int = None,
     ) -> gpd.GeoDataFrame:
-        self._check_has_depth()
         selected = self._obj
 
         if top_min is not None or top_max is not None:
@@ -484,14 +484,34 @@ class GeostFrame:
             end_min = end_min or -1e34
             end_max = end_max or 1e34
             if "end" not in selected.columns:
-                is_last_layer = self._obj["nr"] != self._obj["nr"].shift(-1)
-                ends = self._obj.loc[is_last_layer, ["nr", "bottom"]]
+                ends = self._obj.loc[self._last_row_in_survey, ["nr", self._bottom]]
                 selected = selected.merge(
-                    ends.rename(columns={"bottom": "end"}), on="nr"
+                    ends.rename(columns={self._bottom: "end"}), on="nr"
                 )
-                # selected["end"] = selected["surface"] - selected["end"]
+                selected["end"] = selected["surface"] - selected["end"]
 
             selected = selected[selected["end"].between(end_min, end_max)]
+
+        return selected
+
+    @_requires_depth
+    def select_by_length(
+        self, min_length: float = None, max_length: float = None
+    ) -> gpd.GeoDataFrame:
+        selected = self._obj
+
+        if min_length is not None or max_length is not None:
+            min_length = min_length or -1e34
+            max_length = max_length or 1e34
+            if "end" not in selected.columns:
+                ends = self._obj.loc[self._last_row_in_survey, ["nr", self._bottom]]
+                selected = selected.merge(
+                    ends.rename(columns={self._bottom: "end"}), on="nr"
+                )
+                selected["end"] = selected["surface"] - selected["end"]
+            selected = selected[
+                (selected["surface"] - selected["end"]).between(min_length, max_length)
+            ]
 
         return selected
 

@@ -256,93 +256,41 @@ class TestGeostFrame:
         assert collection.horizontal_reference == 28992
         assert collection.vertical_reference == 5709
 
-    @pytest.mark.parametrize(
-        "df, top_min, top_max, end_min, end_max, expected_ids",
-        [
-            # Both top_min/max provided
-            (
-                gpd.GeoDataFrame(
-                    {
-                        "nr": ["A", "B"],
-                        "surface": [10.0, 0.0],
-                        "bottom": [5.0, -5.0],
-                        "geometry": [Point(0, 0), Point(1, 1)],
-                    }
-                ),
-                5,
-                15,
-                None,
-                None,
-                ["A"],
-            ),
-            # Only top_min
-            (
-                gpd.GeoDataFrame(
-                    {
-                        "nr": ["A", "B"],
-                        "surface": [10.0, 0.0],
-                        "bottom": [5.0, -5.0],
-                        "geometry": [Point(0, 0), Point(1, 1)],
-                    }
-                ),
-                5,
-                None,
-                None,
-                None,
-                ["A"],
-            ),
-            # Filter by end depth
-            (
-                gpd.GeoDataFrame(
-                    {
-                        "nr": ["A", "A", "B"],
-                        "surface": [10.0, 10.0, 0.0],
-                        "bottom": [0.0, -20.0, -10.0],  # A ends at -20, B at -10
-                        "geometry": [
-                            Point(0, 0),
-                            Point(0, 0),
-                            Point(1, 1),
-                        ],
-                    }
-                ),
-                None,
-                None,
-                -25,
-                -15,
-                ["A"],
-            ),
-            # Match surface and depth
-            (
-                gpd.GeoDataFrame(
-                    {
-                        "nr": ["A", "B"],
-                        "surface": [10.0, 10.0],
-                        "bottom": [-20.0, -5.0],
-                        "geometry": [Point(0, 0), Point(1, 1)],
-                    }
-                ),
-                5,
-                15,
-                -10,
-                0,
-                ["B"],
-            ),
-        ],
-        ids=[
-            "top-both-provided",
-            "top-min-only-logic-check",
-            "end-depth-filter",
-            "combined-match",
-        ],
-    )
-    def test_select_by_elevation(
-        self, df, top_min, top_max, end_min, end_max, expected_ids
-    ):
-        selected = df.gst.select_by_elevation(
-            top_min=top_min, top_max=top_max, end_min=end_min, end_max=end_max
+    @pytest.mark.unittest
+    def test_select_by_elevation(self, borehole_data):
+        # Test with only top_min specified
+        selected = borehole_data.gst.select_by_elevation(top_min=0)
+        assert_array_equal(selected["nr"].unique(), ["A", "B", "C", "D", "E"])
+
+        # Test with only end_min specified
+        selected = borehole_data.gst.select_by_elevation(end_min=-3)
+        assert_array_equal(selected["nr"].unique(), ["D"])
+
+        # Test with noe "end" column, and both top_min and end_min specified
+        selected = borehole_data.drop(columns=["end"]).gst.select_by_elevation(
+            top_min=0, end_min=-3
         )
-        actual_ids = selected["nr"].unique()
-        assert_array_equal(sorted(actual_ids), sorted(expected_ids))
+        assert_array_equal(selected["nr"].unique(), ["D"])
+
+        # Test with both end_min and end_max specified
+        selected = borehole_data.gst.select_by_elevation(end_min=-3, end_max=-2.9)
+        assert_array_equal(selected["nr"].unique(), ["D"])
+
+    @pytest.mark.unittest
+    def test_select_by_length(self, borehole_data):
+        selected = borehole_data.gst.select_by_length(max_length=3.0)
+        assert_array_equal(selected["nr"].unique(), ["D", "E"])
+
+        selected = borehole_data.gst.select_by_length(max_length=1.5)
+        assert_array_equal(selected["nr"].unique(), [])
+
+        selected = borehole_data.gst.select_by_length(min_length=4.0, max_length=5.0)
+        assert_array_equal(selected["nr"].unique(), ["A"])
+
+        selected = borehole_data.drop(columns=["end"]).gst.select_by_length(
+            min_length=4.0, max_length=5.0
+        )
+        assert_array_equal(selected["nr"].unique(), ["A"])
 
     @pytest.mark.unittest
     def test_select_within_bbox(self, point_header):
