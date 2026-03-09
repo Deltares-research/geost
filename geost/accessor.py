@@ -249,9 +249,7 @@ class GeostFrame:
 
         header = self._obj.drop_duplicates(subset="nr", ignore_index=True)
 
-        if self._x and self._y:
-            geometry = shapely.points(header[[self._x, self._y]])
-        elif coordinate_names is not None:
+        if coordinate_names is not None:
             x_col, y_col = coordinate_names
             if not {x_col, y_col}.issubset(header.columns):
                 raise KeyError(
@@ -259,6 +257,8 @@ class GeostFrame:
                 )
             geometry = shapely.points(header[[x_col, y_col]])
             # NOTE: future versions may require other geometry types too
+        elif self._x and self._y:
+            geometry = shapely.points(header[[self._x, self._y]])
         else:
             geometry = None
 
