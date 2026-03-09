@@ -258,6 +258,42 @@ class TestGeostFrame:
         assert collection.vertical_reference is None
 
     @pytest.mark.unittest
+    def test_select_by_elevation(self, borehole_data):
+        # Test with only top_min specified
+        selected = borehole_data.gst.select_by_elevation(top_min=0)
+        assert_array_equal(selected["nr"].unique(), ["A", "B", "C", "D", "E"])
+
+        # Test with only end_min specified
+        selected = borehole_data.gst.select_by_elevation(end_min=-3)
+        assert_array_equal(selected["nr"].unique(), ["D"])
+
+        # Test with noe "end" column, and both top_min and end_min specified
+        selected = borehole_data.drop(columns=["end"]).gst.select_by_elevation(
+            top_min=0, end_min=-3
+        )
+        assert_array_equal(selected["nr"].unique(), ["D"])
+
+        # Test with both end_min and end_max specified
+        selected = borehole_data.gst.select_by_elevation(end_min=-3, end_max=-2.9)
+        assert_array_equal(selected["nr"].unique(), ["D"])
+
+    @pytest.mark.unittest
+    def test_select_by_length(self, borehole_data):
+        selected = borehole_data.gst.select_by_length(max_length=3.0)
+        assert_array_equal(selected["nr"].unique(), ["D", "E"])
+
+        selected = borehole_data.gst.select_by_length(max_length=1.5)
+        assert_array_equal(selected["nr"].unique(), [])
+
+        selected = borehole_data.gst.select_by_length(min_length=4.0, max_length=5.0)
+        assert_array_equal(selected["nr"].unique(), ["A"])
+
+        selected = borehole_data.drop(columns=["end"]).gst.select_by_length(
+            min_length=4.0, max_length=5.0
+        )
+        assert_array_equal(selected["nr"].unique(), ["A"])
+
+    @pytest.mark.unittest
     def test_select_within_bbox(self, point_header):
         selected = point_header.gst.select_within_bbox(1, 1, 3, 3)
         assert len(selected) == 9

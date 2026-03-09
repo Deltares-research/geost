@@ -623,14 +623,17 @@ class Collection(AbstractBase):
             Collection, you will get an instance of a Collection back.
 
         """
-        selected_header = self.header.gsthd.select_by_depth(
+        selected_header = self.header.gst.select_by_elevation(
             top_min=top_min, top_max=top_max, end_min=end_min, end_max=end_max
         )
-        selected_data = self.data.gstda.select_by_values(
+        selected_data = self.data.gst.select_by_values(
             "nr", selected_header["nr"].unique()
         )
         return self.__class__(
-            selected_header, selected_data, self.has_inclined, self.vertical_reference
+            selected_data,
+            header=selected_header,
+            has_inclined=self.has_inclined,
+            vertical_reference=self.vertical_reference,
         )
 
     def select_by_length(self, min_length: float = None, max_length: float = None):
@@ -652,14 +655,17 @@ class Collection(AbstractBase):
             from application of this method. e.g. if you are calling this method from a
             Collection, you will get an instance of a Collection back.
         """
-        selected_header = self.header.gsthd.select_by_length(
+        selected_header = self.header.gst.select_by_length(
             min_length=min_length, max_length=max_length
         )
-        selected_data = self.data.gstda.select_by_values(
+        selected_data = self.data.gst.select_by_values(
             "nr", selected_header["nr"].unique()
         )
         return self.__class__(
-            selected_header, selected_data, self.has_inclined, self.vertical_reference
+            selected_data,
+            header=selected_header,
+            has_inclined=self.has_inclined,
+            vertical_reference=self.vertical_reference,
         )
 
     def select_by_values(
