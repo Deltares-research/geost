@@ -261,14 +261,35 @@ class GeostFrame:
         )
         return selection
 
-    def select_by_depth(
+    def select_by_elevation(
         self,
-        top_min: float = None,
-        top_max: float = None,
-        end_min: float = None,
-        end_max: float = None,
+        top_min: float | int = None,
+        top_max: float | int = None,
+        end_min: float | int = None,
+        end_max: float | int = None,
     ) -> gpd.GeoDataFrame:
-        raise NotImplementedError("Method not implemented yet.")
+        self._check_has_depth()
+        selected = self._obj
+
+        if top_min is not None or top_max is not None:
+            top_min = top_min or -1e34
+            top_max = top_max or 1e34
+            selected = selected[selected["surface"].between(top_min, top_max)]
+
+        if end_min is not None or end_max is not None:
+            end_min = end_min or -1e34
+            end_max = end_max or 1e34
+            if "end" not in selected.columns:
+                is_last_layer = self._obj["nr"] != self._obj["nr"].shift(-1)
+                ends = self._obj.loc[is_last_layer, ["nr", "bottom"]]
+                selected = selected.merge(
+                    ends.rename(columns={"bottom": "end"}), on="nr"
+                )
+                # selected["end"] = selected["surface"] - selected["end"]
+
+            selected = selected[selected["end"].between(end_min, end_max)]
+
+        return selected
 
     def get_area_labels(
         self,

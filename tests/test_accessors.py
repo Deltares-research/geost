@@ -116,6 +116,94 @@ class TestGeostFrame:
         inst = borehole_data.gst._to_iterable(inst)
         assert isinstance(inst, list)
 
+    @pytest.mark.parametrize(
+        "df, top_min, top_max, end_min, end_max, expected_ids",
+        [
+            # Both top_min/max provided
+            (
+                gpd.GeoDataFrame(
+                    {
+                        "nr": ["A", "B"],
+                        "surface": [10.0, 0.0],
+                        "bottom": [5.0, -5.0],
+                        "geometry": [shapely.Point(0, 0), shapely.Point(1, 1)],
+                    }
+                ),
+                5,
+                15,
+                None,
+                None,
+                ["A"],
+            ),
+            # Only top_min
+            (
+                gpd.GeoDataFrame(
+                    {
+                        "nr": ["A", "B"],
+                        "surface": [10.0, 0.0],
+                        "bottom": [5.0, -5.0],
+                        "geometry": [shapely.Point(0, 0), shapely.Point(1, 1)],
+                    }
+                ),
+                5,
+                None,
+                None,
+                None,
+                ["A"],
+            ),
+            # Filter by end depth
+            (
+                gpd.GeoDataFrame(
+                    {
+                        "nr": ["A", "A", "B"],
+                        "surface": [10.0, 10.0, 0.0],
+                        "bottom": [0.0, -20.0, -10.0],  # A ends at -20, B at -10
+                        "geometry": [
+                            shapely.Point(0, 0),
+                            shapely.Point(0, 0),
+                            shapely.Point(1, 1),
+                        ],
+                    }
+                ),
+                None,
+                None,
+                -25,
+                -15,
+                ["A"],
+            ),
+            # Match surface and depth
+            (
+                gpd.GeoDataFrame(
+                    {
+                        "nr": ["A", "B"],
+                        "surface": [10.0, 10.0],
+                        "bottom": [-20.0, -5.0],
+                        "geometry": [shapely.Point(0, 0), shapely.Point(1, 1)],
+                    }
+                ),
+                5,
+                15,
+                -10,
+                0,
+                ["B"],
+            ),
+        ],
+        ids=[
+            "top-both-provided",
+            "top-min-only-logic-check",
+            "end-depth-filter",
+            "combined-match",
+        ],
+    )
+    def test_select_by_elevation(
+        self, df, top_min, top_max, end_min, end_max, expected_ids
+    ):
+        selected = df.gst.select_by_elevation(
+            top_min=top_min, top_max=top_max, end_min=end_min, end_max=end_max
+        )
+        actual_ids = selected["nr"].unique()
+        assert_array_equal(sorted(actual_ids), sorted(expected_ids))
+
     @pytest.mark.unittest
     def test_select_within_bbox(self, point_header):
         selected = point_header.gst.select_within_bbox(1, 1, 3, 3)
