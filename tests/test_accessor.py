@@ -184,8 +184,8 @@ class TestGeostFrame:
     def test_to_header(self, borehole_data):
         header = borehole_data.gst.to_header()
         assert isinstance(header, gpd.GeoDataFrame)
-        assert not header.gst.has_geometry
-        assert_array_equal(header.columns, borehole_data.columns)
+        assert header.gst.has_geometry
+        assert_array_equal(header.columns, list(borehole_data.columns) + ["geometry"])
 
         header = borehole_data.gst.to_header(
             exclude_columns=["top", "bottom", "lith"], coordinate_names=("x", "y")
@@ -207,7 +207,7 @@ class TestGeostFrame:
         # Test that 'nr' is included in the header even if not specified in include_columns
         header = borehole_data.gst.to_header(include_columns=["surface"])
         assert isinstance(header, gpd.GeoDataFrame)
-        assert_array_equal(header.columns, ["nr", "surface"])
+        assert_array_equal(header.columns, ["nr", "surface", "geometry"])
 
         with pytest.raises(
             ValueError,
@@ -228,20 +228,6 @@ class TestGeostFrame:
 
     @pytest.mark.unittest
     def test_to_collection(self, borehole_data):
-        with pytest.warns() as record:
-            collection = borehole_data.gst.to_collection()
-
-        # TODO: `record[0]` has unexpected validation warning is thrown, check
-        assert ("Setting the header without an active geometry column.") in str(
-            record[1].message
-        )
-        assert isinstance(collection, Collection)
-        assert isinstance(collection.header, gpd.GeoDataFrame)
-        assert isinstance(collection.data, pd.DataFrame)
-        assert not collection.header_has_geometry
-        assert collection.horizontal_reference is None
-        assert collection.vertical_reference is None
-
         with warnings.catch_warnings():
             warnings.simplefilter("error")
             collection = borehole_data.gst.to_collection(
@@ -255,6 +241,21 @@ class TestGeostFrame:
         assert collection.header_has_geometry
         assert collection.horizontal_reference == 28992
         assert collection.vertical_reference == 5709
+
+        with pytest.warns() as record:
+            borehole_data = borehole_data.drop(columns=["x", "y"])
+            collection = borehole_data.gst.to_collection()
+
+        # TODO: `record[0]` has unexpected validation warning is thrown, check
+        assert ("Setting the header without an active geometry column.") in str(
+            record[1].message
+        )
+        assert isinstance(collection, Collection)
+        assert isinstance(collection.header, gpd.GeoDataFrame)
+        assert isinstance(collection.data, pd.DataFrame)
+        assert not collection.header_has_geometry
+        assert collection.horizontal_reference is None
+        assert collection.vertical_reference is None
 
     @pytest.mark.unittest
     def test_select_within_bbox(self, point_header):
@@ -784,24 +785,24 @@ class TestGeostFrame:
         assert (
             "thickness" not in borehole_data.columns
         )  # Ensure thickness column is not added to original DataFrame
-        assert_array_equal(result.index, ["B", "D"])
-        assert_array_almost_equal(result, [1.2, 0.5])
+        assert_array_equal(result["nr"], ["B", "D"])
+        assert_array_almost_equal(result["top"], [1.2, 0.5])
 
         result = borehole_data.gst.get_layer_top("lith", "V", min_thickness=1.0)
-        assert_array_equal(result.index, ["B"])
-        assert_array_almost_equal(result, [1.2])
+        assert_array_equal(result["nr"], ["B"])
+        assert_array_almost_equal(result["top"], [1.2])
 
         result = borehole_data.gst.get_layer_top("lith", ["Z", "V"])
-        assert_array_equal(result.index, ["A", "B", "C", "D", "E"])
-        assert_array_almost_equal(result, [1.5, 1.2, 2.9, 0.5, 0.0])
+        assert_array_equal(result["nr"], ["A", "B", "C", "D", "E"])
+        assert_array_almost_equal(result["top"], [1.5, 1.2, 2.9, 0.5, 0.0])
 
         result = borehole_data.gst.get_layer_top("lith", ["Z", "V"], min_thickness=1.0)
-        assert_array_equal(result.index, ["A", "B", "C"])
-        assert_array_almost_equal(result, [1.5, 1.2, 3.8])
+        assert_array_equal(result["nr"], ["A", "B", "C", "D", "E"])
+        assert_array_almost_equal(result["top"], [1.5, 1.2, 2.9, 1.8, 0.0])
 
         result = borehole_data.gst.get_layer_top("bottom", slice(1.5, 3.1))
-        assert_array_equal(result.index, ["A", "B", "C", "D", "E"])
-        assert_array_almost_equal(result, [0.8, 1.2, 1.4, 1.2, 1.2])
+        assert_array_equal(result["nr"], ["A", "B", "C", "D", "E"])
+        assert_array_almost_equal(result["top"], [0.8, 1.2, 1.4, 1.2, 1.2])
 
     @pytest.mark.unittest
     def test_get_layer_top_discrete(self, cpt_data):
@@ -809,10 +810,12 @@ class TestGeostFrame:
         assert (
             "thickness" not in cpt_data.columns
         )  # Ensure thickness column is not added to original DataFrame
-        assert_array_equal(result.index, ["a", "b"])
-        assert_array_equal(result, [8.0, 0.0])
+        assert_array_equal(result["nr"], ["a", "b"])
+        assert_array_equal(result["top"], [8.0, 0.0])
 
-        result = cpt_data.gst.get_layer_top("qc", slice(0.7, 18), min_thickness=2.0)
+        result = cpt_data.gst.get_layer_top("qc", slice(0.7, 18), min_thickness=2.5)
+        assert_array_equal(result["nr"], ["b"])
+        assert_array_equal(result["top"], [0.0])
 
 
 class TestHeaderAccessor:
