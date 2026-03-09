@@ -7,7 +7,6 @@ from pyproj import CRS
 from shapely import geometry as gmt
 
 from geost import utils
-from geost.abstract_classes import AbstractHeader
 from geost.utils import spatial
 from geost.utils.projections import vertical_reference_transformer
 
@@ -15,7 +14,7 @@ type Coordinate = int | float
 type GeometryType = gmt.base.BaseGeometry | list[gmt.base.BaseGeometry]
 
 
-class PointHeader(AbstractHeader):
+class PointHeader:
     def __init__(self, gdf):
         self._gdf = gdf
 
@@ -395,7 +394,7 @@ class PointHeader(AbstractHeader):
             return area_labels
 
 
-class LineHeader(AbstractHeader):  # pragma: no cover
+class LineHeader:  # pragma: no cover
     def __init__(self, gdf):
         self._gdf = gdf
 

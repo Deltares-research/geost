@@ -9,7 +9,7 @@ from shapely import geometry as gmt
 
 from geost import config, utils
 from geost._warnings import AlignmentWarning
-from geost.abstract_classes import AbstractCollection
+from geost.abstract_classes import AbstractBase
 from geost.utils.projections import (
     horizontal_reference_transformer,
     vertical_reference_transformer,
@@ -21,7 +21,7 @@ type Coordinate = int | float
 type GeometryType = gmt.base.BaseGeometry | list[gmt.base.BaseGeometry]
 
 
-class Collection(AbstractCollection):
+class Collection(AbstractBase):
     """
     A collection combines header and data and ensures that they remain aligned when
     applying methods.

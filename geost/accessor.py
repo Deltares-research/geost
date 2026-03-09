@@ -15,6 +15,7 @@ from geost import (
     export,
     validation,
 )  # FIXME: spatial triggers import of xarray, rioxarray. We don't want this automatically.
+from geost.abstract_classes import AbstractBase
 from geost.utils import casting, spatial
 from geost.validation.method_checks import (
     _requires_depth,
@@ -31,7 +32,7 @@ type GeometryType = BaseGeometry | list[BaseGeometry]
 
 
 @pd.api.extensions.register_dataframe_accessor("gst")
-class GeostFrame:
+class GeostFrame(AbstractBase):
     def __init__(self, dataframe: DataFrame):
         self._validate_dataframe(dataframe)
         self._obj = dataframe
