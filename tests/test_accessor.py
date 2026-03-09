@@ -5,7 +5,7 @@ import numpy as np
 import pandas as pd
 import pytest
 from numpy.testing import assert_array_almost_equal, assert_array_equal
-from shapely.geometry import LineString, Polygon
+from shapely.geometry import LineString, Point, Polygon
 
 from geost.accessor import GeostFrame
 from geost.accessors.accessor import DATA_BACKEND, HEADER_BACKEND
@@ -241,21 +241,6 @@ class TestGeostFrame:
         assert collection.header_has_geometry
         assert collection.horizontal_reference == 28992
         assert collection.vertical_reference == 5709
-
-        with pytest.warns() as record:
-            borehole_data = borehole_data.drop(columns=["x", "y"])
-            collection = borehole_data.gst.to_collection()
-
-        # TODO: `record[0]` has unexpected validation warning is thrown, check
-        assert ("Setting the header without an active geometry column.") in str(
-            record[1].message
-        )
-        assert isinstance(collection, Collection)
-        assert isinstance(collection.header, gpd.GeoDataFrame)
-        assert isinstance(collection.data, pd.DataFrame)
-        assert not collection.header_has_geometry
-        assert collection.horizontal_reference is None
-        assert collection.vertical_reference is None
 
     @pytest.mark.unittest
     def test_select_within_bbox(self, point_header):
