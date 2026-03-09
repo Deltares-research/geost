@@ -968,7 +968,11 @@ class GeostFrame(AbstractBase):
 
     @_requires_depth
     def get_layer_top(
-        self, column: str, values: str | list[str] | slice, min_thickness: float = None
+        self,
+        column: str,
+        values: str | list[str] | slice,
+        min_thickness: float = None,
+        min_fraction: float = None,
     ) -> pd.Series:
         """
         Find the top depth in individual survey ids where a column in a Pandas DataFrame contains
@@ -1008,7 +1012,7 @@ class GeostFrame(AbstractBase):
         """
         from geost.analysis.layers import get_layer_top
 
-        return get_layer_top(self._obj, column, values, min_thickness)
+        return get_layer_top(self._obj, column, values, min_thickness, min_fraction)
 
     @_requires_depth
     def get_layer_base(

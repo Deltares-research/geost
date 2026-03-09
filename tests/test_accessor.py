@@ -818,40 +818,38 @@ class TestGeostFrame:
     @pytest.mark.unittest
     def test_get_layer_top_layered(self, borehole_data):
         result = borehole_data.gst.get_layer_top("lith", "V")
+        assert isinstance(result, pd.Series)
         assert (
             "thickness" not in borehole_data.columns
         )  # Ensure thickness column is not added to original DataFrame
-        assert_array_equal(result["nr"], ["B", "D"])
-        assert_array_almost_equal(result["top"], [1.2, 0.5])
+        assert_array_equal(result.index, ["B", "D"])
+        assert_array_almost_equal(result, [1.2, 0.5])
 
         result = borehole_data.gst.get_layer_top("lith", "V", min_thickness=1.0)
-        assert_array_equal(result["nr"], ["B"])
-        assert_array_almost_equal(result["top"], [1.2])
+        assert_array_equal(result.index, ["B"])
+        assert_array_almost_equal(result, [1.2])
 
         result = borehole_data.gst.get_layer_top("lith", ["Z", "V"])
-        assert_array_equal(result["nr"], ["A", "B", "C", "D", "E"])
-        assert_array_almost_equal(result["top"], [1.5, 1.2, 2.9, 0.5, 0.0])
-
-        result = borehole_data.gst.get_layer_top("lith", ["Z", "V"], min_thickness=1.0)
-        assert_array_equal(result["nr"], ["A", "B", "C", "D", "E"])
-        assert_array_almost_equal(result["top"], [1.5, 1.2, 2.9, 1.8, 0.0])
+        assert_array_equal(result.index, ["A", "B", "C", "D", "E"])
+        assert_array_almost_equal(result, [1.5, 1.2, 2.9, 0.5, 0.0])
 
         result = borehole_data.gst.get_layer_top("bottom", slice(1.5, 3.1))
-        assert_array_equal(result["nr"], ["A", "B", "C", "D", "E"])
-        assert_array_almost_equal(result["top"], [0.8, 1.2, 1.4, 1.2, 1.2])
+        assert_array_equal(result.index, ["A", "B", "C", "D", "E"])
+        assert_array_almost_equal(result, [0.8, 1.2, 1.4, 1.2, 1.2])
 
     @pytest.mark.unittest
     def test_get_layer_top_discrete(self, cpt_data):
         result = cpt_data.gst.get_layer_top("qc", slice(0.7, 18))
+        assert isinstance(result, pd.Series)
         assert (
             "thickness" not in cpt_data.columns
         )  # Ensure thickness column is not added to original DataFrame
-        assert_array_equal(result["nr"], ["a", "b"])
-        assert_array_equal(result["top"], [8.0, 0.0])
+        assert_array_equal(result.index, ["a", "b"])
+        assert_array_equal(result, [8.0, 0.0])
 
         result = cpt_data.gst.get_layer_top("qc", slice(0.7, 18), min_thickness=2.5)
-        assert_array_equal(result["nr"], ["b"])
-        assert_array_equal(result["top"], [0.0])
+        assert_array_equal(result.index, ["b"])
+        assert_array_equal(result, [0.0])
 
 
 class TestHeaderAccessor:

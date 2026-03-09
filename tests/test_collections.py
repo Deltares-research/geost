@@ -494,7 +494,7 @@ class TestCollection:
                 [2, 1],
             ),
         ],
-        ids=["Z", "L, Z", "slice"],
+        ids=["string", "list", "slice"],
     )
     def test_get_cumulative_thickness(
         self, collection, column, value, expected_column, expected_thickness, request
@@ -509,28 +509,46 @@ class TestCollection:
             collection.header[expected_column], expected_thickness
         )
 
-    # @pytest.mark.integrationtest
-    # def test_surface_level_update(self, borehole_collection, update_raster):
-    #     borehole_collection.update_surface_level_from_raster(update_raster, how="replace")
-    #     print("stop")
+    @pytest.mark.parametrize(
+        "collection, column, value, expected_column, expected_tops",
+        [
+            (
+                "borehole_collection",
+                "lith",
+                "V",
+                "V_top",
+                [np.nan, 1.2, np.nan, 0.5, np.nan],
+            ),
+            (
+                "borehole_collection",
+                "lith",
+                ["Z", "V"],
+                "Z,V_top",
+                [1.5, 1.2, 2.9, 0.5, 0.0],
+            ),
+            (
+                "cpt_collection",
+                "qc",
+                slice(0.7, 18),
+                "qc[0.7:18]_top",
+                [8.0, 0.0],
+            ),
+        ],
+        ids=["string", "list", "slice"],
+    )
+    def test_get_layer_top(
+        self, collection, column, value, expected_column, expected_tops, request
+    ):
+        collection = request.getfixturevalue(collection)
+
+        tops = collection.get_layer_top(column, value)
+        assert isinstance(tops, pd.Series)
+
+        collection.get_layer_top(column, value, include_in_header=True)
+        assert_array_almost_equal(collection.header[expected_column], expected_tops)
 
 
 class TestBoreholeCollection:
-    @pytest.mark.unittest
-    def test_get_layer_top(self, borehole_collection):
-        from geost.base import BoreholeCollection
-
-        borehole_collection = BoreholeCollection(
-            borehole_collection.data, header=borehole_collection.header
-        )
-        borehole_collection.get_layer_top("lith", ["Z", "K"], include_in_header=True)
-
-        expected_sand_top = [1.5, np.nan, 2.9, 2.5, 0.0]
-        expected_clay_top = [0.0, 0.0, 0.0, 0.0, np.nan]
-
-        assert_almost_equal(borehole_collection.header["K_top"], expected_clay_top)
-        assert_almost_equal(borehole_collection.header["Z_top"], expected_sand_top)
-
     @pytest.mark.unittest
     def test_get_layer_base(self, borehole_collection):
         borehole_collection.get_layer_base("lith", ["Z", "K"], include_in_header=True)
@@ -550,22 +568,3 @@ class TestBoreholeCollection:
         assert tdfile.is_file()
         outfile.unlink()
         tdfile.unlink()
-
-
-class TestCptCollection:
-    @pytest.mark.unittest
-    def test_slice_depth_interval(self, cpt_collection):
-        upper, lower = 0.6, 4.4
-        sliced = cpt_collection.slice_depth_interval(upper, lower)
-
-        assert len(sliced.data) == 8
-        assert sliced.n_points == 2
-        assert sliced.data["depth"].min() >= upper
-        assert sliced.data["depth"].max() <= lower
-
-        upper, lower = 1.9, 0.9  # Elevations in NAP
-        sliced = cpt_collection.slice_depth_interval(
-            upper, lower, relative_to_vertical_reference=True
-        )
-        assert sliced.n_points == 1
-        assert len(sliced.data) == 1

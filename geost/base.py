@@ -929,7 +929,7 @@ class Collection(AbstractBase):
 
     def get_cumulative_thickness(
         self, column: str, values: str | list[str], include_in_header: bool = False
-    ):
+    ) -> pd.Series | None:
         """
         Get the cumulative thickness of layers where a column contains a specified search
         value or values.
@@ -941,12 +941,13 @@ class Collection(AbstractBase):
         values : str | list[str]
             Search value or values in the column to find the cumulative thickness for.
         include_in_header : bool, optional
-            If True, include the result in the header table of the collection. In this
-            case, the method does not return a DataFrame. The default is False.
+            If True, include the result in the header table of the `Collection`. In this
+            case, the method does not return anything (i.e. `None`). If False, a `pandas.Series`
+            is returned. The default is False.
 
         Returns
         -------
-        pd.DataFrame
+        pd.Series or None
             Borehole ids and cumulative thickness of selected layers if the "include_in_header"
             option is set to False.
 
@@ -977,11 +978,139 @@ class Collection(AbstractBase):
             column_name = utils.columns.column_name_from(
                 values, prefix=prefix, suffix=suffix
             )
+
             thickness.name = column_name
             self.header.drop(columns=column_name, errors="ignore", inplace=True)
             self.header = self.header.merge(thickness, on="nr", how="left")
         else:
             return thickness
+
+    def get_layer_top(
+        self,
+        column: str,
+        values: str | list[str],
+        min_thickness: float = None,
+        min_fraction: float = None,
+        include_in_header: bool = False,
+    ) -> pd.Series | None:
+        """
+        Find the depth at which a specified layer first occurs, starting at min_depth
+        and looking downwards until the first layer of min_thickness is found of the
+        specified layer.
+
+        Parameters
+        ----------
+        column : str
+            Name of the column to search for the specified value or values.
+        values : int | float | str | list[str] | slice
+            Value or values to search for in the specified column. If a slice is provided, the
+            function will search for values within the specified range.
+        min_thickness : float, optional
+            Minimum thickness of the layer to consider. Layers thinner than this value will be
+            ignored. The thickness of a layer is calculated as the difference uppermost top
+            and the lowermost bottom of consecutive elements that meet the value criteria. If
+            None, no minimum thickness is applied which returns the first encountered layer.
+        min_fraction : float, optional
+            Whether or not to allow for disturbing layers: layers that do not meet the value
+            criteria in between. The minimum fraction is the minimal fraction of the 'min_thickness'
+            that must meet the value criteria. If None, the entire layer must meet the criteria.
+            Note that 'min_fraction' is only applied when 'min_thickness' is specified.
+        include_in_header : bool, optional
+            If True, include the result in the header table of the `Collection`. In this
+            case, the method does not return anything (i.e. `None`). If False, a `pandas.Series`
+            is returned. The default is False.
+
+        Returns
+        -------
+        pd.Series or None
+            Borehole ids and top levels of selected layers in meters below the surface.
+
+        Examples
+        --------
+        Get the top depth of layers in boreholes where the lithology in the "lith" column
+        is sand ("Z"):
+
+        >>> tops = boreholes.get_layer_top("lith", "Z")
+
+        To include the result in the header object of the collection, use the
+        "include_in_header" option:
+
+        >>> boreholes.get_layer_top("lith", "Z", include_in_header=True)
+
+        """
+        top = self.data.gst.get_layer_top(
+            column, values, min_thickness=min_thickness, min_fraction=min_fraction
+        )
+
+        if include_in_header:
+            prefix = f"{column}[" if isinstance(values, slice) else ""
+            suffix = "]_top" if isinstance(values, slice) else "_top"
+            column_name = utils.columns.column_name_from(
+                values, prefix=prefix, suffix=suffix
+            )
+
+            top.name = column_name
+            self.header.drop(columns=column_name, errors="ignore", inplace=True)
+            self.header = self.header.merge(top, on="nr", how="left")
+        else:
+            return top
+
+    def get_layer_base(
+        self,
+        column: str,
+        values: str | list[str],
+        min_thickness: float = 0,
+        include_in_header: bool = False,
+    ):
+        """
+        Find the depth at which a specified layer occurs last, starting at min_depth
+        and looking downwards until the first layer of min_thickness is found of the
+        specified layer.
+
+        Parameters
+        ----------
+        column : str
+            Name of the column to search for the specified value or values.
+        values : int | float | str | list[str] | slice
+            Value or values to search for in the specified column. If a slice is provided, the
+            function will search for values within the specified range.
+        min_thickness : float, optional
+            Minimum thickness of the layer to consider. Layers thinner than this value will be
+            ignored. The thickness of a layer is calculated as the difference uppermost top
+            and the lowermost bottom of consecutive elements that meet the value criteria. If
+            None, no minimum thickness is applied which returns the first encountered layer.
+
+        Returns
+        -------
+        pd.DataFrame
+            Borehole ids and base levels of selected layers in meters below the surface.
+
+        Examples
+        --------
+        Get the base depth of layers in boreholes where the lithology in the "lith" column
+        is sand ("Z"):
+
+        >>> boreholes.get_layer_base("lith", "Z")
+
+        To include the result in the header object of the collection, use the
+        "include_in_header" option:
+
+        >>> boreholes.get_layer_base("lith", "Z", include_in_header=True)
+
+        """
+        base = self.data.gst.get_layer_base(column, values, min_thickness=min_thickness)
+
+        if include_in_header:
+            self.header.drop(
+                columns=[c + "_base" for c in base.columns],
+                errors="ignore",
+                inplace=True,
+            )
+            self.header = self.header.merge(
+                base.add_suffix("_base"), on="nr", how="left"
+            )
+        else:
+            return base
 
     def to_geoparquet(self, outfile: str | Path, **kwargs):
         """
@@ -1266,142 +1395,6 @@ class BoreholeCollection(Collection):
         # )
         # self.sample_data = sample_data
         raise NotImplementedError
-
-    def get_layer_top(
-        self,
-        column: str,
-        values: str | list[str],
-        min_thickness: float = 0,
-        min_depth: float = 0,
-        max_depth: float = None,
-        include_in_header: bool = False,
-    ):
-        """
-        Find the depth at which a specified layer first occurs, starting at min_depth
-        and looking downwards until the first layer of min_thickness is found of the
-        specified layer.
-
-        Parameters
-        ----------
-        column : str
-            Name of column that contains categorical data.
-        values : str | list[str]
-            Value or values of entries in the column that you want to find top of.
-        min_thickness : float, optional
-            Minimal thickness of the layer to be considered. The default is 0.
-        min_depth : float, optional
-            Minimal depth of the layer to be considered. The default is 0.
-        max_depth : float, optional
-            Maximal depth of the layer to be considered. The default is None.
-        include_in_header : bool, optional
-            If True, include the result in the header table of the collection. In this
-            case, the method does not return a DataFrame. The default is False.
-
-        Returns
-        -------
-        pd.DataFrame
-            Borehole ids and top levels of selected layers in meters below the surface.
-
-        Examples
-        --------
-        Get the top depth of layers in boreholes where the lithology in the "lith" column
-        is sand ("Z"):
-
-        >>> boreholes.get_layer_top("lith", "Z")
-
-        To include the result in the header object of the collection, use the
-        "include_in_header" option:
-
-        >>> boreholes.get_layer_top("lith", "Z", include_in_header=True)
-
-        """
-        tops = self.data.gstda.get_layer_top(
-            column,
-            values,
-            min_thickness=min_thickness,
-            min_depth=min_depth,
-            max_depth=max_depth,
-        )
-
-        if include_in_header:
-            self.header.drop(
-                columns=[c + "_top" for c in tops.columns],
-                errors="ignore",
-                inplace=True,
-            )
-            self.header = self.header.merge(
-                tops.add_suffix("_top"), on="nr", how="left"
-            )
-        else:
-            return tops
-
-    def get_layer_base(
-        self,
-        column: str,
-        values: str | list[str],
-        min_thickness: float = 0,
-        min_depth: float = 0,
-        max_depth: float = None,
-        include_in_header: bool = False,
-    ):
-        """
-        Find the depth at which a specified layer occurs last, starting at min_depth
-        and looking downwards until the first layer of min_thickness is found of the
-        specified layer.
-
-        Parameters
-        ----------
-        column : str
-            Name of column that contains categorical data.
-        values : str | list[str]
-            Value or values of entries in the column that you want to find base of.
-        min_thickness : float, optional
-            Minimal thickness of the layer to be considered. The default is 0.
-        min_depth : float, optional
-            Minimal depth of the layer to be considered. The default is 0.
-        max_depth : float, optional
-            Maximal depth of the layer to be considered. The default is None.
-        include_in_header : bool, optional
-            If True, include the result in the header table of the collection. In this
-            case, the method does not return a DataFrame. The default is False.
-
-        Returns
-        -------
-        pd.DataFrame
-            Borehole ids and base levels of selected layers in meters below the surface.
-
-        Examples
-        --------
-        Get the base depth of layers in boreholes where the lithology in the "lith" column
-        is sand ("Z"):
-
-        >>> boreholes.get_layer_base("lith", "Z")
-
-        To include the result in the header object of the collection, use the
-        "include_in_header" option:
-
-        >>> boreholes.get_layer_base("lith", "Z", include_in_header=True)
-
-        """
-        base = self.data.gstda.get_layer_base(
-            column,
-            values,
-            min_thickness=min_thickness,
-            min_depth=min_depth,
-            max_depth=max_depth,
-        )
-
-        if include_in_header:
-            self.header.drop(
-                columns=[c + "_base" for c in base.columns],
-                errors="ignore",
-                inplace=True,
-            )
-            self.header = self.header.merge(
-                base.add_suffix("_base"), on="nr", how="left"
-            )
-        else:
-            return base
 
     def to_qgis3d(
         self,
