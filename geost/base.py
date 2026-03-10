@@ -956,18 +956,18 @@ class Collection(AbstractBase):
         Get the cumulative thickness of the layers with lithology "K" in the column "lith"
         use:
 
-        >>> boreholes.get_cumulative_thickness("lith", "K")
+        >>> th = boreholes.get_cumulative_thickness("lith", "K") # Returns a pandas Series
 
         Or get the cumulative thickness for multiple selection values. In this case, a
         Pandas DataFrame is returned with a column per selection value containing the
         cumulative thicknesses:
 
-        >>> boreholes.get_cumulative_thickness("lith", ["K", "Z"])
+        >>> th = boreholes.get_cumulative_thickness("lith", ["K", "Z"]) # Returns a pandas DataFrame
 
         To include the result in the header object of the collection, use the
         "include_in_header" option:
 
-        >>> boreholes.get_cumulative_thickness("lith", ["K"], include_in_header=True)
+        >>> boreholes.get_cumulative_thickness("lith", ["K"], include_in_header=True) # Modifies the header and returns None
 
         """
         thickness = self.data.gst.get_cumulative_thickness(column, values)
@@ -1030,12 +1030,12 @@ class Collection(AbstractBase):
         Get the top depth of layers in boreholes where the lithology in the "lith" column
         is sand ("Z"):
 
-        >>> tops = boreholes.get_layer_top("lith", "Z")
+        >>> tops = boreholes.get_layer_top("lith", "Z") # Returns a pandas Series
 
         To include the result in the header object of the collection, use the
         "include_in_header" option:
 
-        >>> boreholes.get_layer_top("lith", "Z", include_in_header=True)
+        >>> boreholes.get_layer_top("lith", "Z", include_in_header=True) # Modifies the header and returns None
 
         """
         top = self.data.gst.get_layer_top(
@@ -1090,25 +1090,25 @@ class Collection(AbstractBase):
         Get the base depth of layers in boreholes where the lithology in the "lith" column
         is sand ("Z"):
 
-        >>> boreholes.get_layer_base("lith", "Z")
+        >>> base = boreholes.get_layer_base("lith", "Z") # Returns a pandas Series
 
         To include the result in the header object of the collection, use the
         "include_in_header" option:
 
-        >>> boreholes.get_layer_base("lith", "Z", include_in_header=True)
+        >>> boreholes.get_layer_base("lith", "Z", include_in_header=True) # Modifies the header and returns None
 
         """
         base = self.data.gst.get_layer_base(column, values, min_thickness=min_thickness)
 
         if include_in_header:
-            self.header.drop(
-                columns=[c + "_base" for c in base.columns],
-                errors="ignore",
-                inplace=True,
+            prefix = f"{column}[" if isinstance(values, slice) else ""
+            suffix = "]_base" if isinstance(values, slice) else "_base"
+            column_name = utils.columns.column_name_from(
+                values, prefix=prefix, suffix=suffix
             )
-            self.header = self.header.merge(
-                base.add_suffix("_base"), on="nr", how="left"
-            )
+            base.name = column_name
+            self.header.drop(columns=column_name, errors="ignore", inplace=True)
+            self.header = self.header.merge(base, on="nr", how="left")
         else:
             return base
 

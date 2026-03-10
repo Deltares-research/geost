@@ -547,18 +547,46 @@ class TestCollection:
         collection.get_layer_top(column, value, include_in_header=True)
         assert_array_almost_equal(collection.header[expected_column], expected_tops)
 
+    @pytest.mark.parametrize(
+        "collection, column, value, expected_column, expected_base",
+        [
+            (
+                "borehole_collection",
+                "lith",
+                "V",
+                "V_base",
+                [np.nan, 3.1, np.nan, 2.5, np.nan],
+            ),
+            (
+                "borehole_collection",
+                "lith",
+                ["Z", "V"],
+                "Z,V_base",
+                [3.7, 3.1, 5.5, 3.0, 3.0],
+            ),
+            (
+                "cpt_collection",
+                "qc",
+                slice(0.7, 18),
+                "qc[0.7:18]_base",
+                [10, 5],
+            ),
+        ],
+        ids=["string", "list", "slice"],
+    )
+    def test_get_layer_base(
+        self, collection, column, value, expected_column, expected_base, request
+    ):
+        collection = request.getfixturevalue(collection)
+
+        base = collection.get_layer_base(column, value)
+        assert isinstance(base, pd.Series)
+
+        collection.get_layer_base(column, value, include_in_header=True)
+        assert_array_almost_equal(collection.header[expected_column], expected_base)
+
 
 class TestBoreholeCollection:
-    @pytest.mark.unittest
-    def test_get_layer_base(self, borehole_collection):
-        borehole_collection.get_layer_base("lith", ["Z", "K"], include_in_header=True)
-
-        expected_sand_base = [3.7, np.nan, 5.5, 3.0, 3.0]
-        expected_clay_base = [4.2, 3.9, 2.9, 1.8, np.nan]
-
-        assert_almost_equal(borehole_collection.header["K_base"], expected_clay_base)
-        assert_almost_equal(borehole_collection.header["Z_base"], expected_sand_base)
-
     @pytest.mark.unittest
     def test_to_kingdom(self, borehole_collection):
         outfile = Path("temp_kingdom.csv")
