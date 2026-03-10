@@ -1,5 +1,5 @@
 from geost import accessor, data
-from geost.base import BoreholeCollection, Collection, CptCollection
+from geost.base import Collection
 from geost.io.read import (
     bro_api_read,
     read_bhrg,

@@ -15,7 +15,7 @@ from numpy.testing import (
 )
 from shapely.geometry import LineString, Point, Polygon
 
-from geost.base import BoreholeCollection, Collection
+from geost.base import Collection
 
 
 @pytest.fixture
@@ -585,8 +585,6 @@ class TestCollection:
         collection.get_layer_base(column, value, include_in_header=True)
         assert_array_almost_equal(collection.header[expected_column], expected_base)
 
-
-class TestBoreholeCollection:
     @pytest.mark.unittest
     def test_to_kingdom(self, borehole_collection):
         outfile = Path("temp_kingdom.csv")

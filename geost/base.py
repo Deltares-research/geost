@@ -592,7 +592,7 @@ class Collection(AbstractBase):
                 **kwargs,
             )
 
-    def select_by_depth(
+    def select_by_elevation(
         self,
         top_min: float = None,
         top_max: float = None,
@@ -1316,86 +1316,6 @@ class Collection(AbstractBase):
         """
         return self.data.gstda.to_pyvista_grid(displayed_variables, radius)
 
-    def to_datafusiontools(
-        self,
-        columns: list[str],
-        outfile: str | Path = None,
-        encode: bool = False,
-        relative_to_vertical_reference: bool = True,
-    ):
-        """
-        Export all data to the core "Data" class of Deltares DataFusionTools. Returns
-        a list of "Data" objects, one for each data object that is exported. This list
-        can directly be used within DataFusionTools. If out_file is given, the list of
-        Data objects is saved to a pickle file.
-
-        For DataFusionTools visit:
-        https://bitbucket.org/DeltaresGEO/datafusiontools/src/master/
-
-        Parameters
-        ----------
-        columns : list[str]
-            Which columns in the data to include for the export. These will become variables
-            in the DataFusionTools "Data" class.
-        outfile : str | Path, optional
-            If a path to outfile is given, the data is written to a pickle file.
-        encode : bool, default True
-            If True, categorical data columns are encoded to additional binary columns
-            (all possible values become a seperate feature that is 0 or 1). The default is
-            False. Warning: if there is a large number of possible categories, many columns
-            with categorical data or both, the export process may become slow and may consume
-            a large amount memory. Please consider carefully which categorical data columns
-            need to be included.
-        relative_to_vertical_reference : bool, optional
-            If True, the depth of all data objects will converted to a depth with respect to
-            a reference plane (e.g. "NAP", "Ostend height"). If False, the depth will be
-            kept as original in the "top" and "bottom" columns which is in meter below
-            the surface. The default is True.
-
-        Returns
-        -------
-        list[Data]
-            List containing the DataFusionTools Data objects.
-
-        """
-        return self.data.gstda.to_datafusiontools(
-            columns, outfile, encode, relative_to_vertical_reference
-        )
-
-
-class BoreholeCollection(Collection):
-    """
-    A collection combines header and borehole data and ensures that they remain aligned
-    when applying methods.
-
-    Parameters
-    ----------
-    header : :class:`~geost.base.PointHeader`
-        Instance of a header class corresponding to the data.
-    data : :class:`~geost.base.LayeredData`
-        Instance of a data object corresponding to the header.
-    """
-
-    def add_grainsize_data(self, sample_data: pd.DataFrame):
-        """
-        Add grain size data to the borehole collection.
-
-        Parameters
-        ----------
-        sample_data : pd.DataFrame
-            DataFrame containing sample data with a column "nr" that contains borehole ids.
-
-        """
-        # safe_validate(DataSchemas.grainsize_data, sample_data, inplace=True)
-        # sample_data["nr"].unique()
-        # warnings.warn(
-        #     "Header covers more/other objects than present in the data table, "
-        #     "consider running the method 'reset_header' to update the header.",
-        #     AlignmentWarning,
-        # )
-        # self.sample_data = sample_data
-        raise NotImplementedError
-
     def to_qgis3d(
         self,
         outfile: str | Path,
@@ -1420,7 +1340,7 @@ class BoreholeCollection(Collection):
             geopandas.GeodataFrame.to_file kwargs. See relevant Geopandas documentation.
 
         """
-        self.data.gstda.to_qgis3d(
+        self.data.gst.to_qgis3d(
             outfile,
             relative_to_vertical_reference,
             crs=self.horizontal_reference,
@@ -1435,99 +1355,22 @@ class BoreholeCollection(Collection):
         vs: float = 1600.0,
     ):
         """
-        Write data to 2 csv files: interval data and time-depth chart,
-            for import in Kingdom seismic interpretation software.
+        Write 2 csv files for visualisation of data in Kingdom seismic interpretation
+        software:
+        - interval data: contains the layer boundaries and properties of the layers.
+        - time-depth chart: contains the depth and corresponding time values for the layer
+        boundaries.
 
         Parameters
         ----------
-        out_file : str | Path
+        outfile : str | Path
             Path to csv file to be written.
         tdstart : int
-            startindex for TDchart, default is 1
+            Startindex for TDchart, default is 1
         vw : float
-            sound velocity in water in m/s, default is 1500 m/s
+            Sound velocity in water in m/s, default is 1500 m/s
         vs : float
-            sound velocity in sediment in m/s, default is 1600 m/s
-        """
-        self.data.gstda.to_kingdom(outfile, tdstart, vw, vs)
-
-
-class CptCollection(Collection):
-    @property  # NOTE: Temporary fix to use correct schema for validation.
-    def data(self):
-        """
-        The collection's data.
-        """
-        return self._data
-
-    @data.setter
-    def data(self, data):
-        self._data = safe_validate(
-            data, schemas.discretedata
-        )  # TODO: validation schema needs to be inferred
-        self.check_header_to_data_alignment()
-
-    def slice_depth_interval(
-        self,
-        upper_boundary: float | int = None,
-        lower_boundary: float | int = None,
-        relative_to_vertical_reference: bool = False,
-    ):
-        """
-        Slice data based on given upper and lower boundaries. This returns a new object
-        containing only the sliced data.
-
-        Parameters
-        ----------
-        upper_boundary : float | int, optional
-            Every layer that starts above this is removed. The default is None.
-        lower_boundary : float | int, optional
-            Every layer that starts below this is removed. The default is None.
-        relative_to_vertical_reference : bool, optional
-            If True, the slicing is done with respect to any kind of vertical reference
-            plane (e.g. "NAP", "TAW"). If False, the slice is done with respect to depth
-            below the surface. The default is False.
-
-        Returns
-        -------
-        New instance of the current object.
-            New instance of the current object containing only the selection resulting
-            from application of this method. e.g. if you are calling this method from a
-            Collection, you will get an instance of a Collection back.
-
-        Examples
-        --------
-        Usage depends on whether the slicing is done with respect to depth below the
-        surface or to a vertical reference plane.
-
-        For example, select layers in data that are between 2 and 3 meters below the
-        surface:
-
-        >>> data.slice_depth_interval(2, 3)
-
-        By default, the method updates the layer boundaries in sliced object according to
-        the upper and lower boundaries. To suppress this behaviour use:
-
-        >>> data.slice_depth_interval(2, 3, update_layer_boundaries=False)
-
-        Slicing can also be done with respect to a vertical reference plane like "NAP".
-        For example, to select layers in data that are between -3 and -5 m NAP, use:
-
-        >>> data.slice_depth_interval(-3, -5, relative_to_vertical_reference=True)
+            Sound velocity in sediment in m/s, default is 1600 m/s
 
         """
-        selected_data = self.data.gstda.slice_depth_interval(
-            upper_boundary=upper_boundary,
-            lower_boundary=lower_boundary,
-            relative_to_vertical_reference=relative_to_vertical_reference,
-        )
-        selected_header = self.header.gsthd.get(selected_data["nr"].unique())
-        return self.__class__(
-            selected_header, selected_data, self.has_inclined, self.vertical_reference
-        )
-
-    def get_cumulative_thickness(self):  # pragma: no cover
-        raise NotImplementedError()
-
-    def get_layer_top(self):  # pragma: no cover
-        raise NotImplementedError()
+        self.data.gst.to_kingdom(outfile, tdstart, vw, vs)

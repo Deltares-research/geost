@@ -131,7 +131,7 @@ def nlog_borehole_file(testdatadir):
 @pytest.fixture
 def borehole_collection(borehole_data):
     """
-    Fixture containing a BoreholeCollection instance of synthetic borehole data.
+    Fixture containing a Collection instance of synthetic borehole data.
 
     """
     borehole_collection = borehole_data.gst.to_collection(

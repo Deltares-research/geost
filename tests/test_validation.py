@@ -6,7 +6,7 @@ import pandas as pd
 import pytest
 from shapely.geometry import Point
 
-from geost import BoreholeCollection, config
+from geost import Collection, config
 from geost._warnings import AlignmentWarning, ValidationWarning
 
 
@@ -173,7 +173,7 @@ def test_header_mismatch_auto_align(valid_boreholes, misaligned_header):
     config.validation.AUTO_ALIGN = True
 
     with pytest.warns(AlignmentWarning) as record:
-        BoreholeCollection(misaligned_header, valid_boreholes)
+        Collection(valid_boreholes, header=misaligned_header)
 
     assert len(record) == 2
     assert "Header covers more/other objects than present in the data table" in str(
@@ -188,7 +188,7 @@ def test_header_mismatch_no_auto_align(valid_boreholes, misaligned_header):
     config.validation.AUTO_ALIGN = False
 
     with pytest.warns(AlignmentWarning) as record:
-        BoreholeCollection(misaligned_header, valid_boreholes)
+        Collection(valid_boreholes, header=misaligned_header)
 
     assert len(record) == 2
     assert "Header covers more/other objects than present in the data table" in str(

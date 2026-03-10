@@ -148,6 +148,7 @@ class GeostFrame(AbstractBase):
         """
         Get copy of the self._obj with depth columns converted to depth relative
         to surface level.
+
         """
         data = self._obj.copy()
         data[self._bottom] = data["surface"] - data[self._bottom]
@@ -159,6 +160,7 @@ class GeostFrame(AbstractBase):
         """
         Validate the DataFrame by combining the relevant schemas in `geost.validation.schemas`
         based on the presence of specific columns and the type of data contained in the DataFrame.
+
         """
         if not geost.config.validation.SKIP:
             schemas = [validation.schemas.geostframe_base]
@@ -231,17 +233,17 @@ class GeostFrame(AbstractBase):
         To create a header GeoDataFrame with all columns from the DataFrame and no geometry
         column:
 
-        >>> data.gst.to_header()
+        >>> header = data.gst.to_header()
 
         To create a header GeoDataFrame with only specific columns from the DataFrame and
         no geometry column:
 
-        >>> data.gst.to_header(include_columns=["nr", "column1", "column2"])
+        >>> header = data.gst.to_header(include_columns=["nr", "column1", "column2"])
 
         To create a header GeoDataFrame with a geometry column created from specified coordinate
         names, a specific CRS and with columns excluded:
 
-        >>> data.gst.to_header(
+        >>> header = data.gst.to_header(
         ...     coordinate_names=("x", "y"), crs=28992, exclude_columns=["column1", "column2"]
         ... )
 
@@ -606,18 +608,18 @@ class GeostFrame(AbstractBase):
         To select data where both clay ("K") and peat ("V") are present at the same
         time, use "and" as a selection method:
 
-        >>> data.gst.select_by_values("lith", ["V", "K"], how="and")
+        >>> selection = data.gst.select_by_values("lith", ["V", "K"], how="and")
 
         To select data that can have one, or both lithologies, use or as the selection
         method:
 
-        >>> data.gst.select_by_values("lith", ["V", "K"], how="or")
+        >>> selection = data.gst.select_by_values("lith", ["V", "K"], how="or")
 
         In case of numerical values, use a slice to select data that contain a specific
         range of values. For example, to select data that contain cone resistances ("qc")
         between 15 and 20 MPa:
 
-        >>> data.gst.select_by_values("qc", slice(15, 20))
+        >>> selection = data.gst.select_by_values("qc", slice(15, 20))
 
         """
         if column not in self._obj.columns:
@@ -721,17 +723,17 @@ class GeostFrame(AbstractBase):
         For example, select layers in data that are between 2 and 3 meters below the
         surface:
 
-        >>> data.gst.slice_depth_interval(2, 3)
+        >>> sliced = data.gst.slice_depth_interval(2, 3)
 
         By default, the method updates the layer boundaries in sliced object according to
         the upper and lower boundaries. To suppress this behaviour use:
 
-        >>> data.gst.slice_depth_interval(2, 3, update_layer_boundaries=False)
+        >>> sliced = data.gst.slice_depth_interval(2, 3, update_layer_boundaries=False)
 
         Slicing can also be done with respect to a vertical reference plane like "NAP".
         For example, to select layers in boreholes that are between -3 and -5 m NAP, use:
 
-        >>> data.gst.slice_depth_interval(-3, -5, relative_to_vertical_reference=True)
+        >>> sliced = data.gst.slice_depth_interval(-3, -5, relative_to_vertical_reference=True)
 
         """
         sliced = self._obj
@@ -805,17 +807,17 @@ class GeostFrame(AbstractBase):
         --------
         Return only rows in data contain sand ("Z") as lithology:
 
-        >>> data.gst.slice_by_values("lith", "Z")
+        >>> sliced = data.gst.slice_by_values("lith", "Z")
 
         If you want all the rows that may contain everything but sand, use the "invert"
         option:
 
-        >>> data.gst.slice_by_values("lith", "Z", invert=True)
+        >>> sliced = data.gst.slice_by_values("lith", "Z", invert=True)
 
         If you want to slice a range of numerical values, you can use a slice. For example,
         to return only rows where the cone resistance ("qc") is between 15 and 20 MPa:
 
-        >>> data.gst.slice_by_values("qc", slice(15, 20))
+        >>> sliced = data.gst.slice_by_values("qc", slice(15, 20))
 
         """
         sliced = self._slice_by_values(values, column, inclusive)
@@ -873,15 +875,15 @@ class GeostFrame(AbstractBase):
         --------
         Select rows in data that contain a specific value:
 
-        >>> data.gst.select_by_condition(data["lith"] == "V")
+        >>> selection = data.gst.select_by_condition(data["lith"] == "V")
 
         Or select rows in the data that contain a specific (part of) string or strings:
 
-        >>> data.gst.select_by_condition(data["column"].str.contains("foo|bar"))
+        >>> selection = data.gst.select_by_condition(data["column"].str.contains("foo|bar"))
 
         Or select rows in the data based on multiple conditions:
 
-        >>> data.select_by_condition((data["column1"] > 2) & (data["column2] < 1))
+        >>> selection = data.gst.select_by_condition((data["column1"] > 2) & (data["column2] < 1))
 
         """
         if invert:
@@ -942,18 +944,18 @@ class GeostFrame(AbstractBase):
         Get the cumulative thickness of the layers with lithology "K" in the column "lith"
         use:
 
-        >>> data.gst.get_cumulative_thickness("lith", "K")
+        >>> thickness = data.gst.get_cumulative_thickness("lith", "K")
 
         Or get the cumulative thickness for multiple selection values. This calculates
         the cumulative thickness of the combined values:
 
-        >>> data.gst.get_cumulative_thickness("lith", ["K", "Z"])
+        >>> thickness = data.gst.get_cumulative_thickness("lith", ["K", "Z"])
 
         In case of numerical values, a slice can be used to specify a range of values to
         search for. For example, to get the cumulative thickness of layers with a cone
         resistance ("qc") between 15 and 20 MPa:
 
-        >>> data.gst.get_cumulative_thickness("qc", slice(15, 20))
+        >>> thickness = data.gst.get_cumulative_thickness("qc", slice(15, 20))
 
         """
         selected_layers = self.slice_by_values(column, values)

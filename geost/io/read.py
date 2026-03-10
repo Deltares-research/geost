@@ -6,13 +6,7 @@ import geopandas as gpd
 import pandas as pd
 from pyproj import CRS
 
-from geost.accessors.data import DiscreteData, LayeredData
-from geost.accessors.header import PointHeader
-from geost.base import (
-    BoreholeCollection,
-    Collection,
-    CptCollection,
-)
+from geost.base import Collection
 from geost.bro import BroApi
 from geost.io import _parse_cpt_gef_files, xml
 from geost.io.parsers import BorisXML
@@ -115,7 +109,7 @@ def read_borehole_table(
     as_collection: bool = True,
     column_mapper: dict = None,
     **kwargs,
-) -> BoreholeCollection:
+) -> Collection:
     """
     Read tabular borehole information. This is a file (parquet, csv or Excel) that
     includes row data for each (borehole) layer and must at least include the following
@@ -171,8 +165,8 @@ def read_borehole_table(
 
     Returns
     -------
-    :class:`~geost.base.BoreholeCollection` or :class:`~geost.base.LayeredData`
-        Instance of :class:`~geost.base.BoreholeCollection` or :class:`~geost.base.LayeredData`
+    :class:`~geost.base.Collection` or :class:`~geost.base.LayeredData`
+        Instance of :class:`~geost.base.Collection` or :class:`~geost.base.LayeredData`
         depending on if the table is read as a collection or not.
 
     Examples
@@ -217,7 +211,7 @@ def read_cpt_table(
     as_collection: bool = True,
     column_mapper: dict = None,
     **kwargs,
-) -> CptCollection:
+) -> Collection:
     """
     Read tabular CPT information. This is a file (parquet, csv or Excel) that includes
     row data for each CPT depth interval and must at least include the following header
@@ -258,8 +252,8 @@ def read_cpt_table(
 
     Returns
     -------
-    :class:`~geost.base.CptCollection`
-        Instance of :class:`~geost.base.CptCollection`.
+    :class:`~geost.base.Collection`
+        Instance of :class:`~geost.base.Collection`.
 
     """
     cpts = io_helpers._pandas_read(file, **kwargs)
@@ -277,7 +271,7 @@ def read_cpt_table(
     return cpts
 
 
-def read_nlog_cores(file: str | Path) -> BoreholeCollection:
+def read_nlog_cores(file: str | Path) -> Collection:
     """
     Read NLog boreholes from the 'nlog_stratstelsel' Excel file. You can find this
     distribution of borehole data here: https://www.nlog.nl/boringen
@@ -293,8 +287,8 @@ def read_nlog_cores(file: str | Path) -> BoreholeCollection:
 
     Returns
     -------
-    :class:`~geost.borehole.BoreholeCollection`
-        :class:`~geost.borehole.BoreholeCollection`
+    :class:`~geost.borehole.Collection`
+        :class:`~geost.borehole.Collection`
     """
     nlog_cores = io_helpers._pandas_read(file)
 
@@ -353,7 +347,7 @@ def read_xml_boris(
     horizontal_reference: str | int | CRS = 28992,
     vertical_reference: str | int | CRS = 5709,
     as_collection: bool = True,
-) -> BoreholeCollection:
+) -> Collection:
     """
     Read export XML of the BORIS software. BORIS is software developed by TNO to
     describe boreholes in the lab. The exported XML-format bears no resemblance to DINO
@@ -378,8 +372,8 @@ def read_xml_boris(
 
     Returns
     -------
-    :class:`~geost.base.BoreholeCollection` or :class:`~geost.base.LayeredData`
-        Instance of :class:`~geost.base.BoreholeCollection` or :class:`~geost.base.LayeredData`
+    :class:`~geost.base.Collection` or :class:`~geost.base.LayeredData`
+        Instance of :class:`~geost.base.Collection` or :class:`~geost.base.LayeredData`
         depending on if the table is read as a collection or not.
 
     """
@@ -403,9 +397,9 @@ def read_bhrgt(
     schema: dict[str, Any] = None,
     horizontal_reference: str | int | CRS = 28992,
     read_all: bool = False,
-) -> BoreholeCollection:
+) -> Collection:
     """
-    Read Geotechnical borehole (BHR-GT) XML file or files into a `BoreholeCollection`. This
+    Read Geotechnical borehole (BHR-GT) XML file or files into a `Collection`. This
     reads the XML files according to a `schema` that describes the structure of the of the
     XML data to find the relevant borehole data. Geost provides predefined schemas for the
     BHR-GT XML files that are used in the Netherlands from the Dutch national BRO database.
@@ -436,8 +430,8 @@ def read_bhrgt(
 
     Returns
     -------
-    :class:`~geost.base.BoreholeCollection`
-        BoreholeCollection containing the header and data attributes of the BHR-GT data.
+    :class:`~geost.base.Collection`
+        Collection containing the header and data attributes of the BHR-GT data.
 
     Examples
     --------
@@ -468,10 +462,10 @@ def read_bhrgt_samples(
     schema: dict[str, Any] = None,
     horizontal_reference: str | int | CRS = 28992,
     read_all: bool = False,
-) -> BoreholeCollection:
+) -> Collection:
     """
     Read sample data in a Geotechnical borehole (BHR-GT) XML file or files into a
-    `BoreholeCollection`. This reads the XML files according to a `schema` that describes
+    `Collection`. This reads the XML files according to a `schema` that describes
     the structure of the of the XML data to find the relevant sample data. Geost provides
     predefined schemas for the BHR-GT XML files that are used in the Netherlands from
     the Dutch national BRO database. A predefined schema may also be present for a specific
@@ -501,8 +495,8 @@ def read_bhrgt_samples(
 
     Returns
     -------
-    :class:`~geost.base.BoreholeCollection`
-        BoreholeCollection containing the header and data attributes of the BHR-GT data.
+    :class:`~geost.base.Collection`
+        Collection containing the header and data attributes of the BHR-GT data.
 
     Examples
     --------
@@ -545,9 +539,9 @@ def read_bhrp(
     schema: dict[str, Any] = None,
     horizontal_reference: str | int | CRS = 28992,
     read_all: bool = False,
-) -> BoreholeCollection:
+) -> Collection:
     """
-    Read Pedological borehole (BHR-P) XML file or files into a `BoreholeCollection`. This
+    Read Pedological borehole (BHR-P) XML file or files into a `Collection`. This
     reads the XML files according to a `schema` that describes the structure of the of the
     XML data to find the relevant borehole data. Geost provides predefined schemas for the
     BHR-P XML files that are used in the Netherlands from the Dutch national BRO database.
@@ -578,8 +572,8 @@ def read_bhrp(
 
     Returns
     -------
-    :class:`~geost.base.BoreholeCollection`
-        BoreholeCollection containing the header and data attributes of the BHR-P data.
+    :class:`~geost.base.Collection`
+        Collection containing the header and data attributes of the BHR-P data.
 
     Examples
     --------
@@ -610,12 +604,12 @@ def read_bhrg(
     schema: dict[str, Any] = None,
     horizontal_reference: str | int | CRS = 28992,
     read_all: bool = False,
-) -> BoreholeCollection:
+) -> Collection:
     """
-    Read Geological borehole (BHR-G) XML file or files into a `BoreholeCollection`. This
+    Read Geological borehole (BHR-G) XML file or files into a `Collection`. This
     reads the XML files according to a `schema` that describes the structure of the of the
     XML data to find the relevant borehole data. Geost provides predefined schemas for the
-    BHR-G) XML file or files into a BoreholeCollection. This XML files that are used in the
+    BHR-G) XML file or files into a Collection. This XML files that are used in the
     Netherlands from the Dutch national BRO database. A predefined schema may also be present
     for a specific company, which can be specified using the `company` parameter. Predefined
     schemas from Geost can be used and extended or you can provide your own schema to extract
@@ -628,12 +622,12 @@ def read_bhrg(
     company : str | None, optional
         Company name to use a predefined schema for. See :mod:`geost.io.xml.schemas` for
         available schemas. If None, the predefined schema for BRO BHR-G) XML file or files
-        into a BoreholeCollection. This XML files is used by default to read the data. The
+        into a Collection. This XML files is used by default to read the data. The
         default is None.
     schema : dict[str, Any], optional
         Schema to use for reading the data which describes the structure of the XML data.
         If not given and `company` is None, the predefined schema for BRO BHR-G) XML file
-        or files into a BoreholeCollection. This XML files is used.
+        or files into a Collection. This XML files is used.
     horizontal_reference : str | int | CRS, optional
         EPSG of the desired data's horizontal reference. Takes anything that can be interpreted
         by pyproj.crs.CRS.from_user_input(). The default is 28992.
@@ -644,8 +638,8 @@ def read_bhrg(
 
     Returns
     -------
-    :class:`~geost.base.BoreholeCollection`
-        BoreholeCollection containing the header and data attributes of the BHR-G data.
+    :class:`~geost.base.Collection`
+        Collection containing the header and data attributes of the BHR-G data.
 
     Examples
     --------
@@ -676,12 +670,12 @@ def read_sfr(
     schema: dict[str, Any] = None,
     horizontal_reference: str | int | CRS = 28992,
     read_all: bool = False,
-) -> BoreholeCollection:
+) -> Collection:
     """
-    Read Pedological soilprofile description (SFR) XML file or files into a `BoreholeCollection`.
+    Read Pedological soilprofile description (SFR) XML file or files into a `Collection`.
     This reads the XML files according to a `schema` that describes the structure of the of
     the XML data to find the relevant borehole data. Geost provides predefined schemas for
-    the SFR XML file or files into a BoreholeCollection. This XML files that are used in the
+    the SFR XML file or files into a Collection. This XML files that are used in the
     Netherlands from the Dutch national BRO database. A predefined schema may also be present
     for a specific company, which can be specified using the `company` parameter. Predefined
     schemas from Geost can be used and extended or you can provide your own schema to extract
@@ -694,12 +688,12 @@ def read_sfr(
     company : str | None, optional
         Company name to use a predefined schema for. See :mod:`geost.io.xml.schemas` for
         available schemas. If None, the predefined schema for BRO SFR XML file or files
-        into a BoreholeCollection. This XML files is used by default to read the data. The
+        into a Collection. This XML files is used by default to read the data. The
         default is None.
     schema : dict[str, Any], optional
         Schema to use for reading the data which describes the structure of the XML data.
         If not given and `company` is None, the predefined schema for BRO SFR XML file or
-        files into a BoreholeCollection. This XML files is used.
+        files into a Collection. This XML files is used.
     horizontal_reference : str | int | CRS, optional
         EPSG of the desired data's horizontal reference. Takes anything that can be interpreted
         by pyproj.crs.CRS.from_user_input(). The default is 28992.
@@ -710,8 +704,8 @@ def read_sfr(
 
     Returns
     -------
-    :class:`~geost.base.BoreholeCollection`
-        BoreholeCollection containing the header and data attributes of the SFR data.
+    :class:`~geost.base.Collection`
+        Collection containing the header and data attributes of the SFR data.
 
     Examples
     --------
@@ -736,9 +730,9 @@ def read_sfr(
     return Collection(data, header=header)
 
 
-def read_gef_cpts(file_or_folder: str | Path) -> CptCollection:
+def read_gef_cpts(file_or_folder: str | Path) -> Collection:
     """
-    Read one or more GEF files of CPT data into a geost CptCollection.
+    Read one or more GEF files of CPT data into a geost Collection.
 
     Parameters
     ----------
@@ -747,8 +741,8 @@ def read_gef_cpts(file_or_folder: str | Path) -> CptCollection:
 
     Returns
     -------
-    :class:`~geost.base.CptCollection`
-        :class:`~geost.base.CptCollection` of the GEF file(s).
+    :class:`~geost.base.Collection`
+        :class:`~geost.base.Collection` of the GEF file(s).
 
     """
     data = _parse_cpt_gef_files(file_or_folder)
@@ -762,12 +756,12 @@ def read_cpt(
     schema: dict[str, Any] = None,
     horizontal_reference: str | int | CRS = 28992,
     read_all: bool = False,
-) -> CptCollection:
+) -> Collection:
     """
-    Read Cone Penetration Test (CPT) XML file or files into a `CptCollection`. This reads
+    Read Cone Penetration Test (CPT) XML file or files into a `Collection`. This reads
     the XML files according to a `schema` that describes the structure of the of the XML
     data to find the relevant CPT data. Geost provides predefined schemas for the CPT XML
-    file or files into a CptCollection. This XML files that are used in the Netherlands
+    file or files into a Collection. This XML files that are used in the Netherlands
     from the Dutch national BRO database. A predefined schema may also be present for a
     specific company, which can be specified using the `company` parameter. Predefined
     schemas from Geost can be used and extended or you can provide your own schema to
@@ -780,12 +774,12 @@ def read_cpt(
     company : str | None, optional
         Company name to use a predefined schema for. See :mod:`geost.io.xml.schemas` for
         available schemas. If None, the predefined schema for BRO CPT XML file or files
-        into a CptCollection. This XML files is used by default to read the data. The
+        into a Collection. This XML files is used by default to read the data. The
         default is None.
     schema : dict[str, Any], optional
         Schema to use for reading the data which describes the structure of the XML data.
         If not given and `company` is None, the predefined schema for BRO CPT XML file or
-        files into a CptCollection. This XML files is used.
+        files into a Collection. This XML files is used.
     horizontal_reference: str | int | CRS, optional
         EPSG of the desired data's horizontal reference. Takes anything that can be interpreted
         by pyproj.crs.CRS.from_user_input(). The default is 28992.
@@ -796,8 +790,8 @@ def read_cpt(
 
     Returns
     -------
-    :class:`~geost.base.CptCollection`
-        CptCollection containing the header and data attributes of the CPT data.
+    :class:`~geost.base.Collection`
+        Collection containing the header and data attributes of the CPT data.
 
     Examples
     --------
@@ -831,10 +825,10 @@ def read_uullg_tables(
     horizontal_reference: str | int | CRS = 28992,
     vertical_reference: str | int | CRS = 5709,
     **kwargs,
-) -> BoreholeCollection:
+) -> Collection:
     """
     Read the header and data tables from UU-LLG boreholes (see: EasyDans KNAW) from a
-    local csv or parquet file into a GeoST BoreholeCollection object.
+    local csv or parquet file into a GeoST Collection object.
 
     Reference dataset: https://easy.dans.knaw.nl/ui/datasets/id/easy-dataset:74935
     See https://wikiwfs.geo.uu.nl/ for additional information.
@@ -856,8 +850,8 @@ def read_uullg_tables(
 
     Returns
     -------
-    :class:`~geost.base.BoreholeCollection`
-        Instance of :class:`~geost.base.BoreholeCollection` of the UU-LLG data.
+    :class:`~geost.base.Collection`
+        Instance of :class:`~geost.base.Collection` of the UU-LLG data.
 
     """
     header = io_helpers._pandas_read(header_table, **kwargs)
@@ -875,9 +869,7 @@ def read_uullg_tables(
     if add_header_cols:
         data = data.merge(header[["nr"] + add_header_cols], on="nr", how="left")
 
-    return BoreholeCollection(
-        header, data, has_inclined=False, vertical_reference=vertical_reference
-    )
+    return Collection(data, header=header, vertical_reference=vertical_reference)
 
 
 def read_collection_geopackage(
@@ -888,18 +880,14 @@ def read_collection_geopackage(
     vertical_reference: str | int | CRS = 5709,
 ):
     """
-    Read a GeoST stored Geopackage file of `geost.base.Collection` objects. The
-    Geopackage contains the Collection's "header" and "data" attributes as layers which
-    are read into the specified Collection.
+    Read a GeoST stored Geopackage file of `geost.base.Collection` objects. The Geopackage
+    contains the Collection's "header" and "data" attributes as layers which are read into
+    the specified Collection.
 
     Parameters
     ----------
     filepath : str | Path
         GeoST stored Geopackage file of a `geost.base.Collection` object.
-    collection_type : Collection
-        Type of GeoST Collection object the data needs to be. Subclasses of `Collection`
-        (e.g. :class:`geost.base.BoreholeCollection`, :class:`geost.base.CptCollection`)
-        for the available types.
     has_inclined : bool, optional
         If True, the borehole data table contains inclined data. The default is False.
     horizontal_reference : str | int | CRS, optional
@@ -913,13 +901,7 @@ def read_collection_geopackage(
 
     Returns
     -------
-    Subclass of `geost.base.Collection`
-        Subclass which is specified as collection_type.
-
-    Raises
-    ------
-    ValueError
-        Raises ValueError if the collection_type is not supported.
+    `geost.base.Collection`
 
     Examples
     --------
@@ -927,36 +909,28 @@ def read_collection_geopackage(
 
     >>> original_collection = geost.data.boreholes_usp()
     >>> original_collection
-    BoreholeCollection:
+    Collection:
     # header = 67
     >>> original_collection.to_geopackage("./collection.gpkg")
 
     Reading the stored collection using `geost.read_collection_geopackage` returns the
     stored collection:
 
-    >>> collection = geost.read_collection_geopackage(
-    ...     "./collection.gpkg", collection_type=BoreholeCollection
-    ...     )
+    >>> collection = geost.read_collection_geopackage("./collection.gpkg")
     >>> collection
-    BoreholeCollection:
+    Collection:
     # header = 67
 
     """
-
     header = gpd.read_file(filepath, layer="header")
     header.set_crs(horizontal_reference, inplace=True, allow_override=True)
     data = gpd.read_file(filepath, layer="data")
 
-    # TODO: Check collection type inference possibility from geopackage metadata.
-    if collection_type == BoreholeCollection:
-        pass
-    elif collection_type == CptCollection:
-        pass
-    else:
-        raise ValueError(f"Collection type {collection_type} not supported.")
-
-    return collection_type(
-        header, data, has_inclined=has_inclined, vertical_reference=vertical_reference
+    return Collection(
+        data,
+        header=header,
+        has_inclined=has_inclined,
+        vertical_reference=vertical_reference,
     )
 
 
@@ -982,7 +956,7 @@ def read_pickle(filepath: str | Path, **kwargs) -> Any:
 
     >>> original_collection = geost.data.boreholes_usp()
     >>> original_collection
-    BoreholeCollection:
+    Collection:
     # header = 67
     >>> original_collection.to_pickle("./collection.pkl")
 
@@ -990,7 +964,7 @@ def read_pickle(filepath: str | Path, **kwargs) -> Any:
 
     >>> collection = geost.read_pickle("./collection.pkl")
     >>> collection
-    BoreholeCollection:
+    Collection:
     # header = 67
 
     """
@@ -1059,7 +1033,7 @@ def bro_api_read(
     >>> import geost
     ... bhrgt = geost.bro_api_read("BHR-GT", bro_ids=["BHR000000339725", "BHR000000339735"])
     ... bhrgt
-    BoreholeCollection:
+    Collection:
     # header = 2
 
     Or read geological boreholes (BHR-G) within a bounding box. Note the epsg parameter
@@ -1067,7 +1041,7 @@ def bro_api_read(
     >>> import geost
     ... bbox = (126_800, 448_000, 127_800, 449_000)  # xmin, ymin, xmax, ymax
     ... bhrg = geost.bro_api_read("BHR-G", bbox=bbox, epsg=28992)
-    BoreholeCollection:
+    Collection:
     # header = 3
 
     Or within shapefile containing a Polygon geometry of the same bounding box of the
@@ -1075,13 +1049,13 @@ def bro_api_read(
     of the geometry is used if it has a defined CRS, otherwise the epsg parameter must be used:
     >>> import geost
     ... bhrg = geost.bro_api_read("BHR-G", geometry="my_polygon.shp")
-    BoreholeCollection:
+    Collection:
     # header = 3
 
     Or within the shapefile and applying a buffer:
     >>> import geost
     ... bhrg = geost.bro_api_read("BHR-G", geometry="my_polygon.shp", buffer=500)
-    BoreholeCollection:
+    Collection:
     # header = 5
 
     When there are no objects found, you will get an empty collection:

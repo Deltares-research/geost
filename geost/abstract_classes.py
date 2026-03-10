@@ -18,13 +18,13 @@ class AbstractBase(ABC):  # pragma: no cover
     def select_within_polygons(self):
         pass
 
-    # @abstractmethod
-    # def select_by_elevation(self):
-    #     pass
+    @abstractmethod
+    def select_by_elevation(self):
+        pass
 
-    # @abstractmethod
-    # def select_by_length(self):
-    #     pass
+    @abstractmethod
+    def select_by_length(self):
+        pass
 
     @abstractmethod
     def spatial_join(self):
@@ -50,13 +50,13 @@ class AbstractBase(ABC):  # pragma: no cover
     def get_cumulative_thickness(self):
         pass
 
-    # @abstractmethod
-    # def get_layer_top(self):
-    #     pass
+    @abstractmethod
+    def get_layer_top(self):
+        pass
 
-    # @abstractmethod
-    # def to_datafusiontools(self):
-    #     pass
+    @abstractmethod
+    def get_layer_base(self):
+        pass
 
     @abstractmethod
     def to_pyvista_cylinders(self):
