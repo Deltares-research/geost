@@ -174,7 +174,7 @@ def _find_top(
 
         fraction = length[valid[search_mask]].sum() / min_thickness
 
-        if fraction >= min_fraction:
+        if fraction > min_fraction or np.isclose(fraction, min_fraction):
             return t_idx
     else:
         return np.nan

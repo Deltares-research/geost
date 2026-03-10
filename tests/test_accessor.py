@@ -833,6 +833,13 @@ class TestGeostFrame:
         assert_array_equal(result.index, ["A", "B", "C", "D", "E"])
         assert_array_almost_equal(result, [1.5, 1.2, 2.9, 0.5, 0.0])
 
+        # Internally result and other are calculated in different ways, but should give the same result when using the same parameters
+        result = borehole_data.gst.get_layer_top("lith", ["Z", "V"], min_thickness=1.0)
+        other = borehole_data.gst.get_layer_top(
+            "lith", ["Z", "V"], min_thickness=1.0, min_fraction=1.0
+        )
+        assert result.equals(other)
+
         result = borehole_data.gst.get_layer_top("bottom", slice(1.5, 3.1))
         assert_array_equal(result.index, ["A", "B", "C", "D", "E"])
         assert_array_almost_equal(result, [0.8, 1.2, 1.4, 1.2, 1.2])
