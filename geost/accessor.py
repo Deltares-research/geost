@@ -282,22 +282,37 @@ class GeostFrame(AbstractBase):
 
     def to_collection(
         self,
-        has_inclined: bool = False,
+        crs: str | int | CRS = None,
         vertical_reference: str | int | CRS = None,
-        **header_kwargs,
+        has_inclined: bool = False,
+        coordinate_names: tuple[str, str] = None,
+        include_in_header: str | Iterable[str] | None = None,
+        exclude_from_header: str | Iterable[str] | None = None,
     ):
         """
         Create a :class:`geost.base.Collection` from the current GeoDataFrame or DataFrame.
 
         Parameters
         ----------
-        has_inclined : bool, optional
-            Indicates whether the collection has inclined data. The default is False.
+        crs : str | int | CRS, optional
+            Coordinate reference system for the geometry column. The default is None,
+            which means no CRS will be assigned to the resulting GeoDataFrame.
         vertical_reference : str | int | CRS, optional
             Vertical reference system for the collection. The default is None.
-        **header_kwargs
-            Keyword arguments to be passed to the :class:`geost.accessor.GeostFrame.to_header`
-            method for creating the header table.
+        has_inclined : bool, optional
+            Indicates whether the collection has inclined data. The default is False.
+        coordinate_names : tuple[str, str], optional
+            Tuple specifying the names of the columns to be used as coordinates for the
+            geometry column. The default is None, which means no geometry column will be
+            created.
+        include_in_header : str | Iterable[str] | None, optional
+            Columns to include in the header. The default is None, which includes all
+            columns. If "nr" is not included in the specified columns, it will be added
+            automatically as it is required.
+        exclude_from_header : str | Iterable[str] | None, optional
+            Columns to exclude from the header. The default is None, which excludes no
+            columns. If "nr" is included in the specified columns, an error is raised as
+            it is required.
 
         Returns
         -------
@@ -307,7 +322,12 @@ class GeostFrame(AbstractBase):
         """
         from geost.base import Collection  # Avoid circular import
 
-        header = self.to_header(**header_kwargs)
+        header = self.to_header(
+            crs=crs,
+            coordinate_names=coordinate_names,
+            include_columns=include_in_header,
+            exclude_columns=exclude_from_header,
+        )
         return Collection(
             self._obj,
             header=header,

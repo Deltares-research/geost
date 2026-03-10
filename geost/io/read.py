@@ -6,6 +6,7 @@ import geopandas as gpd
 import pandas as pd
 from pyproj import CRS
 
+from geost._warnings import future_deprecation_warning
 from geost.base import Collection
 from geost.bro import BroApi
 from geost.io import _parse_cpt_gef_files, xml
@@ -101,15 +102,24 @@ def _check_mandatory_column_presence(
     return df
 
 
-def read_borehole_table(
+def read_table(
     file: str | Path,
-    horizontal_reference: str | int | CRS = 28992,
-    vertical_reference: str | int | CRS = 5709,
-    has_inclined: bool = False,
     as_collection: bool = True,
     column_mapper: dict = None,
-    **kwargs,
-) -> Collection:
+    pd_kwargs: dict[str, Any] = None,
+    coll_kwargs: dict[str, Any] = None,
+) -> Collection | pd.DataFrame:
+    pass
+
+
+@future_deprecation_warning(alternative_func=read_table)
+def read_borehole_table(
+    file: str | Path,
+    as_collection: bool = True,
+    column_mapper: dict = None,
+    pd_kwargs: dict[str, Any] = None,
+    coll_kwargs: dict[str, Any] = None,
+) -> Collection | pd.DataFrame:
     """
     Read tabular borehole information. This is a file (parquet, csv or Excel) that
     includes row data for each (borehole) layer and must at least include the following
@@ -137,37 +147,31 @@ def read_borehole_table(
     file : str | Path
         Path to file to be read. Depending on the file extension, the corresponding
         Pandas read function will be called. This can be either pandas.read_parquet,
-        pandas.read_csv or pandas.read_excel. The **kwargs that can be given to this
-        function will be passed to the selected Panda's read function.
-    horizontal_reference : str | int | CRS, optional
-        EPSG of the data's horizontal reference. Takes anything that can be interpreted
-        by pyproj.crs.CRS.from_user_input(). The default is 28992.
-    vertical_reference : str | int | CRS, optional
-        EPSG of the data's vertical datum. Takes anything that can be interpreted by
-        pyproj.crs.CRS.from_user_input(). However, it must be a vertical datum. FYI:
-        "NAP" is EPSG 5709 and The Belgian reference system (Ostend height) is ESPG
-        5710. The default is 5709.
-    has_inclined : bool, optional
-        If True, the borehole data table contains inclined boreholes. The default is False.
+        pandas.read_csv or pandas.read_excel. Optional keyword arguments that can be
+        given in the specific Pandas read function can be passed via the `pd_kwargs`
+        argument.
     as_collection : bool, optional
-        If True, the borehole table will be read as a :class:`~geost.base.Collection`
-        which includes a header object and spatial selection functionality. If False,
-        a :class:`~geost.base.LayeredData` object is returned. The default is True.
+        If True, the borehole table will be read as a :class:`~geost.base.Collection`.
+        Optional keyword arguments that can be given to :meth:`~geost.accessor.GeostFrame.to_collection`
+        can be passed via the `coll_kwargs` argument. If False, a `pd.DataFrame` is returned.
+        The default is True.
     column_mapper: dict, optional
         If the file to be read uses different column names than the ones given in the
         description above, you can use a dictionary mapping to translate the column
         names to the required format. column_mapper is None by default, in which case
         the user is asked for input if not all required columns are encountered in the
         file.
-    kwargs: optional
+    pd_kwargs: dict[str, Any], optional
         Optional keyword arguments for Pandas.read_parquet, Pandas.read_csv or
         Pandas.read_excel.
+    coll_kwargs: dict[str, Any], optional
+        Optional keyword arguments for :meth:`~geost.accessor.GeostFrame.to_collection`
 
     Returns
     -------
-    :class:`~geost.base.Collection` or :class:`~geost.base.LayeredData`
-        Instance of :class:`~geost.base.Collection` or :class:`~geost.base.LayeredData`
-        depending on if the table is read as a collection or not.
+    :class:`~geost.base.Collection` or `pd.DataFrame`
+        Instance of :class:`~geost.base.Collection` when `as_collection=True` or `pd.DataFrame`
+        otherwise.
 
     Examples
     --------
@@ -175,13 +179,26 @@ def read_borehole_table(
     'top' and 'bottom'. The column 'maaiveld' corresponds to the required column
     'surface' in GeoST and thus needs to be remapped. The x and y-coordinates are given
     in WGS84 UTM 31N whereas the vertical datum is given in the Belgian Ostend height
-    vertical datum:
+    vertical datum, so we specify these in the `coll_kwargs` so these will be used in the
+    `to_collection` method:
 
-    >>> read_borehole_table(file, 32631, 'Ostend height', column_mapper={'maaiveld': 'surface'})
+    >>> from geost import read_borehole_table
+    >>> collection_kwargs = {
+    ...     "crs": 32631,
+    ...     "vertical_reference": 'Ostend height',
+    ...     "include_in_header": ["nr", "x", "y", "surface", "end"]
+    ... }
+    >>> collection = read_borehole_table(
+    ...     file, column_mapper={'maaiveld': 'surface'}, coll_kwargs=collection_kwargs
+    ... )
 
     """
-    boreholes = io_helpers._pandas_read(file, **kwargs)
+    pd_kwargs = pd_kwargs or dict()
+    coll_kwargs = coll_kwargs or dict()
 
+    boreholes = io_helpers._pandas_read(file, **pd_kwargs)
+
+    has_inclined = coll_kwargs.get("has_inclined", False)
     if has_inclined:
         boreholes = _check_mandatory_column_presence(
             boreholes, MANDATORY_INCLINED_LAYERED_DATA_COLUMNS, column_mapper
@@ -195,23 +212,19 @@ def read_borehole_table(
     boreholes = adjust_z_coordinates(boreholes)
 
     if as_collection:
-        boreholes = boreholes.gstda.to_collection(
-            has_inclined=has_inclined,
-            horizontal_reference=horizontal_reference,
-            vertical_reference=vertical_reference,
-        )
+        boreholes = boreholes.gst.to_collection(**coll_kwargs)
 
     return boreholes
 
 
+@future_deprecation_warning(alternative_func=read_table)
 def read_cpt_table(
     file: str | Path,
-    horizontal_reference: str | int | CRS = 28992,
-    vertical_reference: str | int | CRS = 5709,
     as_collection: bool = True,
     column_mapper: dict = None,
-    **kwargs,
-) -> Collection:
+    pd_kwargs: dict[str, Any] = None,
+    coll_kwargs: dict[str, Any] = None,
+) -> Collection | pd.DataFrame:
     """
     Read tabular CPT information. This is a file (parquet, csv or Excel) that includes
     row data for each CPT depth interval and must at least include the following header
@@ -227,46 +240,46 @@ def read_cpt_table(
     Parameters
     ----------
     file : str | Path
-        File with the CPT information to read.
-    horizontal_reference : str | int | CRS, optional
-        EPSG of the data's horizontal reference. Takes anything that can be interpreted
-        by pyproj.crs.CRS.from_user_input(). The default is 28992.
-    vertical_reference : str | int | CRS, optional
-        EPSG of the data's vertical datum. Takes anything that can be interpreted by
-        pyproj.crs.CRS.from_user_input(). However, it must be a vertical datum. FYI:
-        "NAP" is EPSG 5709 and The Belgian reference system (Ostend height) is ESPG
-        5710. The default is 5709.
+        Path to file to be read. Depending on the file extension, the corresponding
+        Pandas read function will be called. This can be either pandas.read_parquet,
+        pandas.read_csv or pandas.read_excel. Optional keyword arguments that can be
+        given in the specific Pandas read function can be passed via the `pd_kwargs`
+        argument.
     as_collection : bool, optional
-        If True, the CPT table will be read as a :class:`~geost.base.Collection`
-        which includes a header object and spatial selection functionality. If False,
-        a :class:`~geost.base.DiscreteData` object is returned. The default is True.
+        If True, the borehole table will be read as a :class:`~geost.base.Collection`.
+        Optional keyword arguments that can be given to :meth:`~geost.accessor.GeostFrame.to_collection`
+        can be passed via the `coll_kwargs` argument. If False, a `pd.DataFrame` is returned.
+        The default is True.
     column_mapper: dict, optional
         If the file to be read uses different column names than the ones given in the
         description above, you can use a dictionary mapping to translate the column
         names to the required format. column_mapper is None by default, in which case
         the user is asked for input if not all required columns are encountered in the
         file.
-    kwargs: optional
+    pd_kwargs: dict[str, Any], optional
         Optional keyword arguments for Pandas.read_parquet, Pandas.read_csv or
         Pandas.read_excel.
+    coll_kwargs: dict[str, Any], optional
+        Optional keyword arguments for :meth:`~geost.accessor.GeostFrame.to_collection`
 
     Returns
     -------
-    :class:`~geost.base.Collection`
-        Instance of :class:`~geost.base.Collection`.
+    :class:`~geost.base.Collection` or `pd.DataFrame`
+        Instance of :class:`~geost.base.Collection` when `as_collection=True` or `pd.DataFrame`
+        otherwise.
 
     """
-    cpts = io_helpers._pandas_read(file, **kwargs)
+    pd_kwargs = pd_kwargs or dict()
+    coll_kwargs = coll_kwargs or dict()
+
+    cpts = io_helpers._pandas_read(file, **pd_kwargs)
 
     cpts = _check_mandatory_column_presence(
         cpts, MANDATORY_DISCRETE_DATA_COLUMNS, column_mapper
     )
 
     if as_collection:
-        cpts = cpts.gstda.to_collection(
-            horizontal_reference=horizontal_reference,
-            vertical_reference=vertical_reference,
-        )
+        cpts = cpts.gst.to_collection(**coll_kwargs)
 
     return cpts
 
@@ -289,6 +302,7 @@ def read_nlog_cores(file: str | Path) -> Collection:
     -------
     :class:`~geost.borehole.Collection`
         :class:`~geost.borehole.Collection`
+
     """
     nlog_cores = io_helpers._pandas_read(file)
 
@@ -730,7 +744,9 @@ def read_sfr(
     return Collection(data, header=header)
 
 
-def read_gef_cpts(file_or_folder: str | Path) -> Collection:
+def read_gef_cpts(
+    file_or_folder: str | Path, as_collection=True, **kwargs
+) -> Collection | pd.DataFrame:
     """
     Read one or more GEF files of CPT data into a geost Collection.
 
@@ -738,16 +754,23 @@ def read_gef_cpts(file_or_folder: str | Path) -> Collection:
     ----------
     file_or_folder : str | Path
         GEF files to read.
+    as_collection : bool, optional
+        If True, return a :class:`~geost.base.Collection` from the GEF files. If False,
+        a `pd.DataFrame` is returned.
+    **kwargs
+        Additional keyword arguments that can be given to :meth:`~geost.accessor.GeostFrame.to_collection`
 
     Returns
     -------
-    :class:`~geost.base.Collection`
+    :class:`~geost.base.Collection` or `pd.DataFrame`
         :class:`~geost.base.Collection` of the GEF file(s).
 
     """
     data = _parse_cpt_gef_files(file_or_folder)
-    df = pd.concat(data)
-    return df.gstda.to_collection()
+    cpts = pd.concat(data)
+    if as_collection:
+        cpts = cpts.gst.to_collection(**kwargs)
+    return cpts
 
 
 def read_cpt(

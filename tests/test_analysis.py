@@ -147,7 +147,9 @@ class TestGrainsize:
 
     @pytest.fixture
     def bhrgt_samples_collection(self, bhrgt_samples_data):
-        return bhrgt_samples_data.gstda.to_collection(horizontal_reference=32631)
+        return bhrgt_samples_data.gst.to_collection(
+            crs=32631, include_in_header=["nr", "x", "y", "surface", "end"]
+        )
 
     @pytest.mark.unittest
     def test_calculate_bhrgt_grainsize_percentiles(
