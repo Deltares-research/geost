@@ -1255,31 +1255,31 @@ class Collection(AbstractBase):
         self,
         displayed_variables: str | list[str],
         radius: float = 1,
+        n_sides: int = 8,
         vertical_factor: float = 1.0,
-        relative_to_vertical_reference: bool = True,
     ):
         """
         Create a Pyvista MultiBlock object of cylinder-shaped geometries to represent
         boreholes. Although cylinders are prettier when visualized, they are quite costly
         to render in large numbers. Consider using
-        :meth:`~geost.base.Collection.to_pyvista_grid` instead for large datasets.
+        :meth:`~geost.base.LayeredData.to_pyvista_grid` instead for large datasets.
 
         Parameters
         ----------
-        displayed_variables : str | list[str]
+        displayed_variables : str | List[str]
             Name or names of data columns to include for visualisation. Can be columns that
             contain an array of floats, ints and strings.
         radius : float, optional
             Radius of the cylinders in m in the MultiBlock. The default is 1.
+        n_sides : int, optional
+            Number of sides for the cylinder. The default is 8, which gives a good balance
+            between visual quality and rendering performance. Increase for enhanced visual
+            quality, decrease for better performance.
         vertical_factor : float, optional
             Factor to correct vertical scale. For example, when layer boundaries are given
             in cm, use 0.01 to convert to m. The default is 1.0, so no correction is applied.
             It is not recommended to use this for vertical exaggeration, use viewer functionality
             for that instead.
-        relative_to_vertical_reference : bool, optional
-            If True, the depth of the objects in the vtm file will be with respect to a
-            reference plane (e.g. "NAP", "TAW"). If False, the depth will be with respect
-            to 0.0. The default is True.
 
         Returns
         -------
@@ -1287,35 +1287,37 @@ class Collection(AbstractBase):
             A composite class holding the data which can be iterated over.
 
         """
-        return self.data.gstda.to_pyvista_cylinders(
-            displayed_variables, radius, vertical_factor, relative_to_vertical_reference
+        return self.data.gst.to_pyvista_cylinders(
+            displayed_variables, radius, n_sides, vertical_factor
         )
 
     def to_pyvista_grid(
         self,
         displayed_variables: str | list[str],
-        radius: float = 1.0,
+        radius: float = 1,
     ):
         """
-        Create a Pyvista UnstructuredGrid object to represent boreholes. This is more efficient
-        than :meth:`~geost.base.Collection.to_pyvista_cylinders` for large datasets, but
-        less visually appealing.
+        Create a PyVista UnstructuredGrid object of the data in this instance. This
+        method is more efficient than :meth:`~geost.base.LayeredData.to_pyvista_cylinders`
+        for large datasets, as it uses a grid representation instead of cylinders.
 
         Parameters
         ----------
         displayed_variables : str | list[str]
             Name or names of data columns to include for visualisation. Can be columns that
             contain an array of floats, ints and strings.
-        radius : float, optional
-            Radius of the cylinders in m in the MultiBlock. The default is 1.
+        radius : float
+            The 'radius' of the voxels. This will determine the
+            horizontal size of the voxels in the resulting unstructured grid.
 
         Returns
         -------
-        pyvista.UniformGrid
-            A grid class holding the data which can be iterated over.
+        pyvista.UnstructuredGrid
+            A PyVista UnstructuredGrid object containing the data that can be used for
+            3D visualisation in PyVista or other VTK viewers.
 
         """
-        return self.data.gstda.to_pyvista_grid(displayed_variables, radius)
+        return self.data.gst.to_pyvista_grid(displayed_variables, radius)
 
     def to_qgis3d(
         self,
