@@ -14,7 +14,6 @@ from geost.utils.projections import (
     horizontal_reference_transformer,
     vertical_reference_transformer,
 )
-from geost.validation import safe_validate, schemas
 from geost.validation.method_checks import _requires_depth, _requires_geometry
 
 type Coordinate = int | float
@@ -119,9 +118,10 @@ class Collection(AbstractCollection):
     def header(self, header):
         if header is not None:
             if not config.validation.SKIP:
-                header = safe_validate(
-                    header, schemas.pointheader
-                )  # TODO: validation schema needs to be inferred
+                # header = safe_validate(
+                #     header, schemas.pointheader
+                # )  # TODO: validation schema needs to be inferred
+                pass
         else:
             header = gpd.GeoDataFrame()
 
@@ -146,9 +146,10 @@ class Collection(AbstractCollection):
     def data(self, data):
         if data is not None:
             if config.validation.SKIP:
-                data = safe_validate(
-                    data, schemas.layerdata
-                )  # TODO: validation schema needs to be inferred
+                # data = safe_validate(
+                #     data, schemas.layerdata
+                # )  # TODO: validation schema needs to be inferred
+                pass
         else:
             data = pd.DataFrame()
 
@@ -1498,9 +1499,9 @@ class CptCollection(Collection):
 
     @data.setter
     def data(self, data):
-        self._data = safe_validate(
-            data, schemas.discretedata
-        )  # TODO: validation schema needs to be inferred
+        # self._data = safe_validate(
+        #     data, schemas.discretedata
+        # )  # TODO: validation schema needs to be inferred
         self.check_header_to_data_alignment()
 
     def slice_depth_interval(

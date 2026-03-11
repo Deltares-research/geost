@@ -107,6 +107,18 @@ class GeostFrame:
         return False
 
     @property
+    def is_layered(self):
+        """
+        Returns True if the object contains layered data, i.e. both 'top' and 'bottom'
+        columns, False otherwise. Used to determine whether specific selection operations
+        can be performed on the object.
+
+        """
+        if self._top is not None and self._bottom is not None:
+            return True
+        return False
+
+    @property
     def _first_row_in_survey(self):
         """
         Get a boolean mask indicating the locations of new survey IDs in the data. This
@@ -153,29 +165,26 @@ class GeostFrame:
             data[self._top] = data["surface"] - data[self._top]
         return data
 
-    def validate(self):
+    def validate(self, return_validation_result: bool = False):
         """
         Validate the DataFrame by combining the relevant schemas in `geost.validation.schemas`
         based on the presence of specific columns and the type of data contained in the DataFrame.
         """
         if not geost.config.validation.SKIP:
-            schemas = [validation.schemas.geostframe_base]
+            validation_result = validation.validate_geostframe(
+                self._obj,
+                has_depth_columns=self.has_depth_columns,
+                is_layered=self.is_layered,
+                has_xy_columns=self.has_xy_columns,
+                x_col=self._x,
+                y_col=self._y,
+                top_col=self._top,
+                bottom_col=self._bottom,
+                first_row_in_survey=self._first_row_in_survey,
+            )
 
-            if self._bottom == "bottom" and not self._top:
-                schemas.append(validation.schemas.geostframe_with_bottom)
-            elif self._bottom == "depth" and not self._top:
-                schemas.append(validation.schemas.geostframe_with_depth)
-            elif self._top and self._bottom:
-                schemas.append(validation.schemas.geostframe_with_top_bottom)
-
-            if self.has_geometry:
-                schemas.append(validation.schemas.geostframe_with_geometry)
-            if self.has_xy_columns:
-                schemas.append(validation.schemas.geostframe_with_xy)
-
-            validation_schema = validation.combine_schemas(*schemas)
-
-            self._obj = validation.safe_validate(self._obj, validation_schema)
+            if return_validation_result:
+                return validation_result
 
     def to_header(
         self,
