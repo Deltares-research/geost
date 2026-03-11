@@ -9,7 +9,7 @@ from shapely import geometry as gmt
 
 from geost import config, utils
 from geost._warnings import AlignmentWarning
-from geost.abstract_classes import AbstractCollection
+from geost.abstract_classes import AbstractBase
 from geost.utils.projections import (
     horizontal_reference_transformer,
     vertical_reference_transformer,
@@ -20,7 +20,7 @@ type Coordinate = int | float
 type GeometryType = gmt.base.BaseGeometry | list[gmt.base.BaseGeometry]
 
 
-class Collection(AbstractCollection):
+class Collection(AbstractBase):
     """
     A collection combines header and data and ensures that they remain aligned when
     applying methods.
@@ -593,7 +593,7 @@ class Collection(AbstractCollection):
                 **kwargs,
             )
 
-    def select_by_depth(
+    def select_by_elevation(
         self,
         top_min: float = None,
         top_max: float = None,
@@ -624,14 +624,17 @@ class Collection(AbstractCollection):
             Collection, you will get an instance of a Collection back.
 
         """
-        selected_header = self.header.gsthd.select_by_depth(
+        selected_header = self.header.gst.select_by_elevation(
             top_min=top_min, top_max=top_max, end_min=end_min, end_max=end_max
         )
-        selected_data = self.data.gstda.select_by_values(
+        selected_data = self.data.gst.select_by_values(
             "nr", selected_header["nr"].unique()
         )
         return self.__class__(
-            selected_header, selected_data, self.has_inclined, self.vertical_reference
+            selected_data,
+            header=selected_header,
+            has_inclined=self.has_inclined,
+            vertical_reference=self.vertical_reference,
         )
 
     def select_by_length(self, min_length: float = None, max_length: float = None):
@@ -653,14 +656,17 @@ class Collection(AbstractCollection):
             from application of this method. e.g. if you are calling this method from a
             Collection, you will get an instance of a Collection back.
         """
-        selected_header = self.header.gsthd.select_by_length(
+        selected_header = self.header.gst.select_by_length(
             min_length=min_length, max_length=max_length
         )
-        selected_data = self.data.gstda.select_by_values(
+        selected_data = self.data.gst.select_by_values(
             "nr", selected_header["nr"].unique()
         )
         return self.__class__(
-            selected_header, selected_data, self.has_inclined, self.vertical_reference
+            selected_data,
+            header=selected_header,
+            has_inclined=self.has_inclined,
+            vertical_reference=self.vertical_reference,
         )
 
     def select_by_values(
@@ -922,37 +928,190 @@ class Collection(AbstractCollection):
             vertical_reference=self.vertical_reference,
         )
 
-    def get_area_labels(
-        self,
-        polygon_gdf: str | Path | gpd.GeoDataFrame,
-        column_name: str | Iterable,
-        include_in_header=False,
-    ) -> pd.DataFrame:
+    def get_cumulative_thickness(
+        self, column: str, values: str | list[str], include_in_header: bool = False
+    ) -> pd.Series | None:
         """
-        Find in which area (polygons) the point data locations fall. e.g. to determine
-        in which geomorphological unit points are located.
+        Get the cumulative thickness of layers where a column contains a specified search
+        value or values.
 
         Parameters
         ----------
-        polygon_gdf : str | Path | gpd.GeoDataFrame
-            GeoDataFrame with polygons.
-        column_name : str | Iterable
-            The column name to find the labels in. Given as a string or iterable of
-            strings in case you'd like to find multiple labels.
+        column : str
+            Name of column that must contain the search value or values.
+        values : str | list[str]
+            Search value or values in the column to find the cumulative thickness for.
         include_in_header : bool, optional
-            Whether to add the acquired data to the header table or not, by default
-            False.
+            If True, include the result in the header table of the `Collection`. In this
+            case, the method does not return anything (i.e. `None`). If False, a `pandas.Series`
+            is returned. The default is False.
+
+        Returns
+        -------
+        pd.Series or None
+            Borehole ids and cumulative thickness of selected layers if the "include_in_header"
+            option is set to False.
+
+        Examples
+        --------
+        Get the cumulative thickness of the layers with lithology "K" in the column "lith"
+        use:
+
+        >>> th = boreholes.get_cumulative_thickness("lith", "K") # Returns a pandas Series
+
+        Or get the cumulative thickness for multiple selection values. In this case, a
+        Pandas DataFrame is returned with a column per selection value containing the
+        cumulative thicknesses:
+
+        >>> th = boreholes.get_cumulative_thickness("lith", ["K", "Z"]) # Returns a pandas DataFrame
+
+        To include the result in the header object of the collection, use the
+        "include_in_header" option:
+
+        >>> boreholes.get_cumulative_thickness("lith", ["K"], include_in_header=True) # Modifies the header and returns None
+
+        """
+        thickness = self.data.gst.get_cumulative_thickness(column, values)
+
+        if include_in_header:
+            prefix = f"{column}[" if isinstance(values, slice) else ""
+            suffix = "]_thickness" if isinstance(values, slice) else "_thickness"
+            column_name = utils.columns.column_name_from(
+                values, prefix=prefix, suffix=suffix
+            )
+
+            thickness.name = column_name
+            self.header.drop(columns=column_name, errors="ignore", inplace=True)
+            self.header = self.header.merge(thickness, on="nr", how="left")
+        else:
+            return thickness
+
+    def get_layer_top(
+        self,
+        column: str,
+        values: str | list[str],
+        min_thickness: float = None,
+        min_fraction: float = None,
+        include_in_header: bool = False,
+    ) -> pd.Series | None:
+        """
+        Find the depth at which a specified layer first occurs, starting at min_depth
+        and looking downwards until the first layer of min_thickness is found of the
+        specified layer.
+
+        Parameters
+        ----------
+        column : str
+            Name of the column to search for the specified value or values.
+        values : int | float | str | list[str] | slice
+            Value or values to search for in the specified column. If a slice is provided, the
+            function will search for values within the specified range.
+        min_thickness : float, optional
+            Minimum thickness of the layer to consider. Layers thinner than this value will be
+            ignored. The thickness of a layer is calculated as the difference uppermost top
+            and the lowermost bottom of consecutive elements that meet the value criteria. If
+            None, no minimum thickness is applied which returns the first encountered layer.
+        min_fraction : float, optional
+            Whether or not to allow for disturbing layers: layers that do not meet the value
+            criteria in between. The minimum fraction is the minimal fraction of the 'min_thickness'
+            that must meet the value criteria. If None, the entire layer must meet the criteria.
+            Note that 'min_fraction' is only applied when 'min_thickness' is specified.
+        include_in_header : bool, optional
+            If True, include the result in the header table of the `Collection`. In this
+            case, the method does not return anything (i.e. `None`). If False, a `pandas.Series`
+            is returned. The default is False.
+
+        Returns
+        -------
+        pd.Series or None
+            Borehole ids and top levels of selected layers in meters below the surface.
+
+        Examples
+        --------
+        Get the top depth of layers in boreholes where the lithology in the "lith" column
+        is sand ("Z"):
+
+        >>> tops = boreholes.get_layer_top("lith", "Z") # Returns a pandas Series
+
+        To include the result in the header object of the collection, use the
+        "include_in_header" option:
+
+        >>> boreholes.get_layer_top("lith", "Z", include_in_header=True) # Modifies the header and returns None
+
+        """
+        top = self.data.gst.get_layer_top(
+            column, values, min_thickness=min_thickness, min_fraction=min_fraction
+        )
+
+        if include_in_header:
+            prefix = f"{column}[" if isinstance(values, slice) else ""
+            suffix = "]_top" if isinstance(values, slice) else "_top"
+            column_name = utils.columns.column_name_from(
+                values, prefix=prefix, suffix=suffix
+            )
+
+            top.name = column_name
+            self.header.drop(columns=column_name, errors="ignore", inplace=True)
+            self.header = self.header.merge(top, on="nr", how="left")
+        else:
+            return top
+
+    def get_layer_base(
+        self,
+        column: str,
+        values: str | list[str],
+        min_thickness: float = 0,
+        include_in_header: bool = False,
+    ):
+        """
+        Find the depth at which a specified layer occurs last, starting at min_depth
+        and looking downwards until the first layer of min_thickness is found of the
+        specified layer.
+
+        Parameters
+        ----------
+        column : str
+            Name of the column to search for the specified value or values.
+        values : int | float | str | list[str] | slice
+            Value or values to search for in the specified column. If a slice is provided, the
+            function will search for values within the specified range.
+        min_thickness : float, optional
+            Minimum thickness of the layer to consider. Layers thinner than this value will be
+            ignored. The thickness of a layer is calculated as the difference uppermost top
+            and the lowermost bottom of consecutive elements that meet the value criteria. If
+            None, no minimum thickness is applied which returns the first encountered layer.
 
         Returns
         -------
         pd.DataFrame
-            Borehole ids and the polygon label they are in. If include_in_header = True,
-            a column containing the generated data will be added inplace to the header.
+            Borehole ids and base levels of selected layers in meters below the surface.
+
+        Examples
+        --------
+        Get the base depth of layers in boreholes where the lithology in the "lith" column
+        is sand ("Z"):
+
+        >>> base = boreholes.get_layer_base("lith", "Z") # Returns a pandas Series
+
+        To include the result in the header object of the collection, use the
+        "include_in_header" option:
+
+        >>> boreholes.get_layer_base("lith", "Z", include_in_header=True) # Modifies the header and returns None
+
         """
-        result = self.header.gsthd.get_area_labels(
-            polygon_gdf, column_name, include_in_header=include_in_header
-        )
-        return result
+        base = self.data.gst.get_layer_base(column, values, min_thickness=min_thickness)
+
+        if include_in_header:
+            prefix = f"{column}[" if isinstance(values, slice) else ""
+            suffix = "]_base" if isinstance(values, slice) else "_base"
+            column_name = utils.columns.column_name_from(
+                values, prefix=prefix, suffix=suffix
+            )
+            base.name = column_name
+            self.header.drop(columns=column_name, errors="ignore", inplace=True)
+            self.header = self.header.merge(base, on="nr", how="left")
+        else:
+            return base
 
     def to_geoparquet(self, outfile: str | Path, **kwargs):
         """
@@ -1158,281 +1317,6 @@ class Collection(AbstractCollection):
         """
         return self.data.gstda.to_pyvista_grid(displayed_variables, radius)
 
-    def to_datafusiontools(
-        self,
-        columns: list[str],
-        outfile: str | Path = None,
-        encode: bool = False,
-        relative_to_vertical_reference: bool = True,
-    ):
-        """
-        Export all data to the core "Data" class of Deltares DataFusionTools. Returns
-        a list of "Data" objects, one for each data object that is exported. This list
-        can directly be used within DataFusionTools. If out_file is given, the list of
-        Data objects is saved to a pickle file.
-
-        For DataFusionTools visit:
-        https://bitbucket.org/DeltaresGEO/datafusiontools/src/master/
-
-        Parameters
-        ----------
-        columns : list[str]
-            Which columns in the data to include for the export. These will become variables
-            in the DataFusionTools "Data" class.
-        outfile : str | Path, optional
-            If a path to outfile is given, the data is written to a pickle file.
-        encode : bool, default True
-            If True, categorical data columns are encoded to additional binary columns
-            (all possible values become a seperate feature that is 0 or 1). The default is
-            False. Warning: if there is a large number of possible categories, many columns
-            with categorical data or both, the export process may become slow and may consume
-            a large amount memory. Please consider carefully which categorical data columns
-            need to be included.
-        relative_to_vertical_reference : bool, optional
-            If True, the depth of all data objects will converted to a depth with respect to
-            a reference plane (e.g. "NAP", "Ostend height"). If False, the depth will be
-            kept as original in the "top" and "bottom" columns which is in meter below
-            the surface. The default is True.
-
-        Returns
-        -------
-        list[Data]
-            List containing the DataFusionTools Data objects.
-
-        """
-        return self.data.gstda.to_datafusiontools(
-            columns, outfile, encode, relative_to_vertical_reference
-        )
-
-
-class BoreholeCollection(Collection):
-    """
-    A collection combines header and borehole data and ensures that they remain aligned
-    when applying methods.
-
-    Parameters
-    ----------
-    header : :class:`~geost.base.PointHeader`
-        Instance of a header class corresponding to the data.
-    data : :class:`~geost.base.LayeredData`
-        Instance of a data object corresponding to the header.
-    """
-
-    def add_grainsize_data(self, sample_data: pd.DataFrame):
-        """
-        Add grain size data to the borehole collection.
-
-        Parameters
-        ----------
-        sample_data : pd.DataFrame
-            DataFrame containing sample data with a column "nr" that contains borehole ids.
-
-        """
-        # safe_validate(DataSchemas.grainsize_data, sample_data, inplace=True)
-        # sample_data["nr"].unique()
-        # warnings.warn(
-        #     "Header covers more/other objects than present in the data table, "
-        #     "consider running the method 'reset_header' to update the header.",
-        #     AlignmentWarning,
-        # )
-        # self.sample_data = sample_data
-        raise NotImplementedError
-
-    def get_cumulative_thickness(
-        self, column: str, values: str | list[str], include_in_header: bool = False
-    ):
-        """
-        Get the cumulative thickness of layers where a column contains a specified search
-        value or values.
-
-        Parameters
-        ----------
-        column : str
-            Name of column that must contain the search value or values.
-        values : str | list[str]
-            Search value or values in the column to find the cumulative thickness for.
-        include_in_header : bool, optional
-            If True, include the result in the header table of the collection. In this
-            case, the method does not return a DataFrame. The default is False.
-
-        Returns
-        -------
-        pd.DataFrame
-            Borehole ids and cumulative thickness of selected layers if the "include_in_header"
-            option is set to False.
-
-        Examples
-        --------
-        Get the cumulative thickness of the layers with lithology "K" in the column "lith"
-        use:
-
-        >>> boreholes.get_cumulative_thickness("lith", "K")
-
-        Or get the cumulative thickness for multiple selection values. In this case, a
-        Pandas DataFrame is returned with a column per selection value containing the
-        cumulative thicknesses:
-
-        >>> boreholes.get_cumulative_thickness("lith", ["K", "Z"])
-
-        To include the result in the header object of the collection, use the
-        "include_in_header" option:
-
-        >>> boreholes.get_cumulative_thickness("lith", ["K"], include_in_header=True)
-
-        """
-        cum_thickness = self.data.gstda.get_cumulative_thickness(column, values)
-        cum_thickness.columns = cum_thickness.columns.astype(str)
-
-        if include_in_header:
-            columns = [c + "_thickness" for c in cum_thickness.columns]
-            self.header.drop(
-                columns=columns,
-                errors="ignore",
-                inplace=True,
-            )
-            self.header = self.header.merge(
-                cum_thickness.add_suffix("_thickness"), on="nr", how="left"
-            )
-            self.header[columns] = self.header[columns].fillna(0)
-        else:
-            return cum_thickness
-
-    def get_layer_top(
-        self,
-        column: str,
-        values: str | list[str],
-        min_thickness: float = 0,
-        min_depth: float = 0,
-        max_depth: float = None,
-        include_in_header: bool = False,
-    ):
-        """
-        Find the depth at which a specified layer first occurs, starting at min_depth
-        and looking downwards until the first layer of min_thickness is found of the
-        specified layer.
-
-        Parameters
-        ----------
-        column : str
-            Name of column that contains categorical data.
-        values : str | list[str]
-            Value or values of entries in the column that you want to find top of.
-        min_thickness : float, optional
-            Minimal thickness of the layer to be considered. The default is 0.
-        min_depth : float, optional
-            Minimal depth of the layer to be considered. The default is 0.
-        max_depth : float, optional
-            Maximal depth of the layer to be considered. The default is None.
-        include_in_header : bool, optional
-            If True, include the result in the header table of the collection. In this
-            case, the method does not return a DataFrame. The default is False.
-
-        Returns
-        -------
-        pd.DataFrame
-            Borehole ids and top levels of selected layers in meters below the surface.
-
-        Examples
-        --------
-        Get the top depth of layers in boreholes where the lithology in the "lith" column
-        is sand ("Z"):
-
-        >>> boreholes.get_layer_top("lith", "Z")
-
-        To include the result in the header object of the collection, use the
-        "include_in_header" option:
-
-        >>> boreholes.get_layer_top("lith", "Z", include_in_header=True)
-
-        """
-        tops = self.data.gstda.get_layer_top(
-            column,
-            values,
-            min_thickness=min_thickness,
-            min_depth=min_depth,
-            max_depth=max_depth,
-        )
-
-        if include_in_header:
-            self.header.drop(
-                columns=[c + "_top" for c in tops.columns],
-                errors="ignore",
-                inplace=True,
-            )
-            self.header = self.header.merge(
-                tops.add_suffix("_top"), on="nr", how="left"
-            )
-        else:
-            return tops
-
-    def get_layer_base(
-        self,
-        column: str,
-        values: str | list[str],
-        min_thickness: float = 0,
-        min_depth: float = 0,
-        max_depth: float = None,
-        include_in_header: bool = False,
-    ):
-        """
-        Find the depth at which a specified layer occurs last, starting at min_depth
-        and looking downwards until the first layer of min_thickness is found of the
-        specified layer.
-
-        Parameters
-        ----------
-        column : str
-            Name of column that contains categorical data.
-        values : str | list[str]
-            Value or values of entries in the column that you want to find base of.
-        min_thickness : float, optional
-            Minimal thickness of the layer to be considered. The default is 0.
-        min_depth : float, optional
-            Minimal depth of the layer to be considered. The default is 0.
-        max_depth : float, optional
-            Maximal depth of the layer to be considered. The default is None.
-        include_in_header : bool, optional
-            If True, include the result in the header table of the collection. In this
-            case, the method does not return a DataFrame. The default is False.
-
-        Returns
-        -------
-        pd.DataFrame
-            Borehole ids and base levels of selected layers in meters below the surface.
-
-        Examples
-        --------
-        Get the base depth of layers in boreholes where the lithology in the "lith" column
-        is sand ("Z"):
-
-        >>> boreholes.get_layer_base("lith", "Z")
-
-        To include the result in the header object of the collection, use the
-        "include_in_header" option:
-
-        >>> boreholes.get_layer_base("lith", "Z", include_in_header=True)
-
-        """
-        base = self.data.gstda.get_layer_base(
-            column,
-            values,
-            min_thickness=min_thickness,
-            min_depth=min_depth,
-            max_depth=max_depth,
-        )
-
-        if include_in_header:
-            self.header.drop(
-                columns=[c + "_base" for c in base.columns],
-                errors="ignore",
-                inplace=True,
-            )
-            self.header = self.header.merge(
-                base.add_suffix("_base"), on="nr", how="left"
-            )
-        else:
-            return base
-
     def to_qgis3d(
         self,
         outfile: str | Path,
@@ -1457,7 +1341,7 @@ class BoreholeCollection(Collection):
             geopandas.GeodataFrame.to_file kwargs. See relevant Geopandas documentation.
 
         """
-        self.data.gstda.to_qgis3d(
+        self.data.gst.to_qgis3d(
             outfile,
             relative_to_vertical_reference,
             crs=self.horizontal_reference,
@@ -1472,99 +1356,22 @@ class BoreholeCollection(Collection):
         vs: float = 1600.0,
     ):
         """
-        Write data to 2 csv files: interval data and time-depth chart,
-            for import in Kingdom seismic interpretation software.
+        Write 2 csv files for visualisation of data in Kingdom seismic interpretation
+        software:
+        - interval data: contains the layer boundaries and properties of the layers.
+        - time-depth chart: contains the depth and corresponding time values for the layer
+        boundaries.
 
         Parameters
         ----------
-        out_file : str | Path
+        outfile : str | Path
             Path to csv file to be written.
         tdstart : int
-            startindex for TDchart, default is 1
+            Startindex for TDchart, default is 1
         vw : float
-            sound velocity in water in m/s, default is 1500 m/s
+            Sound velocity in water in m/s, default is 1500 m/s
         vs : float
-            sound velocity in sediment in m/s, default is 1600 m/s
-        """
-        self.data.gstda.to_kingdom(outfile, tdstart, vw, vs)
-
-
-class CptCollection(Collection):
-    @property  # NOTE: Temporary fix to use correct schema for validation.
-    def data(self):
-        """
-        The collection's data.
-        """
-        return self._data
-
-    @data.setter
-    def data(self, data):
-        # self._data = safe_validate(
-        #     data, schemas.discretedata
-        # )  # TODO: validation schema needs to be inferred
-        self.check_header_to_data_alignment()
-
-    def slice_depth_interval(
-        self,
-        upper_boundary: float | int = None,
-        lower_boundary: float | int = None,
-        relative_to_vertical_reference: bool = False,
-    ):
-        """
-        Slice data based on given upper and lower boundaries. This returns a new object
-        containing only the sliced data.
-
-        Parameters
-        ----------
-        upper_boundary : float | int, optional
-            Every layer that starts above this is removed. The default is None.
-        lower_boundary : float | int, optional
-            Every layer that starts below this is removed. The default is None.
-        relative_to_vertical_reference : bool, optional
-            If True, the slicing is done with respect to any kind of vertical reference
-            plane (e.g. "NAP", "TAW"). If False, the slice is done with respect to depth
-            below the surface. The default is False.
-
-        Returns
-        -------
-        New instance of the current object.
-            New instance of the current object containing only the selection resulting
-            from application of this method. e.g. if you are calling this method from a
-            Collection, you will get an instance of a Collection back.
-
-        Examples
-        --------
-        Usage depends on whether the slicing is done with respect to depth below the
-        surface or to a vertical reference plane.
-
-        For example, select layers in data that are between 2 and 3 meters below the
-        surface:
-
-        >>> data.slice_depth_interval(2, 3)
-
-        By default, the method updates the layer boundaries in sliced object according to
-        the upper and lower boundaries. To suppress this behaviour use:
-
-        >>> data.slice_depth_interval(2, 3, update_layer_boundaries=False)
-
-        Slicing can also be done with respect to a vertical reference plane like "NAP".
-        For example, to select layers in data that are between -3 and -5 m NAP, use:
-
-        >>> data.slice_depth_interval(-3, -5, relative_to_vertical_reference=True)
+            Sound velocity in sediment in m/s, default is 1600 m/s
 
         """
-        selected_data = self.data.gstda.slice_depth_interval(
-            upper_boundary=upper_boundary,
-            lower_boundary=lower_boundary,
-            relative_to_vertical_reference=relative_to_vertical_reference,
-        )
-        selected_header = self.header.gsthd.get(selected_data["nr"].unique())
-        return self.__class__(
-            selected_header, selected_data, self.has_inclined, self.vertical_reference
-        )
-
-    def get_cumulative_thickness(self):  # pragma: no cover
-        raise NotImplementedError()
-
-    def get_layer_top(self):  # pragma: no cover
-        raise NotImplementedError()
+        self.data.gst.to_kingdom(outfile, tdstart, vw, vs)

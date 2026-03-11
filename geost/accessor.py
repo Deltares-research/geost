@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from collections.abc import Iterable
 from functools import singledispatchmethod
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Iterable
@@ -14,6 +15,7 @@ from geost import (
     export,
     validation,
 )  # FIXME: spatial triggers import of xarray, rioxarray. We don't want this automatically.
+from geost.abstract_classes import AbstractBase
 from geost.utils import casting, spatial
 from geost.validation.method_checks import (
     _requires_depth,
@@ -30,7 +32,7 @@ type GeometryType = BaseGeometry | list[BaseGeometry]
 
 
 @pd.api.extensions.register_dataframe_accessor("gst")
-class GeostFrame:
+class GeostFrame(AbstractBase):
     def __init__(self, dataframe: DataFrame):
         self._validate_dataframe(dataframe)
         self._obj = dataframe
@@ -158,6 +160,7 @@ class GeostFrame:
         """
         Get copy of the self._obj with depth columns converted to depth relative
         to surface level.
+
         """
         data = self._obj.copy()
         data[self._bottom] = data["surface"] - data[self._bottom]
@@ -169,6 +172,7 @@ class GeostFrame:
         """
         Validate the DataFrame by combining the relevant schemas in `geost.validation.schemas`
         based on the presence of specific columns and the type of data contained in the DataFrame.
+
         """
         if not geost.config.validation.SKIP:
             validation_result = validation.validate_geostframe(
@@ -238,17 +242,17 @@ class GeostFrame:
         To create a header GeoDataFrame with all columns from the DataFrame and no geometry
         column:
 
-        >>> data.gst.to_header()
+        >>> header = data.gst.to_header()
 
         To create a header GeoDataFrame with only specific columns from the DataFrame and
         no geometry column:
 
-        >>> data.gst.to_header(include_columns=["nr", "column1", "column2"])
+        >>> header = data.gst.to_header(include_columns=["nr", "column1", "column2"])
 
         To create a header GeoDataFrame with a geometry column created from specified coordinate
         names, a specific CRS and with columns excluded:
 
-        >>> data.gst.to_header(
+        >>> header = data.gst.to_header(
         ...     coordinate_names=("x", "y"), crs=28992, exclude_columns=["column1", "column2"]
         ... )
 
@@ -257,9 +261,7 @@ class GeostFrame:
 
         header = self._obj.drop_duplicates(subset="nr", ignore_index=True)
 
-        if self._x and self._y:
-            geometry = shapely.points(header[[self._x, self._y]])
-        elif coordinate_names is not None:
+        if coordinate_names is not None:
             x_col, y_col = coordinate_names
             if not {x_col, y_col}.issubset(header.columns):
                 raise KeyError(
@@ -267,6 +269,8 @@ class GeostFrame:
                 )
             geometry = shapely.points(header[[x_col, y_col]])
             # NOTE: future versions may require other geometry types too
+        elif self._x and self._y:
+            geometry = shapely.points(header[[self._x, self._y]])
         else:
             geometry = None
 
@@ -287,22 +291,37 @@ class GeostFrame:
 
     def to_collection(
         self,
-        has_inclined: bool = False,
+        crs: str | int | CRS = None,
         vertical_reference: str | int | CRS = None,
-        **header_kwargs,
+        has_inclined: bool = False,
+        coordinate_names: tuple[str, str] = None,
+        include_in_header: str | Iterable[str] | None = None,
+        exclude_from_header: str | Iterable[str] | None = None,
     ):
         """
         Create a :class:`geost.base.Collection` from the current GeoDataFrame or DataFrame.
 
         Parameters
         ----------
-        has_inclined : bool, optional
-            Indicates whether the collection has inclined data. The default is False.
+        crs : str | int | CRS, optional
+            Coordinate reference system for the geometry column. The default is None,
+            which means no CRS will be assigned to the resulting GeoDataFrame.
         vertical_reference : str | int | CRS, optional
             Vertical reference system for the collection. The default is None.
-        **header_kwargs
-            Keyword arguments to be passed to the :class:`geost.accessor.GeostFrame.to_header`
-            method for creating the header table.
+        has_inclined : bool, optional
+            Indicates whether the collection has inclined data. The default is False.
+        coordinate_names : tuple[str, str], optional
+            Tuple specifying the names of the columns to be used as coordinates for the
+            geometry column. The default is None, which means no geometry column will be
+            created.
+        include_in_header : str | Iterable[str] | None, optional
+            Columns to include in the header. The default is None, which includes all
+            columns. If "nr" is not included in the specified columns, it will be added
+            automatically as it is required.
+        exclude_from_header : str | Iterable[str] | None, optional
+            Columns to exclude from the header. The default is None, which excludes no
+            columns. If "nr" is included in the specified columns, an error is raised as
+            it is required.
 
         Returns
         -------
@@ -312,7 +331,12 @@ class GeostFrame:
         """
         from geost.base import Collection  # Avoid circular import
 
-        header = self.to_header(**header_kwargs)
+        header = self.to_header(
+            crs=crs,
+            coordinate_names=coordinate_names,
+            include_columns=include_in_header,
+            exclude_columns=exclude_from_header,
+        )
         return Collection(
             self._obj,
             header=header,
@@ -473,14 +497,55 @@ class GeostFrame:
         )
         return selection
 
-    def select_by_depth(
+    @_requires_depth
+    def select_by_elevation(
         self,
-        top_min: float = None,
-        top_max: float = None,
-        end_min: float = None,
-        end_max: float = None,
+        top_min: float | int = None,
+        top_max: float | int = None,
+        end_min: float | int = None,
+        end_max: float | int = None,
     ) -> gpd.GeoDataFrame:
-        raise NotImplementedError("Method not implemented yet.")
+        selected = self._obj
+
+        if top_min is not None or top_max is not None:
+            top_min = top_min or -1e34
+            top_max = top_max or 1e34
+            selected = selected[selected["surface"].between(top_min, top_max)]
+
+        if end_min is not None or end_max is not None:
+            end_min = end_min or -1e34
+            end_max = end_max or 1e34
+            if "end" not in selected.columns:
+                ends = self._obj.loc[self._last_row_in_survey, ["nr", self._bottom]]
+                selected = selected.merge(
+                    ends.rename(columns={self._bottom: "end"}), on="nr"
+                )
+                selected["end"] = selected["surface"] - selected["end"]
+
+            selected = selected[selected["end"].between(end_min, end_max)]
+
+        return selected
+
+    @_requires_depth
+    def select_by_length(
+        self, min_length: float = None, max_length: float = None
+    ) -> gpd.GeoDataFrame:
+        selected = self._obj
+
+        if min_length is not None or max_length is not None:
+            min_length = min_length or -1e34
+            max_length = max_length or 1e34
+            if "end" not in selected.columns:
+                ends = self._obj.loc[self._last_row_in_survey, ["nr", self._bottom]]
+                selected = selected.merge(
+                    ends.rename(columns={self._bottom: "end"}), on="nr"
+                )
+                selected["end"] = selected["surface"] - selected["end"]
+            selected = selected[
+                (selected["surface"] - selected["end"]).between(min_length, max_length)
+            ]
+
+        return selected
 
     @_requires_geometry
     def spatial_join(
@@ -533,7 +598,7 @@ class GeostFrame:
     def select_by_values(
         self,
         column: str,
-        values: str | Iterable | slice,
+        values: int | float | str | Iterable | slice,
         how: str = "or",
         invert: bool = False,
         inclusive: str = "both",
@@ -546,7 +611,7 @@ class GeostFrame:
         ----------
         column : str
             Name of the column to look for the selection values in.
-        values : str | Iterable | slice
+        values : int | float | str | Iterable | slice
             Value or array-like set of values to look for in the column. In case of numerical
             values, a slice can be used to select data that contain a specific range of values,
             see example below.
@@ -572,18 +637,18 @@ class GeostFrame:
         To select data where both clay ("K") and peat ("V") are present at the same
         time, use "and" as a selection method:
 
-        >>> data.gst.select_by_values("lith", ["V", "K"], how="and")
+        >>> selection = data.gst.select_by_values("lith", ["V", "K"], how="and")
 
         To select data that can have one, or both lithologies, use or as the selection
         method:
 
-        >>> data.gst.select_by_values("lith", ["V", "K"], how="or")
+        >>> selection = data.gst.select_by_values("lith", ["V", "K"], how="or")
 
         In case of numerical values, use a slice to select data that contain a specific
         range of values. For example, to select data that contain cone resistances ("qc")
         between 15 and 20 MPa:
 
-        >>> data.gst.select_by_values("qc", slice(15, 20))
+        >>> selection = data.gst.select_by_values("qc", slice(15, 20))
 
         """
         if column not in self._obj.columns:
@@ -608,7 +673,7 @@ class GeostFrame:
             "either a string\n, an iterable, or a slice for numerical values."
         )
 
-    @_select_by_values.register(str)
+    @_select_by_values.register(int | float | str)
     def _(self, values, column, *_) -> pd.DataFrame:
         selected = self._obj
         valid = selected["nr"][selected[column] == values].unique()
@@ -635,9 +700,12 @@ class GeostFrame:
         if not pd.api.types.is_numeric_dtype(self._obj[column]):
             raise TypeError("Can only use a slice selection on numerical columns.")
 
+        start = values.start or -1e34
+        stop = values.stop or 1e34
+
         selected = self._obj
         valid = selected["nr"][
-            selected[column].between(values.start, values.stop, inclusive)
+            selected[column].between(start, stop, inclusive)
         ].unique()
         selected = selected[selected["nr"].isin(valid)]
         return selected
@@ -684,17 +752,17 @@ class GeostFrame:
         For example, select layers in data that are between 2 and 3 meters below the
         surface:
 
-        >>> data.gst.slice_depth_interval(2, 3)
+        >>> sliced = data.gst.slice_depth_interval(2, 3)
 
         By default, the method updates the layer boundaries in sliced object according to
         the upper and lower boundaries. To suppress this behaviour use:
 
-        >>> data.gst.slice_depth_interval(2, 3, update_layer_boundaries=False)
+        >>> sliced = data.gst.slice_depth_interval(2, 3, update_layer_boundaries=False)
 
         Slicing can also be done with respect to a vertical reference plane like "NAP".
         For example, to select layers in boreholes that are between -3 and -5 m NAP, use:
 
-        >>> data.gst.slice_depth_interval(-3, -5, relative_to_vertical_reference=True)
+        >>> sliced = data.gst.slice_depth_interval(-3, -5, relative_to_vertical_reference=True)
 
         """
         sliced = self._obj
@@ -736,7 +804,7 @@ class GeostFrame:
     def slice_by_values(
         self,
         column: str,
-        values: str | Iterable | slice,
+        values: int | float | str | Iterable | slice,
         invert: bool = False,
         inclusive: str = "both",
     ) -> pd.DataFrame:
@@ -749,7 +817,7 @@ class GeostFrame:
         column : str
             Name of column that contains categorical data to use when looking for
             values.
-        values : str | Iterable | slice
+        values : int | float | str | Iterable | slice
             Value or array-like set of values to look for in the column. In case of numerical
             values, a slice can be used to slice a range of values, see example below.
         invert : bool, optional
@@ -768,17 +836,17 @@ class GeostFrame:
         --------
         Return only rows in data contain sand ("Z") as lithology:
 
-        >>> data.gst.slice_by_values("lith", "Z")
+        >>> sliced = data.gst.slice_by_values("lith", "Z")
 
         If you want all the rows that may contain everything but sand, use the "invert"
         option:
 
-        >>> data.gst.slice_by_values("lith", "Z", invert=True)
+        >>> sliced = data.gst.slice_by_values("lith", "Z", invert=True)
 
         If you want to slice a range of numerical values, you can use a slice. For example,
         to return only rows where the cone resistance ("qc") is between 15 and 20 MPa:
 
-        >>> data.gst.slice_by_values("qc", slice(15, 20))
+        >>> sliced = data.gst.slice_by_values("qc", slice(15, 20))
 
         """
         sliced = self._slice_by_values(values, column, inclusive)
@@ -795,7 +863,7 @@ class GeostFrame:
     ) -> pd.DataFrame:
         raise TypeError(f"Unsupported type of selection values: {type(values)}")
 
-    @_slice_by_values.register(str)
+    @_slice_by_values.register(int | float | str)
     def _(self, values, column, _) -> pd.DataFrame:
         return self._obj[self._obj[column] == values]
 
@@ -808,9 +876,9 @@ class GeostFrame:
         if not pd.api.types.is_numeric_dtype(self._obj[column]):
             raise TypeError("Can only use a slice selection on numerical columns.")
 
-        return self._obj[
-            self._obj[column].between(values.start, values.stop, inclusive)
-        ]
+        start = values.start or -1e34
+        stop = values.stop or 1e34
+        return self._obj[self._obj[column].between(start, stop, inclusive)]
 
     def select_by_condition(self, condition: Any, invert: bool = False) -> pd.DataFrame:
         """
@@ -836,15 +904,15 @@ class GeostFrame:
         --------
         Select rows in data that contain a specific value:
 
-        >>> data.gst.select_by_condition(data["lith"] == "V")
+        >>> selection = data.gst.select_by_condition(data["lith"] == "V")
 
         Or select rows in the data that contain a specific (part of) string or strings:
 
-        >>> data.gst.select_by_condition(data["column"].str.contains("foo|bar"))
+        >>> selection = data.gst.select_by_condition(data["column"].str.contains("foo|bar"))
 
         Or select rows in the data based on multiple conditions:
 
-        >>> data.select_by_condition((data["column1"] > 2) & (data["column2] < 1))
+        >>> selection = data.gst.select_by_condition((data["column1"] > 2) & (data["column2] < 1))
 
         """
         if invert:
@@ -905,18 +973,18 @@ class GeostFrame:
         Get the cumulative thickness of the layers with lithology "K" in the column "lith"
         use:
 
-        >>> data.gst.get_cumulative_thickness("lith", "K")
+        >>> thickness = data.gst.get_cumulative_thickness("lith", "K")
 
         Or get the cumulative thickness for multiple selection values. This calculates
         the cumulative thickness of the combined values:
 
-        >>> data.gst.get_cumulative_thickness("lith", ["K", "Z"])
+        >>> thickness = data.gst.get_cumulative_thickness("lith", ["K", "Z"])
 
         In case of numerical values, a slice can be used to specify a range of values to
         search for. For example, to get the cumulative thickness of layers with a cone
         resistance ("qc") between 15 and 20 MPa:
 
-        >>> data.gst.get_cumulative_thickness("qc", slice(15, 20))
+        >>> thickness = data.gst.get_cumulative_thickness("qc", slice(15, 20))
 
         """
         selected_layers = self.slice_by_values(column, values)
@@ -931,35 +999,51 @@ class GeostFrame:
 
     @_requires_depth
     def get_layer_top(
-        self, column: str, values: str | list[str] | slice, min_thickness: float = None
+        self,
+        column: str,
+        values: str | list[str] | slice,
+        min_thickness: float = None,
+        min_fraction: float = None,
     ) -> pd.Series:
-        from geost.analysis import layers
+        """
+        Find the top depth in individual survey ids where a column in a Pandas DataFrame contains
+        specified search value or values, or falls within a specified range.
 
-        selection = self.slice_by_values(column, values)
+        Parameters
+        ----------
+        column : str
+            Name of the column to search for the specified value or values.
+        values : int | float | str | list[str] | slice
+            Value or values to search for in the specified column. If a slice is provided, the
+            function will search for values within the specified range.
+        min_thickness : float, optional
+            Minimum thickness of the layer to consider. Layers thinner than this value will be
+            ignored. The thickness of a layer is calculated as the difference uppermost top
+            and the lowermost bottom of consecutive elements that meet the value criteria. If
+            None, no minimum thickness is applied which returns the first encountered layer.
+        min_fraction : float, optional
+            Whether or not to allow for disturbing layers: layers that do not meet the value
+            criteria in between. The minimum fraction is the minimal fraction of the 'min_thickness'
+            that must meet the value criteria. If None, the entire layer must meet the criteria.
+            Note that 'min_fraction' is only applied when 'min_thickness' is specified.
 
-        # 1 determine layer nrs by taking consecutive layers that meet the condition
-        # 2 calculate the thickness per layer
+        Returns
+        -------
+        pd.DataFrame
+            DataFrame containing the top depth of the layers that meet the specified criteria
+            for each survey id.
 
-        if "thickness" not in self._obj.columns:
-            thickness = self.calculate_thickness()
-            selection["thickness"] = thickness.loc[selection.index]
+        Raises
+        ------
+        ValueError
+            - If the input DataFrame does not contain columns specifying depth intervals
+            - If min_thickness is below zero
+            - If min_fraction is not between 0 and 1
 
-        if min_thickness is not None:
-            selection = selection[selection["thickness"] >= min_thickness]
+        """
+        from geost.analysis.layers import get_layer_top
 
-        if self._top is None:
-            selection[self._bottom] = selection[self._bottom] - selection["thickness"]
-            # In case of discrete data, we calculate the top of the layer because the depth
-            # is not the actual top of the layer but its base.
-            layer_top = selection[["nr", self._bottom]].drop_duplicates(
-                subset="nr", keep="first"
-            )
-        else:
-            layer_top = selection[["nr", self._top]].drop_duplicates(
-                subset="nr", keep="first"
-            )
-
-        return layer_top.set_index("nr")
+        return get_layer_top(self._obj, column, values, min_thickness, min_fraction)
 
     @_requires_depth
     def get_layer_base(

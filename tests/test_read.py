@@ -8,25 +8,12 @@ from numpy.testing import assert_array_equal
 from shapely import geometry as gmt
 
 import geost
-from geost.accessors.data import DiscreteData, LayeredData
-from geost.accessors.header import PointHeader
-from geost.base import (
-    BoreholeCollection,
-    CptCollection,
-)
+from geost.base import Collection
 from geost.io.read import (
     MANDATORY_LAYERED_DATA_COLUMNS,
     _check_mandatory_column_presence,
     adjust_z_coordinates,
 )
-
-
-class InvalidCollection:
-    """
-    Invalid Collection type to raise a ValueError in `read_collection_geopackage`.
-    """
-
-    pass
 
 
 @pytest.fixture
@@ -117,29 +104,26 @@ def test_nlog_reader_from_parquet(testdatadir):
     assert nlog_cores.has_inclined
 
 
-@pytest.mark.unittest
-def test_read_borehole_table(testdatadir):
-    file_pq = testdatadir / r"test_borehole_table.parquet"
-    file_csv = testdatadir / r"test_borehole_table.csv"
-    cores_pq = geost.read_borehole_table(file_pq)
-    cores_csv = geost.read_borehole_table(file_csv)
-    assert isinstance(cores_pq, BoreholeCollection)
-    assert isinstance(cores_csv, BoreholeCollection)
+@pytest.mark.parametrize(
+    "filename",
+    [
+        "test_borehole_table.parquet",
+        "test_borehole_table.csv",
+        "test_inclined_borehole_table.parquet",
+    ],
+)
+def test_read_borehole_table(filename, testdatadir):
+    filepath = testdatadir / filename
+    if filename == "test_inclined_borehole_table.parquet":
+        cores = geost.read_borehole_table(filepath, coll_kwargs=dict(has_inclined=True))
+        assert cores.has_inclined
+    else:
+        cores = geost.read_borehole_table(filepath)
+        assert not cores.has_inclined
+    assert isinstance(cores, Collection)
 
-    cores_pq = geost.read_borehole_table(file_pq, as_collection=False)
-    cores_csv = geost.read_borehole_table(file_csv, as_collection=False)
-    assert isinstance(cores_pq, pd.DataFrame)
-    assert isinstance(cores_csv, pd.DataFrame)
-
-    file_pq = testdatadir / r"test_inclined_borehole_table.parquet"
-    cores_pq = geost.read_borehole_table(file_pq, has_inclined=True)
-    assert isinstance(cores_pq, BoreholeCollection)
-    assert cores_pq.has_inclined
-
-    cores_pq = geost.read_borehole_table(
-        file_pq, has_inclined=True, as_collection=False
-    )
-    assert isinstance(cores_pq, pd.DataFrame)
+    cores = geost.read_borehole_table(filepath, as_collection=False)
+    assert isinstance(cores, pd.DataFrame)
 
 
 @pytest.mark.unittest
@@ -186,7 +170,7 @@ def test_adjust_z_coordinates(testdatadir):
 @pytest.mark.unittest
 def test_read_boris_xml(testdatadir):
     boris_collection = geost.read_xml_boris(testdatadir / r"xml/test_boris_xml.xml")
-    assert isinstance(boris_collection, BoreholeCollection)
+    assert isinstance(boris_collection, Collection)
     assert boris_collection.n_points == 16
     assert len(boris_collection.data) == 236
 
@@ -196,7 +180,7 @@ def test_read_uullg_table(
     llg_header_table, llg_data_table, llg_data_table_duplicate_column
 ):
     llg = geost.read_uullg_tables(llg_header_table, llg_data_table)
-    assert isinstance(llg, BoreholeCollection)
+    assert isinstance(llg, Collection)
     expected_header_cols = ["nr", "x", "y", "surface", "end"]
     header_columns = llg.header.columns
     assert all([c in header_columns for c in expected_header_cols])
@@ -205,7 +189,7 @@ def test_read_uullg_table(
     assert all([c in data_columns for c in expected_data_cols])
 
     llg = geost.read_uullg_tables(llg_header_table, llg_data_table_duplicate_column)
-    assert isinstance(llg, BoreholeCollection)
+    assert isinstance(llg, Collection)
     expected_header_cols = ["nr", "x", "y", "surface", "end"]
     header_columns = llg.header.columns
     assert all([c in header_columns for c in expected_header_cols])
@@ -218,27 +202,31 @@ def test_read_uullg_table(
 def test_read_gef_cpts(testdatadir):
     files = sorted(Path(testdatadir / "gef").glob("*.gef"))
     cpts = geost.read_gef_cpts(files)
-    assert isinstance(cpts, CptCollection)
-    assert cpts.horizontal_reference == 28992
-    assert cpts.vertical_reference == 5709
+    assert isinstance(cpts, Collection)
+    assert cpts.horizontal_reference is None
+    assert cpts.vertical_reference is None
+    assert_array_equal(
+        cpts.header["nr"],
+        [
+            "DKMP_D03",
+            "AZZ158",
+            "CPT000000038871",
+            "CPT000000157983",
+            "YANGTZEHAVEN CPT 10",
+        ],
+    )
 
-    expected_cpts_present = [
-        "DKMP_D03",
-        "AZZ158",
-        "CPT000000038871",
-        "CPT000000157983",
-        "YANGTZEHAVEN CPT 10",
-    ]
-    assert_array_equal(cpts.header["nr"], expected_cpts_present)
+    cpts_df = geost.read_gef_cpts(files, as_collection=False)
+    assert isinstance(cpts_df, pd.DataFrame)
 
 
 @pytest.mark.unittest
 def test_read_cpt_table(testdatadir, monkeypatch):
     monkeypatch.setattr("builtins.input", lambda _: "mv")
     cpts = geost.read_cpt_table(testdatadir / r"test_cpts.parquet")
-    assert isinstance(cpts, CptCollection)
-    assert cpts.horizontal_reference == 28992
-    assert cpts.vertical_reference == 5709
+    assert isinstance(cpts, Collection)
+    assert cpts.horizontal_reference is None
+    assert cpts.vertical_reference is None
 
     cpts = geost.read_cpt_table(testdatadir / r"test_cpts.parquet", as_collection=False)
     assert isinstance(cpts, pd.DataFrame)
@@ -247,42 +235,20 @@ def test_read_cpt_table(testdatadir, monkeypatch):
 @pytest.mark.unittest
 def test_read_pickle(collection_pickle):
     collection = geost.read_pickle(collection_pickle)
-    assert isinstance(collection, BoreholeCollection)
+    assert isinstance(collection, Collection)
 
 
-class TestReadCollectionGeopackage:
-    @pytest.fixture
-    def borehole_gpkg(self, borehole_collection, tmp_path):
-        outfile = tmp_path / r"borehole.gpkg"
-        borehole_collection.to_geopackage(outfile)
-        return outfile
-
-    @pytest.fixture
-    def cpt_gpkg(self, cpt_collection, tmp_path):
-        outfile = tmp_path / r"cpt.gpkg"
-        cpt_collection.to_geopackage(outfile)
-        return outfile
-
-    @pytest.mark.unittest
-    def test_read_collection_geopackage_boreholes(self, borehole_gpkg):
-        collection = geost.read_collection_geopackage(borehole_gpkg, BoreholeCollection)
-        assert isinstance(collection, BoreholeCollection)
-        assert isinstance(collection.header, gpd.GeoDataFrame)
-        assert isinstance(collection.data, pd.DataFrame)
-        assert not collection.has_inclined
-
-    @pytest.mark.unittest
-    def test_read_collection_geopackage_cpts(self, cpt_gpkg):
-        collection = geost.read_collection_geopackage(cpt_gpkg, CptCollection)
-        assert isinstance(collection, CptCollection)
-        assert isinstance(collection.header, gpd.GeoDataFrame)
-        assert isinstance(collection.data, pd.DataFrame)
-        assert not collection.has_inclined
-
-    @pytest.mark.unittest
-    def test_read_collection_geopackage_invalid(self, borehole_gpkg):
-        with pytest.raises(ValueError):
-            geost.read_collection_geopackage(borehole_gpkg, InvalidCollection)
+@pytest.mark.parametrize("collection", ["borehole_collection", "cpt_collection"])
+def test_read_collection_geopackage(collection, tmp_path, request):
+    outfile = tmp_path / r"collection.gpkg"
+    collection = request.getfixturevalue(collection)
+    collection.to_geopackage(outfile)
+    read_collection = geost.read_collection_geopackage(outfile, Collection)
+    assert isinstance(read_collection, Collection)
+    assert isinstance(read_collection.header, gpd.GeoDataFrame)
+    assert isinstance(read_collection.data, pd.DataFrame)
+    assert read_collection.header.equals(collection.header)
+    assert read_collection.data.equals(collection.data)
 
 
 @pytest.mark.parametrize(
@@ -514,39 +480,39 @@ def test_bro_api_read_invalid_object_type():
 def test_read_bhrp(testdatadir):
     file = testdatadir / r"xml/bhrp_bro.xml"
     collection = geost.read_bhrp(file)
-    assert isinstance(collection, BoreholeCollection)
+    assert isinstance(collection, Collection)
 
 
 @pytest.mark.unittest
 def test_read_bhrgt(testdatadir):
     file = testdatadir / r"xml/bhrgt_bro.xml"
     collection = geost.read_bhrgt(file)
-    assert isinstance(collection, BoreholeCollection)
+    assert isinstance(collection, Collection)
 
 
 @pytest.mark.unittest
 def test_read_bhrgt_samples(testdatadir):
     file = testdatadir / r"xml/bhrgt_bro_with_samples.xml"
     collection = geost.read_bhrgt_samples(file)
-    assert isinstance(collection, BoreholeCollection)
+    assert isinstance(collection, Collection)
 
 
 @pytest.mark.unittest
 def test_read_bhrg(testdatadir):
     file = testdatadir / r"xml/bhrg_bro.xml"
     collection = geost.read_bhrg(file)
-    assert isinstance(collection, BoreholeCollection)
+    assert isinstance(collection, Collection)
 
 
 @pytest.mark.unittest
 def test_read_cpt(testdatadir):
     file = testdatadir / r"xml/cpt_bro.xml"
     collection = geost.read_cpt(file)
-    assert isinstance(collection, CptCollection)
+    assert isinstance(collection, Collection)
 
 
 @pytest.mark.unittest
 def test_read_sfr(testdatadir):
     file = testdatadir / r"xml/sfr_bro.xml"
     collection = geost.read_sfr(file)
-    assert isinstance(collection, BoreholeCollection)
+    assert isinstance(collection, Collection)

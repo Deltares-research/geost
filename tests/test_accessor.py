@@ -5,7 +5,7 @@ import numpy as np
 import pandas as pd
 import pytest
 from numpy.testing import assert_array_almost_equal, assert_array_equal
-from shapely.geometry import LineString, Polygon
+from shapely.geometry import LineString, Point, Polygon
 
 from geost.accessor import GeostFrame
 from geost.accessors.accessor import DATA_BACKEND, HEADER_BACKEND
@@ -184,8 +184,8 @@ class TestGeostFrame:
     def test_to_header(self, borehole_data):
         header = borehole_data.gst.to_header()
         assert isinstance(header, gpd.GeoDataFrame)
-        assert not header.gst.has_geometry
-        assert_array_equal(header.columns, borehole_data.columns)
+        assert header.gst.has_geometry
+        assert_array_equal(header.columns, list(borehole_data.columns) + ["geometry"])
 
         header = borehole_data.gst.to_header(
             exclude_columns=["top", "bottom", "lith"], coordinate_names=("x", "y")
@@ -207,7 +207,7 @@ class TestGeostFrame:
         # Test that 'nr' is included in the header even if not specified in include_columns
         header = borehole_data.gst.to_header(include_columns=["surface"])
         assert isinstance(header, gpd.GeoDataFrame)
-        assert_array_equal(header.columns, ["nr", "surface"])
+        assert_array_equal(header.columns, ["nr", "surface", "geometry"])
 
         with pytest.raises(
             ValueError,
@@ -228,20 +228,6 @@ class TestGeostFrame:
 
     @pytest.mark.unittest
     def test_to_collection(self, borehole_data):
-        with pytest.warns() as record:
-            collection = borehole_data.gst.to_collection()
-
-        # TODO: `record[0]` has unexpected validation warning is thrown, check
-        assert ("Setting the header without an active geometry column.") in str(
-            record[1].message
-        )
-        assert isinstance(collection, Collection)
-        assert isinstance(collection.header, gpd.GeoDataFrame)
-        assert isinstance(collection.data, pd.DataFrame)
-        assert not collection.header_has_geometry
-        assert collection.horizontal_reference is None
-        assert collection.vertical_reference is None
-
         with warnings.catch_warnings():
             warnings.simplefilter("error")
             collection = borehole_data.gst.to_collection(
@@ -255,6 +241,57 @@ class TestGeostFrame:
         assert collection.header_has_geometry
         assert collection.horizontal_reference == 28992
         assert collection.vertical_reference == 5709
+
+        with pytest.warns() as record:
+            borehole_data = borehole_data.drop(columns=["x", "y"])
+            collection = borehole_data.gst.to_collection()
+
+        # TODO: `record[0]` has unexpected validation warning is thrown, check
+        assert ("Setting the header without an active geometry column.") in str(
+            record[1].message
+        )
+        assert isinstance(collection, Collection)
+        assert isinstance(collection.header, gpd.GeoDataFrame)
+        assert isinstance(collection.data, pd.DataFrame)
+        assert not collection.header_has_geometry
+        assert collection.horizontal_reference is None
+        assert collection.vertical_reference is None
+
+    @pytest.mark.unittest
+    def test_select_by_elevation(self, borehole_data):
+        # Test with only top_min specified
+        selected = borehole_data.gst.select_by_elevation(top_min=0)
+        assert_array_equal(selected["nr"].unique(), ["A", "B", "C", "D", "E"])
+
+        # Test with only end_min specified
+        selected = borehole_data.gst.select_by_elevation(end_min=-3)
+        assert_array_equal(selected["nr"].unique(), ["D"])
+
+        # Test with noe "end" column, and both top_min and end_min specified
+        selected = borehole_data.drop(columns=["end"]).gst.select_by_elevation(
+            top_min=0, end_min=-3
+        )
+        assert_array_equal(selected["nr"].unique(), ["D"])
+
+        # Test with both end_min and end_max specified
+        selected = borehole_data.gst.select_by_elevation(end_min=-3, end_max=-2.9)
+        assert_array_equal(selected["nr"].unique(), ["D"])
+
+    @pytest.mark.unittest
+    def test_select_by_length(self, borehole_data):
+        selected = borehole_data.gst.select_by_length(max_length=3.0)
+        assert_array_equal(selected["nr"].unique(), ["D", "E"])
+
+        selected = borehole_data.gst.select_by_length(max_length=1.5)
+        assert_array_equal(selected["nr"].unique(), [])
+
+        selected = borehole_data.gst.select_by_length(min_length=4.0, max_length=5.0)
+        assert_array_equal(selected["nr"].unique(), ["A"])
+
+        selected = borehole_data.drop(columns=["end"]).gst.select_by_length(
+            min_length=4.0, max_length=5.0
+        )
+        assert_array_equal(selected["nr"].unique(), ["A"])
 
     @pytest.mark.unittest
     def test_select_within_bbox(self, point_header):
@@ -491,6 +528,9 @@ class TestGeostFrame:
         assert_array_equal(selected["nr"].unique(), ["A", "C"])
         assert selected.shape == (10, 8)
 
+        selected = borehole_data.gst.select_by_values("bottom", slice(None, None))
+        assert selected.shape == borehole_data.shape
+
         with pytest.raises(TypeError, match="Unsupported type of selection values"):
             borehole_data.gst.select_by_values("lith", {"a": "V"})
 
@@ -536,6 +576,21 @@ class TestGeostFrame:
 
         with pytest.raises(TypeError, match="Unsupported type of selection values"):
             borehole_data.gst.slice_by_values("lith", {"a": "V"})
+
+        sliced = borehole_data.gst.slice_by_values(
+            "bottom", slice(None, 3.1), inclusive="neither"
+        )
+        assert_array_equal(
+            sliced.index,
+            [0, 1, 2, 5, 6, 7, 10, 11, 12, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24],
+        )
+        assert (sliced["bottom"] < 3.1).all()
+
+        sliced = borehole_data.gst.slice_by_values(
+            "bottom", slice(3.1, None), inclusive="neither"
+        )
+        assert_array_equal(sliced.index, [3, 4, 9, 13, 14])
+        assert (sliced["bottom"] > 3.1).all()
 
         with pytest.raises(
             TypeError, match="Can only use a slice selection on numerical columns."
@@ -763,6 +818,7 @@ class TestGeostFrame:
     @pytest.mark.unittest
     def test_get_layer_top_layered(self, borehole_data):
         result = borehole_data.gst.get_layer_top("lith", "V")
+        assert isinstance(result, pd.Series)
         assert (
             "thickness" not in borehole_data.columns
         )  # Ensure thickness column is not added to original DataFrame
@@ -777,9 +833,12 @@ class TestGeostFrame:
         assert_array_equal(result.index, ["A", "B", "C", "D", "E"])
         assert_array_almost_equal(result, [1.5, 1.2, 2.9, 0.5, 0.0])
 
+        # Internally result and other are calculated in different ways, but should give the same result when using the same parameters
         result = borehole_data.gst.get_layer_top("lith", ["Z", "V"], min_thickness=1.0)
-        assert_array_equal(result.index, ["A", "B", "C"])
-        assert_array_almost_equal(result, [1.5, 1.2, 3.8])
+        other = borehole_data.gst.get_layer_top(
+            "lith", ["Z", "V"], min_thickness=1.0, min_fraction=1.0
+        )
+        assert result.equals(other)
 
         result = borehole_data.gst.get_layer_top("bottom", slice(1.5, 3.1))
         assert_array_equal(result.index, ["A", "B", "C", "D", "E"])
@@ -788,13 +847,16 @@ class TestGeostFrame:
     @pytest.mark.unittest
     def test_get_layer_top_discrete(self, cpt_data):
         result = cpt_data.gst.get_layer_top("qc", slice(0.7, 18))
+        assert isinstance(result, pd.Series)
         assert (
             "thickness" not in cpt_data.columns
         )  # Ensure thickness column is not added to original DataFrame
         assert_array_equal(result.index, ["a", "b"])
         assert_array_equal(result, [8.0, 0.0])
 
-        result = cpt_data.gst.get_layer_top("qc", slice(0.7, 18), min_thickness=2.0)
+        result = cpt_data.gst.get_layer_top("qc", slice(0.7, 18), min_thickness=2.5)
+        assert_array_equal(result.index, ["b"])
+        assert_array_equal(result, [0.0])
 
 
 class TestHeaderAccessor:

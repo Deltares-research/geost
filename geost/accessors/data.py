@@ -8,8 +8,7 @@ from pyproj import CRS
 from shapely import geometry as gmt
 
 from geost import export, utils
-from geost.abstract_classes import AbstractData
-from geost.analysis import cumulative_thickness
+from geost.analysis.layers import cumulative_thickness
 
 type Coordinate = int | float
 type GeometryType = gmt.base.BaseGeometry | list[gmt.base.BaseGeometry]
@@ -18,7 +17,7 @@ HeaderType = Literal["point", "line"]
 DataType = Literal["layered", "discrete"]
 
 
-class LayeredData(AbstractData):
+class LayeredData:
     """
     A class to hold layered data objects (i.e. containing "tops" and "bottoms") like
     borehole descriptions which can be used for selections and exports.
@@ -778,7 +777,7 @@ class LayeredData(AbstractData):
         )
 
 
-class DiscreteData(AbstractData):
+class DiscreteData:
     def __init__(self, df):
         self._df = df
 
