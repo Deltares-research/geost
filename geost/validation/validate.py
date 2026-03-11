@@ -4,7 +4,6 @@ from functools import reduce
 import geopandas as gpd
 import pandas as pd
 
-import geost
 from geost import config
 from geost._warnings import ValidationWarning
 
@@ -14,6 +13,7 @@ class ValidationResult:
         self.errors = {}
 
     def __len__(self):
+        # Note: length of unique validation issues, not number of affected rows or surveys
         return len(self.errors)
 
     @property
@@ -302,6 +302,37 @@ def validate_geostframe(
     bottom_col: str = None,
     first_row_in_survey: pd.Series = None,
 ):
+    """
+    Validate a GeostFrame, display warnings and handle errors as specified by the GeoST
+    configuration.
+
+    Parameters
+    ----------
+    obj : pd.DataFrame | gpd.GeoDataFrame
+        The GeostFrame to be validated.
+    has_depth_columns : bool, optional
+        Indicates if the GeostFrame has depth columns, by default None
+    is_layered : bool, optional
+        Indicates if the GeostFrame is layered, by default None
+    has_xy_columns : bool, optional
+        Indicates if the GeostFrame has XY columns, by default None
+    x_col : str, optional
+        Name of the X column, by default None
+    y_col : str, optional
+        Name of the Y column, by default None
+    top_col : str, optional
+        Name of the top column, by default None
+    bottom_col : str, optional
+        Name of the bottom column, by default None
+    first_row_in_survey : pd.Series, optional
+        Indicates the first row in each survey, by default None
+
+    Returns
+    -------
+    ValidationResult
+        The result of the validation, a :class:`~geost.validation.validate.ValidationResult`
+        object.
+    """
     validation_result = ValidationResult()
     validated_obj = validate_base(obj, validation_result)
 

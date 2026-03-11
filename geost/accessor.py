@@ -168,27 +168,37 @@ class GeostFrame(AbstractBase):
             data[self._top] = data["surface"] - data[self._top]
         return data
 
-    def validate(self, return_validation_result: bool = False):
+    def validate(self, return_result: bool = False):
         """
-        Validate the DataFrame by combining the relevant schemas in `geost.validation.schemas`
-        based on the presence of specific columns and the type of data contained in the DataFrame.
+        Validate the DataFrame by checking for the presence of crucial information, data
+        types and consistency of the data.
+
+        Parameters
+        ----------
+        return_result : bool, optional
+            If True, the validation result object will be returned. The default is False.
+
+        Returns
+        -------
+        ValidationResult
+            If return result is True, returns the result of the validation, which is
+            a :class:`~geost.validation.validate.ValidationResult` object.
 
         """
-        if not geost.config.validation.SKIP:
-            validation_result = validation.validate_geostframe(
-                self._obj,
-                has_depth_columns=self.has_depth_columns,
-                is_layered=self.is_layered,
-                has_xy_columns=self.has_xy_columns,
-                x_col=self._x,
-                y_col=self._y,
-                top_col=self._top,
-                bottom_col=self._bottom,
-                first_row_in_survey=self._first_row_in_survey,
-            )
+        validation_result = validation.validate_geostframe(
+            self._obj,
+            has_depth_columns=self.has_depth_columns,
+            is_layered=self.is_layered,
+            has_xy_columns=self.has_xy_columns,
+            x_col=self._x,
+            y_col=self._y,
+            top_col=self._top,
+            bottom_col=self._bottom,
+            first_row_in_survey=self._first_row_in_survey,
+        )
 
-            if return_validation_result:
-                return validation_result
+        if return_result:
+            return validation_result
 
     def to_header(
         self,
