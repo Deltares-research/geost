@@ -258,6 +258,12 @@ class TestGeostFrame:
         assert collection.vertical_reference is None
 
     @pytest.mark.unittest
+    def test_determine_end_depth(self, borehole_data):
+        # Test that the method correctly determines the end depth when "end" column is missing
+        selected = borehole_data.drop(columns=["end"]).gst.determine_end_depth()
+        assert_array_equal(selected["end"], borehole_data["end"])
+
+    @pytest.mark.unittest
     def test_select_by_elevation(self, borehole_data):
         # Test with only top_min specified
         selected = borehole_data.gst.select_by_elevation(top_min=0)
