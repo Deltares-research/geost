@@ -103,6 +103,26 @@ class ValidationResult:
             if config.validation.DROP_INVALID:
                 df.drop(index=self.error_indices, inplace=True)
 
+        if config.validation.VERBOSE:
+            if config.validation.FLAG_INVALID and not config.validation.DROP_INVALID:
+                print(
+                    f"\n{'\u2705'} Invalid rows were flagged with an 'is_valid' column because"
+                    " geost.config.validation.FLAG_INVALID=True and geost.config.validation.DROP_INVALID=False"
+                )
+            elif config.validation.DROP_INVALID:
+                print(
+                    f"\n{'\u2705'} Invalid rows were dropped from the DataFrame because"
+                    " geost.config.validation.DROP_INVALID=True"
+                )
+            else:
+                print(
+                    f"\n{'\u274c'} Invalid rows were retained in the DataFrame because geost.config.validation.FLAG_INVALID and DROP_INVALID are False"
+                )
+
+            print(
+                f"\n{'\U0001f4d6'} See the user guide section on validation for advanced handling of validation issues: https://deltares-research.github.io/geost/user_guide/validation.html"
+            )
+
 
 def coerce_numeric(
     obj: pd.DataFrame, column: str, nullable: bool = False
