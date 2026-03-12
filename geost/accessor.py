@@ -121,7 +121,7 @@ class GeostFrame(AbstractBase):
         return False
 
     @property
-    def _first_row_in_survey(self):
+    def first_row_survey(self):
         """
         Get a boolean mask indicating the locations of new survey IDs in the data. This
         is used to identify the first layer of each survey.
@@ -136,7 +136,7 @@ class GeostFrame(AbstractBase):
         return self._obj["nr"] != self._obj["nr"].shift()
 
     @property
-    def _last_row_in_survey(self):
+    def last_row_survey(self):
         """
         Get a boolean mask indicating the locations of the last row in each survey. This
         is used to identify the last layer of each survey.
@@ -194,7 +194,7 @@ class GeostFrame(AbstractBase):
             y_col=self._y,
             top_col=self._top,
             bottom_col=self._bottom,
-            first_row_in_survey=self._first_row_in_survey,
+            first_row_in_survey=self.first_row_survey,
         )
 
         if return_result:
@@ -526,7 +526,7 @@ class GeostFrame(AbstractBase):
             end_min = end_min or -1e34
             end_max = end_max or 1e34
             if "end" not in selected.columns:
-                ends = self._obj.loc[self._last_row_in_survey, ["nr", self._bottom]]
+                ends = self._obj.loc[self.last_row_survey, ["nr", self._bottom]]
                 selected = selected.merge(
                     ends.rename(columns={self._bottom: "end"}), on="nr"
                 )
@@ -546,7 +546,7 @@ class GeostFrame(AbstractBase):
             min_length = min_length or -1e34
             max_length = max_length or 1e34
             if "end" not in selected.columns:
-                ends = self._obj.loc[self._last_row_in_survey, ["nr", self._bottom]]
+                ends = self._obj.loc[self.last_row_survey, ["nr", self._bottom]]
                 selected = selected.merge(
                     ends.rename(columns={self._bottom: "end"}), on="nr"
                 )
@@ -950,7 +950,7 @@ class GeostFrame(AbstractBase):
         else:
             thickness = self._obj[self._bottom].diff()
 
-            thickness[self._first_row_in_survey] = self._obj[
+            thickness[self.first_row_survey] = self._obj[
                 self._bottom
             ]  # Thickness of first layer is equal to depth of first layer data is discrete
 
@@ -1218,18 +1218,16 @@ class GeostFrame(AbstractBase):
         # Infer the top of layers from the bottom of layers if the top column is not present.
         if self._top is None:
             top = (
-                data[self._bottom]
-                .shift()
-                .mask(self._first_row_in_survey, data["surface"])
+                data[self._bottom].shift().mask(self.first_row_survey, data["surface"])
             )
             x_bot, y_bot = data["x"], data["y"]
-            x_top = data["x"].shift().mask(self._first_row_in_survey, data["x"])
-            y_top = data["y"].shift().mask(self._first_row_in_survey, data["y"])
+            x_top = data["x"].shift().mask(self.first_row_survey, data["x"])
+            y_top = data["y"].shift().mask(self.first_row_survey, data["y"])
         else:
             top = data[self._top]
             x_top, y_top = data["x"], data["y"]
-            x_bot = data["x"].shift(-1).mask(self._last_row_in_survey, data["x"])
-            y_bot = data["y"].shift(-1).mask(self._last_row_in_survey, data["y"])
+            x_bot = data["x"].shift(-1).mask(self.last_row_survey, data["x"])
+            y_bot = data["y"].shift(-1).mask(self.last_row_survey, data["y"])
 
         # TODO: slight problem persists here for inclined boreholes. The last layer will
         # always be non-inclined because we miss information on the bottom x/y coords.
@@ -1322,16 +1320,14 @@ class GeostFrame(AbstractBase):
             kingdom_df["top"] = (
                 kingdom_df[self._bottom]
                 .shift()
-                .mask(self._first_row_in_survey, kingdom_df["surface"])
+                .mask(self.first_row_survey, kingdom_df["surface"])
             )
 
         # Add total depth NOTE: is the insert at idx 7 really necessary?
         kingdom_df.insert(
             7,
             "Total depth",
-            (kingdom_df["surface"] - kingdom_df[self._bottom])[
-                self._last_row_in_survey
-            ],
+            (kingdom_df["surface"] - kingdom_df[self._bottom])[self.last_row_survey],
         )
         kingdom_df["Total depth"] = kingdom_df["Total depth"].bfill()
 

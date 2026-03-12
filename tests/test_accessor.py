@@ -115,9 +115,9 @@ class TestGeostFrame:
         assert isinstance(inst, list)
 
     @pytest.mark.unittest
-    def test_first_row_in_survey(self, borehole_data):
+    def test_first_row_survey(self, borehole_data):
         assert_array_equal(
-            borehole_data.gst._first_row_in_survey,
+            borehole_data.gst.first_row_survey,
             [
                 True,
                 False,
@@ -148,9 +148,9 @@ class TestGeostFrame:
         )
 
     @pytest.mark.unittest
-    def test_last_row_in_survey(self, borehole_data):
+    def test_last_row_survey(self, borehole_data):
         assert_array_equal(
-            borehole_data.gst._last_row_in_survey,
+            borehole_data.gst.last_row_survey,
             [
                 False,
                 False,
@@ -248,7 +248,7 @@ class TestGeostFrame:
 
         # TODO: `record[0]` has unexpected validation warning is thrown, check
         assert ("Setting the header without an active geometry column.") in str(
-            record[1].message
+            record[0].message
         )
         assert isinstance(collection, Collection)
         assert isinstance(collection.header, gpd.GeoDataFrame)

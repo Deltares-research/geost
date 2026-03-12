@@ -95,3 +95,16 @@ Spatial
    GeostFrame.select_within_bbox
    GeostFrame.select_within_polygons
    GeostFrame.spatial_join
+
+
+Attributes
+----------
+.. autosummary::
+   :toctree: generated/
+
+   GeostFrame.first_row_survey
+   GeostFrame.has_depth_columns
+   GeostFrame.has_geometry
+   GeostFrame.has_xy_columns
+   GeostFrame.last_row_survey
+   GeostFrame.is_layered
