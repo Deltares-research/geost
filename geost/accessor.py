@@ -92,7 +92,7 @@ class GeostFrame(AbstractBase):
         determine whether specific selection operations can be performed on the object.
 
         """
-        if "x" in self._obj.columns and "y" in self._obj.columns:
+        if self._x in self._obj.columns and self._y in self._obj.columns:
             return True
         return False
 

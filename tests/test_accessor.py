@@ -77,6 +77,35 @@ class TestGeostFrame:
         assert geodataframe.gst.has_geometry
 
     @pytest.mark.parametrize(
+        "df, x, y",
+        [
+            (pd.DataFrame(columns=["nr", "x", "y"]), "x", "y"),
+            (pd.DataFrame(columns=["nr", "lon", "lat"]), "lon", "lat"),
+            (
+                pd.DataFrame(columns=["nr", "easting", "northing"]),
+                "easting",
+                "northing",
+            ),
+            (pd.DataFrame(columns=["nr", "x"]), "x", None),
+            (pd.DataFrame(columns=["nr", "y"]), None, "y"),
+            (pd.DataFrame(columns=["nr"]), None, None),
+        ],
+    )
+    def test_has_xy_columns(self, df, x, y):
+        if x is not None and y is not None:
+            assert df.gst.has_xy_columns
+            assert df.gst._x == x
+            assert df.gst._y == y
+        else:
+            if x is not None:
+                assert df.gst._x == x
+
+            if y is not None:
+                assert df.gst._y == y
+
+            assert not df.gst.has_xy_columns
+
+    @pytest.mark.parametrize(
         "df",
         [
             pd.DataFrame(columns=["nr", "surface", "top", "bottom"]),

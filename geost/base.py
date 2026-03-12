@@ -22,15 +22,35 @@ type GeometryType = gmt.base.BaseGeometry | list[gmt.base.BaseGeometry]
 
 class Collection(AbstractBase):
     """
-    A collection combines header and data and ensures that they remain aligned when
+    A `Collection` is the GeoST's data container for any kind of subsurface data. It keeps
+    survey data in a "header" and "data" table and ensures that they remain aligned when
     applying methods.
+
+    - The header is a `GeoDataFrame` that contains one row per survey (e.g. borehole, CPT,
+    etc.) with metadata about the survey and spatial information.
+    - The data is a `DataFrame` that contains the logged information for all surveys, with
+    one row per logged layer in the survey.
 
     Parameters
     ----------
-    header : :class:`~geost.base.PointHeader` or :class:`~geost.base.LineHeader`
-        Instance of a header class corresponding to the data.
-    data : :class:`~geost.base.LayeredData` or :class:`~geost.base.DiscreteData`
-        Instance of a data object corresponding to the header.
+    data : :class:`pd.DataFrame`, optional
+        Data table containing the logged information for all surveys, with one row per
+        logged layer in the survey. If not given, an empty DataFrame is set. The default
+        is None.
+    header : :class:`gpd.GeoDataFrame`, optional
+        Header containing one row per survey with metadata and spatial information. If not
+        given, the header will automatically be set from the data by dropping duplicates
+        in the column identifying the survey (e.g. "nr") and keeping the first row for each
+        survey. The default is None.
+    has_inclined : bool, optional
+        Boolean indicating whether there are inclined objects within the collection. This
+        is used to determine whether the collection contains objects with bottom coordinates
+        (e.g. "x_bot", "y_bot") in the data table. The default is False.
+    vertical_reference : str | int | CRS, optional
+        Vertical datum represented by an instance of pyproj.crs.CRS or anything that can be
+        interpreted by pyproj.crs.CRS.from_user_input(). This is used to keep track of the
+        vertical reference of the surface levels in the collection, which is important for
+        any method that involves vertical reference transformations. The default is 5709.
     """
 
     def __init__(

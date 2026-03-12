@@ -2,6 +2,10 @@ from abc import ABC, abstractmethod
 
 
 class AbstractBase(ABC):  # pragma: no cover
+    """
+    Abstract base class describing methods that need to be defined in GeoST objects.
+    """
+
     @abstractmethod
     def select_within_bbox(self):
         pass
