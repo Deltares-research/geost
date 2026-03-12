@@ -613,6 +613,20 @@ class Collection(AbstractBase):
                 **kwargs,
             )
 
+    @_requires_depth
+    def determine_end_depth(self):
+        """
+        Determine the end depth of each survey based on the surface and depth
+        columns.
+
+        Returns
+        -------
+        a pandas Series containing the end depth for each survey in the data.
+
+        """
+        return self.header.gst.determine_end_depth()["end"]
+
+    @_requires_depth
     def select_by_elevation(
         self,
         top_min: float = None,
@@ -657,6 +671,7 @@ class Collection(AbstractBase):
             vertical_reference=self.vertical_reference,
         )
 
+    @_requires_depth
     def select_by_length(self, min_length: float = None, max_length: float = None):
         """
         Select data from length constraints: e.g. all boreholes between 50 and 150 m
