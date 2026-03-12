@@ -510,7 +510,8 @@ class GeostFrame(AbstractBase):
     def determine_end_depth(self) -> pd.Series:
         """
         Determines the end depth of each survey in the data,
-        by looking at the difference between the surface and the bottom of the last layer in each survey.
+        by looking at the difference between the surface and the bottom of the last layer
+        in each survey.
         This is useful for example to determine the total depth of each survey.
 
         Returns
@@ -537,6 +538,7 @@ class GeostFrame(AbstractBase):
     ) -> gpd.GeoDataFrame:
         """
         Select data based on the elevation of the top and/or end of the survey.
+
         Parameters
         ----------
         top_min : float | int, optional
@@ -575,7 +577,9 @@ class GeostFrame(AbstractBase):
         self, min_length: float = None, max_length: float = None
     ) -> gpd.GeoDataFrame:
         """
-        Select data based on the length of the survey, which is determined by the difference between the surface and the end of the survey.
+        Select data based on the length of the survey, which is determined by the
+        difference between the surface and the end of the survey.
+
         Parameters
         ----------
         min_length : float, optional
