@@ -9,12 +9,7 @@ from pyvista import MultiBlock, UnstructuredGrid
 from shapely import get_coordinates
 
 import geost
-from geost.accessors.data import DiscreteData, LayeredData
-from geost.accessors.header import PointHeader
-from geost.base import (
-    BoreholeCollection,
-    CptCollection,
-)
+from geost.base import Collection
 from geost.data_objects import Cpt
 
 
@@ -33,7 +28,7 @@ class TestLayeredData:
     @pytest.mark.unittest
     def test_to_collection(self, borehole_data):
         collection = borehole_data.gstda.to_collection()
-        assert isinstance(collection, geost.BoreholeCollection)
+        assert isinstance(collection, geost.Collection)
         assert isinstance(collection.header, gpd.GeoDataFrame)
         assert len(collection.header) == 5
         assert isinstance(collection.data, pd.DataFrame)
@@ -458,7 +453,7 @@ class TestDiscreteData:
     @pytest.mark.unittest
     def test_to_collection(self, cpt_data):
         collection = cpt_data.gstda.to_collection()
-        assert isinstance(collection, CptCollection)
+        assert isinstance(collection, Collection)
         assert isinstance(collection.header, gpd.GeoDataFrame)
         assert isinstance(collection.data, pd.DataFrame)
         assert len(collection.header) == 2

@@ -77,6 +77,35 @@ class TestGeostFrame:
         assert geodataframe.gst.has_geometry
 
     @pytest.mark.parametrize(
+        "df, x, y",
+        [
+            (pd.DataFrame(columns=["nr", "x", "y"]), "x", "y"),
+            (pd.DataFrame(columns=["nr", "lon", "lat"]), "lon", "lat"),
+            (
+                pd.DataFrame(columns=["nr", "easting", "northing"]),
+                "easting",
+                "northing",
+            ),
+            (pd.DataFrame(columns=["nr", "x"]), "x", None),
+            (pd.DataFrame(columns=["nr", "y"]), None, "y"),
+            (pd.DataFrame(columns=["nr"]), None, None),
+        ],
+    )
+    def test_has_xy_columns(self, df, x, y):
+        if x is not None and y is not None:
+            assert df.gst.has_xy_columns
+            assert df.gst._x == x
+            assert df.gst._y == y
+        else:
+            if x is not None:
+                assert df.gst._x == x
+
+            if y is not None:
+                assert df.gst._y == y
+
+            assert not df.gst.has_xy_columns
+
+    @pytest.mark.parametrize(
         "df",
         [
             pd.DataFrame(columns=["nr", "surface", "top", "bottom"]),
@@ -115,9 +144,9 @@ class TestGeostFrame:
         assert isinstance(inst, list)
 
     @pytest.mark.unittest
-    def test_first_row_in_survey(self, borehole_data):
+    def test_first_row_survey(self, borehole_data):
         assert_array_equal(
-            borehole_data.gst._first_row_in_survey,
+            borehole_data.gst.first_row_survey,
             [
                 True,
                 False,
@@ -148,9 +177,9 @@ class TestGeostFrame:
         )
 
     @pytest.mark.unittest
-    def test_last_row_in_survey(self, borehole_data):
+    def test_last_row_survey(self, borehole_data):
         assert_array_equal(
-            borehole_data.gst._last_row_in_survey,
+            borehole_data.gst.last_row_survey,
             [
                 False,
                 False,
@@ -248,7 +277,7 @@ class TestGeostFrame:
 
         # TODO: `record[0]` has unexpected validation warning is thrown, check
         assert ("Setting the header without an active geometry column.") in str(
-            record[1].message
+            record[0].message
         )
         assert isinstance(collection, Collection)
         assert isinstance(collection.header, gpd.GeoDataFrame)
@@ -824,40 +853,45 @@ class TestGeostFrame:
     @pytest.mark.unittest
     def test_get_layer_top_layered(self, borehole_data):
         result = borehole_data.gst.get_layer_top("lith", "V")
+        assert isinstance(result, pd.Series)
         assert (
             "thickness" not in borehole_data.columns
         )  # Ensure thickness column is not added to original DataFrame
-        assert_array_equal(result["nr"], ["B", "D"])
-        assert_array_almost_equal(result["top"], [1.2, 0.5])
+        assert_array_equal(result.index, ["B", "D"])
+        assert_array_almost_equal(result, [1.2, 0.5])
 
         result = borehole_data.gst.get_layer_top("lith", "V", min_thickness=1.0)
-        assert_array_equal(result["nr"], ["B"])
-        assert_array_almost_equal(result["top"], [1.2])
+        assert_array_equal(result.index, ["B"])
+        assert_array_almost_equal(result, [1.2])
 
         result = borehole_data.gst.get_layer_top("lith", ["Z", "V"])
-        assert_array_equal(result["nr"], ["A", "B", "C", "D", "E"])
-        assert_array_almost_equal(result["top"], [1.5, 1.2, 2.9, 0.5, 0.0])
+        assert_array_equal(result.index, ["A", "B", "C", "D", "E"])
+        assert_array_almost_equal(result, [1.5, 1.2, 2.9, 0.5, 0.0])
 
+        # Internally result and other are calculated in different ways, but should give the same result when using the same parameters
         result = borehole_data.gst.get_layer_top("lith", ["Z", "V"], min_thickness=1.0)
-        assert_array_equal(result["nr"], ["A", "B", "C", "D", "E"])
-        assert_array_almost_equal(result["top"], [1.5, 1.2, 2.9, 1.8, 0.0])
+        other = borehole_data.gst.get_layer_top(
+            "lith", ["Z", "V"], min_thickness=1.0, min_fraction=1.0
+        )
+        assert result.equals(other)
 
         result = borehole_data.gst.get_layer_top("bottom", slice(1.5, 3.1))
-        assert_array_equal(result["nr"], ["A", "B", "C", "D", "E"])
-        assert_array_almost_equal(result["top"], [0.8, 1.2, 1.4, 1.2, 1.2])
+        assert_array_equal(result.index, ["A", "B", "C", "D", "E"])
+        assert_array_almost_equal(result, [0.8, 1.2, 1.4, 1.2, 1.2])
 
     @pytest.mark.unittest
     def test_get_layer_top_discrete(self, cpt_data):
         result = cpt_data.gst.get_layer_top("qc", slice(0.7, 18))
+        assert isinstance(result, pd.Series)
         assert (
             "thickness" not in cpt_data.columns
         )  # Ensure thickness column is not added to original DataFrame
-        assert_array_equal(result["nr"], ["a", "b"])
-        assert_array_equal(result["top"], [8.0, 0.0])
+        assert_array_equal(result.index, ["a", "b"])
+        assert_array_equal(result, [8.0, 0.0])
 
         result = cpt_data.gst.get_layer_top("qc", slice(0.7, 18), min_thickness=2.5)
-        assert_array_equal(result["nr"], ["b"])
-        assert_array_equal(result["top"], [0.0])
+        assert_array_equal(result.index, ["b"])
+        assert_array_equal(result, [0.0])
 
 
 class TestHeaderAccessor:

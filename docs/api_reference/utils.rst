@@ -1,7 +1,7 @@
-Utils
-=====
+Utils (``geost.utils``)
+============================================
 
-.. currentmodule:: geost
+.. currentmodule:: geost.utils
 
 
 Spatial
@@ -15,6 +15,7 @@ Spatial
     spatial.select_points_within_bbox
     spatial.select_points_within_polygons
 
+
 Projection
 ----------
 .. autosummary::
@@ -26,6 +27,8 @@ Projection
 
 Model Utils
 ------------
+.. currentmodule:: geost
+
 .. autosummary::
     :toctree: generated/
 

@@ -10,7 +10,7 @@ def get_layer_top(
     value: int | float | str | list[str] | slice,
     min_thickness: float = None,
     min_fraction: float = None,
-) -> pd.DataFrame:
+) -> pd.Series:
     """
     Find the top depth in individual survey ids where a column in a Pandas DataFrame contains
     specified search value or values, or falls within a specified range.
@@ -39,9 +39,9 @@ def get_layer_top(
 
     Returns
     -------
-    pd.DataFrame
-        DataFrame containing the top depth of the layers that meet the specified criteria
-        for each survey id.
+    pd.Series
+        Series containing the top depth of the layers that meet the specified criteria
+        for each survey id as the index.
 
     Raises
     ------
@@ -85,7 +85,7 @@ def get_layer_base(
     value: int | float | str | list[str] | slice,
     min_thickness: float = None,
     min_fraction: float = None,
-) -> pd.DataFrame:
+) -> pd.Series:
     if not data.gst.has_depth_columns:
         raise ValueError(
             "Data must contain columns specifying depth intervals. See "
@@ -117,7 +117,7 @@ def _get_layer_top(
     data: pd.DataFrame,
     min_thickness: float = None,
     min_fraction: float = None,
-) -> pd.DataFrame:
+) -> pd.Series:
     """
     Helper for get_layer_top to find the top depth of layers in different ways using the
     options 'min_thickness' and 'min_fraction'.
@@ -127,7 +127,7 @@ def _get_layer_top(
 
     if min_thickness is not None:
         if min_fraction is not None:
-            tops = data.groupby("nr", as_index=False).apply(
+            tops = data.groupby("nr").apply(
                 lambda df: _find_top(
                     df["values_mask"].values,
                     df[top_col].values,
@@ -136,13 +136,13 @@ def _get_layer_top(
                     min_fraction,
                 )
             )
-            return tops.rename(columns={None: "top"}).dropna(subset="top")
+            return tops.dropna()
 
         selection = data[data["values_mask"] & (data["thickness"] >= min_thickness)]
     else:
         selection = data[data["values_mask"]]
 
-    tops = selection.groupby("nr", as_index=False)[top_col].min()
+    tops = selection.groupby("nr")[top_col].min()
 
     return tops
 
@@ -174,7 +174,7 @@ def _find_top(
 
         fraction = length[valid[search_mask]].sum() / min_thickness
 
-        if fraction >= min_fraction:
+        if fraction > min_fraction or np.isclose(fraction, min_fraction):
             return t_idx
     else:
         return np.nan

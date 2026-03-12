@@ -160,9 +160,9 @@ def test_get_layer_top(
     if test_id == "too_large_min_thickness":
         assert top.empty
     else:
-        assert isinstance(top, pd.DataFrame)
-        assert_array_equal(top["nr"], expected_ids)
-        assert_array_almost_equal(top["top"], expected_tops)
+        assert isinstance(top, pd.Series)
+        assert_array_equal(top.index, expected_ids)
+        assert_array_almost_equal(top, expected_tops)
 
 
 @pytest.mark.unittest

@@ -13,9 +13,16 @@ DATA_BACKEND = {
 }
 
 
+class DeprecatedError(Exception):
+    """Custom exception for deprecated accessors."""
+
+    pass
+
+
 @pd.api.extensions.register_dataframe_accessor("gsthd")
 class Header:
     def __init__(self, gdf):
+        raise DeprecatedError("The 'gsthd' accessor is deprecated.")
         self._gdf = gdf
         self._backend = self._get_backend()
 
@@ -41,6 +48,7 @@ class Header:
 @pd.api.extensions.register_dataframe_accessor("gstda")
 class Data:
     def __init__(self, df):
+        raise DeprecatedError("The 'gsthd' accessor is deprecated.")
         self._df = df
         self._backend = self._get_backend()
 

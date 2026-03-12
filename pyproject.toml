@@ -36,7 +36,6 @@ requires-python = ">=3.13,<3.15"
 dependencies = [
     "numpy",
     "pandas",
-    "pandera",
     "pyarrow",
     "lxml",
     "pooch",
@@ -96,7 +95,6 @@ pydata-sphinx-theme = "*"
 sphinx-design = "*"
 myst-nb = "*"
 pooch = "*"
-pandera = "*"
 pre-commit = "*"
 
 [tool.pixi.pypi-dependencies]

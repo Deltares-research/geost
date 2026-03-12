@@ -92,7 +92,7 @@ class GeostFrame(AbstractBase):
         determine whether specific selection operations can be performed on the object.
 
         """
-        if "x" in self._obj.columns and "y" in self._obj.columns:
+        if self._x in self._obj.columns and self._y in self._obj.columns:
             return True
         return False
 
@@ -109,7 +109,19 @@ class GeostFrame(AbstractBase):
         return False
 
     @property
-    def _first_row_in_survey(self):
+    def is_layered(self):
+        """
+        Returns True if the object contains layered data, i.e. both 'top' and 'bottom'
+        columns, False otherwise. Used to determine whether specific selection operations
+        can be performed on the object.
+
+        """
+        if self._top is not None and self._bottom is not None:
+            return True
+        return False
+
+    @property
+    def first_row_survey(self):
         """
         Get a boolean mask indicating the locations of new survey IDs in the data. This
         is used to identify the first layer of each survey.
@@ -124,7 +136,7 @@ class GeostFrame(AbstractBase):
         return self._obj["nr"] != self._obj["nr"].shift()
 
     @property
-    def _last_row_in_survey(self):
+    def last_row_survey(self):
         """
         Get a boolean mask indicating the locations of the last row in each survey. This
         is used to identify the last layer of each survey.
@@ -148,6 +160,7 @@ class GeostFrame(AbstractBase):
         """
         Get copy of the self._obj with depth columns converted to depth relative
         to surface level.
+
         """
         data = self._obj.copy()
         data[self._bottom] = data["surface"] - data[self._bottom]
@@ -155,29 +168,37 @@ class GeostFrame(AbstractBase):
             data[self._top] = data["surface"] - data[self._top]
         return data
 
-    def validate(self):
+    def validate(self, return_result: bool = False):
         """
-        Validate the DataFrame by combining the relevant schemas in `geost.validation.schemas`
-        based on the presence of specific columns and the type of data contained in the DataFrame.
+        Validate the DataFrame by checking for the presence of crucial information, data
+        types and consistency of the data.
+
+        Parameters
+        ----------
+        return_result : bool, optional
+            If True, the validation result object will be returned. The default is False.
+
+        Returns
+        -------
+        ValidationResult
+            If return result is True, returns the result of the validation, which is
+            a :class:`~geost.validation.validate.ValidationResult` object.
+
         """
-        if not geost.config.validation.SKIP:
-            schemas = [validation.schemas.geostframe_base]
+        validation_result = validation.validate_geostframe(
+            self._obj,
+            has_depth_columns=self.has_depth_columns,
+            is_layered=self.is_layered,
+            has_xy_columns=self.has_xy_columns,
+            x_col=self._x,
+            y_col=self._y,
+            top_col=self._top,
+            bottom_col=self._bottom,
+            first_row_in_survey=self.first_row_survey,
+        )
 
-            if self._bottom == "bottom" and not self._top:
-                schemas.append(validation.schemas.geostframe_with_bottom)
-            elif self._bottom == "depth" and not self._top:
-                schemas.append(validation.schemas.geostframe_with_depth)
-            elif self._top and self._bottom:
-                schemas.append(validation.schemas.geostframe_with_top_bottom)
-
-            if self.has_geometry:
-                schemas.append(validation.schemas.geostframe_with_geometry)
-            if self.has_xy_columns:
-                schemas.append(validation.schemas.geostframe_with_xy)
-
-            validation_schema = validation.combine_schemas(*schemas)
-
-            self._obj = validation.safe_validate(self._obj, validation_schema)
+        if return_result:
+            return validation_result
 
     def to_header(
         self,
@@ -231,17 +252,17 @@ class GeostFrame(AbstractBase):
         To create a header GeoDataFrame with all columns from the DataFrame and no geometry
         column:
 
-        >>> data.gst.to_header()
+        >>> header = data.gst.to_header()
 
         To create a header GeoDataFrame with only specific columns from the DataFrame and
         no geometry column:
 
-        >>> data.gst.to_header(include_columns=["nr", "column1", "column2"])
+        >>> header = data.gst.to_header(include_columns=["nr", "column1", "column2"])
 
         To create a header GeoDataFrame with a geometry column created from specified coordinate
         names, a specific CRS and with columns excluded:
 
-        >>> data.gst.to_header(
+        >>> header = data.gst.to_header(
         ...     coordinate_names=("x", "y"), crs=28992, exclude_columns=["column1", "column2"]
         ... )
 
@@ -280,22 +301,37 @@ class GeostFrame(AbstractBase):
 
     def to_collection(
         self,
-        has_inclined: bool = False,
+        crs: str | int | CRS = None,
         vertical_reference: str | int | CRS = None,
-        **header_kwargs,
+        has_inclined: bool = False,
+        coordinate_names: tuple[str, str] = None,
+        include_in_header: str | Iterable[str] | None = None,
+        exclude_from_header: str | Iterable[str] | None = None,
     ):
         """
         Create a :class:`geost.base.Collection` from the current GeoDataFrame or DataFrame.
 
         Parameters
         ----------
-        has_inclined : bool, optional
-            Indicates whether the collection has inclined data. The default is False.
+        crs : str | int | CRS, optional
+            Coordinate reference system for the geometry column. The default is None,
+            which means no CRS will be assigned to the resulting GeoDataFrame.
         vertical_reference : str | int | CRS, optional
             Vertical reference system for the collection. The default is None.
-        **header_kwargs
-            Keyword arguments to be passed to the :class:`geost.accessor.GeostFrame.to_header`
-            method for creating the header table.
+        has_inclined : bool, optional
+            Indicates whether the collection has inclined data. The default is False.
+        coordinate_names : tuple[str, str], optional
+            Tuple specifying the names of the columns to be used as coordinates for the
+            geometry column. The default is None, which means no geometry column will be
+            created.
+        include_in_header : str | Iterable[str] | None, optional
+            Columns to include in the header. The default is None, which includes all
+            columns. If "nr" is not included in the specified columns, it will be added
+            automatically as it is required.
+        exclude_from_header : str | Iterable[str] | None, optional
+            Columns to exclude from the header. The default is None, which excludes no
+            columns. If "nr" is included in the specified columns, an error is raised as
+            it is required.
 
         Returns
         -------
@@ -305,7 +341,12 @@ class GeostFrame(AbstractBase):
         """
         from geost.base import Collection  # Avoid circular import
 
-        header = self.to_header(**header_kwargs)
+        header = self.to_header(
+            crs=crs,
+            coordinate_names=coordinate_names,
+            include_columns=include_in_header,
+            exclude_columns=exclude_from_header,
+        )
         return Collection(
             self._obj,
             header=header,
@@ -650,18 +691,18 @@ class GeostFrame(AbstractBase):
         To select data where both clay ("K") and peat ("V") are present at the same
         time, use "and" as a selection method:
 
-        >>> data.gst.select_by_values("lith", ["V", "K"], how="and")
+        >>> selection = data.gst.select_by_values("lith", ["V", "K"], how="and")
 
         To select data that can have one, or both lithologies, use or as the selection
         method:
 
-        >>> data.gst.select_by_values("lith", ["V", "K"], how="or")
+        >>> selection = data.gst.select_by_values("lith", ["V", "K"], how="or")
 
         In case of numerical values, use a slice to select data that contain a specific
         range of values. For example, to select data that contain cone resistances ("qc")
         between 15 and 20 MPa:
 
-        >>> data.gst.select_by_values("qc", slice(15, 20))
+        >>> selection = data.gst.select_by_values("qc", slice(15, 20))
 
         """
         if column not in self._obj.columns:
@@ -765,17 +806,17 @@ class GeostFrame(AbstractBase):
         For example, select layers in data that are between 2 and 3 meters below the
         surface:
 
-        >>> data.gst.slice_depth_interval(2, 3)
+        >>> sliced = data.gst.slice_depth_interval(2, 3)
 
         By default, the method updates the layer boundaries in sliced object according to
         the upper and lower boundaries. To suppress this behaviour use:
 
-        >>> data.gst.slice_depth_interval(2, 3, update_layer_boundaries=False)
+        >>> sliced = data.gst.slice_depth_interval(2, 3, update_layer_boundaries=False)
 
         Slicing can also be done with respect to a vertical reference plane like "NAP".
         For example, to select layers in boreholes that are between -3 and -5 m NAP, use:
 
-        >>> data.gst.slice_depth_interval(-3, -5, relative_to_vertical_reference=True)
+        >>> sliced = data.gst.slice_depth_interval(-3, -5, relative_to_vertical_reference=True)
 
         """
         sliced = self._obj
@@ -849,17 +890,17 @@ class GeostFrame(AbstractBase):
         --------
         Return only rows in data contain sand ("Z") as lithology:
 
-        >>> data.gst.slice_by_values("lith", "Z")
+        >>> sliced = data.gst.slice_by_values("lith", "Z")
 
         If you want all the rows that may contain everything but sand, use the "invert"
         option:
 
-        >>> data.gst.slice_by_values("lith", "Z", invert=True)
+        >>> sliced = data.gst.slice_by_values("lith", "Z", invert=True)
 
         If you want to slice a range of numerical values, you can use a slice. For example,
         to return only rows where the cone resistance ("qc") is between 15 and 20 MPa:
 
-        >>> data.gst.slice_by_values("qc", slice(15, 20))
+        >>> sliced = data.gst.slice_by_values("qc", slice(15, 20))
 
         """
         sliced = self._slice_by_values(values, column, inclusive)
@@ -917,15 +958,15 @@ class GeostFrame(AbstractBase):
         --------
         Select rows in data that contain a specific value:
 
-        >>> data.gst.select_by_condition(data["lith"] == "V")
+        >>> selection = data.gst.select_by_condition(data["lith"] == "V")
 
         Or select rows in the data that contain a specific (part of) string or strings:
 
-        >>> data.gst.select_by_condition(data["column"].str.contains("foo|bar"))
+        >>> selection = data.gst.select_by_condition(data["column"].str.contains("foo|bar"))
 
         Or select rows in the data based on multiple conditions:
 
-        >>> data.select_by_condition((data["column1"] > 2) & (data["column2] < 1))
+        >>> selection = data.gst.select_by_condition((data["column1"] > 2) & (data["column2] < 1))
 
         """
         if invert:
@@ -953,7 +994,7 @@ class GeostFrame(AbstractBase):
         else:
             thickness = self._obj[self._bottom].diff()
 
-            thickness[self._first_row_in_survey] = self._obj[
+            thickness[self.first_row_survey] = self._obj[
                 self._bottom
             ]  # Thickness of first layer is equal to depth of first layer data is discrete
 
@@ -986,18 +1027,18 @@ class GeostFrame(AbstractBase):
         Get the cumulative thickness of the layers with lithology "K" in the column "lith"
         use:
 
-        >>> data.gst.get_cumulative_thickness("lith", "K")
+        >>> thickness = data.gst.get_cumulative_thickness("lith", "K")
 
         Or get the cumulative thickness for multiple selection values. This calculates
         the cumulative thickness of the combined values:
 
-        >>> data.gst.get_cumulative_thickness("lith", ["K", "Z"])
+        >>> thickness = data.gst.get_cumulative_thickness("lith", ["K", "Z"])
 
         In case of numerical values, a slice can be used to specify a range of values to
         search for. For example, to get the cumulative thickness of layers with a cone
         resistance ("qc") between 15 and 20 MPa:
 
-        >>> data.gst.get_cumulative_thickness("qc", slice(15, 20))
+        >>> thickness = data.gst.get_cumulative_thickness("qc", slice(15, 20))
 
         """
         selected_layers = self.slice_by_values(column, values)
@@ -1012,7 +1053,11 @@ class GeostFrame(AbstractBase):
 
     @_requires_depth
     def get_layer_top(
-        self, column: str, values: str | list[str] | slice, min_thickness: float = None
+        self,
+        column: str,
+        values: str | list[str] | slice,
+        min_thickness: float = None,
+        min_fraction: float = None,
     ) -> pd.Series:
         """
         Find the top depth in individual survey ids where a column in a Pandas DataFrame contains
@@ -1052,7 +1097,7 @@ class GeostFrame(AbstractBase):
         """
         from geost.analysis.layers import get_layer_top
 
-        return get_layer_top(self._obj, column, values, min_thickness)
+        return get_layer_top(self._obj, column, values, min_thickness, min_fraction)
 
     @_requires_depth
     def get_layer_base(
@@ -1217,18 +1262,16 @@ class GeostFrame(AbstractBase):
         # Infer the top of layers from the bottom of layers if the top column is not present.
         if self._top is None:
             top = (
-                data[self._bottom]
-                .shift()
-                .mask(self._first_row_in_survey, data["surface"])
+                data[self._bottom].shift().mask(self.first_row_survey, data["surface"])
             )
             x_bot, y_bot = data["x"], data["y"]
-            x_top = data["x"].shift().mask(self._first_row_in_survey, data["x"])
-            y_top = data["y"].shift().mask(self._first_row_in_survey, data["y"])
+            x_top = data["x"].shift().mask(self.first_row_survey, data["x"])
+            y_top = data["y"].shift().mask(self.first_row_survey, data["y"])
         else:
             top = data[self._top]
             x_top, y_top = data["x"], data["y"]
-            x_bot = data["x"].shift(-1).mask(self._last_row_in_survey, data["x"])
-            y_bot = data["y"].shift(-1).mask(self._last_row_in_survey, data["y"])
+            x_bot = data["x"].shift(-1).mask(self.last_row_survey, data["x"])
+            y_bot = data["y"].shift(-1).mask(self.last_row_survey, data["y"])
 
         # TODO: slight problem persists here for inclined boreholes. The last layer will
         # always be non-inclined because we miss information on the bottom x/y coords.
@@ -1321,16 +1364,14 @@ class GeostFrame(AbstractBase):
             kingdom_df["top"] = (
                 kingdom_df[self._bottom]
                 .shift()
-                .mask(self._first_row_in_survey, kingdom_df["surface"])
+                .mask(self.first_row_survey, kingdom_df["surface"])
             )
 
         # Add total depth NOTE: is the insert at idx 7 really necessary?
         kingdom_df.insert(
             7,
             "Total depth",
-            (kingdom_df["surface"] - kingdom_df[self._bottom])[
-                self._last_row_in_survey
-            ],
+            (kingdom_df["surface"] - kingdom_df[self._bottom])[self.last_row_survey],
         )
         kingdom_df["Total depth"] = kingdom_df["Total depth"].bfill()
 

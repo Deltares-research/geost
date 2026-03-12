@@ -131,11 +131,11 @@ def nlog_borehole_file(testdatadir):
 @pytest.fixture
 def borehole_collection(borehole_data):
     """
-    Fixture containing a BoreholeCollection instance of synthetic borehole data.
+    Fixture containing a Collection instance of synthetic borehole data.
 
     """
     borehole_collection = borehole_data.gst.to_collection(
-        exclude_columns=["top", "bottom", "lith"],
+        exclude_from_header=["top", "bottom", "lith"],
         coordinate_names=["x", "y"],
         crs=28992,
         vertical_reference=5709,
@@ -256,7 +256,7 @@ def cpt_data():
 @pytest.fixture
 def cpt_collection(cpt_data):
     return cpt_data.gst.to_collection(
-        exclude_columns=["depth", "qc", "fs", "u2"],
+        exclude_from_header=["depth", "qc", "fs", "u2"],
         coordinate_names=["x", "y"],
         crs=28992,
         vertical_reference=5709,
