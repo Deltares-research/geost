@@ -1,3 +1,4 @@
+import itertools
 import warnings
 
 import geopandas as gpd
@@ -10,6 +11,7 @@ from shapely.geometry import LineString, Point, Polygon
 from geost.accessor import GeostFrame
 from geost.accessors.accessor import DATA_BACKEND, HEADER_BACKEND
 from geost.base import Collection
+from geost.validation import column_names
 
 
 @pytest.fixture
@@ -38,15 +40,56 @@ class TestGeostFrame:
     def test_accessor(self, dataframe: pd.DataFrame):
         assert hasattr(dataframe, "gst")
         assert isinstance(dataframe.gst, GeostFrame)
-        assert dataframe.gst._top is None
-        assert dataframe.gst._bottom is None
+
+    @pytest.mark.unittest
+    def test_set_positional_columns(self):
+        names = {
+            k: list(v) for k, v in column_names.POSSIBLE_COLUMN_NAMING.items()
+        }  # We convert the sets to lists because otherwise we can't index them
+
+        longest_set = max(map(len, names.values()))
+
+        for ii in range(longest_set):
+            nr = names["nr"][ii % len(names["nr"])]
+            surface = names["surface"][ii % len(names["surface"])]
+            x = names["x_coordinate"][ii % len(names["x_coordinate"])]
+            y = names["y_coordinate"][ii % len(names["y_coordinate"])]
+            top = names["top"][ii % len(names["top"])]
+            bottom = names["depth"][ii % len(names["depth"])]
+
+            df = pd.DataFrame(columns=[nr, surface, x, y, top, bottom])
+            assert df.gst._nr == nr
+            assert df.gst._surface == surface
+            assert df.gst._x == x
+            assert df.gst._y == y
+            assert df.gst._top == top
+            assert df.gst._bottom == bottom
+
+        df = pd.DataFrame(
+            columns=[
+                "nr",
+                "invalid_surface",
+                "invalid_x",
+                "invalid_y",
+                "invalid_top",
+                "invalid_bottom",
+            ]
+        )
+        assert df.gst._nr == "nr"
+        assert df.gst._surface is None
+        assert df.gst._x is None
+        assert df.gst._y is None
+        assert df.gst._top is None
+        assert df.gst._bottom is None
+
+        df = pd.DataFrame(columns=["nr"])
+        assert df.gst._nr == "nr"
 
         with pytest.raises(
-            KeyError,
-            match="DataFrame must contain an 'nr' column identifying individual objects.",
+            KeyError, match="DataFrame must contain a column identifying survey ID"
         ):
-            df_invalid = pd.DataFrame({"x": [1, 2], "y": [3, 4]})
-            df_invalid.gst  # Should raise an error because 'nr' column is missing
+            df_invalid = pd.DataFrame({"a": [1, 2], "b": [3, 4]})
+            df_invalid.gst
 
     @pytest.mark.parametrize(
         "df, top, bottom",
@@ -58,7 +101,7 @@ class TestGeostFrame:
             (pd.DataFrame(columns=["nr"]), None, None),  # No depth columns present
         ],
     )
-    def test_set_depth_columns(self, df, top, bottom):
+    def test_has_depth_columns(self, df, top, bottom):
         if top is None:
             assert df.gst._top is None
         else:

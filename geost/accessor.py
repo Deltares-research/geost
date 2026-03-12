@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from collections.abc import Iterable
-from functools import singledispatchmethod
+from functools import partial, singledispatchmethod
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Iterable
 
@@ -34,7 +34,6 @@ type GeometryType = BaseGeometry | list[BaseGeometry]
 @pd.api.extensions.register_dataframe_accessor("gst")
 class GeostFrame(AbstractBase):
     def __init__(self, dataframe: DataFrame):
-        self._validate_dataframe(dataframe)
         self._obj = dataframe
         self._set_positional_columns()
 
@@ -49,10 +48,20 @@ class GeostFrame(AbstractBase):
         the corresponding attribute will be set to None.
 
         """
-        self._x = validation.check_column_name(self._obj.columns, "x_coordinate")
-        self._y = validation.check_column_name(self._obj.columns, "y_coordinate")
-        self._top = validation.check_column_name(self._obj.columns, "top")
-        self._bottom = validation.check_column_name(self._obj.columns, "depth")
+        check = partial(validation.check_column_name, self._obj.columns)
+
+        if not (nr := check("nr")):
+            raise KeyError(
+                "DataFrame must contain a column identifying survey ID. Make sure one of "
+                "{'nr', 'bro_id', 'nitg_nr', 'nitg', 'boorp'} is present."
+            )
+
+        self._nr = nr
+        self._surface = check("surface")
+        self._x = check("x_coordinate")
+        self._y = check("y_coordinate")
+        self._top = check("top")
+        self._bottom = check("depth")
 
     @staticmethod
     def _validate_dataframe(dataframe: DataFrame):
