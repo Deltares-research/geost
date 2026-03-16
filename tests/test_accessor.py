@@ -1,3 +1,4 @@
+import itertools
 import warnings
 
 import geopandas as gpd
@@ -10,6 +11,7 @@ from shapely.geometry import LineString, Point, Polygon
 from geost.accessor import GeostFrame
 from geost.accessors.accessor import DATA_BACKEND, HEADER_BACKEND
 from geost.base import Collection
+from geost.validation import column_names
 
 
 @pytest.fixture
@@ -38,15 +40,60 @@ class TestGeostFrame:
     def test_accessor(self, dataframe: pd.DataFrame):
         assert hasattr(dataframe, "gst")
         assert isinstance(dataframe.gst, GeostFrame)
-        assert dataframe.gst._top is None
-        assert dataframe.gst._bottom is None
+
+    @pytest.mark.unittest
+    def test_set_positional_columns(self):
+        names = {
+            k: list(v) for k, v in column_names.POSSIBLE_COLUMN_NAMING.items()
+        }  # Convert sets to lists because otherwise we can't index them
+
+        longest_set = max(map(len, names.values()))
+
+        for ii in range(longest_set):
+            # Use every possible column name at least one time. Loop untill the longest
+            # set of possible column names is exhausted. For each column type, we take
+            # the ii-th name from the list of possible names, and if the list is shorter
+            # than ii, we go back to the beginning of the list using modulo.
+            nr = names["nr"][ii % len(names["nr"])]
+            surface = names["surface"][ii % len(names["surface"])]
+            x = names["x_coordinate"][ii % len(names["x_coordinate"])]
+            y = names["y_coordinate"][ii % len(names["y_coordinate"])]
+            top = names["top"][ii % len(names["top"])]
+            bottom = names["depth"][ii % len(names["depth"])]
+
+            df = pd.DataFrame(columns=[nr, surface, x, y, top, bottom])
+            assert df.gst._nr == nr
+            assert df.gst._surface == surface
+            assert df.gst._x == x
+            assert df.gst._y == y
+            assert df.gst._top == top
+            assert df.gst._bottom == bottom
+
+        df = pd.DataFrame(
+            columns=[
+                "nr",
+                "invalid_surface",
+                "invalid_x",
+                "invalid_y",
+                "invalid_top",
+                "invalid_bottom",
+            ]
+        )
+        assert df.gst._nr == "nr"
+        assert df.gst._surface is None
+        assert df.gst._x is None
+        assert df.gst._y is None
+        assert df.gst._top is None
+        assert df.gst._bottom is None
+
+        df = pd.DataFrame(columns=["nr"])
+        assert df.gst._nr == "nr"
 
         with pytest.raises(
-            KeyError,
-            match="DataFrame must contain an 'nr' column identifying individual objects.",
+            KeyError, match="DataFrame must contain a column identifying survey ID"
         ):
-            df_invalid = pd.DataFrame({"x": [1, 2], "y": [3, 4]})
-            df_invalid.gst  # Should raise an error because 'nr' column is missing
+            df_invalid = pd.DataFrame({"a": [1, 2], "b": [3, 4]})
+            df_invalid.gst
 
     @pytest.mark.parametrize(
         "df, top, bottom",
@@ -58,7 +105,7 @@ class TestGeostFrame:
             (pd.DataFrame(columns=["nr"]), None, None),  # No depth columns present
         ],
     )
-    def test_set_depth_columns(self, df, top, bottom):
+    def test_has_depth_columns(self, df, top, bottom):
         if top is None:
             assert df.gst._top is None
         else:
@@ -75,6 +122,35 @@ class TestGeostFrame:
     ):
         assert not dataframe.gst.has_geometry
         assert geodataframe.gst.has_geometry
+
+    @pytest.mark.parametrize(
+        "df, x, y",
+        [
+            (pd.DataFrame(columns=["nr", "x", "y"]), "x", "y"),
+            (pd.DataFrame(columns=["nr", "lon", "lat"]), "lon", "lat"),
+            (
+                pd.DataFrame(columns=["nr", "easting", "northing"]),
+                "easting",
+                "northing",
+            ),
+            (pd.DataFrame(columns=["nr", "x"]), "x", None),
+            (pd.DataFrame(columns=["nr", "y"]), None, "y"),
+            (pd.DataFrame(columns=["nr"]), None, None),
+        ],
+    )
+    def test_has_xy_columns(self, df, x, y):
+        if x is not None and y is not None:
+            assert df.gst.has_xy_columns
+            assert df.gst._x == x
+            assert df.gst._y == y
+        else:
+            if x is not None:
+                assert df.gst._x == x
+
+            if y is not None:
+                assert df.gst._y == y
+
+            assert not df.gst.has_xy_columns
 
     @pytest.mark.parametrize(
         "df",
@@ -115,9 +191,9 @@ class TestGeostFrame:
         assert isinstance(inst, list)
 
     @pytest.mark.unittest
-    def test_first_row_in_survey(self, borehole_data):
+    def test_first_row_survey(self, borehole_data):
         assert_array_equal(
-            borehole_data.gst._first_row_in_survey,
+            borehole_data.gst.first_row_survey,
             [
                 True,
                 False,
@@ -148,9 +224,9 @@ class TestGeostFrame:
         )
 
     @pytest.mark.unittest
-    def test_last_row_in_survey(self, borehole_data):
+    def test_last_row_survey(self, borehole_data):
         assert_array_equal(
-            borehole_data.gst._last_row_in_survey,
+            borehole_data.gst.last_row_survey,
             [
                 False,
                 False,
@@ -248,7 +324,7 @@ class TestGeostFrame:
 
         # TODO: `record[0]` has unexpected validation warning is thrown, check
         assert ("Setting the header without an active geometry column.") in str(
-            record[1].message
+            record[0].message
         )
         assert isinstance(collection, Collection)
         assert isinstance(collection.header, gpd.GeoDataFrame)
@@ -256,6 +332,12 @@ class TestGeostFrame:
         assert not collection.header_has_geometry
         assert collection.horizontal_reference is None
         assert collection.vertical_reference is None
+
+    @pytest.mark.unittest
+    def test_determine_end_depth(self, borehole_data):
+        # Test that the method correctly determines the end depth when "end" column is missing
+        end = borehole_data.gst.determine_end_depth()
+        assert_array_equal(end, borehole_data["end"])
 
     @pytest.mark.unittest
     def test_select_by_elevation(self, borehole_data):
@@ -858,100 +940,8 @@ class TestGeostFrame:
         assert_array_equal(result.index, ["b"])
         assert_array_equal(result, [0.0])
 
-
-class TestHeaderAccessor:
-    @pytest.fixture
-    def point(self):
-        return gpd.GeoDataFrame(geometry=gpd.points_from_xy([0, 1], [0, 1]))
-
-    @pytest.fixture
-    def linestring(self):
-        return gpd.GeoDataFrame(
-            geometry=gpd.GeoSeries.from_wkt(
-                ["LINESTRING (0 0, 1 1)", "LINESTRING (1 0, 0 1)"]
-            )
-        )
-
-    @pytest.fixture
-    def polygon(self):
-        return gpd.GeoDataFrame(
-            geometry=gpd.GeoSeries.from_wkt(
-                [
-                    "POLYGON ((0 0, 1 0, 1 1, 0 1, 0 0))",
-                    "POLYGON ((1 1, 2 1, 2 2, 1 2, 1 1))",
-                ]
-            )
-        )
-
-    @pytest.fixture
-    def invalid(self):
-        return pd.DataFrame()  # No geometry column is invalid for the accessor.
-
     @pytest.mark.unittest
-    def test_get_geom_type(self, invalid):
-        with pytest.raises(
-            TypeError, match="Header accessor only accepts GeoDataFrames."
-        ):
-            invalid.gsthd
-
-    @pytest.mark.parametrize(
-        "header",
-        ["point", "linestring", "polygon"],
-        ids=["point", "linestring", "polygon"],
-    )
-    def test_backend_selection(self, header, request):
-        """
-        Test to check whether the correct backend is selected based on the 'headertype'
-        attribute.
-
-        """
-        if header == "polygon":
-            with pytest.raises(
-                TypeError, match="No Header backend available for polygon"
-            ):
-                request.getfixturevalue(header).gsthd
-        else:
-            backend = HEADER_BACKEND[header]
-            header = request.getfixturevalue(header)
-            assert isinstance(header.gsthd._backend, backend)
-
-
-class TestDataAccessor:
-    @pytest.fixture
-    def layered(self):
-        df = pd.DataFrame({"top": [0, 30], "bottom": [30, 40]})
-        return df
-
-    @pytest.fixture
-    def discrete(self):
-        df = pd.DataFrame({"depth": [1, 2, 3]})
-        return df
-
-    @pytest.fixture
-    def invalid(self):
-        return (
-            pd.DataFrame()
-        )  # No "top", "bottom", or "depth" columns are invalid for the accessor.
-
-    @pytest.mark.parametrize(
-        "datatype",
-        ["layered", "discrete", "invalid"],
-        ids=["layered", "discrete", "invalid"],
-    )
-    def test_backend_selection(self, datatype, request):
-        """
-        Test to check whether the correct backend is selected based on the 'datatype'
-        attribute.
-
-        """
-        df = request.getfixturevalue(datatype)
-        if datatype == "invalid":
-            expected_error = (
-                "No 'top' and 'bottom' or 'depth' columns present. Data accessor cannot "
-                "determine 'layered' or 'discrete' backend."
-            )
-            with pytest.raises(KeyError, match=expected_error):
-                df.gstda
-        else:
-            backend = DATA_BACKEND[datatype]
-            assert isinstance(df.gstda._backend, backend)
+    def test_to_qgis3d(self, borehole_data, tmp_path):
+        outfile = tmp_path / r"borehole_data_qgis3d.gpkg"
+        geodataframe = borehole_data.gst.to_qgis3d(outfile, crs=28992)
+        assert isinstance(geodataframe, gpd.GeoDataFrame)
