@@ -87,7 +87,7 @@ class GeostFrame(AbstractBase):
         determine whether specific selection operations can be performed on the object.
 
         """
-        if (self._x and self._y) is not None:
+        if self._x is not None and self._y is not None:
             return True
         return False
 
@@ -99,7 +99,7 @@ class GeostFrame(AbstractBase):
         selection operations can be performed on the object.
 
         """
-        if (self._surface and self._bottom) is not None:
+        if self._surface is not None and self._bottom is not None:
             return True
         return False
 
@@ -111,7 +111,7 @@ class GeostFrame(AbstractBase):
         can be performed on the object.
 
         """
-        if (self._top and self._bottom) is not None:
+        if self._top is not None and self._bottom is not None:
             return True
         return False
 
