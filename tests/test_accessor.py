@@ -45,11 +45,15 @@ class TestGeostFrame:
     def test_set_positional_columns(self):
         names = {
             k: list(v) for k, v in column_names.POSSIBLE_COLUMN_NAMING.items()
-        }  # We convert the sets to lists because otherwise we can't index them
+        }  # Convert sets to lists because otherwise we can't index them
 
         longest_set = max(map(len, names.values()))
 
         for ii in range(longest_set):
+            # Use every possible column name at least one time. Loop untill the longest
+            # set of possible column names is exhausted. For each column type, we take
+            # the ii-th name from the list of possible names, and if the list is shorter
+            # than ii, we go back to the beginning of the list using modulo.
             nr = names["nr"][ii % len(names["nr"])]
             surface = names["surface"][ii % len(names["surface"])]
             x = names["x_coordinate"][ii % len(names["x_coordinate"])]
@@ -332,8 +336,8 @@ class TestGeostFrame:
     @pytest.mark.unittest
     def test_determine_end_depth(self, borehole_data):
         # Test that the method correctly determines the end depth when "end" column is missing
-        selected = borehole_data.drop(columns=["end"]).gst.determine_end_depth()
-        assert_array_equal(selected["end"], borehole_data["end"])
+        end = borehole_data.gst.determine_end_depth()
+        assert_array_equal(end, borehole_data["end"])
 
     @pytest.mark.unittest
     def test_select_by_elevation(self, borehole_data):
@@ -935,101 +939,3 @@ class TestGeostFrame:
         result = cpt_data.gst.get_layer_top("qc", slice(0.7, 18), min_thickness=2.5)
         assert_array_equal(result.index, ["b"])
         assert_array_equal(result, [0.0])
-
-
-class TestHeaderAccessor:
-    @pytest.fixture
-    def point(self):
-        return gpd.GeoDataFrame(geometry=gpd.points_from_xy([0, 1], [0, 1]))
-
-    @pytest.fixture
-    def linestring(self):
-        return gpd.GeoDataFrame(
-            geometry=gpd.GeoSeries.from_wkt(
-                ["LINESTRING (0 0, 1 1)", "LINESTRING (1 0, 0 1)"]
-            )
-        )
-
-    @pytest.fixture
-    def polygon(self):
-        return gpd.GeoDataFrame(
-            geometry=gpd.GeoSeries.from_wkt(
-                [
-                    "POLYGON ((0 0, 1 0, 1 1, 0 1, 0 0))",
-                    "POLYGON ((1 1, 2 1, 2 2, 1 2, 1 1))",
-                ]
-            )
-        )
-
-    @pytest.fixture
-    def invalid(self):
-        return pd.DataFrame()  # No geometry column is invalid for the accessor.
-
-    @pytest.mark.unittest
-    def test_get_geom_type(self, invalid):
-        with pytest.raises(
-            TypeError, match="Header accessor only accepts GeoDataFrames."
-        ):
-            invalid.gsthd
-
-    @pytest.mark.parametrize(
-        "header",
-        ["point", "linestring", "polygon"],
-        ids=["point", "linestring", "polygon"],
-    )
-    def test_backend_selection(self, header, request):
-        """
-        Test to check whether the correct backend is selected based on the 'headertype'
-        attribute.
-
-        """
-        if header == "polygon":
-            with pytest.raises(
-                TypeError, match="No Header backend available for polygon"
-            ):
-                request.getfixturevalue(header).gsthd
-        else:
-            backend = HEADER_BACKEND[header]
-            header = request.getfixturevalue(header)
-            assert isinstance(header.gsthd._backend, backend)
-
-
-class TestDataAccessor:
-    @pytest.fixture
-    def layered(self):
-        df = pd.DataFrame({"top": [0, 30], "bottom": [30, 40]})
-        return df
-
-    @pytest.fixture
-    def discrete(self):
-        df = pd.DataFrame({"depth": [1, 2, 3]})
-        return df
-
-    @pytest.fixture
-    def invalid(self):
-        return (
-            pd.DataFrame()
-        )  # No "top", "bottom", or "depth" columns are invalid for the accessor.
-
-    @pytest.mark.parametrize(
-        "datatype",
-        ["layered", "discrete", "invalid"],
-        ids=["layered", "discrete", "invalid"],
-    )
-    def test_backend_selection(self, datatype, request):
-        """
-        Test to check whether the correct backend is selected based on the 'datatype'
-        attribute.
-
-        """
-        df = request.getfixturevalue(datatype)
-        if datatype == "invalid":
-            expected_error = (
-                "No 'top' and 'bottom' or 'depth' columns present. Data accessor cannot "
-                "determine 'layered' or 'discrete' backend."
-            )
-            with pytest.raises(KeyError, match=expected_error):
-                df.gstda
-        else:
-            backend = DATA_BACKEND[datatype]
-            assert isinstance(df.gstda._backend, backend)

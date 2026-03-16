@@ -3,6 +3,7 @@ from __future__ import annotations
 from collections.abc import Iterable
 from functools import partial, singledispatchmethod
 from pathlib import Path
+from textwrap import dedent
 from typing import TYPE_CHECKING, Any, Iterable
 
 import geopandas as gpd
@@ -10,7 +11,6 @@ import numpy as np
 import pandas as pd
 from pyproj import CRS
 
-import geost
 from geost import (
     export,
     validation,
@@ -51,9 +51,12 @@ class GeostFrame(AbstractBase):
         check = partial(validation.check_column_name, self._obj.columns)
 
         if not (nr := check("nr")):
+            from geost.validation import column_names
+
+            known_names = column_names.POSSIBLE_COLUMN_NAMING["nr"]
             raise KeyError(
                 "DataFrame must contain a column identifying survey ID. Make sure one of "
-                "{'nr', 'bro_id', 'nitg_nr', 'nitg', 'boorp'} is present."
+                f"{known_names} is present."
             )
 
         self._nr = nr
@@ -518,24 +521,21 @@ class GeostFrame(AbstractBase):
 
     def determine_end_depth(self) -> pd.Series:
         """
-        Determines the end depth of each survey in the data,
-        by looking at the difference between the surface and the bottom of the last layer
-        in each survey.
-        This is useful for example to determine the total depth of each survey.
+        Determines the end depth of each survey in the data, by looking at the difference
+        between the surface and the bottom of the last layer in each survey. This is useful
+        for example to determine the total depth of each survey.
 
         Returns
         -------
         pd.Series
-             Series containing the end depth for each row in the data.
+            Series containing the end depth for each row in the data with the same index
+            as the original GeoDataFrame.
 
         """
         selected = self._obj
-        ends = selected.loc[self._last_row_in_survey, ["nr", self._bottom]]
-        selected = selected.merge(ends.rename(columns={self._bottom: "end"}), on="nr")
-        ends = selected["surface"] - selected["end"]
-        ends.name = "end"
-        ends.index = selected.index
-        return selected
+        ends = selected.groupby("nr")[self._bottom].transform("max")
+        ends = selected["surface"] - ends
+        return ends
 
     @_requires_depth
     def select_by_elevation(
@@ -575,9 +575,12 @@ class GeostFrame(AbstractBase):
             end_min = end_min or -1e34
             end_max = end_max or 1e34
             if "end" not in selected.columns:
-                selected["end"] = self.determine_end_depth()
+                end = self.determine_end_depth()
+                mask = end.between(end_min, end_max)
+            else:
+                mask = selected["end"].between(end_min, end_max)
 
-            selected = selected[selected["end"].between(end_min, end_max)]
+            selected = selected[mask]
 
         return selected
 
@@ -607,10 +610,14 @@ class GeostFrame(AbstractBase):
             min_length = min_length or -1e34
             max_length = max_length or 1e34
             if "end" not in selected.columns:
-                selected["end"] = self.determine_end_depth()
-            selected = selected[
-                (selected["surface"] - selected["end"]).between(min_length, max_length)
-            ]
+                end = self.determine_end_depth()
+                mask = (selected["surface"] - end).between(min_length, max_length)
+            else:
+                mask = (selected["surface"] - selected["end"]).between(
+                    min_length, max_length
+                )
+
+            selected = selected[mask]
 
         return selected
 
@@ -658,8 +665,9 @@ class GeostFrame(AbstractBase):
             result.drop(columns=label_id, errors="ignore", inplace=True)
 
         label_id = [label_id] if isinstance(label_id, str) else list(label_id)
+        geometry_name = geometries._geometry_column_name
 
-        result = result.sjoin(geometries[["geometry"] + label_id], **kwargs)
+        result = result.sjoin(geometries[[geometry_name] + label_id], **kwargs)
         return result.drop(columns="index_right")
 
     def select_by_values(
