@@ -154,10 +154,18 @@ def coerce_numeric(
     """
     if not pd.api.types.is_numeric_dtype(obj[column]):
         obj[column] = pd.to_numeric(obj[column], errors="coerce")
+        if not nullable:
+            error_indices = obj[obj[column].isna()].index
+            error_nrs = obj["nr"][obj[column].isna()].unique().tolist()
+            if len(error_nrs) > 0:
+                warning = f"Column '{column}' must contain only numeric values, but some values could not be coerced. "
+            else:
+                warning = None
+    elif pd.api.types.is_numeric_dtype(obj[column]) and not nullable:
         error_indices = obj[obj[column].isna()].index
         error_nrs = obj["nr"][obj[column].isna()].unique().tolist()
         if len(error_nrs) > 0:
-            warning = f"Column '{column}' must contain only numeric values, but some values could not be coerced. "
+            warning = f"Column '{column}' must not contain NaN values, but some values are NaN."
         else:
             warning = None
     else:

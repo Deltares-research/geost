@@ -9,7 +9,7 @@ from shapely.geometry import Point
 
 from geost import Collection, config
 from geost._warnings import AlignmentWarning, ValidationWarning
-from geost.validation import ValidationResult
+from geost.validation import ValidationResult, validate
 
 
 class TestValidationResult:
@@ -101,3 +101,191 @@ class TestValidationResult:
 
         validation.handle_errors(test_df)
         assert test_df.equals(result_df)
+
+
+class TestValidationFunctions:
+    @pytest.fixture
+    def base_df(self):
+        df = pd.DataFrame(
+            {
+                "nr": ["a", "a", "a", "b", "b"],
+                "surface": [1, 1, 1, 2, 2],
+            }
+        )
+        return df
+
+    @pytest.fixture
+    def invalid_base_df(self):
+        df = pd.DataFrame(
+            {
+                "nr": ["a", "a", "a", "b", "b"],
+                "surface": ["a", "a", "a", 2, 2],
+            }
+        )
+        return df
+
+    @pytest.fixture
+    def valid_xy_df(self, base_df):
+        df = base_df.copy()
+        df["x"] = [1, 2, 3, 4, 5]
+        df["y"] = [1, 2, 3, 4, 5]
+        return df
+
+    @pytest.fixture
+    def invalid_xy_df(self, base_df):
+        df = base_df.copy()
+        df["x"] = [1, "a", 3, 4, 5]
+        df["y"] = [1, 2, np.nan, 4, 5]
+        return df
+
+    @pytest.fixture
+    def valid_top_bottom_df(self, base_df):
+        df = base_df.copy()
+        df["top"] = [0, 1, 2, 0, 2]
+        df["bottom"] = [1, 2, 3, 2, 4]
+        return df
+
+    @pytest.fixture
+    def invalid_top_bottom_df(self, base_df):
+        df = base_df.copy()
+        df["top"] = [0, 1, 2, 1, 2]
+        df["bottom"] = [1, 0.5, 3, 2, 4]
+        return df
+
+    @pytest.fixture
+    def valid_depth_df(self, base_df):
+        df = base_df.copy()
+        df["depth"] = [0, 1, 2, 0, 2]
+        return df
+
+    @pytest.fixture
+    def invalid_depth_df(self, base_df):
+        df = base_df.copy()
+        df["depth"] = [0, 1, -2, 0, 2]
+        return df
+
+    @pytest.fixture
+    def full_top_bottom_df(self, base_df):
+        df = base_df.copy()
+        df["x"] = [1, 2, 3, 4, 5]
+        df["y"] = [1, 2, 3, 4, 5]
+        df["top"] = [0, 1, 2, 0, 2]
+        df["bottom"] = [1, 2, 3, 2, 4]
+        return df
+
+    @pytest.fixture
+    def full_depth_df(self, base_df):
+        df = base_df.copy()
+        df["x"] = [1, 2, 3, 4, 5]
+        df["y"] = [1, 2, 3, 4, 5]
+        df["depth"] = [0, 1, 2, 0, 2]
+        return df
+
+    @pytest.mark.unittest
+    def test_validate_base(self, base_df, invalid_base_df):
+        validation_result = ValidationResult()
+
+        # Valid
+        validate.validate_base(base_df, validation_result)
+        assert not validation_result.has_errors
+
+        # Invalid - non-numeric surface
+        validate.validate_base(invalid_base_df, validation_result)
+        validation_result.handle_errors(invalid_base_df)
+        assert validation_result.has_errors
+        assert all(validation_result.errors["surface"]["indices"] == [0, 1, 2])
+
+    @pytest.mark.unittest
+    def test_validate_xy(self, valid_xy_df, invalid_xy_df):
+        validation_result = ValidationResult()
+
+        # Valid
+        validate.validate_xy(valid_xy_df, "x", "y", validation_result)
+        assert not validation_result.has_errors
+
+        # Invalid - non-numeric x and NaN y
+        validate.validate_xy(invalid_xy_df, "x", "y", validation_result)
+        validation_result.handle_errors(invalid_xy_df)
+        assert validation_result.has_errors
+        assert all(validation_result.errors["x"]["indices"] == [1])
+        assert all(validation_result.errors["y"]["indices"] == [2])
+
+    @pytest.mark.unittest
+    def test_validate_top_bottom(self, valid_top_bottom_df, invalid_top_bottom_df):
+        validation_result = ValidationResult()
+
+        # Valid
+        validate.validate_top_bottom(
+            valid_top_bottom_df,
+            "top",
+            "bottom",
+            valid_top_bottom_df["nr"] != valid_top_bottom_df["nr"].shift(),
+            validation_result,
+        )
+        assert not validation_result.has_errors
+
+        # Invalid - non-increasing bottom value and one top that doesn't start at 0
+        validate.validate_top_bottom(
+            invalid_top_bottom_df,
+            "top",
+            "bottom",
+            invalid_top_bottom_df["nr"] != invalid_top_bottom_df["nr"].shift(),
+            validation_result,
+        )
+        validation_result.handle_errors(invalid_top_bottom_df)
+        assert validation_result.has_errors
+        assert all(validation_result.errors["top"]["indices"] == [3])
+        assert all(validation_result.errors["top, bottom"]["indices"] == [1])
+
+    @pytest.mark.unittest
+    def test_validate_depth(self, valid_depth_df, invalid_depth_df):
+        validation_result = ValidationResult()
+
+        # Valid
+        validate.validate_depths(
+            valid_depth_df,
+            "depth",
+            valid_depth_df["nr"] != valid_depth_df["nr"].shift(),
+            validation_result,
+        )
+        assert not validation_result.has_errors
+
+        # Invalid - 1 x non-increasing depth value
+        validate.validate_depths(
+            invalid_depth_df,
+            "depth",
+            invalid_depth_df["nr"] != invalid_depth_df["nr"].shift(),
+            validation_result,
+        )
+        validation_result.handle_errors(invalid_depth_df)
+        assert validation_result.has_errors
+        assert all(validation_result.errors["depth"]["indices"] == [2])
+
+    @pytest.mark.unittest
+    def test_full_validation(self, full_top_bottom_df, full_depth_df):
+        # Top / bottom
+        validate.validate_geostframe(
+            full_top_bottom_df,
+            has_depth_columns=False,
+            is_layered=True,
+            has_xy_columns=True,
+            x_col="x",
+            y_col="y",
+            top_col="top",
+            bottom_col="bottom",
+            first_row_in_survey=full_top_bottom_df["nr"]
+            != full_top_bottom_df["nr"].shift(),
+        )
+
+        # Depth
+        validate.validate_geostframe(
+            full_depth_df,
+            has_depth_columns=True,
+            is_layered=False,
+            has_xy_columns=True,
+            x_col="x",
+            y_col="y",
+            top_col=None,
+            bottom_col="depth",
+            first_row_in_survey=full_depth_df["nr"] != full_depth_df["nr"].shift(),
+        )
