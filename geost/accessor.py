@@ -185,6 +185,8 @@ class GeostFrame(AbstractBase):
             has_depth_columns=self.has_depth_columns,
             is_layered=self.is_layered,
             has_xy_columns=self.has_xy_columns,
+            nr_col=self._nr,
+            surface_col=self._surface,
             x_col=self._x,
             y_col=self._y,
             top_col=self._top,

@@ -10,6 +10,7 @@ from shapely.geometry import Point
 from geost import Collection, config
 from geost._warnings import AlignmentWarning, ValidationWarning
 from geost.validation import ValidationResult, validate
+from geost.validation.validate import ColumnNames
 
 
 class TestValidationResult:
@@ -105,6 +106,28 @@ class TestValidationResult:
 
 class TestValidationFunctions:
     @pytest.fixture
+    def column_names_top_bot(self):
+        return ColumnNames(
+            nr_col="nr",
+            surface_col="surface",
+            x_col="x",
+            y_col="y",
+            top_col="top",
+            bottom_col="bottom",
+        )
+
+    @pytest.fixture
+    def column_names_depth(self):
+        return ColumnNames(
+            nr_col="nr",
+            surface_col="surface",
+            x_col="x",
+            y_col="y",
+            top_col=None,
+            bottom_col="depth",
+        )
+
+    @pytest.fixture
     def base_df(self):
         df = pd.DataFrame(
             {
@@ -182,43 +205,44 @@ class TestValidationFunctions:
         return df
 
     @pytest.mark.unittest
-    def test_validate_base(self, base_df, invalid_base_df):
+    def test_validate_base(self, base_df, invalid_base_df, column_names_depth):
         validation_result = ValidationResult()
 
         # Valid
-        validate.validate_base(base_df, validation_result)
+        validate.validate_base(base_df, column_names_depth, validation_result)
         assert not validation_result.has_errors
 
         # Invalid - non-numeric surface
-        validate.validate_base(invalid_base_df, validation_result)
+        validate.validate_base(invalid_base_df, column_names_depth, validation_result)
         validation_result.handle_errors(invalid_base_df)
         assert validation_result.has_errors
         assert all(validation_result.errors["surface"]["indices"] == [0, 1, 2])
 
     @pytest.mark.unittest
-    def test_validate_xy(self, valid_xy_df, invalid_xy_df):
+    def test_validate_xy(self, valid_xy_df, invalid_xy_df, column_names_depth):
         validation_result = ValidationResult()
 
         # Valid
-        validate.validate_xy(valid_xy_df, "x", "y", validation_result)
+        validate.validate_xy(valid_xy_df, column_names_depth, validation_result)
         assert not validation_result.has_errors
 
         # Invalid - non-numeric x and NaN y
-        validate.validate_xy(invalid_xy_df, "x", "y", validation_result)
+        validate.validate_xy(invalid_xy_df, column_names_depth, validation_result)
         validation_result.handle_errors(invalid_xy_df)
         assert validation_result.has_errors
         assert all(validation_result.errors["x"]["indices"] == [1])
         assert all(validation_result.errors["y"]["indices"] == [2])
 
     @pytest.mark.unittest
-    def test_validate_top_bottom(self, valid_top_bottom_df, invalid_top_bottom_df):
+    def test_validate_top_bottom(
+        self, valid_top_bottom_df, invalid_top_bottom_df, column_names_top_bot
+    ):
         validation_result = ValidationResult()
 
         # Valid
         validate.validate_top_bottom(
             valid_top_bottom_df,
-            "top",
-            "bottom",
+            column_names_top_bot,
             valid_top_bottom_df["nr"] != valid_top_bottom_df["nr"].shift(),
             validation_result,
         )
@@ -227,8 +251,7 @@ class TestValidationFunctions:
         # Invalid - non-increasing bottom value and one top that doesn't start at 0
         validate.validate_top_bottom(
             invalid_top_bottom_df,
-            "top",
-            "bottom",
+            column_names_top_bot,
             invalid_top_bottom_df["nr"] != invalid_top_bottom_df["nr"].shift(),
             validation_result,
         )
@@ -238,13 +261,13 @@ class TestValidationFunctions:
         assert all(validation_result.errors["top, bottom"]["indices"] == [1])
 
     @pytest.mark.unittest
-    def test_validate_depth(self, valid_depth_df, invalid_depth_df):
+    def test_validate_depth(self, valid_depth_df, invalid_depth_df, column_names_depth):
         validation_result = ValidationResult()
 
         # Valid
         validate.validate_depths(
             valid_depth_df,
-            "depth",
+            column_names_depth,
             valid_depth_df["nr"] != valid_depth_df["nr"].shift(),
             validation_result,
         )
@@ -253,7 +276,7 @@ class TestValidationFunctions:
         # Invalid - 1 x non-increasing depth value
         validate.validate_depths(
             invalid_depth_df,
-            "depth",
+            column_names_depth,
             invalid_depth_df["nr"] != invalid_depth_df["nr"].shift(),
             validation_result,
         )
@@ -264,11 +287,13 @@ class TestValidationFunctions:
     @pytest.mark.unittest
     def test_full_validation(self, full_top_bottom_df, full_depth_df):
         # Top / bottom
-        validate.validate_geostframe(
+        result_tb = validate.validate_geostframe(
             full_top_bottom_df,
             has_depth_columns=False,
             is_layered=True,
             has_xy_columns=True,
+            nr_col="nr",
+            surface_col="surface",
             x_col="x",
             y_col="y",
             top_col="top",
@@ -278,14 +303,19 @@ class TestValidationFunctions:
         )
 
         # Depth
-        validate.validate_geostframe(
+        result_d = validate.validate_geostframe(
             full_depth_df,
             has_depth_columns=True,
             is_layered=False,
             has_xy_columns=True,
+            nr_col="nr",
+            surface_col="surface",
             x_col="x",
             y_col="y",
             top_col=None,
             bottom_col="depth",
             first_row_in_survey=full_depth_df["nr"] != full_depth_df["nr"].shift(),
         )
+
+        assert len(result_tb) == 0
+        assert len(result_d) == 0
