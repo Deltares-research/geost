@@ -939,3 +939,9 @@ class TestGeostFrame:
         result = cpt_data.gst.get_layer_top("qc", slice(0.7, 18), min_thickness=2.5)
         assert_array_equal(result.index, ["b"])
         assert_array_equal(result, [0.0])
+
+    @pytest.mark.unittest
+    def test_to_qgis3d(self, borehole_data, tmp_path):
+        outfile = tmp_path / r"borehole_data_qgis3d.gpkg"
+        geodataframe = borehole_data.gst.to_qgis3d(outfile, crs=28992)
+        assert isinstance(geodataframe, gpd.GeoDataFrame)

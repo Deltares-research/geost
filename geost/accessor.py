@@ -66,23 +66,6 @@ class GeostFrame(AbstractBase):
         self._top = check("top")
         self._bottom = check("depth")
 
-    @staticmethod
-    def _validate_dataframe(dataframe: DataFrame):
-        """
-        Check if crucial information is present in a DataFrame to see if methods in the
-        accessor can be used.
-
-        Raises
-        ------
-        KeyError
-            If the DataFrame does not contain the required information.
-
-        """
-        if "nr" not in dataframe.columns:
-            raise KeyError(
-                "DataFrame must contain an 'nr' column identifying individual objects."
-            )
-
     @property
     def has_geometry(self):
         """
@@ -104,7 +87,7 @@ class GeostFrame(AbstractBase):
         determine whether specific selection operations can be performed on the object.
 
         """
-        if self._x in self._obj.columns and self._y in self._obj.columns:
+        if (self._x and self._y) is not None:
             return True
         return False
 
@@ -116,7 +99,7 @@ class GeostFrame(AbstractBase):
         selection operations can be performed on the object.
 
         """
-        if "surface" in self._obj.columns and self._bottom is not None:
+        if (self._surface and self._bottom) is not None:
             return True
         return False
 
@@ -128,7 +111,7 @@ class GeostFrame(AbstractBase):
         can be performed on the object.
 
         """
-        if self._top is not None and self._bottom is not None:
+        if (self._top and self._bottom) is not None:
             return True
         return False
 
@@ -145,7 +128,7 @@ class GeostFrame(AbstractBase):
             elsewhere.
 
         """
-        return self._obj["nr"] != self._obj["nr"].shift()
+        return self._obj[self._nr] != self._obj[self._nr].shift()
 
     @property
     def last_row_survey(self):
@@ -160,7 +143,7 @@ class GeostFrame(AbstractBase):
             elsewhere.
 
         """
-        return self._obj["nr"] != self._obj["nr"].shift(-1)
+        return self._obj[self._nr] != self._obj[self._nr].shift(-1)
 
     @staticmethod
     def _to_iterable(value: str | Iterable) -> Iterable:
@@ -175,9 +158,9 @@ class GeostFrame(AbstractBase):
 
         """
         data = self._obj.copy()
-        data[self._bottom] = data["surface"] - data[self._bottom]
+        data[self._bottom] = data[self._surface] - data[self._bottom]
         if self._top:
-            data[self._top] = data["surface"] - data[self._top]
+            data[self._top] = data[self._surface] - data[self._top]
         return data
 
     def validate(self, return_result: bool = False):
@@ -281,7 +264,7 @@ class GeostFrame(AbstractBase):
         """
         import shapely
 
-        header = self._obj.drop_duplicates(subset="nr", ignore_index=True)
+        header = self._obj.drop_duplicates(subset=self._nr, ignore_index=True)
 
         if coordinate_names is not None:
             x_col, y_col = coordinate_names
@@ -301,11 +284,11 @@ class GeostFrame(AbstractBase):
                 "Cannot specify both 'include_columns' and 'exclude_columns'."
             )
         elif include_columns is not None:
-            if "nr" not in include_columns:
-                include_columns = ["nr"] + list(include_columns)
+            if self._nr not in include_columns:
+                include_columns = [self._nr] + list(include_columns)
             header = header[include_columns]
         elif exclude_columns is not None:
-            if "nr" in exclude_columns:
+            if self._nr in exclude_columns:
                 raise ValueError("Cannot exclude 'nr' column from header.")
             header = header.drop(columns=exclude_columns)
 
@@ -366,23 +349,38 @@ class GeostFrame(AbstractBase):
             vertical_reference=vertical_reference,
         )
 
-    def standardize_column_names(self):
+    def standardize_column_names(self) -> None:
         """
-        Standardize column names to a consistent format. This is useful if you want to
-        combine data from different sources that may have different naming conventions
-        for essential columns sucht as x, y, top, bottom and depth. The method looks
-        for the presence of these columns in the DataFrame and renames them to our
-        standard naming convention.
+        Standardize column names to a consistent format used in GeoST. This is useful if
+        you want to combine data from different sources that may have different naming
+        conventions for essential columns such as 'nr', 'surface', 'x', 'y', 'top',
+        'bottom' and/or 'depth'.
+
+        Returns
+        -------
+        None
+            The method updates the column names of the DataFrame in place.
+
         """
         if self._top:
-            self._obj.rename(
-                {self._x: "x", self._y: "y", self._top: "top", self._bottom: "depth"},
-                inplace=True,
-            )
+            mapping = {
+                self._nr: "nr",
+                self._surface: "surface",
+                self._x: "x",
+                self._y: "y",
+                self._top: "top",
+                self._bottom: "depth",  # Use depth so concatenation of layered and discrete data goes well
+            }
         else:
-            self._obj.rename(
-                {self._x: "x", self._y: "y", self._bottom: "depth"}, inplace=True
-            )
+            mapping = {
+                self._nr: "nr",
+                self._surface: "surface",
+                self._x: "x",
+                self._y: "y",
+                self._bottom: "depth",
+            }
+
+        self._obj.rename(mapping, errors="ignore", inplace=True)
 
     @_requires_geometry
     def select_within_bbox(
@@ -533,8 +531,8 @@ class GeostFrame(AbstractBase):
 
         """
         selected = self._obj
-        ends = selected.groupby("nr")[self._bottom].transform("max")
-        ends = selected["surface"] - ends
+        ends = selected.groupby(self._nr)[self._bottom].transform("max")
+        ends = selected[self._surface] - ends
         return ends
 
     @_requires_depth
@@ -569,7 +567,7 @@ class GeostFrame(AbstractBase):
         if top_min is not None or top_max is not None:
             top_min = top_min or -1e34
             top_max = top_max or 1e34
-            selected = selected[selected["surface"].between(top_min, top_max)]
+            selected = selected[selected[self._surface].between(top_min, top_max)]
 
         if end_min is not None or end_max is not None:
             end_min = end_min or -1e34
@@ -611,9 +609,9 @@ class GeostFrame(AbstractBase):
             max_length = max_length or 1e34
             if "end" not in selected.columns:
                 end = self.determine_end_depth()
-                mask = (selected["surface"] - end).between(min_length, max_length)
+                mask = (selected[self._surface] - end).between(min_length, max_length)
             else:
-                mask = (selected["surface"] - selected["end"]).between(
+                mask = (selected[self._surface] - selected["end"]).between(
                     min_length, max_length
                 )
 
@@ -751,8 +749,8 @@ class GeostFrame(AbstractBase):
     @_select_by_values.register(int | float | str)
     def _(self, values, column, *_) -> pd.DataFrame:
         selected = self._obj
-        valid = selected["nr"][selected[column] == values].unique()
-        selected = selected[selected["nr"].isin(valid)]
+        valid = selected[self._nr][selected[column] == values].unique()
+        selected = selected[selected[self._nr].isin(valid)]
         return selected
 
     @_select_by_values.register(
@@ -761,13 +759,13 @@ class GeostFrame(AbstractBase):
     def _(self, values, column, how, _) -> pd.DataFrame:
         selected = self._obj
         if how == "or":
-            valid = selected["nr"][selected[column].isin(values)].unique()
-            selected = selected[selected["nr"].isin(valid)]
+            valid = selected[self._nr][selected[column].isin(values)].unique()
+            selected = selected[selected[self._nr].isin(valid)]
 
         elif how == "and":
             for value in values:
-                valid = selected["nr"][selected[column] == value].unique()
-                selected = selected[selected["nr"].isin(valid)]
+                valid = selected[self._nr][selected[column] == value].unique()
+                selected = selected[selected[self._nr].isin(valid)]
         return selected
 
     @_select_by_values.register(slice)
@@ -779,10 +777,10 @@ class GeostFrame(AbstractBase):
         stop = values.stop or 1e34
 
         selected = self._obj
-        valid = selected["nr"][
+        valid = selected[self._nr][
             selected[column].between(start, stop, inclusive)
         ].unique()
-        selected = selected[selected["nr"].isin(valid)]
+        selected = selected[selected[self._nr].isin(valid)]
         return selected
 
     @_requires_depth
@@ -849,8 +847,8 @@ class GeostFrame(AbstractBase):
             lower_boundary = -1e34 if relative_to_vertical_reference else 1e34
 
         if relative_to_vertical_reference:
-            upper_boundary = self._obj["surface"] - upper_boundary
-            lower_boundary = self._obj["surface"] - lower_boundary
+            upper_boundary = self._obj[self._surface] - upper_boundary
+            lower_boundary = self._obj[self._surface] - lower_boundary
 
         if layered_selection := self._top and self._bottom:
             sliced = sliced[
@@ -1068,7 +1066,7 @@ class GeostFrame(AbstractBase):
             thickness = self.calculate_thickness()
             selected_layers["thickness"] = thickness.loc[selected_layers.index]
 
-        grouped = selected_layers.groupby("nr", sort=False)
+        grouped = selected_layers.groupby(self._nr, sort=False)
         thickness = grouped["thickness"].sum()
         return thickness
 
@@ -1133,7 +1131,7 @@ class GeostFrame(AbstractBase):
         if min_thickness is not None:
             selection = selection[selection["thickness"] >= min_thickness]
 
-        grouped = selection.groupby("nr", sort=False)
+        grouped = selection.groupby(self._nr, sort=False)
         layer_base = grouped[self._bottom].last()
         return layer_base
 
@@ -1283,7 +1281,9 @@ class GeostFrame(AbstractBase):
         # Infer the top of layers from the bottom of layers if the top column is not present.
         if self._top is None:
             top = (
-                data[self._bottom].shift().mask(self.first_row_survey, data["surface"])
+                data[self._bottom]
+                .shift()
+                .mask(self.first_row_survey, data[self._surface])
             )
             x_bot, y_bot = data["x"], data["y"]
             x_top = data["x"].shift().mask(self.first_row_survey, data["x"])
@@ -1299,7 +1299,7 @@ class GeostFrame(AbstractBase):
         # This cannot be correctly inferred from the data.
 
         data_to_write = dict(
-            nr=data["nr"].values,
+            nr=data[self._nr].values,
             top=top.values.astype(float),
             bottom=data[self._bottom].values.astype(float),
         )
@@ -1385,14 +1385,16 @@ class GeostFrame(AbstractBase):
             kingdom_df["top"] = (
                 kingdom_df[self._bottom]
                 .shift()
-                .mask(self.first_row_survey, kingdom_df["surface"])
+                .mask(self.first_row_survey, kingdom_df[self._surface])
             )
 
         # Add total depth NOTE: is the insert at idx 7 really necessary?
         kingdom_df.insert(
             7,
             "Total depth",
-            (kingdom_df["surface"] - kingdom_df[self._bottom])[self.last_row_survey],
+            (kingdom_df[self._surface] - kingdom_df[self._bottom])[
+                self.last_row_survey
+            ],
         )
         kingdom_df["Total depth"] = kingdom_df["Total depth"].bfill()
 
@@ -1403,7 +1405,7 @@ class GeostFrame(AbstractBase):
         kingdom_df.to_csv(outfile, index=False)
 
         # 2. create and write time-depth chart
-        tdchart = self._obj[["nr", "surface"]]
+        tdchart = self._obj[[self._nr, self._surface]]
         tdchart.drop_duplicates(inplace=True)
         tdchart.insert(0, "id", range(tdstart, tdstart + len(tdchart)))
 
@@ -1415,11 +1417,11 @@ class GeostFrame(AbstractBase):
             ]
         )
         # Add two-way travel time
-        tdchart["TWT"] = (-tdchart["surface"] / (vw / 2 / 1000)) + (
+        tdchart["TWT"] = (-tdchart[self._surface] / (vw / 2 / 1000)) + (
             tdchart["MD"] * 1 / (vs / 2 / 1000)
         )
 
-        tdchart.drop("surface", axis=1, inplace=True)
+        tdchart.drop(self._surface, axis=1, inplace=True)
         tdchart.sort_values(by=["id", "MD"], inplace=True)
         if not isinstance(outfile, Path):
             outfile = Path(outfile)
