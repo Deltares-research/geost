@@ -39,7 +39,7 @@ class TestCollection:
         )
         # TODO: `record[1]` has unexpected validation warning is thrown, check
         assert ("Setting the header without an active geometry column.") in str(
-            record[2].message
+            record[1].message
         )
 
         assert isinstance(collection, Collection)
@@ -48,6 +48,12 @@ class TestCollection:
         assert not collection.header_has_geometry
         assert not collection.has_inclined
         assert collection.vertical_reference == 5709
+
+        with pytest.raises(
+            KeyError,
+            match="Data table must contain a column identifying the survey IDs.",
+        ):
+            Collection(borehole_data.rename(columns={"nr": "invalid"}))
 
     @pytest.mark.unittest
     def test_init_from_header_and_data(self, borehole_data):
@@ -61,7 +67,7 @@ class TestCollection:
 
         # TODO: `record[0]` has unexpected validation warning is thrown, check
         assert ("Setting the header without an active geometry column.") in str(
-            record[1].message
+            record[0].message
         )
 
         assert isinstance(col1, Collection)
@@ -78,6 +84,20 @@ class TestCollection:
             not col1.header_has_geometry
         )  # Make sure the attribute is not shared between instances
 
+        with pytest.raises(
+            KeyError,
+            match="Header table must contain a column identifying the survey IDs",
+        ):
+            Collection(borehole_data, header=header.rename(columns={"nr": "invalid"}))
+
+        with pytest.raises(
+            ValueError,
+            match="Column identifying survey IDs in data and header must have the same name",
+        ):
+            Collection(
+                borehole_data, header=header.rename(columns={"nr": "bro_id"})
+            )  # bro_id is a valid survey ID name, but different names in header and data raise an error
+
     @pytest.mark.unittest
     def test_init_empty(self):
         with warnings.catch_warnings():
@@ -88,6 +108,27 @@ class TestCollection:
         assert collection.header.empty
         assert collection.data.empty
         assert not collection.header_has_geometry
+
+        collection = Collection(pd.DataFrame())
+        assert isinstance(collection, Collection)
+        assert collection.header.empty
+        assert collection.data.empty
+        assert not collection.header_has_geometry
+
+        collection = Collection(pd.DataFrame(), header=pd.DataFrame())
+        assert isinstance(collection, Collection)
+        assert collection.header.empty
+        assert collection.data.empty
+        assert not collection.header_has_geometry
+
+    @pytest.mark.unittest
+    def test_init_only_header(self, borehole_data):
+        header = borehole_data.drop_duplicates("nr").reset_index(drop=True)
+        with pytest.raises(
+            ValueError,
+            match="Header was provided but data is None. A header cannot exist without a corresponding data table",
+        ):
+            Collection(header=header)
 
     @pytest.mark.unittest
     def test_get(self, borehole_collection):

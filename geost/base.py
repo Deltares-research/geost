@@ -1,11 +1,10 @@
 import warnings
 from pathlib import Path
-from typing import Any, Iterable
+from typing import TYPE_CHECKING, Any, Iterable
 
 import geopandas as gpd
 import pandas as pd
 from pyproj import CRS
-from shapely import geometry as gmt
 
 from geost import config, utils
 from geost._warnings import AlignmentWarning
@@ -16,13 +15,17 @@ from geost.utils.projections import (
 )
 from geost.validation.method_checks import _requires_depth, _requires_geometry
 
+if TYPE_CHECKING:
+    from shapely.geometry.base import BaseGeometry
+
+
 type Coordinate = int | float
-type GeometryType = gmt.base.BaseGeometry | list[gmt.base.BaseGeometry]
+type GeometryType = BaseGeometry | list[BaseGeometry]
 
 
 class Collection(AbstractBase):
     """
-    A `Collection` is the GeoST's data container for any kind of subsurface data. It keeps
+    A `Collection` is GeoST's data container for any kind of subsurface data. It keeps
     survey data in a "header" and "data" table and ensures that they remain aligned when
     applying methods.
 
@@ -61,13 +64,32 @@ class Collection(AbstractBase):
         has_inclined: bool = False,
         vertical_reference: str | int | CRS = 5709,
     ):
-        self.data = data
+        if data is None or data.empty:
+            if header is not None and not header.empty:
+                raise ValueError(
+                    "Header was provided but data is None. A header cannot exist "
+                    "without a corresponding data table."
+                )
+            data = pd.DataFrame()
+            header = gpd.GeoDataFrame()
 
-        if header is None and data is not None:
+        # data is not None in both conditions below, otherwise header and data are always empty
+        elif header is None or header.empty:
             warnings.warn("Header is None, setting the header from the given data.")
-            self.header = self.data.drop_duplicates("nr").reset_index(drop=True)
+            survey_id_col_data = self._check_survey_id_col(data, "Data")
+            header = data.drop_duplicates(survey_id_col_data).reset_index(drop=True)
         else:
-            self.header = header
+            survey_id_col_header = self._check_survey_id_col(header, "Header")
+            survey_id_col_data = self._check_survey_id_col(data, "Data")
+
+            if survey_id_col_data != survey_id_col_header:
+                raise ValueError(
+                    "Column identifying survey IDs in data and header must have the same name. "
+                    f"Found '{survey_id_col_data}' in data and '{survey_id_col_header}' in header."
+                )
+
+        self.header = header
+        self.data = data
 
         self._has_inclined = has_inclined
 
@@ -87,6 +109,15 @@ class Collection(AbstractBase):
 
     def __len__(self):
         return len(self.header)
+
+    @staticmethod
+    def _check_survey_id_col(df, df_name):
+        try:
+            return df.gst._nr
+        except KeyError as e:
+            raise KeyError(
+                f"{df_name} table must contain a column identifying the survey IDs."
+            ) from e
 
     @property
     def header(self):
@@ -136,14 +167,12 @@ class Collection(AbstractBase):
 
     @header.setter
     def header(self, header):
-        if header is not None:
+        if not header.empty:
             if not config.validation.SKIP:
                 # header = safe_validate(
                 #     header, schemas.pointheader
                 # )  # TODO: validation schema needs to be inferred
                 pass
-        else:
-            header = gpd.GeoDataFrame()
 
         self.set_header(header)  # This ensures header will always be a GeoDataFrame
 
@@ -164,14 +193,12 @@ class Collection(AbstractBase):
 
     @data.setter
     def data(self, data):
-        if data is not None:
+        if not data.empty:
             if config.validation.SKIP:
                 # data = safe_validate(
                 #     data, schemas.layerdata
                 # )  # TODO: validation schema needs to be inferred
                 pass
-        else:
-            data = pd.DataFrame()
 
         self._data = data
         self.check_header_to_data_alignment()
@@ -1412,3 +1439,11 @@ class Collection(AbstractBase):
 
         """
         self.data.gst.to_kingdom(outfile, tdstart, vw, vs)
+
+
+if __name__ == "__main__":
+    df = pd.DataFrame(
+        [["A", 2, 3, 0.2, -4]], columns=["nr", "x", "y", "surface", "end"]
+    )
+    c = Collection(pd.DataFrame())
+    c = Collection(header=df)
