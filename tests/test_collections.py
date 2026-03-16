@@ -48,6 +48,7 @@ class TestCollection:
         assert not collection.header_has_geometry
         assert not collection.has_inclined
         assert collection.vertical_reference == 5709
+        assert collection._nr == "nr"
 
         with pytest.raises(
             KeyError,
@@ -74,6 +75,7 @@ class TestCollection:
         assert isinstance(col1.header, gpd.GeoDataFrame)
         assert isinstance(col1.data, pd.DataFrame)
         assert not col1.header_has_geometry
+        assert col1._nr == "nr"
 
         header = gpd.GeoDataFrame(
             header, geometry=gpd.points_from_xy(header["x"], header["y"]), crs=28992
@@ -108,18 +110,21 @@ class TestCollection:
         assert collection.header.empty
         assert collection.data.empty
         assert not collection.header_has_geometry
+        assert collection._nr is None
 
         collection = Collection(pd.DataFrame())
         assert isinstance(collection, Collection)
         assert collection.header.empty
         assert collection.data.empty
         assert not collection.header_has_geometry
+        assert collection._nr is None
 
         collection = Collection(pd.DataFrame(), header=pd.DataFrame())
         assert isinstance(collection, Collection)
         assert collection.header.empty
         assert collection.data.empty
         assert not collection.header_has_geometry
+        assert collection._nr is None
 
     @pytest.mark.unittest
     def test_init_only_header(self, borehole_data):
@@ -324,25 +329,40 @@ class TestCollection:
             borehole_collection.spatial_join(label_gdf, "id")
 
     @pytest.mark.unittest
-    def test_select_by_depth(self, borehole_collection):
-        assert borehole_collection.select_by_depth(top_min=0).n_points == 4
-        assert borehole_collection.select_by_depth(top_max=0).n_points == 1
-        assert borehole_collection.select_by_depth(end_min=-3.5).n_points == 2
-        assert (
-            borehole_collection.select_by_depth(
-                top_min=0, top_max=0.3, end_max=-4
-            ).n_points
-            == 2
-        )
+    def test_select_by_elevation(self, borehole_collection):
+        selected = borehole_collection.select_by_elevation(top_min=0, top_max=0.25)
+        assert isinstance(selected, Collection)
+        assert_array_equal(selected.header["nr"], ["A", "C", "D"])
+        assert_array_equal(selected.data["nr"].unique(), ["A", "C", "D"])
+        assert selected.data.shape == (15, 8)
+
+        selected = borehole_collection.select_by_elevation(end_max=-3, end_min=-4)
+        assert_array_equal(selected.header["nr"], ["A", "B", "E"])
+        assert_array_equal(selected.data["nr"].unique(), ["A", "B", "E"])
+        assert selected.data.shape == (15, 8)
+
+        # Test same selection with end column missing, will be computed from data and added
+        # to header, result must be the same.
+        borehole_collection.header.drop(columns="end", inplace=True)
+        selected = borehole_collection.select_by_elevation(end_max=-3, end_min=-4)
+        assert_array_equal(selected.header["nr"], ["A", "B", "E"])
+        assert_array_equal(selected.data["nr"].unique(), ["A", "B", "E"])
+        assert selected.data.shape == (15, 8)
 
     @pytest.mark.unittest
     def test_select_by_length(self, borehole_collection):
-        assert borehole_collection.select_by_length(min_length=4).n_points == 2
-        assert borehole_collection.select_by_length(max_length=4).n_points == 3
-        assert (
-            borehole_collection.select_by_length(min_length=3, max_length=5).n_points
-            == 4
-        )
+        sel = borehole_collection.select_by_length(min_length=3.5, max_length=5.0)
+        assert_array_equal(sel.header["nr"], ["A", "B"])
+        assert_array_equal(sel.data["nr"].unique(), ["A", "B"])
+        assert sel.data.shape == (10, 8)
+
+        # Test same selection with end column missing, will be computed from data and added
+        # to header, result must be the same.
+        borehole_collection.header.drop(columns="end", inplace=True)
+        sel = borehole_collection.select_by_length(min_length=3.5, max_length=5.0)
+        assert_array_equal(sel.header["nr"], ["A", "B"])
+        assert_array_equal(sel.data["nr"].unique(), ["A", "B"])
+        assert sel.data.shape == (10, 8)
 
     @pytest.mark.unittest
     def test_select_by_values(self, borehole_collection, cpt_collection):
