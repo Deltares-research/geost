@@ -12,27 +12,11 @@ from geost.bro import BroApi
 from geost.io import _parse_cpt_gef_files, xml
 from geost.io.parsers import BorisXML
 from geost.utils import casting, io_helpers
+from geost.validation.column_names import check_positional_column_presence
 
 type BroObject = Literal["BHR-GT", "BHR-GT-samples", "BHR-P", "BHR-G", "CPT", "SFR"]
 
-MANDATORY_LAYERED_DATA_COLUMNS = ["nr", "x", "y", "surface", "end", "top", "bottom"]
-MANDATORY_DISCRETE_DATA_COLUMNS = ["nr", "x", "y", "surface", "end", "depth"]
-MANDATORY_INCLINED_LAYERED_DATA_COLUMNS = [
-    "nr",
-    "x",
-    "y",
-    "x_bot",
-    "y_bot",
-    "surface",
-    "end",
-    "top",
-    "bottom",
-]
-GEOMETRY_TO_SELECTION_FUNCTION = {
-    "Polygon": "select_within_polygons",
-    "Line": "select_with_lines",
-    "Point": "select_with_points",
-}
+
 LLG_COLUMN_MAPPING = {
     "BOORP": "nr",
     "XCO": "x",
@@ -78,28 +62,6 @@ def adjust_z_coordinates(data_dataframe: pd.DataFrame) -> pd.DataFrame:
             data_dataframe["bottom"] *= -1
 
     return data_dataframe
-
-
-def _check_mandatory_column_presence(
-    df: pd.DataFrame, mandatory_cols: list, column_mapper: dict = None
-) -> pd.DataFrame:
-    missing_mandatory = [col for col in mandatory_cols if col not in df.columns]
-
-    if missing_mandatory:
-        if not column_mapper:
-            column_mapper = dict()
-            print(
-                f"\nMandatory columns {missing_mandatory} are missing in the "
-                f"data table. Columns present are: \n{list(df.columns)}\n"
-            )
-            for missing in missing_mandatory:
-                name = input(f"Which column is {missing}? ")
-                column_mapper[name] = missing
-
-        df.rename(columns=column_mapper, inplace=True)
-        df = df.loc[:, ~df.columns.duplicated(keep="last")]
-
-    return df
 
 
 def read_table(
@@ -198,17 +160,11 @@ def read_borehole_table(
 
     boreholes = io_helpers._pandas_read(file, **pd_kwargs)
 
-    has_inclined = coll_kwargs.get("has_inclined", False)
-    if has_inclined:
-        boreholes = _check_mandatory_column_presence(
-            boreholes, MANDATORY_INCLINED_LAYERED_DATA_COLUMNS, column_mapper
-        )
-    else:
-        boreholes = _check_mandatory_column_presence(
-            boreholes, MANDATORY_LAYERED_DATA_COLUMNS, column_mapper
-        )
-    # Figure out top and bottom reference and coerce to downward increasing from 0 if
-    # required.
+    if column_mapper:
+        boreholes.rename(columns=column_mapper, inplace=True)
+
+    check_positional_column_presence(boreholes)
+
     boreholes = adjust_z_coordinates(boreholes)
 
     if as_collection:
@@ -274,9 +230,10 @@ def read_cpt_table(
 
     cpts = io_helpers._pandas_read(file, **pd_kwargs)
 
-    cpts = _check_mandatory_column_presence(
-        cpts, MANDATORY_DISCRETE_DATA_COLUMNS, column_mapper
-    )
+    if column_mapper:
+        cpts.rename(columns=column_mapper, inplace=True)
+
+    check_positional_column_presence(cpts)
 
     if as_collection:
         cpts = cpts.gst.to_collection(**coll_kwargs)

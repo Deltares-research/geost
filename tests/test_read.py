@@ -9,11 +9,7 @@ from shapely import geometry as gmt
 
 import geost
 from geost.base import Collection
-from geost.io.read import (
-    MANDATORY_LAYERED_DATA_COLUMNS,
-    _check_mandatory_column_presence,
-    adjust_z_coordinates,
-)
+from geost.io.read import adjust_z_coordinates
 
 
 @pytest.fixture
@@ -69,21 +65,6 @@ def collection_pickle(borehole_collection, tmp_path):
     return outfile
 
 
-@pytest.fixture
-def table_wrong_columns():
-    return pd.DataFrame(
-        {
-            "nr": ["a", "b"],
-            "x": [1, 2],
-            "y": [1, 2],
-            "maaiveld": [1, 2],
-            "end": [1, 1],
-            "top": [1, 1],
-            "bottom": [2, 2],
-        }
-    )
-
-
 @pytest.mark.unittest
 def test_nlog_reader_from_parquet(testdatadir):
     nlog = geost.read_nlog_cores(
@@ -126,24 +107,6 @@ def test_read_borehole_table(filename, testdatadir):
 
     cores = geost.read_borehole_table(filepath, as_collection=False)
     assert isinstance(cores, pd.DataFrame)
-
-
-@pytest.mark.unittest
-def test_check_mandatory_columns(table_wrong_columns):
-    column_mapper = {"maaiveld": "surface"}
-    table_wrong_columns = _check_mandatory_column_presence(
-        table_wrong_columns, MANDATORY_LAYERED_DATA_COLUMNS, column_mapper
-    )
-    assert_array_equal(table_wrong_columns.columns, MANDATORY_LAYERED_DATA_COLUMNS)
-
-
-@pytest.mark.unittest
-def test_check_mandatory_columns_with_user_input(table_wrong_columns, monkeypatch):
-    monkeypatch.setattr("builtins.input", lambda _: "maaiveld")
-    table_wrong_columns = _check_mandatory_column_presence(
-        table_wrong_columns, MANDATORY_LAYERED_DATA_COLUMNS
-    )
-    assert_array_equal(table_wrong_columns.columns, MANDATORY_LAYERED_DATA_COLUMNS)
 
 
 @pytest.mark.unittest
