@@ -138,10 +138,7 @@ class Collection(AbstractBase):
     def header(self, header):
         if header is not None:
             if not config.validation.SKIP:
-                # header = safe_validate(
-                #     header, schemas.pointheader
-                # )  # TODO: validation schema needs to be inferred
-                pass
+                header.gst.validate()
         else:
             header = gpd.GeoDataFrame()
 
@@ -165,11 +162,8 @@ class Collection(AbstractBase):
     @data.setter
     def data(self, data):
         if data is not None:
-            if config.validation.SKIP:
-                # data = safe_validate(
-                #     data, schemas.layerdata
-                # )  # TODO: validation schema needs to be inferred
-                pass
+            if not config.validation.SKIP:
+                data.gst.validate()
         else:
             data = pd.DataFrame()
 
@@ -340,7 +334,7 @@ class Collection(AbstractBase):
         """
         Refresh the header based on the loaded data in case the header got messed up.
         """
-        self.header = self.data.gstda.to_header(self.horizontal_reference)
+        self.header = self.data.gst.to_header(crs=self.horizontal_reference)
 
     def check_header_to_data_alignment(self):
         """
