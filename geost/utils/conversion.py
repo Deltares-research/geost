@@ -89,3 +89,63 @@ def check_geometry_instance(
     gdf = gdf.copy()
 
     return gdf
+
+
+def adjust_z_coordinates(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Interpret data containing elevation or z-coordinates. GeoST data objects require
+    that layer top/bottom or discrete data point z-coordinates to be increasing
+    downward, starting at at 0. This function detects how elevation is currently defined
+    and turns it into the desired format if required.
+
+    Parameters
+    ----------
+    data : pd.DataFrame
+        Dataframe with layer or discrete data that includes columns referecing layer
+        top, bottoms or discrete data z-coordinates.
+
+    Returns
+    -------
+    pd.DataFrame
+        Dataframe with adjusted z-coordinates if required.
+
+    """
+    # surface, top, bot = df.gst._surface, df.gst._top, df.gst._bottom
+
+    # # For layered data:
+    # # First top == surface, depth is with respect to e.g. NAP
+    # if top is not None:
+    #     relative_to_reference = (df[surface] == df[top])[df.gst.first_row_survey].all()
+    #     if relative_to_reference:
+    #         pass
+    #     else:
+    #         pass
+    # else:
+    #     relative_to_reference = False
+    # First top == 0, and depth is positive downward
+    # First top == 0, and depth is negative downward
+
+    # For discrete data (first depth is never 0 because it indicates the bottom of intervals):
+    # Depth is with respect to e.g. NAP
+    # Depth is positive downward with respect to surface
+    # Depth is negative downward with respect to surface
+
+    top_column_label = [col for col in df.columns if col in {"top", "depth"}][0]
+    has_bottom_column = "bottom" in df.columns
+
+    # TODO: think about detection. Only considers first two indices to determine
+    # downward decreasing or increasing of z-coordinates.
+    first_surface = df["surface"].iloc[0]
+    first_top = df[top_column_label].iloc[0]
+    second_top = df[top_column_label].iloc[1]
+
+    if first_top == first_surface:
+        df[top_column_label] -= df["surface"]
+        if has_bottom_column:
+            df["bottom"] -= df["surface"]
+    if first_top > second_top:
+        df[top_column_label] *= -1
+        if has_bottom_column:
+            df["bottom"] *= -1
+
+    return df

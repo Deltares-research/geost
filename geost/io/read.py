@@ -11,7 +11,7 @@ from geost.base import Collection
 from geost.bro import BroApi
 from geost.io import _parse_cpt_gef_files, xml
 from geost.io.parsers import BorisXML
-from geost.utils import casting, io_helpers
+from geost.utils import conversion, io_helpers
 from geost.validation.column_names import check_positional_column_presence
 
 type BroObject = Literal["BHR-GT", "BHR-GT-samples", "BHR-P", "BHR-G", "CPT", "SFR"]
@@ -26,42 +26,6 @@ LLG_COLUMN_MAPPING = {
     "BEGIN_DIEPTE": "top",
     "EIND_DIEPTE": "bottom",
 }
-
-
-def adjust_z_coordinates(data_dataframe: pd.DataFrame) -> pd.DataFrame:
-    """
-    Interpret data containing elevation or z-coordinates. GeoST data objects require
-    that layer top/bottom or discrete data point z-coordinates to be increasing
-    downward, starting at at 0. This function detects how elevation is currently defined
-    and turns it into the desired format if required.
-
-    Parameters
-    ----------
-    data_dataframe : pd.DataFrame
-        Dataframe with layer or discrete data that includes columns referecing layer
-        top, bottoms or discrete data z-coordinates.
-    """
-    top_column_label = [
-        col for col in data_dataframe.columns if col in {"top", "depth"}
-    ][0]
-    has_bottom_column = "bottom" in data_dataframe.columns
-
-    # TODO: think about detection. Only considers first two indices to determine
-    # downward decreasing or increasing of z-coordinates.
-    first_surface = data_dataframe["surface"].iloc[0]
-    first_top = data_dataframe[top_column_label].iloc[0]
-    second_top = data_dataframe[top_column_label].iloc[1]
-
-    if first_top == first_surface:
-        data_dataframe[top_column_label] -= data_dataframe["surface"]
-        if has_bottom_column:
-            data_dataframe["bottom"] -= data_dataframe["surface"]
-    if first_top > second_top:
-        data_dataframe[top_column_label] *= -1
-        if has_bottom_column:
-            data_dataframe["bottom"] *= -1
-
-    return data_dataframe
 
 
 def read_table(
@@ -164,8 +128,7 @@ def read_borehole_table(
         boreholes.rename(columns=column_mapper, inplace=True)
 
     check_positional_column_presence(boreholes)
-
-    boreholes = adjust_z_coordinates(boreholes)
+    boreholes = conversion.adjust_z_coordinates(boreholes)
 
     if as_collection:
         boreholes = boreholes.gst.to_collection(**coll_kwargs)
@@ -289,7 +252,7 @@ def read_nlog_cores(file: str | Path, **kwargs) -> Collection:
     )
 
     data = data.merge(header[["nr", "surface", "end"]], on="nr", how="left")
-    data = adjust_z_coordinates(data)
+    data = conversion.adjust_z_coordinates(data)
 
     return Collection(data, header=header, has_inclined=True, vertical_reference=5709)
 
@@ -812,7 +775,7 @@ def read_uullg_tables(
     header = header.astype({"nr": str})
     data = data.astype({"nr": str})
 
-    header = casting.dataframe_to_geodataframe(header).set_crs(horizontal_reference)
+    header = conversion.dataframe_to_geodataframe(header).set_crs(horizontal_reference)
 
     add_header_cols = [c for c in {"x", "y", "surface", "end"} if c not in data.columns]
     if add_header_cols:
@@ -1033,7 +996,7 @@ def bro_api_read(
         if bbox:
             xmin, ymin, xmax, ymax = bbox
         elif geometry is not None:
-            geometry = casting.check_geometry_instance(geometry)
+            geometry = conversion.check_geometry_instance(geometry)
             epsg = CRS.from_user_input(geometry.crs or epsg)
             if geometry.crs is None:
                 warnings.warn(

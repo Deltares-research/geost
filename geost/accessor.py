@@ -16,7 +16,7 @@ from geost import (
     validation,
 )  # FIXME: spatial triggers import of xarray, rioxarray. We don't want this automatically.
 from geost.abstract_classes import AbstractBase
-from geost.utils import casting, spatial
+from geost.utils import conversion, spatial
 from geost.validation.method_checks import (
     _requires_depth,
     _requires_geometry,
@@ -675,7 +675,7 @@ class GeostFrame(AbstractBase):
             GeoDataFrame resulting from the spatial join.
 
         """
-        geometries = casting.check_geometry_instance(geometries)
+        geometries = conversion.check_geometry_instance(geometries)
         geometries = spatial.check_and_coerce_crs(geometries, self._obj.crs)
 
         result = self._obj.copy()

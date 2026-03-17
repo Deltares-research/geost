@@ -4,7 +4,7 @@ from pathlib import Path
 from typing import Iterable, Union
 
 from geost.io.parsers.gef_parsers import CptGefFile
-from geost.utils.casting import get_path_iterable
+from geost.utils.conversion import get_path_iterable
 
 
 def _parse_cpt_gef_files(file_or_folder: Union[str, Path]):

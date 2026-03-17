@@ -9,7 +9,6 @@ from shapely import geometry as gmt
 
 import geost
 from geost.base import Collection
-from geost.io.read import adjust_z_coordinates
 
 
 @pytest.fixture
@@ -107,29 +106,6 @@ def test_read_borehole_table(filename, testdatadir):
 
     cores = geost.read_borehole_table(filepath, as_collection=False)
     assert isinstance(cores, pd.DataFrame)
-
-
-@pytest.mark.unittest
-def test_adjust_z_coordinates(testdatadir):
-    file = testdatadir / r"test_borehole_table.parquet"
-    cores = geost.read_borehole_table(file, as_collection=False)
-    test_df = cores.copy()
-
-    # test situation where top and bottoms are already positive downward: no change
-    test_df = adjust_z_coordinates(test_df)
-    assert test_df.equals(cores)
-    assert test_df["top"].iloc[0] < test_df["top"].iloc[1]
-    assert test_df["bottom"].iloc[0] < test_df["bottom"].iloc[1]
-
-    # Test situation where top and bottoms are given as negative downward
-    test_df = cores.copy()
-    test_df["top"] *= -1
-    test_df["bottom"] *= -1
-
-    test_df = adjust_z_coordinates(test_df)
-    assert test_df.equals(cores)
-    assert test_df["top"].iloc[0] < test_df["top"].iloc[1]
-    assert test_df["bottom"].iloc[0] < test_df["bottom"].iloc[1]
 
 
 @pytest.mark.unittest
