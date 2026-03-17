@@ -284,19 +284,22 @@ def read_cpt_table(
     return cpts
 
 
-def read_nlog_cores(file: str | Path) -> Collection:
+def read_nlog_cores(file: str | Path, **kwargs) -> Collection:
     """
     Read NLog boreholes from the 'nlog_stratstelsel' Excel file. You can find this
     distribution of borehole data here: https://www.nlog.nl/boringen
 
-    Warning: reading this Excel file is really slow (~10 minutes). Converting it to
-    parquet using :func:`~geost.utils.io_helpers.excel_to_parquet` once and using that
-    file instead allows for much faster reading of nlog data.
+    Note: reading this Excel file is really slow. Converting it to parquet using
+    :func:`~geost.utils.io_helpers.excel_to_parquet` once and using that file instead
+    allows for much faster reading of nlog data.
 
     Parameters
     ----------
     file : str | Path
         Path to nlog_stratstelsel.xlsx or .parquet
+    **kwargs
+        Optional keyword arguments for Pandas.read_parquet or Pandas.read_excel depending
+        on the file extension of `file`.
 
     Returns
     -------
@@ -304,9 +307,9 @@ def read_nlog_cores(file: str | Path) -> Collection:
         :class:`~geost.borehole.Collection`
 
     """
-    nlog_cores = io_helpers._pandas_read(file)
+    data = io_helpers._pandas_read(file, **kwargs)
 
-    nlog_cores.rename(
+    data.rename(
         columns={
             "NITG_NR": "nr",
             "X_TOP_RD": "x",
@@ -319,48 +322,23 @@ def read_nlog_cores(file: str | Path) -> Collection:
         inplace=True,
     )
 
-    nlog_cores["top"] *= -1
-    nlog_cores["bottom"] *= -1
-
-    nrs = []
-    x = []
-    y = []
-    x_bot = []
-    y_bot = []
-    surface = []
-    end = []
-    nrs_data = []
-    surface_data = []
-    end_data = []
-    for nr, data in nlog_cores.groupby("nr"):
-        nrs.append(nr)
-        x.append(data["x"].iloc[0])
-        y.append(data["y"].iloc[0])
-        x_bot.append(data["x_bot"].iloc[0])
-        y_bot.append(data["y_bot"].iloc[0])
-        surface.append(data["top"].iloc[0])
-        end.append(data["bottom"].iloc[-1])
-        nrs_data += [nr for i in range(len(data))]
-        surface_data += [data["top"].iloc[0] for i in range(len(data))]
-        end_data += [data["bottom"].iloc[-1] for i in range(len(data))]
-
-    surface_end_df = pd.DataFrame(
-        {"nr": nrs_data, "surface": surface_data, "end": end_data}
-    ).drop_duplicates("nr")
-
-    nlog_cores = nlog_cores.merge(surface_end_df, on="nr", how="left")
-    nlog_cores = adjust_z_coordinates(nlog_cores)
-
-    return nlog_cores.gstda.to_collection(
-        has_inclined=True, horizontal_reference=28992, vertical_reference=5709
+    data[["top", "bottom"]] *= -1
+    header = data.groupby("nr", as_index=False).agg(
+        {"x": "first", "y": "first", "top": "max", "bottom": "min"}
     )
+    header.rename(columns={"top": "surface", "bottom": "end"}, inplace=True)
+    header = gpd.GeoDataFrame(
+        header, geometry=gpd.points_from_xy(header["x"], header["y"]), crs=28992
+    )
+
+    data = data.merge(header[["nr", "surface", "end"]], on="nr", how="left")
+    data = adjust_z_coordinates(data)
+
+    return Collection(data, header=header, has_inclined=True, vertical_reference=5709)
 
 
 def read_xml_boris(
-    file: str | Path,
-    horizontal_reference: str | int | CRS = 28992,
-    vertical_reference: str | int | CRS = 5709,
-    as_collection: bool = True,
+    file: str | Path, as_collection: bool = True, **kwargs
 ) -> Collection:
     """
     Read export XML of the BORIS software. BORIS is software developed by TNO to
@@ -371,18 +349,13 @@ def read_xml_boris(
     ----------
     file : str | Path
         File with the borehole information to read.
-    horizontal_reference : str | int | CRS, optional
-        EPSG of the data's horizontal reference. Takes anything that can be interpreted
-        by pyproj.crs.CRS.from_user_input(). The default is 28992.
-    vertical_reference : str | int | CRS, optional
-        EPSG of the data's vertical datum. Takes anything that can be interpreted by
-        pyproj.crs.CRS.from_user_input(). However, it must be a vertical datum. FYI:
-        "NAP" is EPSG 5709 and The Belgian reference system (Ostend height) is ESPG
-        5710. The default is 5709.
     as_collection : bool, optional
         If True, the CPT table will be read as a :class:`~geost.base.Collection`
         which includes a header object and spatial selection functionality. If False,
         a :class:`~geost.base.LayeredData` object is returned. The default is True.
+    **kwargs
+        Additional keyword arguments that can be given to :meth:`~geost.accessor.GeostFrame.to_collection`
+        when `as_collection=True`.
 
     Returns
     -------
@@ -396,11 +369,7 @@ def read_xml_boris(
     if as_collection:
         # Think of a better way to translate non-standard BORIS crs encoding or keep it
         # user-defined (like we do in other reader functions)
-        boreholes = boreholes.gstda.to_collection(
-            has_inclined=False,
-            horizontal_reference=horizontal_reference,
-            vertical_reference=vertical_reference,
-        )
+        boreholes = boreholes.gst.to_collection(**kwargs)
 
     return boreholes
 

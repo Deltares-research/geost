@@ -274,10 +274,10 @@ class GeostFrame(AbstractBase):
                 raise KeyError(
                     f"Coordinate columns '{x_col}' and/or '{y_col}' not found in DataFrame."
                 )
-            geometry = shapely.points(header[[x_col, y_col]])
+            geometry = shapely.points(header[x_col], header[y_col])
             # NOTE: future versions may require other geometry types too
         elif self._x and self._y:
-            geometry = shapely.points(header[[self._x, self._y]])
+            geometry = shapely.points(header[self._x], header[self._y])
         else:
             geometry = None
 
