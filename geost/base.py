@@ -1,11 +1,10 @@
 import warnings
 from pathlib import Path
-from typing import Any, Iterable
+from typing import TYPE_CHECKING, Any, Iterable
 
 import geopandas as gpd
 import pandas as pd
 from pyproj import CRS
-from shapely import geometry as gmt
 
 from geost import config, utils
 from geost._warnings import AlignmentWarning
@@ -16,13 +15,17 @@ from geost.utils.projections import (
 )
 from geost.validation.method_checks import _requires_depth, _requires_geometry
 
+if TYPE_CHECKING:
+    from shapely.geometry.base import BaseGeometry
+
+
 type Coordinate = int | float
-type GeometryType = gmt.base.BaseGeometry | list[gmt.base.BaseGeometry]
+type GeometryType = BaseGeometry | list[BaseGeometry]
 
 
 class Collection(AbstractBase):
     """
-    A `Collection` is the GeoST's data container for any kind of subsurface data. It keeps
+    A `Collection` is GeoST's data container for any kind of subsurface data. It keeps
     survey data in a "header" and "data" table and ensures that they remain aligned when
     applying methods.
 
@@ -61,13 +64,34 @@ class Collection(AbstractBase):
         has_inclined: bool = False,
         vertical_reference: str | int | CRS = 5709,
     ):
-        self.data = data
+        if data is None or data.empty:
+            if header is not None and not header.empty:
+                raise ValueError(
+                    "Header was provided but data is None. A header cannot exist "
+                    "without a corresponding data table."
+                )
+            data = pd.DataFrame()
+            header = gpd.GeoDataFrame()
+            survey_id_col = None
 
-        if header is None and data is not None:
+        # data is not None in both conditions below, otherwise header and data are always empty
+        elif header is None or header.empty:
             warnings.warn("Header is None, setting the header from the given data.")
-            self.header = self.data.drop_duplicates("nr").reset_index(drop=True)
+            survey_id_col = self._check_survey_id_col(data, "Data")
+            header = data.drop_duplicates(survey_id_col).reset_index(drop=True)
         else:
-            self.header = header
+            survey_id_col_header = self._check_survey_id_col(header, "Header")
+            survey_id_col = self._check_survey_id_col(data, "Data")
+
+            if survey_id_col != survey_id_col_header:
+                raise ValueError(
+                    "Column identifying survey IDs in data and header must have the same name. "
+                    f"Found '{survey_id_col}' in data and '{survey_id_col_header}' in header."
+                )
+
+        self._nr = survey_id_col
+        self.header = header
+        self.data = data
 
         self._has_inclined = has_inclined
 
@@ -87,6 +111,15 @@ class Collection(AbstractBase):
 
     def __len__(self):
         return len(self.header)
+
+    @staticmethod
+    def _check_survey_id_col(df, df_name):
+        try:
+            return df.gst._nr
+        except KeyError as e:
+            raise KeyError(
+                f"{df_name} table must contain a column identifying the survey IDs."
+            ) from e
 
     @property
     def header(self):
@@ -136,7 +169,7 @@ class Collection(AbstractBase):
 
     @header.setter
     def header(self, header):
-        if header is not None:
+        if not header.empty:
             if not config.validation.SKIP:
                 header.gst.validate()
         else:
@@ -188,23 +221,23 @@ class Collection(AbstractBase):
             to the data table.
 
         """
-        self._data = self._data.merge(self.header[["nr", column_name]], on="nr")
+        self._data = self._data.merge(self.header[[self._nr, column_name]], on=self._nr)
 
-    def get(self, selection_values: str | Iterable, column: str = "nr") -> Collection:
+    def get(self, selection_values: str | Iterable, column: str = None) -> Collection:
         """
         Select all survey data by selecting a subset of the header table of the `Collection`
         instance. Can be used to select surveys by ids directly or by information available
-        in another column of the header table. Optionally uses a different column than "nr"
-        (the column with survey ids).
+        in another column of the header table. Optionally, a different column than the
+        survey ID column can be used.
 
         Parameters
         ----------
         selection_values : str | Iterable
-            Survey id or ids to select or values in another column of the header table
+            Survey ID or IDs to select or values in another column of the header table
             to select.
         column : str, optional
-            If not selecting by survey ids, in which column of the header to look for the
-            selection values. The default is "nr".
+            If not selecting by survey IDs, in which column of the header to look for the
+            selection values. The default is None, then the survey ID column is used.
 
         Returns
         -------
@@ -213,7 +246,7 @@ class Collection(AbstractBase):
 
         Examples
         --------
-        To select surveys with object ids "obj1" and "obj2" from the collection, use:
+        To select surveys with object IDs "obj1" and "obj2" from the collection, use:
 
         >>> collection.get(["obj1", "obj2"])
 
@@ -227,9 +260,10 @@ class Collection(AbstractBase):
         areas.
 
         """
+        column = column or self._nr
         selected_header = self.header.gst.select_by_values(column, selection_values)
         selected_data = self.data.gst.select_by_values(
-            "nr", selected_header["nr"].unique()
+            self._nr, selected_header[self._nr].unique()
         )
 
         return self.__class__(
@@ -352,7 +386,7 @@ class Collection(AbstractBase):
             if self.header.empty and self.data.empty:
                 return
 
-            if any(~self.header["nr"].isin(self.data["nr"].unique())):
+            if any(~self.header[self._nr].isin(self.data[self._nr].unique())):
                 warnings.warn(
                     "Header covers more/other objects than present in the data table. "
                     "consider running the method 'reset_header' to update the header.",
@@ -360,7 +394,9 @@ class Collection(AbstractBase):
                 )
                 warning_given = True
 
-            if not set(self.data["nr"].unique()).issubset(set(self.header["nr"])):
+            if not set(self.data[self._nr].unique()).issubset(
+                set(self.header[self._nr])
+            ):
                 warnings.warn(
                     "Header does not cover all unique objects in data. "
                     "consider running the method 'reset_header' to update the header.",
@@ -412,7 +448,7 @@ class Collection(AbstractBase):
             xmin, ymin, xmax, ymax, invert=invert
         )
         selected_data = self.data.gst.select_by_values(
-            "nr", selected_header["nr"].unique()
+            self._nr, selected_header[self._nr].unique()
         )
         return self.__class__(
             selected_data,
@@ -454,7 +490,7 @@ class Collection(AbstractBase):
             points, max_distance, invert=invert
         )
         selected_data = self.data.gst.select_by_values(
-            "nr", selected_header["nr"].unique()
+            self._nr, selected_header[self._nr].unique()
         )
         return self.__class__(
             selected_data,
@@ -496,7 +532,7 @@ class Collection(AbstractBase):
             lines, max_distance, invert=invert
         )
         selected_data = self.data.gst.select_by_values(
-            "nr", selected_header["nr"].unique()
+            self._nr, selected_header[self._nr].unique()
         )
         return self.__class__(
             selected_data,
@@ -538,7 +574,7 @@ class Collection(AbstractBase):
             polygons, buffer=buffer, invert=invert
         )
         selected_data = self.data.gst.select_by_values(
-            "nr", selected_header["nr"].unique()
+            self._nr, selected_header[self._nr].unique()
         )
         return self.__class__(
             selected_data,
@@ -608,30 +644,40 @@ class Collection(AbstractBase):
             )
 
     @_requires_depth
-    def determine_end_depth(self):
+    def determine_end_depth(self, survey_id_as_index: bool = True) -> pd.Series:
         """
-        Determine the end depth of each survey based on the surface and depth
-        columns.
+        Determine the end depth of each survey based on the surface and depth columns in
+        the data table of the Collection.
+
+        Parameters
+        ----------
+        survey_id_as_index : bool, optional
+            If True, the returned Series will have the survey ID column as its index. The
+            default is True.
 
         Returns
         -------
-        a pandas Series containing the end depth for each survey in the data.
+        pd.Series
+            A pandas Series containing the end depth for each survey in the data with the
+            same index as the original data table.
 
         """
-        return self.header.gst.determine_end_depth()["end"]
+        end = self.data.gst.determine_end_depth()
+        end.name = "end"
+        if survey_id_as_index:
+            end.index = self.data[self._nr]
+        return end
 
-    @_requires_depth
     def select_by_elevation(
         self,
         top_min: float = None,
         top_max: float = None,
         end_min: float = None,
         end_max: float = None,
-    ):
+    ) -> Collection:
         """
-        Select data from depth constraints. If a keyword argument is not given it will
-        not be considered. e.g. if you need only boreholes that go deeper than -500 m
-        use only end_max = -500.
+        Select surveys by elevation constraints: e.g. all surveys with their surface level
+        and end depths between specified minimum and maximum values. See examples below.
 
         Parameters
         ----------
@@ -642,21 +688,36 @@ class Collection(AbstractBase):
         end_min : float, optional
             Minimum elevation of the borehole/cpt end, by default None.
         end_max : float, optional
-            Maximumelevation of the borehole/cpt end, by default None.
+            Maximum elevation of the borehole/cpt end, by default None.
 
         Returns
         -------
-        New instance of the current object.
+        :class:`~geost.base.Collection`
             New instance of the current object containing only the selection resulting
             from application of this method. e.g. if you are calling this method from a
             Collection, you will get an instance of a Collection back.
 
+        Examples
+        --------
+        For example, select all surveys with their surface level between 0 and 5 m and end
+        depth between -20 and -10 m.
+
+        >>> selection = collection.select_by_elevation(top_min=0, top_max=5, end_min=-20, end_max=-10)
+
         """
-        selected_header = self.header.gst.select_by_elevation(
+        selected_header = self.header.copy()
+
+        if "end" not in selected_header.columns:
+            ends = self.determine_end_depth(survey_id_as_index=True)
+            selected_header = selected_header.merge(
+                ends[~ends.index.duplicated()], on=self._nr, how="left"
+            )
+
+        selected_header = selected_header.gst.select_by_elevation(
             top_min=top_min, top_max=top_max, end_min=end_min, end_max=end_max
         )
         selected_data = self.data.gst.select_by_values(
-            "nr", selected_header["nr"].unique()
+            self._nr, selected_header[self._nr].unique()
         )
         return self.__class__(
             selected_data,
@@ -665,31 +726,41 @@ class Collection(AbstractBase):
             vertical_reference=self.vertical_reference,
         )
 
-    @_requires_depth
-    def select_by_length(self, min_length: float = None, max_length: float = None):
+    def select_by_length(
+        self, min_length: float = None, max_length: float = None
+    ) -> Collection:
         """
-        Select data from length constraints: e.g. all boreholes between 50 and 150 m
-        long. If a keyword argument is not given it will not be considered.
+        Select data from length constraints: e.g. all surveys between 50 and 150 m
+        long.
 
         Parameters
         ----------
         min_length : float, optional
-            Minimum length of borehole/cpt, by default None.
+            Minimum length of the survey. The default is None.
         max_length : float, optional
-            Maximum length of borehole/cpt, by default None.
+            Maximum length of the survey. The default is None.
 
         Returns
         -------
-        New instance of the current object.
+        :class:`~geost.base.Collection`
             New instance of the current object containing only the selection resulting
             from application of this method. e.g. if you are calling this method from a
             Collection, you will get an instance of a Collection back.
+
         """
-        selected_header = self.header.gst.select_by_length(
+        selected_header = self.header.copy()
+
+        if "end" not in selected_header.columns:
+            ends = self.determine_end_depth(survey_id_as_index=True)
+            selected_header = selected_header.merge(
+                ends[~ends.index.duplicated()], on=self._nr, how="left"
+            )
+
+        selected_header = selected_header.gst.select_by_length(
             min_length=min_length, max_length=max_length
         )
         selected_data = self.data.gst.select_by_values(
-            "nr", selected_header["nr"].unique()
+            self._nr, selected_header[self._nr].unique()
         )
         return self.__class__(
             selected_data,
@@ -761,7 +832,7 @@ class Collection(AbstractBase):
             column, values, how=how, invert=invert, inclusive=inclusive
         )
         selected_header = self.header.gst.select_by_values(
-            "nr", selected_data["nr"].unique()
+            self._nr, selected_data[self._nr].unique()
         )
         return self.__class__(
             selected_data,
@@ -831,7 +902,7 @@ class Collection(AbstractBase):
             update_layer_boundaries=update_layer_boundaries,
         )
         selected_header = self.header.gst.select_by_values(
-            "nr", selected_data["nr"].unique()
+            self._nr, selected_data[self._nr].unique()
         )
         return self.__class__(
             selected_data,
@@ -897,7 +968,7 @@ class Collection(AbstractBase):
             column, values, invert=invert, inclusive=inclusive
         )
         selected_header = self.header.gst.select_by_values(
-            "nr", selected_data["nr"].unique()
+            self._nr, selected_data[self._nr].unique()
         )
         return self.__class__(
             selected_data,
@@ -948,7 +1019,7 @@ class Collection(AbstractBase):
         """
         selected_data = self.data.gst.select_by_condition(condition, invert)
         selected_header = self.header.gst.select_by_values(
-            "nr", selected_data["nr"].unique()
+            self._nr, selected_data[self._nr].unique()
         )
         return self.__class__(
             selected_data,
@@ -1011,7 +1082,7 @@ class Collection(AbstractBase):
 
             thickness.name = column_name
             self.header.drop(columns=column_name, errors="ignore", inplace=True)
-            self.header = self.header.merge(thickness, on="nr", how="left")
+            self.header = self.header.merge(thickness, on=self._nr, how="left")
         else:
             return thickness
 
@@ -1081,7 +1152,7 @@ class Collection(AbstractBase):
 
             top.name = column_name
             self.header.drop(columns=column_name, errors="ignore", inplace=True)
-            self.header = self.header.merge(top, on="nr", how="left")
+            self.header = self.header.merge(top, on=self._nr, how="left")
         else:
             return top
 
@@ -1138,7 +1209,7 @@ class Collection(AbstractBase):
             )
             base.name = column_name
             self.header.drop(columns=column_name, errors="ignore", inplace=True)
-            self.header = self.header.merge(base, on="nr", how="left")
+            self.header = self.header.merge(base, on=self._nr, how="left")
         else:
             return base
 

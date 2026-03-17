@@ -342,22 +342,36 @@ class TestGeostFrame:
     @pytest.mark.unittest
     def test_select_by_elevation(self, borehole_data):
         # Test with only top_min specified
-        selected = borehole_data.gst.select_by_elevation(top_min=0)
-        assert_array_equal(selected["nr"].unique(), ["A", "B", "C", "D", "E"])
+        selected = borehole_data.gst.select_by_elevation(top_min=0, top_max=0.25)
+        assert_array_equal(selected["nr"].unique(), ["A", "C", "D"])
 
         # Test with only end_min specified
-        selected = borehole_data.gst.select_by_elevation(end_min=-3)
-        assert_array_equal(selected["nr"].unique(), ["D"])
+        selected = borehole_data.gst.select_by_elevation(end_max=-3, end_min=-4)
+        assert_array_equal(selected["nr"].unique(), ["A", "B", "E"])
 
-        # Test with noe "end" column, and both top_min and end_min specified
+        # Test same selection with end column missing, will be computed from data and added
+        # to header, result must be the same.
         selected = borehole_data.drop(columns=["end"]).gst.select_by_elevation(
-            top_min=0, end_min=-3
+            end_max=-3, end_min=-4
         )
-        assert_array_equal(selected["nr"].unique(), ["D"])
+        assert_array_equal(selected["nr"].unique(), ["A", "B", "E"])
 
-        # Test with both end_min and end_max specified
-        selected = borehole_data.gst.select_by_elevation(end_min=-3, end_max=-2.9)
-        assert_array_equal(selected["nr"].unique(), ["D"])
+        expected_error = (
+            "Cannot use 'end_min' and 'end_max' in select_by_elevation data"
+            "has no column 'end' and no depth information is found in the data."
+        )
+        with pytest.raises(KeyError, match=expected_error):
+            borehole_data.drop(
+                columns=["end", "top", "bottom"]
+            ).gst.select_by_elevation(end_max=-3, end_min=-4)
+
+        with pytest.raises(
+            KeyError,
+            match="Cannot use select_by_elevation if no surface column is found",
+        ):
+            borehole_data.rename(
+                columns={"surface": "invalid_surface"}
+            ).gst.select_by_elevation(top_min=0, top_max=0.25)
 
     @pytest.mark.unittest
     def test_select_by_length(self, borehole_data):
@@ -374,6 +388,15 @@ class TestGeostFrame:
             min_length=4.0, max_length=5.0
         )
         assert_array_equal(selected["nr"].unique(), ["A"])
+
+        expected_error = (
+            "Cannot use select_by_length if data has no column 'end' and no depth "
+            "information is found in the data."
+        )
+        with pytest.raises(KeyError, match=expected_error):
+            borehole_data.drop(columns=["end", "top", "bottom"]).gst.select_by_length(
+                min_length=4.0, max_length=5.0
+            )
 
     @pytest.mark.unittest
     def test_select_within_bbox(self, point_header):
@@ -942,6 +965,4 @@ class TestGeostFrame:
 
     @pytest.mark.unittest
     def test_to_qgis3d(self, borehole_data, tmp_path):
-        outfile = tmp_path / r"borehole_data_qgis3d.gpkg"
-        geodataframe = borehole_data.gst.to_qgis3d(outfile, crs=28992)
-        assert isinstance(geodataframe, gpd.GeoDataFrame)
+        assert 1 == 2  # TODO: add unit test

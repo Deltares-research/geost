@@ -87,7 +87,7 @@ class GeostFrame(AbstractBase):
         determine whether specific selection operations can be performed on the object.
 
         """
-        if (self._x and self._y) is not None:
+        if self._x is not None and self._y is not None:
             return True
         return False
 
@@ -99,7 +99,7 @@ class GeostFrame(AbstractBase):
         selection operations can be performed on the object.
 
         """
-        if (self._surface and self._bottom) is not None:
+        if self._surface is not None and self._bottom is not None:
             return True
         return False
 
@@ -111,7 +111,7 @@ class GeostFrame(AbstractBase):
         can be performed on the object.
 
         """
-        if (self._top and self._bottom) is not None:
+        if self._top is not None and self._bottom is not None:
             return True
         return False
 
@@ -371,7 +371,7 @@ class GeostFrame(AbstractBase):
                 self._x: "x",
                 self._y: "y",
                 self._top: "top",
-                self._bottom: "depth",  # Use depth so concatenation of layered and discrete data goes well
+                self._bottom: "depth",  # Use 'depth' so concatenation of layered and discrete data goes well
             }
         else:
             mapping = {
@@ -519,6 +519,7 @@ class GeostFrame(AbstractBase):
         )
         return selection
 
+    @_requires_depth
     def determine_end_depth(self) -> pd.Series:
         """
         Determines the end depth of each survey in the data, by looking at the difference
@@ -532,12 +533,10 @@ class GeostFrame(AbstractBase):
             as the original GeoDataFrame.
 
         """
-        selected = self._obj
-        ends = selected.groupby(self._nr)[self._bottom].transform("max")
-        ends = selected[self._surface] - ends
+        ends = self._obj.groupby(self._nr)[self._bottom].transform("max")
+        ends = self._obj[self._surface] - ends
         return ends
 
-    @_requires_depth
     def select_by_elevation(
         self,
         top_min: float | int = None,
@@ -558,24 +557,37 @@ class GeostFrame(AbstractBase):
             Minimum elevation of the end of the survey for selection.
         end_max : float | int, optional
             Maximum elevation of the end of the survey for selection.
+
         Returns
         -------
         gpd.GeoDataFrame
             GeoDataFrame instance containing only the selected surveys.
 
         """
+        if self._surface is None:
+            raise KeyError(
+                "Cannot use select_by_elevation if no surface column is found in the data."
+            )
+
         selected = self._obj
 
         if top_min is not None or top_max is not None:
-            top_min = top_min or -1e34
-            top_max = top_max or 1e34
+            top_min = top_min if top_min is not None else -1e34
+            top_max = top_max if top_max is not None else 1e34
             selected = selected[selected[self._surface].between(top_min, top_max)]
 
         if end_min is not None or end_max is not None:
-            end_min = end_min or -1e34
-            end_max = end_max or 1e34
+            end_min = end_min if end_min is not None else -1e34
+            end_max = end_max if end_max is not None else 1e34
+
             if "end" not in selected.columns:
-                end = self.determine_end_depth()
+                try:
+                    end = self.determine_end_depth()
+                except KeyError as e:
+                    raise KeyError(
+                        "Cannot use 'end_min' and 'end_max' in select_by_elevation data"
+                        "has no column 'end' and no depth information is found in the data."
+                    ) from e
                 mask = end.between(end_min, end_max)
             else:
                 mask = selected["end"].between(end_min, end_max)
@@ -584,7 +596,6 @@ class GeostFrame(AbstractBase):
 
         return selected
 
-    @_requires_depth
     def select_by_length(
         self, min_length: float = None, max_length: float = None
     ) -> gpd.GeoDataFrame:
@@ -598,6 +609,7 @@ class GeostFrame(AbstractBase):
             Minimum length of the survey for selection.
         max_length : float, optional
             Maximum length of the survey for selection.
+
         Returns
         -------
         gpd.GeoDataFrame
@@ -607,10 +619,17 @@ class GeostFrame(AbstractBase):
         selected = self._obj
 
         if min_length is not None or max_length is not None:
-            min_length = min_length or -1e34
-            max_length = max_length or 1e34
+            min_length = min_length if min_length is not None else -1e34
+            max_length = max_length if max_length is not None else 1e34
+
             if "end" not in selected.columns:
-                end = self.determine_end_depth()
+                try:
+                    end = self.determine_end_depth()
+                except KeyError as e:
+                    raise KeyError(
+                        "Cannot use select_by_length if data has no column 'end' and no depth "
+                        "information is found in the data."
+                    ) from e
                 mask = (selected[self._surface] - end).between(min_length, max_length)
             else:
                 mask = (selected[self._surface] - selected["end"]).between(
