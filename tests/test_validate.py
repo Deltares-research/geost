@@ -64,10 +64,10 @@ class TestValidationResult:
                 False,
                 pd.DataFrame(
                     {
-                        "nr": ["a", "b", "b"],
-                        "column": [1, 4, 5],
+                        "nr": ["b", "b"],
+                        "column": [4, 5],
                     },
-                    index=pd.Index([0, 3, 4]),
+                    index=pd.Index([3, 4]),
                 ),
             ),  # CASE I: drop invalid, do not flag
             (
@@ -100,7 +100,7 @@ class TestValidationResult:
         config.validation.DROP_INVALID = drop_invalid
         config.validation.FLAG_INVALID = flag_invalid
 
-        validation.handle_errors(test_df)
+        validation.handle_errors(test_df, nr_col="nr")
         assert test_df.equals(result_df)
 
 
@@ -214,7 +214,7 @@ class TestValidationFunctions:
 
         # Invalid - non-numeric surface
         validate.validate_base(invalid_base_df, column_names_depth, validation_result)
-        validation_result.handle_errors(invalid_base_df)
+        validation_result.handle_errors(invalid_base_df, nr_col="nr")
         assert validation_result.has_errors
         assert all(validation_result.errors["surface"]["indices"] == [0, 1, 2])
 
@@ -228,7 +228,7 @@ class TestValidationFunctions:
 
         # Invalid - non-numeric x and NaN y
         validate.validate_xy(invalid_xy_df, column_names_depth, validation_result)
-        validation_result.handle_errors(invalid_xy_df)
+        validation_result.handle_errors(invalid_xy_df, nr_col="nr")
         assert validation_result.has_errors
         assert all(validation_result.errors["x"]["indices"] == [1])
         assert all(validation_result.errors["y"]["indices"] == [2])
@@ -255,7 +255,7 @@ class TestValidationFunctions:
             invalid_top_bottom_df["nr"] != invalid_top_bottom_df["nr"].shift(),
             validation_result,
         )
-        validation_result.handle_errors(invalid_top_bottom_df)
+        validation_result.handle_errors(invalid_top_bottom_df, nr_col="nr")
         assert validation_result.has_errors
         assert all(validation_result.errors["top"]["indices"] == [3])
         assert all(validation_result.errors["top, bottom"]["indices"] == [1])
@@ -280,7 +280,7 @@ class TestValidationFunctions:
             invalid_depth_df["nr"] != invalid_depth_df["nr"].shift(),
             validation_result,
         )
-        validation_result.handle_errors(invalid_depth_df)
+        validation_result.handle_errors(invalid_depth_df, nr_col="nr")
         assert validation_result.has_errors
         assert all(validation_result.errors["depth"]["indices"] == [2])
 
