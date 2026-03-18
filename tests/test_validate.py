@@ -40,6 +40,7 @@ class TestValidationResult:
             (False, True),  # CASE II: do not drop invalid, flag them
             (False, False),  # CASE III: do not drop invalid, do not flag them
         ],
+        ids=["drop", "flag", "skip"],
     )
     def test_display_warnings(self, drop_invalid, flag_invalid):
         validation = ValidationResult()
@@ -92,6 +93,7 @@ class TestValidationResult:
                 ),
             ),  # CASE III: do not drop invalid, do not flag them
         ],
+        ids=["drop", "flag", "skip"],
     )
     def test_handle_errors(self, drop_invalid, flag_invalid, result_df, test_df):
         validation = ValidationResult()
@@ -100,7 +102,7 @@ class TestValidationResult:
         config.validation.DROP_INVALID = drop_invalid
         config.validation.FLAG_INVALID = flag_invalid
 
-        validation.handle_errors(test_df, nr_col="nr")
+        test_df = validation.handle_errors(test_df, nr_col="nr")
         assert test_df.equals(result_df)
 
 
@@ -148,15 +150,15 @@ class TestValidationFunctions:
         return df
 
     @pytest.fixture
-    def valid_xy_df(self, base_df):
+    def valid_dtypes(self, base_df):
         df = base_df.copy()
         df["x"] = [1, 2, 3, 4, 5]
         df["y"] = [1, 2, 3, 4, 5]
         return df
 
     @pytest.fixture
-    def invalid_xy_df(self, base_df):
-        df = base_df.copy()
+    def invalid_dtypes_df(self, invalid_base_df):
+        df = invalid_base_df.copy()
         df["x"] = [1, "a", 3, 4, 5]
         df["y"] = [1, 2, np.nan, 4, 5]
         return df
@@ -205,33 +207,31 @@ class TestValidationFunctions:
         return df
 
     @pytest.mark.unittest
-    def test_validate_base(self, base_df, invalid_base_df, column_names_depth):
+    def test_coerce_numeric(self, valid_dtypes, invalid_dtypes_df, column_names_depth):
         validation_result = ValidationResult()
 
-        # Valid
-        validate.validate_base(base_df, column_names_depth, validation_result)
-        assert not validation_result.has_errors
-
-        # Invalid - non-numeric surface
-        validate.validate_base(invalid_base_df, column_names_depth, validation_result)
-        validation_result.handle_errors(invalid_base_df, nr_col="nr")
-        assert validation_result.has_errors
-        assert all(validation_result.errors["surface"]["indices"] == [0, 1, 2])
-
-    @pytest.mark.unittest
-    def test_validate_xy(self, valid_xy_df, invalid_xy_df, column_names_depth):
-        validation_result = ValidationResult()
+        columns_to_check = [
+            column_names_depth.surface_col,
+            column_names_depth.x_col,
+            column_names_depth.y_col,
+        ]
 
         # Valid
-        validate.validate_xy(valid_xy_df, column_names_depth, validation_result)
+        validate.coerce_numeric(valid_dtypes, columns_to_check, validation_result)
         assert not validation_result.has_errors
 
         # Invalid - non-numeric x and NaN y
-        validate.validate_xy(invalid_xy_df, column_names_depth, validation_result)
-        validation_result.handle_errors(invalid_xy_df, nr_col="nr")
+        validate.coerce_numeric(invalid_dtypes_df, columns_to_check, validation_result)
+        validation_result.handle_errors(invalid_dtypes_df, nr_col="nr")
         assert validation_result.has_errors
+        assert all(validation_result.errors["surface"]["indices"] == [0, 1, 2])
         assert all(validation_result.errors["x"]["indices"] == [1])
         assert all(validation_result.errors["y"]["indices"] == [2])
+
+    @pytest.mark.unittest
+    def test_validate_base(self, base_df, invalid_base_df, column_names_depth):
+        validate.validate_base(base_df, column_names_depth)
+        validate.validate_base(invalid_base_df, column_names_depth)
 
     @pytest.mark.unittest
     def test_validate_top_bottom(
@@ -257,7 +257,6 @@ class TestValidationFunctions:
         )
         validation_result.handle_errors(invalid_top_bottom_df, nr_col="nr")
         assert validation_result.has_errors
-        assert all(validation_result.errors["top"]["indices"] == [3])
         assert all(validation_result.errors["top, bottom"]["indices"] == [1])
 
     @pytest.mark.unittest
@@ -287,7 +286,7 @@ class TestValidationFunctions:
     @pytest.mark.unittest
     def test_full_validation(self, full_top_bottom_df, full_depth_df):
         # Top / bottom
-        result_tb = validate.validate_geostframe(
+        df_tb, result_tb = validate.validate_geostframe(
             full_top_bottom_df,
             has_depth_columns=False,
             is_layered=True,
@@ -303,7 +302,7 @@ class TestValidationFunctions:
         )
 
         # Depth
-        result_d = validate.validate_geostframe(
+        df_d, result_d = validate.validate_geostframe(
             full_depth_df,
             has_depth_columns=True,
             is_layered=False,

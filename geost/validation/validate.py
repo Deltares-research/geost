@@ -111,11 +111,12 @@ class ValidationResult:
         pd.DataFrame
             The DataFrame with validation errors handled.
         """
+        df_validated = df.copy()
         if self.has_errors:
             if config.validation.FLAG_INVALID:
-                df["is_valid"] = ~df.index.isin(self.error_indices)
+                df_validated["is_valid"] = ~df_validated.index.isin(self.error_indices)
             if config.validation.DROP_INVALID:
-                df.drop(df[df[nr_col].isin(self.error_nrs)].index, inplace=True)
+                df_validated = df_validated[~df_validated[nr_col].isin(self.error_nrs)]
 
             if config.validation.VERBOSE:
                 if (
@@ -139,20 +140,27 @@ class ValidationResult:
                 print(
                     f"\n{'\U0001f4d6'} See the user guide section on validation for advanced handling of validation issues: https://deltares-research.github.io/geost/user_guide/validation.html"
                 )
+        return df_validated
 
 
 def coerce_numeric(
-    obj: pd.DataFrame, column: str, nullable: bool = False
+    obj: pd.DataFrame,
+    columns: str | list[str],
+    validation_result: ValidationResult,
+    nullable: bool = False,
 ) -> pd.DataFrame:
     """
-    Attempt to coerce a column to numeric, raising a ValueError if coercion fails.
+    Attempt to coerce a column or columns to numeric, raising a ValueError if coercion
+    fails.
 
     Parameters
     ----------
     obj : pd.DataFrame
         The DataFrame containing the column to coerce.
     column : str
-        The name of the column to coerce.
+        The name(s) of the column(s) to coerce.
+    validation_result : ValidationResult
+        The ValidationResult object to record any validation errors.
     nullable : bool, optional
         Whether to allow null values in the column. If False, any null values will cause
         coercion to fail. Default is False.
@@ -169,34 +177,29 @@ def coerce_numeric(
         If the column cannot be coerced to numeric.
 
     """
-    if not pd.api.types.is_numeric_dtype(obj[column]):
-        obj[column] = pd.to_numeric(obj[column], errors="coerce")
-        if not nullable:
+    for column in columns:
+        if not pd.api.types.is_numeric_dtype(obj[column]):
+            obj[column] = pd.to_numeric(obj[column], errors="coerce")
+            if not nullable:
+                error_indices = obj[obj[column].isna()].index
+                error_nrs = obj["nr"][obj[column].isna()].unique().tolist()
+                if len(error_nrs) > 0:
+                    warning = f"Column '{column}' must contain only numeric values, but some values could not be coerced. "
+                    validation_result.add(column, warning, error_nrs, error_indices)
+
+        elif pd.api.types.is_numeric_dtype(obj[column]) and not nullable:
             error_indices = obj[obj[column].isna()].index
             error_nrs = obj["nr"][obj[column].isna()].unique().tolist()
             if len(error_nrs) > 0:
-                warning = f"Column '{column}' must contain only numeric values, but some values could not be coerced. "
-            else:
-                warning = None
-    elif pd.api.types.is_numeric_dtype(obj[column]) and not nullable:
-        error_indices = obj[obj[column].isna()].index
-        error_nrs = obj["nr"][obj[column].isna()].unique().tolist()
-        if len(error_nrs) > 0:
-            warning = f"Column '{column}' must not contain NaN values, but some values are NaN."
-        else:
-            warning = None
-    else:
-        error_indices = pd.Index([])
-        error_nrs = []
-        warning = None
+                warning = f"Column '{column}' must not contain NaN values, but some values are NaN."
+                validation_result.add(column, warning, error_nrs, error_indices)
 
-    return obj, error_nrs, error_indices, warning
+    return obj
 
 
 def validate_base(
     obj: pd.DataFrame | gpd.GeoDataFrame,
     column_names: ColumnNames,
-    validation_result: ValidationResult,
 ) -> pd.DataFrame | gpd.GeoDataFrame:
     """
     Perform basic validation checks on the input DataFrame or GeoDataFrame.
@@ -206,11 +209,6 @@ def validate_base(
     ----------
     obj : pd.DataFrame | gpd.GeoDataFrame
         The DataFrame or GeoDataFrame to validate.
-
-    Returns
-    -------
-    pd.DataFrame | gpd.GeoDataFrame
-        The validated DataFrame or GeoDataFrame.
 
     Raises
     ------
@@ -225,26 +223,6 @@ def validate_base(
             f"GeostFrame missing required column: '{column_names.surface_col}'"
         )
 
-    obj, error_nrs, error_indices, warning = coerce_numeric(
-        obj, column_names.surface_col
-    )
-    validation_result.add(column_names.surface_col, warning, error_nrs, error_indices)
-    return obj
-
-
-def validate_xy(
-    obj: pd.DataFrame | gpd.GeoDataFrame,
-    column_names: ColumnNames,
-    validation_result: ValidationResult,
-):
-    obj, x_errors, x_error_indices, x_warning = coerce_numeric(obj, column_names.x_col)
-    obj, y_errors, y_error_indices, y_warning = coerce_numeric(obj, column_names.y_col)
-
-    validation_result.add(column_names.x_col, x_warning, x_errors, x_error_indices)
-    validation_result.add(column_names.y_col, y_warning, y_errors, y_error_indices)
-
-    return obj
-
 
 def validate_top_bottom(
     obj: pd.DataFrame | gpd.GeoDataFrame,
@@ -252,21 +230,6 @@ def validate_top_bottom(
     first_row_in_survey: pd.Series,
     validation_result: ValidationResult,
 ):
-    # Coerce top and bottom to numeric and collect any coercion errors
-    obj, top_errors, top_error_indices, top_warning = coerce_numeric(
-        obj, column_names.top_col
-    )
-    obj, bottom_errors, bottom_error_indices, bottom_warning = coerce_numeric(
-        obj, column_names.bottom_col
-    )
-
-    validation_result.add(
-        column_names.top_col, top_warning, top_errors, top_error_indices
-    )
-    validation_result.add(
-        column_names.bottom_col, bottom_warning, bottom_errors, bottom_error_indices
-    )
-
     # Ensure top is above bottom (i.e. top < bottom)
     invalid_indices = obj[
         obj[column_names.top_col] >= obj[column_names.bottom_col]
@@ -282,20 +245,6 @@ def validate_top_bottom(
         warning,
         invalid_nrs,
         invalid_indices,
-    )
-
-    # Ensure first top is 0
-    invalid_indices = obj[
-        first_row_in_survey & (obj[column_names.top_col] != 0.0)
-    ].index
-    invalid_nrs = obj["nr"].loc[invalid_indices].unique().tolist()
-    if len(invalid_indices) > 0:
-        warning = f"Column '{column_names.top_col}' must be 0 for the first row in each survey, but some rows violate this condition."
-    else:
-        warning = None
-
-    validation_result.add(
-        f"{column_names.top_col}", warning, invalid_nrs, invalid_indices
     )
 
     # Ensure top and bottom are positive downwards (i.e. >= 0)
@@ -319,8 +268,6 @@ def validate_top_bottom(
         invalid_indices,
     )
 
-    return obj
-
 
 def validate_depths(
     obj: pd.DataFrame | gpd.GeoDataFrame,
@@ -328,28 +275,6 @@ def validate_depths(
     first_row_in_survey: pd.Series,
     validation_result: ValidationResult,
 ):
-    obj, bottom_errors, bottom_error_indices, bottom_warning = coerce_numeric(
-        obj, column_names.bottom_col
-    )
-    validation_result.add(
-        column_names.bottom_col, bottom_warning, bottom_errors, bottom_error_indices
-    )
-
-    # Ensure first top is 0
-    if first_row_in_survey is not None:
-        invalid_indices = obj[
-            first_row_in_survey & (obj[column_names.bottom_col] != 0.0)
-        ].index
-        invalid_nrs = obj["nr"].loc[invalid_indices].unique().tolist()
-        if len(invalid_indices) > 0:
-            warning = f"Column '{column_names.bottom_col}' must be 0 for the first row in each survey, but some rows violate this condition."
-        else:
-            warning = None
-
-        validation_result.add(
-            f"{column_names.bottom_col}", warning, invalid_nrs, invalid_indices
-        )
-
     # Ensure depth column is positive downwards (i.e. >= 0)
     invalid_indices = obj[
         (obj[column_names.bottom_col].diff() < 0) & (~first_row_in_survey)
@@ -363,8 +288,6 @@ def validate_depths(
     validation_result.add(
         f"{column_names.bottom_col}", warning, invalid_nrs, invalid_indices
     )
-
-    return obj
 
 
 def validate_geostframe(
@@ -411,6 +334,8 @@ def validate_geostframe(
         The result of the validation, a :class:`~geost.validation.validate.ValidationResult`
         object.
     """
+    validation_result = ValidationResult()
+
     column_names = ColumnNames(
         nr_col=nr_col,
         surface_col=surface_col,
@@ -419,25 +344,35 @@ def validate_geostframe(
         top_col=top_col,
         bottom_col=bottom_col,
     )
-    validation_result = ValidationResult()
-    validated_obj = validate_base(obj, column_names, validation_result)
+    numeric_columns = [
+        col_name
+        for col_name in (
+            column_names.surface_col,
+            column_names.x_col,
+            column_names.y_col,
+            column_names.top_col,
+            column_names.bottom_col,
+        )
+        if col_name is not None
+    ]
+
+    validate_base(obj, column_names)
+    validated_obj = coerce_numeric(obj, numeric_columns, validation_result)
 
     if has_depth_columns:
         if is_layered:
-            validated_obj = validate_top_bottom(
+            validate_top_bottom(
                 validated_obj,
                 column_names,
                 first_row_in_survey,
                 validation_result,
             )
         else:
-            validated_obj = validate_depths(
+            validate_depths(
                 validated_obj, column_names, first_row_in_survey, validation_result
             )
-    if has_xy_columns:
-        validated_obj = validate_xy(validated_obj, column_names, validation_result)
 
     validation_result.display_warnings()
-    validation_result.handle_errors(validated_obj, column_names.nr_col)
+    validated_obj = validation_result.handle_errors(validated_obj, column_names.nr_col)
 
-    return validation_result
+    return validated_obj, validation_result

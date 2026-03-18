@@ -171,7 +171,7 @@ class Collection(AbstractBase):
     def header(self, header):
         if not header.empty:
             if not config.validation.SKIP:
-                header.gst.validate()
+                header = header.gst.validate()
         else:
             header = gpd.GeoDataFrame()
 
@@ -196,7 +196,7 @@ class Collection(AbstractBase):
     def data(self, data):
         if data is not None:
             if not config.validation.SKIP:
-                data.gst.validate()
+                data = data.gst.validate()
         else:
             data = pd.DataFrame()
 

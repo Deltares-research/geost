@@ -175,12 +175,15 @@ class GeostFrame(AbstractBase):
 
         Returns
         -------
+        pd.DataFrame
+            The validated DataFrame, which may have been modified by the validation process
+            according to the validation configuration (e.g. invalid data may have been dropped or flagged).
         ValidationResult
             If return result is True, returns the result of the validation, which is
             a :class:`~geost.validation.validate.ValidationResult` object.
 
         """
-        validation_result = validation.validate_geostframe(
+        validated_obj, validation_result = validation.validate_geostframe(
             self._obj,
             has_depth_columns=self.has_depth_columns,
             is_layered=self.is_layered,
@@ -195,7 +198,9 @@ class GeostFrame(AbstractBase):
         )
 
         if return_result:
-            return validation_result
+            return validated_obj, validation_result
+        else:
+            return validated_obj
 
     def to_header(
         self,

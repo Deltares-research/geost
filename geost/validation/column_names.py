@@ -51,12 +51,13 @@ def check_column_name(columns: Iterable[str], column_type: str) -> str:
     str
         The valid column name if found, otherwise None.
     """
-    name = next(
-        (
-            col
-            for col in columns.str.lower()
-            if col in POSSIBLE_COLUMN_NAMING[column_type]
-        ),
-        None,
-    )
-    return name
+    if any(columns):
+        name = next(
+            (
+                col
+                for col in columns.str.lower()
+                if col in POSSIBLE_COLUMN_NAMING[column_type]
+            ),
+            None,
+        )
+        return name
