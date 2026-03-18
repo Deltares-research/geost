@@ -1,4 +1,8 @@
-from typing import Iterable
+import warnings
+from typing import TYPE_CHECKING, Iterable
+
+if TYPE_CHECKING:
+    import pandas as pd
 
 POSSIBLE_COLUMN_NAMING = {
     "nr": {"nr", "bro_id", "nitg_nr", "nitg", "boorp"},
@@ -61,3 +65,41 @@ def check_column_name(columns: Iterable[str], column_type: str) -> str:
             None,
         )
         return name
+
+
+def check_positional_column_presence(df: pd.DataFrame) -> None:
+    try:
+        df.gst._nr  # Raises a KeyError if no survey ID can be found in the accessor
+    except KeyError as e:
+        raise KeyError(
+            "Input table is missing a mandatory column that identifies survey IDs. "
+            f" This can be one of: {sorted(POSSIBLE_COLUMN_NAMING['nr'])}. Use the "
+            "'column_mapper' argument to specify which column identifies the survey ID."
+        ) from e
+
+    warnings_list: list[str] = []
+
+    if not df.gst.has_xy_columns:
+        warnings_list.append(
+            "Input table is missing x/y coordinate columns. Accepted column names:\n"
+            f"x: {sorted(POSSIBLE_COLUMN_NAMING['x_coordinate'])}\n"
+            f"y: {sorted(POSSIBLE_COLUMN_NAMING['y_coordinate'])}\n"
+            "Use the 'column_mapper' argument to map your columns to 'x' and 'y'."
+        )
+
+    if not df.gst.has_depth_columns:
+        warnings_list.append(
+            "Input table is missing depth information on surface level and top and/or "
+            f"bottom depth. Accepted column names:\n"
+            f"surface: {sorted(POSSIBLE_COLUMN_NAMING['surface'])}\n"
+            f"top: {sorted(POSSIBLE_COLUMN_NAMING['top'])} (optional for layered data)\n"
+            f"depth: {sorted(POSSIBLE_COLUMN_NAMING['depth'])} (always required)\n"
+            "Use the 'column_mapper' argument to map your columns to the expected depth "
+            "columns."
+        )
+
+    if warnings_list:
+        warnings.warn(
+            f"Issues found while checking positional columns:\n- {'\n- '.join(warnings_list)}",
+            stacklevel=2,
+        )

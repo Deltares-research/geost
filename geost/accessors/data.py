@@ -66,7 +66,7 @@ class LayeredData:
         """
         header_columns = ["nr", "x", "y", "surface", "end"]
         header = self._df[header_columns].drop_duplicates("nr").reset_index(drop=True)
-        header = utils.casting.dataframe_to_geodataframe(header).set_crs(
+        header = utils.conversion.dataframe_to_geodataframe(header).set_crs(
             horizontal_reference
         )
         return header
@@ -808,7 +808,7 @@ class DiscreteData:
         """
         header_columns = ["nr", "x", "y", "surface", "end"]
         header = self._df[header_columns].drop_duplicates("nr").reset_index(drop=True)
-        header = utils.casting.dataframe_to_geodataframe(header).set_crs(
+        header = utils.conversion.dataframe_to_geodataframe(header).set_crs(
             horizontal_reference
         )
         return header

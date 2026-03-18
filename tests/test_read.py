@@ -9,11 +9,6 @@ from shapely import geometry as gmt
 
 import geost
 from geost.base import Collection
-from geost.io.read import (
-    MANDATORY_LAYERED_DATA_COLUMNS,
-    _check_mandatory_column_presence,
-    adjust_z_coordinates,
-)
 
 
 @pytest.fixture
@@ -69,24 +64,9 @@ def collection_pickle(borehole_collection, tmp_path):
     return outfile
 
 
-@pytest.fixture
-def table_wrong_columns():
-    return pd.DataFrame(
-        {
-            "nr": ["a", "b"],
-            "x": [1, 2],
-            "y": [1, 2],
-            "maaiveld": [1, 2],
-            "end": [1, 1],
-            "top": [1, 1],
-            "bottom": [2, 2],
-        }
-    )
-
-
 @pytest.mark.unittest
 def test_nlog_reader_from_parquet(testdatadir):
-    nlog_cores = geost.read_nlog_cores(
+    nlog = geost.read_nlog_cores(
         testdatadir / r"test_nlog_stratstelsel_20230807.parquet"
     )
     desired_df = pd.DataFrame(
@@ -98,10 +78,12 @@ def test_nlog_reader_from_parquet(testdatadir):
             "end": [-3921.75, -3262.69, -3865.89],
         }
     )
-    assert_array_equal(
-        nlog_cores.header[["nr", "x", "y", "surface", "end"]], desired_df
-    )
-    assert nlog_cores.has_inclined
+    assert isinstance(nlog, Collection)
+    assert nlog.header[desired_df.columns].equals(desired_df)
+    assert nlog.has_inclined
+    assert nlog.horizontal_reference == 28992
+    assert nlog.vertical_reference == 5709
+    assert nlog.data.shape == (62, 29)
 
 
 @pytest.mark.parametrize(
@@ -127,52 +109,30 @@ def test_read_borehole_table(filename, testdatadir):
 
 
 @pytest.mark.unittest
-def test_check_mandatory_columns(table_wrong_columns):
-    column_mapper = {"maaiveld": "surface"}
-    table_wrong_columns = _check_mandatory_column_presence(
-        table_wrong_columns, MANDATORY_LAYERED_DATA_COLUMNS, column_mapper
-    )
-    assert_array_equal(table_wrong_columns.columns, MANDATORY_LAYERED_DATA_COLUMNS)
-
-
-@pytest.mark.unittest
-def test_check_mandatory_columns_with_user_input(table_wrong_columns, monkeypatch):
-    monkeypatch.setattr("builtins.input", lambda _: "maaiveld")
-    table_wrong_columns = _check_mandatory_column_presence(
-        table_wrong_columns, MANDATORY_LAYERED_DATA_COLUMNS
-    )
-    assert_array_equal(table_wrong_columns.columns, MANDATORY_LAYERED_DATA_COLUMNS)
-
-
-@pytest.mark.unittest
-def test_adjust_z_coordinates(testdatadir):
-    file = testdatadir / r"test_borehole_table.parquet"
-    cores = geost.read_borehole_table(file, as_collection=False)
-    test_df = cores.copy()
-
-    # test situation where top and bottoms are already positive downward: no change
-    test_df = adjust_z_coordinates(test_df)
-    assert test_df.equals(cores)
-    assert test_df["top"].iloc[0] < test_df["top"].iloc[1]
-    assert test_df["bottom"].iloc[0] < test_df["bottom"].iloc[1]
-
-    # Test situation where top and bottoms are given as negative downward
-    test_df = cores.copy()
-    test_df["top"] *= -1
-    test_df["bottom"] *= -1
-
-    test_df = adjust_z_coordinates(test_df)
-    assert test_df.equals(cores)
-    assert test_df["top"].iloc[0] < test_df["top"].iloc[1]
-    assert test_df["bottom"].iloc[0] < test_df["bottom"].iloc[1]
-
-
-@pytest.mark.unittest
 def test_read_boris_xml(testdatadir):
-    boris_collection = geost.read_xml_boris(testdatadir / r"xml/test_boris_xml.xml")
-    assert isinstance(boris_collection, Collection)
-    assert boris_collection.n_points == 16
-    assert len(boris_collection.data) == 236
+    collection = geost.read_xml_boris(
+        testdatadir / r"xml/test_boris_xml.xml",
+        crs=28992,
+        include_in_header=["nr", "x", "y", "surface", "end"],
+        has_inclined=False,
+    )
+    assert isinstance(collection, Collection)
+    assert isinstance(collection.header, gpd.GeoDataFrame)
+    assert isinstance(collection.data, pd.DataFrame)
+    assert_array_equal(
+        collection.header.columns, ["nr", "x", "y", "surface", "end", "geometry"]
+    )
+    assert collection.header.shape == (16, 6)
+    assert collection.data.shape == (236, 51)
+    assert collection.horizontal_reference == 28992
+    assert collection.vertical_reference is None
+    assert not collection.has_inclined
+
+    df = geost.read_xml_boris(
+        testdatadir / r"xml/test_boris_xml.xml", as_collection=False
+    )
+    assert isinstance(df, pd.DataFrame)
+    assert df.shape == (236, 51)
 
 
 @pytest.mark.unittest

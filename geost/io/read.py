@@ -11,28 +11,12 @@ from geost.base import Collection
 from geost.bro import BroApi
 from geost.io import _parse_cpt_gef_files, xml
 from geost.io.parsers import BorisXML
-from geost.utils import casting, io_helpers
+from geost.utils import conversion, io_helpers
+from geost.validation.column_names import check_positional_column_presence
 
 type BroObject = Literal["BHR-GT", "BHR-GT-samples", "BHR-P", "BHR-G", "CPT", "SFR"]
 
-MANDATORY_LAYERED_DATA_COLUMNS = ["nr", "x", "y", "surface", "end", "top", "bottom"]
-MANDATORY_DISCRETE_DATA_COLUMNS = ["nr", "x", "y", "surface", "end", "depth"]
-MANDATORY_INCLINED_LAYERED_DATA_COLUMNS = [
-    "nr",
-    "x",
-    "y",
-    "x_bot",
-    "y_bot",
-    "surface",
-    "end",
-    "top",
-    "bottom",
-]
-GEOMETRY_TO_SELECTION_FUNCTION = {
-    "Polygon": "select_within_polygons",
-    "Line": "select_with_lines",
-    "Point": "select_with_points",
-}
+
 LLG_COLUMN_MAPPING = {
     "BOORP": "nr",
     "XCO": "x",
@@ -42,64 +26,6 @@ LLG_COLUMN_MAPPING = {
     "BEGIN_DIEPTE": "top",
     "EIND_DIEPTE": "bottom",
 }
-
-
-def adjust_z_coordinates(data_dataframe: pd.DataFrame) -> pd.DataFrame:
-    """
-    Interpret data containing elevation or z-coordinates. GeoST data objects require
-    that layer top/bottom or discrete data point z-coordinates to be increasing
-    downward, starting at at 0. This function detects how elevation is currently defined
-    and turns it into the desired format if required.
-
-    Parameters
-    ----------
-    data_dataframe : pd.DataFrame
-        Dataframe with layer or discrete data that includes columns referecing layer
-        top, bottoms or discrete data z-coordinates.
-    """
-    top_column_label = [
-        col for col in data_dataframe.columns if col in {"top", "depth"}
-    ][0]
-    has_bottom_column = "bottom" in data_dataframe.columns
-
-    # TODO: think about detection. Only considers first two indices to determine
-    # downward decreasing or increasing of z-coordinates.
-    first_surface = data_dataframe["surface"].iloc[0]
-    first_top = data_dataframe[top_column_label].iloc[0]
-    second_top = data_dataframe[top_column_label].iloc[1]
-
-    if first_top == first_surface:
-        data_dataframe[top_column_label] -= data_dataframe["surface"]
-        if has_bottom_column:
-            data_dataframe["bottom"] -= data_dataframe["surface"]
-    if first_top > second_top:
-        data_dataframe[top_column_label] *= -1
-        if has_bottom_column:
-            data_dataframe["bottom"] *= -1
-
-    return data_dataframe
-
-
-def _check_mandatory_column_presence(
-    df: pd.DataFrame, mandatory_cols: list, column_mapper: dict = None
-) -> pd.DataFrame:
-    missing_mandatory = [col for col in mandatory_cols if col not in df.columns]
-
-    if missing_mandatory:
-        if not column_mapper:
-            column_mapper = dict()
-            print(
-                f"\nMandatory columns {missing_mandatory} are missing in the "
-                f"data table. Columns present are: \n{list(df.columns)}\n"
-            )
-            for missing in missing_mandatory:
-                name = input(f"Which column is {missing}? ")
-                column_mapper[name] = missing
-
-        df.rename(columns=column_mapper, inplace=True)
-        df = df.loc[:, ~df.columns.duplicated(keep="last")]
-
-    return df
 
 
 def read_table(
@@ -198,18 +124,11 @@ def read_borehole_table(
 
     boreholes = io_helpers._pandas_read(file, **pd_kwargs)
 
-    has_inclined = coll_kwargs.get("has_inclined", False)
-    if has_inclined:
-        boreholes = _check_mandatory_column_presence(
-            boreholes, MANDATORY_INCLINED_LAYERED_DATA_COLUMNS, column_mapper
-        )
-    else:
-        boreholes = _check_mandatory_column_presence(
-            boreholes, MANDATORY_LAYERED_DATA_COLUMNS, column_mapper
-        )
-    # Figure out top and bottom reference and coerce to downward increasing from 0 if
-    # required.
-    boreholes = adjust_z_coordinates(boreholes)
+    if column_mapper:
+        boreholes.rename(columns=column_mapper, inplace=True)
+
+    check_positional_column_presence(boreholes)
+    boreholes = conversion.adjust_z_coordinates(boreholes)
 
     if as_collection:
         boreholes = boreholes.gst.to_collection(**coll_kwargs)
@@ -274,9 +193,10 @@ def read_cpt_table(
 
     cpts = io_helpers._pandas_read(file, **pd_kwargs)
 
-    cpts = _check_mandatory_column_presence(
-        cpts, MANDATORY_DISCRETE_DATA_COLUMNS, column_mapper
-    )
+    if column_mapper:
+        cpts.rename(columns=column_mapper, inplace=True)
+
+    check_positional_column_presence(cpts)
 
     if as_collection:
         cpts = cpts.gst.to_collection(**coll_kwargs)
@@ -284,19 +204,22 @@ def read_cpt_table(
     return cpts
 
 
-def read_nlog_cores(file: str | Path) -> Collection:
+def read_nlog_cores(file: str | Path, **kwargs) -> Collection:
     """
     Read NLog boreholes from the 'nlog_stratstelsel' Excel file. You can find this
     distribution of borehole data here: https://www.nlog.nl/boringen
 
-    Warning: reading this Excel file is really slow (~10 minutes). Converting it to
-    parquet using :func:`~geost.utils.io_helpers.excel_to_parquet` once and using that
-    file instead allows for much faster reading of nlog data.
+    Note: reading this Excel file is really slow. Converting it to parquet using
+    :func:`~geost.utils.io_helpers.excel_to_parquet` once and using that file instead
+    allows for much faster reading of nlog data.
 
     Parameters
     ----------
     file : str | Path
         Path to nlog_stratstelsel.xlsx or .parquet
+    **kwargs
+        Optional keyword arguments for Pandas.read_parquet or Pandas.read_excel depending
+        on the file extension of `file`.
 
     Returns
     -------
@@ -304,9 +227,9 @@ def read_nlog_cores(file: str | Path) -> Collection:
         :class:`~geost.borehole.Collection`
 
     """
-    nlog_cores = io_helpers._pandas_read(file)
+    data = io_helpers._pandas_read(file, **kwargs)
 
-    nlog_cores.rename(
+    data.rename(
         columns={
             "NITG_NR": "nr",
             "X_TOP_RD": "x",
@@ -319,48 +242,23 @@ def read_nlog_cores(file: str | Path) -> Collection:
         inplace=True,
     )
 
-    nlog_cores["top"] *= -1
-    nlog_cores["bottom"] *= -1
-
-    nrs = []
-    x = []
-    y = []
-    x_bot = []
-    y_bot = []
-    surface = []
-    end = []
-    nrs_data = []
-    surface_data = []
-    end_data = []
-    for nr, data in nlog_cores.groupby("nr"):
-        nrs.append(nr)
-        x.append(data["x"].iloc[0])
-        y.append(data["y"].iloc[0])
-        x_bot.append(data["x_bot"].iloc[0])
-        y_bot.append(data["y_bot"].iloc[0])
-        surface.append(data["top"].iloc[0])
-        end.append(data["bottom"].iloc[-1])
-        nrs_data += [nr for i in range(len(data))]
-        surface_data += [data["top"].iloc[0] for i in range(len(data))]
-        end_data += [data["bottom"].iloc[-1] for i in range(len(data))]
-
-    surface_end_df = pd.DataFrame(
-        {"nr": nrs_data, "surface": surface_data, "end": end_data}
-    ).drop_duplicates("nr")
-
-    nlog_cores = nlog_cores.merge(surface_end_df, on="nr", how="left")
-    nlog_cores = adjust_z_coordinates(nlog_cores)
-
-    return nlog_cores.gstda.to_collection(
-        has_inclined=True, horizontal_reference=28992, vertical_reference=5709
+    data[["top", "bottom"]] *= -1
+    header = data.groupby("nr", as_index=False).agg(
+        {"x": "first", "y": "first", "top": "max", "bottom": "min"}
     )
+    header.rename(columns={"top": "surface", "bottom": "end"}, inplace=True)
+    header = gpd.GeoDataFrame(
+        header, geometry=gpd.points_from_xy(header["x"], header["y"]), crs=28992
+    )
+
+    data = data.merge(header[["nr", "surface", "end"]], on="nr", how="left")
+    data = conversion.adjust_z_coordinates(data)
+
+    return Collection(data, header=header, has_inclined=True, vertical_reference=5709)
 
 
 def read_xml_boris(
-    file: str | Path,
-    horizontal_reference: str | int | CRS = 28992,
-    vertical_reference: str | int | CRS = 5709,
-    as_collection: bool = True,
+    file: str | Path, as_collection: bool = True, **kwargs
 ) -> Collection:
     """
     Read export XML of the BORIS software. BORIS is software developed by TNO to
@@ -371,18 +269,13 @@ def read_xml_boris(
     ----------
     file : str | Path
         File with the borehole information to read.
-    horizontal_reference : str | int | CRS, optional
-        EPSG of the data's horizontal reference. Takes anything that can be interpreted
-        by pyproj.crs.CRS.from_user_input(). The default is 28992.
-    vertical_reference : str | int | CRS, optional
-        EPSG of the data's vertical datum. Takes anything that can be interpreted by
-        pyproj.crs.CRS.from_user_input(). However, it must be a vertical datum. FYI:
-        "NAP" is EPSG 5709 and The Belgian reference system (Ostend height) is ESPG
-        5710. The default is 5709.
     as_collection : bool, optional
         If True, the CPT table will be read as a :class:`~geost.base.Collection`
         which includes a header object and spatial selection functionality. If False,
         a :class:`~geost.base.LayeredData` object is returned. The default is True.
+    **kwargs
+        Additional keyword arguments that can be given to :meth:`~geost.accessor.GeostFrame.to_collection`
+        when `as_collection=True`.
 
     Returns
     -------
@@ -396,11 +289,7 @@ def read_xml_boris(
     if as_collection:
         # Think of a better way to translate non-standard BORIS crs encoding or keep it
         # user-defined (like we do in other reader functions)
-        boreholes = boreholes.gstda.to_collection(
-            has_inclined=False,
-            horizontal_reference=horizontal_reference,
-            vertical_reference=vertical_reference,
-        )
+        boreholes = boreholes.gst.to_collection(**kwargs)
 
     return boreholes
 
@@ -886,7 +775,7 @@ def read_uullg_tables(
     header = header.astype({"nr": str})
     data = data.astype({"nr": str})
 
-    header = casting.dataframe_to_geodataframe(header).set_crs(horizontal_reference)
+    header = conversion.dataframe_to_geodataframe(header).set_crs(horizontal_reference)
 
     add_header_cols = [c for c in {"x", "y", "surface", "end"} if c not in data.columns]
     if add_header_cols:
@@ -1107,7 +996,7 @@ def bro_api_read(
         if bbox:
             xmin, ymin, xmax, ymax = bbox
         elif geometry is not None:
-            geometry = casting.check_geometry_instance(geometry)
+            geometry = conversion.check_geometry_instance(geometry)
             epsg = CRS.from_user_input(geometry.crs or epsg)
             if geometry.crs is None:
                 warnings.warn(
