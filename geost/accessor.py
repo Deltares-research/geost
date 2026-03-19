@@ -128,7 +128,11 @@ class GeostFrame(AbstractBase):
             elsewhere.
 
         """
-        return self._obj[self._nr] != self._obj[self._nr].shift()
+        first_row = self._obj[self._nr] != self._obj[self._nr].shift()
+        first_row = first_row.fillna(True)
+        # We do an explicit fillna because some dtypes result in <NA> in boolean comparison.
+        # The first row of the DataFrame is always the start of a new survey
+        return first_row
 
     @property
     def last_row_survey(self):
@@ -143,7 +147,11 @@ class GeostFrame(AbstractBase):
             elsewhere.
 
         """
-        return self._obj[self._nr] != self._obj[self._nr].shift(-1)
+        last_row_survey = self._obj[self._nr] != self._obj[self._nr].shift(-1)
+        last_row_survey = last_row_survey.fillna(True)
+        # We do an explicit fillna because some dtypes result in <NA> in boolean comparison.
+        # The last row of the DataFrame is always the end of a survey
+        return last_row_survey
 
     @staticmethod
     def _to_iterable(value: str | Iterable) -> Iterable:
