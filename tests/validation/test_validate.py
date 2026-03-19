@@ -220,7 +220,7 @@ class TestValidationFunctions:
         validate.coerce_numeric(valid_dtypes, columns_to_check, validation_result)
         assert not validation_result.has_errors
 
-        # Invalid - non-numeric x and NaN y
+        # Invalid - non-numeric x, surface levels and NaN y
         validate.coerce_numeric(invalid_dtypes_df, columns_to_check, validation_result)
         validation_result.handle_errors(invalid_dtypes_df, nr_col="nr")
         assert validation_result.has_errors

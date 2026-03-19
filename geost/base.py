@@ -169,10 +169,7 @@ class Collection(AbstractBase):
 
     @header.setter
     def header(self, header):
-        if not header.empty:
-            if not config.validation.SKIP:
-                header = header.gst.validate()
-        else:
+        if header.empty:
             header = gpd.GeoDataFrame()
 
         self.set_header(header)  # This ensures header will always be a GeoDataFrame
