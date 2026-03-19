@@ -39,7 +39,7 @@ POSSIBLE_COLUMN_NAMING = {
 }
 
 
-def check_column_name(columns: Iterable[str], column_type: str) -> str:
+def check_column_name(columns: Iterable[str], column_type: str) -> str | None:
     """
     Check if a column name is valid by comparing it against a set of valid names.
 
@@ -52,19 +52,15 @@ def check_column_name(columns: Iterable[str], column_type: str) -> str:
 
     Returns
     -------
-    str
+    str | None
         The valid column name if found, otherwise None.
+
     """
-    if any(columns):
-        name = next(
-            (
-                col
-                for col in columns.str.lower()
-                if col in POSSIBLE_COLUMN_NAMING[column_type]
-            ),
-            None,
-        )
-        return name
+    valid_names = POSSIBLE_COLUMN_NAMING[column_type]
+    for col in map(str.lower, columns):
+        if col in valid_names:
+            return col
+    return None
 
 
 def check_positional_column_presence(df: pd.DataFrame) -> None:
@@ -73,7 +69,7 @@ def check_positional_column_presence(df: pd.DataFrame) -> None:
     except KeyError as e:
         raise KeyError(
             "Input table is missing a mandatory column that identifies survey IDs. "
-            f" This can be one of: {sorted(POSSIBLE_COLUMN_NAMING['nr'])}. Use the "
+            f"This can be one of: {sorted(POSSIBLE_COLUMN_NAMING['nr'])}. Use the "
             "'column_mapper' argument to specify which column identifies the survey ID."
         ) from e
 
