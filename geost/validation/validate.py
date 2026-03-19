@@ -1,6 +1,6 @@
 import warnings
-from collections import namedtuple
 from functools import reduce
+from typing import NamedTuple
 
 import geopandas as gpd
 import pandas as pd
@@ -8,17 +8,14 @@ import pandas as pd
 from geost import config
 from geost._warnings import ValidationWarning
 
-ColumnNames = namedtuple(
-    "ColumnNames",
-    [
-        "nr_col",
-        "surface_col",
-        "x_col",
-        "y_col",
-        "top_col",
-        "bottom_col",
-    ],
-)
+
+class ColumnNames(NamedTuple):
+    nr_col: str | None
+    surface_col: str | None
+    x_col: str | None
+    y_col: str | None
+    top_col: str | None
+    bottom_col: str | None
 
 
 class ValidationResult:
