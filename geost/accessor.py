@@ -205,7 +205,6 @@ class GeostFrame(AbstractBase):
     def to_header(
         self,
         include_columns: str | Iterable[str] | None = None,
-        exclude_columns: str | Iterable[str] | None = None,
         coordinate_names: tuple[str, str] = None,
         crs: str | int | CRS = None,
     ) -> gpd.GeoDataFrame:
@@ -214,23 +213,21 @@ class GeostFrame(AbstractBase):
         the creation of a :class:`~geost.base.Collection` object. The header contains one
         row per unique object in the DataFrame, identified by the "nr" column. The header
         can contain a geometry column with point geometries created from specified coordinate
-        columns in the DataFrame. Optional columns can be given to be included or excluded
-        in the header.
+        columns in the DataFrame. By default only the columns 'nr', 'surface', 'x', and 'y'
+        or aliases (see `POSSIBLE_COLUMN_NAMING` in :module:`~geost.validation.column_names`)
+        are included. Optional columns can be given to be included using the include_columns parameter.
 
         Parameters
         ----------
         include_columns : str | Iterable[str] | None, optional
-            Columns to include in the header. The default is None, which includes all
-            columns. If "nr" is not included in the specified columns, it will be added
-            automatically as it is required.
-        exclude_columns : str | Iterable[str] | None, optional
-            Columns to exclude from the header. The default is None, which excludes no
-            columns. If "nr" is included in the specified columns, an error is raised as
-            it is required.
+            Columns to aditionally include in the header. The default is None, which means
+            that only the default columns 'nr', 'surface', 'x' and 'y' or their aliases are included.
         coordinate_names : tuple[str, str], optional
             Tuple specifying the names of the columns to be used as coordinates for the
-            geometry column. The default is None, which means no geometry column will be
-            created.
+            geometry column. The default is None, which means that it automatically tries
+            to find the names of the x and y columns (see `POSSIBLE_COLUMN_NAMING` in
+            :module:`~geost.validation.column_names` ). If not found, no geometry column
+            will be created.
         crs : str | int | CRS, optional
             Coordinate reference system for the geometry column. The default is None,
             which means no CRS will be assigned to the resulting GeoDataFrame.
@@ -245,33 +242,40 @@ class GeostFrame(AbstractBase):
         ------
         KeyError
             Raised if the specified coordinate columns are not found in the DataFrame.
-        ValueError
-            Raised if both 'include_columns' and 'exclude_columns' are specified, or if
-            'nr' is given in the exclude_columns parameter.
 
         Examples
         --------
-        To create a header GeoDataFrame with all columns from the DataFrame and no geometry
+        To create a header GeoDataFrame with only default columns from the DataFrame and no geometry
         column:
 
         >>> header = data.gst.to_header()
 
-        To create a header GeoDataFrame with only specific columns from the DataFrame and
-        no geometry column:
+        To create a header GeoDataFrame with only default columns, two specified columns
+        'column1' and 'column2' from the DataFrame and no geometry column:
 
-        >>> header = data.gst.to_header(include_columns=["nr", "column1", "column2"])
+        >>> header = data.gst.to_header(include_columns=["column1", "column2"])
 
-        To create a header GeoDataFrame with a geometry column created from specified coordinate
-        names, a specific CRS and with columns excluded:
+        To create a header GeoDataFrame with a geometry column created from alternative coordinate
+        names and a specific CRS:
 
         >>> header = data.gst.to_header(
-        ...     coordinate_names=("x", "y"), crs=28992, exclude_columns=["column1", "column2"]
+        ...     coordinate_names=("x_alternative", "y_alternative"), crs=28992,
         ... )
 
         """
         import shapely
 
-        header = self._obj.drop_duplicates(subset=self._nr, ignore_index=True)
+        non_header_cols = [
+            col
+            for col in self._obj
+            if col
+            not in [self._nr, self._surface, self._x, self._y]
+            + (list((self._to_iterable(include_columns) or [])))
+        ]
+
+        header = self._obj.drop(columns=non_header_cols).drop_duplicates(
+            subset=self._nr, ignore_index=True
+        )
 
         if coordinate_names is not None:
             x_col, y_col = coordinate_names
@@ -286,19 +290,6 @@ class GeostFrame(AbstractBase):
         else:
             geometry = None
 
-        if include_columns is not None and exclude_columns is not None:
-            raise ValueError(
-                "Cannot specify both 'include_columns' and 'exclude_columns'."
-            )
-        elif include_columns is not None:
-            if self._nr not in include_columns:
-                include_columns = [self._nr] + list(include_columns)
-            header = header[include_columns]
-        elif exclude_columns is not None:
-            if self._nr in exclude_columns:
-                raise ValueError("Cannot exclude 'nr' column from header.")
-            header = header.drop(columns=exclude_columns)
-
         return gpd.GeoDataFrame(header, geometry=geometry, crs=crs)
 
     def to_collection(
@@ -308,7 +299,6 @@ class GeostFrame(AbstractBase):
         has_inclined: bool = False,
         coordinate_names: tuple[str, str] = None,
         include_in_header: str | Iterable[str] | None = None,
-        exclude_from_header: str | Iterable[str] | None = None,
     ):
         """
         Create a :class:`geost.base.Collection` from the current GeoDataFrame or DataFrame.
@@ -324,16 +314,13 @@ class GeostFrame(AbstractBase):
             Indicates whether the collection has inclined data. The default is False.
         coordinate_names : tuple[str, str], optional
             Tuple specifying the names of the columns to be used as coordinates for the
-            geometry column. The default is None, which means no geometry column will be
-            created.
-        include_in_header : str | Iterable[str] | None, optional
-            Columns to include in the header. The default is None, which includes all
-            columns. If "nr" is not included in the specified columns, it will be added
-            automatically as it is required.
-        exclude_from_header : str | Iterable[str] | None, optional
-            Columns to exclude from the header. The default is None, which excludes no
-            columns. If "nr" is included in the specified columns, an error is raised as
-            it is required.
+            geometry column. The default is None, which means that it automatically tries
+            to find the names of the x and y columns (see `POSSIBLE_COLUMN_NAMING` in
+            :module:`~geost.validation.column_names` ). If not found, no geometry column
+            will be created.
+        include_columns : str | Iterable[str] | None, optional
+            Columns to aditionally include in the header. The default is None, which means
+            that only the default columns 'nr', 'surface', 'x' and 'y' or their aliases are included.
 
         Returns
         -------
@@ -347,7 +334,6 @@ class GeostFrame(AbstractBase):
             crs=crs,
             coordinate_names=coordinate_names,
             include_columns=include_in_header,
-            exclude_columns=exclude_from_header,
         )
         return Collection(
             self._obj,

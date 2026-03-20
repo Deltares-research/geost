@@ -365,7 +365,9 @@ class Collection(AbstractBase):
         """
         Refresh the header based on the loaded data in case the header got messed up.
         """
-        self.header = self.data.gst.to_header(crs=self.horizontal_reference)
+        self.header = self.data.gst.to_header(
+            crs=self.horizontal_reference, include_columns=list(self.header.columns)
+        )
 
     def check_header_to_data_alignment(self):
         """
