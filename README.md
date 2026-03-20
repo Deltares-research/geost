@@ -13,36 +13,45 @@ The internal BoreholeCollection, LogCollection and CptCollection classes use [Pa
 GeoST is a work-in-progress and aims to support an increasing number of data sources.
 
 ## Installation (user)
-In a Python >= 3.12 environment, install the latest stable release using pip:
+In a Python >= 3.12 environment, install the latest stable release with `pixi` or with `pip`:
 
-    pip install geost
+```
+pixi add geost --pypi
+```
+```
+pip install geost
+```
 
 Or the latest (experimental) version of the main branch directly from GitHub using:
-
-    pip install git+https://github.com/Deltares-research/geost.git
+```
+pixi add --git https://github.com/Deltares-research/geost.git geost --pypi
+```
+```
+pip install git+https://github.com/Deltares-research/geost.git
+```
 
 ## Installation (developer)
 GeoST uses [Pixi](https://github.com/prefix-dev/pixi) for package management and workflows.
 
 With pixi installed, navigate to the folder of the cloned repository and run the following to install all GeoST dependencies and the package itself in editable mode:
-
-    pixi install
-
+```
+pixi install
+```
 See the [Pixi documentation](https://pixi.sh/latest/) for more information. Next open
 the Pixi shell by running:
-
-    pixi shell
-
+```
+pixi shell
+```
 Finally install the pre-commit hooks that enable automatic checks upon committing changes:
-
-    pre-commit install
-
+```
+pre-commit install
+```
 
 ## Documentation
 All documentation can be found on our [GitHub pages](https://deltares-research.github.io/geost)
 
 ## Examples
-For an overview of examples, go directly to the [examples on our GitHub pages](https://deltares-research.github.io/geost/examples.html).
+For an overview of examples, go directly to the [examples](https://deltares-research.github.io/geost/examples.html) page on our documentation.
 
 We collect additional examples that make use of GeoST and other Subsurface Toolbox developments in
 the [Deltares sst-examples repository](https://github.com/Deltares-research/sst-examples).

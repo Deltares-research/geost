@@ -169,9 +169,6 @@ class Collection(AbstractBase):
 
     @header.setter
     def header(self, header):
-        if header.empty:
-            header = gpd.GeoDataFrame()
-
         self.set_header(header)  # This ensures header will always be a GeoDataFrame
 
     def set_header(self, header: pd.DataFrame | gpd.GeoDataFrame):
@@ -191,11 +188,9 @@ class Collection(AbstractBase):
 
     @data.setter
     def data(self, data):
-        if data is not None:
+        if not data.empty:
             if not config.validation.SKIP:
                 data = data.gst.validate()
-        else:
-            data = pd.DataFrame()
 
         self._data = data
         self.check_header_to_data_alignment()
