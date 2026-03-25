@@ -135,8 +135,6 @@ def borehole_collection(borehole_data):
 
     """
     borehole_collection = borehole_data.gst.to_collection(
-        exclude_from_header=["top", "bottom", "lith"],
-        coordinate_names=["x", "y"],
         crs=28992,
         vertical_reference=5709,
     )
@@ -256,8 +254,6 @@ def cpt_data():
 @pytest.fixture
 def cpt_collection(cpt_data):
     return cpt_data.gst.to_collection(
-        exclude_from_header=["depth", "qc", "fs", "u2"],
-        coordinate_names=["x", "y"],
         crs=28992,
         vertical_reference=5709,
     )

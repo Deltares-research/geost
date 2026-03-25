@@ -261,40 +261,22 @@ class TestGeostFrame:
         header = borehole_data.gst.to_header()
         assert isinstance(header, gpd.GeoDataFrame)
         assert header.gst.has_geometry
-        assert_array_equal(header.columns, list(borehole_data.columns) + ["geometry"])
+        assert_array_equal(header.columns, ["nr", "x", "y", "surface", "geometry"])
 
         header = borehole_data.gst.to_header(
-            exclude_columns=["top", "bottom", "lith"], coordinate_names=("x", "y")
+            include_columns=["top", "bottom", "lith"], coordinate_names=("x", "y")
         )
         assert isinstance(header, gpd.GeoDataFrame)
         assert header.gst.has_geometry
         assert_array_equal(
-            header.columns, ["nr", "x", "y", "surface", "end", "geometry"]
+            header.columns,
+            ["nr", "x", "y", "surface", "top", "bottom", "lith", "geometry"],
         )
 
-        header = borehole_data.gst.to_header(
-            include_columns=["nr", "surface"], coordinate_names=["x", "y"], crs=28992
-        )
+        header = borehole_data.gst.to_header(coordinate_names=["x", "y"], crs=28992)
         assert isinstance(header, gpd.GeoDataFrame)
         assert header.gst.has_geometry
         assert header.crs == 28992
-        assert_array_equal(header.columns, ["nr", "surface", "geometry"])
-
-        # Test that 'nr' is included in the header even if not specified in include_columns
-        header = borehole_data.gst.to_header(include_columns=["surface"])
-        assert isinstance(header, gpd.GeoDataFrame)
-        assert_array_equal(header.columns, ["nr", "surface", "geometry"])
-
-        with pytest.raises(
-            ValueError,
-            match="Cannot specify both 'include_columns' and 'exclude_columns'.",
-        ):
-            borehole_data.gst.to_header(
-                include_columns=["surface"], exclude_columns=["lith"]
-            )
-
-        with pytest.raises(ValueError, match="Cannot exclude 'nr' column from header."):
-            borehole_data.gst.to_header(exclude_columns=["nr"])
 
         with pytest.raises(
             KeyError,

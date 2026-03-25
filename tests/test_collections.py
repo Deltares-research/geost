@@ -304,12 +304,12 @@ class TestCollection:
         output = borehole_collection.spatial_join(label_gdf, "id")
         assert isinstance(output, gpd.GeoDataFrame)
         assert "id" in output.columns
-        assert output.shape == (2, 7)
+        assert output.shape == (2, 6)
 
         # In-place variant
         borehole_collection.spatial_join(label_gdf, "id", include_in_header=True)
         assert "id" in borehole_collection.header.columns
-        assert borehole_collection.header.shape == (5, 7)
+        assert borehole_collection.header.shape == (5, 6)
 
         with pytest.raises(
             ValueError,
@@ -343,7 +343,6 @@ class TestCollection:
 
         # Test same selection with end column missing, will be computed from data and added
         # to header, result must be the same.
-        borehole_collection.header.drop(columns="end", inplace=True)
         selected = borehole_collection.select_by_elevation(end_max=-3, end_min=-4)
         assert_array_equal(selected.header["nr"], ["A", "B", "E"])
         assert_array_equal(selected.data["nr"].unique(), ["A", "B", "E"])
@@ -358,7 +357,6 @@ class TestCollection:
 
         # Test same selection with end column missing, will be computed from data and added
         # to header, result must be the same.
-        borehole_collection.header.drop(columns="end", inplace=True)
         sel = borehole_collection.select_by_length(min_length=3.5, max_length=5.0)
         assert_array_equal(sel.header["nr"], ["A", "B"])
         assert_array_equal(sel.data["nr"].unique(), ["A", "B"])
@@ -389,7 +387,7 @@ class TestCollection:
         upper, lower = 0.6, 2.4
         sliced = borehole_collection.slice_depth_interval(upper, lower)
         assert isinstance(sliced, Collection)
-        assert sliced.header.shape == (5, 6)
+        assert sliced.header.shape == (5, 5)
         assert sliced.data.shape == (14, 8)
 
         # Test slicing with respect to a vertical reference plane.
@@ -397,7 +395,7 @@ class TestCollection:
         sliced = borehole_collection.slice_depth_interval(
             nap_upper, nap_lower, relative_to_vertical_reference=True
         )
-        assert sliced.header.shape == (5, 6)
+        assert sliced.header.shape == (5, 5)
         assert sliced.data.shape == (11, 8)
 
         # Test slices that return empty objects.
@@ -414,7 +412,7 @@ class TestCollection:
 
         sliced = cpt_collection.slice_depth_interval(0.6, 4.4)
         assert isinstance(sliced, Collection)
-        assert sliced.header.shape == (2, 6)
+        assert sliced.header.shape == (2, 5)
         assert sliced.data.shape == (11, 9)
 
         with pytest.raises(
