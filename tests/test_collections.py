@@ -15,6 +15,8 @@ from numpy.testing import (
 )
 from shapely.geometry import LineString, Point, Polygon
 
+from geost import config
+from geost._warnings import AlignmentWarning
 from geost.base import Collection
 
 
@@ -134,6 +136,44 @@ class TestCollection:
             match="Header was provided but data is None. A header cannot exist without a corresponding data table",
         ):
             Collection(header=header)
+
+    @pytest.mark.unittest
+    def test_header_mismatch_auto_align(self, borehole_data):
+        config.validation.reset_settings()  # Ensure default settings
+        config.validation.AUTO_ALIGN = True
+
+        header = borehole_data.gst.to_header()
+        header["nr"] = ["A", "B", "C", "D", "F"]  # F is not in data, E is missing
+
+        with pytest.warns(AlignmentWarning) as record:
+            Collection(borehole_data, header=header)
+
+        assert len(record) == 2
+        assert "Header covers more/other objects than present in the data table" in str(
+            record[0].message
+        )
+        assert "Header does not cover all unique objects in data" in str(
+            record[1].message
+        )
+
+    @pytest.mark.unittest
+    def test_header_mismatch_no_auto_align(self, borehole_data):
+        config.validation.reset_settings()  # Ensure default settings
+        config.validation.AUTO_ALIGN = False
+
+        header = borehole_data.gst.to_header()
+        header["nr"] = ["A", "B", "C", "D", "F"]  # F is not in data, E is missing
+
+        with pytest.warns(AlignmentWarning) as record:
+            Collection(borehole_data, header=header)
+
+        assert len(record) == 2
+        assert "Header covers more/other objects than present in the data table" in str(
+            record[0].message
+        )
+        assert "Header does not cover all unique objects in data" in str(
+            record[1].message
+        )
 
     @pytest.mark.unittest
     def test_get(self, borehole_collection):

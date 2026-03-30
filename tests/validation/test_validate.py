@@ -1,14 +1,12 @@
 import warnings
 
-import geopandas as gpd
 import numpy as np
 import pandas as pd
 import pytest
 from numpy.testing import assert_array_equal
-from shapely.geometry import Point
 
-from geost import Collection, config
-from geost._warnings import AlignmentWarning, ValidationWarning
+from geost import config
+from geost._warnings import ValidationWarning
 from geost.validation import ValidationResult, validate
 from geost.validation.validate import ColumnNames
 
