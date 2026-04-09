@@ -68,6 +68,18 @@ class GeostFrame(AbstractBase):
         self._bottom = check("depth")
 
     @property
+    def positional_columns(self) -> dict:
+        return {
+            "nr": self._nr,
+            "surface": self._surface,
+            "end": self._end,
+            "x": self._x,
+            "y": self._y,
+            "top": self._top,
+            "depth": self._bottom,
+        }
+
+    @property
     def has_geometry(self):
         """
         Returns True if the object is a GeoDataFrame with a valid geometry column, False
@@ -251,10 +263,70 @@ class GeostFrame(AbstractBase):
 
         return transformed
 
+    @_requires_geometry
+    @_requires_xy
     def change_vertical_reference(
-        self, target_vertical_reference: str | int | CRS
+        self, from_epsg: str | int | CRS, target_epsg: str | int | CRS
     ) -> DataFrame:
-        pass
+        """
+        Change the vertical datum of the object's surface levels.
+
+        Some often-used vertical datums are:
+            - NAP : 5709
+            - MSL NL depth : 9288
+            - LAT NL depth : 9287
+            - Ostend height : 5710
+
+            See epsg.io for more.
+
+        Parameters
+        ----------
+        from_crs : str | int | CRS
+            EPSG of the source vertical datum. Takes anything that can be interpreted by
+            pyproj.crs.CRS.from_user_input(). However, it must be a vertical datum.
+        target_crs : str | int | CRS
+            EPSG of the target vertical datum. Takes anything that can be interpreted by
+            pyproj.crs.CRS.from_user_input(). However, it must be a vertical datum.
+
+        Examples
+        --------
+        To change the current vertical reference from Ostend height to NAP:
+
+        >>> result = data.gst.change_vertical_reference(5710, 5709)
+
+        This would be the same as:
+
+        >>> result = data.gst.change_vertical_reference("epsg:5710", "epsg:5709")
+
+        As the Pyproj constructors are very flexible, you can even use the CRS's full
+        official name instead of an EPSG number. E.g. for changing to NAP and the
+        Belgian Ostend height vertical datums respectively, you can use:
+
+        >>> result = data.gst.change_vertical_reference("Ostend height", "NAP")
+
+        """
+        from geost.utils.projections import vertical_reference_transformer
+
+        if self._surface is None:
+            raise KeyError(
+                "Cannot change vertical reference if no surface column is found."
+            )
+
+        transformer = vertical_reference_transformer(
+            self._obj.crs, from_epsg, target_epsg
+        )
+
+        x, y = self._obj[self._x], self._obj[self._y]
+        _, _, new_surface = transformer.transform(x, y, self._obj[self._surface])
+
+        transformed = self._obj.copy()
+        transformed[self._surface] = new_surface
+
+        if self._end:
+            _, _, new_end = transformer.transform(x, y, self._obj[self._end])
+            transformed[self._end] = new_end
+
+        return transformed
 
     @_requires_xy
     def transform_coordinates(

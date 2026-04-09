@@ -49,7 +49,7 @@ class TestCollection:
         assert isinstance(collection.data, pd.DataFrame)
         assert not collection.header_has_geometry
         assert not collection.has_inclined
-        assert collection.vertical_reference == 5709
+        assert collection.vertical_reference is None
         assert collection._nr == "nr"
 
         with pytest.raises(
@@ -197,12 +197,30 @@ class TestCollection:
 
     @pytest.mark.unittest
     def test_change_vertical_reference(self, borehole_collection):
-        assert (
-            1 == 2
-        )  # Make test fail to not forget to update the implementation of this method
-        assert borehole_collection.vertical_reference == 5709
-        borehole_collection.change_vertical_reference("Ostend height")
+        with pytest.raises(
+            ValueError,
+            match="'from_epsg' value does not match the current vertical reference",
+        ):
+            borehole_collection.change_vertical_reference(1215, 5710)
+
+        original_header = borehole_collection.header.copy()
+        original_data = borehole_collection.data.copy()
+
+        borehole_collection.change_vertical_reference(5709, 5710)
+        assert np.isclose(
+            borehole_collection.header["surface"] - original_header["surface"], 2.28234
+        ).all()
+        assert np.isclose(
+            borehole_collection.data["surface"] - original_data["surface"], 2.28234
+        ).all()
         assert borehole_collection.vertical_reference == 5710
+
+        with pytest.raises(
+            KeyError,
+            match="Cannot perform vertical reference transformation without x and y coordinate columns in the data table",
+        ):
+            borehole_collection.data.drop(columns=["x", "y"], inplace=True)
+            borehole_collection.change_vertical_reference(5710, 5709)
 
     @pytest.mark.unittest
     def test_change_horizontal_reference(self, borehole_collection):

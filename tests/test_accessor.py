@@ -426,6 +426,13 @@ class TestGeostFrame:
             point_header.drop(columns="geometry").gst.change_horizontal_reference(4326)
 
     @pytest.mark.unittest
+    def test_change_vertical_reference(self, point_header):
+        result = point_header.gst.change_vertical_reference(5709, 5710)
+        assert isinstance(result, gpd.GeoDataFrame)
+        assert np.isclose(result["surface"] - point_header["surface"], 2.28234).all()
+        assert np.isclose(result["end"] - point_header["end"], 2.28234).all()
+
+    @pytest.mark.unittest
     def test_transform_coordinates(self, nlog_borehole_collection):
         data = nlog_borehole_collection.data.iloc[:2]
 

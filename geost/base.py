@@ -62,7 +62,7 @@ class Collection(AbstractBase):
         *,
         header: gpd.GeoDataFrame = None,
         has_inclined: bool = False,
-        vertical_reference: str | int | CRS = 5709,
+        vertical_reference: str | int | CRS = None,
     ):
         if data is None or data.empty:
             if header is not None and not header.empty:
@@ -105,7 +105,8 @@ class Collection(AbstractBase):
             f"{self.__class__.__name__}:\n"
             f"  header (rows, columns): {self.header.shape}\n"
             f"  data (rows, columns): {self.data.shape}\n"
-            f"  # surveys = {self.n_points}\n"
+            f"crs: {self.horizontal_reference.__str__()}\n"
+            f"# surveys = {self.n_points}\n"
         )
         return repr_
 
@@ -265,6 +266,7 @@ class Collection(AbstractBase):
             vertical_reference=self.vertical_reference,
         )
 
+    @_requires_geometry
     def change_horizontal_reference(
         self,
         target_crs: str | int | CRS,
@@ -315,7 +317,10 @@ class Collection(AbstractBase):
         )
         self.header = self.header.gst.change_horizontal_reference(target_crs)
 
-    def change_vertical_reference(self, to_epsg: str | int | CRS):
+    @_requires_geometry
+    def change_vertical_reference(
+        self, from_epsg: str | int | CRS, target_epsg: str | int | CRS
+    ):
         """
         Change the vertical reference of the collection object's surface levels
 
@@ -335,36 +340,55 @@ class Collection(AbstractBase):
 
         Examples
         --------
-        To change the header's current vertical reference to NAP:
+        To change the current vertical reference from Ostend height to NAP:
 
-        >>> self.change_vertical_reference(5709)
+        >>> collection.change_vertical_reference(5710, 5709)
 
         This would be the same as:
 
-        >>> self.change_vertical_reference("epsg:5709")
+        >>> collection.change_vertical_reference("epsg:5710", "epsg:5709")
 
         As the Pyproj constructors are very flexible, you can even use the CRS's full
         official name instead of an EPSG number. E.g. for changing to NAP and the
         Belgian Ostend height vertical datums repsectively, you can use:
 
-        >>> self.change_vertical_reference("NAP")
-        >>> self.change_vertical_reference("Ostend height")
+        >>> collection.change_vertical_reference("Ostend height", "NAP")
 
         """
+        if self.vertical_reference is not None and self.vertical_reference != from_epsg:
+            raise ValueError(
+                "'from_epsg' value does not match the current vertical reference of the"
+                f"collection. These must be the same. Please specify the correct {self.vertical_reference} "
+                "as the 'from_epsg' value."
+            )
+
+        data = self.data.copy()
+        columns = self.data.gst.positional_columns
+
+        if not (xcol := columns.get("x")) or not (ycol := columns.get("y")):
+            raise KeyError(
+                "Cannot perform vertical reference transformation without x and y "
+                "coordinate columns in the data table. Please ensure that your data contains"
+                "valid x and y coordinate columns."
+            )
+
+        self.header = self.header.gst.change_vertical_reference(from_epsg, target_epsg)
+
+        x, y = self.data[xcol], self.data[ycol]
         transformer = vertical_reference_transformer(
-            self.horizontal_reference, self.vertical_reference, to_epsg
+            self.horizontal_reference, from_epsg, target_epsg
         )
-        self.data[["surface", "end"]] = self.data[["surface", "end"]].astype(float)
-        _, _, new_surface = transformer.transform(
-            self.data["x"], self.data["y"], self.data["surface"]
-        )
-        _, _, new_end = transformer.transform(
-            self.data["x"], self.data["y"], self.data["end"]
-        )
-        self.data.loc[:, "surface"] = new_surface
-        self.data.loc[:, "end"] = new_end
-        self.header.gsthd.change_vertical_reference(self.vertical_reference, to_epsg)
-        self._vertical_reference = CRS(to_epsg)
+
+        if surface := columns.get("surface"):
+            _, _, new_surface = transformer.transform(x, y, self.data[surface])
+            data[surface] = new_surface
+
+        if end := columns.get("end"):
+            _, _, new_end = transformer.transform(x, y, self.data[end])
+            data[end] = new_end
+
+        self.data = data
+        self._vertical_reference = CRS(target_epsg)
 
     def reset_header(self):
         """

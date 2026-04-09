@@ -51,6 +51,7 @@ Coordinate Reference System
 
    GeostFrame.change_horizontal_reference
    GeostFrame.change_vertical_reference
+   GeostFrame.transform_coordinates
 
 Generic
 -----------------------------
