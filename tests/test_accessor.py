@@ -320,6 +320,25 @@ class TestGeostFrame:
         assert collection.vertical_reference is None
 
     @pytest.mark.unittest
+    def test_standardize_column_names(self):
+        df = pd.DataFrame(
+            columns=[
+                "nitg_nr",
+                "maaiveld",
+                "einddiepte",
+                "easting",
+                "northing",
+                "tv_top_nap",
+                "basis_diepte",
+            ]
+        )
+        df.gst.standardize_column_names()
+        assert_array_equal(
+            df.columns,
+            ["nr", "surface", "end", "x", "y", "top", "depth"],
+        )
+
+    @pytest.mark.unittest
     def test_determine_end_depth(self, borehole_data):
         # Test that the method correctly determines the end depth when "end" column is missing
         end = borehole_data.gst.determine_end_depth()

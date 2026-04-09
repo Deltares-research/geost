@@ -382,7 +382,10 @@ class GeostFrame(AbstractBase):
                 self._bottom: "depth",
             }
 
-        self._obj.rename(mapping, errors="ignore", inplace=True)
+        if self._end is not None:
+            mapping[self._end] = "end"
+
+        self._obj.rename(columns=mapping, errors="ignore", inplace=True)
 
     @_requires_geometry
     def select_within_bbox(
