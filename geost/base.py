@@ -265,45 +265,55 @@ class Collection(AbstractBase):
             vertical_reference=self.vertical_reference,
         )
 
-    def change_horizontal_reference(self, to_epsg: str | int | CRS):
+    def change_horizontal_reference(
+        self,
+        target_crs: str | int | CRS,
+        xbot: str | None = None,
+        ybot: str | None = None,
+    ) -> None:
         """
         Change the horizontal reference (i.e. coordinate reference system, crs) of the
         collection to the given target crs.
 
         Parameters
         ----------
-        to_epsg : str | int | CRS
+        target_crs : str | int | CRS
             EPSG of the target crs. Takes anything that can be interpreted by
             pyproj.crs.CRS.from_user_input().
+        xbot, ybot : str | None, optional
+            In case data is inclined, specify labels for columns holding the coordinates
+            of the bottom of each layer. These coordinates will be then transformed as well.
+            The default is None, which means that these coordinates are not transformed.
+
+        Returns
+        -------
+        None
+            Updates the header and data of the collection in place.
 
         Examples
         --------
         To change the collection's current horizontal reference to WGS 84 UTM zone 31N:
 
-        >>> self.change_horizontal_reference(32631)
+        >>> collection.change_horizontal_reference(32631) # Updates object in place.
 
         This would be the same as:
 
-        >>> self.change_horizontal_reference("epsg:32631")
+        >>> collection.change_horizontal_reference("epsg:32631")
 
         As Pyproj is very flexible, you can even use the CRS's full official name:
 
-        >>> self.change_horizontal_reference("WGS 84 / UTM zone 31N")
-        """
-        transformer = horizontal_reference_transformer(
-            self.horizontal_reference, to_epsg
-        )
-        self.data[["x", "y"]] = self.data[["x", "y"]].astype(float)
-        self.data.loc[:, "x"], self.data.loc[:, "y"] = transformer.transform(
-            self.data["x"], self.data["y"]
-        )
-        if self.has_inclined:
-            self.data[["x_bot", "y_bot"]] = self.data[["x_bot", "y_bot"]].astype(float)
-            self.data.loc[:, "x_bot"], self.data.loc[:, "y_bot"] = (
-                transformer.transform(self.data["x_bot"], self.data["y_bot"])
-            )
+        >>> collection.change_horizontal_reference("WGS 84 / UTM zone 31N")
 
-        self.header.gsthd.change_horizontal_reference(to_epsg)
+        In case of inclined layer data, make sure the bottom coordinates of each layer are
+        transformed as well by specifying the column labels for these coordinates:
+
+        >>> collection.change_horizontal_reference(32631, xbot="x_bot", ybot="y_bot")
+
+        """
+        self.data = self.data.gst.transform_coordinates(
+            self.horizontal_reference, target_crs, xbot=xbot, ybot=ybot
+        )
+        self.header = self.header.gst.change_horizontal_reference(target_crs)
 
     def change_vertical_reference(self, to_epsg: str | int | CRS):
         """

@@ -211,6 +211,98 @@ class GeostFrame(AbstractBase):
         else:
             return validated_obj
 
+    def change_horizontal_reference(self, target_crs: str | int | CRS) -> DataFrame:
+        """
+        Change the coordinate reference system (CRS) to a given target CRS.
+
+        Parameters
+        ----------
+        target_crs : str | int | CRS
+            EPSG of the target CRS. Takes anything that can be interpreted by
+            `pyproj.crs.CRS.from_user_input()`.
+
+        Examples
+        --------
+        Change the horizontal reference to WGS 84 UTM zone 31N:
+
+        >>> new_gdf = gdf.gst.change_horizontal_reference(32631)
+
+        This would be the same as:
+
+        >>> new_gdf = gdf.gst.change_horizontal_reference("epsg:32631")
+
+        As Pyproj is very flexible, you can even use the CRS's full official name:
+
+        >>> new_gdf = gdf.gst.change_horizontal_reference("WGS 84 / UTM zone 31N")
+
+        """
+        if not self.has_geometry:
+            raise TypeError(
+                "Method 'change_horizontal_reference' requires a GeoDataFrame with a valid "
+                "geometry column. Use :meth:`transform_coordinates` to change coordinates "
+                "of a regular DataFrame."
+            )
+
+        transformed = self._obj.to_crs(target_crs)
+
+        if self.has_xy_columns:
+            transformed[self._x] = transformed.geometry.x
+            transformed[self._y] = transformed.geometry.y
+
+        return transformed
+
+    def change_vertical_reference(
+        self, target_vertical_reference: str | int | CRS
+    ) -> DataFrame:
+        pass
+
+    @_requires_xy
+    def transform_coordinates(
+        self,
+        original_crs: str | int | CRS,
+        target_crs: str | int | CRS,
+        xbot: str | None = None,
+        ybot: str | None = None,
+    ) -> DataFrame:
+        """
+        Transform the coordinates of GeoDataFrame or DataFrame to a given coordinate
+        reference system (CRS).
+
+        Parameters
+        ----------
+        original_crs : str | int | CRS
+            Original CRS of the coordinates. Takes anything that can be interpreted by
+            `pyproj.crs.CRS.from_user_input()`.
+        target_crs : str | int | CRS
+            Target CRS of the coordinates. Takes anything that can be interpreted by
+            `pyproj.crs.CRS.from_user_input()`.
+        xbot, ybot : str | None, optional
+            In case data is inclined, specify labels for columns holding the coordinates
+            of the bottom of each layer. These coordinates will be then transformed as well.
+            The default is None, which means that these coordinates are not transformed.
+
+        Returns
+        -------
+        DataFrame
+            Transformed DataFrame with coordinates in the target CRS.
+
+        """
+        from geost.utils.projections import horizontal_reference_transformer
+
+        transformer = horizontal_reference_transformer(original_crs, target_crs)
+        new_x, new_y = transformer.transform(self._obj[self._x], self._obj[self._y])
+
+        transformed = self._obj
+        transformed[self._x] = new_x
+        transformed[self._y] = new_y
+
+        if xbot and ybot:
+            new_xbot, new_ybot = transformer.transform(self._obj[xbot], self._obj[ybot])
+            transformed[xbot] = new_xbot
+            transformed[ybot] = new_ybot
+
+        return transformed
+
     def to_header(
         self,
         include_columns: str | Iterable[str] | None = None,

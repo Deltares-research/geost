@@ -404,6 +404,44 @@ class TestGeostFrame:
             )
 
     @pytest.mark.unittest
+    def test_change_horizontal_reference(self, point_header):
+        result = point_header.gst.change_horizontal_reference(4326)
+        assert isinstance(result, gpd.GeoDataFrame)
+        assert result.crs == 4326
+        assert result["x"].between(3.31, 3.32).all()
+        assert result["y"].between(47.97, 47.98).all()
+
+        # Make sure "x" and "y" are not automatically computed when not present
+        result = point_header.drop(columns=["x", "y"]).gst.change_horizontal_reference(
+            4326
+        )
+        assert isinstance(result, gpd.GeoDataFrame)
+        assert result.crs == 4326
+        assert not {"x", "y"}.issubset(result.columns)
+
+        with pytest.raises(
+            TypeError,
+            match="Method 'change_horizontal_reference' requires a GeoDataFrame with a valid geometry column.",
+        ):
+            point_header.drop(columns="geometry").gst.change_horizontal_reference(4326)
+
+    @pytest.mark.unittest
+    def test_transform_coordinates(self, nlog_borehole_collection):
+        data = nlog_borehole_collection.data.iloc[:2]
+
+        result = data.gst.transform_coordinates(28992, 4326, xbot="x_bot", ybot="y_bot")
+        assert_array_almost_equal(result["x"], [3.51911014, 3.51925344])
+        assert_array_almost_equal(result["x_bot"], [3.51925344, 3.5192852])
+        assert_array_almost_equal(result["y"], [55.68101879, 55.68101195])
+        assert_array_almost_equal(result["y_bot"], [55.68101195, 55.68101242])
+
+        with pytest.raises(
+            KeyError,
+            match="Method 'transform_coordinates' requires x, y information in the DataFrame.",
+        ):
+            data.drop(columns=["x", "y"]).gst.transform_coordinates(28992, 4326)
+
+    @pytest.mark.unittest
     def test_select_within_bbox(self, point_header):
         selected = point_header.gst.select_within_bbox(1, 1, 3, 3)
         assert len(selected) == 9

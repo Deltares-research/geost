@@ -3,7 +3,7 @@ from pyproj.crs import CompoundCRS
 
 
 def horizontal_reference_transformer(
-    epsg_from: str | int | CRS, epsg_to: str | int | CRS, always_xy: bool = False
+    epsg_from: str | int | CRS, epsg_to: str | int | CRS, always_xy: bool = True
 ):
     transformer = Transformer.from_crs(
         CRS(epsg_from), CRS(epsg_to), always_xy=always_xy, accuracy=1.0

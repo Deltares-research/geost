@@ -206,38 +206,30 @@ class TestCollection:
 
     @pytest.mark.unittest
     def test_change_horizontal_reference(self, borehole_collection):
-        assert (
-            1 == 2
-        )  # Make test fail to not forget to update the implementation of this method
         assert borehole_collection.horizontal_reference == 28992
-        borehole_collection.change_horizontal_reference(32631)
-        assert borehole_collection.horizontal_reference == 32631
-        assert_almost_equal(
-            borehole_collection.data["x"][0], borehole_collection.header["x"][0]
-        )
-        assert_almost_equal(borehole_collection.data["x"][0], 523403.281803, decimal=5)
-        assert_almost_equal(
-            borehole_collection.data["y"][0], borehole_collection.header["y"][0]
-        )
-        assert_almost_equal(borehole_collection.data["y"][0], 5313546.187669, decimal=5)
+        borehole_collection.change_horizontal_reference(4326)
+        assert borehole_collection.horizontal_reference == 4326
+        assert borehole_collection.header["x"].between(3.31, 3.32).all()
+        assert borehole_collection.data["x"].between(3.31, 3.32).all()
+        assert borehole_collection.header["y"].between(47.97, 47.98).all()
+        assert borehole_collection.data["y"].between(47.97, 47.98).all()
 
     @pytest.mark.unittest
     def test_change_horizontal_reference_with_inclined(self, nlog_borehole_collection):
-        assert nlog_borehole_collection.horizontal_reference == 28992
-        nlog_borehole_collection.change_horizontal_reference(32631)
-        assert nlog_borehole_collection.horizontal_reference == 32631
-        assert_almost_equal(
-            nlog_borehole_collection.header["x"][0], 532641.76, decimal=2
+        cores = nlog_borehole_collection
+        assert cores.horizontal_reference == 28992
+        cores.change_horizontal_reference(4326, xbot="x_bot", ybot="y_bot")
+        assert cores.horizontal_reference == 4326
+        assert_array_almost_equal(
+            cores.header["x"], [3.51911014, 3.63322396, 3.55927225]
         )
-        assert_almost_equal(
-            nlog_borehole_collection.header["y"][0], 6.170701e6, decimal=0
+        assert_array_almost_equal(
+            cores.header["y"], [55.68101879, 55.53488486, 55.46724899]
         )
-        assert_almost_equal(
-            nlog_borehole_collection.data["x_bot"][0], 532650.77, decimal=2
-        )
-        assert_almost_equal(
-            nlog_borehole_collection.data["y_bot"][0], 6.170700e6, decimal=0
-        )
+        assert cores.data["x"].between(3.51, 3.64).all()
+        assert cores.data["y"].between(55.46, 55.69).all()
+        assert cores.data["x_bot"].between(3.51, 3.64).all()
+        assert cores.data["y_bot"].between(55.46, 55.69).all()
 
     @pytest.mark.unittest
     def test_reset_header(self, borehole_collection):
