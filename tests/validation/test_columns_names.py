@@ -21,12 +21,13 @@ def test_check_positional_columns():
         # than ii, we go back to the beginning of the list using modulo.
         nr = names["nr"][ii % len(names["nr"])]
         surface = names["surface"][ii % len(names["surface"])]
+        end = names["end"][ii % len(names["end"])]
         x = names["x_coordinate"][ii % len(names["x_coordinate"])]
         y = names["y_coordinate"][ii % len(names["y_coordinate"])]
         top = names["top"][ii % len(names["top"])]
         bottom = names["depth"][ii % len(names["depth"])]
 
-        df = pd.DataFrame(columns=[nr, surface, x, y, top, bottom])
+        df = pd.DataFrame(columns=[nr, surface, end, x, y, top, bottom])
 
         with warnings.catch_warnings():
             warnings.simplefilter("error")

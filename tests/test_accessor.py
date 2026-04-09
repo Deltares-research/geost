@@ -56,14 +56,16 @@ class TestGeostFrame:
             # than ii, we go back to the beginning of the list using modulo.
             nr = names["nr"][ii % len(names["nr"])]
             surface = names["surface"][ii % len(names["surface"])]
+            end = names["end"][ii % len(names["end"])]
             x = names["x_coordinate"][ii % len(names["x_coordinate"])]
             y = names["y_coordinate"][ii % len(names["y_coordinate"])]
             top = names["top"][ii % len(names["top"])]
             bottom = names["depth"][ii % len(names["depth"])]
 
-            df = pd.DataFrame(columns=[nr, surface, x, y, top, bottom])
+            df = pd.DataFrame(columns=[nr, surface, end, x, y, top, bottom])
             assert df.gst._nr == nr
             assert df.gst._surface == surface
+            assert df.gst._end == end
             assert df.gst._x == x
             assert df.gst._y == y
             assert df.gst._top == top
@@ -73,6 +75,7 @@ class TestGeostFrame:
             columns=[
                 "nr",
                 "invalid_surface",
+                "invalid_end",
                 "invalid_x",
                 "invalid_y",
                 "invalid_top",
@@ -81,6 +84,7 @@ class TestGeostFrame:
         )
         assert df.gst._nr == "nr"
         assert df.gst._surface is None
+        assert df.gst._end is None
         assert df.gst._x is None
         assert df.gst._y is None
         assert df.gst._top is None

@@ -7,6 +7,7 @@ if TYPE_CHECKING:
 POSSIBLE_COLUMN_NAMING = {
     "nr": {"nr", "bro_id", "nitg_nr", "nitg", "boorp"},
     "surface": {"surface", "maaiveld", "mv", "height_nap", "surface_nap"},
+    "end": {"end", "einddiepte", "einddiepte_nap", "end_depth", "end_depth_nap"},
     "x_coordinate": {
         "x",
         "x-coord",

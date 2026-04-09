@@ -61,6 +61,7 @@ class GeostFrame(AbstractBase):
 
         self._nr = nr
         self._surface = check("surface")
+        self._end = check("end")
         self._x = check("x_coordinate")
         self._y = check("y_coordinate")
         self._top = check("top")
@@ -579,7 +580,7 @@ class GeostFrame(AbstractBase):
             end_min = end_min if end_min is not None else -1e34
             end_max = end_max if end_max is not None else 1e34
 
-            if "end" not in selected.columns:
+            if self._end is None:
                 try:
                     end = self.determine_end_depth()
                 except KeyError as e:
@@ -589,7 +590,7 @@ class GeostFrame(AbstractBase):
                     ) from e
                 mask = end.between(end_min, end_max)
             else:
-                mask = selected["end"].between(end_min, end_max)
+                mask = selected[self._end].between(end_min, end_max)
 
             selected = selected[mask]
 
@@ -621,7 +622,7 @@ class GeostFrame(AbstractBase):
             min_length = min_length if min_length is not None else -1e34
             max_length = max_length if max_length is not None else 1e34
 
-            if "end" not in selected.columns:
+            if self._end is None:
                 try:
                     end = self.determine_end_depth()
                 except KeyError as e:
@@ -631,7 +632,7 @@ class GeostFrame(AbstractBase):
                     ) from e
                 mask = (selected[self._surface] - end).between(min_length, max_length)
             else:
-                mask = (selected[self._surface] - selected["end"]).between(
+                mask = (selected[self._surface] - selected[self._end]).between(
                     min_length, max_length
                 )
 
