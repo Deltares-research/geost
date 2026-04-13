@@ -3,13 +3,13 @@ from typing import TYPE_CHECKING
 import numpy as np
 import pandas as pd
 
+from geost.base import Collection
 from geost.models.model_utils import label_consecutive_2d
 
 if TYPE_CHECKING:
     import xarray as xr
 
     from geost.accessors.data import DiscreteData, LayeredData
-    from geost.base import Collection
     from geost.models import VoxelModel
 
 
@@ -52,28 +52,46 @@ def add_voxelmodel_variable(
         :class:`~geost.base.LineData` (future developments).
 
     """
-    if variable in collection.data.columns:
-        collection.data.drop(columns=[variable], inplace=True)
+    data = collection.data
+
+    if variable in data.columns:
+        data.drop(columns=[variable], inplace=True)
+
+    columns = data.gst.positional_columns
+    nr_, surface_, top_, bottom_ = (
+        columns["nr"],
+        columns["surface"],
+        columns["top"],
+        columns["depth"],
+    )
 
     var_select = model.select_with_points(collection.header)[variable]
-    nrs = collection.header["nr"].loc[var_select["idx"]]
+    nrs = collection.header[nr_].loc[var_select["idx"]]
 
     _, _, dz = model.resolution
 
     var_df = _reduce_to_top_bottom(var_select, dz)
-    var_df.rename(columns={"values": variable}, inplace=True)
-    var_df["nr"] = nrs.loc[var_df["nr"]].values
+    var_df[nr_] = nrs.loc[var_df[nr_]].values
+    var_df.rename(columns={"bottom": bottom_, "values": variable}, inplace=True)
+    var_df = var_df.merge(data[[nr_, surface_]].drop_duplicates(), on=nr_, how="left")
+    var_df[bottom_] = var_df[surface_] - var_df[bottom_]
 
-    if {"top", "bottom"}.issubset(collection.data.columns):
-        result = _add_to_layered(collection.data, var_df)
-    elif "depth" in collection.data.columns:
-        result = _add_to_discrete(collection.data, var_df)
-    else:
-        raise NotImplementedError(
-            "Other datatypes than LayeredData or DiscreteData not implemented yet."
-        )
+    result = (
+        pd.concat([data, var_df]).sort_values(by=[nr_, bottom_]).reset_index(drop=True)
+    )
+    nr = result[nr_]
+    result = pd.concat([nr, result.groupby(nr_).bfill()], axis=1)
+    result.drop_duplicates(subset=[nr_, bottom_], inplace=True)
 
-    return result.gstda.to_collection()
+    if top_ is not None:
+        result = _reset_tops(result, nr=nr_, top=top_, bottom=bottom_)
+
+    return Collection(
+        result,
+        header=collection.header.copy(),
+        has_inclined=collection.has_inclined,
+        vertical_reference=collection.vertical_reference,
+    )
 
 
 def _reduce_to_top_bottom(da: xr.DataArray, dz: int | float) -> pd.DataFrame:
@@ -108,47 +126,9 @@ def _reduce_to_top_bottom(da: xr.DataArray, dz: int | float) -> pd.DataFrame:
     return reduced.drop(columns=["layer"])
 
 
-def _add_to_layered(data: LayeredData, variable: pd.DataFrame) -> LayeredData:
-    """
-    Helper function for `add_voxelmodel_variable` to combine a voxelmodel variable in
-    layered data form. This joins the DataFrames of the LayeredData instance and the
-    variable from the voxelmodel to add and updates the "top" and "bottom" columns in the
-    LayeredData.
-
-    Parameters
-    ----------
-    data : LayeredData
-        LayeredData instance to add the voxelmodel variable to.
-    variable : pd.DataFrame
-        DataFrame with the voxelmodel variable to add. Contains columns ["nr", "bottom",
-        variable] where variable is for example "strat".
-
-    Returns
-    -------
-    LayeredData
-        New instance of `LayeredData` with the added variable and corrected top and bottom
-        depths.
-
-    """
-    variable = variable.merge(
-        data[["nr", "surface"]].drop_duplicates(), on="nr", how="left"
-    )
-    variable["bottom"] = variable["surface"] - variable["bottom"]
-
-    result = (
-        pd.concat([data, variable])
-        .sort_values(by=["nr", "bottom", "top"])
-        .reset_index(drop=True)
-    )
-    nr = result["nr"]
-    result = pd.concat([nr, result.groupby("nr").bfill()], axis=1)
-    result.drop_duplicates(subset=["nr", "bottom"], inplace=True)
-    result = _reset_tops(result)
-    result.dropna(subset=["top"], inplace=True)
-    return result
-
-
-def _reset_tops(layered_df: pd.DataFrame) -> pd.DataFrame:
+def _reset_tops(
+    layered_df: pd.DataFrame, nr: str, top: str, bottom: str
+) -> pd.DataFrame:
     """
     Helper function for `_add_to_layered` to reset the top depths after stratigraphic
     layer boundaries have been added and backfilling has been done. This changes tops into
@@ -166,54 +146,14 @@ def _reset_tops(layered_df: pd.DataFrame) -> pd.DataFrame:
     pd.DataFrame
         DataFrame with the tops reset.
     """
-    bottom_shift_down = layered_df["bottom"].shift()
-    nr_shift_down = layered_df["nr"].shift()
+    bottom_shift_down = layered_df[bottom].shift()
+    nr_shift_down = layered_df[nr].shift()
 
     layered_df.loc[
-        (layered_df["top"] < bottom_shift_down) & (layered_df["nr"] == nr_shift_down),
-        "top",
+        (layered_df[top] < bottom_shift_down) & (layered_df[nr] == nr_shift_down),
+        top,
     ] = bottom_shift_down
 
-    layered_df.loc[layered_df["bottom"] < 0, "bottom"] = 0
+    layered_df.loc[layered_df[bottom] < 0, bottom] = 0
 
-    return layered_df[layered_df["top"] - layered_df["bottom"] != 0].reset_index(
-        drop=True
-    )
-
-
-def _add_to_discrete(data: DiscreteData, variable: pd.DataFrame) -> DiscreteData:
-    """
-    Helper function for `add_voxelmodel_variable` to combine a voxelmodel variable in
-    discrete data form. This joins the DataFrames of the DiscreteData instance and the
-    variable from the voxelmodel to return a new instance of DiscreteData.
-
-    Parameters
-    ----------
-    data : DiscreteData
-        DiscreteData instance to add the voxelmodel variable to.
-    variable : pd.DataFrame
-        DataFrame with the voxelmodel variable to add. Contains columns ["nr", "bottom",
-        variable] where variable is for example "strat".
-
-    Returns
-    -------
-    DiscreteData
-        New instance of `DiscreteData` with the added variable.
-
-    """
-    variable.rename(columns={"bottom": "depth"}, inplace=True)
-    variable = variable.merge(
-        data[["nr", "surface"]].drop_duplicates(), on="nr", how="left"
-    )
-    variable["depth"] = variable["surface"] - variable["depth"]
-
-    result = (
-        pd.concat([data, variable])
-        .sort_values(by=["nr", "depth"])
-        .reset_index(drop=True)
-    )
-    nr = result["nr"]
-    result = pd.concat([nr, result.groupby("nr").bfill()], axis=1)
-    result.drop_duplicates(subset=["nr", "depth"], inplace=True)
-    result.dropna(subset=["end"], inplace=True)
-    return result
+    return layered_df[layered_df[top] - layered_df[bottom] != 0].reset_index(drop=True)
