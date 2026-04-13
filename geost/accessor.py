@@ -3,7 +3,6 @@ from __future__ import annotations
 from collections.abc import Iterable
 from functools import partial, singledispatchmethod
 from pathlib import Path
-from textwrap import dedent
 from typing import TYPE_CHECKING, Any, Iterable
 
 import geopandas as gpd

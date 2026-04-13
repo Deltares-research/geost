@@ -1015,4 +1015,7 @@ class TestGeostFrame:
 
     @pytest.mark.unittest
     def test_to_qgis3d(self, borehole_data, tmp_path):
-        assert 1 == 2  # TODO: add unit test
+        outfile = tmp_path / r"temp.gpkg"
+        borehole_data.gst.to_qgis3d(outfile, crs=28992)
+        assert outfile.is_file()
+        outfile.unlink()

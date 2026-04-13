@@ -1450,7 +1450,7 @@ class Collection(AbstractBase):
     def to_qgis3d(
         self,
         outfile: str | Path,
-        relative_to_vertical_reference: bool = True,
+        crs: str | CRS = None,
         **kwargs,
     ):
         """
@@ -1461,22 +1461,16 @@ class Collection(AbstractBase):
         ----------
         outfile : str | Path
             Path to geopackage file to be written.
-        relative_to_vertical_reference : bool, optional
-            If True, the depth of all data objects will converted to a depth with respect to
-            a reference plane (e.g. "NAP", "TAW"). If False, the depth will be kept as original
-            in the "top" and "bottom" columns which is in meter below the surface. The default
-            is True.
+        crs : str | CRS, optional
+            Coordinate reference system to use for the geometries in the output file. If
+            None, the horizontal reference of the Collection is used. The default is None.
 
         **kwargs
             geopandas.GeodataFrame.to_file kwargs. See relevant Geopandas documentation.
 
         """
-        self.data.gst.to_qgis3d(
-            outfile,
-            relative_to_vertical_reference,
-            crs=self.horizontal_reference,
-            **kwargs,
-        )
+        crs = CRS(crs) if crs is not None else self.horizontal_reference
+        self.data.gst.to_qgis3d(outfile, crs=crs, **kwargs)
 
     def to_kingdom(
         self,
