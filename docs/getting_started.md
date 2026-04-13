@@ -11,8 +11,12 @@ Introduction to GeoST <getting_started/introduction>
 ```
 
 GeoST is written in Python and requires `Python 3.12` or higher. The package is distributed
-via the Python Package Index (PyPi). Installing it into any environment is as easy as:
+via the Python Package Index (PyPi). Installing it into any environment can easily be done
+using for example [Pixi](https://pixi.prefix.dev/latest/) or [pip](https://pypi.org/project/pip/):
 
+```
+pixi add geost --pypi
+```
 ```
 pip install geost
 ```
@@ -20,6 +24,9 @@ pip install geost
 ## Latest experimental version
 The latest or experimental version can be installed via the [GitHub repository](https://github.com/Deltares-research/geost) of GeoST. Simply install the main branch by:
 
+```
+pixi add --git https://github.com/Deltares-research/geost.git geost --pypi
+```
 ```
 pip install git+https://github.com/Deltares-research/geost.git
 ```
