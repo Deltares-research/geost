@@ -786,7 +786,6 @@ def read_uullg_tables(
 
 def read_collection_geopackage(
     filepath: str | Path,
-    collection_type: Collection,
     has_inclined: bool = False,
     horizontal_reference: str | int | CRS = 28992,
     vertical_reference: str | int | CRS = 5709,
