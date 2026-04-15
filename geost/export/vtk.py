@@ -124,7 +124,6 @@ def borehole_to_multiblock(
     radius: float,
     n_sides: int,
     vertical_factor: float,
-    fixed_surface: bool,
 ) -> pv.MultiBlock:
     """
     Create a PyVista MultiBlock object from the parsed boreholes/cpt's.

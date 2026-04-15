@@ -8,8 +8,7 @@ import pytest
 import xarray as xr
 from shapely import geometry as gmt
 
-from geost import read_borehole_table, read_nlog_cores
-from geost.accessors.data import DiscreteData, LayeredData
+from geost import read_nlog_cores
 from geost.models.basemodels import VoxelModel
 
 

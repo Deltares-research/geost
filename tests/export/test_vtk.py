@@ -1,5 +1,6 @@
+import re
+
 import numpy as np
-import pandas as pd
 import pytest
 import pyvista as pv
 from numpy.testing import assert_array_equal
@@ -203,3 +204,64 @@ def test_layerdata_to_pyvista_unstructured(borehole_data, cpt_data):
     assert unstructured_grid_cpt.n_cells == len(cpt_data)
     assert unstructured_grid_cpt.n_points == 160
     assert unstructured_grid_cpt.cell_data.keys() == ["qc"]
+
+
+@pytest.mark.unittest
+def test_to_pyvista_structured(xarray_dataset):
+    vms_single_var = vtk.voxelmodel_to_pyvista_structured(
+        xarray_dataset, resolution=(1, 1, 0.5), displayed_variables=["strat"]
+    )
+    assert isinstance(vms_single_var, pv.ImageData)
+    assert vms_single_var.n_points == 150
+    assert vms_single_var.n_cells == 80
+    assert vms_single_var.n_arrays == 1
+
+    vms_multi_var = vtk.voxelmodel_to_pyvista_structured(
+        xarray_dataset, resolution=(1, 1, 0.5)
+    )
+    assert isinstance(vms_multi_var, pv.ImageData)
+    assert vms_multi_var.n_points == 150
+    assert vms_multi_var.n_cells == 80
+    assert vms_multi_var.n_arrays == 2
+
+
+@pytest.mark.unittest
+def test_to_pyvista_unstructured(xarray_dataset):
+    vmu_single_var = vtk.voxelmodel_to_pyvista_unstructured(
+        xarray_dataset, resolution=(1, 1, 0.5), displayed_variables=["strat"]
+    )
+    assert isinstance(vmu_single_var, pv.UnstructuredGrid)
+    assert vmu_single_var.n_points == 142
+    assert vmu_single_var.n_cells == 70
+    assert vmu_single_var.n_arrays == 3  # TODO: fix when pyvista 0.47 releases
+
+    vmu_multi_var = vtk.voxelmodel_to_pyvista_unstructured(
+        xarray_dataset, resolution=(1, 1, 0.5)
+    )
+    assert isinstance(vmu_multi_var, pv.UnstructuredGrid)
+    assert vmu_multi_var.n_points == 142
+    assert vmu_multi_var.n_cells == 70
+    assert vmu_multi_var.n_arrays == 4  # TODO: fix when pyvista 0.47 releases
+
+
+# @pytest.mark.unittest
+# def test_to_pyvista_unstructured_problematic_dims(xarray_dataset):
+#     # Wrong order of dimensions leads to automatic transposing, not an error!
+
+#     # Why are the five line below in this test? The same happens in the test above.
+#     vmu_wrong_order = voxelmodel.to_pyvista_grid(structured=False)
+#     assert isinstance(vmu_wrong_order, pv.UnstructuredGrid)
+
+#     # Missing z-dimension leads to an error and no file is created.
+#     voxelmodel.ds = voxelmodel.ds.drop_vars("z")
+#     with pytest.raises(Exception) as error_info:
+#         voxelmodel.to_pyvista_grid()
+#     assert error_info.errisinstance(ValueError)
+#     assert error_info.match(
+#         re.escape(
+#             "Dataset must contain 'z' dimension. Make sure that this "
+#             "spatial dimension exists in the dataset or if it has a different "
+#             "name use xarray.Dataset.rename() to rename the corresponding "
+#             "dimension to 'z'."
+#         )
+#     )

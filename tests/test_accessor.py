@@ -1,15 +1,16 @@
 import itertools
 import warnings
+from pathlib import Path
 
 import geopandas as gpd
 import numpy as np
 import pandas as pd
 import pytest
+import pyvista as pv
 from numpy.testing import assert_array_almost_equal, assert_array_equal
-from shapely.geometry import LineString, Point, Polygon
+from shapely.geometry import LineString, Polygon
 
 from geost.accessor import GeostFrame
-from geost.accessors.accessor import DATA_BACKEND, HEADER_BACKEND
 from geost.base import Collection
 from geost.validation import column_names
 
@@ -1014,8 +1015,34 @@ class TestGeostFrame:
         assert_array_equal(result, [0.0])
 
     @pytest.mark.unittest
+    def test_to_pyvista_cylinders(self, borehole_data, cpt_data):
+        vtk_object = borehole_data.gst.to_pyvista_cylinders("lith")
+        assert isinstance(vtk_object, pv.MultiBlock)
+
+        vtk_object = cpt_data.gst.to_pyvista_cylinders("qc")
+        assert isinstance(vtk_object, pv.MultiBlock)
+
+    @pytest.mark.unittest
+    def test_to_pyvista_grid(self, borehole_data, cpt_data):
+        vtk_object = borehole_data.gst.to_pyvista_grid("lith")
+        assert isinstance(vtk_object, pv.UnstructuredGrid)
+
+        vtk_object = cpt_data.gst.to_pyvista_grid("qc")
+        assert isinstance(vtk_object, pv.UnstructuredGrid)
+
+    @pytest.mark.unittest
     def test_to_qgis3d(self, borehole_data, tmp_path):
         outfile = tmp_path / r"temp.gpkg"
         borehole_data.gst.to_qgis3d(outfile, crs=28992)
         assert outfile.is_file()
         outfile.unlink()
+
+    @pytest.mark.unittest
+    def test_to_kingdom(self, borehole_data):
+        outfile = Path("temp_kingdom.csv")
+        tdfile = Path(outfile.parent, f"{outfile.stem}_TDCHART{outfile.suffix}")
+        borehole_data.gst.to_kingdom(outfile)
+        assert outfile.is_file()
+        assert tdfile.is_file()
+        outfile.unlink()
+        tdfile.unlink()
