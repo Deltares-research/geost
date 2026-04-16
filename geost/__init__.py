@@ -1,5 +1,6 @@
 from geost import accessor, data
 from geost.base import Collection
+from geost.config import delete_user_positional_column_aliases
 from geost.io.read import (
     bro_api_read,
     read_bhrg,
@@ -17,5 +18,6 @@ from geost.io.read import (
     read_uullg_tables,
     read_xml_boris,
 )
+from geost.utils.columns import add_positional_columns
 
 __version__ = "0.4.2"

@@ -2,6 +2,60 @@ from functools import singledispatch
 from typing import Any
 
 
+def _normalize_aliases(value: str | list[str]) -> list[str]:
+    values = [value] if isinstance(value, str) else value
+    return [v.lower() for v in values]
+
+
+def add_positional_columns(
+    columns: dict[str, str | list[str]], persist: bool = False
+) -> None:
+    """
+    Provide additional positional columns for GeoST to get methods to work correctly
+    with unknown names for positional columns.
+
+    Parameters
+    ----------
+    columns : dict[str, str | list[str]]
+        The original columns dictionary to which positional columns will be added.
+    persist : bool, optional
+        If True, the changes will be saved to a user configuration file. Then additional
+        columns will be loaded from this file in future sessions. The default is False.
+
+    Returns
+    -------
+    None
+        Adds the provided columns to the set of internal valid names for positional columns.
+
+    """
+    from geost.config import (
+        load_user_positional_column_aliases,
+        save_user_positional_column_aliases,
+    )
+    from geost.validation.column_names import POSSIBLE_COLUMN_NAMING
+
+    invalid_keys = [key for key in columns if key not in POSSIBLE_COLUMN_NAMING]
+
+    if invalid_keys:
+        raise ValueError(
+            f"Invalid names {', '.join(invalid_keys)} for positional columns to set. "
+            f"Valid names are: {', '.join(POSSIBLE_COLUMN_NAMING.keys())}."
+        )
+
+    for key, value in columns.items():
+        POSSIBLE_COLUMN_NAMING[key].update(_normalize_aliases(value))
+
+    if persist:
+        existing = load_user_positional_column_aliases()
+
+        for key, value in columns.items():
+            values = _normalize_aliases(value)
+            existing.setdefault(key, [])
+            existing[key] = sorted(set(existing[key]) | set(values))
+
+        save_user_positional_column_aliases(existing)
+
+
 @singledispatch
 def column_name_from(values: Any, prefix: str = "", suffix: str = "") -> str:
     """
