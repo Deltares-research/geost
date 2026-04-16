@@ -60,8 +60,8 @@ def delete_user_positional_column_aliases(persist: bool = False) -> None:
     Parameters
     ----------
     persist : bool, optional
-        If True, also remove the persisted user alias configuration file.
-        The default is False.
+        If True, also remove the persisted user alias configuration file. This removes
+        all user-added aliases permanently. The default is False.
 
     """
     from geost.validation.column_names import (
