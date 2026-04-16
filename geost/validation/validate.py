@@ -26,6 +26,9 @@ class ValidationResult:
         # Note: length of unique validation issues, not number of affected rows or surveys
         return len(self.errors)
 
+    def __repr__(self):
+        return f"ValidationResult(num_issues={len(self)})"
+
     @property
     def has_errors(self) -> bool:
         """Indicates whether any validation errors were recorded."""
