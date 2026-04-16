@@ -39,11 +39,13 @@ def add_positional_columns(
     Examples
     --------
     Add a single alias for the "x" positional column and only for the current session:
+
     >>> import geost
     >>> geost.add_positional_columns({"x_coordinate": "my-x-column"})
 
     Add multiple aliases for the "y" positional column and persist the changes for future
     sessions:
+
     >>> import geost
     >>> geost.add_positional_columns({"y_coordinate": ["my-y-column", "y_coord"]}, persist=True)
 
