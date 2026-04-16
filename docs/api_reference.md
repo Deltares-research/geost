@@ -7,6 +7,7 @@ caption: Table of contents
 ---
 
 Input/Output <api_reference/io>
+Generic functions <api_reference/generic>
 Collection <api_reference/collection>
 Accessor <api_reference/accessor>
 VoxelModel <api_reference/voxelmodel>
