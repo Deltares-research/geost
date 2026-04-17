@@ -1,10 +1,13 @@
 import warnings
 from typing import TYPE_CHECKING, Iterable
 
+from geost.config import load_user_positional_column_aliases
+
 if TYPE_CHECKING:
     import pandas as pd
 
-POSSIBLE_COLUMN_NAMING = {
+
+DEFAULT_COLUMN_NAMING = {
     "nr": {"nr", "bro_id", "nitg_nr", "nitg", "boorp"},
     "surface": {"surface", "maaiveld", "mv", "height_nap", "surface_nap"},
     "end": {"end", "einddiepte", "einddiepte_nap", "end_depth", "end_depth_nap"},
@@ -38,6 +41,12 @@ POSSIBLE_COLUMN_NAMING = {
         "lowerboundary",
     },
 }
+
+POSSIBLE_COLUMN_NAMING = {
+    key: set(values) for key, values in DEFAULT_COLUMN_NAMING.items()
+}
+for key, values in load_user_positional_column_aliases().items():
+    POSSIBLE_COLUMN_NAMING[key].update(map(str.lower, values))
 
 
 def check_column_name(columns: Iterable[str], column_type: str) -> str | None:
