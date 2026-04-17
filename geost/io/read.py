@@ -886,7 +886,7 @@ def read_pickle(filepath: str | Path, **kwargs) -> Any:
 def bro_api_read(
     object_type: BroObject,
     *,
-    bro_ids: str | list[str] = None,
+    bro_ids: str | list[str] | pd.Series = None,
     epsg: int = 28992,
     bbox: tuple[float, float, float, float] = None,
     geometry: gpd.GeoDataFrame = None,
@@ -905,7 +905,7 @@ def bro_api_read(
     object_type : BroObject
         Type of BRO object to read. This can be one of the following: "BHR-GT", "BHR-GT-samples",
         "BHR-P", "BHR-G", "CPT", "SFR".
-    bro_ids : str | list[str], optional (keyword only)
+    bro_ids : str | list[str] | pd.Series, optional (keyword only)
         List of BRO object ids to read. If not given, the bbox or geometry must be
         provided to select the objects to read. If given, bbox and geometry are ignored.
     epsg : int, optional (keyword only)
@@ -989,7 +989,7 @@ def bro_api_read(
 
     api = BroApi()
 
-    if bro_ids:
+    if bro_ids is not None:
         bro_data = api.get_objects(bro_ids, object_type=object_type)
     else:
         if bbox:
