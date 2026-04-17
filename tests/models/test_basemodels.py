@@ -65,7 +65,7 @@ class TestVoxelModel:
 
     @pytest.mark.unittest
     def test_from_opendap(self):
-        url = r"https://opendap.deltares.nl/thredds/dodsC/opendap/rijkswaterstaat/DIS/DIS2.1.nc"
+        url = r"https://opendap.deltares.nl/thredds/dodsC/opendap/rijkswaterstaat/DIS/DIS3.1.nc"
         model = VoxelModel.from_opendap(
             url,
             data_vars=["lithoklasse", "slibklasse"],
