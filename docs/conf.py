@@ -57,7 +57,9 @@ templates_path = ["_templates"]
 exclude_patterns = ["_build", "Thumbs.db", ".DS_Store", "*bro"]
 
 # Longer notebook execution timeout when building docs to prevent cell timeouts
+jupyter_execute_notebooks = "force"
 nb_execution_timeout = 120
+nb_execution_allow_errors = False
 
 # -- Options for HTML output -------------------------------------------------
 
