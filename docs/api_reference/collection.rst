@@ -35,7 +35,6 @@ Export
    :toctree: generated/
 
    Collection.to_csv
-   Collection.to_datafusiontools
    Collection.to_geopackage
    Collection.to_geoparquet
    Collection.to_kingdom
@@ -63,7 +62,7 @@ Selection
 
    Collection.get
    Collection.select_by_condition
-   Collection.select_by_depth
+   Collection.select_by_elevation
    Collection.select_by_length
    Collection.select_by_values
    Collection.slice_by_values

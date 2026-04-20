@@ -106,9 +106,9 @@ test = "python -m pytest --verbose --cov=geost --cov-report xml --cov-report ter
 docs = "sphinx-build -b html docs ./docs/build"
 format = "black ."
 lint = "ruff check --fix ./geost"
-rm-jupyter = "rm -r ./docs/jupyter_execute"
-rm-build = "rm -r ./docs/build"
-rm-generated = "rm -r ./docs/api_reference/generated"
+rm-jupyter = "rm -rf ./docs/jupyter_execute"
+rm-build = "rm -rf ./docs/build"
+rm-generated = "rm -rf ./docs/api_reference/generated"
 rebuild-docs = { depends-on = ["rm-jupyter", "rm-build", "rm-generated", "docs"] }
 
 [tool.pixi.feature.py313.dependencies]
