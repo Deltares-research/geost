@@ -1,10 +1,10 @@
 Analysis
-==========
+========
 
 .. currentmodule:: geost.analysis
 
 Boreholes
------------
+---------
 .. autosummary::
    :toctree: generated/
 
@@ -13,7 +13,7 @@ Boreholes
 
 
 Cpts
-------
+----
 .. autosummary::
     :toctree: generated/
 
@@ -22,7 +22,7 @@ Cpts
 
 
 Grainsize samples
-------
+-----------------
 .. autosummary::
     :toctree: generated/
 
@@ -31,7 +31,7 @@ Grainsize samples
 
 
 Combine
---------
+-------
 .. autosummary::
     :toctree: generated/
 

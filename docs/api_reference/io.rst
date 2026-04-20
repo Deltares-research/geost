@@ -36,6 +36,7 @@ Data from specific file formats
    read_cpt
    read_gef_cpts
    read_sfr
+   read_xml_boris
 
 
 GIS vector files
