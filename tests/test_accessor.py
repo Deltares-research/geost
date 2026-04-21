@@ -94,6 +94,11 @@ class TestGeostFrame:
         df = pd.DataFrame(columns=["nr"])
         assert df.gst._nr == "nr"
 
+        df = pd.DataFrame(columns=["NR", "Latitude", "Longitude"])
+        assert df.gst._nr == "NR"
+        assert df.gst._x == "Longitude"
+        assert df.gst._y == "Latitude"
+
         with pytest.raises(
             KeyError, match="DataFrame must contain a column identifying survey ID"
         ):
