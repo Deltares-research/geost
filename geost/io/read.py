@@ -272,15 +272,15 @@ def read_xml_boris(
     as_collection : bool, optional
         If True, the CPT table will be read as a :class:`~geost.base.Collection`
         which includes a header object and spatial selection functionality. If False,
-        a :class:`~geost.base.LayeredData` object is returned. The default is True.
+        a `pandas.DataFrame` object is returned. The default is True.
     **kwargs
         Additional keyword arguments that can be given to :meth:`~geost.accessor.GeostFrame.to_collection`
         when `as_collection=True`.
 
     Returns
     -------
-    :class:`~geost.base.Collection` or :class:`~geost.base.LayeredData`
-        Instance of :class:`~geost.base.Collection` or :class:`~geost.base.LayeredData`
+    :class:`~geost.base.Collection`
+        Instance of :class:`~geost.base.Collection` or `pandas.DataFrame`
         depending on if the table is read as a collection or not.
 
     """
