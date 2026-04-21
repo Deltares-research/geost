@@ -130,6 +130,9 @@ markers = [
 	"unittest: test of single component",
 	"integrationtest: test of multiple components",
 ]
+filterwarnings = [
+    "ignore:.*The GeoST function.*:DeprecationWarning",
+]
 
 [tool.coverage.report]
 exclude_lines = [
