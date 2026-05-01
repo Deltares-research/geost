@@ -9,15 +9,6 @@ from geost import config
 from geost._warnings import ValidationWarning
 
 
-class ColumnNames(NamedTuple):
-    nr_col: str | None
-    surface_col: str | None
-    x_col: str | None
-    y_col: str | None
-    top_col: str | None
-    bottom_col: str | None
-
-
 class ValidationResult:
     def __init__(self):
         self.errors = {}
@@ -199,7 +190,7 @@ def coerce_numeric(
 
 def validate_base(
     obj: pd.DataFrame | gpd.GeoDataFrame,
-    column_names: ColumnNames,
+    column_names: dict,
 ) -> pd.DataFrame | gpd.GeoDataFrame:
     """
     Perform basic validation checks on the input DataFrame or GeoDataFrame.
@@ -209,6 +200,8 @@ def validate_base(
     ----------
     obj : pd.DataFrame | gpd.GeoDataFrame
         The DataFrame or GeoDataFrame to validate.
+    column_names : dict
+        A dictionary containing the names of GeostFrame positional columns.
 
     Raises
     ------
@@ -216,32 +209,30 @@ def validate_base(
         If required columns are missing.
 
     """
-    if column_names.nr_col not in obj.columns:
-        raise ValueError(f"GeostFrame missing required column: '{column_names.nr_col}'")
-    if column_names.surface_col not in obj.columns:
+    if column_names["nr"] not in obj.columns:
+        raise ValueError(f"GeostFrame missing required column: '{column_names['nr']}'")
+    if column_names["surface"] not in obj.columns:
         raise ValueError(
-            f"GeostFrame missing required column: '{column_names.surface_col}'"
+            f"GeostFrame missing required column: '{column_names['surface']}'"
         )
 
 
 def validate_top_bottom(
     obj: pd.DataFrame | gpd.GeoDataFrame,
-    column_names: ColumnNames,
+    column_names: dict,
     first_row_in_survey: pd.Series,
     validation_result: ValidationResult,
 ):
     # Ensure top is above bottom (i.e. top < bottom)
-    invalid_indices = obj[
-        obj[column_names.top_col] >= obj[column_names.bottom_col]
-    ].index
+    invalid_indices = obj[obj[column_names["top"]] >= obj[column_names["depth"]]].index
     invalid_nrs = obj["nr"].loc[invalid_indices].unique().tolist()
     if len(invalid_indices) > 0:
-        warning = f"Column '{column_names.top_col}' must be less than '{column_names.bottom_col}', but some rows violate this condition."
+        warning = f"Column '{column_names['top']}' must be less than '{column_names['depth']}', but some rows violate this condition."
     else:
         warning = None
 
     validation_result.add(
-        f"{column_names.top_col}, {column_names.bottom_col}",
+        f"{column_names['top']}, {column_names['depth']}",
         warning,
         invalid_nrs,
         invalid_indices,
@@ -250,19 +241,19 @@ def validate_top_bottom(
     # Ensure top and bottom are positive downwards (i.e. >= 0)
     invalid_indices = obj[
         (
-            (obj[column_names.top_col].diff() <= 0.0)
-            | (obj[column_names.bottom_col].diff() <= 0.0)
+            (obj[column_names["top"]].diff() <= 0.0)
+            | (obj[column_names["depth"]].diff() <= 0.0)
         )
         & (~first_row_in_survey)
     ].index
     invalid_nrs = obj["nr"].iloc[invalid_indices].unique().tolist()
     if len(invalid_indices) > 0:
-        warning = f"Columns '{column_names.top_col}' and '{column_names.bottom_col}' must be positive downwards (i.e. >= 0), but some rows violate this condition."
+        warning = f"Columns '{column_names['top']}' and '{column_names['depth']}' must be positive downwards (i.e. >= 0), but some rows violate this condition."
     else:
         warning = None
 
     validation_result.add(
-        f"{column_names.top_col}, {column_names.bottom_col}",
+        f"{column_names['top']}, {column_names['depth']}",
         warning,
         invalid_nrs,
         invalid_indices,
@@ -271,22 +262,22 @@ def validate_top_bottom(
 
 def validate_depths(
     obj: pd.DataFrame | gpd.GeoDataFrame,
-    column_names: ColumnNames,
+    column_names: dict,
     first_row_in_survey: pd.Series,
     validation_result: ValidationResult,
 ):
     # Ensure depth column is positive downwards (i.e. >= 0)
     invalid_indices = obj[
-        (obj[column_names.bottom_col].diff() < 0) & (~first_row_in_survey)
+        (obj[column_names["depth"]].diff() < 0) & (~first_row_in_survey)
     ].index
     invalid_nrs = obj["nr"].iloc[invalid_indices].unique().tolist()
     if len(invalid_indices) > 0:
-        warning = f"Column '{column_names.bottom_col}' must be positive downwards (i.e. >= 0), but some rows violate this condition."
+        warning = f"Column '{column_names['depth']}' must be positive downwards (i.e. >= 0), but some rows violate this condition."
     else:
         warning = None
 
     validation_result.add(
-        f"{column_names.bottom_col}", warning, invalid_nrs, invalid_indices
+        f"{column_names['depth']}", warning, invalid_nrs, invalid_indices
     )
 
 
@@ -294,14 +285,8 @@ def validate_geostframe(
     obj: pd.DataFrame | gpd.GeoDataFrame,
     has_depth_columns: bool = None,
     is_layered: bool = None,
-    has_xy_columns: bool = None,
-    nr_col: str = None,
-    surface_col: str = None,
-    x_col: str = None,
-    y_col: str = None,
-    top_col: str = None,
-    bottom_col: str = None,
     first_row_in_survey: pd.Series = None,
+    positional_columns: dict = None,
 ):
     """
     Validate a GeostFrame, display warnings and handle errors as specified by the GeoST
@@ -315,18 +300,10 @@ def validate_geostframe(
         Indicates if the GeostFrame has depth columns, by default None
     is_layered : bool, optional
         Indicates if the GeostFrame is layered, by default None
-    has_xy_columns : bool, optional
-        Indicates if the GeostFrame has XY columns, by default None
-    x_col : str, optional
-        Name of the X column, by default None
-    y_col : str, optional
-        Name of the Y column, by default None
-    top_col : str, optional
-        Name of the top column, by default None
-    bottom_col : str, optional
-        Name of the bottom column, by default None
     first_row_in_survey : pd.Series, optional
         Indicates the first row in each survey, by default None
+    positional_columns : dict, optional
+        A dictionary containing the names of GeostFrame positional columns, by default None
 
     Returns
     -------
@@ -336,43 +313,40 @@ def validate_geostframe(
     """
     validation_result = ValidationResult()
 
-    column_names = ColumnNames(
-        nr_col=nr_col,
-        surface_col=surface_col,
-        x_col=x_col,
-        y_col=y_col,
-        top_col=top_col,
-        bottom_col=bottom_col,
-    )
     numeric_columns = [
         col_name
         for col_name in (
-            column_names.surface_col,
-            column_names.x_col,
-            column_names.y_col,
-            column_names.top_col,
-            column_names.bottom_col,
+            positional_columns["surface"],
+            positional_columns["x"],
+            positional_columns["y"],
+            positional_columns["top"],
+            positional_columns["depth"],
         )
         if col_name is not None
     ]
 
-    validate_base(obj, column_names)
+    validate_base(obj, positional_columns)
     validated_obj = coerce_numeric(obj, numeric_columns, validation_result)
 
     if has_depth_columns:
         if is_layered:
             validate_top_bottom(
                 validated_obj,
-                column_names,
+                positional_columns,
                 first_row_in_survey,
                 validation_result,
             )
         else:
             validate_depths(
-                validated_obj, column_names, first_row_in_survey, validation_result
+                validated_obj,
+                positional_columns,
+                first_row_in_survey,
+                validation_result,
             )
 
     validation_result.display_warnings()
-    validated_obj = validation_result.handle_errors(validated_obj, column_names.nr_col)
+    validated_obj = validation_result.handle_errors(
+        validated_obj, positional_columns["nr"]
+    )
 
     return validated_obj, validation_result
