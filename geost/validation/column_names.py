@@ -67,8 +67,8 @@ def check_column_name(columns: Iterable[str], column_type: str) -> str | None:
 
     """
     valid_names = POSSIBLE_COLUMN_NAMING[column_type]
-    for col in map(str.lower, columns):
-        if col in valid_names:
+    for col in columns:
+        if col.lower() in valid_names:
             return col
     return None
 

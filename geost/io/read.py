@@ -272,15 +272,15 @@ def read_xml_boris(
     as_collection : bool, optional
         If True, the CPT table will be read as a :class:`~geost.base.Collection`
         which includes a header object and spatial selection functionality. If False,
-        a :class:`~geost.base.LayeredData` object is returned. The default is True.
+        a `pandas.DataFrame` object is returned. The default is True.
     **kwargs
         Additional keyword arguments that can be given to :meth:`~geost.accessor.GeostFrame.to_collection`
         when `as_collection=True`.
 
     Returns
     -------
-    :class:`~geost.base.Collection` or :class:`~geost.base.LayeredData`
-        Instance of :class:`~geost.base.Collection` or :class:`~geost.base.LayeredData`
+    :class:`~geost.base.Collection`
+        Instance of :class:`~geost.base.Collection` or `pandas.DataFrame`
         depending on if the table is read as a collection or not.
 
     """
@@ -892,7 +892,7 @@ def bro_api_read(
     geometry: gpd.GeoDataFrame = None,
     buffer: int | float = None,
     schema: dict[str, Any] = None,
-):
+) -> Collection:
     """
     Read data directly from the BRO API. This allows to read BHR-GT, BHR-P, BHR-G and
     CPT data from the BRO API into `geost` objects without having to download the data
@@ -935,12 +935,13 @@ def bro_api_read(
 
     Returns
     -------
-    Subclass of `geost.base.Collection`
-        Returns a subclass of `geost.base.Collection` depending on the object_type.
+    :class:`~geost.base.Collection`
+        Returns a subclass of `geost.Collection` depending on the object_type.
 
     Examples
     --------
     Read a list of specific borehole ids from the BRO API (max 2000 objects):
+
     >>> import geost
     ... bhrgt = geost.bro_api_read("BHR-GT", bro_ids=["BHR000000339725", "BHR000000339735"])
     ... bhrgt
@@ -949,6 +950,7 @@ def bro_api_read(
 
     Or read geological boreholes (BHR-G) within a bounding box. Note the epsg parameter
     is used to interpret the bbox coordinates (by default it is 28992 - RD New):
+
     >>> import geost
     ... bbox = (126_800, 448_000, 127_800, 449_000)  # xmin, ymin, xmax, ymax
     ... bhrg = geost.bro_api_read("BHR-G", bbox=bbox, epsg=28992)
@@ -958,22 +960,26 @@ def bro_api_read(
     Or within shapefile containing a Polygon geometry of the same bounding box of the
     previous example (Point or Line geometries are also supported). Note that the epsg
     of the geometry is used if it has a defined CRS, otherwise the epsg parameter must be used:
+
     >>> import geost
     ... bhrg = geost.bro_api_read("BHR-G", geometry="my_polygon.shp")
     Collection:
     # header = 3
 
     Or within the shapefile and applying a buffer:
+
     >>> import geost
     ... bhrg = geost.bro_api_read("BHR-G", geometry="my_polygon.shp", buffer=500)
     Collection:
     # header = 5
 
     When there are no objects found, you will get an empty collection:
+
     >>> import geost
     ... bhrg = geost.bro_api_read("BHR-G", bbox=[0, 0, 1, 1])
     Collection:
     <EMPTY COLLECTION>
+
     """
     readers = {
         "BHR-GT": read_bhrgt,
@@ -983,9 +989,10 @@ def bro_api_read(
         "CPT": read_cpt,
         "SFR": read_sfr,
     }
-    reader = readers.get(object_type, None)
-    if reader is None:
+    if object_type not in readers:
         raise ValueError(f"Object type '{object_type}' is not supported for reading.")
+
+    reader = readers[object_type]
 
     api = BroApi()
 
