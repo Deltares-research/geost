@@ -74,6 +74,7 @@ def read_table(
     Examples
     --------
     >>> import geost
+    >>> file = "path_to_your_data.parquet"
     >>> collection_kwargs = { # Options to pass to a `geost.Collection`
     ...     "crs": 32631,
     ...     "vertical_reference": 'Ostend height',
