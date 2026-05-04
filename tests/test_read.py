@@ -108,6 +108,29 @@ def test_read_borehole_table(filename, testdatadir):
     assert isinstance(cores, pd.DataFrame)
 
 
+@pytest.mark.parametrize(
+    "filename",
+    [
+        "test_borehole_table.parquet",
+        "test_borehole_table.csv",
+        "test_inclined_borehole_table.parquet",
+        "test_cpts.parquet",
+    ],
+)
+def test_read_table(filename, testdatadir):
+    filepath = testdatadir / filename
+    if filename == "test_inclined_borehole_table.parquet":
+        cores = geost.read_table(filepath, coll_kwargs=dict(has_inclined=True))
+        assert cores.has_inclined
+    else:
+        cores = geost.read_table(filepath)
+        assert not cores.has_inclined
+    assert isinstance(cores, Collection)
+
+    cores = geost.read_table(filepath, as_collection=False)
+    assert isinstance(cores, pd.DataFrame)
+
+
 @pytest.mark.unittest
 def test_read_boris_xml(testdatadir):
     collection = geost.read_xml_boris(

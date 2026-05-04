@@ -9,8 +9,8 @@ from geost.config import (
     save_user_positional_column_aliases,
 )
 from geost.validation.column_names import (
-    DEFAULT_COLUMN_NAMING,
-    POSSIBLE_COLUMN_NAMING,
+    DEFAULT_POSITIONAL_COLUMNS,
+    POSITIONAL_COLUMN_NAMES,
 )
 
 
@@ -63,23 +63,23 @@ def test_delete_persisted_alias_file(isolated_alias_config):
 def test_add_runtime_alias_single_value(isolated_alias_config):
     add_positional_columns({"x_coordinate": "my_x"})
 
-    assert "my_x" in POSSIBLE_COLUMN_NAMING["x_coordinate"]
+    assert "my_x" in POSITIONAL_COLUMN_NAMES["x_coordinate"]
 
 
 @pytest.mark.unittest
 def test_add_runtime_alias_multiple_values(isolated_alias_config):
     add_positional_columns({"x_coordinate": ["my_x", "custom_x"]})
 
-    assert "my_x" in POSSIBLE_COLUMN_NAMING["x_coordinate"]
-    assert "custom_x" in POSSIBLE_COLUMN_NAMING["x_coordinate"]
+    assert "my_x" in POSITIONAL_COLUMN_NAMES["x_coordinate"]
+    assert "custom_x" in POSITIONAL_COLUMN_NAMES["x_coordinate"]
 
 
 @pytest.mark.unittest
 def test_add_aliases_are_lowercased(isolated_alias_config):
     add_positional_columns({"x_coordinate": "MY_X"})
 
-    assert "my_x" in POSSIBLE_COLUMN_NAMING["x_coordinate"]
-    assert "MY_X" not in POSSIBLE_COLUMN_NAMING["x_coordinate"]
+    assert "my_x" in POSITIONAL_COLUMN_NAMES["x_coordinate"]
+    assert "MY_X" not in POSITIONAL_COLUMN_NAMES["x_coordinate"]
 
 
 @pytest.mark.unittest
@@ -103,18 +103,18 @@ def test_add_invalid_key_raises_value_error(isolated_alias_config):
 @pytest.mark.unittest
 def test_delete_resets_runtime_to_defaults(isolated_alias_config):
     add_positional_columns({"x_coordinate": "my_x"})
-    assert "my_x" in POSSIBLE_COLUMN_NAMING["x_coordinate"]
+    assert "my_x" in POSITIONAL_COLUMN_NAMES["x_coordinate"]
 
     delete_user_positional_column_aliases()
 
-    assert "my_x" not in POSSIBLE_COLUMN_NAMING["x_coordinate"]
-    assert "x" in POSSIBLE_COLUMN_NAMING["x_coordinate"]
+    assert "my_x" not in POSITIONAL_COLUMN_NAMES["x_coordinate"]
+    assert "x" in POSITIONAL_COLUMN_NAMES["x_coordinate"]
 
 
 @pytest.mark.unittest
 def test_delete_does_not_mutate_defaults(isolated_alias_config):
     delete_user_positional_column_aliases()
 
-    POSSIBLE_COLUMN_NAMING["x_coordinate"].add("temporary")
+    POSITIONAL_COLUMN_NAMES["x_coordinate"].add("temporary")
 
-    assert "temporary" not in DEFAULT_COLUMN_NAMING["x_coordinate"]
+    assert "temporary" not in DEFAULT_POSITIONAL_COLUMNS["x_coordinate"]

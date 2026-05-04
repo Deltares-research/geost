@@ -9,7 +9,7 @@ from geost.validation import column_names as cn
 @pytest.mark.unittest
 def test_check_positional_columns():
     names = {
-        k: list(v) for k, v in cn.POSSIBLE_COLUMN_NAMING.items()
+        k: list(v) for k, v in cn.POSITIONAL_COLUMN_NAMES.items()
     }  # Convert sets to lists because otherwise we can't index them
 
     longest_set = max(map(len, names.values()))

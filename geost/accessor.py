@@ -52,7 +52,7 @@ class GeostFrame(AbstractBase):
         if not (nr := check("nr")):
             from geost.validation import column_names
 
-            known_names = column_names.POSSIBLE_COLUMN_NAMING["nr"]
+            known_names = column_names.POSITIONAL_COLUMN_NAMES["nr"]
             raise KeyError(
                 "DataFrame must contain a column identifying survey ID. Make sure one of "
                 f"{known_names} is present."

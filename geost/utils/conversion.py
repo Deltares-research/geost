@@ -1,6 +1,8 @@
+import warnings
 from pathlib import Path
 
 import geopandas as gpd
+import numpy as np
 import pandas as pd
 from shapely.geometry.base import BaseGeometry
 
@@ -110,42 +112,76 @@ def adjust_z_coordinates(df: pd.DataFrame) -> pd.DataFrame:
         Dataframe with adjusted z-coordinates if required.
 
     """
-    # surface, top, bot = df.gst._surface, df.gst._top, df.gst._bottom
+    positional_columns = df.gst.positional_columns
 
-    # # For layered data:
-    # # First top == surface, depth is with respect to e.g. NAP
-    # if top is not None:
-    #     relative_to_reference = (df[surface] == df[top])[df.gst.first_row_survey].all()
-    #     if relative_to_reference:
-    #         pass
-    #     else:
-    #         pass
-    # else:
-    #     relative_to_reference = False
-    # First top == 0, and depth is positive downward
-    # First top == 0, and depth is negative downward
+    if not df.gst.has_depth_columns:
+        return df  # Do nothing, let validation raise warnings
 
-    # For discrete data (first depth is never 0 because it indicates the bottom of intervals):
-    # Depth is with respect to e.g. NAP
-    # Depth is positive downward with respect to surface
-    # Depth is negative downward with respect to surface
+    if df.gst.is_layered:
+        df = _adjust_layered(
+            df,
+            positional_columns["top"],
+            positional_columns["depth"],
+            positional_columns["surface"],
+        )
+    else:
+        df = _adjust_discrete(
+            df,
+            positional_columns["nr"],
+            positional_columns["depth"],
+            positional_columns["surface"],
+        )
 
-    top_column_label = [col for col in df.columns if col in {"top", "depth"}][0]
-    has_bottom_column = "bottom" in df.columns
+    return df
 
-    # TODO: think about detection. Only considers first two indices to determine
-    # downward decreasing or increasing of z-coordinates.
-    first_surface = df["surface"].iloc[0]
-    first_top = df[top_column_label].iloc[0]
-    second_top = df[top_column_label].iloc[1]
 
-    if first_top == first_surface:
-        df[top_column_label] -= df["surface"]
-        if has_bottom_column:
-            df["bottom"] -= df["surface"]
-    if first_top > second_top:
-        df[top_column_label] *= -1
-        if has_bottom_column:
-            df["bottom"] *= -1
+def _adjust_layered(
+    df: pd.DataFrame, top: str, bottom: str, surface: str
+) -> pd.DataFrame:
+    first_row_mask = df.gst.first_row_survey
 
+    surface_values = df.loc[first_row_mask, surface]
+    top_values = df.loc[first_row_mask, top]
+
+    if np.allclose(surface_values, top_values):
+        df[top] = df[surface] - df[top]
+        df[bottom] = df[surface] - df[bottom]
+    elif np.allclose(top_values, 0):
+        df[top] *= np.sign(df[top])
+        df[bottom] *= np.sign(df[bottom])
+    else:
+        from geost._warnings import MixedDepthWarning
+
+        warnings.warn(
+            "Data contains a mix of surveys with depth respect to surface and with depth "
+            "starting at 0. GeoST methods including depth expect all surveys to have a. "
+            "depth starting at 0 and increasing downward. Please adjust your data accordingly.",
+            MixedDepthWarning,
+        )
+
+    return df
+
+
+def _adjust_discrete(
+    df: pd.DataFrame, nr: str, depth: str, surface: str
+) -> pd.DataFrame:
+    first_row_mask = df.gst.first_row_survey
+    dz = df.groupby(nr)[depth].transform(lambda x: x.diff().mean())
+
+    surface_values = df.loc[first_row_mask, surface]
+    depth_values = df.loc[first_row_mask, depth] - dz[first_row_mask]
+
+    if np.allclose(surface_values, depth_values):
+        df[depth] = df[surface] - df[depth]
+    elif np.allclose(depth_values, 0):
+        df[depth] *= np.sign(df[depth])
+    else:
+        from geost._warnings import MixedDepthWarning
+
+        warnings.warn(
+            "Data contains a mix of surveys with depth respect to surface and with depth "
+            "starting at 0. GeoST methods including depth expect all surveys to have a. "
+            "depth starting at 0 and increasing downward. Please adjust your data accordingly.",
+            MixedDepthWarning,
+        )
     return df

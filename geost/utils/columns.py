@@ -54,18 +54,18 @@ def add_positional_columns(
         load_user_positional_column_aliases,
         save_user_positional_column_aliases,
     )
-    from geost.validation.column_names import POSSIBLE_COLUMN_NAMING
+    from geost.validation.column_names import POSITIONAL_COLUMN_NAMES
 
-    invalid_keys = [key for key in columns if key not in POSSIBLE_COLUMN_NAMING]
+    invalid_keys = [key for key in columns if key not in POSITIONAL_COLUMN_NAMES]
 
     if invalid_keys:
         raise ValueError(
             f"Invalid names {', '.join(invalid_keys)} for positional columns to set. "
-            f"Valid names are: {', '.join(POSSIBLE_COLUMN_NAMING.keys())}."
+            f"Valid names are: {', '.join(POSITIONAL_COLUMN_NAMES.keys())}."
         )
 
     for key, value in columns.items():
-        POSSIBLE_COLUMN_NAMING[key].update(_normalize_aliases(value))
+        POSITIONAL_COLUMN_NAMES[key].update(_normalize_aliases(value))
 
     if persist:
         existing = load_user_positional_column_aliases()

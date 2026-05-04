@@ -310,19 +310,14 @@ def validate_geostframe(
     ValidationResult
         The result of the validation, a :class:`~geost.validation.validate.ValidationResult`
         object.
+
     """
     validation_result = ValidationResult()
 
     numeric_columns = [
-        col_name
-        for col_name in (
-            positional_columns["surface"],
-            positional_columns["x"],
-            positional_columns["y"],
-            positional_columns["top"],
-            positional_columns["depth"],
-        )
-        if col_name is not None
+        col
+        for name in ["surface", "x", "y", "top", "depth"]
+        if (col := positional_columns[name]) is not None
     ]
 
     validate_base(obj, positional_columns)

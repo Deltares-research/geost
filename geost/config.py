@@ -65,13 +65,13 @@ def delete_user_positional_column_aliases(persist: bool = False) -> None:
 
     """
     from geost.validation.column_names import (
-        DEFAULT_COLUMN_NAMING,
-        POSSIBLE_COLUMN_NAMING,
+        DEFAULT_POSITIONAL_COLUMNS,
+        POSITIONAL_COLUMN_NAMES,
     )
 
-    POSSIBLE_COLUMN_NAMING.clear()
-    for key, values in DEFAULT_COLUMN_NAMING.items():
-        POSSIBLE_COLUMN_NAMING[key] = set(values)
+    POSITIONAL_COLUMN_NAMES.clear()
+    for key, values in DEFAULT_POSITIONAL_COLUMNS.items():
+        POSITIONAL_COLUMN_NAMES[key] = set(values)
 
     if persist and CONFIG_FILE.exists():
         CONFIG_FILE.unlink()

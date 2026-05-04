@@ -45,7 +45,7 @@ class TestGeostFrame:
     @pytest.mark.unittest
     def test_set_positional_columns(self):
         names = {
-            k: list(v) for k, v in column_names.POSSIBLE_COLUMN_NAMING.items()
+            k: list(v) for k, v in column_names.POSITIONAL_COLUMN_NAMES.items()
         }  # Convert sets to lists because otherwise we can't index them
 
         longest_set = max(map(len, names.values()))
