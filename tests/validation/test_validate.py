@@ -8,7 +8,6 @@ from numpy.testing import assert_array_equal
 from geost import config
 from geost._warnings import ValidationWarning
 from geost.validation import ValidationResult, validate
-from geost.validation.validate import ColumnNames
 
 
 class TestValidationResult:
@@ -107,25 +106,25 @@ class TestValidationResult:
 class TestValidationFunctions:
     @pytest.fixture
     def column_names_top_bot(self):
-        return ColumnNames(
-            nr_col="nr",
-            surface_col="surface",
-            x_col="x",
-            y_col="y",
-            top_col="top",
-            bottom_col="bottom",
-        )
+        return {
+            "nr": "nr",
+            "surface": "surface",
+            "x": "x",
+            "y": "y",
+            "top": "top",
+            "depth": "bottom",
+        }
 
     @pytest.fixture
     def column_names_depth(self):
-        return ColumnNames(
-            nr_col="nr",
-            surface_col="surface",
-            x_col="x",
-            y_col="y",
-            top_col=None,
-            bottom_col="depth",
-        )
+        return {
+            "nr": "nr",
+            "surface": "surface",
+            "x": "x",
+            "y": "y",
+            "top": None,
+            "depth": "depth",
+        }
 
     @pytest.fixture
     def base_df(self):
@@ -209,9 +208,9 @@ class TestValidationFunctions:
         validation_result = ValidationResult()
 
         columns_to_check = [
-            column_names_depth.surface_col,
-            column_names_depth.x_col,
-            column_names_depth.y_col,
+            column_names_depth["surface"],
+            column_names_depth["x"],
+            column_names_depth["y"],
         ]
 
         # Valid
@@ -288,15 +287,9 @@ class TestValidationFunctions:
             full_top_bottom_df,
             has_depth_columns=False,
             is_layered=True,
-            has_xy_columns=True,
-            nr_col="nr",
-            surface_col="surface",
-            x_col="x",
-            y_col="y",
-            top_col="top",
-            bottom_col="bottom",
             first_row_in_survey=full_top_bottom_df["nr"]
             != full_top_bottom_df["nr"].shift(),
+            positional_columns=full_top_bottom_df.gst.positional_columns,
         )
 
         # Depth
@@ -304,14 +297,8 @@ class TestValidationFunctions:
             full_depth_df,
             has_depth_columns=True,
             is_layered=False,
-            has_xy_columns=True,
-            nr_col="nr",
-            surface_col="surface",
-            x_col="x",
-            y_col="y",
-            top_col=None,
-            bottom_col="depth",
             first_row_in_survey=full_depth_df["nr"] != full_depth_df["nr"].shift(),
+            positional_columns=full_depth_df.gst.positional_columns,
         )
 
         assert len(result_tb) == 0
