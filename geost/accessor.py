@@ -475,7 +475,7 @@ class GeostFrame(AbstractBase):
             to find the names of the x and y columns (see `POSSIBLE_COLUMN_NAMING` in
             :module:`~geost.validation.column_names` ). If not found, no geometry column
             will be created.
-        include_columns : str | Iterable[str] | None, optional
+        include_in_header: str | Iterable[str] | None, optional
             Columns to aditionally include in the header. The default is None, which means
             that only the default columns 'nr', 'surface', 'x' and 'y' or their aliases are included.
 

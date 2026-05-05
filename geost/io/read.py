@@ -33,9 +33,11 @@ def read_table(
     as_collection: bool = True,
     crs: str | int | CRS = None,
     vertical_datum: str | int | CRS = None,
+    has_inclined: bool = False,
+    coordinate_names: tuple[str, str] = None,
+    include_in_header: str | Iterable[str] | None = None,
     column_mapper: dict = None,
-    pd_kwargs: dict[str, Any] = None,
-    coll_kwargs: dict[str, Any] = None,
+    kwargs: dict[str, Any] = None,
 ) -> Collection | pd.DataFrame:
     """
     Read tabular information from a file (parquet, csv or Excel) for any given survey data
@@ -53,6 +55,24 @@ def read_table(
         Optional keyword arguments that can be given to :meth:`~geost.accessor.GeostFrame.to_collection`
         can be passed via the `coll_kwargs` argument. If False, a `pd.DataFrame` is returned.
         The default is True.
+    crs : str | int | CRS, optional
+        EPSG of the data's horizontal reference. Takes anything that can be interpreted
+        by pyproj.crs.CRS.from_user_input(). The default is None, which means no CRS will
+        be assigned to the resulting Collection. Only used if `as_collection=True`.
+    vertical_datum : str | int | CRS, optional
+        Vertical datum for the collection. The default is None. Only used if
+        `as_collection=True`.
+    has_inclined : bool, optional
+        Indicates whether the collection has inclined data. The default is False.
+    coordinate_names : tuple[str, str], optional
+        Tuple specifying the names of the columns to be used as coordinates for the
+        geometry column. The default is None, which means that it automatically tries
+        to find the names of the x and y columns (see `POSSIBLE_COLUMN_NAMING` in
+        :module:`~geost.validation.column_names` ). If not found, no geometry column
+        will be created.
+    include_in_header: str | Iterable[str] | None, optional
+        Columns to aditionally include in the header. The default is None, which means
+        that only the default columns 'nr', 'surface', 'x' and 'y' or their aliases are included.
     column_mapper: dict, optional
         Mapping from column names in the input file to GeoST positional column names. Use
         this when your file uses non-standard names which cannot be recognized automatically
@@ -61,11 +81,9 @@ def read_table(
         for the accepted column names for each positional column type. If no valid survey-id
         (e.g. "nr") column is found after mapping, a KeyError is raised. Missing x/y or depth
         columns trigger warnings and may limit functionality.
-    pd_kwargs: dict[str, Any], optional
+    kwargs: dict[str, Any], optional
         Optional keyword arguments for Pandas.read_parquet, Pandas.read_csv or
         Pandas.read_excel depending on the file extension.
-    coll_kwargs: dict[str, Any], optional
-        Optional keyword arguments for :meth:`~geost.accessor.GeostFrame.to_collection`
 
     Returns
     -------
@@ -87,10 +105,9 @@ def read_table(
     ... )
 
     """
-    pd_kwargs = pd_kwargs or dict()
-    coll_kwargs = coll_kwargs or dict()
+    kwargs = kwargs or dict()
 
-    data = io_helpers._pandas_read(file, **pd_kwargs)
+    data = io_helpers._pandas_read(file, **kwargs)
 
     if column_mapper:
         data.rename(columns=column_mapper, inplace=True)
@@ -99,7 +116,13 @@ def read_table(
     data = conversion.adjust_z_coordinates(data)
 
     if as_collection:
-        data = data.gst.to_collection(**coll_kwargs)
+        data = data.gst.to_collection(
+            crs=crs,
+            vertical_datum=vertical_datum,
+            has_inclined=has_inclined,
+            coordinate_names=coordinate_names,
+            include_in_header=include_in_header,
+        )
 
     return data
 
@@ -110,9 +133,11 @@ def read_borehole_table(
     as_collection: bool = True,
     crs: str | int | CRS = None,
     vertical_datum: str | int | CRS = None,
+    has_inclined: bool = False,
+    coordinate_names: tuple[str, str] = None,
+    include_in_header: str | Iterable[str] | None = None,
     column_mapper: dict = None,
-    pd_kwargs: dict[str, Any] = None,
-    coll_kwargs: dict[str, Any] = None,
+    kwargs: dict[str, Any] = None,
 ) -> Collection | pd.DataFrame:
     """
     Read tabular borehole information from a file (parquet, csv or Excel) that includes
@@ -157,6 +182,17 @@ def read_borehole_table(
     vertical_datum : str | int | CRS, optional
         Vertical datum for the collection. The default is None. Only used if
         `as_collection=True`.
+    has_inclined : bool, optional
+        Indicates whether the collection has inclined data. The default is False.
+    coordinate_names : tuple[str, str], optional
+        Tuple specifying the names of the columns to be used as coordinates for the
+        geometry column. The default is None, which means that it automatically tries
+        to find the names of the x and y columns (see `POSSIBLE_COLUMN_NAMING` in
+        :module:`~geost.validation.column_names` ). If not found, no geometry column
+        will be created.
+    include_in_header: str | Iterable[str] | None, optional
+        Columns to aditionally include in the header. The default is None, which means
+        that only the default columns 'nr', 'surface', 'x' and 'y' or their aliases are included.
     column_mapper: dict, optional
         Mapping from column names in the input file to GeoST positional column names. Use
         this when your file uses non-standard names which cannot be recognized automatically
@@ -196,10 +232,9 @@ def read_borehole_table(
     ... )
 
     """
-    pd_kwargs = pd_kwargs or dict()
-    coll_kwargs = coll_kwargs or dict()
+    kwargs = kwargs or dict()
 
-    boreholes = io_helpers._pandas_read(file, **pd_kwargs)
+    boreholes = io_helpers._pandas_read(file, **kwargs)
 
     if column_mapper:
         boreholes.rename(columns=column_mapper, inplace=True)
@@ -209,7 +244,11 @@ def read_borehole_table(
 
     if as_collection:
         boreholes = boreholes.gst.to_collection(
-            crs=crs, vertical_datum=vertical_datum, **coll_kwargs
+            crs=crs,
+            vertical_datum=vertical_datum,
+            has_inclined=has_inclined,
+            coordinate_names=coordinate_names,
+            include_in_header=include_in_header,
         )
 
     return boreholes
@@ -221,9 +260,11 @@ def read_cpt_table(
     as_collection: bool = True,
     crs: str | int | CRS = None,
     vertical_datum: str | int | CRS = None,
+    has_inclined: bool = False,
+    coordinate_names: tuple[str, str] = None,
+    include_in_header: str | Iterable[str] | None = None,
     column_mapper: dict = None,
-    pd_kwargs: dict[str, Any] = None,
-    coll_kwargs: dict[str, Any] = None,
+    kwargs: dict[str, Any] = None,
 ) -> Collection | pd.DataFrame:
     """
     Read tabular CPT information. This is a file (parquet, csv or Excel) that includes
@@ -248,6 +289,17 @@ def read_cpt_table(
     vertical_datum : str | int | CRS, optional
         Vertical datum for the collection. The default is None. Only used if
         `as_collection=True`.
+    has_inclined : bool, optional
+        Indicates whether the collection has inclined data. The default is False.
+    coordinate_names : tuple[str, str], optional
+        Tuple specifying the names of the columns to be used as coordinates for the
+        geometry column. The default is None, which means that it automatically tries
+        to find the names of the x and y columns (see `POSSIBLE_COLUMN_NAMING` in
+        :module:`~geost.validation.column_names` ). If not found, no geometry column
+        will be created.
+    include_in_header: str | Iterable[str] | None, optional
+        Columns to aditionally include in the header. The default is None, which means
+        that only the default columns 'nr', 'surface', 'x' and 'y' or their aliases are included.
     column_mapper: dict, optional
         Mapping from column names in the input file to GeoST positional column names. Use
         this when your file uses non-standard names which cannot be recognized automatically
@@ -269,10 +321,9 @@ def read_cpt_table(
         otherwise.
 
     """
-    pd_kwargs = pd_kwargs or dict()
-    coll_kwargs = coll_kwargs or dict()
+    kwargs = kwargs or dict()
 
-    cpts = io_helpers._pandas_read(file, **pd_kwargs)
+    cpts = io_helpers._pandas_read(file, **kwargs)
 
     if column_mapper:
         cpts.rename(columns=column_mapper, inplace=True)
@@ -282,7 +333,11 @@ def read_cpt_table(
 
     if as_collection:
         cpts = cpts.gst.to_collection(
-            crs=crs, vertical_datum=vertical_datum, **coll_kwargs
+            crs=crs,
+            vertical_datum=vertical_datum,
+            has_inclined=has_inclined,
+            coordinate_names=coordinate_names,
+            include_in_header=include_in_header,
         )
 
     return cpts

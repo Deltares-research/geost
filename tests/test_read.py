@@ -97,7 +97,7 @@ def test_nlog_reader_from_parquet(testdatadir):
 def test_read_borehole_table(filename, testdatadir):
     filepath = testdatadir / filename
     if filename == "test_inclined_borehole_table.parquet":
-        cores = geost.read_borehole_table(filepath, coll_kwargs=dict(has_inclined=True))
+        cores = geost.read_borehole_table(filepath, has_inclined=True)
         assert cores.has_inclined
     else:
         cores = geost.read_borehole_table(filepath)
@@ -120,7 +120,7 @@ def test_read_borehole_table(filename, testdatadir):
 def test_read_table(filename, testdatadir):
     filepath = testdatadir / filename
     if filename == "test_inclined_borehole_table.parquet":
-        cores = geost.read_table(filepath, coll_kwargs=dict(has_inclined=True))
+        cores = geost.read_table(filepath, has_inclined=True)
         assert cores.has_inclined
     else:
         cores = geost.read_table(filepath)

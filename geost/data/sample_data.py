@@ -7,7 +7,7 @@ import pooch
 import xarray as xr
 
 from geost.bro import GeoTop
-from geost.io.read import read_borehole_table, read_cpt_table
+from geost.io.read import read_table
 
 REGISTRY = pooch.create(
     path=pooch.os_cache("geost"),
@@ -44,7 +44,7 @@ def boreholes_usp(pandas=False, return_filepath=False):
     if pandas:
         return pd.read_parquet(filename)
     else:
-        return read_borehole_table(filename, crs=28992, vertical_datum=5709)
+        return read_table(filename, crs=28992, vertical_datum=5709)
 
 
 def cpts_usp(pandas=False, return_filepath=False):
@@ -73,7 +73,7 @@ def cpts_usp(pandas=False, return_filepath=False):
     if pandas:
         return pd.read_parquet(filename)
     else:
-        return read_cpt_table(filename, crs=28992, vertical_datum=5709)
+        return read_table(filename, crs=28992, vertical_datum=5709)
 
 
 def geotop_usp(xarray=False, return_filepath=False):
