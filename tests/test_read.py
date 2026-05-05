@@ -81,8 +81,8 @@ def test_nlog_reader_from_parquet(testdatadir):
     assert isinstance(nlog, Collection)
     assert nlog.header[desired_df.columns].equals(desired_df)
     assert nlog.has_inclined
-    assert nlog.horizontal_reference == 28992
-    assert nlog.vertical_reference == 5709
+    assert nlog.crs == 28992
+    assert nlog.vertical_datum == 5709
     assert nlog.data.shape == (62, 29)
 
 
@@ -124,8 +124,8 @@ def test_read_boris_xml(testdatadir):
     )
     assert collection.header.shape == (16, 6)
     assert collection.data.shape == (236, 51)
-    assert collection.horizontal_reference == 28992
-    assert collection.vertical_reference is None
+    assert collection.crs == 28992
+    assert collection.vertical_datum is None
     assert not collection.has_inclined
 
     df = geost.read_xml_boris(
@@ -163,8 +163,8 @@ def test_read_gef_cpts(testdatadir):
     files = sorted(Path(testdatadir / "gef").glob("*.gef"))
     cpts = geost.read_gef_cpts(files)
     assert isinstance(cpts, Collection)
-    assert cpts.horizontal_reference is None
-    assert cpts.vertical_reference is None
+    assert cpts.crs is None
+    assert cpts.vertical_datum is None
     assert_array_equal(
         cpts.header["nr"],
         [
@@ -185,8 +185,8 @@ def test_read_cpt_table(testdatadir, monkeypatch):
     monkeypatch.setattr("builtins.input", lambda _: "mv")
     cpts = geost.read_cpt_table(testdatadir / r"test_cpts.parquet")
     assert isinstance(cpts, Collection)
-    assert cpts.horizontal_reference is None
-    assert cpts.vertical_reference is None
+    assert cpts.crs is None
+    assert cpts.vertical_datum is None
 
     cpts = geost.read_cpt_table(testdatadir / r"test_cpts.parquet", as_collection=False)
     assert isinstance(cpts, pd.DataFrame)
@@ -258,7 +258,7 @@ def test_read_collection_geopackage(collection, tmp_path, request):
                     crs=None,
                 ),
                 "buffer": 2,
-                "epsg": 32631,
+                "crs": 32631,
             },
             ["BHR000000336600"],
             UserWarning,

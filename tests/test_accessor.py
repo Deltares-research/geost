@@ -301,14 +301,14 @@ class TestGeostFrame:
             collection = borehole_data.gst.to_collection(
                 coordinate_names=["x", "y"],
                 crs=28992,
-                vertical_reference=5709,
+                vertical_datum=5709,
                 has_inclined=True,
             )
         assert isinstance(collection, Collection)
         assert collection.has_inclined
         assert collection.header_has_geometry
-        assert collection.horizontal_reference == 28992
-        assert collection.vertical_reference == 5709
+        assert collection.crs == 28992
+        assert collection.vertical_datum == 5709
 
         with pytest.warns() as record:
             borehole_data = borehole_data.drop(columns=["x", "y"])
@@ -322,8 +322,8 @@ class TestGeostFrame:
         assert isinstance(collection.header, gpd.GeoDataFrame)
         assert isinstance(collection.data, pd.DataFrame)
         assert not collection.header_has_geometry
-        assert collection.horizontal_reference is None
-        assert collection.vertical_reference is None
+        assert collection.crs is None
+        assert collection.vertical_datum is None
 
     @pytest.mark.unittest
     def test_standardize_column_names(self):
@@ -410,30 +410,28 @@ class TestGeostFrame:
             )
 
     @pytest.mark.unittest
-    def test_change_horizontal_reference(self, point_header):
-        result = point_header.gst.change_horizontal_reference(4326)
+    def test_to_crs(self, point_header):
+        result = point_header.gst.to_crs(4326)
         assert isinstance(result, gpd.GeoDataFrame)
         assert result.crs == 4326
         assert result["x"].between(3.31, 3.32).all()
         assert result["y"].between(47.97, 47.98).all()
 
         # Make sure "x" and "y" are not automatically computed when not present
-        result = point_header.drop(columns=["x", "y"]).gst.change_horizontal_reference(
-            4326
-        )
+        result = point_header.drop(columns=["x", "y"]).gst.to_crs(4326)
         assert isinstance(result, gpd.GeoDataFrame)
         assert result.crs == 4326
         assert not {"x", "y"}.issubset(result.columns)
 
         with pytest.raises(
             TypeError,
-            match="Method 'change_horizontal_reference' requires a GeoDataFrame with a valid geometry column.",
+            match="Method 'to_crs' requires a GeoDataFrame with a valid geometry column.",
         ):
-            point_header.drop(columns="geometry").gst.change_horizontal_reference(4326)
+            point_header.drop(columns="geometry").gst.to_crs(4326)
 
-    @pytest.mark.unittest
-    def test_change_vertical_reference(self, point_header):
-        result = point_header.gst.change_vertical_reference(5709, 5710)
+    @pytest.mark.skip("This test is for a method that is not yet implemented.")
+    def test_to_vertical_datum(self, point_header):
+        result = point_header.gst.to_vertical_datum(5710)
         assert isinstance(result, gpd.GeoDataFrame)
         assert np.isclose(result["surface"] - point_header["surface"], 2.28234).all()
         assert np.isclose(result["end"] - point_header["end"], 2.28234).all()

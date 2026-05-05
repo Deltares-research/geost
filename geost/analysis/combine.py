@@ -2,14 +2,94 @@ from typing import TYPE_CHECKING
 
 import numpy as np
 import pandas as pd
+import xarray as xr
 
 from geost.base import Collection
 from geost.models.model_utils import label_consecutive_2d
 
 if TYPE_CHECKING:
-    import xarray as xr
-
     from geost.models import VoxelModel
+
+
+def add_nearest_voxelmodel_variable(
+    collection: Collection,
+    model: VoxelModel,
+    data_vars: str | list[str],
+    tolerances: tuple[float, float, float] | None = None,
+) -> Collection:
+    """
+    Add information from a `VoxelModel` instance as columns to the data of a
+    :class:`~geost.base.Collection` instance. This checks for each survey in the
+    Collection in which voxel stack the survey is located and adds the relevant data
+    variables of the `VoxelModel` to the data object of the Collection based on depth.
+
+    Note
+    ----
+    This function simply assigns the nearest voxel value to each layer or measurement, while
+    `add_voxelmodel_variable` also updates layer boundaries based on the voxel model.
+
+    Parameters
+    ----------
+    collection : :class:`~geost.base.Collection`
+        `Collection` to add the `VoxelModel` variable to.
+    model : :class:`~geost.models.VoxelModel`
+        `VoxelModel` instance to add the information from to the `Collection` instance.
+    data_vars : str | list[str]
+        Name(s) of the variable(s) in the `VoxelModel` to add.
+    tolerances : tuple[float, float, float] | None
+        Optional tolerances in x, y and z direction for matching the survey points to the
+        voxel centers. If not given, the x/y/z resolution of the `VoxelModel` is used as
+        tolerance.
+
+    Returns
+    -------
+    :class:`~geost.base.Collection`
+        `Collection` instance with the information from the `VoxelModel` variable added.
+    """
+
+    collection_data = collection.data.gst._get_depth_relative_to_surface().copy()
+    x_queried = collection_data[collection_data.gst._x].values
+    y_queried = collection_data[collection_data.gst._y].values
+
+    # Take center of layer if layered, otherwise take bottom depth as z coordinate for
+    # querying the voxel model
+    if collection_data.gst.is_layered:
+        z_queried = (
+            collection_data[collection_data.gst._top].values
+            + collection_data[collection_data.gst._bottom].values
+        ) / 2
+    else:
+        z_queried = collection_data[collection_data.gst._bottom].values
+
+    result = model.ds.sel(
+        x=xr.DataArray(x_queried, dims="points"),
+        y=xr.DataArray(y_queried, dims="points"),
+        z=xr.DataArray(z_queried, dims="points"),
+        method="nearest",
+    )
+
+    # Custom implementation of tolerance per dimension because the tolerance kwarg in
+    # xarray's sel is applied to all dimensions.)
+    dx = np.abs(result["x"].values - x_queried)
+    dy = np.abs(result["y"].values - y_queried)
+    dz = np.abs(result["z"].values - z_queried)
+
+    # Use given tolerances or default to voxel resolution if not given
+    if tolerances is not None:
+        tol_x, tol_y, tol_z = tolerances
+    else:
+        tol_x, tol_y, tol_z = model.resolution
+    mask = (dx <= tol_x) & (dy <= tol_y) & (dz <= tol_z)
+
+    for data_var in data_vars if isinstance(data_vars, list) else [data_vars]:
+        collection_data[data_var] = np.where(mask, result[data_var], np.nan)
+
+    return Collection(
+        collection.data.assign(**pd.DataFrame(collection_data[data_vars])),
+        header=collection.header.copy(),
+        has_inclined=collection.has_inclined,
+        vertical_datum=collection.vertical_datum,
+    )
 
 
 def add_voxelmodel_variable(
@@ -92,7 +172,7 @@ def add_voxelmodel_variable(
         result,
         header=collection.header.copy(),
         has_inclined=collection.has_inclined,
-        vertical_reference=collection.vertical_reference,
+        vertical_datum=collection.vertical_datum,
     )
 
 

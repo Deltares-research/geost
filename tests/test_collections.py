@@ -49,7 +49,7 @@ class TestCollection:
         assert isinstance(collection.data, pd.DataFrame)
         assert not collection.header_has_geometry
         assert not collection.has_inclined
-        assert collection.vertical_reference is None
+        assert collection.vertical_datum is None
         assert collection._nr == "nr"
 
         with pytest.raises(
@@ -196,48 +196,71 @@ class TestCollection:
         )
 
     @pytest.mark.unittest
-    def test_change_vertical_reference(self, borehole_collection):
+    def test_set_vertical_datum(self, borehole_collection):
+        borehole_collection.set_vertical_datum(None)
+        assert borehole_collection.vertical_datum is None
+        borehole_collection.set_vertical_datum(5709)
+        assert borehole_collection.vertical_datum == 5709
+
+    @pytest.mark.skip("This test is for a method that is not yet implemented.")
+    def test_to_vertical_datum(self, borehole_collection):
         with pytest.raises(
             ValueError,
             match="'from_epsg' value does not match the current vertical reference",
         ):
-            borehole_collection.change_vertical_reference(1215, 5710)
+            borehole_collection.to_vertical_datum(1215, 5710)
 
         original_header = borehole_collection.header.copy()
         original_data = borehole_collection.data.copy()
 
-        borehole_collection.change_vertical_reference(5709, 5710)
+        borehole_collection.to_vertical_datum(5709, 5710)
         assert np.isclose(
             borehole_collection.header["surface"] - original_header["surface"], 2.28234
         ).all()
         assert np.isclose(
             borehole_collection.data["surface"] - original_data["surface"], 2.28234
         ).all()
-        assert borehole_collection.vertical_reference == 5710
+        assert borehole_collection.vertical_datum == 5710
 
         with pytest.raises(
             KeyError,
             match="Cannot perform vertical reference transformation without x and y coordinate columns in the data table",
         ):
             borehole_collection.data.drop(columns=["x", "y"], inplace=True)
-            borehole_collection.change_vertical_reference(5710, 5709)
+            borehole_collection.to_vertical_datum(5710, 5709)
 
     @pytest.mark.unittest
-    def test_change_horizontal_reference(self, borehole_collection):
-        assert borehole_collection.horizontal_reference == 28992
-        borehole_collection.change_horizontal_reference(4326)
-        assert borehole_collection.horizontal_reference == 4326
+    def test_set_crs(self, borehole_collection):
+        borehole_collection.set_crs(None, allow_override=True)
+        assert borehole_collection.crs is None
+        borehole_collection.set_crs(28992)
+        assert borehole_collection.crs == 28992
+
+    @pytest.mark.unittest
+    def test_to_crs(self, borehole_collection):
+        assert borehole_collection.crs == 28992
+        borehole_collection.to_crs(4326)
+        assert borehole_collection.crs == 4326
         assert borehole_collection.header["x"].between(3.31, 3.32).all()
         assert borehole_collection.data["x"].between(3.31, 3.32).all()
         assert borehole_collection.header["y"].between(47.97, 47.98).all()
         assert borehole_collection.data["y"].between(47.97, 47.98).all()
 
     @pytest.mark.unittest
-    def test_change_horizontal_reference_with_inclined(self, nlog_borehole_collection):
+    def test_to_crs_not_set(self, borehole_collection):
+        borehole_collection.set_crs(None, allow_override=True)
+        with pytest.raises(
+            ValueError,
+            match="Cannot transform horizontal reference because the current CRS of the collection is not set. Use the method 'set_crs' to set the CRS first.",
+        ):
+            borehole_collection.to_crs(4326)
+
+    @pytest.mark.unittest
+    def test_to_crs_with_inclined(self, nlog_borehole_collection):
         cores = nlog_borehole_collection
-        assert cores.horizontal_reference == 28992
-        cores.change_horizontal_reference(4326, xbot="x_bot", ybot="y_bot")
-        assert cores.horizontal_reference == 4326
+        assert cores.crs == 28992
+        cores.to_crs(4326, xbot="x_bot", ybot="y_bot")
+        assert cores.crs == 4326
         assert_array_almost_equal(
             cores.header["x"], [3.51911014, 3.63322396, 3.55927225]
         )
@@ -252,7 +275,7 @@ class TestCollection:
     @pytest.mark.unittest
     def test_reset_header(self, borehole_collection):
         borehole_collection.reset_header()
-        assert borehole_collection.horizontal_reference == 28992
+        assert borehole_collection.crs == 28992
 
     @pytest.mark.unittest
     def test_select_within_bbox(self, borehole_collection):

@@ -31,10 +31,12 @@ LLG_COLUMN_MAPPING = {
 def read_table(
     file: str | Path,
     as_collection: bool = True,
+    crs: str | int | CRS = None,
+    vertical_datum: str | int | CRS = None,
     column_mapper: dict = None,
     pd_kwargs: dict[str, Any] = None,
     coll_kwargs: dict[str, Any] = None,
-) -> Collection | pd.DataFrame:
+) -> Collection | pd.DataFrame:  # pragma: no cover
     pass
 
 
@@ -42,6 +44,8 @@ def read_table(
 def read_borehole_table(
     file: str | Path,
     as_collection: bool = True,
+    crs: str | int | CRS = None,
+    vertical_datum: str | int | CRS = None,
     column_mapper: dict = None,
     pd_kwargs: dict[str, Any] = None,
     coll_kwargs: dict[str, Any] = None,
@@ -52,10 +56,10 @@ def read_borehole_table(
     column headers:
 
     - **nr** : Object id
-    - **x** : X-coordinates according to the given horizontal_reference
-    - **y** : Y-coordinates according to the given horizontal_reference
-    - **surface** : Surface elevation according to the given vertical_reference
-    - **end** : End depth according to the given vertical_reference
+    - **x** : X-coordinates according to the given crs
+    - **y** : Y-coordinates according to the given crs
+    - **surface** : Surface elevation according to the given vertical_datum
+    - **end** : End depth according to the given vertical_datum
     - **top** : Top depth of each layer
     - **bottom** : Bottom depth of each layer
 
@@ -81,6 +85,13 @@ def read_borehole_table(
         Optional keyword arguments that can be given to :meth:`~geost.accessor.GeostFrame.to_collection`
         can be passed via the `coll_kwargs` argument. If False, a `pd.DataFrame` is returned.
         The default is True.
+    crs : str | int | CRS, optional
+        EPSG of the data's horizontal reference. Takes anything that can be interpreted
+        by pyproj.crs.CRS.from_user_input(). The default is None, which means no CRS will
+        be assigned to the resulting Collection. Only used if `as_collection=True`.
+    vertical_datum : str | int | CRS, optional
+        Vertical datum for the collection. The default is None. Only used if
+        `as_collection=True`.
     column_mapper: dict, optional
         If the file to be read uses different column names than the ones given in the
         description above, you can use a dictionary mapping to translate the column
@@ -110,9 +121,8 @@ def read_borehole_table(
 
     >>> from geost import read_borehole_table
     >>> collection_kwargs = {
-    ...     "crs": 32631,
-    ...     "vertical_reference": 'Ostend height',
-    ...     "include_in_header": ["nr", "x", "y", "surface", "end"]
+    ...     "include_in_header": ["nr", "x", "y", "surface", "end"],
+    ...     "has_inclined": False,
     ... }
     >>> collection = read_borehole_table(
     ...     file, column_mapper={'maaiveld': 'surface'}, coll_kwargs=collection_kwargs
@@ -131,7 +141,9 @@ def read_borehole_table(
     boreholes = conversion.adjust_z_coordinates(boreholes)
 
     if as_collection:
-        boreholes = boreholes.gst.to_collection(**coll_kwargs)
+        boreholes = boreholes.gst.to_collection(
+            crs=crs, vertical_datum=vertical_datum, **coll_kwargs
+        )
 
     return boreholes
 
@@ -140,6 +152,8 @@ def read_borehole_table(
 def read_cpt_table(
     file: str | Path,
     as_collection: bool = True,
+    crs: str | int | CRS = None,
+    vertical_datum: str | int | CRS = None,
     column_mapper: dict = None,
     pd_kwargs: dict[str, Any] = None,
     coll_kwargs: dict[str, Any] = None,
@@ -150,10 +164,10 @@ def read_cpt_table(
     information as columns:
 
     - **nr** : Object id
-    - **x** : X-coordinates according to the given horizontal_reference
-    - **y** : Y-coordinates according to the given horizontal_reference
-    - **surface** : Surface elevation according to the given vertical_reference
-    - **end** : End depth according to the given vertical_reference
+    - **x** : X-coordinates according to the given crs
+    - **y** : Y-coordinates according to the given crs
+    - **surface** : Surface elevation according to the given vertical_datum
+    - **end** : End depth according to the given vertical_datum
     - **depth** : Depth in meters below the surface
 
     Parameters
@@ -169,6 +183,13 @@ def read_cpt_table(
         Optional keyword arguments that can be given to :meth:`~geost.accessor.GeostFrame.to_collection`
         can be passed via the `coll_kwargs` argument. If False, a `pd.DataFrame` is returned.
         The default is True.
+    crs : str | int | CRS, optional
+        EPSG of the data's horizontal reference. Takes anything that can be interpreted
+        by pyproj.crs.CRS.from_user_input(). The default is None, which means no CRS will
+        be assigned to the resulting Collection. Only used if `as_collection=True`.
+    vertical_datum : str | int | CRS, optional
+        Vertical datum for the collection. The default is None. Only used if
+        `as_collection=True`.
     column_mapper: dict, optional
         If the file to be read uses different column names than the ones given in the
         description above, you can use a dictionary mapping to translate the column
@@ -199,7 +220,9 @@ def read_cpt_table(
     check_positional_column_presence(cpts)
 
     if as_collection:
-        cpts = cpts.gst.to_collection(**coll_kwargs)
+        cpts = cpts.gst.to_collection(
+            crs=crs, vertical_datum=vertical_datum, **coll_kwargs
+        )
 
     return cpts
 
@@ -254,7 +277,7 @@ def read_nlog_cores(file: str | Path, **kwargs) -> Collection:
     data = data.merge(header[["nr", "surface", "end"]], on="nr", how="left")
     data = conversion.adjust_z_coordinates(data)
 
-    return Collection(data, header=header, has_inclined=True, vertical_reference=5709)
+    return Collection(data, header=header, has_inclined=True, vertical_datum=5709)
 
 
 def read_xml_boris(
@@ -298,7 +321,7 @@ def read_bhrgt(
     files: str | Path | Iterable[str | Path],
     company: str | None = None,
     schema: dict[str, Any] = None,
-    horizontal_reference: str | int | CRS = 28992,
+    crs: str | int | CRS = 28992,
     read_all: bool = False,
 ) -> Collection:
     """
@@ -323,7 +346,7 @@ def read_bhrgt(
         Schema to use for reading the data which describes the structure of the XML data.
         If not given and `company` is None, the predefined schema for BRO BHR-GT XML files
         is used.
-    horizontal_reference : str | int | CRS, optional
+    crs : str | int | CRS, optional
         EPSG of the desired data's horizontal reference. Takes anything that can be interpreted
         by pyproj.crs.CRS.from_user_input(). The default is 28992.
     read_all : bool, optional
@@ -348,12 +371,12 @@ def read_bhrgt(
         company=company,
         schema=schema,
         read_all=read_all,
-        coerce_crs=horizontal_reference,
+        coerce_crs=crs,
     )
     header = gpd.GeoDataFrame(
         header,
         geometry=gpd.points_from_xy(header.x, header.y),
-        crs=horizontal_reference,
+        crs=crs,
     )
 
     return Collection(data, header=header)
@@ -363,7 +386,7 @@ def read_bhrgt_samples(
     files: str | Path | Iterable[str | Path],
     company: str | None = None,
     schema: dict[str, Any] = None,
-    horizontal_reference: str | int | CRS = 28992,
+    crs: str | int | CRS = 28992,
     read_all: bool = False,
 ) -> Collection:
     """
@@ -388,7 +411,7 @@ def read_bhrgt_samples(
         Schema to use for reading the data which describes the structure of the XML data.
         If not given and `company` is None, the predefined schema for BRO BHR-GT XML files
         is used.
-    horizontal_reference : str | int | CRS, optional
+    crs : str | int | CRS, optional
         EPSG of the desired data's horizontal reference. Takes anything that can be interpreted
         by pyproj.crs.CRS.from_user_input(). The default is 28992.
     read_all : bool, optional
@@ -413,12 +436,12 @@ def read_bhrgt_samples(
         company=company,
         schema=schema,
         read_all=read_all,
-        coerce_crs=horizontal_reference,
+        coerce_crs=crs,
     )
     header = gpd.GeoDataFrame(
         header,
         geometry=gpd.points_from_xy(header.x, header.y),
-        crs=horizontal_reference,
+        crs=crs,
     )
 
     if "beginDepth" in data.columns or "endDepth" in data.columns:
@@ -440,7 +463,7 @@ def read_bhrp(
     files: str | Path | Iterable[str | Path],
     company: str | None = None,
     schema: dict[str, Any] = None,
-    horizontal_reference: str | int | CRS = 28992,
+    crs: str | int | CRS = 28992,
     read_all: bool = False,
 ) -> Collection:
     """
@@ -465,7 +488,7 @@ def read_bhrp(
         Schema to use for reading the data which describes the structure of the XML data.
         If not given and `company` is None, the predefined schema for BRO BHR-P XML files
         is used.
-    horizontal_reference: str | int | CRS, optional
+    crs: str | int | CRS, optional
         EPSG of the desired data's horizontal reference. Takes anything that can be interpreted
         by pyproj.crs.CRS.from_user_input(). The default is 28992.
     read_all : bool, optional
@@ -490,12 +513,12 @@ def read_bhrp(
         company=company,
         schema=schema,
         read_all=read_all,
-        coerce_crs=horizontal_reference,
+        coerce_crs=crs,
     )
     header = gpd.GeoDataFrame(
         header,
         geometry=gpd.points_from_xy(header.x, header.y),
-        crs=horizontal_reference,
+        crs=crs,
     )
 
     return Collection(data, header=header)
@@ -505,7 +528,7 @@ def read_bhrg(
     files: str | Path | Iterable[str | Path],
     company: str | None = None,
     schema: dict[str, Any] = None,
-    horizontal_reference: str | int | CRS = 28992,
+    crs: str | int | CRS = 28992,
     read_all: bool = False,
 ) -> Collection:
     """
@@ -531,7 +554,7 @@ def read_bhrg(
         Schema to use for reading the data which describes the structure of the XML data.
         If not given and `company` is None, the predefined schema for BRO BHR-G) XML file
         or files into a Collection. This XML files is used.
-    horizontal_reference : str | int | CRS, optional
+    crs : str | int | CRS, optional
         EPSG of the desired data's horizontal reference. Takes anything that can be interpreted
         by pyproj.crs.CRS.from_user_input(). The default is 28992.
     read_all : bool, optional
@@ -556,12 +579,12 @@ def read_bhrg(
         company=company,
         schema=schema,
         read_all=read_all,
-        coerce_crs=horizontal_reference,
+        coerce_crs=crs,
     )
     header = gpd.GeoDataFrame(
         header,
         geometry=gpd.points_from_xy(header.x, header.y),
-        crs=horizontal_reference,
+        crs=crs,
     )
 
     return Collection(data, header=header)
@@ -571,7 +594,7 @@ def read_sfr(
     files: str | Path | Iterable[str | Path],
     company: str | None = None,
     schema: dict[str, Any] = None,
-    horizontal_reference: str | int | CRS = 28992,
+    crs: str | int | CRS = 28992,
     read_all: bool = False,
 ) -> Collection:
     """
@@ -597,7 +620,7 @@ def read_sfr(
         Schema to use for reading the data which describes the structure of the XML data.
         If not given and `company` is None, the predefined schema for BRO SFR XML file or
         files into a Collection. This XML files is used.
-    horizontal_reference : str | int | CRS, optional
+    crs : str | int | CRS, optional
         EPSG of the desired data's horizontal reference. Takes anything that can be interpreted
         by pyproj.crs.CRS.from_user_input(). The default is 28992.
     read_all : bool, optional
@@ -622,12 +645,12 @@ def read_sfr(
         company=company,
         schema=schema,
         read_all=read_all,
-        coerce_crs=horizontal_reference,
+        coerce_crs=crs,
     )
     header = gpd.GeoDataFrame(
         header,
         geometry=gpd.points_from_xy(header.x, header.y),
-        crs=horizontal_reference,
+        crs=crs,
     )
 
     return Collection(data, header=header)
@@ -666,7 +689,7 @@ def read_cpt(
     files: str | Path | Iterable[str | Path],
     company: str | None = None,
     schema: dict[str, Any] = None,
-    horizontal_reference: str | int | CRS = 28992,
+    crs: str | int | CRS = 28992,
     read_all: bool = False,
 ) -> Collection:
     """
@@ -692,7 +715,7 @@ def read_cpt(
         Schema to use for reading the data which describes the structure of the XML data.
         If not given and `company` is None, the predefined schema for BRO CPT XML file or
         files into a Collection. This XML files is used.
-    horizontal_reference: str | int | CRS, optional
+    crs: str | int | CRS, optional
         EPSG of the desired data's horizontal reference. Takes anything that can be interpreted
         by pyproj.crs.CRS.from_user_input(). The default is 28992.
     read_all : bool, optional
@@ -717,12 +740,12 @@ def read_cpt(
         company=company,
         schema=schema,
         read_all=read_all,
-        coerce_crs=horizontal_reference,
+        coerce_crs=crs,
     )
     header = gpd.GeoDataFrame(
         header,
         geometry=gpd.points_from_xy(header.x, header.y),
-        crs=horizontal_reference,
+        crs=crs,
     )
 
     data.fillna({"depth": data["penetrationlength"]}, inplace=True)
@@ -734,8 +757,8 @@ def read_cpt(
 def read_uullg_tables(
     header_table: str | Path,
     data_table: str | Path,
-    horizontal_reference: str | int | CRS = 28992,
-    vertical_reference: str | int | CRS = 5709,
+    crs: str | int | CRS = 28992,
+    vertical_datum: str | int | CRS = 5709,
     **kwargs,
 ) -> Collection:
     """
@@ -751,10 +774,10 @@ def read_uullg_tables(
         Path to file of the UU-LLG header table.
     data_table : str | Path
         Path to file of the UU-LLG data table.
-    horizontal_reference : str | int | CRS, optional
+    crs : str | int | CRS, optional
         EPSG of the data's horizontal reference. Takes anything that can be interpreted
         by pyproj.crs.CRS.from_user_input(). The default is 28992.
-    vertical_reference : str | int | CRS, optional
+    vertical_datum : str | int | CRS, optional
         EPSG of the data's vertical datum. Takes anything that can be interpreted by
         pyproj.crs.CRS.from_user_input(). However, it must be a vertical datum. FYI:
         "NAP" is EPSG 5709 and The Belgian reference system (Ostend height) is ESPG
@@ -775,20 +798,20 @@ def read_uullg_tables(
     header = header.astype({"nr": str})
     data = data.astype({"nr": str})
 
-    header = conversion.dataframe_to_geodataframe(header).set_crs(horizontal_reference)
+    header = conversion.dataframe_to_geodataframe(header).set_crs(crs)
 
     add_header_cols = [c for c in {"x", "y", "surface", "end"} if c not in data.columns]
     if add_header_cols:
         data = data.merge(header[["nr"] + add_header_cols], on="nr", how="left")
 
-    return Collection(data, header=header, vertical_reference=vertical_reference)
+    return Collection(data, header=header, vertical_datum=vertical_datum)
 
 
 def read_collection_geopackage(
     filepath: str | Path,
     has_inclined: bool = False,
-    horizontal_reference: str | int | CRS = 28992,
-    vertical_reference: str | int | CRS = 5709,
+    crs: str | int | CRS = 28992,
+    vertical_datum: str | int | CRS = 5709,
 ):
     """
     Read a GeoST stored Geopackage file of `geost.base.Collection` objects. The Geopackage
@@ -801,10 +824,10 @@ def read_collection_geopackage(
         GeoST stored Geopackage file of a `geost.base.Collection` object.
     has_inclined : bool, optional
         If True, the borehole data table contains inclined data. The default is False.
-    horizontal_reference : str | int | CRS, optional
+    crs : str | int | CRS, optional
         EPSG of the data's horizontal reference. Takes anything that can be interpreted
         by pyproj.crs.CRS.from_user_input(). The default is 28992.
-    vertical_reference : str | int | CRS, optional
+    vertical_datum : str | int | CRS, optional
         EPSG of the data's vertical datum. Takes anything that can be interpreted by
         pyproj.crs.CRS.from_user_input(). However, it must be a vertical datum. FYI:
         "NAP" is EPSG 5709 and The Belgian reference system (Ostend height) is ESPG
@@ -834,14 +857,14 @@ def read_collection_geopackage(
 
     """
     header = gpd.read_file(filepath, layer="header")
-    header.set_crs(horizontal_reference, inplace=True, allow_override=True)
+    header.set_crs(crs, inplace=True, allow_override=True)
     data = gpd.read_file(filepath, layer="data")
 
     return Collection(
         data,
         header=header,
         has_inclined=has_inclined,
-        vertical_reference=vertical_reference,
+        vertical_datum=vertical_datum,
     )
 
 
@@ -887,7 +910,7 @@ def bro_api_read(
     object_type: BroObject,
     *,
     bro_ids: str | list[str] | pd.Series = None,
-    epsg: int = 28992,
+    crs: int | str | CRS = 28992,
     bbox: tuple[float, float, float, float] = None,
     geometry: gpd.GeoDataFrame = None,
     buffer: int | float = None,
@@ -908,11 +931,11 @@ def bro_api_read(
     bro_ids : str | list[str] | pd.Series, optional (keyword only)
         List of BRO object ids to read. If not given, the bbox or geometry must be
         provided to select the objects to read. If given, bbox and geometry are ignored.
-    epsg : int, optional (keyword only)
+    crs : int, optional (keyword only)
         EPSG code of the coordinate reference system that the collection will be coerced to.
-        If using a bbox for selection, this EPSG code is also used to interpret the bbox coordinates.
+        If using a bbox for selection, this crs is also used to interpret the bbox coordinates.
         Note that when using a geometry for selection, the geometry's CRS is used instead unless
-        the geometry has no CRS defined. In that case, this EPSG code is also used.
+        the geometry has no CRS defined. In that case, this crs is also used.
         The default is 28992 (RD New).
     bbox : tuple[float, float, float, float], optional
         Bounding box (xmin, ymin, xmax, ymax) to search BRO objects within. The default is
@@ -948,18 +971,18 @@ def bro_api_read(
     Collection:
     # header = 2
 
-    Or read geological boreholes (BHR-G) within a bounding box. Note the epsg parameter
+    Or read geological boreholes (BHR-G) within a bounding box. Note the crs parameter
     is used to interpret the bbox coordinates (by default it is 28992 - RD New):
 
     >>> import geost
     ... bbox = (126_800, 448_000, 127_800, 449_000)  # xmin, ymin, xmax, ymax
-    ... bhrg = geost.bro_api_read("BHR-G", bbox=bbox, epsg=28992)
+    ... bhrg = geost.bro_api_read("BHR-G", bbox=bbox, crs=28992)
     Collection:
     # header = 3
 
     Or within shapefile containing a Polygon geometry of the same bounding box of the
-    previous example (Point or Line geometries are also supported). Note that the epsg
-    of the geometry is used if it has a defined CRS, otherwise the epsg parameter must be used:
+    previous example (Point or Line geometries are also supported). Note that the crs
+    of the geometry is used if it has a defined CRS, otherwise the crs parameter must be used:
 
     >>> import geost
     ... bhrg = geost.bro_api_read("BHR-G", geometry="my_polygon.shp")
@@ -994,6 +1017,8 @@ def bro_api_read(
 
     reader = readers[object_type]
 
+    crs = CRS.from_user_input(crs)
+
     api = BroApi()
 
     if bro_ids is not None:
@@ -1003,11 +1028,11 @@ def bro_api_read(
             xmin, ymin, xmax, ymax = bbox
         elif geometry is not None:
             geometry = conversion.check_geometry_instance(geometry)
-            epsg = CRS.from_user_input(geometry.crs or epsg)
+            crs = CRS.from_user_input(geometry.crs or crs)
             if geometry.crs is None:
                 warnings.warn(
                     f"Geometry for retrieving '{object_type}' objects has no CRS defined. "
-                    f"Using the provided epsg parameter ({epsg.to_string()}) to interpret "
+                    f"Using the provided crs parameter ({crs.to_string()}) to interpret "
                     "the geometry CRS. CHECK IF THIS IS CORRECT!",
                     category=UserWarning,
                 )
@@ -1015,12 +1040,12 @@ def bro_api_read(
                 geometry = geometry.buffer(buffer)
             xmin, ymin, xmax, ymax = geometry.total_bounds
         api.search_objects_in_bbox(
-            xmin, ymin, xmax, ymax, epsg=epsg, object_type=object_type
+            xmin, ymin, xmax, ymax, epsg=str(crs.to_epsg()), object_type=object_type
         )
         bro_data = api.get_objects(api.object_list, object_type=object_type)
 
     if bro_data:
-        collection = reader(bro_data, schema=schema, horizontal_reference=epsg)
+        collection = reader(bro_data, schema=schema, crs=crs)
     else:
         collection = Collection(None, header=None)
 

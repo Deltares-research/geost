@@ -3,7 +3,10 @@ import pandas as pd
 import pytest
 from numpy.testing import assert_array_almost_equal, assert_array_equal
 
-from geost.analysis.combine import add_voxelmodel_variable
+from geost.analysis.combine import (
+    add_nearest_voxelmodel_variable,
+    add_voxelmodel_variable,
+)
 from geost.base import Collection
 
 
@@ -26,6 +29,105 @@ def strat_deeper_than_cpt():
             "strat": [1, 2, 3, 4],
             "bottom": [-1.5, -2.0, -7.5, -10],
         }
+    )
+
+
+@pytest.mark.unittest
+def test_add_nearest_voxelmodel_variable_zero_tolerance(
+    borehole_collection, voxelmodel
+):
+    result = add_nearest_voxelmodel_variable(
+        borehole_collection,
+        voxelmodel,
+        ["strat", "lith"],
+        tolerances=(0, 0, 0),
+    )
+    assert isinstance(result, Collection)
+    assert result.data.shape == (25, 9)
+    assert_array_equal(
+        result.data[["lith", "strat"]],
+        np.full((25, 2), np.nan),
+    )
+
+
+@pytest.mark.unittest
+def test_add_nearest_voxelmodel_variable_layered(borehole_collection, voxelmodel):
+    result = add_nearest_voxelmodel_variable(
+        borehole_collection,
+        voxelmodel,
+        ["strat", "lith"],
+    )
+    assert isinstance(result, Collection)
+    assert result.data.shape == (25, 9)
+    assert_array_equal(
+        result.data[["lith", "strat"]],
+        np.array(
+            [
+                [np.nan, np.nan],
+                [1.0, 1.0],
+                [1.0, 1.0],
+                [np.nan, np.nan],
+                [np.nan, np.nan],
+                [np.nan, np.nan],
+                [1.0, 1.0],
+                [3.0, 2.0],
+                [2.0, 2.0],
+                [np.nan, np.nan],
+                [np.nan, np.nan],
+                [2.0, 2.0],
+                [2.0, 2.0],
+                [np.nan, np.nan],
+                [np.nan, np.nan],
+                [np.nan, np.nan],
+                [np.nan, np.nan],
+                [np.nan, np.nan],
+                [np.nan, np.nan],
+                [np.nan, np.nan],
+                [3.0, 1.0],
+                [3.0, 1.0],
+                [1.0, 1.0],
+                [2.0, 2.0],
+                [np.nan, np.nan],
+            ]
+        ),
+    )
+
+
+@pytest.mark.unittest
+def test_add_nearest_voxelmodel_variable_discrete(cpt_collection, voxelmodel):
+    result = add_nearest_voxelmodel_variable(
+        cpt_collection,
+        voxelmodel,
+        ["strat", "lith"],
+    )
+    assert isinstance(result, Collection)
+    assert result.data.shape == (20, 11)
+    assert_array_equal(
+        result.data[["lith", "strat"]],
+        np.array(
+            [
+                [np.nan, np.nan],
+                [3.0, 1.0],
+                [3.0, 1.0],
+                [1.0, 1.0],
+                [np.nan, np.nan],
+                [np.nan, np.nan],
+                [np.nan, np.nan],
+                [np.nan, np.nan],
+                [np.nan, np.nan],
+                [np.nan, np.nan],
+                [np.nan, np.nan],
+                [np.nan, np.nan],
+                [1.0, 1.0],
+                [1.0, 1.0],
+                [1.0, 1.0],
+                [2.0, 2.0],
+                [2.0, 2.0],
+                [np.nan, np.nan],
+                [np.nan, np.nan],
+                [np.nan, np.nan],
+            ]
+        ),
     )
 
 

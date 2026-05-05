@@ -110,14 +110,14 @@ class BroApi:
             If the server does not respond or the search query was rejected.
         """
         response = self.__response_to_bbox(
-            xmin, ymin, xmax, ymax, epsg=epsg, object_type=object_type
+            xmin, ymin, xmax, ymax, epsg=str(epsg), object_type=object_type
         )
         if response.status_code == 200 and "rejection" not in response.text:
             etree_root = etree.fromstring(response.text.encode("utf-8"))
             self.object_list += self.__objects_from_etree(etree_root)
         elif response.status_code == 400 or "groter dan 2000" in response.text:
             self.__search_objects_in_divided_bbox(
-                xmin, ymin, xmax, ymax, epsg=epsg, object_type=object_type
+                xmin, ymin, xmax, ymax, epsg=str(epsg), object_type=object_type
             )
         else:
             raise Warning(

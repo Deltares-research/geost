@@ -13,7 +13,12 @@ from geost.utils.projections import (
     horizontal_reference_transformer,
     vertical_reference_transformer,
 )
-from geost.validation.method_checks import _requires_depth, _requires_geometry
+from geost.validation.method_checks import (
+    _requires_depth,
+    _requires_geometry,
+    _requires_surface,
+    _requires_xy,
+)
 
 if TYPE_CHECKING:
     from shapely.geometry.base import BaseGeometry
@@ -62,7 +67,7 @@ class Collection(AbstractBase):
         *,
         header: gpd.GeoDataFrame = None,
         has_inclined: bool = False,
-        vertical_reference: str | int | CRS = None,
+        vertical_datum: str | int | CRS = None,
     ):
         if data is None or data.empty:
             if header is not None and not header.empty:
@@ -93,19 +98,18 @@ class Collection(AbstractBase):
         self.header = header
         self.data = data
 
+        self._vertical_datum = (
+            CRS.from_user_input(vertical_datum) if vertical_datum else None
+        )
         self._has_inclined = has_inclined
-
-        if vertical_reference is not None:
-            vertical_reference = CRS(vertical_reference)
-
-        self._vertical_reference = vertical_reference
 
     def __repr__(self):
         repr_ = (
             f"{self.__class__.__name__}:\n"
             f"  header (rows, columns): {self.header.shape}\n"
             f"  data (rows, columns): {self.data.shape}\n"
-            f"crs: {self.horizontal_reference.__str__()}\n"
+            f"crs: {self.crs.__str__() if self.crs else None}\n"
+            f"vertical datum: {self.vertical_datum.__str__() if self.vertical_datum else None}\n"
             f"# surveys = {self.n_points}\n"
         )
         return repr_
@@ -144,18 +148,18 @@ class Collection(AbstractBase):
         return len(self)
 
     @property
-    def horizontal_reference(self):
+    def crs(self):
         """
         Coordinate reference system represented by an instance of pyproj.crs.CRS.
         """
         return self.header.crs if self.header_has_geometry else None
 
     @property
-    def vertical_reference(self):
+    def vertical_datum(self):
         """
         Vertical datum represented by an instance of pyproj.crs.CRS.
         """
-        return self._vertical_reference
+        return self._vertical_datum
 
     @property
     def has_inclined(self):
@@ -263,13 +267,35 @@ class Collection(AbstractBase):
             selected_data,
             header=selected_header,
             has_inclined=self.has_inclined,
-            vertical_reference=self.vertical_reference,
+            vertical_datum=self.vertical_datum,
         )
 
     @_requires_geometry
-    def change_horizontal_reference(
+    def set_crs(self, crs: str | int | CRS, allow_override: bool = False) -> None:
+        """
+        Set the coordinate reference system (CRS) for the collection's header geometry
+        column.
+
+        Parameters
+        ----------
+        crs : str | int | CRS
+            EPSG of the CRS to set. Takes anything that can be interpreted by
+            `pyproj.crs.CRS.from_user_input()`.
+
+        Returns
+        -------
+        None
+            Updates the CRS of the header geometry column in place.
+
+        """
+        self.header = self.header.set_crs(
+            crs, inplace=True, allow_override=allow_override
+        )
+
+    @_requires_geometry
+    def to_crs(
         self,
-        target_crs: str | int | CRS,
+        crs: str | int | CRS,
         xbot: str | None = None,
         ybot: str | None = None,
     ) -> None:
@@ -279,7 +305,7 @@ class Collection(AbstractBase):
 
         Parameters
         ----------
-        target_crs : str | int | CRS
+        crs : str | int | CRS
             EPSG of the target crs. Takes anything that can be interpreted by
             pyproj.crs.CRS.from_user_input().
         xbot, ybot : str | None, optional
@@ -296,31 +322,59 @@ class Collection(AbstractBase):
         --------
         To change the collection's current horizontal reference to WGS 84 UTM zone 31N:
 
-        >>> collection.change_horizontal_reference(32631) # Updates object in place.
+        >>> collection.to_crs(32631) # Updates object in place.
 
         This would be the same as:
 
-        >>> collection.change_horizontal_reference("epsg:32631")
+        >>> collection.to_crs("epsg:32631")
 
         As Pyproj is very flexible, you can even use the CRS's full official name:
 
-        >>> collection.change_horizontal_reference("WGS 84 / UTM zone 31N")
+        >>> collection.to_crs("WGS 84 / UTM zone 31N")
 
         In case of inclined layer data, make sure the bottom coordinates of each layer are
         transformed as well by specifying the column labels for these coordinates:
 
-        >>> collection.change_horizontal_reference(32631, xbot="x_bot", ybot="y_bot")
+        >>> collection.to_crs(32631, xbot="x_bot", ybot="y_bot")
 
         """
+        if self.crs is None:
+            raise ValueError(
+                "Cannot transform horizontal reference because the current CRS of the "
+                "collection is not set. Use the method 'set_crs' to set the CRS first."
+            )
+
         self.data = self.data.gst.transform_coordinates(
-            self.horizontal_reference, target_crs, xbot=xbot, ybot=ybot
+            self.crs, crs, xbot=xbot, ybot=ybot
         )
-        self.header = self.header.gst.change_horizontal_reference(target_crs)
+        self.header = self.header.gst.to_crs(crs)
+
+    @_requires_surface
+    def set_vertical_datum(self, vertical_datum: str | int | CRS) -> None:
+        """
+        Set the vertical datum of the collection's surface levels without performing a
+        transformation of the surface levels. This can be used if you know that the
+        surface levels are already in the target vertical datum, but just want to update
+        the vertical datum information of the collection.
+
+        Parameters
+        ----------
+        vertical_datum : str | int | CRS
+            Vertical datum represented by an instance of pyproj.crs.CRS or anything that can be
+            interpreted by pyproj.crs.CRS.from_user_input().
+
+        Returns
+        None
+
+        """
+        self._vertical_datum = (
+            CRS.from_user_input(vertical_datum) if vertical_datum else None
+        )
 
     @_requires_geometry
-    def change_vertical_reference(
-        self, from_epsg: str | int | CRS, target_epsg: str | int | CRS
-    ):
+    @_requires_surface
+    @_requires_xy
+    def to_vertical_datum(self, vertical_datum: str | int | CRS):  # pragma: no cover
         """
         Change the vertical reference of the collection object's surface levels
 
@@ -355,28 +409,28 @@ class Collection(AbstractBase):
         >>> collection.change_vertical_reference("Ostend height", "NAP")
 
         """
-        if self.vertical_reference is not None and self.vertical_reference != from_epsg:
+        raise NotImplementedError(
+            "Custom transformation between vertical datums will be implemented in a "
+            "future version of GeoST. For now, you can use the set_vertical_datum method"
+            " to set the vertical datum without transforming the surface levels directly, "
+            "and then perform the transformation manually"
+        )
+
+        if self.vertical_datum is None:
             raise ValueError(
-                "'from_epsg' value does not match the current vertical reference of the"
-                f"collection. These must be the same. Please specify the correct {self.vertical_reference} "
-                "as the 'from_epsg' value."
+                "Cannot transform vertical datum because this collection has no vertical "
+                "datum set. Use the method 'set_vertical_datum' to set the vertical datum "
+                "first."
             )
 
         data = self.data.copy()
         columns = self.data.gst.positional_columns
 
-        if not (xcol := columns.get("x")) or not (ycol := columns.get("y")):
-            raise KeyError(
-                "Cannot perform vertical reference transformation without x and y "
-                "coordinate columns in the data table. Please ensure that your data contains"
-                "valid x and y coordinate columns."
-            )
+        self.header = self.header.gst.to_vertical_datum(vertical_datum)
 
-        self.header = self.header.gst.change_vertical_reference(from_epsg, target_epsg)
-
-        x, y = self.data[xcol], self.data[ycol]
+        x, y = self.data[columns.get("x")], self.data[columns.get("x")]
         transformer = vertical_reference_transformer(
-            self.horizontal_reference, from_epsg, target_epsg
+            self.crs, self.vertical_datum, vertical_datum
         )
 
         if surface := columns.get("surface"):
@@ -388,14 +442,14 @@ class Collection(AbstractBase):
             data[end] = new_end
 
         self.data = data
-        self._vertical_reference = CRS(target_epsg)
+        self.set_vertical_datum(vertical_datum)
 
     def reset_header(self):
         """
         Refresh the header based on the loaded data in case the header got messed up.
         """
         self.header = self.data.gst.to_header(
-            crs=self.horizontal_reference, include_columns=list(self.header.columns)
+            crs=self.crs, include_columns=list(self.header.columns)
         )
 
     def check_header_to_data_alignment(self):
@@ -482,7 +536,7 @@ class Collection(AbstractBase):
             selected_data,
             header=selected_header,
             has_inclined=self.has_inclined,
-            vertical_reference=self.vertical_reference,
+            vertical_datum=self.vertical_datum,
         )
 
     @_requires_geometry
@@ -524,7 +578,7 @@ class Collection(AbstractBase):
             selected_data,
             header=selected_header,
             has_inclined=self.has_inclined,
-            vertical_reference=self.vertical_reference,
+            vertical_datum=self.vertical_datum,
         )
 
     @_requires_geometry
@@ -566,7 +620,7 @@ class Collection(AbstractBase):
             selected_data,
             header=selected_header,
             has_inclined=self.has_inclined,
-            vertical_reference=self.vertical_reference,
+            vertical_datum=self.vertical_datum,
         )
 
     @_requires_geometry
@@ -608,7 +662,7 @@ class Collection(AbstractBase):
             selected_data,
             header=selected_header,
             has_inclined=self.has_inclined,
-            vertical_reference=self.vertical_reference,
+            vertical_datum=self.vertical_datum,
         )
 
     @_requires_geometry
@@ -751,7 +805,7 @@ class Collection(AbstractBase):
             selected_data,
             header=selected_header,
             has_inclined=self.has_inclined,
-            vertical_reference=self.vertical_reference,
+            vertical_datum=self.vertical_datum,
         )
 
     def select_by_length(
@@ -794,7 +848,7 @@ class Collection(AbstractBase):
             selected_data,
             header=selected_header,
             has_inclined=self.has_inclined,
-            vertical_reference=self.vertical_reference,
+            vertical_datum=self.vertical_datum,
         )
 
     def select_by_values(
@@ -866,7 +920,7 @@ class Collection(AbstractBase):
             selected_data,
             header=selected_header,
             has_inclined=self.has_inclined,
-            vertical_reference=self.vertical_reference,
+            vertical_datum=self.vertical_datum,
         )
 
     @_requires_depth
@@ -936,7 +990,7 @@ class Collection(AbstractBase):
             selected_data,
             header=selected_header,
             has_inclined=self.has_inclined,
-            vertical_reference=self.vertical_reference,
+            vertical_datum=self.vertical_datum,
         )
 
     def slice_by_values(
@@ -1002,7 +1056,7 @@ class Collection(AbstractBase):
             selected_data,
             header=selected_header,
             has_inclined=self.has_inclined,
-            vertical_reference=self.vertical_reference,
+            vertical_datum=self.vertical_datum,
         )
 
     def select_by_condition(self, condition: Any, invert: bool = False):
@@ -1053,7 +1107,7 @@ class Collection(AbstractBase):
             selected_data,
             header=selected_header,
             has_inclined=self.has_inclined,
-            vertical_reference=self.vertical_reference,
+            vertical_datum=self.vertical_datum,
         )
 
     def get_cumulative_thickness(
@@ -1469,7 +1523,7 @@ class Collection(AbstractBase):
             geopandas.GeodataFrame.to_file kwargs. See relevant Geopandas documentation.
 
         """
-        crs = CRS(crs) if crs is not None else self.horizontal_reference
+        crs = CRS(crs) if crs is not None else self.crs
         self.data.gst.to_qgis3d(outfile, crs=crs, **kwargs)
 
     def to_kingdom(

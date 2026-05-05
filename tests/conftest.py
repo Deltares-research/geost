@@ -135,7 +135,7 @@ def borehole_collection(borehole_data):
     """
     borehole_collection = borehole_data.gst.to_collection(
         crs=28992,
-        vertical_reference=5709,
+        vertical_datum=5709,
     )
     return borehole_collection
 
@@ -254,7 +254,7 @@ def cpt_data():
 def cpt_collection(cpt_data):
     return cpt_data.gst.to_collection(
         crs=28992,
-        vertical_reference=5709,
+        vertical_datum=5709,
     )
 
 

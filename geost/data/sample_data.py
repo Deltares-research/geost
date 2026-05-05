@@ -44,9 +44,7 @@ def boreholes_usp(pandas=False, return_filepath=False):
     if pandas:
         return pd.read_parquet(filename)
     else:
-        return read_borehole_table(
-            filename, coll_kwargs={"crs": 28992, "vertical_reference": 5709}
-        )
+        return read_borehole_table(filename, crs=28992, vertical_datum=5709)
 
 
 def cpts_usp(pandas=False, return_filepath=False):
@@ -75,9 +73,7 @@ def cpts_usp(pandas=False, return_filepath=False):
     if pandas:
         return pd.read_parquet(filename)
     else:
-        return read_cpt_table(
-            filename, coll_kwargs={"crs": 28992, "vertical_reference": 5709}
-        )
+        return read_cpt_table(filename, crs=28992, vertical_datum=5709)
 
 
 def geotop_usp(xarray=False, return_filepath=False):

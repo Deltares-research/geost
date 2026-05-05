@@ -25,6 +25,27 @@ def _requires_geometry(func):
     return wrapper
 
 
+def _requires_surface(func):
+    @wraps(func)
+    def wrapper(self, *args, **kwargs):
+        from geost.accessor import GeostFrame  # Avoid circular imports
+        from geost.base import Collection
+
+        if isinstance(self, Collection):
+            has_surface = self.data.gst.has_surface_column
+        elif isinstance(self, GeostFrame):
+            has_surface = self.has_surface_column
+
+        if not has_surface:
+            raise KeyError(
+                f"Method '{func.__name__}' requires a surface column in the DataFrame. "
+                "Please ensure that the DataFrame contains a 'surface' column."
+            )
+        return func(self, *args, **kwargs)
+
+    return wrapper
+
+
 def _requires_depth(func):
     @wraps(func)
     def wrapper(self, *args, **kwargs):

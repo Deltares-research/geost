@@ -19,6 +19,7 @@ from geost.utils import conversion, spatial
 from geost.validation.method_checks import (
     _requires_depth,
     _requires_geometry,
+    _requires_surface,
     _requires_xy,
 )
 
@@ -104,6 +105,17 @@ class GeostFrame(AbstractBase):
         return False
 
     @property
+    def has_surface_column(self):
+        """
+        Returns True if the object contains a surface column, False otherwise. Used to
+        determine whether specific selection operations can be performed on the object.
+
+        """
+        if self._surface is not None:
+            return True
+        return False
+
+    @property
     def has_depth_columns(self):
         """
         Returns True if the object contains information about depth, such as 'top' and
@@ -171,6 +183,7 @@ class GeostFrame(AbstractBase):
             value = [value]
         return value
 
+    @_requires_depth
     def _get_depth_relative_to_surface(self):
         """
         Get copy of the self._obj with depth columns converted to depth relative
@@ -216,13 +229,13 @@ class GeostFrame(AbstractBase):
         else:
             return validated_obj
 
-    def change_horizontal_reference(self, target_crs: str | int | CRS) -> DataFrame:
+    def to_crs(self, crs: str | int | CRS) -> gpd.GeoDataFrame:
         """
         Change the coordinate reference system (CRS) to a given target CRS.
 
         Parameters
         ----------
-        target_crs : str | int | CRS
+        crs : str | int | CRS
             EPSG of the target CRS. Takes anything that can be interpreted by
             `pyproj.crs.CRS.from_user_input()`.
 
@@ -230,25 +243,38 @@ class GeostFrame(AbstractBase):
         --------
         Change the horizontal reference to WGS 84 UTM zone 31N:
 
-        >>> new_gdf = gdf.gst.change_horizontal_reference(32631)
+        >>> new_gdf = gdf.gst.to_crs(32631)
 
         This would be the same as:
 
-        >>> new_gdf = gdf.gst.change_horizontal_reference("epsg:32631")
+        >>> new_gdf = gdf.gst.to_crs("epsg:32631")
 
         As Pyproj is very flexible, you can even use the CRS's full official name:
 
-        >>> new_gdf = gdf.gst.change_horizontal_reference("WGS 84 / UTM zone 31N")
+        >>> new_gdf = gdf.gst.to_crs("WGS 84 / UTM zone 31N")
+
+        Returns
+        -------
+        gpd.GeoDataFrame
+            The GeoDataFrame with the CRS set to the target CRS.
+
+        Notes
+        -----
+        The `to_crs` accessor method additionally transforms separate x and y columns,
+        whereas using the `to_crs` method directly on the GeoDataFrame only transforms
+        the geometry column. GeoDataframe `crs` property and `set_crs` should be accessed
+        directly from the GeoDataFrame, as they do not have a custom implementation through
+        the accessor.
 
         """
         if not self.has_geometry:
             raise TypeError(
-                "Method 'change_horizontal_reference' requires a GeoDataFrame with a valid "
+                "Method 'to_crs' requires a GeoDataFrame with a valid "
                 "geometry column. Use :meth:`transform_coordinates` to change coordinates "
                 "of a regular DataFrame."
             )
 
-        transformed = self._obj.to_crs(target_crs)
+        transformed = self._obj.to_crs(crs)
 
         if self.has_xy_columns:
             transformed[self._x] = transformed.geometry.x
@@ -256,13 +282,13 @@ class GeostFrame(AbstractBase):
 
         return transformed
 
-    @_requires_geometry
-    @_requires_xy
-    def change_vertical_reference(
-        self, from_epsg: str | int | CRS, target_epsg: str | int | CRS
-    ) -> DataFrame:
+    @_requires_surface
+    def to_vertical_datum(
+        self, vertical_datum: str | int | CRS
+    ) -> None:  # pragma: no cover
         """
-        Change the vertical datum of the object's surface levels.
+        Change the vertical datum of the object's surface levels. Requires that the
+        object has a geometry column, x and y columns, and a surface column.
 
         Some often-used vertical datums are:
             - NAP : 5709
@@ -274,52 +300,17 @@ class GeostFrame(AbstractBase):
 
         Parameters
         ----------
-        from_crs : str | int | CRS
-            EPSG of the source vertical datum. Takes anything that can be interpreted by
-            pyproj.crs.CRS.from_user_input(). However, it must be a vertical datum.
-        target_crs : str | int | CRS
-            EPSG of the target vertical datum. Takes anything that can be interpreted by
-            pyproj.crs.CRS.from_user_input(). However, it must be a vertical datum.
-
-        Examples
-        --------
-        To change the current vertical reference from Ostend height to NAP:
-
-        >>> result = data.gst.change_vertical_reference(5710, 5709)
-
-        This would be the same as:
-
-        >>> result = data.gst.change_vertical_reference("epsg:5710", "epsg:5709")
-
-        As the Pyproj constructors are very flexible, you can even use the CRS's full
-        official name instead of an EPSG number. E.g. for changing to NAP and the
-        Belgian Ostend height vertical datums respectively, you can use:
-
-        >>> result = data.gst.change_vertical_reference("Ostend height", "NAP")
+        vertical_datum : str | int | CRS
+            Vertical datum to set for the GeoDataFrame or DataFrame. Takes anything that can
+            be interpreted by `pyproj.crs.CRS.from_user_input()`. However, it must be a vertical datum.
 
         """
-        from geost.utils.projections import vertical_reference_transformer
-
-        if self._surface is None:
-            raise KeyError(
-                "Cannot change vertical reference if no surface column is found."
-            )
-
-        transformer = vertical_reference_transformer(
-            self._obj.crs, from_epsg, target_epsg
+        raise NotImplementedError(
+            "Custom transformation between vertical datums will be implemented in a "
+            "future version of GeoST. For now, you can use the set_vertical_datum method"
+            " to set the vertical datum without transforming the surface levels directly, "
+            "and then perform the transformation manually"
         )
-
-        x, y = self._obj[self._x], self._obj[self._y]
-        _, _, new_surface = transformer.transform(x, y, self._obj[self._surface])
-
-        transformed = self._obj.copy()
-        transformed[self._surface] = new_surface
-
-        if self._end:
-            _, _, new_end = transformer.transform(x, y, self._obj[self._end])
-            transformed[self._end] = new_end
-
-        return transformed
 
     @_requires_xy
     def transform_coordinates(
@@ -461,7 +452,7 @@ class GeostFrame(AbstractBase):
     def to_collection(
         self,
         crs: str | int | CRS = None,
-        vertical_reference: str | int | CRS = None,
+        vertical_datum: str | int | CRS = None,
         has_inclined: bool = False,
         coordinate_names: tuple[str, str] = None,
         include_in_header: str | Iterable[str] | None = None,
@@ -474,8 +465,8 @@ class GeostFrame(AbstractBase):
         crs : str | int | CRS, optional
             Coordinate reference system for the geometry column. The default is None,
             which means no CRS will be assigned to the resulting GeoDataFrame.
-        vertical_reference : str | int | CRS, optional
-            Vertical reference system for the collection. The default is None.
+        vertical_datum : str | int | CRS, optional
+            Vertical datum for the collection. The default is None.
         has_inclined : bool, optional
             Indicates whether the collection has inclined data. The default is False.
         coordinate_names : tuple[str, str], optional
@@ -505,7 +496,7 @@ class GeostFrame(AbstractBase):
             self._obj,
             header=header,
             has_inclined=has_inclined,
-            vertical_reference=vertical_reference,
+            vertical_datum=vertical_datum,
         )
 
     def standardize_column_names(self) -> None:
