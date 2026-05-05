@@ -14,6 +14,12 @@ class AlignmentWarning(UserWarning):
     pass
 
 
+class MixedDepthWarning(UserWarning):
+    """Warning for when depth columns contain a mix of positive and negative values."""
+
+    pass
+
+
 def future_deprecation_warning(alternative_func=None):
     def decorator(func):
         @wraps(func)

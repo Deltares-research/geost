@@ -36,8 +36,72 @@ def read_table(
     column_mapper: dict = None,
     pd_kwargs: dict[str, Any] = None,
     coll_kwargs: dict[str, Any] = None,
-) -> Collection | pd.DataFrame:  # pragma: no cover
-    pass
+) -> Collection | pd.DataFrame:
+    """
+    Read tabular information from a file (parquet, csv or Excel) for any given survey data
+    into a `geost.Collection` or pandas.DataFrame.
+
+    Parameters
+    ----------
+    file : str | Path
+        Path to the file to be read. Depending on the file extension, the corresponding
+        Pandas read function will automatically be used. This can be either .parquet,
+        .csv or .xlsx. Optional keyword arguments that can be given in the specific Pandas
+        read function can be passed via the `pd_kwargs` argument.
+    as_collection : bool, optional
+        If True, the borehole table will be read as a :class:`~geost.base.Collection`.
+        Optional keyword arguments that can be given to :meth:`~geost.accessor.GeostFrame.to_collection`
+        can be passed via the `coll_kwargs` argument. If False, a `pd.DataFrame` is returned.
+        The default is True.
+    column_mapper: dict, optional
+        Mapping from column names in the input file to GeoST positional column names. Use
+        this when your file uses non-standard names which cannot be recognized automatically
+        as positional columns (e.g. {'ID': 'nr', 'X_RD': 'x', 'Y_RD': 'y', 'maaiveld': 'surface',
+        'van': 'top', 'tot': 'bottom'}). See :data:`geost.validation.column_names.POSITIONAL_COLUMN_NAMES`
+        for the accepted column names for each positional column type. If no valid survey-id
+        (e.g. "nr") column is found after mapping, a KeyError is raised. Missing x/y or depth
+        columns trigger warnings and may limit functionality.
+    pd_kwargs: dict[str, Any], optional
+        Optional keyword arguments for Pandas.read_parquet, Pandas.read_csv or
+        Pandas.read_excel depending on the file extension.
+    coll_kwargs: dict[str, Any], optional
+        Optional keyword arguments for :meth:`~geost.accessor.GeostFrame.to_collection`
+
+    Returns
+    -------
+    :class:`~geost.base.Collection` or `pd.DataFrame`
+        Instance of :class:`~geost.base.Collection` when `as_collection=True` or `pd.DataFrame`
+        otherwise.
+
+    Examples
+    --------
+    >>> import geost
+    >>> file = "path_to_your_data.parquet"
+    >>> collection_kwargs = { # Options to pass to a `geost.Collection`
+    ...     "crs": 32631,
+    ...     "vertical_reference": 'Ostend height',
+    ...     "include_in_header": ["nr", "x", "y", "surface", "end"]
+    ... }
+    >>> collection = geost.read_table(
+    ...     file, column_mapper={'maaiveld': 'surface'}, coll_kwargs=collection_kwargs
+    ... )
+
+    """
+    pd_kwargs = pd_kwargs or dict()
+    coll_kwargs = coll_kwargs or dict()
+
+    data = io_helpers._pandas_read(file, **pd_kwargs)
+
+    if column_mapper:
+        data.rename(columns=column_mapper, inplace=True)
+
+    check_positional_column_presence(data)
+    data = conversion.adjust_z_coordinates(data)
+
+    if as_collection:
+        data = data.gst.to_collection(**coll_kwargs)
+
+    return data
 
 
 @future_deprecation_warning(alternative_func=read_table)
@@ -51,6 +115,8 @@ def read_borehole_table(
     coll_kwargs: dict[str, Any] = None,
 ) -> Collection | pd.DataFrame:
     """
+    Read tabular borehole information from a file (parquet, csv or Excel) that includes
+    row data for each (borehole) layer.
     Read tabular borehole information. This is a file (parquet, csv or Excel) that
     includes row data for each (borehole) layer and must at least include the following
     column headers:
@@ -75,11 +141,10 @@ def read_borehole_table(
     Parameters
     ----------
     file : str | Path
-        Path to file to be read. Depending on the file extension, the corresponding
-        Pandas read function will be called. This can be either pandas.read_parquet,
-        pandas.read_csv or pandas.read_excel. Optional keyword arguments that can be
-        given in the specific Pandas read function can be passed via the `pd_kwargs`
-        argument.
+        Path to the file to be read. Depending on the file extension, the corresponding
+        Pandas read function will automatically be used. This can be either .parquet,
+        .csv or .xlsx. Optional keyword arguments that can be given in the specific Pandas
+        read function can be passed via the `pd_kwargs` argument.
     as_collection : bool, optional
         If True, the borehole table will be read as a :class:`~geost.base.Collection`.
         Optional keyword arguments that can be given to :meth:`~geost.accessor.GeostFrame.to_collection`
@@ -93,14 +158,16 @@ def read_borehole_table(
         Vertical datum for the collection. The default is None. Only used if
         `as_collection=True`.
     column_mapper: dict, optional
-        If the file to be read uses different column names than the ones given in the
-        description above, you can use a dictionary mapping to translate the column
-        names to the required format. column_mapper is None by default, in which case
-        the user is asked for input if not all required columns are encountered in the
-        file.
+        Mapping from column names in the input file to GeoST positional column names. Use
+        this when your file uses non-standard names which cannot be recognized automatically
+        as positional columns (e.g. {'ID': 'nr', 'X_RD': 'x', 'Y_RD': 'y', 'maaiveld': 'surface',
+        'van': 'top', 'tot': 'bottom'}). See :data:`geost.validation.column_names.POSITIONAL_COLUMN_NAMES`
+        for the accepted column names for each positional column type. If no valid survey-id
+        (e.g. "nr") column is found after mapping, a KeyError is raised. Missing x/y or depth
+        columns trigger warnings and may limit functionality.
     pd_kwargs: dict[str, Any], optional
         Optional keyword arguments for Pandas.read_parquet, Pandas.read_csv or
-        Pandas.read_excel.
+        Pandas.read_excel depending on the file extension.
     coll_kwargs: dict[str, Any], optional
         Optional keyword arguments for :meth:`~geost.accessor.GeostFrame.to_collection`
 
@@ -160,24 +227,15 @@ def read_cpt_table(
 ) -> Collection | pd.DataFrame:
     """
     Read tabular CPT information. This is a file (parquet, csv or Excel) that includes
-    row data for each CPT depth interval and must at least include the following header
-    information as columns:
-
-    - **nr** : Object id
-    - **x** : X-coordinates according to the given crs
-    - **y** : Y-coordinates according to the given crs
-    - **surface** : Surface elevation according to the given vertical_datum
-    - **end** : End depth according to the given vertical_datum
-    - **depth** : Depth in meters below the surface
+    row data for each CPT depth interval.
 
     Parameters
     ----------
     file : str | Path
-        Path to file to be read. Depending on the file extension, the corresponding
-        Pandas read function will be called. This can be either pandas.read_parquet,
-        pandas.read_csv or pandas.read_excel. Optional keyword arguments that can be
-        given in the specific Pandas read function can be passed via the `pd_kwargs`
-        argument.
+        Path to the file to be read. Depending on the file extension, the corresponding
+        Pandas read function will automatically be used. This can be either .parquet,
+        .csv or .xlsx. Optional keyword arguments that can be given in the specific Pandas
+        read function can be passed via the `pd_kwargs` argument.
     as_collection : bool, optional
         If True, the borehole table will be read as a :class:`~geost.base.Collection`.
         Optional keyword arguments that can be given to :meth:`~geost.accessor.GeostFrame.to_collection`
@@ -191,14 +249,16 @@ def read_cpt_table(
         Vertical datum for the collection. The default is None. Only used if
         `as_collection=True`.
     column_mapper: dict, optional
-        If the file to be read uses different column names than the ones given in the
-        description above, you can use a dictionary mapping to translate the column
-        names to the required format. column_mapper is None by default, in which case
-        the user is asked for input if not all required columns are encountered in the
-        file.
+        Mapping from column names in the input file to GeoST positional column names. Use
+        this when your file uses non-standard names which cannot be recognized automatically
+        as positional columns (e.g. {'ID': 'nr', 'X_RD': 'x', 'Y_RD': 'y', 'maaiveld': 'surface',
+        'diepte': 'bottom'}). See :data:`geost.validation.column_names.POSITIONAL_COLUMN_NAMES`
+        for the accepted column names for each positional column type. If no valid survey-id
+        (e.g. "nr") column is found after mapping, a KeyError is raised. Missing x/y or depth
+        columns trigger warnings and may limit functionality.
     pd_kwargs: dict[str, Any], optional
         Optional keyword arguments for Pandas.read_parquet, Pandas.read_csv or
-        Pandas.read_excel.
+        Pandas.read_excel depending on the file extension.
     coll_kwargs: dict[str, Any], optional
         Optional keyword arguments for :meth:`~geost.accessor.GeostFrame.to_collection`
 
@@ -218,6 +278,7 @@ def read_cpt_table(
         cpts.rename(columns=column_mapper, inplace=True)
 
     check_positional_column_presence(cpts)
+    cpts = conversion.adjust_z_coordinates(cpts)
 
     if as_collection:
         cpts = cpts.gst.to_collection(

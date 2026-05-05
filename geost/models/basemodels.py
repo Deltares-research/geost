@@ -444,11 +444,11 @@ class VoxelModel(AbstractModel3D):
         how : {"overlap", "majority", "inner"}, optional
             Method to use for slicing. The default is "overlap".
             - "overlap": Include voxels that at least partially overlap with the specified
-              depth interval.
+            depth interval.
             - "majority": Include voxels that have 50% or more of their volume within
-              the specified depth interval.
+            the specified depth interval.
             - "inner": Include only voxels that are completely within the specified depth
-              interval.
+            interval.
 
         Returns
         -------

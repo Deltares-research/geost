@@ -20,6 +20,7 @@ Data in tabular format (e.g. csv, parquet)
    read_cpt_table
    read_nlog_cores
    read_uullg_tables
+   read_table
    base.Collection.to_csv
    base.Collection.to_parquet
 

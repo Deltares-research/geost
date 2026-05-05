@@ -7,7 +7,7 @@ if TYPE_CHECKING:
     import pandas as pd
 
 
-DEFAULT_COLUMN_NAMING = {
+DEFAULT_POSITIONAL_COLUMNS = {
     "nr": {"nr", "bro_id", "nitg_nr", "nitg", "boorp"},
     "surface": {"surface", "maaiveld", "mv", "height_nap", "surface_nap"},
     "end": {"end", "einddiepte", "einddiepte_nap", "end_depth", "end_depth_nap"},
@@ -42,11 +42,11 @@ DEFAULT_COLUMN_NAMING = {
     },
 }
 
-POSSIBLE_COLUMN_NAMING = {
-    key: set(values) for key, values in DEFAULT_COLUMN_NAMING.items()
+POSITIONAL_COLUMN_NAMES = {
+    key: set(values) for key, values in DEFAULT_POSITIONAL_COLUMNS.items()
 }
 for key, values in load_user_positional_column_aliases().items():
-    POSSIBLE_COLUMN_NAMING[key].update(map(str.lower, values))
+    POSITIONAL_COLUMN_NAMES[key].update(map(str.lower, values))
 
 
 def check_column_name(columns: Iterable[str], column_type: str) -> str | None:
@@ -66,7 +66,7 @@ def check_column_name(columns: Iterable[str], column_type: str) -> str | None:
         The valid column name if found, otherwise None.
 
     """
-    valid_names = POSSIBLE_COLUMN_NAMING[column_type]
+    valid_names = POSITIONAL_COLUMN_NAMES[column_type]
     for col in columns:
         if col.lower() in valid_names:
             return col
@@ -79,7 +79,7 @@ def check_positional_column_presence(df: pd.DataFrame) -> None:
     except KeyError as e:
         raise KeyError(
             "Input table is missing a mandatory column that identifies survey IDs. "
-            f"This can be one of: {sorted(POSSIBLE_COLUMN_NAMING['nr'])}. Use the "
+            f"This can be one of: {sorted(POSITIONAL_COLUMN_NAMES['nr'])}. Use the "
             "'column_mapper' argument to specify which column identifies the survey ID."
         ) from e
 
@@ -88,8 +88,8 @@ def check_positional_column_presence(df: pd.DataFrame) -> None:
     if not df.gst.has_xy_columns:
         warnings_list.append(
             "Input table is missing x/y coordinate columns. Accepted column names:\n"
-            f"x: {sorted(POSSIBLE_COLUMN_NAMING['x_coordinate'])}\n"
-            f"y: {sorted(POSSIBLE_COLUMN_NAMING['y_coordinate'])}\n"
+            f"x: {sorted(POSITIONAL_COLUMN_NAMES['x_coordinate'])}\n"
+            f"y: {sorted(POSITIONAL_COLUMN_NAMES['y_coordinate'])}\n"
             "Use the 'column_mapper' argument to map your columns to 'x' and 'y'."
         )
 
@@ -97,9 +97,9 @@ def check_positional_column_presence(df: pd.DataFrame) -> None:
         warnings_list.append(
             "Input table is missing depth information on surface level and top and/or "
             f"bottom depth. Accepted column names:\n"
-            f"surface: {sorted(POSSIBLE_COLUMN_NAMING['surface'])}\n"
-            f"top: {sorted(POSSIBLE_COLUMN_NAMING['top'])} (optional for layered data)\n"
-            f"depth: {sorted(POSSIBLE_COLUMN_NAMING['depth'])} (always required)\n"
+            f"surface: {sorted(POSITIONAL_COLUMN_NAMES['surface'])}\n"
+            f"top: {sorted(POSITIONAL_COLUMN_NAMES['top'])} (optional for layered data)\n"
+            f"depth: {sorted(POSITIONAL_COLUMN_NAMES['depth'])} (always required)\n"
             "Use the 'column_mapper' argument to map your columns to the expected depth "
             "columns."
         )
