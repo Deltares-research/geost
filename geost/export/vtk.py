@@ -1,4 +1,7 @@
-from typing import TYPE_CHECKING, Iterable
+from __future__ import annotations
+
+from itertools import batched
+from typing import TYPE_CHECKING, Iterable, Literal
 
 import numpy as np
 import pandas as pd
@@ -21,58 +24,125 @@ def _get_pyvista():  # pragma: no cover
         )
 
 
-def prepare_borehole(borehole: pd.DataFrame, vertical_factor: float) -> np.ndarray:
-    borehole_xyz = borehole[["x", "y", "bottom"]].to_numpy()
-    surface_xyz = np.array(
-        [borehole_xyz[0, 0], borehole_xyz[0, 1], borehole["surface"].iloc[0]]
-    )
-    borehole_xyz = np.vstack([surface_xyz, borehole_xyz], dtype="float64")
-    borehole_xyz[:, 2] *= vertical_factor
-    return borehole_xyz
+def prepare_as_continuous(
+    data: pd.DataFrame,
+    depth_column: Literal["depth", "bottom"],
+    vertical_factor: float,
+) -> np.ndarray:
+    """
+    Prepare data for PyVista cylinder objects as continuous depth representation (e.g.
+    using 'depth' or 'bottom' as depth column). This is typical for CPTs and well logs.
+    """
+    data_xyz = data[["x", "y", depth_column]].to_numpy(copy=True)
+    data_xyz[:, -1] *= vertical_factor
+    return data_xyz
+
+
+def prepare_as_layers(
+    data: pd.DataFrame,
+    depth_column: list[Literal["top"], Literal["bottom"]],
+    vertical_factor: float,
+) -> np.ndarray:
+    """
+    Prepare data for PyVista cylinder objects using layer representation (e.g. using
+    'top' and 'bottom' as depth columns). This is typical for boreholes with layer
+    descriptions and e.g. non-continuous layer intervals of grainsize sample data.
+    """
+    data_xyz_top = data[["x", "y", depth_column[0]]].to_numpy()
+    data_xyz_bottom = data[["x", "y", depth_column[-1]]].to_numpy()
+    data_xyz = np.column_stack([data_xyz_top, data_xyz_bottom]).reshape(-1, 3)
+    data_xyz[:, -1] *= vertical_factor
+    return data_xyz
 
 
 def generate_cylinders(
-    table: pd.DataFrame,
+    data: pd.DataFrame,
+    depth_column: Literal["depth", "bottom"] | list[Literal["top"], Literal["bottom"]],
     data_columns: list[str],
     radius: float,
+    n_sides: int,
     vertical_factor: float,
 ) -> Iterable:
     pv = _get_pyvista()
 
-    boreholes = table.groupby("nr")
+    boreholes = data.groupby("nr")
     for _, borehole in boreholes:
-        borehole_prepared = prepare_borehole(borehole, vertical_factor)
-        poly = pv.PolyData(borehole_prepared)
-        line_segments = np.arange(0, len(borehole_prepared), dtype=np.int_)
-        line_segments = np.insert(line_segments, 0, len(borehole_prepared))
-        poly.lines = line_segments
-
-        for data_column in data_columns:
-            poly[data_column] = np.hstack(
-                [borehole[data_column].values[0], borehole[data_column].values]
+        # Case I  - depth_column is a single column representing depth from surface
+        # (e.g. 'depth' or only 'bottom')
+        if isinstance(depth_column, str):
+            borehole_prepared = prepare_as_continuous(
+                borehole, depth_column, vertical_factor
             )
-        cylinder = poly.tube(radius=radius)
+            poly = pv.PolyData(borehole_prepared)
+            line_segments = np.arange(0, len(borehole_prepared), dtype=np.int_)
+            line_segments = np.insert(line_segments, 0, len(borehole_prepared))
+            poly.lines = line_segments
+
+            # Apply data fields
+            poly.point_data.update(
+                {
+                    data_column: borehole[data_column].values
+                    for data_column in data_columns
+                }
+            )
+            cylinder = poly.tube(radius=radius, n_sides=n_sides)
+
+        # Case II - depth_column is a list of two column names representing top and
+        # bottom depths (e.g. ['top', 'bottom'])
+        elif isinstance(depth_column, list):
+            borehole_prepared = prepare_as_layers(
+                borehole, depth_column, vertical_factor
+            )
+            cylinder = pv.merge(
+                [
+                    pv.Tube(
+                        pointa=b[0],
+                        pointb=b[1],
+                        radius=radius,
+                        n_sides=n_sides,
+                        capping=True,
+                    )
+                    for b in batched(borehole_prepared, 2, strict=True)
+                ],
+                merge_points=True,
+            )
+
+            # Apply data fields
+            cylinder.cell_data.update(
+                {
+                    data_column: np.repeat(
+                        borehole[data_column].values, repeats=n_sides + 2
+                    )
+                    for data_column in data_columns
+                }
+            )
         yield cylinder
 
 
 def borehole_to_multiblock(
-    table: pd.DataFrame,
-    data_columns: list[str],
+    data: pd.DataFrame,
+    depth_column: Literal["depth", "bottom"] | list[Literal["top"], Literal["bottom"]],
+    displayed_variables: list[str],
     radius: float,
+    n_sides: int,
     vertical_factor: float,
-) -> "pv.MultiBlock":
+) -> pv.MultiBlock:
     """
     Create a PyVista MultiBlock object from the parsed boreholes/cpt's.
 
     Parameters
     ----------
-    table : pd.DataFrame
+    data : pd.DataFrame
         Table of borehole/CPT objects. This is CptCollection.data or
         BoreholeCollection.data.
-    data_columns : List[str]
-        Column names of data arrays to write in the vtk file
+    depth_column : Literal['depth', 'bottom'] | list[Literal["top"], Literal["bottom"]]
+        Name of the column or columns representing depth.
+    displayed_variables : List[str]
+        Column names of data columns to write in the vtk file
     radius : float
         Radius of borehole cylinders
+    n_sides : int
+        Number of sides for the cylinder
     vertical_factor : float
         Vertical adjustment factor to convert e.g. heights in cm to m.
 
@@ -84,24 +154,38 @@ def borehole_to_multiblock(
     """
     pv = _get_pyvista()
 
-    cylinders = generate_cylinders(table, data_columns, radius, vertical_factor)
+    cylinders = generate_cylinders(
+        data,
+        depth_column,
+        displayed_variables,
+        radius,
+        n_sides,
+        vertical_factor,
+    )
     cylinders_multiblock = pv.MultiBlock(list(cylinders))
     return cylinders_multiblock
 
 
 def layerdata_to_pyvista_unstructured(
-    layerdata: pd.DataFrame,
+    data: pd.DataFrame,
+    depth_column: Literal["depth", "bottom"] | list[Literal["top"], Literal["bottom"]],
     displayed_variables: list[str],
     radius: float = 1.0,
-) -> "pv.UnstructuredGrid":
+) -> pv.UnstructuredGrid:
     """
     Convert a layerdata object to a PyVista UnstructuredGrid.
 
     Parameters
     ----------
-    layerdata : LayerData
-        The input layerdata object containing 3D grid data with coordinates 'x', 'y',
-        and 'z'.
+    data : pd.DataFrame
+        The input data containing at least columns x, y, surface, top, and bottom.
+    depth_column : Literal['depth', 'bottom'] | list[Literal["top"], Literal["bottom"]]
+        Name of the column or columns representing depth.
+    displayed_variables : list of str
+        List of variable names in the data to include as cell data in the voxel model.
+    radius : float
+        The 'radius' of the voxels. This will determine the
+        horizontal size of the voxels in the resulting unstructured grid.
 
     Returns
     -------
@@ -110,11 +194,20 @@ def layerdata_to_pyvista_unstructured(
     """
     pv = _get_pyvista()
 
-    # Get the data from the layerdata object
-    x = layerdata["x"].values
-    y = layerdata["y"].values
-    top = layerdata["surface"].values - layerdata["top"].values
-    bottom = layerdata["surface"].values - layerdata["bottom"].values
+    x = data["x"].values
+    y = data["y"].values
+
+    # Case I  - depth_column is a single column representing depth from surface
+    # (e.g. 'depth' or only 'bottom'). In this case we compute the top depth.
+    if isinstance(depth_column, str):
+        top = data[depth_column].shift()
+        top[data["nr"] != data["nr"].shift()] = data["surface"]
+        bottom = data[depth_column].values
+    # Case II - depth_column is a list of two column names representing top and
+    # bottom depths (e.g. ['top', 'bottom'])
+    elif isinstance(depth_column, list):
+        top = data[depth_column[0]].values
+        bottom = data[depth_column[-1]].values
 
     # Define all cell corner coordinates in the required order
     voxels = np.array(
@@ -139,12 +232,12 @@ def layerdata_to_pyvista_unstructured(
     # Create unstructured grid and assign data variables
     grid = pv.UnstructuredGrid({pv.CellType.VOXEL: cells_voxel}, points)
     for var in displayed_variables:
-        if var not in layerdata.columns:
+        if var not in data.columns:
             print(
-                f"Variable '{var}' is unavailable in the layerdata. Skipping this variable."
+                f"Variable '{var}' is unavailable in the data. Skipping this variable."
             )
             continue
-        grid.cell_data[var] = layerdata[var].values
+        grid.cell_data[var] = data[var].values
     return grid
 
 
@@ -152,7 +245,7 @@ def voxelmodel_to_pyvista_structured(
     dataset: xr.Dataset,
     resolution: tuple[float, float, float],
     displayed_variables: list[str] = None,
-) -> "pv.StructuredGrid":
+) -> pv.StructuredGrid:
     """
     Convert an xarray dataset to a PyVista voxel model (StructuredGrid).
 
@@ -211,7 +304,7 @@ def voxelmodel_to_pyvista_unstructured(
     dataset: xr.Dataset,
     resolution: tuple[float, float, float],
     displayed_variables: list[str] = None,
-) -> "pv.UnstructuredGrid":
+) -> pv.UnstructuredGrid:
     """
     Convert an xarray dataset to a PyVista voxel model (UnstructuredGrid).
 
@@ -284,9 +377,7 @@ def voxelmodel_to_pyvista_unstructured(
     # that are not NaN. (perhaps this should be done for all data vars?)
     nan_mask = np.isnan(grid.cell_data[grid.cell_data.keys()[0]])
     if np.any(nan_mask):
-        grid = grid.extract_cells(
-            ~nan_mask
-        )  # , pass_point_ids=False, pass_cell_ids=False) #TODO: add kwargs for pyvista 0.47+
+        grid = grid.extract_cells(~nan_mask, pass_point_ids=False, pass_cell_ids=False)
         grid = grid.clean(produce_merge_map=False)
 
     return grid

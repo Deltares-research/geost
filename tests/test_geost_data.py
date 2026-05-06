@@ -11,17 +11,21 @@ import geost
 @pytest.mark.unittest
 def test_boreholes_usp():
     boreholes = geost.data.boreholes_usp()
-    assert isinstance(boreholes, geost.BoreholeCollection)
+    assert isinstance(boreholes, geost.Collection)
     boreholes = geost.data.boreholes_usp(pandas=True)
     assert isinstance(boreholes, pd.DataFrame)
+    as_filepath = geost.data.boreholes_usp(return_filepath=True)
+    assert isinstance(as_filepath, Path)
 
 
 @pytest.mark.unittest
 def test_cpts_usp():
     cpts = geost.data.cpts_usp()
-    assert isinstance(cpts, geost.CptCollection)
+    assert isinstance(cpts, geost.Collection)
     cpts = geost.data.cpts_usp(pandas=True)
     assert isinstance(cpts, pd.DataFrame)
+    as_filepath = geost.data.cpts_usp(return_filepath=True)
+    assert isinstance(as_filepath, Path)
 
 
 @pytest.mark.unittest
@@ -30,6 +34,8 @@ def test_geotop_usp():
     assert isinstance(gtp, geost.bro.GeoTop)
     gtp = geost.data.geotop_usp(xarray=True)
     assert isinstance(gtp, xr.Dataset)
+    as_filepath = geost.data.geotop_usp(return_filepath=True)
+    assert isinstance(as_filepath, Path)
 
 
 @pytest.mark.unittest

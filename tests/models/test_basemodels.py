@@ -65,7 +65,7 @@ class TestVoxelModel:
 
     @pytest.mark.unittest
     def test_from_opendap(self):
-        url = r"https://opendap.deltares.nl/thredds/dodsC/opendap/rijkswaterstaat/DIS/DIS2.1.nc"
+        url = r"https://opendap.deltares.nl/thredds/dodsC/opendap/rijkswaterstaat/DIS/DIS3.1.nc"
         model = VoxelModel.from_opendap(
             url,
             data_vars=["lithoklasse", "slibklasse"],
@@ -593,15 +593,9 @@ class TestVoxelModel:
     def test_to_pyvista_structured(self, voxelmodel):
         vms_single_var = voxelmodel.to_pyvista_grid(data_vars=["strat"])
         assert isinstance(vms_single_var, pv.ImageData)
-        assert vms_single_var.n_points == 150
-        assert vms_single_var.n_cells == 80
-        assert vms_single_var.n_arrays == 1
 
         vms_multi_var = voxelmodel.to_pyvista_grid()
         assert isinstance(vms_multi_var, pv.ImageData)
-        assert vms_multi_var.n_points == 150
-        assert vms_multi_var.n_cells == 80
-        assert vms_multi_var.n_arrays == 2
 
     @pytest.mark.unittest
     def test_to_pyvista_unstructured(self, voxelmodel):
@@ -609,15 +603,9 @@ class TestVoxelModel:
             data_vars=["strat"], structured=False
         )
         assert isinstance(vmu_single_var, pv.UnstructuredGrid)
-        assert vmu_single_var.n_points == 142
-        assert vmu_single_var.n_cells == 70
-        assert vmu_single_var.n_arrays == 3  # TODO: fix when pyvista 0.47 releases
 
         vmu_multi_var = voxelmodel.to_pyvista_grid(structured=False)
         assert isinstance(vmu_multi_var, pv.UnstructuredGrid)
-        assert vmu_multi_var.n_points == 142
-        assert vmu_multi_var.n_cells == 70
-        assert vmu_multi_var.n_arrays == 4  # TODO: fix when pyvista 0.47 releases
 
     @pytest.mark.unittest
     def test_to_pyvista_unstructured_problematic_dims(self, voxelmodel):

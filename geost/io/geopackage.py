@@ -3,7 +3,7 @@ from pathlib import Path
 import geopandas as gpd
 import pandas as pd
 
-from geost.utils import create_connection
+from geost.utils.io_helpers import create_connection
 
 
 class Geopackage:

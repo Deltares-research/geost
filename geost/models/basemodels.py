@@ -9,7 +9,7 @@ import rioxarray as rio
 import xarray as xr
 
 from geost.export import vtk
-from geost.utils import check_geometry_instance
+from geost.utils.conversion import check_geometry_instance
 
 from . import model_utils
 
@@ -444,11 +444,11 @@ class VoxelModel(AbstractModel3D):
         how : {"overlap", "majority", "inner"}, optional
             Method to use for slicing. The default is "overlap".
             - "overlap": Include voxels that at least partially overlap with the specified
-              depth interval.
+            depth interval.
             - "majority": Include voxels that have 50% or more of their volume within
-              the specified depth interval.
+            the specified depth interval.
             - "inner": Include only voxels that are completely within the specified depth
-              interval.
+            interval.
 
         Returns
         -------

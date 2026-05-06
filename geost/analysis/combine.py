@@ -1,11 +1,97 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
 import numpy as np
 import pandas as pd
 import xarray as xr
 
-from geost.accessors.data import DiscreteData, LayeredData
 from geost.base import Collection
-from geost.models import VoxelModel
 from geost.models.model_utils import label_consecutive_2d
+
+if TYPE_CHECKING:
+    from geost.models import VoxelModel
+
+
+def add_nearest_voxelmodel_variable(
+    collection: Collection,
+    model: VoxelModel,
+    data_vars: str | list[str],
+    tolerances: tuple[float, float, float] | None = None,
+) -> Collection:
+    """
+    Add information from a `VoxelModel` instance as columns to the data of a
+    :class:`~geost.base.Collection` instance. This checks for each survey in the
+    Collection in which voxel stack the survey is located and adds the relevant data
+    variables of the `VoxelModel` to the data object of the Collection based on depth.
+
+    Note
+    ----
+    This function simply assigns the nearest voxel value to each layer or measurement, while
+    `add_voxelmodel_variable` also updates layer boundaries based on the voxel model.
+
+    Parameters
+    ----------
+    collection : :class:`~geost.base.Collection`
+        `Collection` to add the `VoxelModel` variable to.
+    model : :class:`~geost.models.VoxelModel`
+        `VoxelModel` instance to add the information from to the `Collection` instance.
+    data_vars : str | list[str]
+        Name(s) of the variable(s) in the `VoxelModel` to add.
+    tolerances : tuple[float, float, float] | None
+        Optional tolerances in x, y and z direction for matching the survey points to the
+        voxel centers. If not given, the x/y/z resolution of the `VoxelModel` is used as
+        tolerance.
+
+    Returns
+    -------
+    :class:`~geost.base.Collection`
+        `Collection` instance with the information from the `VoxelModel` variable added.
+    """
+
+    collection_data = collection.data.gst._get_depth_relative_to_surface().copy()
+    x_queried = collection_data[collection_data.gst._x].values
+    y_queried = collection_data[collection_data.gst._y].values
+
+    # Take center of layer if layered, otherwise take bottom depth as z coordinate for
+    # querying the voxel model
+    if collection_data.gst.is_layered:
+        z_queried = (
+            collection_data[collection_data.gst._top].values
+            + collection_data[collection_data.gst._bottom].values
+        ) / 2
+    else:
+        z_queried = collection_data[collection_data.gst._bottom].values
+
+    result = model.ds.sel(
+        x=xr.DataArray(x_queried, dims="points"),
+        y=xr.DataArray(y_queried, dims="points"),
+        z=xr.DataArray(z_queried, dims="points"),
+        method="nearest",
+    )
+
+    # Custom implementation of tolerance per dimension because the tolerance kwarg in
+    # xarray's sel is applied to all dimensions.)
+    dx = np.abs(result["x"].values - x_queried)
+    dy = np.abs(result["y"].values - y_queried)
+    dz = np.abs(result["z"].values - z_queried)
+
+    # Use given tolerances or default to voxel resolution if not given
+    if tolerances is not None:
+        tol_x, tol_y, tol_z = tolerances
+    else:
+        tol_x, tol_y, tol_z = model.resolution
+    mask = (dx <= tol_x) & (dy <= tol_y) & (dz <= tol_z)
+
+    for data_var in data_vars if isinstance(data_vars, list) else [data_vars]:
+        collection_data[data_var] = np.where(mask, result[data_var], np.nan)
+
+    return Collection(
+        collection.data.assign(**pd.DataFrame(collection_data[data_vars])),
+        header=collection.header.copy(),
+        has_inclined=collection.has_inclined,
+        vertical_datum=collection.vertical_datum,
+    )
 
 
 def add_voxelmodel_variable(
@@ -13,10 +99,9 @@ def add_voxelmodel_variable(
 ) -> Collection:
     """
     Add a information from a variable of a `VoxelModel` instance as a column to the data
-    of a `BoreholeCollection` or `CptCollection` instance. This checks for each data object
-    in the Collection instance in which voxel stack the object is located and adds the
-    relevant layer boundaries of the variable to the data object of the Collection based
-    on depth.
+    of a :class:`~geost.base.Collection` instance. This checks for each survey in the
+    Collection in which voxel stack the survey is located and adds the relevant layer
+    boundaries of the variable to the data object of the Collection based on depth.
 
     Note
     ----
@@ -26,52 +111,80 @@ def add_voxelmodel_variable(
 
     Parameters
     ----------
-    collection : Collection
-        Any GeoST `Collection` object such as a :class:`~geost.base.BoreholeCollection`
-        or :class:`~geost.base.CptCollection` to add the `VoxelModel` variable to.
-    model : :class:`~geost.modelbase.VoxelModel`
+    collection : :class:`~geost.base.Collection`
+        `Collection` to add the `VoxelModel` variable to.
+    model : :class:`~geost.models.VoxelModel`
         `VoxelModel` instance to add the information from to the `Collection` instance.
     variable : str
         Name of the variable in the `VoxelModel` to add.
 
     Returns
     -------
-    Collection
-        New `Collection` (same type as the input) object with the variable added to the
-        data object of the `Collection`.
-
-    Raises
-    ------
-    NotImplementedError
-        Raises error for geost data object types that are not yet implemented such as
-        :class:`~geost.base.LineData` (future developments).
+    :class:`~geost.base.Collection`
+        `Collection` instance with the information from the `VoxelModel` variable added
+        to the data table.
 
     """
-    if variable in collection.data.columns:
-        collection.data.drop(columns=[variable], inplace=True)
+    data = collection.data
 
-    var_select = model.select_with_points(collection.header)[variable]
-    nrs = collection.header["nr"].loc[var_select["idx"]]
+    if variable in data.columns:
+        data.drop(columns=[variable], inplace=True)
+
+    columns: dict = data.gst.positional_columns
+    nr_, surface_, top_, bottom_ = (
+        columns["nr"],
+        columns["surface"],
+        columns["top"],
+        columns["depth"],
+    )
+
+    surface_level = data.groupby(nr_).agg({surface_: "first"})
+
+    var_select = model.select_with_points(collection.header)
+    var_select = var_select.assign_coords(
+        idx=collection.header[nr_].loc[var_select["idx"]]
+    )
 
     _, _, dz = model.resolution
 
-    var_df = _reduce_to_top_bottom(var_select, dz)
-    var_df.rename(columns={"values": variable}, inplace=True)
-    var_df["nr"] = nrs.loc[var_df["nr"]].values
+    var_df = _reduce_to_top_bottom(
+        var_select, dz, survey_name=nr_, depth_name=bottom_, value_name=variable
+    )
+    var_df = var_df.merge(surface_level, left_on=nr_, right_index=True, how="left")
+    var_df = var_df[
+        var_df[bottom_] < var_df[surface_]
+    ]  # Only keep layers below surface, strat boundaries are bottoms of layers
+    var_df[bottom_] = var_df[surface_] - var_df[bottom_]
+    var_df = var_df.drop(columns=surface_)
 
-    if {"top", "bottom"}.issubset(collection.data.columns):
-        result = _add_to_layered(collection.data, var_df)
-    elif "depth" in collection.data.columns:
-        result = _add_to_discrete(collection.data, var_df)
-    else:
-        raise NotImplementedError(
-            "Other datatypes than LayeredData or DiscreteData not implemented yet."
-        )
+    result = pd.concat([data, var_df]).sort_values(by=[nr_, bottom_])
+    nr = result[nr_]  # Keep survey ID because it is lost in the groupby backfill step
+    result = pd.concat([nr, result.groupby(nr_).bfill()], axis=1)
+    result = (
+        result.dropna(subset=surface_)
+        .drop_duplicates(subset=[nr_, bottom_])
+        .reset_index(drop=True)
+    )
+    # Drop duplicate bottom values because combining may cause duplicate depths
 
-    return result.gstda.to_collection()
+    if top_ is not None:
+        result = _reset_tops(result, nr=nr_, top=top_, bottom=bottom_)
+
+    return Collection(
+        result,
+        header=collection.header.copy(),
+        has_inclined=collection.has_inclined,
+        vertical_datum=collection.vertical_datum,
+    )
 
 
-def _reduce_to_top_bottom(da: xr.DataArray, dz: int | float) -> pd.DataFrame:
+def _reduce_to_top_bottom(
+    da: xr.DataArray,
+    dz: int | float,
+    survey_name: str = "idx",
+    depth_name: str = "bottom",
+    value_name: str = "values",
+) -> pd.DataFrame:
     """
     Helper to reduce the selection DataArray from `VoxelModel.select_with_points` to a
     DataFrame containing "idx", "top" and "bottoms" of relevant layer boundaries.
@@ -82,133 +195,63 @@ def _reduce_to_top_bottom(da: xr.DataArray, dz: int | float) -> pd.DataFrame:
         Selection result of `VoxelModel.select_with_points`.
     dz : int | float
         Vertical size of voxels in the VoxelModel.
+    depth_name : str
+        Name to use for the depth column in the resulting DataFrame.
 
     Returns
     -------
     pd.DataFrame
 
     """
+    da = da[value_name]
     layer_ids = label_consecutive_2d(da.values, axis=1)
     df = pd.DataFrame(
         {
-            "nr": np.repeat(da["idx"], da.sizes["z"]),
-            "bottom": np.tile(da["z"] - (0.5 * dz), da.sizes["idx"]),
+            survey_name: np.repeat(da["idx"], da.sizes["z"]),
+            depth_name: np.tile(da["z"] - (0.5 * dz), da.sizes["idx"]),
             "layer": layer_ids.ravel(),
-            "values": da.values.ravel(),
+            value_name: da.values.ravel(),
         }
     )
     reduced = df.pivot_table(
-        index=["nr", "layer", "values"], values="bottom", aggfunc="min"
+        index=[survey_name, "layer", value_name], values=depth_name, aggfunc="min"
     ).reset_index()
     return reduced.drop(columns=["layer"])
 
 
-def _add_to_layered(data: LayeredData, variable: pd.DataFrame) -> LayeredData:
+def _reset_tops(layered: pd.DataFrame, nr: str, top: str, bottom: str) -> pd.DataFrame:
     """
-    Helper function for `add_voxelmodel_variable` to combine a voxelmodel variable in
-    layered data form. This joins the DataFrames of the LayeredData instance and the
-    variable from the voxelmodel to add and updates the "top" and "bottom" columns in the
-    LayeredData.
+    Helper function for `add_voxelmodel_variable` to reset the top depths of layered data
+    after stratigraphic layer boundaries have been added and backfilling has been done.
+    This changes tops into bottoms of the row above in each borehole if tops are lower
+    than bottoms and removes any layers with a thickness of 0 in the result.
 
     Parameters
     ----------
-    data : LayeredData
-        LayeredData instance to add the voxelmodel variable to.
-    variable : pd.DataFrame
-        DataFrame with the voxelmodel variable to add. Contains columns ["nr", "bottom",
-        variable] where variable is for example "strat".
-
-    Returns
-    -------
-    LayeredData
-        New instance of `LayeredData` with the added variable and corrected top and bottom
-        depths.
-
-    """
-    variable = variable.merge(
-        data[["nr", "surface"]].drop_duplicates(), on="nr", how="left"
-    )
-    variable["bottom"] = variable["surface"] - variable["bottom"]
-
-    result = (
-        pd.concat([data, variable])
-        .sort_values(by=["nr", "bottom", "top"])
-        .reset_index(drop=True)
-    )
-    nr = result["nr"]
-    result = pd.concat([nr, result.groupby("nr").bfill()], axis=1)
-    result.drop_duplicates(subset=["nr", "bottom"], inplace=True)
-    result = _reset_tops(result)
-    result.dropna(subset=["top"], inplace=True)
-    return result
-
-
-def _reset_tops(layered_df: pd.DataFrame) -> pd.DataFrame:
-    """
-    Helper function for `_add_to_layered` to reset the top depths after stratigraphic
-    layer boundaries have been added and backfilling has been done. This changes tops into
-    bottoms of the row above in each borehole if tops are lower than bottoms. It also checks
-    if bottoms are less than 0 and resets these layers to 0. Then it removes layers with
-    a thickness of 0.
-
-    Parameters
-    ----------
-    layered_df : pd.DataFrame
+    layered : pd.DataFrame
         Pandas DataFrame with layered data containing tops and bottoms.
+    nr : str
+        Column name for the survey ID.
+    top : str
+        Column name for the top depths.
+    bottom : str
+        Column name for the bottom depths.
 
     Returns
     -------
     pd.DataFrame
         DataFrame with the tops reset.
-    """
-    bottom_shift_down = layered_df["bottom"].shift()
-    nr_shift_down = layered_df["nr"].shift()
 
-    layered_df.loc[
-        (layered_df["top"] < bottom_shift_down) & (layered_df["nr"] == nr_shift_down),
-        "top",
+    """
+    bottom_shift_down = layered[bottom].shift()
+    nr_shift_down = layered[nr].shift()
+
+    layered.loc[
+        (layered[top] < bottom_shift_down) & (layered[nr] == nr_shift_down),
+        top,
     ] = bottom_shift_down
 
-    layered_df.loc[layered_df["bottom"] < 0, "bottom"] = 0
+    # Remove layers with zero thickness
+    layered = layered[layered[top] - layered[bottom] != 0].reset_index(drop=True)
 
-    return layered_df[layered_df["top"] - layered_df["bottom"] != 0].reset_index(
-        drop=True
-    )
-
-
-def _add_to_discrete(data: DiscreteData, variable: pd.DataFrame) -> DiscreteData:
-    """
-    Helper function for `add_voxelmodel_variable` to combine a voxelmodel variable in
-    discrete data form. This joins the DataFrames of the DiscreteData instance and the
-    variable from the voxelmodel to return a new instance of DiscreteData.
-
-    Parameters
-    ----------
-    data : DiscreteData
-        DiscreteData instance to add the voxelmodel variable to.
-    variable : pd.DataFrame
-        DataFrame with the voxelmodel variable to add. Contains columns ["nr", "bottom",
-        variable] where variable is for example "strat".
-
-    Returns
-    -------
-    DiscreteData
-        New instance of `DiscreteData` with the added variable.
-
-    """
-    variable.rename(columns={"bottom": "depth"}, inplace=True)
-    variable = variable.merge(
-        data[["nr", "surface"]].drop_duplicates(), on="nr", how="left"
-    )
-    variable["depth"] = variable["surface"] - variable["depth"]
-
-    result = (
-        pd.concat([data, variable])
-        .sort_values(by=["nr", "depth"])
-        .reset_index(drop=True)
-    )
-    nr = result["nr"]
-    result = pd.concat([nr, result.groupby("nr").bfill()], axis=1)
-    result.drop_duplicates(subset=["nr", "depth"], inplace=True)
-    result.dropna(subset=["end"], inplace=True)
-    return result
+    return layered

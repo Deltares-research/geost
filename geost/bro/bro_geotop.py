@@ -332,7 +332,7 @@ class GeoTop(VoxelModel):
     @classmethod
     def from_opendap(
         cls,
-        url: str = r"https://dinodata.nl/opendap/GeoTOP/geotop.nc",
+        url: str = r"dap2://dinodata.nl/opendap/GeoTOP/geotop.nc",
         data_vars: List[str] = None,
         bbox: tuple = None,
         lazy: bool = True,
