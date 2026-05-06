@@ -46,7 +46,8 @@ dependencies = [
 	"rioxarray",
     "shapely",
     "pyvista",
-    "pydap", "platformdirs",
+    "pydap",
+	"platformdirs",
 ]
 
 [project.urls]
