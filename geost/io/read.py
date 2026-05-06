@@ -481,7 +481,7 @@ def read_bhrgt(
     https://deltares-research.github.io/geost/api_reference/generated/geost.bro_api_read.html
 
     """
-    header, data = xml.read(
+    header, data, vertical_datum = xml.read(
         files,
         xml.read_bhrgt,
         company=company,
@@ -495,7 +495,7 @@ def read_bhrgt(
         crs=crs,
     )
 
-    return Collection(data, header=header)
+    return Collection(data, header=header, vertical_datum=vertical_datum)
 
 
 def read_bhrgt_samples(
@@ -546,7 +546,7 @@ def read_bhrgt_samples(
     https://deltares-research.github.io/geost/api_reference/generated/bhrgt_samples.html
 
     """
-    header, data = xml.read(
+    header, data, vertical_datum = xml.read(
         files,
         xml.read_bhrgt_samples,
         company=company,
@@ -567,7 +567,7 @@ def read_bhrgt_samples(
     # If no sample data was found, the data table will be empty. In that case, we can
     # just return an empty collection.
     if "top" in data.columns and "bottom" in data.columns:
-        return Collection(data, header=header)
+        return Collection(data, header=header, vertical_datum=vertical_datum)
     else:
         warnings.warn(
             "No sample data found in the provided XML file(s). Returning an empty collection."
@@ -623,7 +623,7 @@ def read_bhrp(
     https://deltares-research.github.io/geost/api_reference/generated/geost.bro_api_read.html
 
     """
-    header, data = xml.read(
+    header, data, vertical_datum = xml.read(
         files,
         xml.read_bhrp,
         company=company,
@@ -637,7 +637,7 @@ def read_bhrp(
         crs=crs,
     )
 
-    return Collection(data, header=header)
+    return Collection(data, header=header, vertical_datum=vertical_datum)
 
 
 def read_bhrg(
@@ -689,7 +689,7 @@ def read_bhrg(
     https://deltares-research.github.io/geost/api_reference/generated/geost.bro_api_read.html
 
     """
-    header, data = xml.read(
+    header, data, vertical_datum = xml.read(
         files,
         xml.read_bhrg,
         company=company,
@@ -703,7 +703,7 @@ def read_bhrg(
         crs=crs,
     )
 
-    return Collection(data, header=header)
+    return Collection(data, header=header, vertical_datum=vertical_datum)
 
 
 def read_sfr(
@@ -755,7 +755,7 @@ def read_sfr(
     https://deltares-research.github.io/geost/api_reference/generated/geost.bro_api_read.html
 
     """
-    header, data = xml.read(
+    header, data, vertical_datum = xml.read(
         files,
         xml.read_sfr,
         company=company,
@@ -769,7 +769,7 @@ def read_sfr(
         crs=crs,
     )
 
-    return Collection(data, header=header)
+    return Collection(data, header=header, vertical_datum=vertical_datum)
 
 
 def read_gef_cpts(
@@ -850,7 +850,7 @@ def read_cpt(
     https://deltares-research.github.io/geost/api_reference/generated/geost.bro_api_read.html
 
     """
-    header, data = xml.read(
+    header, data, vertical_datum = xml.read(
         files,
         xml.read_cpt,
         company=company,
@@ -867,7 +867,7 @@ def read_cpt(
     data.fillna({"depth": data["penetrationlength"]}, inplace=True)
     data.sort_values(["nr", "depth"], inplace=True)
 
-    return Collection(data, header=header)
+    return Collection(data, header=header, vertical_datum=vertical_datum)
 
 
 def read_uullg_tables(

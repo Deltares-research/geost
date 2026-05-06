@@ -58,10 +58,12 @@ def read(
     data = []
     lengths = []
     crss = []
+    vertdats = []
 
     for file in files:
         xml_data = reader(file, **kwargs)
         crss.append(xml_data.pop("crs"))
+        vertdats.append(xml_data.pop("vertical_datum", None))
         y, x = xml_data.pop("location")
         xml_data["x"], xml_data["y"] = x, y
         df = pd.DataFrame(xml_data.pop("data"))
@@ -86,6 +88,16 @@ def read(
         )
         header["x"], header["y"] = transformer.transform(header["x"], header["y"])
 
+    # Check uniqueness of vertical datums
+    unique_vertdats = set(vertdats)
+    if len(unique_vertdats) > 1:
+        raise ValueError(
+            f"Vertical datum mismatch in XML files. Found multiple vertical datums: {unique_vertdats}."
+        )
+    vertical_datum = (
+        CRS.from_user_input(unique_vertdats.pop()) if unique_vertdats else None
+    )
+
     # Add relevant header attributes to the data DataFrame
     attributes_for_data = ["nr", "x", "y", "surface", "end"]
     header_data = header.loc[header.index.repeat(lengths), attributes_for_data]
@@ -97,7 +109,7 @@ def read(
         )
         data[["top", "bottom"]] = data[["top", "bottom"]].astype(float)
 
-    return header, data
+    return header, data, vertical_datum
 
 
 def _read_xml(

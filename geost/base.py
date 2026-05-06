@@ -105,12 +105,11 @@ class Collection(AbstractBase):
 
     def __repr__(self):
         repr_ = (
-            f"{self.__class__.__name__}:\n"
-            f"  header (rows, columns): {self.header.shape}\n"
-            f"  data (rows, columns): {self.data.shape}\n"
-            f"crs: {self.crs.__str__() if self.crs else None}\n"
-            f"vertical datum: {self.vertical_datum.__str__() if self.vertical_datum else None}\n"
-            f"# surveys = {self.n_points}\n"
+            f"{self.__class__.__name__}\n"
+            f"  header (rows, columns) : {self.header.shape}\n"
+            f"  data (rows, columns)   : {self.data.shape}\n"
+            f"crs: {self.crs.name if self.crs else None}\n"
+            f"vertical datum: {self.vertical_datum.name if self.vertical_datum else None}\n"
         )
         return repr_
 

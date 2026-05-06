@@ -19,6 +19,7 @@ BRO = {
     },
     "vertical_datum": {
         "xpath": "deliveredVerticalPosition/sfrcom:verticalDatum",
+        "resolver": resolvers.parse_vertical_datum,
         "el-attr": "text",
     },
     "landuse": {

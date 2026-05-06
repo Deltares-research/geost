@@ -19,6 +19,7 @@ BRO = {
     },
     "vertical_datum": {
         "xpath": "deliveredVerticalPosition/cptcommon:verticalDatum",
+        "resolver": resolvers.parse_vertical_datum,
         "el-attr": "text",
     },
     "predrilled_depth": {
