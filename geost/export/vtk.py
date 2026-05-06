@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from itertools import batched
 from typing import TYPE_CHECKING, Iterable, Literal
 
@@ -375,9 +377,7 @@ def voxelmodel_to_pyvista_unstructured(
     # that are not NaN. (perhaps this should be done for all data vars?)
     nan_mask = np.isnan(grid.cell_data[grid.cell_data.keys()[0]])
     if np.any(nan_mask):
-        grid = grid.extract_cells(
-            ~nan_mask
-        )  # , pass_point_ids=False, pass_cell_ids=False) #TODO: add kwargs for pyvista 0.47+
+        grid = grid.extract_cells(~nan_mask, pass_point_ids=False, pass_cell_ids=False)
         grid = grid.clean(produce_merge_map=False)
 
     return grid

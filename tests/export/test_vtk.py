@@ -233,7 +233,7 @@ def test_to_pyvista_unstructured(xarray_dataset):
     assert isinstance(vmu_single_var, pv.UnstructuredGrid)
     assert vmu_single_var.n_points == 142
     assert vmu_single_var.n_cells == 70
-    assert vmu_single_var.n_arrays == 3  # TODO: fix when pyvista 0.47 releases
+    assert vmu_single_var.n_arrays == 1
 
     vmu_multi_var = vtk.voxelmodel_to_pyvista_unstructured(
         xarray_dataset, resolution=(1, 1, 0.5)
@@ -241,7 +241,7 @@ def test_to_pyvista_unstructured(xarray_dataset):
     assert isinstance(vmu_multi_var, pv.UnstructuredGrid)
     assert vmu_multi_var.n_points == 142
     assert vmu_multi_var.n_cells == 70
-    assert vmu_multi_var.n_arrays == 4  # TODO: fix when pyvista 0.47 releases
+    assert vmu_multi_var.n_arrays == 2
 
 
 # @pytest.mark.unittest
