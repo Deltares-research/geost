@@ -9,8 +9,22 @@ if TYPE_CHECKING:
 
 DEFAULT_POSITIONAL_COLUMNS = {
     "nr": {"nr", "bro_id", "nitg_nr", "nitg", "boorp"},
-    "surface": {"surface", "maaiveld", "mv", "height_nap", "surface_nap"},
-    "end": {"end", "einddiepte", "einddiepte_nap", "end_depth", "end_depth_nap"},
+    "surface": {
+        "surface",
+        "maaiveld",
+        "mv",
+        "height_nap",
+        "surface_nap",
+        "height_nap_corr",
+    },
+    "end": {
+        "end",
+        "einddiepte",
+        "einddiepte_nap",
+        "end_depth",
+        "end_depth_nap",
+        "end_ah_depth",
+    },
     "x_coordinate": {
         "x",
         "x-coord",

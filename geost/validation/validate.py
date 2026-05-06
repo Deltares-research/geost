@@ -102,35 +102,35 @@ class ValidationResult:
         pd.DataFrame
             The DataFrame with validation errors handled.
         """
+        if not self.has_errors:
+            return df
+
         df_validated = df.copy()
-        if self.has_errors:
-            if config.validation.FLAG_INVALID:
-                df_validated["is_valid"] = ~df_validated.index.isin(self.error_indices)
-            if config.validation.DROP_INVALID:
-                df_validated = df_validated[~df_validated[nr_col].isin(self.error_nrs)]
+        if config.validation.FLAG_INVALID:
+            df_validated["is_valid"] = ~df_validated.index.isin(self.error_indices)
 
-            if config.validation.VERBOSE:
-                if (
-                    config.validation.FLAG_INVALID
-                    and not config.validation.DROP_INVALID
-                ):
-                    print(
-                        f"\n{'\u2705'} Invalid rows were flagged with an 'is_valid' column because"
-                        " geost.config.validation.FLAG_INVALID=True and geost.config.validation.DROP_INVALID=False"
-                    )
-                elif config.validation.DROP_INVALID:
-                    print(
-                        f"\n{'\u2705'} Invalid surveys were dropped from the DataFrame because"
-                        " geost.config.validation.DROP_INVALID=True"
-                    )
-                else:
-                    print(
-                        f"\n{'\u274c'} Invalid surveys were retained in the DataFrame because geost.config.validation.FLAG_INVALID and DROP_INVALID are False"
-                    )
+        if config.validation.DROP_INVALID:
+            df_validated = df_validated[~df_validated[nr_col].isin(self.error_nrs)]
 
+        if config.validation.VERBOSE:
+            if config.validation.FLAG_INVALID and not config.validation.DROP_INVALID:
                 print(
-                    f"\n{'\U0001f4d6'} See the user guide section on validation for advanced handling of validation issues: https://deltares-research.github.io/geost/user_guide/validation.html"
+                    f"\n{'\u2705'} Invalid rows were flagged with an 'is_valid' column because"
+                    " geost.config.validation.FLAG_INVALID=True and geost.config.validation.DROP_INVALID=False"
                 )
+            elif config.validation.DROP_INVALID:
+                print(
+                    f"\n{'\u2705'} Invalid surveys were dropped from the DataFrame because"
+                    " geost.config.validation.DROP_INVALID=True"
+                )
+            else:
+                print(
+                    f"\n{'\u274c'} Invalid surveys were retained in the DataFrame because geost.config.validation.FLAG_INVALID and DROP_INVALID are False"
+                )
+
+            print(
+                f"\n{'\U0001f4d6'} See the user guide section on validation for advanced handling of validation issues: https://deltares-research.github.io/geost/user_guide/validation.html"
+            )
         return df_validated
 
 
@@ -172,20 +172,22 @@ def coerce_numeric(
         if not pd.api.types.is_numeric_dtype(obj[column]):
             obj[column] = pd.to_numeric(obj[column], errors="coerce")
             if not nullable:
-                error_indices = obj[obj[column].isna()].index
-                error_nrs = obj["nr"][obj[column].isna()].unique().tolist()
-                if len(error_nrs) > 0:
+                isna = obj[column].isna()
+                if isna.any():
+                    errors = obj[isna]
+                    error_nrs = errors[obj.gst._nr].unique().tolist()
                     warning = f"Column '{column}' must contain only numeric values, but some values could not be coerced. "
-                    validation_result.add(column, warning, error_nrs, error_indices)
+                    validation_result.add(column, warning, error_nrs, errors.index)
 
         elif pd.api.types.is_numeric_dtype(obj[column]) and not nullable:
-            error_indices = obj[obj[column].isna()].index
-            error_nrs = obj["nr"][obj[column].isna()].unique().tolist()
-            if len(error_nrs) > 0:
+            isna = obj[column].isna()
+            if isna.any():
+                errors = obj[isna]
+                error_nrs = errors[obj.gst._nr].unique().tolist()
                 warning = f"Column '{column}' must not contain NaN values, but some values are NaN."
-                validation_result.add(column, warning, error_nrs, error_indices)
+                validation_result.add(column, warning, error_nrs, errors.index)
 
-    return obj
+    return obj, validation_result
 
 
 def validate_base(
@@ -223,41 +225,39 @@ def validate_top_bottom(
     first_row_in_survey: pd.Series,
     validation_result: ValidationResult,
 ):
-    # Ensure top is above bottom (i.e. top < bottom)
-    invalid_indices = obj[obj[column_names["top"]] >= obj[column_names["depth"]]].index
-    invalid_nrs = obj["nr"].loc[invalid_indices].unique().tolist()
-    if len(invalid_indices) > 0:
-        warning = f"Column '{column_names['top']}' must be less than '{column_names['depth']}', but some rows violate this condition."
-    else:
-        warning = None
+    nr_, top_, depth_ = column_names["nr"], column_names["top"], column_names["depth"]
 
-    validation_result.add(
-        f"{column_names['top']}, {column_names['depth']}",
-        warning,
-        invalid_nrs,
-        invalid_indices,
-    )
+    # Ensure top is above bottom (i.e. top < bottom)
+    invalid_top_above_bottom = obj[top_] >= obj[depth_]
+    if invalid_top_above_bottom.any():
+        invalid = obj[invalid_top_above_bottom]
+        invalid_nrs = invalid[nr_].unique().tolist()
+        warning = f"Column '{top_}' must be less than '{depth_}', but some rows violate this condition."
+
+        validation_result.add(
+            f"{top_}, {depth_}",
+            warning,
+            invalid_nrs,
+            invalid.index,
+        )
 
     # Ensure top and bottom are positive downwards (i.e. >= 0)
-    invalid_indices = obj[
-        (
-            (obj[column_names["top"]].diff() <= 0.0)
-            | (obj[column_names["depth"]].diff() <= 0.0)
-        )
-        & (~first_row_in_survey)
-    ].index
-    invalid_nrs = obj["nr"].iloc[invalid_indices].unique().tolist()
-    if len(invalid_indices) > 0:
-        warning = f"Columns '{column_names['top']}' and '{column_names['depth']}' must be positive downwards (i.e. >= 0), but some rows violate this condition."
-    else:
-        warning = None
+    invalid_depth_direction = (
+        (obj[top_].diff() <= 0.0) | (obj[depth_].diff() <= 0.0)
+    ) & (~first_row_in_survey)
 
-    validation_result.add(
-        f"{column_names['top']}, {column_names['depth']}",
-        warning,
-        invalid_nrs,
-        invalid_indices,
-    )
+    if invalid_depth_direction.any():
+        invalid = obj[invalid_depth_direction]
+        invalid_nrs = invalid[nr_].unique().tolist()
+        warning = f"Columns '{top_}' and '{depth_}' must be positive downwards (i.e. >= 0), but some rows violate this condition."
+
+        validation_result.add(
+            f"{top_}, {depth_}",
+            warning,
+            invalid_nrs,
+            invalid.index,
+        )
+    return validation_result
 
 
 def validate_depths(
@@ -266,19 +266,22 @@ def validate_depths(
     first_row_in_survey: pd.Series,
     validation_result: ValidationResult,
 ):
-    # Ensure depth column is positive downwards (i.e. >= 0)
-    invalid_indices = obj[
-        (obj[column_names["depth"]].diff() < 0) & (~first_row_in_survey)
-    ].index
-    invalid_nrs = obj["nr"].iloc[invalid_indices].unique().tolist()
-    if len(invalid_indices) > 0:
-        warning = f"Column '{column_names['depth']}' must be positive downwards (i.e. >= 0), but some rows violate this condition."
-    else:
-        warning = None
+    nr_, depth_ = column_names["nr"], column_names["depth"]
 
-    validation_result.add(
-        f"{column_names['depth']}", warning, invalid_nrs, invalid_indices
-    )
+    # Ensure depth column is positive downwards (i.e. >= 0)
+    invalid_depth_direction = (obj[depth_].diff() <= 0.0) & (~first_row_in_survey)
+    if invalid_depth_direction.any():
+        invalid = obj[invalid_depth_direction]
+        invalid_nrs = invalid[nr_].unique().tolist()
+        warning = f"Column '{depth_}' must be positive downwards (i.e. >= 0), but some rows violate this condition."
+
+        validation_result.add(
+            f"{depth_}",
+            warning,
+            invalid_nrs,
+            invalid.index,
+        )
+    return validation_result
 
 
 def validate_geostframe(
@@ -307,7 +310,9 @@ def validate_geostframe(
 
     Returns
     -------
-    ValidationResult
+    validated_obj : pd.DataFrame | gpd.GeoDataFrame
+        The validated GeostFrame with errors handled according to configuration settings.
+    validation_result : ValidationResult
         The result of the validation, a :class:`~geost.validation.validate.ValidationResult`
         object.
 
@@ -321,18 +326,20 @@ def validate_geostframe(
     ]
 
     validate_base(obj, positional_columns)
-    validated_obj = coerce_numeric(obj, numeric_columns, validation_result)
+    validated_obj, validation_result = coerce_numeric(
+        obj, numeric_columns, validation_result
+    )
 
     if has_depth_columns:
         if is_layered:
-            validate_top_bottom(
+            validation_result = validate_top_bottom(
                 validated_obj,
                 positional_columns,
                 first_row_in_survey,
                 validation_result,
             )
         else:
-            validate_depths(
+            validation_result = validate_depths(
                 validated_obj,
                 positional_columns,
                 first_row_in_survey,
