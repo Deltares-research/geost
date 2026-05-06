@@ -2,7 +2,17 @@
 
 ## v0.5.0
 
-- **Deprecate** `spatial.find_area_labels`.
+Update to accessors, collections, reference systems and data validation resulting in a
+much more unified and flexible approach to subsurface data. Most important changes are:
+
+- `gsthd` and `gstda` accessors were replaced by a single `gst` accessor. [Data structures](./user_guide/data-structures.ipynb) and [Survey data](./user_guide/survey-data.ipynb) sections.
+- `BoreholeCollection` and `CptCollection` replaced by generic `Collection`.
+- Generic `read_table` replaces `read_borehole_table` and `read_cpt_table` functions.
+- `Collection.find_area_labels` replaced by `Collection.spatial_join`.
+- Added `set_crs`, `to_crs`, `set_vertical_datum` and `to_vertical_datum` to replace `change_horizontal_reference` and `change_vertical_reference` in a `Collection`.
+- Improved performance and features of data validation. See [Validation](./user_guide/validation.ipynb)
+
+[**Full Changelog**](https://github.com/Deltares-research/geost/compare/0.4.2...0.5.0)
 
 ## v0.4.2
 

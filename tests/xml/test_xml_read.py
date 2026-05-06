@@ -30,7 +30,7 @@ def xml_string(testdatadir: Path):
 )
 def test_read(testdatadir: Path, file: str, reader: Callable, expected_end_nap: float):
     bro_xml = testdatadir / r"xml" / file
-    header, data = xml.read(bro_xml, reader)
+    header, data, vertical_datum = xml.read(bro_xml, reader)
     assert isinstance(header, pd.DataFrame)
     assert isinstance(data, pd.DataFrame)
     expected_columns_present = ["nr", "x", "y", "surface", "end"]

@@ -35,4 +35,5 @@ Combine
 .. autosummary::
     :toctree: generated/
 
+    combine.add_nearest_voxelmodel_variable
     combine.add_voxelmodel_variable

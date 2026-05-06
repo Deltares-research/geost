@@ -8425,7 +8425,7 @@ packages:
   timestamp: 1761593910217
 - pypi: ./
   name: geost
-  version: 0.4.2
+  version: 0.5.0
   sha256: 3c8048aef4551e6acd92fdd1bcbae9fd2f74e2be06a3c318844cd850d1736f49
   requires_dist:
   - geopandas

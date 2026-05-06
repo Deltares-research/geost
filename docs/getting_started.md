@@ -10,7 +10,7 @@ Installation <self>
 Introduction to GeoST <getting_started/introduction>
 ```
 
-GeoST is written in Python and requires `Python 3.12` or higher. The package is distributed
+GeoST is written in Python and requires `Python 3.13` or higher. The package is distributed
 via the Python Package Index (PyPi). Installing it into any environment can easily be done
 using for example [Pixi](https://pixi.prefix.dev/latest/) or [pip](https://pypi.org/project/pip/):
 

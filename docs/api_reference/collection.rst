@@ -25,8 +25,10 @@ Coordinate Reference System
 .. autosummary::
    :toctree: generated/
 
-   Collection.change_horizontal_reference
-   Collection.change_vertical_reference
+   Collection.set_crs
+   Collection.set_vertical_datum
+   Collection.to_crs
+   Collection.to_vertical_datum
 
 
 Export
@@ -86,9 +88,9 @@ Attributes
 .. autosummary::
    :toctree: generated/
 
+   Collection.crs
    Collection.data
    Collection.has_inclined
    Collection.header
-   Collection.horizontal_reference
    Collection.n_points
-   Collection.vertical_reference
+   Collection.vertical_datum
