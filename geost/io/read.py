@@ -37,7 +37,7 @@ def read_table(
     coordinate_names: tuple[str, str] = None,
     include_in_header: str | Iterable[str] | None = None,
     column_mapper: dict = None,
-    kwargs: dict[str, Any] = None,
+    **kwargs,
 ) -> Collection | pd.DataFrame:
     """
     Read tabular information from a file (parquet, csv or Excel) for any given survey data
@@ -49,12 +49,10 @@ def read_table(
         Path to the file to be read. Depending on the file extension, the corresponding
         Pandas read function will automatically be used. This can be either .parquet,
         .csv or .xlsx. Optional keyword arguments that can be given in the specific Pandas
-        read function can be passed via the `pd_kwargs` argument.
+        read function can be passed via the `kwargs` argument.
     as_collection : bool, optional
-        If True, the borehole table will be read as a :class:`~geost.base.Collection`.
-        Optional keyword arguments that can be given to :meth:`~geost.accessor.GeostFrame.to_collection`
-        can be passed via the `coll_kwargs` argument. If False, a `pd.DataFrame` is returned.
-        The default is True.
+        If True, the table will be read as a :class:`~geost.base.Collection`. If False,
+        a `pd.DataFrame` is returned. The default is True.
     crs : str | int | CRS, optional
         EPSG of the data's horizontal reference. Takes anything that can be interpreted
         by pyproj.crs.CRS.from_user_input(). The default is None, which means no CRS will
@@ -81,7 +79,7 @@ def read_table(
         for the accepted column names for each positional column type. If no valid survey-id
         (e.g. "nr") column is found after mapping, a KeyError is raised. Missing x/y or depth
         columns trigger warnings and may limit functionality.
-    kwargs: dict[str, Any], optional
+    **kwargs
         Optional keyword arguments for Pandas.read_parquet, Pandas.read_csv or
         Pandas.read_excel depending on the file extension.
 
@@ -101,11 +99,10 @@ def read_table(
     ...     "include_in_header": ["nr", "x", "y", "surface", "end"]
     ... }
     >>> collection = geost.read_table(
-    ...     file, column_mapper={'maaiveld': 'surface'}, coll_kwargs=collection_kwargs
+    ...     file, column_mapper={'maaiveld': 'surface'}, **collection_kwargs
     ... )
 
     """
-    kwargs = kwargs or dict()
 
     data = io_helpers._pandas_read(file, **kwargs)
 
@@ -137,31 +134,11 @@ def read_borehole_table(
     coordinate_names: tuple[str, str] = None,
     include_in_header: str | Iterable[str] | None = None,
     column_mapper: dict = None,
-    kwargs: dict[str, Any] = None,
+    **kwargs,
 ) -> Collection | pd.DataFrame:
     """
     Read tabular borehole information from a file (parquet, csv or Excel) that includes
     row data for each (borehole) layer.
-    Read tabular borehole information. This is a file (parquet, csv or Excel) that
-    includes row data for each (borehole) layer and must at least include the following
-    column headers:
-
-    - **nr** : Object id
-    - **x** : X-coordinates according to the given crs
-    - **y** : Y-coordinates according to the given crs
-    - **surface** : Surface elevation according to the given vertical_datum
-    - **end** : End depth according to the given vertical_datum
-    - **top** : Top depth of each layer
-    - **bottom** : Bottom depth of each layer
-
-    In case there are inclined boreholes in the layer data, you additionally require:
-
-    - **x_bot** : X-coordinates of the layer bottoms
-    - **y_bot** : Y-coordinates of the layer bottoms
-
-    If you are reading a file that uses different column names, see the optional
-    argument "column_mapper" below. There are no further limits or requirements to
-    additional (data) columns.
 
     Parameters
     ----------
@@ -169,12 +146,10 @@ def read_borehole_table(
         Path to the file to be read. Depending on the file extension, the corresponding
         Pandas read function will automatically be used. This can be either .parquet,
         .csv or .xlsx. Optional keyword arguments that can be given in the specific Pandas
-        read function can be passed via the `pd_kwargs` argument.
+        read function can be passed via the `kwargs` argument.
     as_collection : bool, optional
-        If True, the borehole table will be read as a :class:`~geost.base.Collection`.
-        Optional keyword arguments that can be given to :meth:`~geost.accessor.GeostFrame.to_collection`
-        can be passed via the `coll_kwargs` argument. If False, a `pd.DataFrame` is returned.
-        The default is True.
+        If True, the borehole table will be read as a :class:`~geost.base.Collection`. If
+        False, a `pd.DataFrame` is returned. The default is True.
     crs : str | int | CRS, optional
         EPSG of the data's horizontal reference. Takes anything that can be interpreted
         by pyproj.crs.CRS.from_user_input(). The default is None, which means no CRS will
@@ -201,11 +176,9 @@ def read_borehole_table(
         for the accepted column names for each positional column type. If no valid survey-id
         (e.g. "nr") column is found after mapping, a KeyError is raised. Missing x/y or depth
         columns trigger warnings and may limit functionality.
-    pd_kwargs: dict[str, Any], optional
+    **kwargs
         Optional keyword arguments for Pandas.read_parquet, Pandas.read_csv or
         Pandas.read_excel depending on the file extension.
-    coll_kwargs: dict[str, Any], optional
-        Optional keyword arguments for :meth:`~geost.accessor.GeostFrame.to_collection`
 
     Returns
     -------
@@ -228,12 +201,10 @@ def read_borehole_table(
     ...     "has_inclined": False,
     ... }
     >>> collection = read_borehole_table(
-    ...     file, column_mapper={'maaiveld': 'surface'}, coll_kwargs=collection_kwargs
+    ...     file, column_mapper={'maaiveld': 'surface'}, **collection_kwargs
     ... )
 
     """
-    kwargs = kwargs or dict()
-
     boreholes = io_helpers._pandas_read(file, **kwargs)
 
     if column_mapper:
@@ -264,7 +235,7 @@ def read_cpt_table(
     coordinate_names: tuple[str, str] = None,
     include_in_header: str | Iterable[str] | None = None,
     column_mapper: dict = None,
-    kwargs: dict[str, Any] = None,
+    **kwargs,
 ) -> Collection | pd.DataFrame:
     """
     Read tabular CPT information. This is a file (parquet, csv or Excel) that includes
@@ -276,12 +247,10 @@ def read_cpt_table(
         Path to the file to be read. Depending on the file extension, the corresponding
         Pandas read function will automatically be used. This can be either .parquet,
         .csv or .xlsx. Optional keyword arguments that can be given in the specific Pandas
-        read function can be passed via the `pd_kwargs` argument.
+        read function can be passed as kwargs.
     as_collection : bool, optional
-        If True, the borehole table will be read as a :class:`~geost.base.Collection`.
-        Optional keyword arguments that can be given to :meth:`~geost.accessor.GeostFrame.to_collection`
-        can be passed via the `coll_kwargs` argument. If False, a `pd.DataFrame` is returned.
-        The default is True.
+        If True, the cpt table will be read as a :class:`~geost.base.Collection`. If
+        False, a `pd.DataFrame` is returned. The default is True.
     crs : str | int | CRS, optional
         EPSG of the data's horizontal reference. Takes anything that can be interpreted
         by pyproj.crs.CRS.from_user_input(). The default is None, which means no CRS will
@@ -308,11 +277,9 @@ def read_cpt_table(
         for the accepted column names for each positional column type. If no valid survey-id
         (e.g. "nr") column is found after mapping, a KeyError is raised. Missing x/y or depth
         columns trigger warnings and may limit functionality.
-    pd_kwargs: dict[str, Any], optional
+    **kwargs
         Optional keyword arguments for Pandas.read_parquet, Pandas.read_csv or
         Pandas.read_excel depending on the file extension.
-    coll_kwargs: dict[str, Any], optional
-        Optional keyword arguments for :meth:`~geost.accessor.GeostFrame.to_collection`
 
     Returns
     -------
@@ -321,8 +288,6 @@ def read_cpt_table(
         otherwise.
 
     """
-    kwargs = kwargs or dict()
-
     cpts = io_helpers._pandas_read(file, **kwargs)
 
     if column_mapper:
