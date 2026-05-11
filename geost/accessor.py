@@ -15,7 +15,7 @@ from geost import (
     validation,
 )  # FIXME: spatial triggers import of xarray, rioxarray. We don't want this automatically.
 from geost.abstract_classes import AbstractBase
-from geost.utils import conversion, spatial
+from geost.utils import conversion, depth, spatial
 from geost.validation.method_checks import (
     _requires_depth,
     _requires_geometry,
@@ -1306,6 +1306,59 @@ class GeostFrame(AbstractBase):
         grouped = selection.groupby(self._nr, sort=False)
         layer_base = grouped[self._bottom].last()
         return layer_base
+
+    @_requires_depth
+    def compute_discretized_fractions(
+        self,
+        column: str,
+        discretization: np.ndarray,
+        bins: np.ndarray = None,
+        bin_labels: list[str] = None,
+    ) -> pd.DataFrame:
+        dz = np.diff(discretization, prepend=0)
+        nz = np.arange(len(discretization))
+
+        nr_, top_, bottom_ = self._nr, self._top, self._bottom
+        discretized = pd.DataFrame(
+            {
+                nr_: np.repeat(self._obj[nr_].drop_duplicates(), len(discretization)),
+                bottom_: np.tile(discretization, self._obj[nr_].nunique()),
+                "nz": np.tile(nz, self._obj[nr_].nunique()),
+                "dz": np.tile(dz, self._obj[nr_].nunique()),
+            }
+        )
+
+        if layered_data := self.is_layered:
+            tops = discretization - dz
+            discretized.insert(1, top_, np.tile(tops, self._obj[nr_].nunique()))
+
+        temp = (
+            pd.concat([self._obj, discretized])
+            .sort_values([nr_, bottom_])
+            .reset_index(drop=True)
+        )
+
+        grouped = temp.groupby(nr_)
+        temp[[column, "nz", "dz"]] = grouped[[column, "nz", "dz"]].bfill()
+        temp[column] = temp[column].fillna("MISSING")
+
+        if layered_data:
+            temp = depth.reset_tops(temp, nr=nr_, top=top_, bottom=bottom_)
+
+        temp["thickness"] = temp.gst.calculate_thickness()
+
+        grouped = temp.groupby([nr_, "nz", column])
+        percentages = (
+            (grouped["thickness"].sum() / grouped["dz"].first())
+            .unstack(level=column)
+            .reset_index()
+        )
+
+        discretized = discretized.merge(percentages, on=[nr_, "nz"], how="left").drop(
+            columns=["nz", "MISSING"], errors="ignore"
+        )
+
+        return discretized
 
     @_requires_depth
     @_requires_xy
