@@ -8,6 +8,7 @@ import xarray as xr
 
 from geost.base import Collection
 from geost.models.model_utils import label_consecutive_2d
+from geost.utils.depth import reset_tops
 
 if TYPE_CHECKING:
     from geost.models import VoxelModel
@@ -172,7 +173,7 @@ def add_voxelmodel_variable(
     # Drop duplicate bottom values because combining may cause duplicate depths
 
     if top_ is not None:
-        result = _reset_tops(result, nr=nr_, top=top_, bottom=bottom_)
+        result = reset_tops(result, nr=nr_, top=top_, bottom=bottom_)
 
     return Collection(
         result,
@@ -221,41 +222,3 @@ def _reduce_to_top_bottom(
         index=[survey_name, "layer", value_name], values=depth_name, aggfunc="min"
     ).reset_index()
     return reduced.drop(columns=["layer"])
-
-
-def _reset_tops(layered: pd.DataFrame, nr: str, top: str, bottom: str) -> pd.DataFrame:
-    """
-    Helper function for `add_voxelmodel_variable` to reset the top depths of layered data
-    after stratigraphic layer boundaries have been added and backfilling has been done.
-    This changes tops into bottoms of the row above in each borehole if tops are lower
-    than bottoms and removes any layers with a thickness of 0 in the result.
-
-    Parameters
-    ----------
-    layered : pd.DataFrame
-        Pandas DataFrame with layered data containing tops and bottoms.
-    nr : str
-        Column name for the survey ID.
-    top : str
-        Column name for the top depths.
-    bottom : str
-        Column name for the bottom depths.
-
-    Returns
-    -------
-    pd.DataFrame
-        DataFrame with the tops reset.
-
-    """
-    bottom_shift_down = layered[bottom].shift()
-    nr_shift_down = layered[nr].shift()
-
-    layered.loc[
-        (layered[top] < bottom_shift_down) & (layered[nr] == nr_shift_down),
-        top,
-    ] = bottom_shift_down
-
-    # Remove layers with zero thickness
-    layered = layered[layered[top] - layered[bottom] != 0].reset_index(drop=True)
-
-    return layered
