@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
 
+from geost._warnings import future_deprecation_warning
 from geost.utils import series
 
 
@@ -180,6 +181,7 @@ def _find_top(
         return np.nan
 
 
+@future_deprecation_warning(alternative_func=get_layer_top)
 def find_top_sand(
     lith: np.ndarray,
     top: np.ndarray,
@@ -246,6 +248,7 @@ def find_top_sand(
     return top_sand
 
 
+@future_deprecation_warning(alternative_func=get_layer_top)
 def top_of_sand(
     boreholes: pd.DataFrame,
     ids: str = "nr",
@@ -287,7 +290,3 @@ def top_of_sand(
         result.append((nr, top_sand))
 
     return pd.DataFrame(result, columns=["nr", "top"])
-
-
-def cumulative_thickness():
-    pass
