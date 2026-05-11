@@ -30,6 +30,10 @@ def add_nearest_voxelmodel_variable(
     This function simply assigns the nearest voxel value to each layer or measurement, while
     `add_voxelmodel_variable` also updates layer boundaries based on the voxel model.
 
+    If the variable name is already present in the columns of the data attribute of the
+    collection, the present column is overwritten. To avoid this, rename the variable
+    before either in collection.data or in the voxelmodel.
+
     Parameters
     ----------
     collection : :class:`~geost.base.Collection`
@@ -87,7 +91,7 @@ def add_nearest_voxelmodel_variable(
         collection_data[data_var] = np.where(mask, result[data_var], np.nan)
 
     return Collection(
-        collection.data.assign(**pd.DataFrame(collection_data[data_vars])),
+        collection.data.assign(**collection_data[data_vars]),
         header=collection.header.copy(),
         has_inclined=collection.has_inclined,
         vertical_datum=collection.vertical_datum,

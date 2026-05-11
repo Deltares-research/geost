@@ -143,10 +143,10 @@ def _adjust_layered(
     surface_values = df.loc[first_row_mask, surface]
     top_values = df.loc[first_row_mask, top]
 
-    if np.allclose(surface_values, top_values):
+    if np.allclose(surface_values, top_values, equal_nan=True):
         df[top] = df[surface] - df[top]
         df[bottom] = df[surface] - df[bottom]
-    elif np.allclose(top_values, 0):
+    elif np.allclose(top_values, 0, equal_nan=True):
         df[top] *= np.sign(df[top])
         df[bottom] *= np.sign(df[bottom])
     else:
