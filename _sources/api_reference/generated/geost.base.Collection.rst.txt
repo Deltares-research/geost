@@ -1,0 +1,68 @@
+﻿geost.base.Collection
+=====================
+
+.. currentmodule:: geost.base
+
+.. autoclass:: Collection
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~Collection.__init__
+      ~Collection.add_header_column_to_data
+      ~Collection.check_header_to_data_alignment
+      ~Collection.determine_end_depth
+      ~Collection.get
+      ~Collection.get_cumulative_thickness
+      ~Collection.get_layer_base
+      ~Collection.get_layer_top
+      ~Collection.reset_header
+      ~Collection.select_by_condition
+      ~Collection.select_by_elevation
+      ~Collection.select_by_length
+      ~Collection.select_by_values
+      ~Collection.select_with_lines
+      ~Collection.select_with_points
+      ~Collection.select_within_bbox
+      ~Collection.select_within_polygons
+      ~Collection.set_crs
+      ~Collection.set_header
+      ~Collection.set_vertical_datum
+      ~Collection.slice_by_values
+      ~Collection.slice_depth_interval
+      ~Collection.spatial_join
+      ~Collection.to_crs
+      ~Collection.to_csv
+      ~Collection.to_geopackage
+      ~Collection.to_geoparquet
+      ~Collection.to_kingdom
+      ~Collection.to_parquet
+      ~Collection.to_pickle
+      ~Collection.to_pyvista_cylinders
+      ~Collection.to_pyvista_grid
+      ~Collection.to_qgis3d
+      ~Collection.to_shape
+      ~Collection.to_vertical_datum
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~Collection.crs
+      ~Collection.data
+      ~Collection.has_inclined
+      ~Collection.header
+      ~Collection.header_has_geometry
+      ~Collection.n_points
+      ~Collection.vertical_datum
+   
+   

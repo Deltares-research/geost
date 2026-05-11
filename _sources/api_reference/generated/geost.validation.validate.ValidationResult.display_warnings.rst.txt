@@ -1,0 +1,6 @@
+﻿geost.validation.validate.ValidationResult.display\_warnings
+============================================================
+
+.. currentmodule:: geost.validation.validate
+
+.. automethod:: ValidationResult.display_warnings

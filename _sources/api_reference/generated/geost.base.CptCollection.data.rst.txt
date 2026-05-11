@@ -1,6 +1,0 @@
-﻿geost.base.CptCollection.data
-=============================
-
-.. currentmodule:: geost.base
-
-.. autoproperty:: CptCollection.data

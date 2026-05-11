@@ -1,0 +1,6 @@
+﻿geost.accessor.GeostFrame.select\_within\_bbox
+==============================================
+
+.. currentmodule:: geost.accessor
+
+.. automethod:: GeostFrame.select_within_bbox

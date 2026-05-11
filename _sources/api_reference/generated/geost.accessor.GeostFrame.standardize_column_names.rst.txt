@@ -1,0 +1,6 @@
+﻿geost.accessor.GeostFrame.standardize\_column\_names
+====================================================
+
+.. currentmodule:: geost.accessor
+
+.. automethod:: GeostFrame.standardize_column_names

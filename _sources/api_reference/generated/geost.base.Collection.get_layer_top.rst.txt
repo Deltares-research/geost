@@ -1,0 +1,6 @@
+﻿geost.base.Collection.get\_layer\_top
+=====================================
+
+.. currentmodule:: geost.base
+
+.. automethod:: Collection.get_layer_top

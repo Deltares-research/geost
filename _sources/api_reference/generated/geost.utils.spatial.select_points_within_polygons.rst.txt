@@ -1,0 +1,6 @@
+﻿geost.utils.spatial.select\_points\_within\_polygons
+====================================================
+
+.. currentmodule:: geost.utils.spatial
+
+.. autofunction:: select_points_within_polygons

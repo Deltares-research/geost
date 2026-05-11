@@ -1,0 +1,6 @@
+﻿geost.base.Collection.slice\_by\_values
+=======================================
+
+.. currentmodule:: geost.base
+
+.. automethod:: Collection.slice_by_values

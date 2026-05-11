@@ -1,0 +1,6 @@
+﻿geost.accessor.GeostFrame.select\_by\_condition
+===============================================
+
+.. currentmodule:: geost.accessor
+
+.. automethod:: GeostFrame.select_by_condition

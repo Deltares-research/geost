@@ -27,49 +27,56 @@
   </noscript>
   
   <!-- Loaded before other Sphinx assets -->
-  <link href="../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
-<link href="../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+  <link href="../_static/styles/theme.css?digest=55c26ed414f5f8a31ebb" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=55c26ed414f5f8a31ebb" rel="stylesheet" />
 
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
-    <link rel="stylesheet" type="text/css" href="../_static/mystnb.8ecb98da25f57f5357bf6f572d296f466b2cfe2517ffebfabe82451661e28f02.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/mystnb.11b39860a7a0cbfd473a3ad8a317855267ff0bd372690045ca344a6b62be495e.css" />
     <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=6e1425e8" />
     <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
     <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=6e1425e8" />
   
   <!-- So that users can add custom icons -->
-  <script src="../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <script defer src="../_static/scripts/fontawesome.js?digest=55c26ed414f5f8a31ebb"></script>
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
-<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=55c26ed414f5f8a31ebb" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=55c26ed414f5f8a31ebb" />
 
     <script src="../_static/documentation_options.js?v=5929fcd5"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'user_guide/data_structures';</script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
     <link rel="icon" href="../_static/geost_logo.png"/>
     <link rel="author" title="About these documents" href="../about.html" />
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Reading data" href="reading_data.html" />
+    <link rel="next" title="Survey data" href="survey_data.html" />
     <link rel="prev" title="User guide" href="../user_guide.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="0.4.1" />
+  <meta name="docsearch:version" content="0.5.0" />
+  
+    
+    <script src="../_static/searchtools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <script src="../searchindex.js"></script>
+  
   </head>
-  
-  
-  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
-
+  <body data-default-mode="">
   
   
   <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+
   
   <div id="pst-scroll-pixel-helper"></div>
   
   <button type="button" class="btn rounded-pill" id="pst-back-to-top">
     <i class="fa-solid fa-arrow-up"></i>Back to top</button>
-
+  
+  
+  
   
   <dialog id="pst-search-dialog">
     
@@ -95,7 +102,7 @@
 </div>
 
   
-    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
 <div class="bd-header__inner bd-page-width">
   <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
     <span class="fa-solid fa-bars"></span>
@@ -409,7 +416,14 @@
   </div>
   
     <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item pst-sidebar-collapse"><button id="pst-collapse-sidebar-button" aria-expanded="true" aria-controls="pst-primary-sidebar"><svg class="pst-icon svg-inline--fa" role="img" aria-hidden="true" focusable="false" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+    <path fill="currentColor" d="M3 15.5C2.36232 15.5 1.74874 15.2564 1.28478 14.8189C0.820828 14.3815 0.541576 13.7832 0.504167 13.1467L0.5 13L0.5 3C0.499965 2.36232 0.743605 1.74874 1.18107 1.28478C1.61854 0.820828 2.21676 0.541576 2.85333 0.504167L3 0.5L13 0.5C13.6377 0.499965 14.2513 0.743605 14.7152 1.18107C15.1792 1.61854 15.4584 2.21676 15.4958 2.85333L15.5 3L15.5 13C15.5 13.6377 15.2564 14.2513 14.8189 14.7152C14.3815 15.1792 13.7832 15.4584 13.1467 15.4958L13 15.5L3 15.5ZM3 13.8333L10.5 13.8333L10.5 2.16667L3 2.16667C2.79589 2.16669 2.59889 2.24163 2.44636 2.37726C2.29383 2.5129 2.19638 2.69979 2.1725 2.9025L2.16667 3L2.16667 13C2.16669 13.2041 2.24163 13.4011 2.37726 13.5536C2.5129 13.7062 2.69979 13.8036 2.9025 13.8275L3 13.8333ZM6.65583 10.325L6.5775 10.2558L4.91083 8.58917C4.76735 8.44567 4.68116 8.25476 4.66843 8.05223C4.65569 7.84971 4.71729 7.6495 4.84167 7.48917L4.91083 7.41083L6.5775 5.74417C6.72747 5.59471 6.9287 5.50794 7.14032 5.50148C7.35194 5.49502 7.55809 5.56935 7.7169 5.70937C7.8757 5.8494 7.97525 6.04463 7.99533 6.25539C8.01541 6.46616 7.95451 6.67667 7.825 6.84417L7.75583 6.9225L6.67917 8L7.75583 9.0775C7.89931 9.22099 7.98551 9.41191 7.99824 9.61443C8.01097 9.81695 7.94938 10.0172 7.825 10.1775L7.75583 10.2558C7.61234 10.3993 7.42142 10.4855 7.2189 10.4982C7.01638 10.511 6.81617 10.4494 6.65583 10.325Z"/>
+  </svg>
+  <span class="pst-collapse-sidebar-label">Collapse Sidebar</span>
+  <span class="pst-expand-sidebar-label">Expand Sidebar</span>
+</button></div>
         <div class="sidebar-primary-item">
+
 <nav class="bd-docs-nav bd-links"
      aria-label="Section Navigation">
   <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
@@ -417,11 +431,11 @@
 <ul class="current nav bd-sidenav">
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="../user_guide.html">User guide</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
 <li class="toctree-l2 current active"><a class="current reference internal" href="#">Data structures</a></li>
-<li class="toctree-l2"><a class="reference internal" href="reading_data.html">Reading data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="survey_data.html">Survey data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="model_data.html">Model data</a></li>
 <li class="toctree-l2"><a class="reference internal" href="validation.html">Data validation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="read_xml.html">Reading XML files</a></li>
 <li class="toctree-l2"><a class="reference internal" href="bro_geotop.html">BRO GeoTOP</a></li>
-<li class="toctree-l2"><a class="reference internal" href="accessors.html">GeoST accessors</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../api_reference.html">API Reference</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -431,6 +445,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.read_cpt_table.html">geost.read_cpt_table</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.read_nlog_cores.html">geost.read_nlog_cores</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.read_uullg_tables.html">geost.read_uullg_tables</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.read_table.html">geost.read_table</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.Collection.to_csv.html">geost.base.Collection.to_csv</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.Collection.to_parquet.html">geost.base.Collection.to_parquet</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.read_bhrgt.html">geost.read_bhrgt</a></li>
@@ -440,6 +455,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.read_cpt.html">geost.read_cpt</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.read_gef_cpts.html">geost.read_gef_cpts</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.read_sfr.html">geost.read_sfr</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.read_xml_boris.html">geost.read_xml_boris</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.read_collection_geopackage.html">geost.read_collection_geopackage</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.Collection.to_geopackage.html">geost.base.Collection.to_geopackage</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.Collection.to_geoparquet.html">geost.base.Collection.to_geoparquet</a></li>
@@ -448,136 +464,84 @@
 <li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.read_pickle.html">geost.read_pickle</a></li>
 </ul>
 </details></li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../api_reference/borehole_collection.html">BoreholeCollection</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.BoreholeCollection.html">geost.base.BoreholeCollection</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.BoreholeCollection.get_area_labels.html">geost.base.BoreholeCollection.get_area_labels</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.BoreholeCollection.get_cumulative_thickness.html">geost.base.BoreholeCollection.get_cumulative_thickness</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.BoreholeCollection.get_layer_base.html">geost.base.BoreholeCollection.get_layer_base</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.BoreholeCollection.get_layer_top.html">geost.base.BoreholeCollection.get_layer_top</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.BoreholeCollection.change_horizontal_reference.html">geost.base.BoreholeCollection.change_horizontal_reference</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.BoreholeCollection.change_vertical_reference.html">geost.base.BoreholeCollection.change_vertical_reference</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.BoreholeCollection.to_csv.html">geost.base.BoreholeCollection.to_csv</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.BoreholeCollection.to_datafusiontools.html">geost.base.BoreholeCollection.to_datafusiontools</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.BoreholeCollection.to_geopackage.html">geost.base.BoreholeCollection.to_geopackage</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.BoreholeCollection.to_geoparquet.html">geost.base.BoreholeCollection.to_geoparquet</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.BoreholeCollection.to_kingdom.html">geost.base.BoreholeCollection.to_kingdom</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.BoreholeCollection.to_pyvista_cylinders.html">geost.base.BoreholeCollection.to_pyvista_cylinders</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.BoreholeCollection.to_pyvista_grid.html">geost.base.BoreholeCollection.to_pyvista_grid</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.BoreholeCollection.to_parquet.html">geost.base.BoreholeCollection.to_parquet</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.BoreholeCollection.to_qgis3d.html">geost.base.BoreholeCollection.to_qgis3d</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.BoreholeCollection.to_shape.html">geost.base.BoreholeCollection.to_shape</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.BoreholeCollection.add_header_column_to_data.html">geost.base.BoreholeCollection.add_header_column_to_data</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.BoreholeCollection.check_header_to_data_alignment.html">geost.base.BoreholeCollection.check_header_to_data_alignment</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.BoreholeCollection.reset_header.html">geost.base.BoreholeCollection.reset_header</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.BoreholeCollection.get.html">geost.base.BoreholeCollection.get</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.BoreholeCollection.select_by_condition.html">geost.base.BoreholeCollection.select_by_condition</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.BoreholeCollection.select_by_depth.html">geost.base.BoreholeCollection.select_by_depth</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.BoreholeCollection.select_by_length.html">geost.base.BoreholeCollection.select_by_length</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.BoreholeCollection.select_by_values.html">geost.base.BoreholeCollection.select_by_values</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.BoreholeCollection.slice_by_values.html">geost.base.BoreholeCollection.slice_by_values</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.BoreholeCollection.slice_depth_interval.html">geost.base.BoreholeCollection.slice_depth_interval</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.BoreholeCollection.select_with_lines.html">geost.base.BoreholeCollection.select_with_lines</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.BoreholeCollection.select_with_points.html">geost.base.BoreholeCollection.select_with_points</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.BoreholeCollection.select_within_bbox.html">geost.base.BoreholeCollection.select_within_bbox</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.BoreholeCollection.select_within_polygons.html">geost.base.BoreholeCollection.select_within_polygons</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.BoreholeCollection.data.html">geost.base.BoreholeCollection.data</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.BoreholeCollection.has_inclined.html">geost.base.BoreholeCollection.has_inclined</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.BoreholeCollection.header.html">geost.base.BoreholeCollection.header</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.BoreholeCollection.horizontal_reference.html">geost.base.BoreholeCollection.horizontal_reference</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.BoreholeCollection.n_points.html">geost.base.BoreholeCollection.n_points</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.BoreholeCollection.vertical_reference.html">geost.base.BoreholeCollection.vertical_reference</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../api_reference/generic.html">Generic functions</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.add_positional_columns.html">geost.add_positional_columns</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.delete_user_positional_column_aliases.html">geost.delete_user_positional_column_aliases</a></li>
 </ul>
 </details></li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../api_reference/cpt_collection.html">CptCollection</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.CptCollection.html">geost.base.CptCollection</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.CptCollection.get_area_labels.html">geost.base.CptCollection.get_area_labels</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.CptCollection.get_cumulative_thickness.html">geost.base.CptCollection.get_cumulative_thickness</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.CptCollection.get_layer_top.html">geost.base.CptCollection.get_layer_top</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.CptCollection.change_horizontal_reference.html">geost.base.CptCollection.change_horizontal_reference</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.CptCollection.change_vertical_reference.html">geost.base.CptCollection.change_vertical_reference</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.CptCollection.to_csv.html">geost.base.CptCollection.to_csv</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.CptCollection.to_datafusiontools.html">geost.base.CptCollection.to_datafusiontools</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.CptCollection.to_geopackage.html">geost.base.CptCollection.to_geopackage</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.CptCollection.to_geoparquet.html">geost.base.CptCollection.to_geoparquet</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.CptCollection.to_pyvista_cylinders.html">geost.base.CptCollection.to_pyvista_cylinders</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.CptCollection.to_pyvista_grid.html">geost.base.CptCollection.to_pyvista_grid</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.CptCollection.to_parquet.html">geost.base.CptCollection.to_parquet</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.CptCollection.to_shape.html">geost.base.CptCollection.to_shape</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.CptCollection.add_header_column_to_data.html">geost.base.CptCollection.add_header_column_to_data</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.CptCollection.check_header_to_data_alignment.html">geost.base.CptCollection.check_header_to_data_alignment</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.CptCollection.reset_header.html">geost.base.CptCollection.reset_header</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.CptCollection.get.html">geost.base.CptCollection.get</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.CptCollection.select_by_condition.html">geost.base.CptCollection.select_by_condition</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.CptCollection.select_by_depth.html">geost.base.CptCollection.select_by_depth</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.CptCollection.select_by_length.html">geost.base.CptCollection.select_by_length</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.CptCollection.select_by_values.html">geost.base.CptCollection.select_by_values</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.CptCollection.slice_by_values.html">geost.base.CptCollection.slice_by_values</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.CptCollection.slice_depth_interval.html">geost.base.CptCollection.slice_depth_interval</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.CptCollection.select_with_lines.html">geost.base.CptCollection.select_with_lines</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.CptCollection.select_with_points.html">geost.base.CptCollection.select_with_points</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.CptCollection.select_within_bbox.html">geost.base.CptCollection.select_within_bbox</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.CptCollection.select_within_polygons.html">geost.base.CptCollection.select_within_polygons</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.CptCollection.data.html">geost.base.CptCollection.data</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.CptCollection.has_inclined.html">geost.base.CptCollection.has_inclined</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.CptCollection.header.html">geost.base.CptCollection.header</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.CptCollection.horizontal_reference.html">geost.base.CptCollection.horizontal_reference</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.CptCollection.n_points.html">geost.base.CptCollection.n_points</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.CptCollection.vertical_reference.html">geost.base.CptCollection.vertical_reference</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../api_reference/collection.html">Collection</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.Collection.html">geost.base.Collection</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.Collection.get_cumulative_thickness.html">geost.base.Collection.get_cumulative_thickness</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.Collection.get_layer_base.html">geost.base.Collection.get_layer_base</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.Collection.get_layer_top.html">geost.base.Collection.get_layer_top</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.Collection.set_crs.html">geost.base.Collection.set_crs</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.Collection.set_vertical_datum.html">geost.base.Collection.set_vertical_datum</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.Collection.to_crs.html">geost.base.Collection.to_crs</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.Collection.to_vertical_datum.html">geost.base.Collection.to_vertical_datum</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.Collection.to_csv.html">geost.base.Collection.to_csv</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.Collection.to_geopackage.html">geost.base.Collection.to_geopackage</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.Collection.to_geoparquet.html">geost.base.Collection.to_geoparquet</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.Collection.to_kingdom.html">geost.base.Collection.to_kingdom</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.Collection.to_pyvista_cylinders.html">geost.base.Collection.to_pyvista_cylinders</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.Collection.to_pyvista_grid.html">geost.base.Collection.to_pyvista_grid</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.Collection.to_parquet.html">geost.base.Collection.to_parquet</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.Collection.to_qgis3d.html">geost.base.Collection.to_qgis3d</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.Collection.to_shape.html">geost.base.Collection.to_shape</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.Collection.add_header_column_to_data.html">geost.base.Collection.add_header_column_to_data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.Collection.check_header_to_data_alignment.html">geost.base.Collection.check_header_to_data_alignment</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.Collection.reset_header.html">geost.base.Collection.reset_header</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.Collection.get.html">geost.base.Collection.get</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.Collection.select_by_condition.html">geost.base.Collection.select_by_condition</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.Collection.select_by_elevation.html">geost.base.Collection.select_by_elevation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.Collection.select_by_length.html">geost.base.Collection.select_by_length</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.Collection.select_by_values.html">geost.base.Collection.select_by_values</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.Collection.slice_by_values.html">geost.base.Collection.slice_by_values</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.Collection.slice_depth_interval.html">geost.base.Collection.slice_depth_interval</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.Collection.select_with_lines.html">geost.base.Collection.select_with_lines</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.Collection.select_with_points.html">geost.base.Collection.select_with_points</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.Collection.select_within_bbox.html">geost.base.Collection.select_within_bbox</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.Collection.select_within_polygons.html">geost.base.Collection.select_within_polygons</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.Collection.spatial_join.html">geost.base.Collection.spatial_join</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.Collection.crs.html">geost.base.Collection.crs</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.Collection.data.html">geost.base.Collection.data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.Collection.has_inclined.html">geost.base.Collection.has_inclined</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.Collection.header.html">geost.base.Collection.header</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.Collection.n_points.html">geost.base.Collection.n_points</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.Collection.vertical_datum.html">geost.base.Collection.vertical_datum</a></li>
 </ul>
 </details></li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../api_reference/header_accessors.html">Header accessors</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.accessors.header.PointHeader.html">geost.accessors.header.PointHeader</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.accessors.header.PointHeader.change_horizontal_reference.html">geost.accessors.header.PointHeader.change_horizontal_reference</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.accessors.header.PointHeader.change_vertical_reference.html">geost.accessors.header.PointHeader.change_vertical_reference</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.accessors.header.PointHeader.get.html">geost.accessors.header.PointHeader.get</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.accessors.header.PointHeader.get_area_labels.html">geost.accessors.header.PointHeader.get_area_labels</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.accessors.header.PointHeader.select_by_depth.html">geost.accessors.header.PointHeader.select_by_depth</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.accessors.header.PointHeader.select_by_length.html">geost.accessors.header.PointHeader.select_by_length</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.accessors.header.PointHeader.select_with_lines.html">geost.accessors.header.PointHeader.select_with_lines</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.accessors.header.PointHeader.select_with_points.html">geost.accessors.header.PointHeader.select_with_points</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.accessors.header.PointHeader.select_within_bbox.html">geost.accessors.header.PointHeader.select_within_bbox</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.accessors.header.PointHeader.select_within_polygons.html">geost.accessors.header.PointHeader.select_within_polygons</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.accessors.header.LineHeader.html">geost.accessors.header.LineHeader</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.accessors.header.LineHeader.change_horizontal_reference.html">geost.accessors.header.LineHeader.change_horizontal_reference</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.accessors.header.LineHeader.change_vertical_reference.html">geost.accessors.header.LineHeader.change_vertical_reference</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.accessors.header.LineHeader.get.html">geost.accessors.header.LineHeader.get</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.accessors.header.LineHeader.get_area_labels.html">geost.accessors.header.LineHeader.get_area_labels</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.accessors.header.LineHeader.select_by_depth.html">geost.accessors.header.LineHeader.select_by_depth</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.accessors.header.LineHeader.select_by_length.html">geost.accessors.header.LineHeader.select_by_length</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.accessors.header.LineHeader.select_with_lines.html">geost.accessors.header.LineHeader.select_with_lines</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.accessors.header.LineHeader.select_with_points.html">geost.accessors.header.LineHeader.select_with_points</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.accessors.header.LineHeader.select_within_bbox.html">geost.accessors.header.LineHeader.select_within_bbox</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.accessors.header.LineHeader.select_within_polygons.html">geost.accessors.header.LineHeader.select_within_polygons</a></li>
-</ul>
-</details></li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../api_reference/data_accessors.html">Data accessors</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.accessors.data.LayeredData.html">geost.accessors.data.LayeredData</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.accessors.data.LayeredData.get_cumulative_thickness.html">geost.accessors.data.LayeredData.get_cumulative_thickness</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.accessors.data.LayeredData.get_layer_base.html">geost.accessors.data.LayeredData.get_layer_base</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.accessors.data.LayeredData.get_layer_top.html">geost.accessors.data.LayeredData.get_layer_top</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.accessors.data.LayeredData.select_by_condition.html">geost.accessors.data.LayeredData.select_by_condition</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.accessors.data.LayeredData.select_by_values.html">geost.accessors.data.LayeredData.select_by_values</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.accessors.data.LayeredData.slice_by_values.html">geost.accessors.data.LayeredData.slice_by_values</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.accessors.data.LayeredData.slice_depth_interval.html">geost.accessors.data.LayeredData.slice_depth_interval</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.accessors.data.LayeredData.to_collection.html">geost.accessors.data.LayeredData.to_collection</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.accessors.data.LayeredData.to_datafusiontools.html">geost.accessors.data.LayeredData.to_datafusiontools</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.accessors.data.LayeredData.to_header.html">geost.accessors.data.LayeredData.to_header</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.accessors.data.LayeredData.to_kingdom.html">geost.accessors.data.LayeredData.to_kingdom</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.accessors.data.LayeredData.to_qgis3d.html">geost.accessors.data.LayeredData.to_qgis3d</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.accessors.data.LayeredData.to_pyvista_cylinders.html">geost.accessors.data.LayeredData.to_pyvista_cylinders</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.accessors.data.LayeredData.to_pyvista_grid.html">geost.accessors.data.LayeredData.to_pyvista_grid</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.accessors.data.DiscreteData.html">geost.accessors.data.DiscreteData</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.accessors.data.DiscreteData.get_cumulative_thickness.html">geost.accessors.data.DiscreteData.get_cumulative_thickness</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.accessors.data.DiscreteData.get_layer_top.html">geost.accessors.data.DiscreteData.get_layer_top</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.accessors.data.DiscreteData.select_by_condition.html">geost.accessors.data.DiscreteData.select_by_condition</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.accessors.data.DiscreteData.select_by_values.html">geost.accessors.data.DiscreteData.select_by_values</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.accessors.data.DiscreteData.slice_by_values.html">geost.accessors.data.DiscreteData.slice_by_values</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.accessors.data.DiscreteData.slice_depth_interval.html">geost.accessors.data.DiscreteData.slice_depth_interval</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.accessors.data.DiscreteData.to_collection.html">geost.accessors.data.DiscreteData.to_collection</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.accessors.data.DiscreteData.to_datafusiontools.html">geost.accessors.data.DiscreteData.to_datafusiontools</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.accessors.data.DiscreteData.to_header.html">geost.accessors.data.DiscreteData.to_header</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.accessors.data.DiscreteData.to_pyvista_cylinders.html">geost.accessors.data.DiscreteData.to_pyvista_cylinders</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.accessors.data.DiscreteData.to_pyvista_grid.html">geost.accessors.data.DiscreteData.to_pyvista_grid</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../api_reference/accessor.html">Accessor</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.accessor.GeostFrame.html">geost.accessor.GeostFrame</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.accessor.GeostFrame.get_cumulative_thickness.html">geost.accessor.GeostFrame.get_cumulative_thickness</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.accessor.GeostFrame.get_layer_base.html">geost.accessor.GeostFrame.get_layer_base</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.accessor.GeostFrame.get_layer_top.html">geost.accessor.GeostFrame.get_layer_top</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.accessor.GeostFrame.transform_coordinates.html">geost.accessor.GeostFrame.transform_coordinates</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.accessor.GeostFrame.calculate_thickness.html">geost.accessor.GeostFrame.calculate_thickness</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.accessor.GeostFrame.standardize_column_names.html">geost.accessor.GeostFrame.standardize_column_names</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.accessor.GeostFrame.to_collection.html">geost.accessor.GeostFrame.to_collection</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.accessor.GeostFrame.to_header.html">geost.accessor.GeostFrame.to_header</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.accessor.GeostFrame.validate.html">geost.accessor.GeostFrame.validate</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.accessor.GeostFrame.to_kingdom.html">geost.accessor.GeostFrame.to_kingdom</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.accessor.GeostFrame.to_pyvista_cylinders.html">geost.accessor.GeostFrame.to_pyvista_cylinders</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.accessor.GeostFrame.to_pyvista_grid.html">geost.accessor.GeostFrame.to_pyvista_grid</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.accessor.GeostFrame.to_qgis3d.html">geost.accessor.GeostFrame.to_qgis3d</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.accessor.GeostFrame.select_by_condition.html">geost.accessor.GeostFrame.select_by_condition</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.accessor.GeostFrame.select_by_elevation.html">geost.accessor.GeostFrame.select_by_elevation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.accessor.GeostFrame.select_by_length.html">geost.accessor.GeostFrame.select_by_length</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.accessor.GeostFrame.select_by_values.html">geost.accessor.GeostFrame.select_by_values</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.accessor.GeostFrame.slice_by_values.html">geost.accessor.GeostFrame.slice_by_values</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.accessor.GeostFrame.slice_depth_interval.html">geost.accessor.GeostFrame.slice_depth_interval</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.accessor.GeostFrame.select_with_lines.html">geost.accessor.GeostFrame.select_with_lines</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.accessor.GeostFrame.select_with_points.html">geost.accessor.GeostFrame.select_with_points</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.accessor.GeostFrame.select_within_bbox.html">geost.accessor.GeostFrame.select_within_bbox</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.accessor.GeostFrame.select_within_polygons.html">geost.accessor.GeostFrame.select_within_polygons</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.accessor.GeostFrame.spatial_join.html">geost.accessor.GeostFrame.spatial_join</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.accessor.GeostFrame.first_row_survey.html">geost.accessor.GeostFrame.first_row_survey</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.accessor.GeostFrame.has_depth_columns.html">geost.accessor.GeostFrame.has_depth_columns</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.accessor.GeostFrame.has_geometry.html">geost.accessor.GeostFrame.has_geometry</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.accessor.GeostFrame.has_xy_columns.html">geost.accessor.GeostFrame.has_xy_columns</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.accessor.GeostFrame.last_row_survey.html">geost.accessor.GeostFrame.last_row_survey</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.accessor.GeostFrame.is_layered.html">geost.accessor.GeostFrame.is_layered</a></li>
 </ul>
 </details></li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../api_reference/voxelmodel.html">VoxelModel</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -658,14 +622,13 @@
 </ul>
 </details></li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../api_reference/analysis.html">Analysis</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.analysis.cumulative_thickness.html">geost.analysis.cumulative_thickness</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.analysis.find_top_sand.html">geost.analysis.find_top_sand</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.analysis.layer_top.html">geost.analysis.layer_top</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.analysis.top_of_sand.html">geost.analysis.top_of_sand</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.analysis.interpret_cpt.calc_ic.html">geost.analysis.interpret_cpt.calc_ic</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.analysis.interpret_cpt.calc_lithology.html">geost.analysis.interpret_cpt.calc_lithology</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.analysis.layers.get_layer_base.html">geost.analysis.layers.get_layer_base</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.analysis.layers.get_layer_top.html">geost.analysis.layers.get_layer_top</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.analysis.cpt.calc_ic.html">geost.analysis.cpt.calc_ic</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.analysis.cpt.calc_lithology.html">geost.analysis.cpt.calc_lithology</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.analysis.grainsize.calculate_bhrgt_grainsize_percentiles.html">geost.analysis.grainsize.calculate_bhrgt_grainsize_percentiles</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.analysis.grainsize.calculate_bhrgt_grainsize_fractions.html">geost.analysis.grainsize.calculate_bhrgt_grainsize_fractions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.analysis.combine.add_nearest_voxelmodel_variable.html">geost.analysis.combine.add_nearest_voxelmodel_variable</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.analysis.combine.add_voxelmodel_variable.html">geost.analysis.combine.add_voxelmodel_variable</a></li>
 </ul>
 </details></li>
@@ -690,20 +653,23 @@
 <li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.bro.BroCptGeopackage.select_location_info.html">geost.bro.BroCptGeopackage.select_location_info</a></li>
 </ul>
 </details></li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../api_reference/validation.html">Validation</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.validation.schemas.html">geost.validation.schemas</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.validation.safe_validate.html">geost.validation.safe_validate</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../api_reference/validate.html">Validation</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.validation.validate.ValidationResult.add.html">geost.validation.validate.ValidationResult.add</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.validation.validate.ValidationResult.handle_errors.html">geost.validation.validate.ValidationResult.handle_errors</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.validation.validate.ValidationResult.display_warnings.html">geost.validation.validate.ValidationResult.display_warnings</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.validation.validate.ValidationResult.has_errors.html">geost.validation.validate.ValidationResult.has_errors</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.validation.validate.ValidationResult.error_nrs.html">geost.validation.validate.ValidationResult.error_nrs</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.validation.validate.ValidationResult.error_indices.html">geost.validation.validate.ValidationResult.error_indices</a></li>
 </ul>
 </details></li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../api_reference/utils.html">Utils</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.spatial.find_area_labels.html">geost.spatial.find_area_labels</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.spatial.get_raster_values.html">geost.spatial.get_raster_values</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.spatial.select_points_near_lines.html">geost.spatial.select_points_near_lines</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.spatial.select_points_near_points.html">geost.spatial.select_points_near_points</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.spatial.select_points_within_bbox.html">geost.spatial.select_points_within_bbox</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.spatial.select_points_within_polygons.html">geost.spatial.select_points_within_polygons</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.projections.horizontal_reference_transformer.html">geost.projections.horizontal_reference_transformer</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.projections.vertical_reference_transformer.html">geost.projections.vertical_reference_transformer</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.utils.spatial.get_raster_values.html">geost.utils.spatial.get_raster_values</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.utils.spatial.select_points_near_lines.html">geost.utils.spatial.select_points_near_lines</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.utils.spatial.select_points_near_points.html">geost.utils.spatial.select_points_near_points</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.utils.spatial.select_points_within_bbox.html">geost.utils.spatial.select_points_within_bbox</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.utils.spatial.select_points_within_polygons.html">geost.utils.spatial.select_points_within_polygons</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.utils.projections.horizontal_reference_transformer.html">geost.utils.projections.horizontal_reference_transformer</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.utils.projections.vertical_reference_transformer.html">geost.utils.projections.vertical_reference_transformer</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.models.model_utils.label_consecutive_2d.html">geost.models.model_utils.label_consecutive_2d</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.models.model_utils.sample_with_coords.html">geost.models.model_utils.sample_with_coords</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.models.model_utils.sample_along_line.html">geost.models.model_utils.sample_along_line</a></li>
@@ -784,129 +750,111 @@
   <section id="data-structures">
 <h1>Data structures<a class="headerlink" href="#data-structures" title="Link to this heading">#</a></h1>
 <p>GeoST uses standardized internal data structures and data validation to ensure that the
-functionality that GeoST offers can always reliably be applied. This user guide section
-dives deeper into GeoST data structures.</p>
-<section id="collection-objects">
-<h2>Collection objects<a class="headerlink" href="#collection-objects" title="Link to this heading">#</a></h2>
-<p>As shown in the first <a class="reference internal" href="../getting_started/introduction.html#concept"><span class="std std-ref">introduction</span></a> to GeoST,
-data is held in so-called <code class="docutils literal notranslate"><span class="pre">Collection</span></code> objects, the core objects of GeoST, which contain header
-and data tables. Basically, the two can be described as:</p>
+functionality GeoST offers can always reliably be applied. Before we go into the relevant data structures we introduce some terminology. Subsurface data comes in many different forms (e.g. boreholes, CPTs or 3D models) but we distinguish between two main types:</p>
 <ul class="simple">
-<li><p>the <em>header table</em> describes metadata and spatial information.</p></li>
-<li><p>the <em>data table</em> contains the logged data.</p></li>
+<li><p><strong>Survey</strong>: the actual measurements (i.e. raw data) of the subsurface. These can comprise
+boreholes, CPTs, Well logs, Seismic or EM lines and others.</p></li>
+<li><p><strong>Model</strong>: for example a 3D voxel- or layermodel or a geological map. These are the result
+of analyses using <strong>survey</strong> data (e.g. Kriging interpolation) and as such are considered to
+be an interpretation of the subsurface.</p></li>
+</ul>
+<p>GeoST provides different data structures to handle these different kinds of data. These will
+be shown in this user guide section.</p>
+<section id="collection">
+<h2>Collection<a class="headerlink" href="#collection" title="Link to this heading">#</a></h2>
+<p>For <strong>survey</strong> data the core data structure is a <a class="reference internal" href="../api_reference/collection.html"><span class="std std-doc"><code class="docutils literal notranslate"><span class="pre">geost.Collection</span></code></span></a> which holds the data together in a header and data table. Basically, these tables contain:</p>
+<ul class="simple">
+<li><p><strong>header</strong>: metadata and spatial information per survey.</p></li>
+<li><p><strong>data</strong>: contains the logged data of surveys.</p></li>
 </ul>
 <p>The header and data tables have a one-to-many relationship: one survey (e.g. borehole) is
 one row in the header and multiple rows in the data.</p>
 <p>Typically available types of subsurface data comprise point-like data such as boreholes,
-cpts, well logs and line-like data such as seismics, GPR, EM.  Different data sources are
-related to specific Collection objects. For example, borehole data is held in a
-<a class="reference internal" href="../api_reference/borehole_collection.html"><span class="std std-doc"><code class="docutils literal notranslate"><span class="pre">BoreholeCollection</span></code></span></a> and CPT data in a
-<a class="reference internal" href="../api_reference/cpt_collection.html"><span class="std std-doc"><code class="docutils literal notranslate"><span class="pre">CptCollection</span></code></span></a> (see figure below).</p>
-<p align="left">
-    <img src="../_static/object_hierarchy.png" alt="GeoST object hierarchy" title="GeoST object hierarchy" width="1000" />
-</p>
-<p>While working with a Collection, making selections may alter the header and data tables,
-Collections automatically maintain alignment between the two. Therefore, users can safely
-make selections and analyse the data while being sure of consistency. It is recommended to
-work with collections by default, unless you specifically only need to work with the header
-or data table. By default, read functions for different types of data return a collection
-(see: <a class="reference internal" href="reading_data.html"><span class="std std-doc">Reading data</span></a>). So for example, reading sample data of boreholes
-available in GeoST shows that the resulting object is a BoreholeCollection. Additionally, we
-show that a Collection also contains horizontal and vertical spatial references.</p>
+cpts, well logs or line-like data such as seismics, GPR, EM. These can all be held in a
+Collection. By default, the available read functions for different types of survey data
+return a Collection (see: <a class="reference internal" href="survey_data.html"><span class="std std-doc">Survey data</span></a>).</p>
+<p>While working with a Collection, selections change the contents of the header and data tables
+but the Collection automatically maintains alignment between the two. Therefore, users can safely
+select and analyse the data while being sure of consistency. It is recommended to
+work with a Collections by default, unless you specifically only need to work with either the
+header or data table. Let’s first check out a <code class="docutils literal notranslate"><span class="pre">Collection</span></code> containing borehole data:</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">geost</span>
 
 <span class="c1"># Load the Utrecht Science Park example borehole data</span>
-<span class="n">boreholes_collection</span> <span class="o">=</span> <span class="n">geost</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">boreholes_usp</span><span class="p">()</span>
-
-<span class="c1"># boreholes_collection is an instance of BoreholeCollection and contains 67 boreholes</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">boreholes_collection</span><span class="p">)</span>
-
-<span class="c1"># Print data types of header and data attributes</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Data type header: </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">boreholes_collection</span><span class="o">.</span><span class="n">header</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Data type data: </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">boreholes_collection</span><span class="o">.</span><span class="n">data</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-
-<span class="c1"># Print the horizontal and vertical reference systems</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">boreholes_collection</span><span class="o">.</span><span class="n">horizontal_reference</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">boreholes_collection</span><span class="o">.</span><span class="n">vertical_reference</span><span class="p">)</span>
+<span class="n">collection</span> <span class="o">=</span> <span class="n">geost</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">boreholes_usp</span><span class="p">()</span>
+<span class="n">collection</span>
 </pre></div>
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>BoreholeCollection:
-# header = 67
-Data type header: &lt;class &#39;geopandas.geodataframe.GeoDataFrame&#39;&gt;
-Data type data: &lt;class &#39;pandas.DataFrame&#39;&gt;
-EPSG:28992
-EPSG:5709
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Collection
+  header (rows, columns) : (67, 5)
+  data (rows, columns)   : (1398, 32)
+crs: Amersfoort / RD New
+vertical datum: NAP height
 </pre></div>
 </div>
 </div>
 </div>
+</section>
+<section id="overview-of-attributes-and-methods">
+<h2>Overview of attributes and methods<a class="headerlink" href="#overview-of-attributes-and-methods" title="Link to this heading">#</a></h2>
+<p>The <a class="reference internal" href="../api_reference/collection.html"><span class="std std-doc"><code class="docutils literal notranslate"><span class="pre">Collection</span></code></span></a> class implements many different attributes
+as well as analysis and selection methods. A short summary of relevant attributes and methods
+is presented here. A full overview can be found <a class="reference internal" href="../api_reference/collection.html"><span class="std std-doc">Collection API reference</span></a>.</p>
+<p><strong>Attributes</strong></p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">data</span></code>: Data table of the Collection</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">header</span></code>: Header table of the Collection</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">crs</span></code>: Current coordinate reference system (CRS) of the Collection</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">vertical_datum</span></code>: Current vertical datum of the Collection</p></li>
+</ul>
+<p><strong>Reference systems</strong></p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">set_crs</span></code>: Set the CRS of the collection</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">to_crs</span></code>: Convert current collection CRS to the specified CRS</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">set_vertical_datum</span></code>: Similar to set_crs, but for vertical datum (e.g. NAP = EPSG:5709)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">to_vertical_datum</span></code>: Similar to to_crs, bit for vertical datum. Currently not implemented.</p></li>
+</ul>
+<p><strong>Analysis</strong></p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">get_cumulative_thickness</span></code>: Returns the cumulative thickness of any specified criteria.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">get_layer_top</span></code>: Return the top depth at which a specified layer occurs.</p></li>
+</ul>
+<p><strong>Spatial selections</strong></p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">select_within_bbox</span></code> - Select data points in the Collection within a bounding box</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">select_with_points</span></code> - Select data points in the Collection within distance to other point geometries</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">select_with_lines</span></code> - Select data points in the Collection within distance from line geometries</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">select_within_polygons</span></code> - Select data points in the Collection within polygon geometries</p></li>
+</ul>
+<p><strong>Conditional selections</strong></p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">select_by_values</span></code> - Select data points in the Collection based on the presence of certain values in one or more of the data columns</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">select_by_length</span></code> - Select data points in the Collection based on length requirements</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">select_by_depth</span></code> - Select data points in the Collection based on depth constraints</p></li>
+</ul>
+<p><strong>Slicing</strong></p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">slice_depth_interval</span></code> - Slice boreholes in the Collection down to the specified depth interval</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">slice_by_values</span></code> - Slice boreholes in the Collection based on value (e.g. only sand layers, remove others).</p></li>
+</ul>
 <section id="header-table">
 <h3>Header table<a class="headerlink" href="#header-table" title="Link to this heading">#</a></h3>
-<p>Header tables are a Geopandas <a class="reference external" href="https://geopandas.org/en/stable/docs/reference/api/geopandas.GeoDataFrame.html"><code class="docutils literal notranslate"><span class="pre">GeoDataFrame</span></code></a> instance and hold spatial information, in a “geometry” column, and
-metadata such as the surface level, end-depth and others. The geometry column of the header
-contains point geometries case of boreholes and CPTs and linestring geometries in for instance
-seismic data. Each entry (row in the Geodataframe) corresponds to one specific survey:
-e.g. one borehole or one seismic line.</p>
-<p>A header table requires a bare minimum of data columns to be present to ensure that all
-built-in methods of a Collection can be used:</p>
-<div class="pst-scrollable-table-container"><table class="table">
-<thead>
-<tr class="row-odd"><th class="head"><p>Column name</p></th>
-<th class="head"><p>Validation criteria</p></th>
-<th class="head"><p>Description</p></th>
-</tr>
-</thead>
-<tbody>
-<tr class="row-even"><td><p>nr</p></td>
-<td><p>Must be interpretable as string</p></td>
-<td><p>Identification name/number/code of the point survey</p></td>
-</tr>
-<tr class="row-odd"><td><p>x</p></td>
-<td><p>Must be of numeric type (int or float)</p></td>
-<td><p>X-coordinate</p></td>
-</tr>
-<tr class="row-even"><td><p>y</p></td>
-<td><p>Must be of numeric type (int or float)</p></td>
-<td><p>Y-coordinate</p></td>
-</tr>
-<tr class="row-odd"><td><p>surface</p></td>
-<td><p>Must be of numeric type (int or float) and higher than end depth</p></td>
-<td><p>Surface elevation of the point survey in m +NAP</p></td>
-</tr>
-<tr class="row-even"><td><p>end</p></td>
-<td><p>Must be of numeric type (int or float) and lower than surface elevation</p></td>
-<td><p>End depth of the point survey in m +NAP</p></td>
-</tr>
-<tr class="row-odd"><td><p>geometry</p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">shapely.geometry.Point</span></code> in case of point data</p></td>
-<td><p>Geometry object of the survey location</p></td>
-</tr>
-</tbody>
-</table>
-</div>
-<p>The header is not limited to just these columns. Any number of columns can be added to give
-additional information on surveys. Some analysis methods may add information to the header. For instance, the method <a class="reference internal" href="../api_reference/generated/geost.base.BoreholeCollection.get_area_labels.html"><span class="std std-doc"><code class="docutils literal notranslate"><span class="pre">BoreholeCollection.get_area_labels</span></code></span></a> has an argument <code class="docutils literal notranslate"><span class="pre">include_in_header</span></code> which, if set
-to true, adds a column with results to the header GeoDataFrame. Otherwise, it will return a separate DataFrame.</p>
-<p>If you’re only interested in survey locations and/or metadata, it is adviced to directly
-work with the header object to avoid some additional overhead caused by a parent collection
-object (overhead is caused by checks of the header against data after every operation to
-ensure header/data alignment). Read functions for point and line data (see: <a class="reference internal" href="reading_data.html"><span class="std std-doc">Reading data</span></a>) return a corresponding collection object by default, but you can assign
-only the header to a variable in order to continue with just the header data. See the example below.</p>
+<p>In a Collection, the header table is always a <a class="reference external" href="https://geopandas.org/en/stable/docs/reference/api/geopandas.GeoDataFrame.html"><code class="docutils literal notranslate"><span class="pre">geopandas.GeoDataFrame</span></code></a> instance. The header holds the spatial location of each survey in the “geometry” column, and metadata such as the surface level, end-depth and others. Let’s check out the header:</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Load the Utrecht Science Park example borehole data and only assign the header data.</span>
-<span class="n">boreholes_header</span> <span class="o">=</span> <span class="n">geost</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">boreholes_usp</span><span class="p">()</span><span class="o">.</span><span class="n">header</span>
-
-<span class="c1"># Print the first rows of the header data.</span>
-<span class="n">boreholes_header</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Type of header: </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">collection</span><span class="o">.</span><span class="n">header</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="n">collection</span><span class="o">.</span><span class="n">header</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
 </pre></div>
 </div>
 </div>
 <div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Type of header: &lt;class &#39;geopandas.geodataframe.GeoDataFrame&#39;&gt;
+</pre></div>
+</div>
 <div class="output text_html"><div>
 <style scoped>
     .dataframe tbody tr th:only-of-type {
@@ -929,7 +877,6 @@ only the header to a variable in order to continue with just the header data. Se
       <th>x</th>
       <th>y</th>
       <th>surface</th>
-      <th>end</th>
       <th>geometry</th>
     </tr>
   </thead>
@@ -937,177 +884,72 @@ only the header to a variable in order to continue with just the header data. Se
     <tr>
       <th>0</th>
       <td>B31H0541</td>
-      <td>139585.0</td>
-      <td>456000.0</td>
+      <td>139585</td>
+      <td>456000</td>
       <td>1.20</td>
-      <td>-9.90</td>
       <td>POINT (139585 456000)</td>
     </tr>
     <tr>
       <th>1</th>
       <td>B31H0611</td>
-      <td>139600.0</td>
-      <td>455060.0</td>
+      <td>139600</td>
+      <td>455060</td>
       <td>1.20</td>
-      <td>-23.00</td>
       <td>POINT (139600 455060)</td>
     </tr>
     <tr>
       <th>2</th>
       <td>B31H0718</td>
-      <td>139950.0</td>
-      <td>455200.0</td>
+      <td>139950</td>
+      <td>455200</td>
       <td>1.30</td>
-      <td>-271.20</td>
       <td>POINT (139950 455200)</td>
     </tr>
     <tr>
       <th>3</th>
       <td>B31H0803</td>
-      <td>139675.0</td>
-      <td>455087.0</td>
+      <td>139675</td>
+      <td>455087</td>
       <td>2.16</td>
-      <td>-4.84</td>
       <td>POINT (139675 455087)</td>
     </tr>
     <tr>
       <th>4</th>
       <td>B31H0806</td>
-      <td>139684.0</td>
-      <td>455384.0</td>
+      <td>139684</td>
+      <td>455384</td>
       <td>1.00</td>
-      <td>-49.50</td>
       <td>POINT (139684 455384)</td>
     </tr>
   </tbody>
 </table>
 </div></div></div>
 </div>
+<p>In the case of the <code class="docutils literal notranslate"><span class="pre">Collection</span></code> above, the geometry column contains <a class="reference external" href="https://shapely.readthedocs.io/en/stable/reference/shapely.Point.html"><code class="docutils literal notranslate"><span class="pre">shapely.Point</span></code></a> geometries. In case of 2D line
+data (e.g. seismic data) this would contain <code class="docutils literal notranslate"><span class="pre">shapely.LineString</span></code> geometries. Each entry
+in the header (row in the Geodataframe) corresponds to one specific survey: one borehole or one seismic line.</p>
+<p>The header is not limited to just the columns you see above. Any number of columns can be added
+to the header to provide additional information on surveys. Different analysis methods can be used for
+this, see for example the <a class="reference internal" href="../api_reference/generated/geost.base.Collection.spatial_join.html"><span class="std std-doc"><code class="docutils literal notranslate"><span class="pre">Collection.spatial_join</span></code></span></a> method.</p>
+<p>If you’re only interested in survey locations and/or metadata, it is adviced to work directly
+with the header object to avoid the (small) additional overhead caused by a Collection
+object. This overhead is caused by checks of the header against data after operations to
+ensure alignmen between the two. If you are only working with a header or data table, GeoST functionality is still available through a <code class="docutils literal notranslate"><span class="pre">DataFrame</span></code> and <code class="docutils literal notranslate"><span class="pre">GeoDataFrame</span></code> accessor which we will cover in a later <a class="reference internal" href="#geost-accessor"><span class="xref myst">section</span></a>.</p>
 </section>
 <section id="data-table">
 <h3>Data table<a class="headerlink" href="#data-table" title="Link to this heading">#</a></h3>
-<p>Data tables are a Pandas <a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html"><code class="docutils literal notranslate"><span class="pre">DataFrame</span></code></a> instance and hold all the logged data of any survey. In GeoST we mainly distinguish between <strong>“layered”</strong> and <strong>“discrete”</strong> data:</p>
-<ul class="simple">
-<li><p><em>Layered</em> data contains data that is logged in terms of layers (i.e. depth intervals over which properties are the same) with <strong>“top”</strong> and <strong>“bottom”</strong> information for each layer.</p></li>
-<li><p><em>Discrete</em> data contains data that is logged over discrete intervals (e.g. every 20 cm) with <strong>“depth”</strong> information for each measurement. One point or line survey (i.e. one row in the header) can be associated with multiple rows of data. E.g. a single borehole with 10 described layers is represented by one row in the header Geodataframe and ten rows in the data DataFrame.</p></li>
-</ul>
-<p>Just like the header, a data table also requires a bare minimum of columns to be present to ensure
-that all built-in methods of a Collection can be applied. In case of “layered” data:</p>
-<div class="pst-scrollable-table-container"><table class="table">
-<thead>
-<tr class="row-odd"><th class="head"><p>Column name</p></th>
-<th class="head"><p>Validation criteria</p></th>
-<th class="head"><p>Description</p></th>
-</tr>
-</thead>
-<tbody>
-<tr class="row-even"><td><p>nr</p></td>
-<td><p>Must be interpretable as string</p></td>
-<td><p>Identification name/number/code of the point survey</p></td>
-</tr>
-<tr class="row-odd"><td><p>x</p></td>
-<td><p>Must be of numeric type (int or float)</p></td>
-<td><p>X-coordinate</p></td>
-</tr>
-<tr class="row-even"><td><p>y</p></td>
-<td><p>Must be of numeric type (int or float)</p></td>
-<td><p>Y-coordinate</p></td>
-</tr>
-<tr class="row-odd"><td><p>surface</p></td>
-<td><p>Must be of numeric type (int or float) and higher than end depth</p></td>
-<td><p>Surface elevation of the point survey in m</p></td>
-</tr>
-<tr class="row-even"><td><p>end</p></td>
-<td><p>Must be of numeric type (int or float) and lower than surface elevation</p></td>
-<td><p>End depth of the point survey in m</p></td>
-</tr>
-<tr class="row-odd"><td><p>top</p></td>
-<td><p>Must be of numeric type (int or float); starts at 0; is increasing</p></td>
-<td><p>Elevation of layer top. The first layer always starts at 0 and increases downwards</p></td>
-</tr>
-<tr class="row-even"><td><p>bottom</p></td>
-<td><p>Must be of numeric type (int or float); is larger than top; is increasing</p></td>
-<td><p>Elevation of layer bottom</p></td>
-</tr>
-</tbody>
-</table>
-</div>
-<p>If the table contains inclined data, such as boreholes taken at a specific angle which means the x,y-coordinates of the top of a layer is not exactly at the same location as the bottom, the columns below must additionally be present:</p>
-<div class="pst-scrollable-table-container"><table class="table">
-<thead>
-<tr class="row-odd"><th class="head"><p>Column name</p></th>
-<th class="head"><p>Validation criteria</p></th>
-<th class="head"><p>Description</p></th>
-</tr>
-</thead>
-<tbody>
-<tr class="row-even"><td><p>x_bot</p></td>
-<td><p>Must be of numeric type (int or float)</p></td>
-<td><p>X-coordinate of layer bottom (only required if survey does not point straight down)</p></td>
-</tr>
-<tr class="row-odd"><td><p>y_bot</p></td>
-<td><p>Must be of numeric type (int or float)</p></td>
-<td><p>X-coordinate of layer bottom (only required if survey does not point straight down)</p></td>
-</tr>
-</tbody>
-</table>
-</div>
-<p>In case the data table holds “discrete” data the columns below must be present to ensure that all built-in methods work. Note that the only difference is the “depth” column instead of the “top” and “bottom” columns.</p>
-<div class="pst-scrollable-table-container"><table class="table">
-<thead>
-<tr class="row-odd"><th class="head"><p>Column name</p></th>
-<th class="head"><p>Validation criteria</p></th>
-<th class="head"><p>Description</p></th>
-</tr>
-</thead>
-<tbody>
-<tr class="row-even"><td><p>nr</p></td>
-<td><p>Must be interpretable as string</p></td>
-<td><p>Identification name/number/code of the point survey</p></td>
-</tr>
-<tr class="row-odd"><td><p>x</p></td>
-<td><p>Must be of numeric type (int or float)</p></td>
-<td><p>X-coordinate</p></td>
-</tr>
-<tr class="row-even"><td><p>y</p></td>
-<td><p>Must be of numeric type (int or float)</p></td>
-<td><p>Y-coordinate</p></td>
-</tr>
-<tr class="row-odd"><td><p>surface</p></td>
-<td><p>Must be of numeric type (int or float) and higher than end depth</p></td>
-<td><p>Surface elevation of the point survey in m</p></td>
-</tr>
-<tr class="row-even"><td><p>end</p></td>
-<td><p>Must be of numeric type (int or float) and lower than surface elevation</p></td>
-<td><p>End depth of the point survey in m</p></td>
-</tr>
-<tr class="row-odd"><td><p>depth</p></td>
-<td><p>Must be of numeric type (int or float); is increasing</p></td>
-<td><p>Depth where the measurement was taken</p></td>
-</tr>
-</tbody>
-</table>
-</div>
-<p>Also the data table is not limited to the columns above and all additional columns contain the actual data with measurements for each layer or at each depth.</p>
-<p>If you’re only interested in the measurements and don’t need to work with geometries or
-any other additional header data, it is adviced to directly work with the data table to
-avoid some additional overhead caused by a Collection object (overhead is caused by
-checks of the header against data after every operation to ensure header/data alignment).
-The different read functions for data (see: <a class="reference internal" href="reading_data.html"><span class="std std-doc">Reading data</span></a>)
-return a corresponding collection object by default, but you can assign only the Pandas <code class="docutils literal notranslate"><span class="pre">DataFrame</span></code> of the data table is returned to continue with just the data. See the example below. Some
-read functions, such as <a class="reference internal" href="../api_reference/generated/geost.read_borehole_table.html"><span class="std std-doc"><code class="docutils literal notranslate"><span class="pre">read_borehole_table</span></code></span></a> provide the argument <code class="docutils literal notranslate"><span class="pre">as_collection</span></code> which defaults to True, but can be set to False to
-only return the data table in this example.</p>
+<p>The data table is generally a <a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html"><code class="docutils literal notranslate"><span class="pre">pandas.DataFrame</span></code></a> instance, allthough this may also be a <code class="docutils literal notranslate"><span class="pre">GeoDataFrame</span></code>. The data table holds all the logged data of any survey. Let’s first check it out:</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Load the Utrecht Science Park example borehole data and only assign the data.</span>
-<span class="n">boreholes_data</span> <span class="o">=</span> <span class="n">geost</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">boreholes_usp</span><span class="p">()</span><span class="o">.</span><span class="n">data</span>
-
-<span class="c1"># Print the first few rows of boreholes data.</span>
-<span class="n">boreholes_data</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Type of data: </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">collection</span><span class="o">.</span><span class="n">data</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="n">collection</span><span class="o">.</span><span class="n">data</span>
 </pre></div>
 </div>
 </div>
 <div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Type of data: &lt;class &#39;pandas.DataFrame&#39;&gt;
+</pre></div>
+</div>
 <div class="output text_html"><div>
 <style scoped>
     .dataframe tbody tr th:only-of-type {
@@ -1153,10 +995,10 @@ only return the data table in this example.</p>
     <tr>
       <th>0</th>
       <td>B31H0541</td>
-      <td>139585.0</td>
-      <td>456000.0</td>
-      <td>1.2</td>
-      <td>-9.9</td>
+      <td>139585</td>
+      <td>456000</td>
+      <td>1.200</td>
+      <td>-9.900</td>
       <td>0.00</td>
       <td>0.20</td>
       <td>K</td>
@@ -1177,10 +1019,10 @@ only return the data table in this example.</p>
     <tr>
       <th>1</th>
       <td>B31H0541</td>
-      <td>139585.0</td>
-      <td>456000.0</td>
-      <td>1.2</td>
-      <td>-9.9</td>
+      <td>139585</td>
+      <td>456000</td>
+      <td>1.200</td>
+      <td>-9.900</td>
       <td>0.20</td>
       <td>0.60</td>
       <td>K</td>
@@ -1201,10 +1043,10 @@ only return the data table in this example.</p>
     <tr>
       <th>2</th>
       <td>B31H0541</td>
-      <td>139585.0</td>
-      <td>456000.0</td>
-      <td>1.2</td>
-      <td>-9.9</td>
+      <td>139585</td>
+      <td>456000</td>
+      <td>1.200</td>
+      <td>-9.900</td>
       <td>0.60</td>
       <td>0.95</td>
       <td>V</td>
@@ -1225,10 +1067,10 @@ only return the data table in this example.</p>
     <tr>
       <th>3</th>
       <td>B31H0541</td>
-      <td>139585.0</td>
-      <td>456000.0</td>
-      <td>1.2</td>
-      <td>-9.9</td>
+      <td>139585</td>
+      <td>456000</td>
+      <td>1.200</td>
+      <td>-9.900</td>
       <td>0.95</td>
       <td>2.80</td>
       <td>Z</td>
@@ -1249,10 +1091,10 @@ only return the data table in this example.</p>
     <tr>
       <th>4</th>
       <td>B31H0541</td>
-      <td>139585.0</td>
-      <td>456000.0</td>
-      <td>1.2</td>
-      <td>-9.9</td>
+      <td>139585</td>
+      <td>456000</td>
+      <td>1.200</td>
+      <td>-9.900</td>
       <td>2.80</td>
       <td>4.20</td>
       <td>Z</td>
@@ -1270,80 +1112,320 @@ only return the data table in this example.</p>
       <td>NaN</td>
       <td>[ZAND#***#****#*] fyn# grysbruin.</td>
     </tr>
+    <tr>
+      <th>...</th>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+    </tr>
+    <tr>
+      <th>1393</th>
+      <td>B32C1893</td>
+      <td>141266</td>
+      <td>455989</td>
+      <td>2.328</td>
+      <td>-2.172</td>
+      <td>0.00</td>
+      <td>0.50</td>
+      <td>Z</td>
+      <td>NaN</td>
+      <td>ZZF</td>
+      <td>...</td>
+      <td>NaN</td>
+      <td>BR</td>
+      <td>NaN</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>BRON:GEF-BESTAND;0.00;0.50;Zs3h2 PU2;ZZF;BR;</td>
+    </tr>
+    <tr>
+      <th>1394</th>
+      <td>B32C1893</td>
+      <td>141266</td>
+      <td>455989</td>
+      <td>2.328</td>
+      <td>-2.172</td>
+      <td>0.50</td>
+      <td>1.10</td>
+      <td>Z</td>
+      <td>NaN</td>
+      <td>ZZF</td>
+      <td>...</td>
+      <td>NaN</td>
+      <td>GR</td>
+      <td>NaN</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>BRON:GEF-BESTAND;0.50;1.10;Zs3 KLE2;ZZF;GR DO;</td>
+    </tr>
+    <tr>
+      <th>1395</th>
+      <td>B32C1893</td>
+      <td>141266</td>
+      <td>455989</td>
+      <td>2.328</td>
+      <td>-2.172</td>
+      <td>1.10</td>
+      <td>1.40</td>
+      <td>K</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>...</td>
+      <td>CMST</td>
+      <td>GR</td>
+      <td>NaN</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>BRON:GEF-BESTAND;1.10;1.40;Ks2h1;;GR TBR;KMST</td>
+    </tr>
+    <tr>
+      <th>1396</th>
+      <td>B32C1893</td>
+      <td>141266</td>
+      <td>455989</td>
+      <td>2.328</td>
+      <td>-2.172</td>
+      <td>1.40</td>
+      <td>2.10</td>
+      <td>Z</td>
+      <td>NaN</td>
+      <td>ZZF</td>
+      <td>...</td>
+      <td>NaN</td>
+      <td>GR</td>
+      <td>NaN</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>BRON:GEF-BESTAND;1.40;2.10;Zs2 SLI1;ZZF;GR DO;</td>
+    </tr>
+    <tr>
+      <th>1397</th>
+      <td>B32C1893</td>
+      <td>141266</td>
+      <td>455989</td>
+      <td>2.328</td>
+      <td>-2.172</td>
+      <td>2.10</td>
+      <td>4.50</td>
+      <td>Z</td>
+      <td>NaN</td>
+      <td>ZZF</td>
+      <td>...</td>
+      <td>NaN</td>
+      <td>GR</td>
+      <td>NaN</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>BRON:GEF-BESTAND;2.10;4.50;Zs2;ZZF;GR;</td>
+    </tr>
   </tbody>
 </table>
-<p>5 rows × 32 columns</p>
+<p>1398 rows × 32 columns</p>
 </div></div></div>
+</div>
+<p>Here we see that a single survey contains multiple rows, which in this case are “layers” as we are
+looking at borehole data. With survey data we can generally distinguish between <strong>“layered”</strong> and <strong>“discrete”</strong> data:</p>
+<ul class="simple">
+<li><p><strong>Layered</strong> data contains data that is logged in terms of layers (i.e. depth intervals over which properties are the same) with <strong>“top”</strong> and <strong>“bottom”</strong> information for each layer.</p></li>
+<li><p><strong>Discrete</strong> data contains data that is logged over discrete intervals (e.g. every 20 cm) with <strong>“depth”</strong> information for each depth interval.</p></li>
+</ul>
+<p>GeoST can treat both these types of data interchangeably and we provide ways to combine one
+with the other. As with the header table, the data table is not limited to columns you see
+above and any number of columns can be added during analysis.</p>
+<p>Also, if you are only interested in the survey measurements and don’t need to work with geometries or any other additional header data, it is adviced to directly work with the data table to avoid the overhead from a Collection (i.e. maintaining header/data alignment). See the <a class="reference internal" href="#geost-accessor"><span class="xref myst">accessor section</span></a>. Several read functions provide the option to return a <code class="docutils literal notranslate"><span class="pre">DataFrame</span></code> instead of a
+<code class="docutils literal notranslate"><span class="pre">Collection</span></code> by setting <code class="docutils literal notranslate"><span class="pre">as_collection=False</span></code> when using the function.</p>
+</section>
+<section id="positional-columns">
+<h3>Positional columns<a class="headerlink" href="#positional-columns" title="Link to this heading">#</a></h3>
+<p>GeoST requires that several data columns are present to ensure that the methods in a <code class="docutils literal notranslate"><span class="pre">Collection</span></code> will work, which are referred to as “positional columns”. The required columns differ per type of method. For example, <a class="reference internal" href="../api_reference/generated/geost.base.Collection.slice_depth_interval.html"><span class="std std-doc"><code class="docutils literal notranslate"><span class="pre">Collection.slice_depth_interval</span></code></span></a> requires depth information about the surface level of surveys and the depth of layers while <a class="reference internal" href="../api_reference/generated/geost.base.Collection.select_with_points.html"><span class="std std-doc"><code class="docutils literal notranslate"><span class="pre">Collection.select_with_points</span></code></span></a> requires a valid geometry. The presence of depth information or a valid geometry is needed for both methods to work however, both presences are optional. The method <code class="docutils literal notranslate"><span class="pre">slice_depth_interval</span></code> does not need a geometry to work and <code class="docutils literal notranslate"><span class="pre">select_with_points</span></code> does not need depth information. Therefore, their presence is only required when you want to use one of these methods. This was chosen as design to ensure the most flexibility for users with different needs. The only mandatory presence is a column which identifies each individual survey (e.g. “nr”)
+in both the header and data table.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>See the <a class="reference internal" href="survey_data.html#positional-columns"><span class="std std-ref">Positional columns</span></a> section on the
+<a class="reference internal" href="survey_data.html"><span class="std std-doc">Survey data</span></a> page of this User guide for specific information on
+positional columns.</p>
 </div>
 </section>
 </section>
-<section id="geost-accessors">
-<h2>GeoST Accessors<a class="headerlink" href="#geost-accessors" title="Link to this heading">#</a></h2>
+<section id="geost-accessor">
+<h2>GeoST accessor<a class="headerlink" href="#geost-accessor" title="Link to this heading">#</a></h2>
 <p>When you only need to work with one of the header or data tables, all the methods
-available in Collections are also available to the header <a class="reference external" href="https://geopandas.org/en/stable/docs/reference/geodataframe.html">GeoDataFrame</a> and data <a class="reference external" href="https://pandas.pydata.org/docs/reference/frame.html">DataFrame</a> tables. This is achieved through so-called “accessors”. Under the hood, every Collection method also uses these accessors. Therefore, some methods specifically operate on the header table and others on the data table. The Collection then resolves the alignment between the two afterwards.</p>
-<p>For the header table and associated header methods, the <a class="reference internal" href="../api_reference/header_accessors.html"><span class="std std-doc"><code class="docutils literal notranslate"><span class="pre">.gsthd</span></code></span></a> accessor is available and for the data table, the <a class="reference internal" href="../api_reference/data_accessors.html"><span class="std std-doc"><code class="docutils literal notranslate"><span class="pre">.gstda</span></code></span></a> accessor is available. Below we demonstrate shortly how these work by comparing the usage of Collection methods with those from the accessors.</p>
+available in Collections are also available when you work directly with the header <a class="reference external" href="https://geopandas.org/en/stable/docs/reference/geodataframe.html">GeoDataFrame</a> and data <a class="reference external" href="https://pandas.pydata.org/docs/reference/frame.html">DataFrame</a>. This is achieved through a so-called “accessor”. Under the hood, every Collection method also uses this accessor.</p>
+<p>Below we demonstrate shortly how these work by comparing the usage of Collection methods with those from the accessors. The accessor can be by calling the <a class="reference internal" href="../api_reference/accessor.html"><span class="std std-doc"><code class="docutils literal notranslate"><span class="pre">.gst</span></code></span></a>
+on a <code class="docutils literal notranslate"><span class="pre">GeoDataFrame</span></code> or <code class="docutils literal notranslate"><span class="pre">DataFrame</span></code>.</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Create separate `collection`, `header` and `data` variables for the demonstration.</span>
-<span class="n">collection</span> <span class="o">=</span> <span class="n">geost</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">boreholes_usp</span><span class="p">()</span>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Create separate `header` and `data` variables for the demonstration.</span>
 <span class="n">header</span> <span class="o">=</span> <span class="n">collection</span><span class="o">.</span><span class="n">header</span>
 <span class="n">data</span> <span class="o">=</span> <span class="n">collection</span><span class="o">.</span><span class="n">data</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="n">header</span><span class="o">.</span><span class="n">gst</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">gst</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>&lt;geost.accessor.GeostFrame object at 0x7f4c91390aa0&gt;
+&lt;geost.accessor.GeostFrame object at 0x7f4c913a1550&gt;
 </pre></div>
 </div>
 </div>
 </div>
-<p>Let’s first compare the usage of the <a class="reference internal" href="../api_reference/generated/geost.base.BoreholeCollection.select_within_bbox.html"><span class="std std-doc"><code class="docutils literal notranslate"><span class="pre">select_within_bbox</span></code></span></a> which is a method that operates on the header table. As the name suggests, this selects the surveys which are located within a specific bounding box extent. All we need to do to call this method on the “header” GeoDataFrame is using the <a class="reference internal" href="../api_reference/header_accessors.html"><span class="std std-doc"><code class="docutils literal notranslate"><span class="pre">.gsthd</span></code></span></a> in between as shown below. After selecting from the header table, the <a class="reference internal" href="../api_reference/header_accessors.html"><span class="std std-doc"><code class="docutils literal notranslate"><span class="pre">.gsthd</span></code></span></a> accessor remains available in the selection result for making further selections or chaining selections for example.</p>
+<p>As you can see, for both the header and data table it prints “geost.accessor.GeostFrame object”.
+This is the object where most GeoST methods are actually implemented and why any method available
+in a Collection is also accessible through the <code class="docutils literal notranslate"><span class="pre">.gst</span></code> accessor.</p>
+<p>Let’s first compare the usage of the <a class="reference internal" href="../api_reference/generated/geost.accessor.GeostFrame.select_within_bbox.html"><span class="std std-doc"><code class="docutils literal notranslate"><span class="pre">select_within_bbox</span></code></span></a> which is method that typically operates on the header
+table since it is a spatial method and the header contains the spatial information about the
+surveys. As the name suggests, this selects the surveys which are located within a specific
+bounding box extent. All we need to do to call this method on the “header” <code class="docutils literal notranslate"><span class="pre">GeoDataFrame</span></code> is
+using the <code class="docutils literal notranslate"><span class="pre">.gst</span></code> in between as shown below.</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">collection_select</span> <span class="o">=</span> <span class="n">collection</span><span class="o">.</span><span class="n">select_within_bbox</span><span class="p">(</span><span class="mi">139_500</span><span class="p">,</span> <span class="mi">455_000</span><span class="p">,</span> <span class="mi">140_000</span><span class="p">,</span> <span class="mi">455_500</span><span class="p">)</span>
-<span class="n">header_select</span> <span class="o">=</span> <span class="n">header</span><span class="o">.</span><span class="n">gsthd</span><span class="o">.</span><span class="n">select_within_bbox</span><span class="p">(</span><span class="mi">139_500</span><span class="p">,</span> <span class="mi">455_000</span><span class="p">,</span> <span class="mi">140_000</span><span class="p">,</span> <span class="mi">455_500</span><span class="p">)</span>
+<span class="n">header_select</span> <span class="o">=</span> <span class="n">header</span><span class="o">.</span><span class="n">gst</span><span class="o">.</span><span class="n">select_within_bbox</span><span class="p">(</span><span class="mi">139_500</span><span class="p">,</span> <span class="mi">455_000</span><span class="p">,</span> <span class="mi">140_000</span><span class="p">,</span> <span class="mi">455_500</span><span class="p">)</span>
 
-<span class="nb">print</span><span class="p">(</span><span class="n">collection_select</span><span class="p">)</span>  <span class="c1"># Selection result is a BoreholeCollection</span>
-<span class="nb">print</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">header_select</span><span class="p">))</span>  <span class="c1"># Selection result is a GeoDataFrame</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;collection_select.data:&quot;</span><span class="p">,</span> <span class="n">collection_select</span><span class="o">.</span><span class="n">header</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;header_select:&quot;</span><span class="p">,</span> <span class="n">header_select</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
 
-<span class="n">header_select</span><span class="o">.</span><span class="n">gsthd</span>  <span class="c1"># Selection result also has the gsthd accessor and methods available</span>
+<span class="n">header_select</span><span class="o">.</span><span class="n">gst</span>  <span class="c1"># Selection result also has the .gst accessor and methods available</span>
 </pre></div>
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>BoreholeCollection:
-# header = 14
-&lt;class &#39;geopandas.geodataframe.GeoDataFrame&#39;&gt;
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>collection_select.data:
+          nr       x       y  surface               geometry
+1   B31H0611  139600  455060    1.200  POINT (139600 455060)
+2   B31H0718  139950  455200    1.300  POINT (139950 455200)
+3   B31H0803  139675  455087    2.160  POINT (139675 455087)
+4   B31H0806  139684  455384    1.000  POINT (139684 455384)
+5   B31H0807  139684  455405    1.000  POINT (139684 455405)
+8   B31H0810  139901  455401    1.000  POINT (139901 455401)
+19  B31H1694  139520  455125    1.200  POINT (139520 455125)
+20  B31H1695  139660  455290    1.100  POINT (139660 455290)
+21  B31H1696  139820  455020    1.300  POINT (139820 455020)
+25  B31H3284  139621  455080    2.010  POINT (139621 455080)
+26  B31H3285  139521  455181    2.157  POINT (139521 455181)
+27  B31H3286  139636  455194    1.492  POINT (139636 455194)
+28  B31H3287  139647  455396    1.430  POINT (139647 455396)
+29  B31H3288  139534  455397    1.560  POINT (139534 455397)
+header_select:
+          nr       x       y  surface               geometry
+1   B31H0611  139600  455060    1.200  POINT (139600 455060)
+2   B31H0718  139950  455200    1.300  POINT (139950 455200)
+3   B31H0803  139675  455087    2.160  POINT (139675 455087)
+4   B31H0806  139684  455384    1.000  POINT (139684 455384)
+5   B31H0807  139684  455405    1.000  POINT (139684 455405)
+8   B31H0810  139901  455401    1.000  POINT (139901 455401)
+19  B31H1694  139520  455125    1.200  POINT (139520 455125)
+20  B31H1695  139660  455290    1.100  POINT (139660 455290)
+21  B31H1696  139820  455020    1.300  POINT (139820 455020)
+25  B31H3284  139621  455080    2.010  POINT (139621 455080)
+26  B31H3285  139521  455181    2.157  POINT (139521 455181)
+27  B31H3286  139636  455194    1.492  POINT (139636 455194)
+28  B31H3287  139647  455396    1.430  POINT (139647 455396)
+29  B31H3288  139534  455397    1.560  POINT (139534 455397)
 </pre></div>
 </div>
-<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>&lt;geost.accessors.accessor.Header at 0x7f78be86ec10&gt;
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>&lt;geost.accessor.GeostFrame at 0x7f4c9136e0d0&gt;
 </pre></div>
 </div>
 </div>
 </div>
-<p>For the data accessor, it works exactly the same way. We demonstrate this by comparing the <a class="reference internal" href="../api_reference/generated/geost.base.BoreholeCollection.slice_by_values.html"><span class="std std-doc"><code class="docutils literal notranslate"><span class="pre">slice_by_values</span></code></span></a> method, which operates on the data table. Just like with the header, all we need to do to call this method on the “data” DataFrame is using the <a class="reference internal" href="../api_reference/data_accessors.html"><span class="std std-doc"><code class="docutils literal notranslate"><span class="pre">.gstda</span></code></span></a> in between as shown below. After selecting from the data table, the <a class="reference internal" href="../api_reference/data_accessors.html"><span class="std std-doc"><code class="docutils literal notranslate"><span class="pre">.gstda</span></code></span></a> accessor remains available for making further selections or chaining selections for example.</p>
+<p>We can see that the selection result is exactly the same and after selecting from the header
+table, the <code class="docutils literal notranslate"><span class="pre">.gst</span></code> accessor remains available in the selection result for making further
+selections or chaining several selection methods for example.</p>
+<p>Also with methods that would typically operate on the data table, for example <a class="reference internal" href="../api_reference/generated/geost.accessor.GeostFrame.slice_by_values.html"><span class="std std-doc"><code class="docutils literal notranslate"><span class="pre">slice_by_values</span></code></span></a>, it works exactly the same
+way. All we need to do to call this method on the “data” <code class="docutils literal notranslate"><span class="pre">DataFrame</span></code> is to use the <a class="reference internal" href="../api_reference/accessor.html"><span class="std std-doc"><code class="docutils literal notranslate"><span class="pre">.gst</span></code></span></a> in between as shown below.</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Select boreholes which contain sand anywhere as the main lithology.</span>
-<span class="n">collection_select</span> <span class="o">=</span> <span class="n">collection</span><span class="o">.</span><span class="n">slice_by_values</span><span class="p">(</span><span class="s2">&quot;lith&quot;</span><span class="p">,</span> <span class="s2">&quot;Z&quot;</span><span class="p">)</span>
-<span class="n">data_select</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">gstda</span><span class="o">.</span><span class="n">slice_by_values</span><span class="p">(</span><span class="s2">&quot;lith&quot;</span><span class="p">,</span> <span class="s2">&quot;Z&quot;</span><span class="p">)</span>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Select boreholes which contain clay anywhere as the main lithology.</span>
+<span class="n">collection_select</span> <span class="o">=</span> <span class="n">collection</span><span class="o">.</span><span class="n">slice_by_values</span><span class="p">(</span><span class="s2">&quot;lith&quot;</span><span class="p">,</span> <span class="s2">&quot;K&quot;</span><span class="p">)</span>
+<span class="n">data_select</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">gst</span><span class="o">.</span><span class="n">slice_by_values</span><span class="p">(</span><span class="s2">&quot;lith&quot;</span><span class="p">,</span> <span class="s2">&quot;K&quot;</span><span class="p">)</span>
 
-<span class="nb">print</span><span class="p">(</span><span class="n">collection_select</span><span class="p">)</span>  <span class="c1"># Selection result is a BoreholeCollection</span>
-<span class="nb">print</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">data_select</span><span class="p">))</span>  <span class="c1"># Selection result is a GeoDataFrame</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;collection_select.data:&quot;</span><span class="p">,</span> <span class="n">collection_select</span><span class="o">.</span><span class="n">data</span><span class="p">[[</span><span class="s2">&quot;nr&quot;</span><span class="p">,</span> <span class="s2">&quot;lith&quot;</span><span class="p">]],</span> <span class="n">sep</span><span class="o">=</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;data_select:&quot;</span><span class="p">,</span> <span class="n">data_select</span><span class="p">[[</span><span class="s2">&quot;nr&quot;</span><span class="p">,</span> <span class="s2">&quot;lith&quot;</span><span class="p">]],</span> <span class="n">sep</span><span class="o">=</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
 
-<span class="n">data_select</span><span class="o">.</span><span class="n">gstda</span>  <span class="c1"># Selection result also has the gstda accessor and methods available</span>
+<span class="n">data_select</span><span class="o">.</span><span class="n">gst</span>  <span class="c1"># Selection result also has the .gst accessor and methods available</span>
 </pre></div>
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>BoreholeCollection:
-# header = 67
-&lt;class &#39;pandas.DataFrame&#39;&gt;
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>collection_select.data:
+            nr lith
+0     B31H0541    K
+1     B31H0541    K
+8     B31H0611    K
+9     B31H0611    K
+27    B31H0718    K
+...        ...  ...
+1370  B32C1881    K
+1375  B32C1889    K
+1384  B32C1891    K
+1385  B32C1891    K
+1395  B32C1893    K
+
+[261 rows x 2 columns]
+data_select:
+            nr lith
+0     B31H0541    K
+1     B31H0541    K
+8     B31H0611    K
+9     B31H0611    K
+27    B31H0718    K
+...        ...  ...
+1370  B32C1881    K
+1375  B32C1889    K
+1384  B32C1891    K
+1385  B32C1891    K
+1395  B32C1893    K
+
+[261 rows x 2 columns]
 </pre></div>
 </div>
-<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>&lt;geost.accessors.accessor.Data at 0x7f787dcd0c00&gt;
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>&lt;geost.accessor.GeostFrame at 0x7f4c9132de20&gt;
 </pre></div>
 </div>
 </div>
 </div>
-<p>Every header and data method can be accessed through these accessors like it was shown in the
-examples above. Please see API Reference for the available methods through the <a class="reference internal" href="../api_reference/header_accessors.html"><span class="std std-doc"><code class="docutils literal notranslate"><span class="pre">.gsthd</span></code></span></a> and through the <a class="reference internal" href="../api_reference/data_accessors.html"><span class="std std-doc"><code class="docutils literal notranslate"><span class="pre">.gstda</span></code></span></a> accessors. For more detailed information on how the GeoST accessors work and the usage, please see
-the <a class="reference internal" href="accessors.html"><span class="std std-doc">GeoST accessors</span></a> page in this User guide.</p>
+<p>Again the selection result is exactly the same and after the selection, the <a class="reference internal" href="../api_reference/accessor.html"><span class="std std-doc"><code class="docutils literal notranslate"><span class="pre">.gst</span></code></span></a> accessor remains available.</p>
 </section>
 <section id="model-data">
 <h2>Model data<a class="headerlink" href="#model-data" title="Link to this heading">#</a></h2>
@@ -1351,12 +1433,11 @@ the <a class="reference internal" href="accessors.html"><span class="std std-doc
 point and line data. Model data does not follow the same header/data approach as point
 and line data. Instead there are generic model classes, of which some have an
 implementation that adds specific functionality for that model. An example of this is
-the <a class="reference internal" href="../api_reference/voxelmodel.html"><span class="std std-doc"><code class="docutils literal notranslate"><span class="pre">VoxelModel</span></code></span></a> as a generic model class and <a class="reference internal" href="../api_reference/bro_geotop.html"><span class="std std-doc"><code class="docutils literal notranslate"><span class="pre">GeoTOP</span></code></span></a>
-being a specific implementation of a voxel model. GeoST currently supports the following
-generic models and implementations:</p>
+the <a class="reference internal" href="../api_reference/voxelmodel.html"><span class="std std-doc"><code class="docutils literal notranslate"><span class="pre">geost.models.VoxelModel</span></code></span></a> as a generic model class and <a class="reference internal" href="../api_reference/bro_geotop.html"><span class="std std-doc"><code class="docutils literal notranslate"><span class="pre">GeoTOP</span></code></span></a> being a specific implementation of a <code class="docutils literal notranslate"><span class="pre">VoxelModel</span></code>.
+GeoST currently supports the following generic models and implementations:</p>
 <p><strong>Generic models and implementations</strong></p>
 <ul class="simple">
-<li><p><em><a class="reference internal" href="../api_reference/voxelmodel.html"><span class="std std-doc"><code class="docutils literal notranslate"><span class="pre">VoxelModel</span></code></span></a></em>: Class for voxel models, with data
+<li><p><a class="reference internal" href="../api_reference/voxelmodel.html"><span class="std std-doc"><code class="docutils literal notranslate"><span class="pre">VoxelModel</span></code></span></a>: Class for 3D voxel models, with data
 stored in the <code class="docutils literal notranslate"><span class="pre">ds</span></code> attribute, an <a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.html"><code class="docutils literal notranslate"><span class="pre">Xarray.Dataset</span></code></a>.</p>
 <ul>
 <li><p>Implementations: <a class="reference internal" href="../api_reference/bro_geotop.html"><span class="std std-doc"><code class="docutils literal notranslate"><span class="pre">GeoTOP</span></code></span></a></p></li>
@@ -1405,11 +1486,11 @@ section in the user guide.</p>
       </div>
     </a>
     <a class="right-next"
-       href="reading_data.html"
+       href="survey_data.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">Reading data</p>
+        <p class="prev-next-title">Survey data</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -1430,14 +1511,16 @@ section in the user guide.</p>
     class="page-toc tocsection onthispage">
     <i class="fa-solid fa-list"></i> On this page
   </div>
-  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
-    <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#collection-objects">Collection objects</a><ul class="nav section-nav flex-column">
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#collection">Collection</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#overview-of-attributes-and-methods">Overview of attributes and methods</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#header-table">Header table</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#data-table">Data table</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#positional-columns">Positional columns</a></li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#geost-accessors">GeoST Accessors</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#geost-accessor">GeoST accessor</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#model-data">Model data</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#voxel-models">Voxel models</a></li>
 </ul>
@@ -1446,13 +1529,13 @@ section in the user guide.</p>
   </nav></div>
 
   <div class="sidebar-secondary-item">
-  <div role="note" aria-label="source link">
-    <h3>This Page</h3>
-    <ul class="this-page-menu">
-      <li><a href="../_sources/user_guide/data_structures.ipynb.txt"
-            rel="nofollow">Show Source</a></li>
-    </ul>
-   </div></div>
+
+  <div class="tocsection sourcelink">
+    <a href="../_sources/user_guide/data_structures.ipynb.txt">
+      <i class="fa-solid fa-file-lines"></i> Show Source
+    </a>
+  </div>
+</div>
 
 </div></div>
               
@@ -1467,8 +1550,8 @@ section in the user guide.</p>
   </div>
   
   <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script defer src="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
-<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+  <script defer src="../_static/scripts/bootstrap.js?digest=55c26ed414f5f8a31ebb"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=55c26ed414f5f8a31ebb"></script>
 
   <footer class="bd-footer">
 <div class="bd-footer__inner bd-page-width">
@@ -1502,7 +1585,7 @@ section in the user guide.</p>
         <div class="footer-item">
 <p class="theme-version">
   <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
-  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.17.1.
 </p></div>
       
     </div>

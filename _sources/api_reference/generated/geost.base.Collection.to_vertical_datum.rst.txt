@@ -1,0 +1,6 @@
+﻿geost.base.Collection.to\_vertical\_datum
+=========================================
+
+.. currentmodule:: geost.base
+
+.. automethod:: Collection.to_vertical_datum

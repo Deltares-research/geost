@@ -1,0 +1,6 @@
+﻿geost.accessor.GeostFrame.has\_geometry
+=======================================
+
+.. currentmodule:: geost.accessor
+
+.. autoproperty:: GeostFrame.has_geometry

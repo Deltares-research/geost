@@ -1,6 +1,0 @@
-﻿geost.accessors.header.PointHeader.get
-======================================
-
-.. currentmodule:: geost.accessors.header
-
-.. automethod:: PointHeader.get

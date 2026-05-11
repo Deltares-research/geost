@@ -1,6 +1,0 @@
-﻿geost.base.CptCollection.has\_inclined
-======================================
-
-.. currentmodule:: geost.base
-
-.. autoproperty:: CptCollection.has_inclined

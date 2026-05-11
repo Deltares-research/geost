@@ -1,30 +1,28 @@
 Analysis
-==========
+========
 
 .. currentmodule:: geost.analysis
 
 Boreholes
------------
+---------
 .. autosummary::
    :toctree: generated/
 
-   cumulative_thickness
-   find_top_sand
-   layer_top
-   top_of_sand
+   layers.get_layer_base
+   layers.get_layer_top
 
 
 Cpts
-------
+----
 .. autosummary::
     :toctree: generated/
 
-    interpret_cpt.calc_ic
-    interpret_cpt.calc_lithology
+    cpt.calc_ic
+    cpt.calc_lithology
 
 
 Grainsize samples
-------
+-----------------
 .. autosummary::
     :toctree: generated/
 
@@ -33,8 +31,9 @@ Grainsize samples
 
 
 Combine
---------
+-------
 .. autosummary::
     :toctree: generated/
 
+    combine.add_nearest_voxelmodel_variable
     combine.add_voxelmodel_variable

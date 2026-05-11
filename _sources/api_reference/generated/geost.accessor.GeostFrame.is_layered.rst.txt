@@ -1,0 +1,6 @@
+﻿geost.accessor.GeostFrame.is\_layered
+=====================================
+
+.. currentmodule:: geost.accessor
+
+.. autoproperty:: GeostFrame.is_layered

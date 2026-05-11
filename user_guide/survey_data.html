@@ -1,0 +1,1824 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Survey data &#8212; Geological Subsurface Toolbox  documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=55c26ed414f5f8a31ebb" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=55c26ed414f5f8a31ebb" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/mystnb.11b39860a7a0cbfd473a3ad8a317855267ff0bd372690045ca344a6b62be495e.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=6e1425e8" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=6e1425e8" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../_static/scripts/fontawesome.js?digest=55c26ed414f5f8a31ebb"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=55c26ed414f5f8a31ebb" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=55c26ed414f5f8a31ebb" />
+
+    <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+    <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/design-tabs.js?v=f930bc37"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'user_guide/survey_data';</script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="icon" href="../_static/geost_logo.png"/>
+    <link rel="author" title="About these documents" href="../about.html" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Model data" href="model_data.html" />
+    <link rel="prev" title="Data structures" href="data_structures.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="0.5.0" />
+  
+    
+    <script src="../_static/searchtools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <script src="../searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class=" navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../_static/geost_logo.png" class="logo__image only-light" alt="Geological Subsurface Toolbox  documentation - Home"/>
+    <img src="../_static/geost_logo.png" class="logo__image only-dark pst-js-only" alt="Geological Subsurface Toolbox  documentation - Home"/>
+  
+  
+</a></div>
+    
+  </div>
+  
+  <div class=" navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../index.html">
+    Home
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../about.html">
+    About
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../getting_started.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../documentation.html">
+    Documentation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../examples.html">
+    Examples
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../community.html">
+    Community
+  </a>
+</li>
+
+            <li class="nav-item dropdown">
+                <button class="btn dropdown-toggle nav-item" type="button"
+                data-bs-toggle="dropdown" aria-expanded="false"
+                aria-controls="pst-nav-more-links">
+                    More
+                </button>
+                <ul id="pst-nav-more-links" class="dropdown-menu">
+                    
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../changelog.html">
+    Changelog
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-external" href="https://www.deltares.nl/en">
+    Deltares website
+  </a>
+</li>
+
+                </ul>
+            </li>
+            
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/Deltares-research/geost" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/geost" title="PyPI" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-solid fa-cubes fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">PyPI</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../index.html">
+    Home
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../about.html">
+    About
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../getting_started.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../documentation.html">
+    Documentation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../examples.html">
+    Examples
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../community.html">
+    Community
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../changelog.html">
+    Changelog
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-external" href="https://www.deltares.nl/en">
+    Deltares website
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/Deltares-research/geost" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/geost" title="PyPI" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-solid fa-cubes fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">PyPI</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item pst-sidebar-collapse"><button id="pst-collapse-sidebar-button" aria-expanded="true" aria-controls="pst-primary-sidebar"><svg class="pst-icon svg-inline--fa" role="img" aria-hidden="true" focusable="false" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+    <path fill="currentColor" d="M3 15.5C2.36232 15.5 1.74874 15.2564 1.28478 14.8189C0.820828 14.3815 0.541576 13.7832 0.504167 13.1467L0.5 13L0.5 3C0.499965 2.36232 0.743605 1.74874 1.18107 1.28478C1.61854 0.820828 2.21676 0.541576 2.85333 0.504167L3 0.5L13 0.5C13.6377 0.499965 14.2513 0.743605 14.7152 1.18107C15.1792 1.61854 15.4584 2.21676 15.4958 2.85333L15.5 3L15.5 13C15.5 13.6377 15.2564 14.2513 14.8189 14.7152C14.3815 15.1792 13.7832 15.4584 13.1467 15.4958L13 15.5L3 15.5ZM3 13.8333L10.5 13.8333L10.5 2.16667L3 2.16667C2.79589 2.16669 2.59889 2.24163 2.44636 2.37726C2.29383 2.5129 2.19638 2.69979 2.1725 2.9025L2.16667 3L2.16667 13C2.16669 13.2041 2.24163 13.4011 2.37726 13.5536C2.5129 13.7062 2.69979 13.8036 2.9025 13.8275L3 13.8333ZM6.65583 10.325L6.5775 10.2558L4.91083 8.58917C4.76735 8.44567 4.68116 8.25476 4.66843 8.05223C4.65569 7.84971 4.71729 7.6495 4.84167 7.48917L4.91083 7.41083L6.5775 5.74417C6.72747 5.59471 6.9287 5.50794 7.14032 5.50148C7.35194 5.49502 7.55809 5.56935 7.7169 5.70937C7.8757 5.8494 7.97525 6.04463 7.99533 6.25539C8.01541 6.46616 7.95451 6.67667 7.825 6.84417L7.75583 6.9225L6.67917 8L7.75583 9.0775C7.89931 9.22099 7.98551 9.41191 7.99824 9.61443C8.01097 9.81695 7.94938 10.0172 7.825 10.1775L7.75583 10.2558C7.61234 10.3993 7.42142 10.4855 7.2189 10.4982C7.01638 10.511 6.81617 10.4494 6.65583 10.325Z"/>
+  </svg>
+  <span class="pst-collapse-sidebar-label">Collapse Sidebar</span>
+  <span class="pst-expand-sidebar-label">Expand Sidebar</span>
+</button></div>
+        <div class="sidebar-primary-item">
+
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><p aria-level="2" class="caption" role="heading"><span class="caption-text">Documentation</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="../user_guide.html">User guide</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="data_structures.html">Data structures</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">Survey data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="model_data.html">Model data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="validation.html">Data validation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="read_xml.html">Reading XML files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bro_geotop.html">BRO GeoTOP</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../api_reference.html">API Reference</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../api_reference/io.html">Input/Output</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.bro_api_read.html">geost.bro_api_read</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.read_borehole_table.html">geost.read_borehole_table</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.read_cpt_table.html">geost.read_cpt_table</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.read_nlog_cores.html">geost.read_nlog_cores</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.read_uullg_tables.html">geost.read_uullg_tables</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.read_table.html">geost.read_table</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.Collection.to_csv.html">geost.base.Collection.to_csv</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.Collection.to_parquet.html">geost.base.Collection.to_parquet</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.read_bhrgt.html">geost.read_bhrgt</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.read_bhrgt_samples.html">geost.read_bhrgt_samples</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.read_bhrg.html">geost.read_bhrg</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.read_bhrp.html">geost.read_bhrp</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.read_cpt.html">geost.read_cpt</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.read_gef_cpts.html">geost.read_gef_cpts</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.read_sfr.html">geost.read_sfr</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.read_xml_boris.html">geost.read_xml_boris</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.read_collection_geopackage.html">geost.read_collection_geopackage</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.Collection.to_geopackage.html">geost.base.Collection.to_geopackage</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.Collection.to_geoparquet.html">geost.base.Collection.to_geoparquet</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.Collection.to_shape.html">geost.base.Collection.to_shape</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.io.Geopackage.html">geost.io.Geopackage</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.read_pickle.html">geost.read_pickle</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../api_reference/generic.html">Generic functions</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.add_positional_columns.html">geost.add_positional_columns</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.delete_user_positional_column_aliases.html">geost.delete_user_positional_column_aliases</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../api_reference/collection.html">Collection</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.Collection.html">geost.base.Collection</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.Collection.get_cumulative_thickness.html">geost.base.Collection.get_cumulative_thickness</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.Collection.get_layer_base.html">geost.base.Collection.get_layer_base</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.Collection.get_layer_top.html">geost.base.Collection.get_layer_top</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.Collection.set_crs.html">geost.base.Collection.set_crs</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.Collection.set_vertical_datum.html">geost.base.Collection.set_vertical_datum</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.Collection.to_crs.html">geost.base.Collection.to_crs</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.Collection.to_vertical_datum.html">geost.base.Collection.to_vertical_datum</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.Collection.to_csv.html">geost.base.Collection.to_csv</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.Collection.to_geopackage.html">geost.base.Collection.to_geopackage</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.Collection.to_geoparquet.html">geost.base.Collection.to_geoparquet</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.Collection.to_kingdom.html">geost.base.Collection.to_kingdom</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.Collection.to_pyvista_cylinders.html">geost.base.Collection.to_pyvista_cylinders</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.Collection.to_pyvista_grid.html">geost.base.Collection.to_pyvista_grid</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.Collection.to_parquet.html">geost.base.Collection.to_parquet</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.Collection.to_qgis3d.html">geost.base.Collection.to_qgis3d</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.Collection.to_shape.html">geost.base.Collection.to_shape</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.Collection.add_header_column_to_data.html">geost.base.Collection.add_header_column_to_data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.Collection.check_header_to_data_alignment.html">geost.base.Collection.check_header_to_data_alignment</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.Collection.reset_header.html">geost.base.Collection.reset_header</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.Collection.get.html">geost.base.Collection.get</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.Collection.select_by_condition.html">geost.base.Collection.select_by_condition</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.Collection.select_by_elevation.html">geost.base.Collection.select_by_elevation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.Collection.select_by_length.html">geost.base.Collection.select_by_length</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.Collection.select_by_values.html">geost.base.Collection.select_by_values</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.Collection.slice_by_values.html">geost.base.Collection.slice_by_values</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.Collection.slice_depth_interval.html">geost.base.Collection.slice_depth_interval</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.Collection.select_with_lines.html">geost.base.Collection.select_with_lines</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.Collection.select_with_points.html">geost.base.Collection.select_with_points</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.Collection.select_within_bbox.html">geost.base.Collection.select_within_bbox</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.Collection.select_within_polygons.html">geost.base.Collection.select_within_polygons</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.Collection.spatial_join.html">geost.base.Collection.spatial_join</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.Collection.crs.html">geost.base.Collection.crs</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.Collection.data.html">geost.base.Collection.data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.Collection.has_inclined.html">geost.base.Collection.has_inclined</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.Collection.header.html">geost.base.Collection.header</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.Collection.n_points.html">geost.base.Collection.n_points</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.base.Collection.vertical_datum.html">geost.base.Collection.vertical_datum</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../api_reference/accessor.html">Accessor</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.accessor.GeostFrame.html">geost.accessor.GeostFrame</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.accessor.GeostFrame.get_cumulative_thickness.html">geost.accessor.GeostFrame.get_cumulative_thickness</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.accessor.GeostFrame.get_layer_base.html">geost.accessor.GeostFrame.get_layer_base</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.accessor.GeostFrame.get_layer_top.html">geost.accessor.GeostFrame.get_layer_top</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.accessor.GeostFrame.transform_coordinates.html">geost.accessor.GeostFrame.transform_coordinates</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.accessor.GeostFrame.calculate_thickness.html">geost.accessor.GeostFrame.calculate_thickness</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.accessor.GeostFrame.standardize_column_names.html">geost.accessor.GeostFrame.standardize_column_names</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.accessor.GeostFrame.to_collection.html">geost.accessor.GeostFrame.to_collection</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.accessor.GeostFrame.to_header.html">geost.accessor.GeostFrame.to_header</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.accessor.GeostFrame.validate.html">geost.accessor.GeostFrame.validate</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.accessor.GeostFrame.to_kingdom.html">geost.accessor.GeostFrame.to_kingdom</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.accessor.GeostFrame.to_pyvista_cylinders.html">geost.accessor.GeostFrame.to_pyvista_cylinders</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.accessor.GeostFrame.to_pyvista_grid.html">geost.accessor.GeostFrame.to_pyvista_grid</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.accessor.GeostFrame.to_qgis3d.html">geost.accessor.GeostFrame.to_qgis3d</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.accessor.GeostFrame.select_by_condition.html">geost.accessor.GeostFrame.select_by_condition</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.accessor.GeostFrame.select_by_elevation.html">geost.accessor.GeostFrame.select_by_elevation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.accessor.GeostFrame.select_by_length.html">geost.accessor.GeostFrame.select_by_length</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.accessor.GeostFrame.select_by_values.html">geost.accessor.GeostFrame.select_by_values</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.accessor.GeostFrame.slice_by_values.html">geost.accessor.GeostFrame.slice_by_values</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.accessor.GeostFrame.slice_depth_interval.html">geost.accessor.GeostFrame.slice_depth_interval</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.accessor.GeostFrame.select_with_lines.html">geost.accessor.GeostFrame.select_with_lines</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.accessor.GeostFrame.select_with_points.html">geost.accessor.GeostFrame.select_with_points</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.accessor.GeostFrame.select_within_bbox.html">geost.accessor.GeostFrame.select_within_bbox</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.accessor.GeostFrame.select_within_polygons.html">geost.accessor.GeostFrame.select_within_polygons</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.accessor.GeostFrame.spatial_join.html">geost.accessor.GeostFrame.spatial_join</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.accessor.GeostFrame.first_row_survey.html">geost.accessor.GeostFrame.first_row_survey</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.accessor.GeostFrame.has_depth_columns.html">geost.accessor.GeostFrame.has_depth_columns</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.accessor.GeostFrame.has_geometry.html">geost.accessor.GeostFrame.has_geometry</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.accessor.GeostFrame.has_xy_columns.html">geost.accessor.GeostFrame.has_xy_columns</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.accessor.GeostFrame.last_row_survey.html">geost.accessor.GeostFrame.last_row_survey</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.accessor.GeostFrame.is_layered.html">geost.accessor.GeostFrame.is_layered</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../api_reference/voxelmodel.html">VoxelModel</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.models.VoxelModel.html">geost.models.VoxelModel</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.models.VoxelModel.from_netcdf.html">geost.models.VoxelModel.from_netcdf</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.models.VoxelModel.from_opendap.html">geost.models.VoxelModel.from_opendap</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.models.VoxelModel.get_thickness.html">geost.models.VoxelModel.get_thickness</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.models.VoxelModel.most_common.html">geost.models.VoxelModel.most_common</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.models.VoxelModel.isel.html">geost.models.VoxelModel.isel</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.models.VoxelModel.sel.html">geost.models.VoxelModel.sel</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.models.VoxelModel.select_bottom.html">geost.models.VoxelModel.select_bottom</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.models.VoxelModel.select_by_values.html">geost.models.VoxelModel.select_by_values</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.models.VoxelModel.select_surface_level.html">geost.models.VoxelModel.select_surface_level</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.models.VoxelModel.select_top.html">geost.models.VoxelModel.select_top</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.models.VoxelModel.select_with_line.html">geost.models.VoxelModel.select_with_line</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.models.VoxelModel.select_with_points.html">geost.models.VoxelModel.select_with_points</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.models.VoxelModel.select_within_bbox.html">geost.models.VoxelModel.select_within_bbox</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.models.VoxelModel.select_within_polygons.html">geost.models.VoxelModel.select_within_polygons</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.models.VoxelModel.slice_depth_interval.html">geost.models.VoxelModel.slice_depth_interval</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.models.VoxelModel.to_pyvista_grid.html">geost.models.VoxelModel.to_pyvista_grid</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.models.VoxelModel.value_counts.html">geost.models.VoxelModel.value_counts</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.models.VoxelModel.zslice_to_tiff.html">geost.models.VoxelModel.zslice_to_tiff</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.models.VoxelModel.crs.html">geost.models.VoxelModel.crs</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.models.VoxelModel.horizontal_bounds.html">geost.models.VoxelModel.horizontal_bounds</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.models.VoxelModel.resolution.html">geost.models.VoxelModel.resolution</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.models.VoxelModel.shape.html">geost.models.VoxelModel.shape</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.models.VoxelModel.sizes.html">geost.models.VoxelModel.sizes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.models.VoxelModel.variables.html">geost.models.VoxelModel.variables</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.models.VoxelModel.vertical_bounds.html">geost.models.VoxelModel.vertical_bounds</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.models.VoxelModel.xmax.html">geost.models.VoxelModel.xmax</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.models.VoxelModel.xmin.html">geost.models.VoxelModel.xmin</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.models.VoxelModel.ymax.html">geost.models.VoxelModel.ymax</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.models.VoxelModel.ymin.html">geost.models.VoxelModel.ymin</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.models.VoxelModel.zmax.html">geost.models.VoxelModel.zmax</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.models.VoxelModel.zmin.html">geost.models.VoxelModel.zmin</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../api_reference/bro_geotop.html">GeoTop</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.bro.bro_geotop.GeoTop.html">geost.bro.bro_geotop.GeoTop</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.bro.bro_geotop.GeoTop.from_netcdf.html">geost.bro.bro_geotop.GeoTop.from_netcdf</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.bro.bro_geotop.GeoTop.from_opendap.html">geost.bro.bro_geotop.GeoTop.from_opendap</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.bro.bro_geotop.GeoTop.isel.html">geost.bro.bro_geotop.GeoTop.isel</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.bro.bro_geotop.GeoTop.sel.html">geost.bro.bro_geotop.GeoTop.sel</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.bro.bro_geotop.GeoTop.select_bottom.html">geost.bro.bro_geotop.GeoTop.select_bottom</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.bro.bro_geotop.GeoTop.select_by_values.html">geost.bro.bro_geotop.GeoTop.select_by_values</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.bro.bro_geotop.GeoTop.select_surface_level.html">geost.bro.bro_geotop.GeoTop.select_surface_level</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.bro.bro_geotop.GeoTop.select_top.html">geost.bro.bro_geotop.GeoTop.select_top</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.bro.bro_geotop.GeoTop.select_with_line.html">geost.bro.bro_geotop.GeoTop.select_with_line</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.bro.bro_geotop.GeoTop.select_with_points.html">geost.bro.bro_geotop.GeoTop.select_with_points</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.bro.bro_geotop.GeoTop.select_within_bbox.html">geost.bro.bro_geotop.GeoTop.select_within_bbox</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.bro.bro_geotop.GeoTop.select_within_polygons.html">geost.bro.bro_geotop.GeoTop.select_within_polygons</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.bro.bro_geotop.GeoTop.slice_depth_interval.html">geost.bro.bro_geotop.GeoTop.slice_depth_interval</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.bro.bro_geotop.GeoTop.zslice_to_tiff.html">geost.bro.bro_geotop.GeoTop.zslice_to_tiff</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.bro.bro_geotop.GeoTop.crs.html">geost.bro.bro_geotop.GeoTop.crs</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.bro.bro_geotop.GeoTop.horizontal_bounds.html">geost.bro.bro_geotop.GeoTop.horizontal_bounds</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.bro.bro_geotop.GeoTop.resolution.html">geost.bro.bro_geotop.GeoTop.resolution</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.bro.bro_geotop.GeoTop.shape.html">geost.bro.bro_geotop.GeoTop.shape</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.bro.bro_geotop.GeoTop.sizes.html">geost.bro.bro_geotop.GeoTop.sizes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.bro.bro_geotop.GeoTop.variables.html">geost.bro.bro_geotop.GeoTop.variables</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.bro.bro_geotop.GeoTop.vertical_bounds.html">geost.bro.bro_geotop.GeoTop.vertical_bounds</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.bro.bro_geotop.GeoTop.xmax.html">geost.bro.bro_geotop.GeoTop.xmax</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.bro.bro_geotop.GeoTop.xmin.html">geost.bro.bro_geotop.GeoTop.xmin</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.bro.bro_geotop.GeoTop.ymax.html">geost.bro.bro_geotop.GeoTop.ymax</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.bro.bro_geotop.GeoTop.ymin.html">geost.bro.bro_geotop.GeoTop.ymin</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.bro.bro_geotop.GeoTop.zmax.html">geost.bro.bro_geotop.GeoTop.zmax</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.bro.bro_geotop.GeoTop.zmin.html">geost.bro.bro_geotop.GeoTop.zmin</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../api_reference/geotop_selection.html">GeoTop selection</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.bro.bro_geotop.StratGeotop.html">geost.bro.bro_geotop.StratGeotop</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.bro.bro_geotop.StratGeotop.select_units.html">geost.bro.bro_geotop.StratGeotop.select_units</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.bro.bro_geotop.StratGeotop.select_values.html">geost.bro.bro_geotop.StratGeotop.select_values</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.bro.bro_geotop.StratGeotop.to_dict.html">geost.bro.bro_geotop.StratGeotop.to_dict</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.bro.bro_geotop.Lithology.html">geost.bro.bro_geotop.Lithology</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.bro.bro_geotop.Lithology.select_units.html">geost.bro.bro_geotop.Lithology.select_units</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.bro.bro_geotop.Lithology.select_values.html">geost.bro.bro_geotop.Lithology.select_values</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.bro.bro_geotop.Lithology.to_dict.html">geost.bro.bro_geotop.Lithology.to_dict</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../api_reference/analysis.html">Analysis</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.analysis.layers.get_layer_base.html">geost.analysis.layers.get_layer_base</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.analysis.layers.get_layer_top.html">geost.analysis.layers.get_layer_top</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.analysis.cpt.calc_ic.html">geost.analysis.cpt.calc_ic</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.analysis.cpt.calc_lithology.html">geost.analysis.cpt.calc_lithology</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.analysis.grainsize.calculate_bhrgt_grainsize_percentiles.html">geost.analysis.grainsize.calculate_bhrgt_grainsize_percentiles</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.analysis.grainsize.calculate_bhrgt_grainsize_fractions.html">geost.analysis.grainsize.calculate_bhrgt_grainsize_fractions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.analysis.combine.add_nearest_voxelmodel_variable.html">geost.analysis.combine.add_nearest_voxelmodel_variable</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.analysis.combine.add_voxelmodel_variable.html">geost.analysis.combine.add_voxelmodel_variable</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../api_reference/bro.html">BroApi</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.bro.BroApi.html">geost.bro.BroApi</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.bro.BroApi.get_objects.html">geost.bro.BroApi.get_objects</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.bro.BroApi.search_objects_in_bbox.html">geost.bro.BroApi.search_objects_in_bbox</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.bro.BroApi.apis.html">geost.bro.BroApi.apis</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../api_reference/readers.html">Readers</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.io.Geopackage.html">geost.io.Geopackage</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.io.Geopackage.close.html">geost.io.Geopackage.close</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.io.Geopackage.get_column_names.html">geost.io.Geopackage.get_column_names</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.io.Geopackage.get_connection.html">geost.io.Geopackage.get_connection</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.io.Geopackage.layers.html">geost.io.Geopackage.layers</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.io.Geopackage.query.html">geost.io.Geopackage.query</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.io.Geopackage.read_table.html">geost.io.Geopackage.read_table</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.io.Geopackage.table_head.html">geost.io.Geopackage.table_head</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.bro.BroCptGeopackage.html">geost.bro.BroCptGeopackage</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.bro.BroCptGeopackage.from_geopackage.html">geost.bro.BroCptGeopackage.from_geopackage</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.bro.BroCptGeopackage.select_location_info.html">geost.bro.BroCptGeopackage.select_location_info</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../api_reference/validate.html">Validation</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.validation.validate.ValidationResult.add.html">geost.validation.validate.ValidationResult.add</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.validation.validate.ValidationResult.handle_errors.html">geost.validation.validate.ValidationResult.handle_errors</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.validation.validate.ValidationResult.display_warnings.html">geost.validation.validate.ValidationResult.display_warnings</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.validation.validate.ValidationResult.has_errors.html">geost.validation.validate.ValidationResult.has_errors</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.validation.validate.ValidationResult.error_nrs.html">geost.validation.validate.ValidationResult.error_nrs</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.validation.validate.ValidationResult.error_indices.html">geost.validation.validate.ValidationResult.error_indices</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../api_reference/utils.html">Utils</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.utils.spatial.get_raster_values.html">geost.utils.spatial.get_raster_values</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.utils.spatial.select_points_near_lines.html">geost.utils.spatial.select_points_near_lines</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.utils.spatial.select_points_near_points.html">geost.utils.spatial.select_points_near_points</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.utils.spatial.select_points_within_bbox.html">geost.utils.spatial.select_points_within_bbox</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.utils.spatial.select_points_within_polygons.html">geost.utils.spatial.select_points_within_polygons</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.utils.projections.horizontal_reference_transformer.html">geost.utils.projections.horizontal_reference_transformer</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.utils.projections.vertical_reference_transformer.html">geost.utils.projections.vertical_reference_transformer</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.models.model_utils.label_consecutive_2d.html">geost.models.model_utils.label_consecutive_2d</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.models.model_utils.sample_with_coords.html">geost.models.model_utils.sample_with_coords</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.models.model_utils.sample_along_line.html">geost.models.model_utils.sample_along_line</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../api_reference/enums.html">Enums</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.enums.UnitEnum.html">geost.enums.UnitEnum</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.enums.UnitEnum.select_units.html">geost.enums.UnitEnum.select_units</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.enums.UnitEnum.select_values.html">geost.enums.UnitEnum.select_values</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api_reference/generated/geost.enums.UnitEnum.to_dict.html">geost.enums.UnitEnum.to_dict</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../documentation.html" class="nav-link">Documentation</a></li>
+    
+    
+    <li class="breadcrumb-item"><a href="../user_guide.html" class="nav-link">User guide</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Survey data</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="survey-data">
+<h1>Survey data<a class="headerlink" href="#survey-data" title="Link to this heading">#</a></h1>
+<p>GeoST offer various functions to read and parse subsurface data to GeoST objects. In general,
+survey data can either be loaded from (local) files or is requested from a service like
+the BRO REST-API. Either way, data coming from multiple sources and file formats are support.</p>
+<section id="reading-survey-data">
+<h2>Reading survey data<a class="headerlink" href="#reading-survey-data" title="Link to this heading">#</a></h2>
+<p>By survey data we refer to measurements (i.e. raw data) of the subsurface. These can comprise
+boreholes, CPTs, Well logs, Seismic or EM lines and others (see <a class="reference internal" href="data_structures.html#data-columns"><span class="std std-ref">Data structures</span></a> for a more detailed description). In any case, the data is parsed to a <a class="reference internal" href="../api_reference/collection.html"><span class="std std-doc"><code class="docutils literal notranslate"><span class="pre">geost.Collection</span></code></span></a>. The tables below list the currently supported data sources, associated reader functions and resulting GeoST objects.</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>File format/data service</p></th>
+<th class="head"><p>Read function</p></th>
+<th class="head"><p>Returned GeoST object</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>BHR-G</p></td>
+<td><p><a class="reference internal" href="../api_reference/generated/geost.read_bhrg.html"><span class="std std-doc"><code class="docutils literal notranslate"><span class="pre">read_bhrg</span></code></span></a></p></td>
+<td><p><a class="reference internal" href="../api_reference/collection.html"><span class="std std-doc"><code class="docutils literal notranslate"><span class="pre">Collection</span></code></span></a></p></td>
+<td><p>(BRO) Geological boreholes from xml</p></td>
+</tr>
+<tr class="row-odd"><td><p>BHR-GT</p></td>
+<td><p><a class="reference internal" href="../api_reference/generated/geost.read_bhrgt.html"><span class="std std-doc"><code class="docutils literal notranslate"><span class="pre">read_bhrgt</span></code></span></a></p></td>
+<td><p><a class="reference internal" href="../api_reference/collection.html"><span class="std std-doc"><code class="docutils literal notranslate"><span class="pre">Collection</span></code></span></a></p></td>
+<td><p>(BRO) Geotechnical boreholes from xml</p></td>
+</tr>
+<tr class="row-even"><td><p>BHR-GT-samples</p></td>
+<td><p><a class="reference internal" href="../api_reference/generated/geost.read_bhrgt_samples.html"><span class="std std-doc"><code class="docutils literal notranslate"><span class="pre">read_bhrgt_samples</span></code></span></a></p></td>
+<td><p><a class="reference internal" href="../api_reference/collection.html"><span class="std std-doc"><code class="docutils literal notranslate"><span class="pre">Collection</span></code></span></a></p></td>
+<td><p>(BRO) Geotechnical boreholes - grainsize samples from xml</p></td>
+</tr>
+<tr class="row-odd"><td><p>BHR-P</p></td>
+<td><p><a class="reference internal" href="../api_reference/generated/geost.read_bhrp.html"><span class="std std-doc"><code class="docutils literal notranslate"><span class="pre">read_bhrp</span></code></span></a></p></td>
+<td><p><a class="reference internal" href="../api_reference/collection.html"><span class="std std-doc"><code class="docutils literal notranslate"><span class="pre">Collection</span></code></span></a></p></td>
+<td><p>(BRO) Pedological boreholes from xml</p></td>
+</tr>
+<tr class="row-even"><td><p>CPT</p></td>
+<td><p><a class="reference internal" href="../api_reference/generated/geost.read_cpt.html"><span class="std std-doc"><code class="docutils literal notranslate"><span class="pre">read_cpt</span></code></span></a> <a class="reference internal" href="../api_reference/generated/geost.read_gef_cpts.html"><span class="std std-doc"><code class="docutils literal notranslate"><span class="pre">read_gef_cpts</span></code></span></a></p></td>
+<td><p><a class="reference internal" href="../api_reference/collection.html"><span class="std std-doc"><code class="docutils literal notranslate"><span class="pre">Collection</span></code></span></a></p></td>
+<td><p>(BRO) Cone Penetration Tests from xml or gef</p></td>
+</tr>
+<tr class="row-odd"><td><p>SFR</p></td>
+<td><p><a class="reference internal" href="../api_reference/generated/geost.read_sfr.html"><span class="std std-doc"><code class="docutils literal notranslate"><span class="pre">read_sfr</span></code></span></a></p></td>
+<td><p><a class="reference internal" href="../api_reference/collection.html"><span class="std std-doc"><code class="docutils literal notranslate"><span class="pre">Collection</span></code></span></a></p></td>
+<td><p>(BRO) Pedological soilprofile descriptions from xml</p></td>
+</tr>
+<tr class="row-even"><td><p>BRO REST-API</p></td>
+<td><p><a class="reference internal" href="../api_reference/generated/geost.bro_api_read.html"><span class="std std-doc"><code class="docutils literal notranslate"><span class="pre">bro_api_read</span></code></span></a></p></td>
+<td><p><a class="reference internal" href="../api_reference/collection.html"><span class="std std-doc"><code class="docutils literal notranslate"><span class="pre">Collection</span></code></span></a></p></td>
+<td><p>BRO BHR-G, BHR-GT, BHR-GT-samples, BHR-P, CPT or SFR objects</p></td>
+</tr>
+<tr class="row-odd"><td><p>Parquet or csv</p></td>
+<td><p><a class="reference internal" href="../api_reference/generated/geost.read_table.html"><span class="std std-doc"><code class="docutils literal notranslate"><span class="pre">read_table</span></code></span></a> <a class="reference internal" href="../api_reference/generated/geost.read_borehole_table.html"><span class="std std-doc"><code class="docutils literal notranslate"><span class="pre">read_borehole_table</span></code></span></a> <a class="reference internal" href="../api_reference/generated/geost.read_cpt_table.html"><span class="std std-doc"><code class="docutils literal notranslate"><span class="pre">read_cpt_table</span></code></span></a></p></td>
+<td><p><a class="reference internal" href="../api_reference/collection.html"><span class="std std-doc"><code class="docutils literal notranslate"><span class="pre">Collection</span></code></span></a> or <a class="reference external" href="https://pandas.pydata.org/docs/reference/frame.html"><code class="docutils literal notranslate"><span class="pre">DataFrame</span></code></a></p></td>
+<td><p>Survey data stored as a table. Result of <code class="docutils literal notranslate"><span class="pre">to_parquet</span></code> or <code class="docutils literal notranslate"><span class="pre">to_csv</span></code> export methods.</p></td>
+</tr>
+<tr class="row-even"><td><p>NLOG excel export</p></td>
+<td><p><a class="reference internal" href="../api_reference/generated/geost.read_nlog_cores.html"><span class="std std-doc"><code class="docutils literal notranslate"><span class="pre">read_nlog_cores</span></code></span></a></p></td>
+<td><p><a class="reference internal" href="../api_reference/collection.html"><span class="std std-doc"><code class="docutils literal notranslate"><span class="pre">Collection</span></code></span></a> or <a class="reference external" href="https://pandas.pydata.org/docs/reference/frame.html"><code class="docutils literal notranslate"><span class="pre">DataFrame</span></code></a></p></td>
+<td><p>Reader for NLOG deep cores, see <a class="reference external" href="https://www.nlog.nl/boringen">here</a></p></td>
+</tr>
+<tr class="row-odd"><td><p>UU LLG cores</p></td>
+<td><p><a class="reference internal" href="../api_reference/generated/geost.read_uullg_tables.html"><span class="std std-doc"><code class="docutils literal notranslate"><span class="pre">read_uullg_tables</span></code></span></a></p></td>
+<td><p><a class="reference internal" href="../api_reference/collection.html"><span class="std std-doc"><code class="docutils literal notranslate"><span class="pre">Collection</span></code></span></a> or <a class="reference external" href="https://pandas.pydata.org/docs/reference/frame.html"><code class="docutils literal notranslate"><span class="pre">DataFrame</span></code></a></p></td>
+<td><p>Reader for csv distribution of Utrecht University student boreholes</p></td>
+</tr>
+<tr class="row-even"><td><p>BORIS XML</p></td>
+<td><p><a class="reference internal" href="../api_reference/generated/geost.read_xml_boris.html"><span class="std std-doc"><code class="docutils literal notranslate"><span class="pre">read_xml_boris</span></code></span></a></p></td>
+<td><p><a class="reference internal" href="../api_reference/collection.html"><span class="std std-doc"><code class="docutils literal notranslate"><span class="pre">Collection</span></code></span></a> or <a class="reference external" href="https://pandas.pydata.org/docs/reference/frame.html"><code class="docutils literal notranslate"><span class="pre">DataFrame</span></code></a></p></td>
+<td><p>Reader for XML exports of the BORIS borehole description software</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<section id="reading-data-from-the-bro-rest-api">
+<h3>Reading data from the BRO REST-API<a class="headerlink" href="#reading-data-from-the-bro-rest-api" title="Link to this heading">#</a></h3>
+<p>Subsurface data is widely available in the Netherlands via the <a class="reference external" href="https://www.broloket.nl/ondergrondgegevens">portal</a> of the Basis Registratie Ondergrond (<strong>BRO</strong>). GeoST can directly load
+this data for an area of interest.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">geost</span>
+
+<span class="c1"># Read a few BRO pedological soil cores in a small area 250 m x 500 m</span>
+<span class="n">boreholes</span> <span class="o">=</span> <span class="n">geost</span><span class="o">.</span><span class="n">bro_api_read</span><span class="p">(</span><span class="s2">&quot;BHR-P&quot;</span><span class="p">,</span> <span class="n">bbox</span><span class="o">=</span><span class="p">(</span><span class="mi">142_000</span><span class="p">,</span> <span class="mi">455_000</span><span class="p">,</span> <span class="mi">142_250</span><span class="p">,</span> <span class="mi">455_500</span><span class="p">))</span>
+<span class="n">boreholes</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Collection
+  header (rows, columns) : (8, 10)
+  data (rows, columns)   : (40, 8)
+crs: Amersfoort / RD New
+vertical datum: NAP height
+</pre></div>
+</div>
+</div>
+</div>
+<p>You can see that this loads the soil cores as a <code class="docutils literal notranslate"><span class="pre">geost.Collection</span></code>. This is also supported for geological (BHR-G) and geotechnical (BHR-GT) boreholes, cone penetration test (CPT) data and pedological soil profile descriptions (SFR). This facilitates the
+direct use of BRO data within any application.</p>
+</section>
+<section id="reading-from-local-files">
+<h3>Reading from local files<a class="headerlink" href="#reading-from-local-files" title="Link to this heading">#</a></h3>
+<p>A likely option is to use GeoST to load survey data stored in a tabular format such as
+Parquet or csv and use the available selection and analysis methods. For example, suppose you
+have survey data for multiple boreholes stored in a local Parquet file. Using
+<a class="reference internal" href="../api_reference/generated/geost.read_table.html"><span class="std std-doc"><code class="docutils literal notranslate"><span class="pre">geost.read_table</span></code></span></a> you can
+very easily load it into a <code class="docutils literal notranslate"><span class="pre">Collection</span></code> or if preferred, a <code class="docutils literal notranslate"><span class="pre">pandas.DataFrame</span></code> and use the data
+for further analysis:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">borehole_file</span> <span class="o">=</span> <span class="n">geost</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">boreholes_usp</span><span class="p">(</span>
+    <span class="n">return_filepath</span><span class="o">=</span><span class="kc">True</span>
+<span class="p">)</span>  <span class="c1"># Use the filepath instead of directly reading the borehole data</span>
+<span class="n">boreholes</span> <span class="o">=</span> <span class="n">geost</span><span class="o">.</span><span class="n">read_table</span><span class="p">(</span><span class="n">borehole_file</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">boreholes</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Collection
+  header (rows, columns) : (67, 5)
+  data (rows, columns)   : (1398, 32)
+crs: None
+vertical datum: None
+</pre></div>
+</div>
+</div>
+</div>
+<p>Now you can easily select the boreholes that contain peat (“V”) for example:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">peat_boreholes</span> <span class="o">=</span> <span class="n">boreholes</span><span class="o">.</span><span class="n">select_by_values</span><span class="p">(</span><span class="s2">&quot;lith&quot;</span><span class="p">,</span> <span class="s2">&quot;V&quot;</span><span class="p">)</span>
+<span class="n">peat_boreholes</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Collection
+  header (rows, columns) : (32, 5)
+  data (rows, columns)   : (670, 32)
+crs: None
+vertical datum: None
+</pre></div>
+</div>
+</div>
+</div>
+<p>The same thing is possible too with Pandas DataFrames. Note that with DataFrames, any GeoST
+methods need to be used through the <code class="docutils literal notranslate"><span class="pre">.gst</span></code> accessor, like we showed in the <a class="reference internal" href="data_structures.html#geost-accessor"><span class="std std-ref">Data structures</span></a>
+section. This way we can select the boreholes that contain peat just like before. Let’s load
+the same borehole data, but this time as a <code class="docutils literal notranslate"><span class="pre">pandas.DataFrame</span></code>:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">borehole_df</span> <span class="o">=</span> <span class="n">geost</span><span class="o">.</span><span class="n">read_table</span><span class="p">(</span><span class="n">borehole_file</span><span class="p">,</span> <span class="n">as_collection</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="n">borehole_df</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>nr</th>
+      <th>x</th>
+      <th>y</th>
+      <th>surface</th>
+      <th>end</th>
+      <th>top</th>
+      <th>bottom</th>
+      <th>lith</th>
+      <th>zm</th>
+      <th>zmk</th>
+      <th>...</th>
+      <th>cons</th>
+      <th>color</th>
+      <th>lutum_pct</th>
+      <th>plants</th>
+      <th>shells</th>
+      <th>kleibrokjes</th>
+      <th>strat_1975</th>
+      <th>strat_2003</th>
+      <th>strat_inter</th>
+      <th>desc</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>B31H0541</td>
+      <td>139585</td>
+      <td>456000</td>
+      <td>1.2</td>
+      <td>-9.9</td>
+      <td>0.00</td>
+      <td>0.20</td>
+      <td>K</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>...</td>
+      <td>NaN</td>
+      <td>ON</td>
+      <td>NaN</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>NaN</td>
+      <td>EC</td>
+      <td>NaN</td>
+      <td>[TEELAARDE#***#****#*] ..........................</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>B31H0541</td>
+      <td>139585</td>
+      <td>456000</td>
+      <td>1.2</td>
+      <td>-9.9</td>
+      <td>0.20</td>
+      <td>0.60</td>
+      <td>K</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>...</td>
+      <td>NaN</td>
+      <td>BR</td>
+      <td>NaN</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>NaN</td>
+      <td>EC</td>
+      <td>NaN</td>
+      <td>[KLEI#***#****#*] grysbruin.</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>B31H0541</td>
+      <td>139585</td>
+      <td>456000</td>
+      <td>1.2</td>
+      <td>-9.9</td>
+      <td>0.60</td>
+      <td>0.95</td>
+      <td>V</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>...</td>
+      <td>NaN</td>
+      <td>BR</td>
+      <td>NaN</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>NaN</td>
+      <td>NI</td>
+      <td>NaN</td>
+      <td>[VEEN#***#****#*] donkerbruin.</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>B31H0541</td>
+      <td>139585</td>
+      <td>456000</td>
+      <td>1.2</td>
+      <td>-9.9</td>
+      <td>0.95</td>
+      <td>2.80</td>
+      <td>Z</td>
+      <td>NaN</td>
+      <td>ZMFO</td>
+      <td>...</td>
+      <td>NaN</td>
+      <td>GR</td>
+      <td>NaN</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>NaN</td>
+      <td>EC</td>
+      <td>NaN</td>
+      <td>[ZAND#***#****#*] FYN TOT matig fyn# iets slib...</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>B31H0541</td>
+      <td>139585</td>
+      <td>456000</td>
+      <td>1.2</td>
+      <td>-9.9</td>
+      <td>2.80</td>
+      <td>4.20</td>
+      <td>Z</td>
+      <td>NaN</td>
+      <td>ZFC</td>
+      <td>...</td>
+      <td>NaN</td>
+      <td>BR</td>
+      <td>NaN</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>NaN</td>
+      <td>BXWI</td>
+      <td>NaN</td>
+      <td>[ZAND#***#****#*] fyn# grysbruin.</td>
+    </tr>
+  </tbody>
+</table>
+<p>5 rows × 32 columns</p>
+</div></div></div>
+</div>
+<p>Now we can make the same selection using the <code class="docutils literal notranslate"><span class="pre">.gst</span></code> accessor:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">peat_df</span> <span class="o">=</span> <span class="n">borehole_df</span><span class="o">.</span><span class="n">gst</span><span class="o">.</span><span class="n">select_by_values</span><span class="p">(</span><span class="s2">&quot;lith&quot;</span><span class="p">,</span> <span class="s2">&quot;V&quot;</span><span class="p">)</span>
+<span class="n">peat_df</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>nr</th>
+      <th>x</th>
+      <th>y</th>
+      <th>surface</th>
+      <th>end</th>
+      <th>top</th>
+      <th>bottom</th>
+      <th>lith</th>
+      <th>zm</th>
+      <th>zmk</th>
+      <th>...</th>
+      <th>cons</th>
+      <th>color</th>
+      <th>lutum_pct</th>
+      <th>plants</th>
+      <th>shells</th>
+      <th>kleibrokjes</th>
+      <th>strat_1975</th>
+      <th>strat_2003</th>
+      <th>strat_inter</th>
+      <th>desc</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>B31H0541</td>
+      <td>139585</td>
+      <td>456000</td>
+      <td>1.20</td>
+      <td>-9.90</td>
+      <td>0.00</td>
+      <td>0.20</td>
+      <td>K</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>...</td>
+      <td>NaN</td>
+      <td>ON</td>
+      <td>NaN</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>NaN</td>
+      <td>EC</td>
+      <td>NaN</td>
+      <td>[TEELAARDE#***#****#*] ..........................</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>B31H0541</td>
+      <td>139585</td>
+      <td>456000</td>
+      <td>1.20</td>
+      <td>-9.90</td>
+      <td>0.20</td>
+      <td>0.60</td>
+      <td>K</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>...</td>
+      <td>NaN</td>
+      <td>BR</td>
+      <td>NaN</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>NaN</td>
+      <td>EC</td>
+      <td>NaN</td>
+      <td>[KLEI#***#****#*] grysbruin.</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>B31H0541</td>
+      <td>139585</td>
+      <td>456000</td>
+      <td>1.20</td>
+      <td>-9.90</td>
+      <td>0.60</td>
+      <td>0.95</td>
+      <td>V</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>...</td>
+      <td>NaN</td>
+      <td>BR</td>
+      <td>NaN</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>NaN</td>
+      <td>NI</td>
+      <td>NaN</td>
+      <td>[VEEN#***#****#*] donkerbruin.</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>B31H0541</td>
+      <td>139585</td>
+      <td>456000</td>
+      <td>1.20</td>
+      <td>-9.90</td>
+      <td>0.95</td>
+      <td>2.80</td>
+      <td>Z</td>
+      <td>NaN</td>
+      <td>ZMFO</td>
+      <td>...</td>
+      <td>NaN</td>
+      <td>GR</td>
+      <td>NaN</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>NaN</td>
+      <td>EC</td>
+      <td>NaN</td>
+      <td>[ZAND#***#****#*] FYN TOT matig fyn# iets slib...</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>B31H0541</td>
+      <td>139585</td>
+      <td>456000</td>
+      <td>1.20</td>
+      <td>-9.90</td>
+      <td>2.80</td>
+      <td>4.20</td>
+      <td>Z</td>
+      <td>NaN</td>
+      <td>ZFC</td>
+      <td>...</td>
+      <td>NaN</td>
+      <td>BR</td>
+      <td>NaN</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>NaN</td>
+      <td>BXWI</td>
+      <td>NaN</td>
+      <td>[ZAND#***#****#*] fyn# grysbruin.</td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+    </tr>
+    <tr>
+      <th>1352</th>
+      <td>B32C1800</td>
+      <td>140571</td>
+      <td>455934</td>
+      <td>2.08</td>
+      <td>-2.92</td>
+      <td>0.70</td>
+      <td>1.20</td>
+      <td>Z</td>
+      <td>NaN</td>
+      <td>ZMF</td>
+      <td>...</td>
+      <td>NaN</td>
+      <td>GR</td>
+      <td>NaN</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>BRON:Boormanager;VAN:70.0000;TOT:120.0000;H:Z;...</td>
+    </tr>
+    <tr>
+      <th>1353</th>
+      <td>B32C1800</td>
+      <td>140571</td>
+      <td>455934</td>
+      <td>2.08</td>
+      <td>-2.92</td>
+      <td>1.20</td>
+      <td>1.50</td>
+      <td>K</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>...</td>
+      <td>NaN</td>
+      <td>GR</td>
+      <td>NaN</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>BRON:Boormanager;VAN:120.0000;TOT:150.0000;H:K...</td>
+    </tr>
+    <tr>
+      <th>1354</th>
+      <td>B32C1800</td>
+      <td>140571</td>
+      <td>455934</td>
+      <td>2.08</td>
+      <td>-2.92</td>
+      <td>1.50</td>
+      <td>1.70</td>
+      <td>V</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>...</td>
+      <td>NaN</td>
+      <td>BR</td>
+      <td>NaN</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>BRON:Boormanager;VAN:150.0000;TOT:170.0000;H:V...</td>
+    </tr>
+    <tr>
+      <th>1355</th>
+      <td>B32C1800</td>
+      <td>140571</td>
+      <td>455934</td>
+      <td>2.08</td>
+      <td>-2.92</td>
+      <td>1.70</td>
+      <td>2.00</td>
+      <td>Z</td>
+      <td>NaN</td>
+      <td>ZUF</td>
+      <td>...</td>
+      <td>NaN</td>
+      <td>BR</td>
+      <td>NaN</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>BRON:Boormanager;VAN:170.0000;TOT:200.0000;H:Z...</td>
+    </tr>
+    <tr>
+      <th>1356</th>
+      <td>B32C1800</td>
+      <td>140571</td>
+      <td>455934</td>
+      <td>2.08</td>
+      <td>-2.92</td>
+      <td>2.00</td>
+      <td>5.00</td>
+      <td>Z</td>
+      <td>NaN</td>
+      <td>ZUF</td>
+      <td>...</td>
+      <td>NaN</td>
+      <td>BR</td>
+      <td>NaN</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>BRON:Boormanager;VAN:200.0000;TOT:500.0000;H:Z...</td>
+    </tr>
+  </tbody>
+</table>
+<p>670 rows × 32 columns</p>
+</div></div></div>
+</div>
+<p>Notice that the shape of <code class="docutils literal notranslate"><span class="pre">peat_df</span></code> is the same as before in the data table of the <code class="docutils literal notranslate"><span class="pre">peat_boreholes</span></code> Collection: 670 rows x 32 columns.
+The selection result is also the same:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">peat_boreholes</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">equals</span><span class="p">(</span><span class="n">peat_df</span><span class="p">)</span>  <span class="c1"># Check equality of the two dataframes</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>True
+</pre></div>
+</div>
+</div>
+</div>
+<p>As you can see, GeoST functionality can be used interchangeably on <code class="docutils literal notranslate"><span class="pre">geost.Collection</span></code> objects
+or <code class="docutils literal notranslate"><span class="pre">DataFrame</span></code> objects.</p>
+</section>
+</section>
+<section id="positional-columns">
+<h2>Positional columns<a class="headerlink" href="#positional-columns" title="Link to this heading">#</a></h2>
+<p>GeoST requires that several data columns are present to ensure that the methods in a <code class="docutils literal notranslate"><span class="pre">Collection</span></code> will work.
+These are called “positional columns”. The required positional columns differ per type of method. For example,
+<a class="reference internal" href="../api_reference/generated/geost.base.Collection.slice_depth_interval.html"><span class="std std-doc"><code class="docutils literal notranslate"><span class="pre">Collection.slice_depth_interval</span></code></span></a>
+requires depth information about the surface level of surveys and the depth of layers while
+<a class="reference internal" href="../api_reference/generated/geost.base.Collection.select_with_points.html"><span class="std std-doc"><code class="docutils literal notranslate"><span class="pre">Collection.select_with_points</span></code></span></a>
+requires a valid geometry. The presence of depth information or a valid geometry is needed
+for both methods to work however, both presences are optional. The method <code class="docutils literal notranslate"><span class="pre">slice_depth_interval</span></code>
+does not need a geometry to work and <code class="docutils literal notranslate"><span class="pre">select_with_points</span></code> does not need depth information.
+Therefore, their presence is only required when you want to use one of these methods. This
+was chosen as design to ensure the most flexibility for users with different needs.</p>
+<p>The only mandatory presence is the positional column which identifies each individual survey
+(e.g. “nr”) in both the header and data table. The table below shows the required positional
+columns for all methods to work.</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Name</p></th>
+<th class="head"><p>dtype</p></th>
+<th class="head"><p>Description</p></th>
+<th class="head"><p>Mandatory</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>nr</p></td>
+<td><p>int, float, string</p></td>
+<td><p>Identification name/number/code of the point survey</p></td>
+<td><p>Yes</p></td>
+</tr>
+<tr class="row-odd"><td><p>x</p></td>
+<td><p>int, float</p></td>
+<td><p>X-, Easting- or lon-coordinate</p></td>
+<td><p>No</p></td>
+</tr>
+<tr class="row-even"><td><p>y</p></td>
+<td><p>int, float</p></td>
+<td><p>Y-, Northing- or lat-coordinate</p></td>
+<td><p>No</p></td>
+</tr>
+<tr class="row-odd"><td><p>surface</p></td>
+<td><p>int, float</p></td>
+<td><p>Surface elevation of the point survey in m +NAP</p></td>
+<td><p>In methods involving depth</p></td>
+</tr>
+<tr class="row-even"><td><p>end</p></td>
+<td><p>int, float</p></td>
+<td><p>End depth of a point survey in m +NAP</p></td>
+<td><p>No</p></td>
+</tr>
+<tr class="row-odd"><td><p>geometry</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">shapely.geometry.Point</span></code> in case of point data</p></td>
+<td><p>Geometry object of the survey location</p></td>
+<td><p>In spatial methods</p></td>
+</tr>
+<tr class="row-even"><td><p>depth/bottom</p></td>
+<td><p>int, float</p></td>
+<td><p>Depth of a measurement or bottom depth of a layer with respect to the surface level</p></td>
+<td><p>In methods involving depth</p></td>
+</tr>
+<tr class="row-odd"><td><p>top</p></td>
+<td><p>int, float</p></td>
+<td><p>Top depth of a layer with respect to the surface level</p></td>
+<td><p>No, is used in methods involving depth when the survey data is contains layered information</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The names for the postional columns in the table above are chosen as they are as these are
+well-descriptive for the type of information they provide. However, it is not mandatory
+that the positional columns are named exactly like the names in the table above.</p>
+</div>
+<p>GeoST automatically determines which columns to use as positional columns. These can be
+checked with any <code class="docutils literal notranslate"><span class="pre">DataFrame</span></code> by:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">borehole_df</span><span class="o">.</span><span class="n">gst</span><span class="o">.</span><span class="n">positional_columns</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>{&#39;nr&#39;: &#39;nr&#39;,
+ &#39;surface&#39;: &#39;surface&#39;,
+ &#39;end&#39;: &#39;end&#39;,
+ &#39;x&#39;: &#39;x&#39;,
+ &#39;y&#39;: &#39;y&#39;,
+ &#39;top&#39;: &#39;top&#39;,
+ &#39;depth&#39;: &#39;bottom&#39;}
+</pre></div>
+</div>
+</div>
+</div>
+<p>The table below shows which columns are automatically recognized as positional columns by GeoST.</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Name</p></th>
+<th class="head"><p>Recognized names</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>nr</p></td>
+<td><p>“nr”, “bro_id”, “nitg_nr”, “nitg”, “boorp”</p></td>
+</tr>
+<tr class="row-odd"><td><p>x</p></td>
+<td><p>“x”, “x-coord”, “longitude”, “lon”, “easting”, “x_bottom_rd”, “x_rd_crd”, “x_calc_crd”</p></td>
+</tr>
+<tr class="row-even"><td><p>y</p></td>
+<td><p>“y”, “y-coord”, “latitude”, “lat”, “northing”, “y_bottom_rd”, “y_rd_crd”, “y_calc_crd”</p></td>
+</tr>
+<tr class="row-odd"><td><p>surface</p></td>
+<td><p>“surface”, “maaiveld”, “mv”, “height_nap”, “surface_nap”</p></td>
+</tr>
+<tr class="row-even"><td><p>end</p></td>
+<td><p>“end”, “einddiepte”, “einddiepte_nap”, “end_depth”, “end_depth_nap”</p></td>
+</tr>
+<tr class="row-odd"><td><p>top</p></td>
+<td><p>“top”, “tv_top_nap”, “top_diepte”, “top_depth”, “upperboundary”</p></td>
+</tr>
+<tr class="row-even"><td><p>depth</p></td>
+<td><p>“depth”, “bottom”, tv_bottom_nap”, “basis_diepte”, “bottom_depth”, lowerboundary”</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p><strong>geometry</strong> is not included in the positional columns as this uses the <strong>“active geometry column”</strong>
+attribute of a <a class="reference external" href="https://geopandas.org/en/stable/docs/user_guide/data_structures.html#geodataframe"><code class="docutils literal notranslate"><span class="pre">geopandas.GeoDataFrame</span></code></a></p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The recognized names are case-insensitive as each name is checked in lowercase form.</p>
+</div>
+<p>To see how this works, let’s rename the “x” and “y” columns in <code class="docutils literal notranslate"><span class="pre">borehole_df</span></code> and check the
+positional columns again:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">borehole_df</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;x&quot;</span><span class="p">:</span> <span class="s2">&quot;Longitude&quot;</span><span class="p">,</span> <span class="s2">&quot;y&quot;</span><span class="p">:</span> <span class="s2">&quot;Latitude&quot;</span><span class="p">},</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">borehole_df</span><span class="o">.</span><span class="n">gst</span><span class="o">.</span><span class="n">positional_columns</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>{&#39;nr&#39;: &#39;nr&#39;,
+ &#39;surface&#39;: &#39;surface&#39;,
+ &#39;end&#39;: &#39;end&#39;,
+ &#39;x&#39;: &#39;Longitude&#39;,
+ &#39;y&#39;: &#39;Latitude&#39;,
+ &#39;top&#39;: &#39;top&#39;,
+ &#39;depth&#39;: &#39;bottom&#39;}
+</pre></div>
+</div>
+</div>
+</div>
+<p>You can see that the new names are automatically picked up as positional columns. If one of
+the positional columns is not picked up, <code class="docutils literal notranslate"><span class="pre">None</span></code> is returned. We rename the “surface” column
+to some unknown name to show this:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">borehole_df</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;surface&quot;</span><span class="p">:</span> <span class="s2">&quot;unknown-surface-name&quot;</span><span class="p">},</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">borehole_df</span><span class="o">.</span><span class="n">gst</span><span class="o">.</span><span class="n">positional_columns</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>{&#39;nr&#39;: &#39;nr&#39;,
+ &#39;surface&#39;: None,
+ &#39;end&#39;: &#39;end&#39;,
+ &#39;x&#39;: &#39;Longitude&#39;,
+ &#39;y&#39;: &#39;Latitude&#39;,
+ &#39;top&#39;: &#39;top&#39;,
+ &#39;depth&#39;: &#39;bottom&#39;}
+</pre></div>
+</div>
+</div>
+</div>
+<p>Since “surface” is not recognized anymore, trying an analysis method which needs depth
+would now raise a <code class="docutils literal notranslate"><span class="pre">KeyError</span></code>:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">try</span><span class="p">:</span>
+    <span class="n">borehole_df</span><span class="o">.</span><span class="n">gst</span><span class="o">.</span><span class="n">slice_depth_interval</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Slicing successful&quot;</span><span class="p">)</span>  <span class="c1"># Only prints if no error is raised</span>
+<span class="k">except</span> <span class="ne">KeyError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>  <span class="c1"># Print the error message instead of actually raising the error</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>&quot;Method &#39;slice_depth_interval&#39; requires depth information in the DataFrame. Please ensure that the DataFrame contains one of the following the required combinations of depth columns: - &#39;surface&#39;, &#39;top&#39; and &#39;bottom&#39; - &#39;surface&#39; and &#39;bottom&#39; - &#39;surface&#39; and &#39;depth&#39;&quot;
+</pre></div>
+</div>
+</div>
+</div>
+<p>To solve this problem, you can choose to rename your columns to recognized names. Read functions such as <a class="reference internal" href="../api_reference/generated/geost.read_table.html"><span class="std std-doc"><code class="docutils literal notranslate"><span class="pre">geost.read_table</span></code></span></a> have a <code class="docutils literal notranslate"><span class="pre">column_mapper</span></code> parameter which takes a dictionary with
+columns to rename and returns the data with the renamed columns. Read functions raise a <code class="docutils literal notranslate"><span class="pre">UserWarning</span></code> if any of the optional positional columns cannot be found and a <code class="docutils literal notranslate"><span class="pre">KeyError</span></code> if the column identifying surveys cannot be found.</p>
+<p>Alternatively, GeoST provides a simple way to add any column name to be recognized as a positional column name so you can make all functionality work for any kind of data:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">geost</span><span class="o">.</span><span class="n">add_positional_columns</span><span class="p">({</span><span class="s2">&quot;surface&quot;</span><span class="p">:</span> <span class="s2">&quot;unknown-surface-name&quot;</span><span class="p">})</span>
+<span class="n">borehole_df</span><span class="o">.</span><span class="n">gst</span><span class="o">.</span><span class="n">positional_columns</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>{&#39;nr&#39;: &#39;nr&#39;,
+ &#39;surface&#39;: &#39;unknown-surface-name&#39;,
+ &#39;end&#39;: &#39;end&#39;,
+ &#39;x&#39;: &#39;Longitude&#39;,
+ &#39;y&#39;: &#39;Latitude&#39;,
+ &#39;top&#39;: &#39;top&#39;,
+ &#39;depth&#39;: &#39;bottom&#39;}
+</pre></div>
+</div>
+</div>
+</div>
+<p>Now, the previously unrecognized name works again.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Use the <code class="docutils literal notranslate"><span class="pre">persist=True</span></code> keyword argument to store the provided column aliases in a user-specific
+configuration file so they are automatically recognized in future sessions.</p>
+</div>
+</section>
+<section id="use-with-generic-geopandas-pandas">
+<h2>Use with generic Geopandas/Pandas<a class="headerlink" href="#use-with-generic-geopandas-pandas" title="Link to this heading">#</a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">.gst</span></code> accessor also works on any GeoDataFrame or any DataFrame instance as long as it
+contains columns which can be recognized as positional columns, see the <a class="reference internal" href="#positional-columns"><span class="xref myst">previous</span></a>
+section. Therefore, any data that has been loaded or created without GeoST can also use
+the provided functionality via the accessor.</p>
+<p>Let’s demonstrate this with a simple <code class="docutils literal notranslate"><span class="pre">geopandas.GeoDataFrame</span></code> containing two points:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">geopandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">gpd</span>
+
+<span class="n">gdf</span> <span class="o">=</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">(</span>
+    <span class="p">{</span><span class="s2">&quot;nr&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">]},</span> <span class="n">geometry</span><span class="o">=</span><span class="n">gpd</span><span class="o">.</span><span class="n">points_from_xy</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">10</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">20</span><span class="p">]),</span> <span class="n">crs</span><span class="o">=</span><span class="mi">28992</span>
+<span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">gdf</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Selection result:&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">gdf</span><span class="o">.</span><span class="n">gst</span><span class="o">.</span><span class="n">select_within_bbox</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>   nr       geometry
+0   1    POINT (1 1)
+1   2  POINT (10 20)
+
+Selection result:
+   nr     geometry
+0   1  POINT (1 1)
+</pre></div>
+</div>
+</div>
+</div>
+<p>This also works for any <code class="docutils literal notranslate"><span class="pre">pandas.DataFrame</span></code>:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+
+<span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+    <span class="p">{</span><span class="s2">&quot;nr&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;a&quot;</span><span class="p">,</span> <span class="s2">&quot;a&quot;</span><span class="p">],</span> <span class="s2">&quot;top&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="s2">&quot;bottom&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="s2">&quot;lith&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;clay&quot;</span><span class="p">,</span> <span class="s2">&quot;sand&quot;</span><span class="p">]}</span>
+<span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Selection result:&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">gst</span><span class="o">.</span><span class="n">slice_by_values</span><span class="p">(</span><span class="s2">&quot;lith&quot;</span><span class="p">,</span> <span class="s2">&quot;clay&quot;</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>  nr  top  bottom  lith
+0  a    0       1  clay
+1  a    1       2  sand
+
+Selection result:
+  nr  top  bottom  lith
+0  a    0       1  clay
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="data_structures.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Data structures</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="model_data.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Model data</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#reading-survey-data">Reading survey data</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#reading-data-from-the-bro-rest-api">Reading data from the BRO REST-API</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#reading-from-local-files">Reading from local files</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#positional-columns">Positional columns</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#use-with-generic-geopandas-pandas">Use with generic Geopandas/Pandas</a></li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+
+  <div class="tocsection sourcelink">
+    <a href="../_sources/user_guide/survey_data.ipynb.txt">
+      <i class="fa-solid fa-file-lines"></i> Show Source
+    </a>
+  </div>
+</div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=55c26ed414f5f8a31ebb"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=55c26ed414f5f8a31ebb"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2026, Deltares.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.17.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

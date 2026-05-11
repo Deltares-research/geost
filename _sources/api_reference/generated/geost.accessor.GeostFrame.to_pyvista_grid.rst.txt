@@ -1,0 +1,6 @@
+﻿geost.accessor.GeostFrame.to\_pyvista\_grid
+===========================================
+
+.. currentmodule:: geost.accessor
+
+.. automethod:: GeostFrame.to_pyvista_grid

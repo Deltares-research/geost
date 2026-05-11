@@ -1,0 +1,6 @@
+﻿geost.analysis.combine.add\_nearest\_voxelmodel\_variable
+=========================================================
+
+.. currentmodule:: geost.analysis.combine
+
+.. autofunction:: add_nearest_voxelmodel_variable

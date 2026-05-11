@@ -1,0 +1,6 @@
+﻿geost.read\_table
+=================
+
+.. currentmodule:: geost
+
+.. autofunction:: read_table

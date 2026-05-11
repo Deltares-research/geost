@@ -1,0 +1,6 @@
+﻿geost.analysis.layers.get\_layer\_base
+======================================
+
+.. currentmodule:: geost.analysis.layers
+
+.. autofunction:: get_layer_base

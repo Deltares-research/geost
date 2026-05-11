@@ -1,6 +1,0 @@
-﻿geost.spatial.find\_area\_labels
-================================
-
-.. currentmodule:: geost.spatial
-
-.. autofunction:: find_area_labels

@@ -1,0 +1,6 @@
+﻿geost.validation.validate.ValidationResult.error\_indices
+=========================================================
+
+.. currentmodule:: geost.validation.validate
+
+.. autoproperty:: ValidationResult.error_indices

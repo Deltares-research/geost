@@ -1,6 +1,0 @@
-﻿geost.base.BoreholeCollection.get
-=================================
-
-.. currentmodule:: geost.base
-
-.. automethod:: BoreholeCollection.get

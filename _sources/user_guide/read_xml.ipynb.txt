@@ -19,7 +19,7 @@
     "- Cone Penetration Tests (CPT objects)\n",
     "- Pedological soilprofile descriptions (SFR objects)\n",
     "\n",
-    "Downloading any of the above data sources from [BROloket](https://www.broloket.nl/ondergrondgegevens) results in a set of XML files for the requested objects. GeoST can be used to read the data in the XML files for each of the data sources (see [available read function](../user_guide/reading_data.ipynb#subsurfacedata) for each object). Sometimes, XML data for one of the above objects may also be provided by companies (e.g. Wiertsema), which can differ slightly in structure compared to BRO XML files, but GeoST can work with these files too. For this tutorial, we will demonstrate how data is extracted from an XML file using a BHR-G XML file downloaded from the BRO but the principle is the same for the other data sources.\n",
+    "Downloading any of the above data sources from [BROloket](https://www.broloket.nl/ondergrondgegevens) results in a set of XML files for the requested objects. GeoST can be used to read the data in the XML files for each of the data sources (see [available read function](../user_guide/reading_data.ipynb#survey-data) for each object). Sometimes, XML data for one of the above objects may also be provided by companies (e.g. Wiertsema), which can differ slightly in structure compared to BRO XML files, but GeoST can work with these files too. For this tutorial, we will demonstrate how data is extracted from an XML file using a BHR-G XML file downloaded from the BRO but the principle is the same for the other data sources.\n",
     "\n",
     "We will begin with the necessary imports."
    ]

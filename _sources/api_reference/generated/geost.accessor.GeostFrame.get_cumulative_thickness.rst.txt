@@ -1,0 +1,6 @@
+﻿geost.accessor.GeostFrame.get\_cumulative\_thickness
+====================================================
+
+.. currentmodule:: geost.accessor
+
+.. automethod:: GeostFrame.get_cumulative_thickness

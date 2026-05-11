@@ -1,0 +1,6 @@
+﻿geost.accessor.GeostFrame.has\_xy\_columns
+==========================================
+
+.. currentmodule:: geost.accessor
+
+.. autoproperty:: GeostFrame.has_xy_columns

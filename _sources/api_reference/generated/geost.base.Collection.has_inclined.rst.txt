@@ -1,0 +1,6 @@
+﻿geost.base.Collection.has\_inclined
+===================================
+
+.. currentmodule:: geost.base
+
+.. autoproperty:: Collection.has_inclined

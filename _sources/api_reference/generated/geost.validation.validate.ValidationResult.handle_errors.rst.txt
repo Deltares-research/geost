@@ -1,0 +1,6 @@
+﻿geost.validation.validate.ValidationResult.handle\_errors
+=========================================================
+
+.. currentmodule:: geost.validation.validate
+
+.. automethod:: ValidationResult.handle_errors

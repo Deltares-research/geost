@@ -1,0 +1,6 @@
+﻿geost.accessor.GeostFrame.calculate\_thickness
+==============================================
+
+.. currentmodule:: geost.accessor
+
+.. automethod:: GeostFrame.calculate_thickness

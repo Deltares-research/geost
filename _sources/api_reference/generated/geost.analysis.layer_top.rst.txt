@@ -1,6 +1,0 @@
-﻿geost.analysis.layer\_top
-=========================
-
-.. currentmodule:: geost.analysis
-
-.. autofunction:: layer_top

@@ -1,6 +1,0 @@
-﻿geost.base.BoreholeCollection.select\_with\_points
-==================================================
-
-.. currentmodule:: geost.base
-
-.. automethod:: BoreholeCollection.select_with_points

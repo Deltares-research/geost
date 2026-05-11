@@ -1,6 +1,0 @@
-﻿geost.analysis.cumulative\_thickness
-====================================
-
-.. currentmodule:: geost.analysis
-
-.. autofunction:: cumulative_thickness

@@ -26,47 +26,54 @@
   </noscript>
   
   <!-- Loaded before other Sphinx assets -->
-  <link href="../../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
-<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+  <link href="../../../_static/styles/theme.css?digest=55c26ed414f5f8a31ebb" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=55c26ed414f5f8a31ebb" rel="stylesheet" />
 
     <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=8f2a1f02" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/mystnb.8ecb98da25f57f5357bf6f572d296f466b2cfe2517ffebfabe82451661e28f02.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/mystnb.11b39860a7a0cbfd473a3ad8a317855267ff0bd372690045ca344a6b62be495e.css" />
     <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=6e1425e8" />
     <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-design.min.css?v=95c83b7e" />
     <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=6e1425e8" />
   
   <!-- So that users can add custom icons -->
-  <script src="../../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <script defer src="../../../_static/scripts/fontawesome.js?digest=55c26ed414f5f8a31ebb"></script>
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
-<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=55c26ed414f5f8a31ebb" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=55c26ed414f5f8a31ebb" />
 
     <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = '_modules/geost/analysis/combine';</script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
     <link rel="icon" href="../../../_static/geost_logo.png"/>
     <link rel="author" title="About these documents" href="../../../about.html" />
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="0.4.1" />
+  <meta name="docsearch:version" content="0.5.0" />
+  
+    
+    <script src="../../../_static/searchtools.js"></script>
+    <script src="../../../_static/language_data.js"></script>
+    <script src="../../../searchindex.js"></script>
+  
   </head>
-  
-  
-  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
-
+  <body data-default-mode="">
   
   
   <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+
   
   <div id="pst-scroll-pixel-helper"></div>
   
   <button type="button" class="btn rounded-pill" id="pst-back-to-top">
     <i class="fa-solid fa-arrow-up"></i>Back to top</button>
-
+  
+  
+  
   
   <dialog id="pst-search-dialog">
     
@@ -92,7 +99,7 @@
 </div>
 
   
-    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
 <div class="bd-header__inner bd-page-width">
   <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
     <span class="fa-solid fa-bars"></span>
@@ -459,14 +466,107 @@
                 <article class="bd-article">
                   
   <h1>Source code for geost.analysis.combine</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TYPE_CHECKING</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">geost.accessors.data</span><span class="w"> </span><span class="kn">import</span> <span class="n">DiscreteData</span><span class="p">,</span> <span class="n">LayeredData</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">geost.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">Collection</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">geost.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">VoxelModel</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">geost.models.model_utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">label_consecutive_2d</span>
+
+<span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">geost.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">VoxelModel</span>
+
+
+<div class="viewcode-block" id="add_nearest_voxelmodel_variable">
+<a class="viewcode-back" href="../../../api_reference/generated/geost.analysis.combine.add_nearest_voxelmodel_variable.html#geost.analysis.combine.add_nearest_voxelmodel_variable">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">add_nearest_voxelmodel_variable</span><span class="p">(</span>
+    <span class="n">collection</span><span class="p">:</span> <span class="n">Collection</span><span class="p">,</span>
+    <span class="n">model</span><span class="p">:</span> <span class="n">VoxelModel</span><span class="p">,</span>
+    <span class="n">data_vars</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+    <span class="n">tolerances</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Collection</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Add information from a `VoxelModel` instance as columns to the data of a</span>
+<span class="sd">    :class:`~geost.base.Collection` instance. This checks for each survey in the</span>
+<span class="sd">    Collection in which voxel stack the survey is located and adds the relevant data</span>
+<span class="sd">    variables of the `VoxelModel` to the data object of the Collection based on depth.</span>
+
+<span class="sd">    Note</span>
+<span class="sd">    ----</span>
+<span class="sd">    This function simply assigns the nearest voxel value to each layer or measurement, while</span>
+<span class="sd">    `add_voxelmodel_variable` also updates layer boundaries based on the voxel model.</span>
+
+<span class="sd">    If the variable name is already present in the columns of the data attribute of the</span>
+<span class="sd">    collection, the present column is overwritten. To avoid this, rename the variable</span>
+<span class="sd">    before either in collection.data or in the voxelmodel.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    collection : :class:`~geost.base.Collection`</span>
+<span class="sd">        `Collection` to add the `VoxelModel` variable to.</span>
+<span class="sd">    model : :class:`~geost.models.VoxelModel`</span>
+<span class="sd">        `VoxelModel` instance to add the information from to the `Collection` instance.</span>
+<span class="sd">    data_vars : str | list[str]</span>
+<span class="sd">        Name(s) of the variable(s) in the `VoxelModel` to add.</span>
+<span class="sd">    tolerances : tuple[float, float, float] | None</span>
+<span class="sd">        Optional tolerances in x, y and z direction for matching the survey points to the</span>
+<span class="sd">        voxel centers. If not given, the x/y/z resolution of the `VoxelModel` is used as</span>
+<span class="sd">        tolerance.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    :class:`~geost.base.Collection`</span>
+<span class="sd">        `Collection` instance with the information from the `VoxelModel` variable added.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">collection_data</span> <span class="o">=</span> <span class="n">collection</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">gst</span><span class="o">.</span><span class="n">_get_depth_relative_to_surface</span><span class="p">()</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="n">x_queried</span> <span class="o">=</span> <span class="n">collection_data</span><span class="p">[</span><span class="n">collection_data</span><span class="o">.</span><span class="n">gst</span><span class="o">.</span><span class="n">_x</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+    <span class="n">y_queried</span> <span class="o">=</span> <span class="n">collection_data</span><span class="p">[</span><span class="n">collection_data</span><span class="o">.</span><span class="n">gst</span><span class="o">.</span><span class="n">_y</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+
+    <span class="c1"># Take center of layer if layered, otherwise take bottom depth as z coordinate for</span>
+    <span class="c1"># querying the voxel model</span>
+    <span class="k">if</span> <span class="n">collection_data</span><span class="o">.</span><span class="n">gst</span><span class="o">.</span><span class="n">is_layered</span><span class="p">:</span>
+        <span class="n">z_queried</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">collection_data</span><span class="p">[</span><span class="n">collection_data</span><span class="o">.</span><span class="n">gst</span><span class="o">.</span><span class="n">_top</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+            <span class="o">+</span> <span class="n">collection_data</span><span class="p">[</span><span class="n">collection_data</span><span class="o">.</span><span class="n">gst</span><span class="o">.</span><span class="n">_bottom</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+        <span class="p">)</span> <span class="o">/</span> <span class="mi">2</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">z_queried</span> <span class="o">=</span> <span class="n">collection_data</span><span class="p">[</span><span class="n">collection_data</span><span class="o">.</span><span class="n">gst</span><span class="o">.</span><span class="n">_bottom</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+
+    <span class="n">result</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">ds</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span>
+        <span class="n">x</span><span class="o">=</span><span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span><span class="n">x_queried</span><span class="p">,</span> <span class="n">dims</span><span class="o">=</span><span class="s2">&quot;points&quot;</span><span class="p">),</span>
+        <span class="n">y</span><span class="o">=</span><span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span><span class="n">y_queried</span><span class="p">,</span> <span class="n">dims</span><span class="o">=</span><span class="s2">&quot;points&quot;</span><span class="p">),</span>
+        <span class="n">z</span><span class="o">=</span><span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span><span class="n">z_queried</span><span class="p">,</span> <span class="n">dims</span><span class="o">=</span><span class="s2">&quot;points&quot;</span><span class="p">),</span>
+        <span class="n">method</span><span class="o">=</span><span class="s2">&quot;nearest&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Custom implementation of tolerance per dimension because the tolerance kwarg in</span>
+    <span class="c1"># xarray&#39;s sel is applied to all dimensions.)</span>
+    <span class="n">dx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">result</span><span class="p">[</span><span class="s2">&quot;x&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span> <span class="o">-</span> <span class="n">x_queried</span><span class="p">)</span>
+    <span class="n">dy</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">result</span><span class="p">[</span><span class="s2">&quot;y&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span> <span class="o">-</span> <span class="n">y_queried</span><span class="p">)</span>
+    <span class="n">dz</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">result</span><span class="p">[</span><span class="s2">&quot;z&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span> <span class="o">-</span> <span class="n">z_queried</span><span class="p">)</span>
+
+    <span class="c1"># Use given tolerances or default to voxel resolution if not given</span>
+    <span class="k">if</span> <span class="n">tolerances</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">tol_x</span><span class="p">,</span> <span class="n">tol_y</span><span class="p">,</span> <span class="n">tol_z</span> <span class="o">=</span> <span class="n">tolerances</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">tol_x</span><span class="p">,</span> <span class="n">tol_y</span><span class="p">,</span> <span class="n">tol_z</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">resolution</span>
+    <span class="n">mask</span> <span class="o">=</span> <span class="p">(</span><span class="n">dx</span> <span class="o">&lt;=</span> <span class="n">tol_x</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">dy</span> <span class="o">&lt;=</span> <span class="n">tol_y</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">dz</span> <span class="o">&lt;=</span> <span class="n">tol_z</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">data_var</span> <span class="ow">in</span> <span class="n">data_vars</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data_vars</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span> <span class="k">else</span> <span class="p">[</span><span class="n">data_vars</span><span class="p">]:</span>
+        <span class="n">collection_data</span><span class="p">[</span><span class="n">data_var</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">mask</span><span class="p">,</span> <span class="n">result</span><span class="p">[</span><span class="n">data_var</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">Collection</span><span class="p">(</span>
+        <span class="n">collection</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="o">**</span><span class="n">collection_data</span><span class="p">[</span><span class="n">data_vars</span><span class="p">]),</span>
+        <span class="n">header</span><span class="o">=</span><span class="n">collection</span><span class="o">.</span><span class="n">header</span><span class="o">.</span><span class="n">copy</span><span class="p">(),</span>
+        <span class="n">has_inclined</span><span class="o">=</span><span class="n">collection</span><span class="o">.</span><span class="n">has_inclined</span><span class="p">,</span>
+        <span class="n">vertical_datum</span><span class="o">=</span><span class="n">collection</span><span class="o">.</span><span class="n">vertical_datum</span><span class="p">,</span>
+    <span class="p">)</span></div>
+
 
 
 <div class="viewcode-block" id="add_voxelmodel_variable">
@@ -476,10 +576,9 @@
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Collection</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Add a information from a variable of a `VoxelModel` instance as a column to the data</span>
-<span class="sd">    of a `BoreholeCollection` or `CptCollection` instance. This checks for each data object</span>
-<span class="sd">    in the Collection instance in which voxel stack the object is located and adds the</span>
-<span class="sd">    relevant layer boundaries of the variable to the data object of the Collection based</span>
-<span class="sd">    on depth.</span>
+<span class="sd">    of a :class:`~geost.base.Collection` instance. This checks for each survey in the</span>
+<span class="sd">    Collection in which voxel stack the survey is located and adds the relevant layer</span>
+<span class="sd">    boundaries of the variable to the data object of the Collection based on depth.</span>
 
 <span class="sd">    Note</span>
 <span class="sd">    ----</span>
@@ -489,53 +588,81 @@
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    collection : Collection</span>
-<span class="sd">        Any GeoST `Collection` object such as a :class:`~geost.base.BoreholeCollection`</span>
-<span class="sd">        or :class:`~geost.base.CptCollection` to add the `VoxelModel` variable to.</span>
-<span class="sd">    model : :class:`~geost.modelbase.VoxelModel`</span>
+<span class="sd">    collection : :class:`~geost.base.Collection`</span>
+<span class="sd">        `Collection` to add the `VoxelModel` variable to.</span>
+<span class="sd">    model : :class:`~geost.models.VoxelModel`</span>
 <span class="sd">        `VoxelModel` instance to add the information from to the `Collection` instance.</span>
 <span class="sd">    variable : str</span>
 <span class="sd">        Name of the variable in the `VoxelModel` to add.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
-<span class="sd">    Collection</span>
-<span class="sd">        New `Collection` (same type as the input) object with the variable added to the</span>
-<span class="sd">        data object of the `Collection`.</span>
-
-<span class="sd">    Raises</span>
-<span class="sd">    ------</span>
-<span class="sd">    NotImplementedError</span>
-<span class="sd">        Raises error for geost data object types that are not yet implemented such as</span>
-<span class="sd">        :class:`~geost.base.LineData` (future developments).</span>
+<span class="sd">    :class:`~geost.base.Collection`</span>
+<span class="sd">        `Collection` instance with the information from the `VoxelModel` variable added</span>
+<span class="sd">        to the data table.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="n">variable</span> <span class="ow">in</span> <span class="n">collection</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
-        <span class="n">collection</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="n">variable</span><span class="p">],</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">collection</span><span class="o">.</span><span class="n">data</span>
 
-    <span class="n">var_select</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">select_with_points</span><span class="p">(</span><span class="n">collection</span><span class="o">.</span><span class="n">header</span><span class="p">)[</span><span class="n">variable</span><span class="p">]</span>
-    <span class="n">nrs</span> <span class="o">=</span> <span class="n">collection</span><span class="o">.</span><span class="n">header</span><span class="p">[</span><span class="s2">&quot;nr&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">var_select</span><span class="p">[</span><span class="s2">&quot;idx&quot;</span><span class="p">]]</span>
+    <span class="k">if</span> <span class="n">variable</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+        <span class="n">data</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="n">variable</span><span class="p">],</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="n">columns</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">gst</span><span class="o">.</span><span class="n">positional_columns</span>
+    <span class="n">nr_</span><span class="p">,</span> <span class="n">surface_</span><span class="p">,</span> <span class="n">top_</span><span class="p">,</span> <span class="n">bottom_</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">columns</span><span class="p">[</span><span class="s2">&quot;nr&quot;</span><span class="p">],</span>
+        <span class="n">columns</span><span class="p">[</span><span class="s2">&quot;surface&quot;</span><span class="p">],</span>
+        <span class="n">columns</span><span class="p">[</span><span class="s2">&quot;top&quot;</span><span class="p">],</span>
+        <span class="n">columns</span><span class="p">[</span><span class="s2">&quot;depth&quot;</span><span class="p">],</span>
+    <span class="p">)</span>
+
+    <span class="n">surface_level</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">nr_</span><span class="p">)</span><span class="o">.</span><span class="n">agg</span><span class="p">({</span><span class="n">surface_</span><span class="p">:</span> <span class="s2">&quot;first&quot;</span><span class="p">})</span>
+
+    <span class="n">var_select</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">select_with_points</span><span class="p">(</span><span class="n">collection</span><span class="o">.</span><span class="n">header</span><span class="p">)</span>
+    <span class="n">var_select</span> <span class="o">=</span> <span class="n">var_select</span><span class="o">.</span><span class="n">assign_coords</span><span class="p">(</span>
+        <span class="n">idx</span><span class="o">=</span><span class="n">collection</span><span class="o">.</span><span class="n">header</span><span class="p">[</span><span class="n">nr_</span><span class="p">]</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">var_select</span><span class="p">[</span><span class="s2">&quot;idx&quot;</span><span class="p">]]</span>
+    <span class="p">)</span>
 
     <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">dz</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">resolution</span>
 
-    <span class="n">var_df</span> <span class="o">=</span> <span class="n">_reduce_to_top_bottom</span><span class="p">(</span><span class="n">var_select</span><span class="p">,</span> <span class="n">dz</span><span class="p">)</span>
-    <span class="n">var_df</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;values&quot;</span><span class="p">:</span> <span class="n">variable</span><span class="p">},</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-    <span class="n">var_df</span><span class="p">[</span><span class="s2">&quot;nr&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">nrs</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">var_df</span><span class="p">[</span><span class="s2">&quot;nr&quot;</span><span class="p">]]</span><span class="o">.</span><span class="n">values</span>
+    <span class="n">var_df</span> <span class="o">=</span> <span class="n">_reduce_to_top_bottom</span><span class="p">(</span>
+        <span class="n">var_select</span><span class="p">,</span> <span class="n">dz</span><span class="p">,</span> <span class="n">survey_name</span><span class="o">=</span><span class="n">nr_</span><span class="p">,</span> <span class="n">depth_name</span><span class="o">=</span><span class="n">bottom_</span><span class="p">,</span> <span class="n">value_name</span><span class="o">=</span><span class="n">variable</span>
+    <span class="p">)</span>
+    <span class="n">var_df</span> <span class="o">=</span> <span class="n">var_df</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">surface_level</span><span class="p">,</span> <span class="n">left_on</span><span class="o">=</span><span class="n">nr_</span><span class="p">,</span> <span class="n">right_index</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s2">&quot;left&quot;</span><span class="p">)</span>
+    <span class="n">var_df</span> <span class="o">=</span> <span class="n">var_df</span><span class="p">[</span>
+        <span class="n">var_df</span><span class="p">[</span><span class="n">bottom_</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">var_df</span><span class="p">[</span><span class="n">surface_</span><span class="p">]</span>
+    <span class="p">]</span>  <span class="c1"># Only keep layers below surface, strat boundaries are bottoms of layers</span>
+    <span class="n">var_df</span><span class="p">[</span><span class="n">bottom_</span><span class="p">]</span> <span class="o">=</span> <span class="n">var_df</span><span class="p">[</span><span class="n">surface_</span><span class="p">]</span> <span class="o">-</span> <span class="n">var_df</span><span class="p">[</span><span class="n">bottom_</span><span class="p">]</span>
+    <span class="n">var_df</span> <span class="o">=</span> <span class="n">var_df</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="n">surface_</span><span class="p">)</span>
 
-    <span class="k">if</span> <span class="p">{</span><span class="s2">&quot;top&quot;</span><span class="p">,</span> <span class="s2">&quot;bottom&quot;</span><span class="p">}</span><span class="o">.</span><span class="n">issubset</span><span class="p">(</span><span class="n">collection</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">columns</span><span class="p">):</span>
-        <span class="n">result</span> <span class="o">=</span> <span class="n">_add_to_layered</span><span class="p">(</span><span class="n">collection</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="n">var_df</span><span class="p">)</span>
-    <span class="k">elif</span> <span class="s2">&quot;depth&quot;</span> <span class="ow">in</span> <span class="n">collection</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
-        <span class="n">result</span> <span class="o">=</span> <span class="n">_add_to_discrete</span><span class="p">(</span><span class="n">collection</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="n">var_df</span><span class="p">)</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span>
-            <span class="s2">&quot;Other datatypes than LayeredData or DiscreteData not implemented yet.&quot;</span>
-        <span class="p">)</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">data</span><span class="p">,</span> <span class="n">var_df</span><span class="p">])</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="p">[</span><span class="n">nr_</span><span class="p">,</span> <span class="n">bottom_</span><span class="p">])</span>
+    <span class="n">nr</span> <span class="o">=</span> <span class="n">result</span><span class="p">[</span><span class="n">nr_</span><span class="p">]</span>  <span class="c1"># Keep survey ID because it is lost in the groupby backfill step</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">nr</span><span class="p">,</span> <span class="n">result</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">nr_</span><span class="p">)</span><span class="o">.</span><span class="n">bfill</span><span class="p">()],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">result</span><span class="o">.</span><span class="n">dropna</span><span class="p">(</span><span class="n">subset</span><span class="o">=</span><span class="n">surface_</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">drop_duplicates</span><span class="p">(</span><span class="n">subset</span><span class="o">=</span><span class="p">[</span><span class="n">nr_</span><span class="p">,</span> <span class="n">bottom_</span><span class="p">])</span>
+        <span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="p">)</span>
+    <span class="c1"># Drop duplicate bottom values because combining may cause duplicate depths</span>
 
-    <span class="k">return</span> <span class="n">result</span><span class="o">.</span><span class="n">gstda</span><span class="o">.</span><span class="n">to_collection</span><span class="p">()</span></div>
+    <span class="k">if</span> <span class="n">top_</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">_reset_tops</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">nr</span><span class="o">=</span><span class="n">nr_</span><span class="p">,</span> <span class="n">top</span><span class="o">=</span><span class="n">top_</span><span class="p">,</span> <span class="n">bottom</span><span class="o">=</span><span class="n">bottom_</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">Collection</span><span class="p">(</span>
+        <span class="n">result</span><span class="p">,</span>
+        <span class="n">header</span><span class="o">=</span><span class="n">collection</span><span class="o">.</span><span class="n">header</span><span class="o">.</span><span class="n">copy</span><span class="p">(),</span>
+        <span class="n">has_inclined</span><span class="o">=</span><span class="n">collection</span><span class="o">.</span><span class="n">has_inclined</span><span class="p">,</span>
+        <span class="n">vertical_datum</span><span class="o">=</span><span class="n">collection</span><span class="o">.</span><span class="n">vertical_datum</span><span class="p">,</span>
+    <span class="p">)</span></div>
 
 
 
-<span class="k">def</span><span class="w"> </span><span class="nf">_reduce_to_top_bottom</span><span class="p">(</span><span class="n">da</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span> <span class="n">dz</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_reduce_to_top_bottom</span><span class="p">(</span>
+    <span class="n">da</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span>
+    <span class="n">dz</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">survey_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;idx&quot;</span><span class="p">,</span>
+    <span class="n">depth_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;bottom&quot;</span><span class="p">,</span>
+    <span class="n">value_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;values&quot;</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Helper to reduce the selection DataArray from `VoxelModel.select_with_points` to a</span>
 <span class="sd">    DataFrame containing &quot;idx&quot;, &quot;top&quot; and &quot;bottoms&quot; of relevant layer boundaries.</span>
@@ -546,136 +673,66 @@
 <span class="sd">        Selection result of `VoxelModel.select_with_points`.</span>
 <span class="sd">    dz : int | float</span>
 <span class="sd">        Vertical size of voxels in the VoxelModel.</span>
+<span class="sd">    depth_name : str</span>
+<span class="sd">        Name to use for the depth column in the resulting DataFrame.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    pd.DataFrame</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">da</span> <span class="o">=</span> <span class="n">da</span><span class="p">[</span><span class="n">value_name</span><span class="p">]</span>
     <span class="n">layer_ids</span> <span class="o">=</span> <span class="n">label_consecutive_2d</span><span class="p">(</span><span class="n">da</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
     <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
         <span class="p">{</span>
-            <span class="s2">&quot;nr&quot;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="n">da</span><span class="p">[</span><span class="s2">&quot;idx&quot;</span><span class="p">],</span> <span class="n">da</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s2">&quot;z&quot;</span><span class="p">]),</span>
-            <span class="s2">&quot;bottom&quot;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">tile</span><span class="p">(</span><span class="n">da</span><span class="p">[</span><span class="s2">&quot;z&quot;</span><span class="p">]</span> <span class="o">-</span> <span class="p">(</span><span class="mf">0.5</span> <span class="o">*</span> <span class="n">dz</span><span class="p">),</span> <span class="n">da</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s2">&quot;idx&quot;</span><span class="p">]),</span>
+            <span class="n">survey_name</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="n">da</span><span class="p">[</span><span class="s2">&quot;idx&quot;</span><span class="p">],</span> <span class="n">da</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s2">&quot;z&quot;</span><span class="p">]),</span>
+            <span class="n">depth_name</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">tile</span><span class="p">(</span><span class="n">da</span><span class="p">[</span><span class="s2">&quot;z&quot;</span><span class="p">]</span> <span class="o">-</span> <span class="p">(</span><span class="mf">0.5</span> <span class="o">*</span> <span class="n">dz</span><span class="p">),</span> <span class="n">da</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s2">&quot;idx&quot;</span><span class="p">]),</span>
             <span class="s2">&quot;layer&quot;</span><span class="p">:</span> <span class="n">layer_ids</span><span class="o">.</span><span class="n">ravel</span><span class="p">(),</span>
-            <span class="s2">&quot;values&quot;</span><span class="p">:</span> <span class="n">da</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">ravel</span><span class="p">(),</span>
+            <span class="n">value_name</span><span class="p">:</span> <span class="n">da</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">ravel</span><span class="p">(),</span>
         <span class="p">}</span>
     <span class="p">)</span>
     <span class="n">reduced</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">pivot_table</span><span class="p">(</span>
-        <span class="n">index</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;nr&quot;</span><span class="p">,</span> <span class="s2">&quot;layer&quot;</span><span class="p">,</span> <span class="s2">&quot;values&quot;</span><span class="p">],</span> <span class="n">values</span><span class="o">=</span><span class="s2">&quot;bottom&quot;</span><span class="p">,</span> <span class="n">aggfunc</span><span class="o">=</span><span class="s2">&quot;min&quot;</span>
+        <span class="n">index</span><span class="o">=</span><span class="p">[</span><span class="n">survey_name</span><span class="p">,</span> <span class="s2">&quot;layer&quot;</span><span class="p">,</span> <span class="n">value_name</span><span class="p">],</span> <span class="n">values</span><span class="o">=</span><span class="n">depth_name</span><span class="p">,</span> <span class="n">aggfunc</span><span class="o">=</span><span class="s2">&quot;min&quot;</span>
     <span class="p">)</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span>
     <span class="k">return</span> <span class="n">reduced</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;layer&quot;</span><span class="p">])</span>
 
 
-<span class="k">def</span><span class="w"> </span><span class="nf">_add_to_layered</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="n">LayeredData</span><span class="p">,</span> <span class="n">variable</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">LayeredData</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_reset_tops</span><span class="p">(</span><span class="n">layered</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">nr</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">top</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">bottom</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Helper function for `add_voxelmodel_variable` to combine a voxelmodel variable in</span>
-<span class="sd">    layered data form. This joins the DataFrames of the LayeredData instance and the</span>
-<span class="sd">    variable from the voxelmodel to add and updates the &quot;top&quot; and &quot;bottom&quot; columns in the</span>
-<span class="sd">    LayeredData.</span>
+<span class="sd">    Helper function for `add_voxelmodel_variable` to reset the top depths of layered data</span>
+<span class="sd">    after stratigraphic layer boundaries have been added and backfilling has been done.</span>
+<span class="sd">    This changes tops into bottoms of the row above in each borehole if tops are lower</span>
+<span class="sd">    than bottoms and removes any layers with a thickness of 0 in the result.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    data : LayeredData</span>
-<span class="sd">        LayeredData instance to add the voxelmodel variable to.</span>
-<span class="sd">    variable : pd.DataFrame</span>
-<span class="sd">        DataFrame with the voxelmodel variable to add. Contains columns [&quot;nr&quot;, &quot;bottom&quot;,</span>
-<span class="sd">        variable] where variable is for example &quot;strat&quot;.</span>
-
-<span class="sd">    Returns</span>
-<span class="sd">    -------</span>
-<span class="sd">    LayeredData</span>
-<span class="sd">        New instance of `LayeredData` with the added variable and corrected top and bottom</span>
-<span class="sd">        depths.</span>
-
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">variable</span> <span class="o">=</span> <span class="n">variable</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span>
-        <span class="n">data</span><span class="p">[[</span><span class="s2">&quot;nr&quot;</span><span class="p">,</span> <span class="s2">&quot;surface&quot;</span><span class="p">]]</span><span class="o">.</span><span class="n">drop_duplicates</span><span class="p">(),</span> <span class="n">on</span><span class="o">=</span><span class="s2">&quot;nr&quot;</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s2">&quot;left&quot;</span>
-    <span class="p">)</span>
-    <span class="n">variable</span><span class="p">[</span><span class="s2">&quot;bottom&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">variable</span><span class="p">[</span><span class="s2">&quot;surface&quot;</span><span class="p">]</span> <span class="o">-</span> <span class="n">variable</span><span class="p">[</span><span class="s2">&quot;bottom&quot;</span><span class="p">]</span>
-
-    <span class="n">result</span> <span class="o">=</span> <span class="p">(</span>
-        <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">data</span><span class="p">,</span> <span class="n">variable</span><span class="p">])</span>
-        <span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;nr&quot;</span><span class="p">,</span> <span class="s2">&quot;bottom&quot;</span><span class="p">,</span> <span class="s2">&quot;top&quot;</span><span class="p">])</span>
-        <span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-    <span class="p">)</span>
-    <span class="n">nr</span> <span class="o">=</span> <span class="n">result</span><span class="p">[</span><span class="s2">&quot;nr&quot;</span><span class="p">]</span>
-    <span class="n">result</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">nr</span><span class="p">,</span> <span class="n">result</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s2">&quot;nr&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">bfill</span><span class="p">()],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-    <span class="n">result</span><span class="o">.</span><span class="n">drop_duplicates</span><span class="p">(</span><span class="n">subset</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;nr&quot;</span><span class="p">,</span> <span class="s2">&quot;bottom&quot;</span><span class="p">],</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-    <span class="n">result</span> <span class="o">=</span> <span class="n">_reset_tops</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
-    <span class="n">result</span><span class="o">.</span><span class="n">dropna</span><span class="p">(</span><span class="n">subset</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;top&quot;</span><span class="p">],</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">result</span>
-
-
-<span class="k">def</span><span class="w"> </span><span class="nf">_reset_tops</span><span class="p">(</span><span class="n">layered_df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Helper function for `_add_to_layered` to reset the top depths after stratigraphic</span>
-<span class="sd">    layer boundaries have been added and backfilling has been done. This changes tops into</span>
-<span class="sd">    bottoms of the row above in each borehole if tops are lower than bottoms. It also checks</span>
-<span class="sd">    if bottoms are less than 0 and resets these layers to 0. Then it removes layers with</span>
-<span class="sd">    a thickness of 0.</span>
-
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    layered_df : pd.DataFrame</span>
+<span class="sd">    layered : pd.DataFrame</span>
 <span class="sd">        Pandas DataFrame with layered data containing tops and bottoms.</span>
+<span class="sd">    nr : str</span>
+<span class="sd">        Column name for the survey ID.</span>
+<span class="sd">    top : str</span>
+<span class="sd">        Column name for the top depths.</span>
+<span class="sd">    bottom : str</span>
+<span class="sd">        Column name for the bottom depths.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    pd.DataFrame</span>
 <span class="sd">        DataFrame with the tops reset.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">bottom_shift_down</span> <span class="o">=</span> <span class="n">layered_df</span><span class="p">[</span><span class="s2">&quot;bottom&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">shift</span><span class="p">()</span>
-    <span class="n">nr_shift_down</span> <span class="o">=</span> <span class="n">layered_df</span><span class="p">[</span><span class="s2">&quot;nr&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">shift</span><span class="p">()</span>
 
-    <span class="n">layered_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span>
-        <span class="p">(</span><span class="n">layered_df</span><span class="p">[</span><span class="s2">&quot;top&quot;</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">bottom_shift_down</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">layered_df</span><span class="p">[</span><span class="s2">&quot;nr&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">nr_shift_down</span><span class="p">),</span>
-        <span class="s2">&quot;top&quot;</span><span class="p">,</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">bottom_shift_down</span> <span class="o">=</span> <span class="n">layered</span><span class="p">[</span><span class="n">bottom</span><span class="p">]</span><span class="o">.</span><span class="n">shift</span><span class="p">()</span>
+    <span class="n">nr_shift_down</span> <span class="o">=</span> <span class="n">layered</span><span class="p">[</span><span class="n">nr</span><span class="p">]</span><span class="o">.</span><span class="n">shift</span><span class="p">()</span>
+
+    <span class="n">layered</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span>
+        <span class="p">(</span><span class="n">layered</span><span class="p">[</span><span class="n">top</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">bottom_shift_down</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">layered</span><span class="p">[</span><span class="n">nr</span><span class="p">]</span> <span class="o">==</span> <span class="n">nr_shift_down</span><span class="p">),</span>
+        <span class="n">top</span><span class="p">,</span>
     <span class="p">]</span> <span class="o">=</span> <span class="n">bottom_shift_down</span>
 
-    <span class="n">layered_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">layered_df</span><span class="p">[</span><span class="s2">&quot;bottom&quot;</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;bottom&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="c1"># Remove layers with zero thickness</span>
+    <span class="n">layered</span> <span class="o">=</span> <span class="n">layered</span><span class="p">[</span><span class="n">layered</span><span class="p">[</span><span class="n">top</span><span class="p">]</span> <span class="o">-</span> <span class="n">layered</span><span class="p">[</span><span class="n">bottom</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
-    <span class="k">return</span> <span class="n">layered_df</span><span class="p">[</span><span class="n">layered_df</span><span class="p">[</span><span class="s2">&quot;top&quot;</span><span class="p">]</span> <span class="o">-</span> <span class="n">layered_df</span><span class="p">[</span><span class="s2">&quot;bottom&quot;</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span>
-        <span class="n">drop</span><span class="o">=</span><span class="kc">True</span>
-    <span class="p">)</span>
-
-
-<span class="k">def</span><span class="w"> </span><span class="nf">_add_to_discrete</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="n">DiscreteData</span><span class="p">,</span> <span class="n">variable</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">DiscreteData</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Helper function for `add_voxelmodel_variable` to combine a voxelmodel variable in</span>
-<span class="sd">    discrete data form. This joins the DataFrames of the DiscreteData instance and the</span>
-<span class="sd">    variable from the voxelmodel to return a new instance of DiscreteData.</span>
-
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    data : DiscreteData</span>
-<span class="sd">        DiscreteData instance to add the voxelmodel variable to.</span>
-<span class="sd">    variable : pd.DataFrame</span>
-<span class="sd">        DataFrame with the voxelmodel variable to add. Contains columns [&quot;nr&quot;, &quot;bottom&quot;,</span>
-<span class="sd">        variable] where variable is for example &quot;strat&quot;.</span>
-
-<span class="sd">    Returns</span>
-<span class="sd">    -------</span>
-<span class="sd">    DiscreteData</span>
-<span class="sd">        New instance of `DiscreteData` with the added variable.</span>
-
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">variable</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;bottom&quot;</span><span class="p">:</span> <span class="s2">&quot;depth&quot;</span><span class="p">},</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-    <span class="n">variable</span> <span class="o">=</span> <span class="n">variable</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span>
-        <span class="n">data</span><span class="p">[[</span><span class="s2">&quot;nr&quot;</span><span class="p">,</span> <span class="s2">&quot;surface&quot;</span><span class="p">]]</span><span class="o">.</span><span class="n">drop_duplicates</span><span class="p">(),</span> <span class="n">on</span><span class="o">=</span><span class="s2">&quot;nr&quot;</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s2">&quot;left&quot;</span>
-    <span class="p">)</span>
-    <span class="n">variable</span><span class="p">[</span><span class="s2">&quot;depth&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">variable</span><span class="p">[</span><span class="s2">&quot;surface&quot;</span><span class="p">]</span> <span class="o">-</span> <span class="n">variable</span><span class="p">[</span><span class="s2">&quot;depth&quot;</span><span class="p">]</span>
-
-    <span class="n">result</span> <span class="o">=</span> <span class="p">(</span>
-        <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">data</span><span class="p">,</span> <span class="n">variable</span><span class="p">])</span>
-        <span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;nr&quot;</span><span class="p">,</span> <span class="s2">&quot;depth&quot;</span><span class="p">])</span>
-        <span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-    <span class="p">)</span>
-    <span class="n">nr</span> <span class="o">=</span> <span class="n">result</span><span class="p">[</span><span class="s2">&quot;nr&quot;</span><span class="p">]</span>
-    <span class="n">result</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">nr</span><span class="p">,</span> <span class="n">result</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s2">&quot;nr&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">bfill</span><span class="p">()],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-    <span class="n">result</span><span class="o">.</span><span class="n">drop_duplicates</span><span class="p">(</span><span class="n">subset</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;nr&quot;</span><span class="p">,</span> <span class="s2">&quot;depth&quot;</span><span class="p">],</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-    <span class="n">result</span><span class="o">.</span><span class="n">dropna</span><span class="p">(</span><span class="n">subset</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;end&quot;</span><span class="p">],</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">result</span>
+    <span class="k">return</span> <span class="n">layered</span>
 </pre></div>
 
                 </article>
@@ -705,8 +762,8 @@
   </div>
   
   <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script defer src="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
-<script defer src="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+  <script defer src="../../../_static/scripts/bootstrap.js?digest=55c26ed414f5f8a31ebb"></script>
+<script defer src="../../../_static/scripts/pydata-sphinx-theme.js?digest=55c26ed414f5f8a31ebb"></script>
 
   <footer class="bd-footer">
 <div class="bd-footer__inner bd-page-width">
@@ -740,7 +797,7 @@
         <div class="footer-item">
 <p class="theme-version">
   <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
-  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.17.1.
 </p></div>
       
     </div>

@@ -1,0 +1,6 @@
+﻿geost.accessor.GeostFrame.to\_qgis3d
+====================================
+
+.. currentmodule:: geost.accessor
+
+.. automethod:: GeostFrame.to_qgis3d

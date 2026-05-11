@@ -23,18 +23,3 @@ as simple as giving feedback and reporting bugs!
 :text-align: center
 ```
 ````
-
-## Governance
-This section is under construction...
-
-## Contribution guidelines
-This section is under construction...
-
-### Reporting a bug
-This section is under construction...
-
-### Feature requests
-This section is under construction...
-
-### Developing GeoST
-This section is under construction...

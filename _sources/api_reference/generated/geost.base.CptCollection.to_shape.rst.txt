@@ -1,6 +1,0 @@
-﻿geost.base.CptCollection.to\_shape
-==================================
-
-.. currentmodule:: geost.base
-
-.. automethod:: CptCollection.to_shape

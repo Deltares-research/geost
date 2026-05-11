@@ -1,0 +1,6 @@
+﻿geost.accessor.GeostFrame.spatial\_join
+=======================================
+
+.. currentmodule:: geost.accessor
+
+.. automethod:: GeostFrame.spatial_join

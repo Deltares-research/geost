@@ -1,0 +1,6 @@
+﻿geost.analysis.layers.get\_layer\_top
+=====================================
+
+.. currentmodule:: geost.analysis.layers
+
+.. autofunction:: get_layer_top

@@ -1,0 +1,6 @@
+﻿geost.accessor.GeostFrame.has\_depth\_columns
+=============================================
+
+.. currentmodule:: geost.accessor
+
+.. autoproperty:: GeostFrame.has_depth_columns

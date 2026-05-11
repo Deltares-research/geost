@@ -1,0 +1,6 @@
+﻿geost.base.Collection.data
+==========================
+
+.. currentmodule:: geost.base
+
+.. autoproperty:: Collection.data

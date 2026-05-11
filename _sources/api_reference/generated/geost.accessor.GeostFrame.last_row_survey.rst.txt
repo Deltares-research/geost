@@ -1,0 +1,6 @@
+﻿geost.accessor.GeostFrame.last\_row\_survey
+===========================================
+
+.. currentmodule:: geost.accessor
+
+.. autoproperty:: GeostFrame.last_row_survey

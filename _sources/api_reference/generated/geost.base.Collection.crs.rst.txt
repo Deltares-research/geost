@@ -1,0 +1,6 @@
+﻿geost.base.Collection.crs
+=========================
+
+.. currentmodule:: geost.base
+
+.. autoproperty:: Collection.crs

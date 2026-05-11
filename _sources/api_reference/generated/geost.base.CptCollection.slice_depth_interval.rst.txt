@@ -1,6 +1,0 @@
-﻿geost.base.CptCollection.slice\_depth\_interval
-===============================================
-
-.. currentmodule:: geost.base
-
-.. automethod:: CptCollection.slice_depth_interval

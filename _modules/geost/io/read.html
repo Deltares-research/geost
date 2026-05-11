@@ -26,47 +26,54 @@
   </noscript>
   
   <!-- Loaded before other Sphinx assets -->
-  <link href="../../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
-<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+  <link href="../../../_static/styles/theme.css?digest=55c26ed414f5f8a31ebb" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=55c26ed414f5f8a31ebb" rel="stylesheet" />
 
     <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=8f2a1f02" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/mystnb.8ecb98da25f57f5357bf6f572d296f466b2cfe2517ffebfabe82451661e28f02.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/mystnb.11b39860a7a0cbfd473a3ad8a317855267ff0bd372690045ca344a6b62be495e.css" />
     <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=6e1425e8" />
     <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-design.min.css?v=95c83b7e" />
     <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=6e1425e8" />
   
   <!-- So that users can add custom icons -->
-  <script src="../../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <script defer src="../../../_static/scripts/fontawesome.js?digest=55c26ed414f5f8a31ebb"></script>
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
-<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=55c26ed414f5f8a31ebb" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=55c26ed414f5f8a31ebb" />
 
     <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = '_modules/geost/io/read';</script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
     <link rel="icon" href="../../../_static/geost_logo.png"/>
     <link rel="author" title="About these documents" href="../../../about.html" />
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="0.4.1" />
+  <meta name="docsearch:version" content="0.5.0" />
+  
+    
+    <script src="../../../_static/searchtools.js"></script>
+    <script src="../../../_static/language_data.js"></script>
+    <script src="../../../searchindex.js"></script>
+  
   </head>
-  
-  
-  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
-
+  <body data-default-mode="">
   
   
   <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+
   
   <div id="pst-scroll-pixel-helper"></div>
   
   <button type="button" class="btn rounded-pill" id="pst-back-to-top">
     <i class="fa-solid fa-arrow-up"></i>Back to top</button>
-
+  
+  
+  
   
   <dialog id="pst-search-dialog">
     
@@ -92,7 +99,7 @@
 </div>
 
   
-    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
 <div class="bd-header__inner bd-page-width">
   <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
     <span class="fa-solid fa-bars"></span>
@@ -467,38 +474,17 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pyproj</span><span class="w"> </span><span class="kn">import</span> <span class="n">CRS</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">geost</span><span class="w"> </span><span class="kn">import</span> <span class="n">utils</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">geost.accessors.data</span><span class="w"> </span><span class="kn">import</span> <span class="n">DiscreteData</span><span class="p">,</span> <span class="n">LayeredData</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">geost.accessors.header</span><span class="w"> </span><span class="kn">import</span> <span class="n">PointHeader</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">geost.base</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
-    <span class="n">BoreholeCollection</span><span class="p">,</span>
-    <span class="n">Collection</span><span class="p">,</span>
-    <span class="n">CptCollection</span><span class="p">,</span>
-<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">geost._warnings</span><span class="w"> </span><span class="kn">import</span> <span class="n">future_deprecation_warning</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">geost.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">Collection</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">geost.bro</span><span class="w"> </span><span class="kn">import</span> <span class="n">BroApi</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">geost.io</span><span class="w"> </span><span class="kn">import</span> <span class="n">_parse_cpt_gef_files</span><span class="p">,</span> <span class="n">xml</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">geost.io.parsers</span><span class="w"> </span><span class="kn">import</span> <span class="n">BorisXML</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">geost.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">conversion</span><span class="p">,</span> <span class="n">io_helpers</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">geost.validation.column_names</span><span class="w"> </span><span class="kn">import</span> <span class="n">check_positional_column_presence</span>
 
 <span class="nb">type</span> <span class="n">BroObject</span> <span class="o">=</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;BHR-GT&quot;</span><span class="p">,</span> <span class="s2">&quot;BHR-GT-samples&quot;</span><span class="p">,</span> <span class="s2">&quot;BHR-P&quot;</span><span class="p">,</span> <span class="s2">&quot;BHR-G&quot;</span><span class="p">,</span> <span class="s2">&quot;CPT&quot;</span><span class="p">,</span> <span class="s2">&quot;SFR&quot;</span><span class="p">]</span>
 
-<span class="n">MANDATORY_LAYERED_DATA_COLUMNS</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;nr&quot;</span><span class="p">,</span> <span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="s2">&quot;y&quot;</span><span class="p">,</span> <span class="s2">&quot;surface&quot;</span><span class="p">,</span> <span class="s2">&quot;end&quot;</span><span class="p">,</span> <span class="s2">&quot;top&quot;</span><span class="p">,</span> <span class="s2">&quot;bottom&quot;</span><span class="p">]</span>
-<span class="n">MANDATORY_DISCRETE_DATA_COLUMNS</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;nr&quot;</span><span class="p">,</span> <span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="s2">&quot;y&quot;</span><span class="p">,</span> <span class="s2">&quot;surface&quot;</span><span class="p">,</span> <span class="s2">&quot;end&quot;</span><span class="p">,</span> <span class="s2">&quot;depth&quot;</span><span class="p">]</span>
-<span class="n">MANDATORY_INCLINED_LAYERED_DATA_COLUMNS</span> <span class="o">=</span> <span class="p">[</span>
-    <span class="s2">&quot;nr&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;x&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;y&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;x_bot&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;y_bot&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;surface&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;end&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;top&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;bottom&quot;</span><span class="p">,</span>
-<span class="p">]</span>
-<span class="n">GEOMETRY_TO_SELECTION_FUNCTION</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s2">&quot;Polygon&quot;</span><span class="p">:</span> <span class="s2">&quot;select_within_polygons&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;Line&quot;</span><span class="p">:</span> <span class="s2">&quot;select_with_lines&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;Point&quot;</span><span class="p">:</span> <span class="s2">&quot;select_with_points&quot;</span><span class="p">,</span>
-<span class="p">}</span>
+
 <span class="n">LLG_COLUMN_MAPPING</span> <span class="o">=</span> <span class="p">{</span>
     <span class="s2">&quot;BOORP&quot;</span><span class="p">:</span> <span class="s2">&quot;nr&quot;</span><span class="p">,</span>
     <span class="s2">&quot;XCO&quot;</span><span class="p">:</span> <span class="s2">&quot;x&quot;</span><span class="p">,</span>
@@ -510,133 +496,168 @@
 <span class="p">}</span>
 
 
-<span class="k">def</span><span class="w"> </span><span class="nf">adjust_z_coordinates</span><span class="p">(</span><span class="n">data_dataframe</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Interpret data containing elevation or z-coordinates. GeoST data objects require</span>
-<span class="sd">    that layer top/bottom or discrete data point z-coordinates to be increasing</span>
-<span class="sd">    downward, starting at at 0. This function detects how elevation is currently defined</span>
-<span class="sd">    and turns it into the desired format if required.</span>
-
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    data_dataframe : pd.DataFrame</span>
-<span class="sd">        Dataframe with layer or discrete data that includes columns referecing layer</span>
-<span class="sd">        top, bottoms or discrete data z-coordinates.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">top_column_label</span> <span class="o">=</span> <span class="p">[</span>
-        <span class="n">col</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">data_dataframe</span><span class="o">.</span><span class="n">columns</span> <span class="k">if</span> <span class="n">col</span> <span class="ow">in</span> <span class="p">{</span><span class="s2">&quot;top&quot;</span><span class="p">,</span> <span class="s2">&quot;depth&quot;</span><span class="p">}</span>
-    <span class="p">][</span><span class="mi">0</span><span class="p">]</span>
-    <span class="n">has_bottom_column</span> <span class="o">=</span> <span class="s2">&quot;bottom&quot;</span> <span class="ow">in</span> <span class="n">data_dataframe</span><span class="o">.</span><span class="n">columns</span>
-
-    <span class="c1"># TODO: think about detection. Only considers first two indices to determine</span>
-    <span class="c1"># downward decreasing or increasing of z-coordinates.</span>
-    <span class="n">first_surface</span> <span class="o">=</span> <span class="n">data_dataframe</span><span class="p">[</span><span class="s2">&quot;surface&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-    <span class="n">first_top</span> <span class="o">=</span> <span class="n">data_dataframe</span><span class="p">[</span><span class="n">top_column_label</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-    <span class="n">second_top</span> <span class="o">=</span> <span class="n">data_dataframe</span><span class="p">[</span><span class="n">top_column_label</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
-
-    <span class="k">if</span> <span class="n">first_top</span> <span class="o">==</span> <span class="n">first_surface</span><span class="p">:</span>
-        <span class="n">data_dataframe</span><span class="p">[</span><span class="n">top_column_label</span><span class="p">]</span> <span class="o">-=</span> <span class="n">data_dataframe</span><span class="p">[</span><span class="s2">&quot;surface&quot;</span><span class="p">]</span>
-        <span class="k">if</span> <span class="n">has_bottom_column</span><span class="p">:</span>
-            <span class="n">data_dataframe</span><span class="p">[</span><span class="s2">&quot;bottom&quot;</span><span class="p">]</span> <span class="o">-=</span> <span class="n">data_dataframe</span><span class="p">[</span><span class="s2">&quot;surface&quot;</span><span class="p">]</span>
-    <span class="k">if</span> <span class="n">first_top</span> <span class="o">&gt;</span> <span class="n">second_top</span><span class="p">:</span>
-        <span class="n">data_dataframe</span><span class="p">[</span><span class="n">top_column_label</span><span class="p">]</span> <span class="o">*=</span> <span class="o">-</span><span class="mi">1</span>
-        <span class="k">if</span> <span class="n">has_bottom_column</span><span class="p">:</span>
-            <span class="n">data_dataframe</span><span class="p">[</span><span class="s2">&quot;bottom&quot;</span><span class="p">]</span> <span class="o">*=</span> <span class="o">-</span><span class="mi">1</span>
-
-    <span class="k">return</span> <span class="n">data_dataframe</span>
-
-
-<span class="k">def</span><span class="w"> </span><span class="nf">_check_mandatory_column_presence</span><span class="p">(</span>
-    <span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">mandatory_cols</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span> <span class="n">column_mapper</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="kc">None</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
-    <span class="n">missing_mandatory</span> <span class="o">=</span> <span class="p">[</span><span class="n">col</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">mandatory_cols</span> <span class="k">if</span> <span class="n">col</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">]</span>
-
-    <span class="k">if</span> <span class="n">missing_mandatory</span><span class="p">:</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">column_mapper</span><span class="p">:</span>
-            <span class="n">column_mapper</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
-            <span class="nb">print</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Mandatory columns </span><span class="si">{</span><span class="n">missing_mandatory</span><span class="si">}</span><span class="s2"> are missing in the &quot;</span>
-                <span class="sa">f</span><span class="s2">&quot;data table. Columns present are: </span><span class="se">\n</span><span class="si">{</span><span class="nb">list</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span>
-            <span class="p">)</span>
-            <span class="k">for</span> <span class="n">missing</span> <span class="ow">in</span> <span class="n">missing_mandatory</span><span class="p">:</span>
-                <span class="n">name</span> <span class="o">=</span> <span class="nb">input</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Which column is </span><span class="si">{</span><span class="n">missing</span><span class="si">}</span><span class="s2">? &quot;</span><span class="p">)</span>
-                <span class="n">column_mapper</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">missing</span>
-
-        <span class="n">df</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="n">column_mapper</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-        <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="o">~</span><span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">duplicated</span><span class="p">(</span><span class="n">keep</span><span class="o">=</span><span class="s2">&quot;last&quot;</span><span class="p">)]</span>
-
-    <span class="k">return</span> <span class="n">df</span>
-
-
-<div class="viewcode-block" id="read_borehole_table">
-<a class="viewcode-back" href="../../../api_reference/generated/geost.read_borehole_table.html#geost.read_borehole_table">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">read_borehole_table</span><span class="p">(</span>
+<div class="viewcode-block" id="read_table">
+<a class="viewcode-back" href="../../../api_reference/generated/geost.read_table.html#geost.read_table">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">read_table</span><span class="p">(</span>
     <span class="n">file</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">,</span>
-    <span class="n">horizontal_reference</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">int</span> <span class="o">|</span> <span class="n">CRS</span> <span class="o">=</span> <span class="mi">28992</span><span class="p">,</span>
-    <span class="n">vertical_reference</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">int</span> <span class="o">|</span> <span class="n">CRS</span> <span class="o">=</span> <span class="mi">5709</span><span class="p">,</span>
-    <span class="n">has_inclined</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="n">as_collection</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="n">crs</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">int</span> <span class="o">|</span> <span class="n">CRS</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">vertical_datum</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">int</span> <span class="o">|</span> <span class="n">CRS</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">has_inclined</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">coordinate_names</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">include_in_header</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">column_mapper</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BoreholeCollection</span><span class="p">:</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Collection</span> <span class="o">|</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Read tabular borehole information. This is a file (parquet, csv or Excel) that</span>
-<span class="sd">    includes row data for each (borehole) layer and must at least include the following</span>
-<span class="sd">    column headers:</span>
-
-<span class="sd">    - **nr** : Object id</span>
-<span class="sd">    - **x** : X-coordinates according to the given horizontal_reference</span>
-<span class="sd">    - **y** : Y-coordinates according to the given horizontal_reference</span>
-<span class="sd">    - **surface** : Surface elevation according to the given vertical_reference</span>
-<span class="sd">    - **end** : End depth according to the given vertical_reference</span>
-<span class="sd">    - **top** : Top depth of each layer</span>
-<span class="sd">    - **bottom** : Bottom depth of each layer</span>
-
-<span class="sd">    In case there are inclined boreholes in the layer data, you additionally require:</span>
-
-<span class="sd">    - **x_bot** : X-coordinates of the layer bottoms</span>
-<span class="sd">    - **y_bot** : Y-coordinates of the layer bottoms</span>
-
-<span class="sd">    If you are reading a file that uses different column names, see the optional</span>
-<span class="sd">    argument &quot;column_mapper&quot; below. There are no further limits or requirements to</span>
-<span class="sd">    additional (data) columns.</span>
+<span class="sd">    Read tabular information from a file (parquet, csv or Excel) for any given survey data</span>
+<span class="sd">    into a `geost.Collection` or pandas.DataFrame.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    file : str | Path</span>
-<span class="sd">        Path to file to be read. Depending on the file extension, the corresponding</span>
-<span class="sd">        Pandas read function will be called. This can be either pandas.read_parquet,</span>
-<span class="sd">        pandas.read_csv or pandas.read_excel. The **kwargs that can be given to this</span>
-<span class="sd">        function will be passed to the selected Panda&#39;s read function.</span>
-<span class="sd">    horizontal_reference : str | int | CRS, optional</span>
-<span class="sd">        EPSG of the data&#39;s horizontal reference. Takes anything that can be interpreted</span>
-<span class="sd">        by pyproj.crs.CRS.from_user_input(). The default is 28992.</span>
-<span class="sd">    vertical_reference : str | int | CRS, optional</span>
-<span class="sd">        EPSG of the data&#39;s vertical datum. Takes anything that can be interpreted by</span>
-<span class="sd">        pyproj.crs.CRS.from_user_input(). However, it must be a vertical datum. FYI:</span>
-<span class="sd">        &quot;NAP&quot; is EPSG 5709 and The Belgian reference system (Ostend height) is ESPG</span>
-<span class="sd">        5710. The default is 5709.</span>
-<span class="sd">    has_inclined : bool, optional</span>
-<span class="sd">        If True, the borehole data table contains inclined boreholes. The default is False.</span>
+<span class="sd">        Path to the file to be read. Depending on the file extension, the corresponding</span>
+<span class="sd">        Pandas read function will automatically be used. This can be either .parquet,</span>
+<span class="sd">        .csv or .xlsx. Optional keyword arguments that can be given in the specific Pandas</span>
+<span class="sd">        read function can be passed via the `kwargs` argument.</span>
 <span class="sd">    as_collection : bool, optional</span>
-<span class="sd">        If True, the borehole table will be read as a :class:`~geost.base.Collection`</span>
-<span class="sd">        which includes a header object and spatial selection functionality. If False,</span>
-<span class="sd">        a :class:`~geost.base.LayeredData` object is returned. The default is True.</span>
+<span class="sd">        If True, the table will be read as a :class:`~geost.base.Collection`. If False,</span>
+<span class="sd">        a `pd.DataFrame` is returned. The default is True.</span>
+<span class="sd">    crs : str | int | CRS, optional</span>
+<span class="sd">        EPSG of the data&#39;s horizontal reference. Takes anything that can be interpreted</span>
+<span class="sd">        by pyproj.crs.CRS.from_user_input(). The default is None, which means no CRS will</span>
+<span class="sd">        be assigned to the resulting Collection. Only used if `as_collection=True`.</span>
+<span class="sd">    vertical_datum : str | int | CRS, optional</span>
+<span class="sd">        Vertical datum for the collection. The default is None. Only used if</span>
+<span class="sd">        `as_collection=True`.</span>
+<span class="sd">    has_inclined : bool, optional</span>
+<span class="sd">        Indicates whether the collection has inclined data. The default is False.</span>
+<span class="sd">    coordinate_names : tuple[str, str], optional</span>
+<span class="sd">        Tuple specifying the names of the columns to be used as coordinates for the</span>
+<span class="sd">        geometry column. The default is None, which means that it automatically tries</span>
+<span class="sd">        to find the names of the x and y columns (see `POSSIBLE_COLUMN_NAMING` in</span>
+<span class="sd">        :module:`~geost.validation.column_names` ). If not found, no geometry column</span>
+<span class="sd">        will be created.</span>
+<span class="sd">    include_in_header: str | Iterable[str] | None, optional</span>
+<span class="sd">        Columns to aditionally include in the header. The default is None, which means</span>
+<span class="sd">        that only the default columns &#39;nr&#39;, &#39;surface&#39;, &#39;x&#39; and &#39;y&#39; or their aliases are included.</span>
 <span class="sd">    column_mapper: dict, optional</span>
-<span class="sd">        If the file to be read uses different column names than the ones given in the</span>
-<span class="sd">        description above, you can use a dictionary mapping to translate the column</span>
-<span class="sd">        names to the required format. column_mapper is None by default, in which case</span>
-<span class="sd">        the user is asked for input if not all required columns are encountered in the</span>
-<span class="sd">        file.</span>
-<span class="sd">    kwargs: optional</span>
+<span class="sd">        Mapping from column names in the input file to GeoST positional column names. Use</span>
+<span class="sd">        this when your file uses non-standard names which cannot be recognized automatically</span>
+<span class="sd">        as positional columns (e.g. {&#39;ID&#39;: &#39;nr&#39;, &#39;X_RD&#39;: &#39;x&#39;, &#39;Y_RD&#39;: &#39;y&#39;, &#39;maaiveld&#39;: &#39;surface&#39;,</span>
+<span class="sd">        &#39;van&#39;: &#39;top&#39;, &#39;tot&#39;: &#39;bottom&#39;}). See :data:`geost.validation.column_names.POSITIONAL_COLUMN_NAMES`</span>
+<span class="sd">        for the accepted column names for each positional column type. If no valid survey-id</span>
+<span class="sd">        (e.g. &quot;nr&quot;) column is found after mapping, a KeyError is raised. Missing x/y or depth</span>
+<span class="sd">        columns trigger warnings and may limit functionality.</span>
+<span class="sd">    **kwargs</span>
 <span class="sd">        Optional keyword arguments for Pandas.read_parquet, Pandas.read_csv or</span>
-<span class="sd">        Pandas.read_excel.</span>
+<span class="sd">        Pandas.read_excel depending on the file extension.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
-<span class="sd">    :class:`~geost.base.BoreholeCollection` or :class:`~geost.base.LayeredData`</span>
-<span class="sd">        Instance of :class:`~geost.base.BoreholeCollection` or :class:`~geost.base.LayeredData`</span>
-<span class="sd">        depending on if the table is read as a collection or not.</span>
+<span class="sd">    :class:`~geost.base.Collection` or `pd.DataFrame`</span>
+<span class="sd">        Instance of :class:`~geost.base.Collection` when `as_collection=True` or `pd.DataFrame`</span>
+<span class="sd">        otherwise.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; import geost</span>
+<span class="sd">    &gt;&gt;&gt; file = &quot;path_to_your_data.parquet&quot;</span>
+<span class="sd">    &gt;&gt;&gt; collection_kwargs = { # Options to pass to a `geost.Collection`</span>
+<span class="sd">    ...     &quot;crs&quot;: 32631,</span>
+<span class="sd">    ...     &quot;vertical_reference&quot;: &#39;Ostend height&#39;,</span>
+<span class="sd">    ...     &quot;include_in_header&quot;: [&quot;nr&quot;, &quot;x&quot;, &quot;y&quot;, &quot;surface&quot;, &quot;end&quot;]</span>
+<span class="sd">    ... }</span>
+<span class="sd">    &gt;&gt;&gt; collection = geost.read_table(</span>
+<span class="sd">    ...     file, column_mapper={&#39;maaiveld&#39;: &#39;surface&#39;}, **collection_kwargs</span>
+<span class="sd">    ... )</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">data</span> <span class="o">=</span> <span class="n">io_helpers</span><span class="o">.</span><span class="n">_pandas_read</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">column_mapper</span><span class="p">:</span>
+        <span class="n">data</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="n">column_mapper</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="n">check_positional_column_presence</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">conversion</span><span class="o">.</span><span class="n">adjust_z_coordinates</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">as_collection</span><span class="p">:</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">gst</span><span class="o">.</span><span class="n">to_collection</span><span class="p">(</span>
+            <span class="n">crs</span><span class="o">=</span><span class="n">crs</span><span class="p">,</span>
+            <span class="n">vertical_datum</span><span class="o">=</span><span class="n">vertical_datum</span><span class="p">,</span>
+            <span class="n">has_inclined</span><span class="o">=</span><span class="n">has_inclined</span><span class="p">,</span>
+            <span class="n">coordinate_names</span><span class="o">=</span><span class="n">coordinate_names</span><span class="p">,</span>
+            <span class="n">include_in_header</span><span class="o">=</span><span class="n">include_in_header</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">data</span></div>
+
+
+
+<div class="viewcode-block" id="read_borehole_table">
+<a class="viewcode-back" href="../../../api_reference/generated/geost.read_borehole_table.html#geost.read_borehole_table">[docs]</a>
+<span class="nd">@future_deprecation_warning</span><span class="p">(</span><span class="n">alternative_func</span><span class="o">=</span><span class="n">read_table</span><span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">read_borehole_table</span><span class="p">(</span>
+    <span class="n">file</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">,</span>
+    <span class="n">as_collection</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="n">crs</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">int</span> <span class="o">|</span> <span class="n">CRS</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">vertical_datum</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">int</span> <span class="o">|</span> <span class="n">CRS</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">has_inclined</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">coordinate_names</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">include_in_header</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">column_mapper</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Collection</span> <span class="o">|</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Read tabular borehole information from a file (parquet, csv or Excel) that includes</span>
+<span class="sd">    row data for each (borehole) layer.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    file : str | Path</span>
+<span class="sd">        Path to the file to be read. Depending on the file extension, the corresponding</span>
+<span class="sd">        Pandas read function will automatically be used. This can be either .parquet,</span>
+<span class="sd">        .csv or .xlsx. Optional keyword arguments that can be given in the specific Pandas</span>
+<span class="sd">        read function can be passed via the `kwargs` argument.</span>
+<span class="sd">    as_collection : bool, optional</span>
+<span class="sd">        If True, the borehole table will be read as a :class:`~geost.base.Collection`. If</span>
+<span class="sd">        False, a `pd.DataFrame` is returned. The default is True.</span>
+<span class="sd">    crs : str | int | CRS, optional</span>
+<span class="sd">        EPSG of the data&#39;s horizontal reference. Takes anything that can be interpreted</span>
+<span class="sd">        by pyproj.crs.CRS.from_user_input(). The default is None, which means no CRS will</span>
+<span class="sd">        be assigned to the resulting Collection. Only used if `as_collection=True`.</span>
+<span class="sd">    vertical_datum : str | int | CRS, optional</span>
+<span class="sd">        Vertical datum for the collection. The default is None. Only used if</span>
+<span class="sd">        `as_collection=True`.</span>
+<span class="sd">    has_inclined : bool, optional</span>
+<span class="sd">        Indicates whether the collection has inclined data. The default is False.</span>
+<span class="sd">    coordinate_names : tuple[str, str], optional</span>
+<span class="sd">        Tuple specifying the names of the columns to be used as coordinates for the</span>
+<span class="sd">        geometry column. The default is None, which means that it automatically tries</span>
+<span class="sd">        to find the names of the x and y columns (see `POSSIBLE_COLUMN_NAMING` in</span>
+<span class="sd">        :module:`~geost.validation.column_names` ). If not found, no geometry column</span>
+<span class="sd">        will be created.</span>
+<span class="sd">    include_in_header: str | Iterable[str] | None, optional</span>
+<span class="sd">        Columns to aditionally include in the header. The default is None, which means</span>
+<span class="sd">        that only the default columns &#39;nr&#39;, &#39;surface&#39;, &#39;x&#39; and &#39;y&#39; or their aliases are included.</span>
+<span class="sd">    column_mapper: dict, optional</span>
+<span class="sd">        Mapping from column names in the input file to GeoST positional column names. Use</span>
+<span class="sd">        this when your file uses non-standard names which cannot be recognized automatically</span>
+<span class="sd">        as positional columns (e.g. {&#39;ID&#39;: &#39;nr&#39;, &#39;X_RD&#39;: &#39;x&#39;, &#39;Y_RD&#39;: &#39;y&#39;, &#39;maaiveld&#39;: &#39;surface&#39;,</span>
+<span class="sd">        &#39;van&#39;: &#39;top&#39;, &#39;tot&#39;: &#39;bottom&#39;}). See :data:`geost.validation.column_names.POSITIONAL_COLUMN_NAMES`</span>
+<span class="sd">        for the accepted column names for each positional column type. If no valid survey-id</span>
+<span class="sd">        (e.g. &quot;nr&quot;) column is found after mapping, a KeyError is raised. Missing x/y or depth</span>
+<span class="sd">        columns trigger warnings and may limit functionality.</span>
+<span class="sd">    **kwargs</span>
+<span class="sd">        Optional keyword arguments for Pandas.read_parquet, Pandas.read_csv or</span>
+<span class="sd">        Pandas.read_excel depending on the file extension.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    :class:`~geost.base.Collection` or `pd.DataFrame`</span>
+<span class="sd">        Instance of :class:`~geost.base.Collection` when `as_collection=True` or `pd.DataFrame`</span>
+<span class="sd">        otherwise.</span>
 
 <span class="sd">    Examples</span>
 <span class="sd">    --------</span>
@@ -644,30 +665,34 @@
 <span class="sd">    &#39;top&#39; and &#39;bottom&#39;. The column &#39;maaiveld&#39; corresponds to the required column</span>
 <span class="sd">    &#39;surface&#39; in GeoST and thus needs to be remapped. The x and y-coordinates are given</span>
 <span class="sd">    in WGS84 UTM 31N whereas the vertical datum is given in the Belgian Ostend height</span>
-<span class="sd">    vertical datum:</span>
+<span class="sd">    vertical datum, so we specify these in the `coll_kwargs` so these will be used in the</span>
+<span class="sd">    `to_collection` method:</span>
 
-<span class="sd">    &gt;&gt;&gt; read_borehole_table(file, 32631, &#39;Ostend height&#39;, column_mapper={&#39;maaiveld&#39;: &#39;surface&#39;})</span>
+<span class="sd">    &gt;&gt;&gt; from geost import read_borehole_table</span>
+<span class="sd">    &gt;&gt;&gt; collection_kwargs = {</span>
+<span class="sd">    ...     &quot;include_in_header&quot;: [&quot;nr&quot;, &quot;x&quot;, &quot;y&quot;, &quot;surface&quot;, &quot;end&quot;],</span>
+<span class="sd">    ...     &quot;has_inclined&quot;: False,</span>
+<span class="sd">    ... }</span>
+<span class="sd">    &gt;&gt;&gt; collection = read_borehole_table(</span>
+<span class="sd">    ...     file, column_mapper={&#39;maaiveld&#39;: &#39;surface&#39;}, **collection_kwargs</span>
+<span class="sd">    ... )</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">boreholes</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">_pandas_read</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="n">boreholes</span> <span class="o">=</span> <span class="n">io_helpers</span><span class="o">.</span><span class="n">_pandas_read</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
-    <span class="k">if</span> <span class="n">has_inclined</span><span class="p">:</span>
-        <span class="n">boreholes</span> <span class="o">=</span> <span class="n">_check_mandatory_column_presence</span><span class="p">(</span>
-            <span class="n">boreholes</span><span class="p">,</span> <span class="n">MANDATORY_INCLINED_LAYERED_DATA_COLUMNS</span><span class="p">,</span> <span class="n">column_mapper</span>
-        <span class="p">)</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="n">boreholes</span> <span class="o">=</span> <span class="n">_check_mandatory_column_presence</span><span class="p">(</span>
-            <span class="n">boreholes</span><span class="p">,</span> <span class="n">MANDATORY_LAYERED_DATA_COLUMNS</span><span class="p">,</span> <span class="n">column_mapper</span>
-        <span class="p">)</span>
-    <span class="c1"># Figure out top and bottom reference and coerce to downward increasing from 0 if</span>
-    <span class="c1"># required.</span>
-    <span class="n">boreholes</span> <span class="o">=</span> <span class="n">adjust_z_coordinates</span><span class="p">(</span><span class="n">boreholes</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">column_mapper</span><span class="p">:</span>
+        <span class="n">boreholes</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="n">column_mapper</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="n">check_positional_column_presence</span><span class="p">(</span><span class="n">boreholes</span><span class="p">)</span>
+    <span class="n">boreholes</span> <span class="o">=</span> <span class="n">conversion</span><span class="o">.</span><span class="n">adjust_z_coordinates</span><span class="p">(</span><span class="n">boreholes</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="n">as_collection</span><span class="p">:</span>
-        <span class="n">boreholes</span> <span class="o">=</span> <span class="n">boreholes</span><span class="o">.</span><span class="n">gstda</span><span class="o">.</span><span class="n">to_collection</span><span class="p">(</span>
+        <span class="n">boreholes</span> <span class="o">=</span> <span class="n">boreholes</span><span class="o">.</span><span class="n">gst</span><span class="o">.</span><span class="n">to_collection</span><span class="p">(</span>
+            <span class="n">crs</span><span class="o">=</span><span class="n">crs</span><span class="p">,</span>
+            <span class="n">vertical_datum</span><span class="o">=</span><span class="n">vertical_datum</span><span class="p">,</span>
             <span class="n">has_inclined</span><span class="o">=</span><span class="n">has_inclined</span><span class="p">,</span>
-            <span class="n">horizontal_reference</span><span class="o">=</span><span class="n">horizontal_reference</span><span class="p">,</span>
-            <span class="n">vertical_reference</span><span class="o">=</span><span class="n">vertical_reference</span><span class="p">,</span>
+            <span class="n">coordinate_names</span><span class="o">=</span><span class="n">coordinate_names</span><span class="p">,</span>
+            <span class="n">include_in_header</span><span class="o">=</span><span class="n">include_in_header</span><span class="p">,</span>
         <span class="p">)</span>
 
     <span class="k">return</span> <span class="n">boreholes</span></div>
@@ -676,68 +701,84 @@
 
 <div class="viewcode-block" id="read_cpt_table">
 <a class="viewcode-back" href="../../../api_reference/generated/geost.read_cpt_table.html#geost.read_cpt_table">[docs]</a>
+<span class="nd">@future_deprecation_warning</span><span class="p">(</span><span class="n">alternative_func</span><span class="o">=</span><span class="n">read_table</span><span class="p">)</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">read_cpt_table</span><span class="p">(</span>
     <span class="n">file</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">,</span>
-    <span class="n">horizontal_reference</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">int</span> <span class="o">|</span> <span class="n">CRS</span> <span class="o">=</span> <span class="mi">28992</span><span class="p">,</span>
-    <span class="n">vertical_reference</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">int</span> <span class="o">|</span> <span class="n">CRS</span> <span class="o">=</span> <span class="mi">5709</span><span class="p">,</span>
     <span class="n">as_collection</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="n">crs</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">int</span> <span class="o">|</span> <span class="n">CRS</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">vertical_datum</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">int</span> <span class="o">|</span> <span class="n">CRS</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">has_inclined</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">coordinate_names</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">include_in_header</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">column_mapper</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CptCollection</span><span class="p">:</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Collection</span> <span class="o">|</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Read tabular CPT information. This is a file (parquet, csv or Excel) that includes</span>
-<span class="sd">    row data for each CPT depth interval and must at least include the following header</span>
-<span class="sd">    information as columns:</span>
-
-<span class="sd">    - **nr** : Object id</span>
-<span class="sd">    - **x** : X-coordinates according to the given horizontal_reference</span>
-<span class="sd">    - **y** : Y-coordinates according to the given horizontal_reference</span>
-<span class="sd">    - **surface** : Surface elevation according to the given vertical_reference</span>
-<span class="sd">    - **end** : End depth according to the given vertical_reference</span>
-<span class="sd">    - **depth** : Depth in meters below the surface</span>
+<span class="sd">    row data for each CPT depth interval.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    file : str | Path</span>
-<span class="sd">        File with the CPT information to read.</span>
-<span class="sd">    horizontal_reference : str | int | CRS, optional</span>
-<span class="sd">        EPSG of the data&#39;s horizontal reference. Takes anything that can be interpreted</span>
-<span class="sd">        by pyproj.crs.CRS.from_user_input(). The default is 28992.</span>
-<span class="sd">    vertical_reference : str | int | CRS, optional</span>
-<span class="sd">        EPSG of the data&#39;s vertical datum. Takes anything that can be interpreted by</span>
-<span class="sd">        pyproj.crs.CRS.from_user_input(). However, it must be a vertical datum. FYI:</span>
-<span class="sd">        &quot;NAP&quot; is EPSG 5709 and The Belgian reference system (Ostend height) is ESPG</span>
-<span class="sd">        5710. The default is 5709.</span>
+<span class="sd">        Path to the file to be read. Depending on the file extension, the corresponding</span>
+<span class="sd">        Pandas read function will automatically be used. This can be either .parquet,</span>
+<span class="sd">        .csv or .xlsx. Optional keyword arguments that can be given in the specific Pandas</span>
+<span class="sd">        read function can be passed as kwargs.</span>
 <span class="sd">    as_collection : bool, optional</span>
-<span class="sd">        If True, the CPT table will be read as a :class:`~geost.base.Collection`</span>
-<span class="sd">        which includes a header object and spatial selection functionality. If False,</span>
-<span class="sd">        a :class:`~geost.base.DiscreteData` object is returned. The default is True.</span>
+<span class="sd">        If True, the cpt table will be read as a :class:`~geost.base.Collection`. If</span>
+<span class="sd">        False, a `pd.DataFrame` is returned. The default is True.</span>
+<span class="sd">    crs : str | int | CRS, optional</span>
+<span class="sd">        EPSG of the data&#39;s horizontal reference. Takes anything that can be interpreted</span>
+<span class="sd">        by pyproj.crs.CRS.from_user_input(). The default is None, which means no CRS will</span>
+<span class="sd">        be assigned to the resulting Collection. Only used if `as_collection=True`.</span>
+<span class="sd">    vertical_datum : str | int | CRS, optional</span>
+<span class="sd">        Vertical datum for the collection. The default is None. Only used if</span>
+<span class="sd">        `as_collection=True`.</span>
+<span class="sd">    has_inclined : bool, optional</span>
+<span class="sd">        Indicates whether the collection has inclined data. The default is False.</span>
+<span class="sd">    coordinate_names : tuple[str, str], optional</span>
+<span class="sd">        Tuple specifying the names of the columns to be used as coordinates for the</span>
+<span class="sd">        geometry column. The default is None, which means that it automatically tries</span>
+<span class="sd">        to find the names of the x and y columns (see `POSSIBLE_COLUMN_NAMING` in</span>
+<span class="sd">        :module:`~geost.validation.column_names` ). If not found, no geometry column</span>
+<span class="sd">        will be created.</span>
+<span class="sd">    include_in_header: str | Iterable[str] | None, optional</span>
+<span class="sd">        Columns to aditionally include in the header. The default is None, which means</span>
+<span class="sd">        that only the default columns &#39;nr&#39;, &#39;surface&#39;, &#39;x&#39; and &#39;y&#39; or their aliases are included.</span>
 <span class="sd">    column_mapper: dict, optional</span>
-<span class="sd">        If the file to be read uses different column names than the ones given in the</span>
-<span class="sd">        description above, you can use a dictionary mapping to translate the column</span>
-<span class="sd">        names to the required format. column_mapper is None by default, in which case</span>
-<span class="sd">        the user is asked for input if not all required columns are encountered in the</span>
-<span class="sd">        file.</span>
-<span class="sd">    kwargs: optional</span>
+<span class="sd">        Mapping from column names in the input file to GeoST positional column names. Use</span>
+<span class="sd">        this when your file uses non-standard names which cannot be recognized automatically</span>
+<span class="sd">        as positional columns (e.g. {&#39;ID&#39;: &#39;nr&#39;, &#39;X_RD&#39;: &#39;x&#39;, &#39;Y_RD&#39;: &#39;y&#39;, &#39;maaiveld&#39;: &#39;surface&#39;,</span>
+<span class="sd">        &#39;diepte&#39;: &#39;bottom&#39;}). See :data:`geost.validation.column_names.POSITIONAL_COLUMN_NAMES`</span>
+<span class="sd">        for the accepted column names for each positional column type. If no valid survey-id</span>
+<span class="sd">        (e.g. &quot;nr&quot;) column is found after mapping, a KeyError is raised. Missing x/y or depth</span>
+<span class="sd">        columns trigger warnings and may limit functionality.</span>
+<span class="sd">    **kwargs</span>
 <span class="sd">        Optional keyword arguments for Pandas.read_parquet, Pandas.read_csv or</span>
-<span class="sd">        Pandas.read_excel.</span>
+<span class="sd">        Pandas.read_excel depending on the file extension.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
-<span class="sd">    :class:`~geost.base.CptCollection`</span>
-<span class="sd">        Instance of :class:`~geost.base.CptCollection`.</span>
+<span class="sd">    :class:`~geost.base.Collection` or `pd.DataFrame`</span>
+<span class="sd">        Instance of :class:`~geost.base.Collection` when `as_collection=True` or `pd.DataFrame`</span>
+<span class="sd">        otherwise.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">cpts</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">_pandas_read</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="n">cpts</span> <span class="o">=</span> <span class="n">io_helpers</span><span class="o">.</span><span class="n">_pandas_read</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
-    <span class="n">cpts</span> <span class="o">=</span> <span class="n">_check_mandatory_column_presence</span><span class="p">(</span>
-        <span class="n">cpts</span><span class="p">,</span> <span class="n">MANDATORY_DISCRETE_DATA_COLUMNS</span><span class="p">,</span> <span class="n">column_mapper</span>
-    <span class="p">)</span>
+    <span class="k">if</span> <span class="n">column_mapper</span><span class="p">:</span>
+        <span class="n">cpts</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="n">column_mapper</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="n">check_positional_column_presence</span><span class="p">(</span><span class="n">cpts</span><span class="p">)</span>
+    <span class="n">cpts</span> <span class="o">=</span> <span class="n">conversion</span><span class="o">.</span><span class="n">adjust_z_coordinates</span><span class="p">(</span><span class="n">cpts</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="n">as_collection</span><span class="p">:</span>
-        <span class="n">cpts</span> <span class="o">=</span> <span class="n">cpts</span><span class="o">.</span><span class="n">gstda</span><span class="o">.</span><span class="n">to_collection</span><span class="p">(</span>
-            <span class="n">horizontal_reference</span><span class="o">=</span><span class="n">horizontal_reference</span><span class="p">,</span>
-            <span class="n">vertical_reference</span><span class="o">=</span><span class="n">vertical_reference</span><span class="p">,</span>
+        <span class="n">cpts</span> <span class="o">=</span> <span class="n">cpts</span><span class="o">.</span><span class="n">gst</span><span class="o">.</span><span class="n">to_collection</span><span class="p">(</span>
+            <span class="n">crs</span><span class="o">=</span><span class="n">crs</span><span class="p">,</span>
+            <span class="n">vertical_datum</span><span class="o">=</span><span class="n">vertical_datum</span><span class="p">,</span>
+            <span class="n">has_inclined</span><span class="o">=</span><span class="n">has_inclined</span><span class="p">,</span>
+            <span class="n">coordinate_names</span><span class="o">=</span><span class="n">coordinate_names</span><span class="p">,</span>
+            <span class="n">include_in_header</span><span class="o">=</span><span class="n">include_in_header</span><span class="p">,</span>
         <span class="p">)</span>
 
     <span class="k">return</span> <span class="n">cpts</span></div>
@@ -746,28 +787,32 @@
 
 <div class="viewcode-block" id="read_nlog_cores">
 <a class="viewcode-back" href="../../../api_reference/generated/geost.read_nlog_cores.html#geost.read_nlog_cores">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">read_nlog_cores</span><span class="p">(</span><span class="n">file</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BoreholeCollection</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">read_nlog_cores</span><span class="p">(</span><span class="n">file</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Collection</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Read NLog boreholes from the &#39;nlog_stratstelsel&#39; Excel file. You can find this</span>
 <span class="sd">    distribution of borehole data here: https://www.nlog.nl/boringen</span>
 
-<span class="sd">    Warning: reading this Excel file is really slow (~10 minutes). Converting it to</span>
-<span class="sd">    parquet using :func:`~geost.utils.excel_to_parquet` once and using that file instead</span>
+<span class="sd">    Note: reading this Excel file is really slow. Converting it to parquet using</span>
+<span class="sd">    :func:`~geost.utils.io_helpers.excel_to_parquet` once and using that file instead</span>
 <span class="sd">    allows for much faster reading of nlog data.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    file : str | Path</span>
 <span class="sd">        Path to nlog_stratstelsel.xlsx or .parquet</span>
+<span class="sd">    **kwargs</span>
+<span class="sd">        Optional keyword arguments for Pandas.read_parquet or Pandas.read_excel depending</span>
+<span class="sd">        on the file extension of `file`.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
-<span class="sd">    :class:`~geost.borehole.BoreholeCollection`</span>
-<span class="sd">        :class:`~geost.borehole.BoreholeCollection`</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">nlog_cores</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">_pandas_read</span><span class="p">(</span><span class="n">file</span><span class="p">)</span>
+<span class="sd">    :class:`~geost.borehole.Collection`</span>
+<span class="sd">        :class:`~geost.borehole.Collection`</span>
 
-    <span class="n">nlog_cores</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">io_helpers</span><span class="o">.</span><span class="n">_pandas_read</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+    <span class="n">data</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span>
         <span class="n">columns</span><span class="o">=</span><span class="p">{</span>
             <span class="s2">&quot;NITG_NR&quot;</span><span class="p">:</span> <span class="s2">&quot;nr&quot;</span><span class="p">,</span>
             <span class="s2">&quot;X_TOP_RD&quot;</span><span class="p">:</span> <span class="s2">&quot;x&quot;</span><span class="p">,</span>
@@ -780,50 +825,27 @@
         <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
     <span class="p">)</span>
 
-    <span class="n">nlog_cores</span><span class="p">[</span><span class="s2">&quot;top&quot;</span><span class="p">]</span> <span class="o">*=</span> <span class="o">-</span><span class="mi">1</span>
-    <span class="n">nlog_cores</span><span class="p">[</span><span class="s2">&quot;bottom&quot;</span><span class="p">]</span> <span class="o">*=</span> <span class="o">-</span><span class="mi">1</span>
+    <span class="n">data</span><span class="p">[[</span><span class="s2">&quot;top&quot;</span><span class="p">,</span> <span class="s2">&quot;bottom&quot;</span><span class="p">]]</span> <span class="o">*=</span> <span class="o">-</span><span class="mi">1</span>
+    <span class="n">header</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s2">&quot;nr&quot;</span><span class="p">,</span> <span class="n">as_index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span><span class="o">.</span><span class="n">agg</span><span class="p">(</span>
+        <span class="p">{</span><span class="s2">&quot;x&quot;</span><span class="p">:</span> <span class="s2">&quot;first&quot;</span><span class="p">,</span> <span class="s2">&quot;y&quot;</span><span class="p">:</span> <span class="s2">&quot;first&quot;</span><span class="p">,</span> <span class="s2">&quot;top&quot;</span><span class="p">:</span> <span class="s2">&quot;max&quot;</span><span class="p">,</span> <span class="s2">&quot;bottom&quot;</span><span class="p">:</span> <span class="s2">&quot;min&quot;</span><span class="p">}</span>
+    <span class="p">)</span>
+    <span class="n">header</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;top&quot;</span><span class="p">:</span> <span class="s2">&quot;surface&quot;</span><span class="p">,</span> <span class="s2">&quot;bottom&quot;</span><span class="p">:</span> <span class="s2">&quot;end&quot;</span><span class="p">},</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">header</span> <span class="o">=</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">(</span>
+        <span class="n">header</span><span class="p">,</span> <span class="n">geometry</span><span class="o">=</span><span class="n">gpd</span><span class="o">.</span><span class="n">points_from_xy</span><span class="p">(</span><span class="n">header</span><span class="p">[</span><span class="s2">&quot;x&quot;</span><span class="p">],</span> <span class="n">header</span><span class="p">[</span><span class="s2">&quot;y&quot;</span><span class="p">]),</span> <span class="n">crs</span><span class="o">=</span><span class="mi">28992</span>
+    <span class="p">)</span>
 
-    <span class="n">nrs</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="n">x</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="n">y</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="n">x_bot</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="n">y_bot</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="n">surface</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="n">end</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="n">nrs_data</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="n">surface_data</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="n">end_data</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="k">for</span> <span class="n">nr</span><span class="p">,</span> <span class="n">data</span> <span class="ow">in</span> <span class="n">nlog_cores</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s2">&quot;nr&quot;</span><span class="p">):</span>
-        <span class="n">nrs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">nr</span><span class="p">)</span>
-        <span class="n">x</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;x&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
-        <span class="n">y</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;y&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
-        <span class="n">x_bot</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;x_bot&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
-        <span class="n">y_bot</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;y_bot&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
-        <span class="n">surface</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;top&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
-        <span class="n">end</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;bottom&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
-        <span class="n">nrs_data</span> <span class="o">+=</span> <span class="p">[</span><span class="n">nr</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">))]</span>
-        <span class="n">surface_data</span> <span class="o">+=</span> <span class="p">[</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;top&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">))]</span>
-        <span class="n">end_data</span> <span class="o">+=</span> <span class="p">[</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;bottom&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">))]</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">header</span><span class="p">[[</span><span class="s2">&quot;nr&quot;</span><span class="p">,</span> <span class="s2">&quot;surface&quot;</span><span class="p">,</span> <span class="s2">&quot;end&quot;</span><span class="p">]],</span> <span class="n">on</span><span class="o">=</span><span class="s2">&quot;nr&quot;</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s2">&quot;left&quot;</span><span class="p">)</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">conversion</span><span class="o">.</span><span class="n">adjust_z_coordinates</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
 
-    <span class="n">surface_end_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
-        <span class="p">{</span><span class="s2">&quot;nr&quot;</span><span class="p">:</span> <span class="n">nrs_data</span><span class="p">,</span> <span class="s2">&quot;surface&quot;</span><span class="p">:</span> <span class="n">surface_data</span><span class="p">,</span> <span class="s2">&quot;end&quot;</span><span class="p">:</span> <span class="n">end_data</span><span class="p">}</span>
-    <span class="p">)</span><span class="o">.</span><span class="n">drop_duplicates</span><span class="p">(</span><span class="s2">&quot;nr&quot;</span><span class="p">)</span>
-
-    <span class="n">nlog_cores</span> <span class="o">=</span> <span class="n">nlog_cores</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">surface_end_df</span><span class="p">,</span> <span class="n">on</span><span class="o">=</span><span class="s2">&quot;nr&quot;</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s2">&quot;left&quot;</span><span class="p">)</span>
-    <span class="n">nlog_cores</span> <span class="o">=</span> <span class="n">adjust_z_coordinates</span><span class="p">(</span><span class="n">nlog_cores</span><span class="p">)</span>
-
-    <span class="k">return</span> <span class="n">nlog_cores</span><span class="o">.</span><span class="n">gstda</span><span class="o">.</span><span class="n">to_collection</span><span class="p">(</span>
-        <span class="n">has_inclined</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">horizontal_reference</span><span class="o">=</span><span class="mi">28992</span><span class="p">,</span> <span class="n">vertical_reference</span><span class="o">=</span><span class="mi">5709</span>
-    <span class="p">)</span></div>
+    <span class="k">return</span> <span class="n">Collection</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="n">header</span><span class="p">,</span> <span class="n">has_inclined</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">vertical_datum</span><span class="o">=</span><span class="mi">5709</span><span class="p">)</span></div>
 
 
 
+<div class="viewcode-block" id="read_xml_boris">
+<a class="viewcode-back" href="../../../api_reference/generated/geost.read_xml_boris.html#geost.read_xml_boris">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">read_xml_boris</span><span class="p">(</span>
-    <span class="n">file</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">,</span>
-    <span class="n">horizontal_reference</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">int</span> <span class="o">|</span> <span class="n">CRS</span> <span class="o">=</span> <span class="mi">28992</span><span class="p">,</span>
-    <span class="n">vertical_reference</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">int</span> <span class="o">|</span> <span class="n">CRS</span> <span class="o">=</span> <span class="mi">5709</span><span class="p">,</span>
-    <span class="n">as_collection</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BoreholeCollection</span><span class="p">:</span>
+    <span class="n">file</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">,</span> <span class="n">as_collection</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Collection</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Read export XML of the BORIS software. BORIS is software developed by TNO to</span>
 <span class="sd">    describe boreholes in the lab. The exported XML-format bears no resemblance to DINO</span>
@@ -833,23 +855,18 @@
 <span class="sd">    ----------</span>
 <span class="sd">    file : str | Path</span>
 <span class="sd">        File with the borehole information to read.</span>
-<span class="sd">    horizontal_reference : str | int | CRS, optional</span>
-<span class="sd">        EPSG of the data&#39;s horizontal reference. Takes anything that can be interpreted</span>
-<span class="sd">        by pyproj.crs.CRS.from_user_input(). The default is 28992.</span>
-<span class="sd">    vertical_reference : str | int | CRS, optional</span>
-<span class="sd">        EPSG of the data&#39;s vertical datum. Takes anything that can be interpreted by</span>
-<span class="sd">        pyproj.crs.CRS.from_user_input(). However, it must be a vertical datum. FYI:</span>
-<span class="sd">        &quot;NAP&quot; is EPSG 5709 and The Belgian reference system (Ostend height) is ESPG</span>
-<span class="sd">        5710. The default is 5709.</span>
 <span class="sd">    as_collection : bool, optional</span>
 <span class="sd">        If True, the CPT table will be read as a :class:`~geost.base.Collection`</span>
 <span class="sd">        which includes a header object and spatial selection functionality. If False,</span>
-<span class="sd">        a :class:`~geost.base.LayeredData` object is returned. The default is True.</span>
+<span class="sd">        a `pandas.DataFrame` object is returned. The default is True.</span>
+<span class="sd">    **kwargs</span>
+<span class="sd">        Additional keyword arguments that can be given to :meth:`~geost.accessor.GeostFrame.to_collection`</span>
+<span class="sd">        when `as_collection=True`.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
-<span class="sd">    :class:`~geost.base.BoreholeCollection` or :class:`~geost.base.LayeredData`</span>
-<span class="sd">        Instance of :class:`~geost.base.BoreholeCollection` or :class:`~geost.base.LayeredData`</span>
+<span class="sd">    :class:`~geost.base.Collection`</span>
+<span class="sd">        Instance of :class:`~geost.base.Collection` or `pandas.DataFrame`</span>
 <span class="sd">        depending on if the table is read as a collection or not.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -858,13 +875,10 @@
     <span class="k">if</span> <span class="n">as_collection</span><span class="p">:</span>
         <span class="c1"># Think of a better way to translate non-standard BORIS crs encoding or keep it</span>
         <span class="c1"># user-defined (like we do in other reader functions)</span>
-        <span class="n">boreholes</span> <span class="o">=</span> <span class="n">boreholes</span><span class="o">.</span><span class="n">gstda</span><span class="o">.</span><span class="n">to_collection</span><span class="p">(</span>
-            <span class="n">has_inclined</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-            <span class="n">horizontal_reference</span><span class="o">=</span><span class="n">horizontal_reference</span><span class="p">,</span>
-            <span class="n">vertical_reference</span><span class="o">=</span><span class="n">vertical_reference</span><span class="p">,</span>
-        <span class="p">)</span>
+        <span class="n">boreholes</span> <span class="o">=</span> <span class="n">boreholes</span><span class="o">.</span><span class="n">gst</span><span class="o">.</span><span class="n">to_collection</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
-    <span class="k">return</span> <span class="n">boreholes</span>
+    <span class="k">return</span> <span class="n">boreholes</span></div>
+
 
 
 <div class="viewcode-block" id="read_bhrgt">
@@ -873,11 +887,11 @@
     <span class="n">files</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span> <span class="o">|</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">],</span>
     <span class="n">company</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">schema</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">horizontal_reference</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">int</span> <span class="o">|</span> <span class="n">CRS</span> <span class="o">=</span> <span class="mi">28992</span><span class="p">,</span>
+    <span class="n">crs</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">int</span> <span class="o">|</span> <span class="n">CRS</span> <span class="o">=</span> <span class="mi">28992</span><span class="p">,</span>
     <span class="n">read_all</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BoreholeCollection</span><span class="p">:</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Collection</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Read Geotechnical borehole (BHR-GT) XML file or files into a `BoreholeCollection`. This</span>
+<span class="sd">    Read Geotechnical borehole (BHR-GT) XML file or files into a `Collection`. This</span>
 <span class="sd">    reads the XML files according to a `schema` that describes the structure of the of the</span>
 <span class="sd">    XML data to find the relevant borehole data. Geost provides predefined schemas for the</span>
 <span class="sd">    BHR-GT XML files that are used in the Netherlands from the Dutch national BRO database.</span>
@@ -898,7 +912,7 @@
 <span class="sd">        Schema to use for reading the data which describes the structure of the XML data.</span>
 <span class="sd">        If not given and `company` is None, the predefined schema for BRO BHR-GT XML files</span>
 <span class="sd">        is used.</span>
-<span class="sd">    horizontal_reference : str | int | CRS, optional</span>
+<span class="sd">    crs : str | int | CRS, optional</span>
 <span class="sd">        EPSG of the desired data&#39;s horizontal reference. Takes anything that can be interpreted</span>
 <span class="sd">        by pyproj.crs.CRS.from_user_input(). The default is 28992.</span>
 <span class="sd">    read_all : bool, optional</span>
@@ -908,8 +922,8 @@
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
-<span class="sd">    :class:`~geost.base.BoreholeCollection`</span>
-<span class="sd">        BoreholeCollection containing the header and data attributes of the BHR-GT data.</span>
+<span class="sd">    :class:`~geost.base.Collection`</span>
+<span class="sd">        Collection containing the header and data attributes of the BHR-GT data.</span>
 
 <span class="sd">    Examples</span>
 <span class="sd">    --------</span>
@@ -917,21 +931,21 @@
 <span class="sd">    https://deltares-research.github.io/geost/api_reference/generated/geost.bro_api_read.html</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">header</span><span class="p">,</span> <span class="n">data</span> <span class="o">=</span> <span class="n">xml</span><span class="o">.</span><span class="n">read</span><span class="p">(</span>
+    <span class="n">header</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">vertical_datum</span> <span class="o">=</span> <span class="n">xml</span><span class="o">.</span><span class="n">read</span><span class="p">(</span>
         <span class="n">files</span><span class="p">,</span>
         <span class="n">xml</span><span class="o">.</span><span class="n">read_bhrgt</span><span class="p">,</span>
         <span class="n">company</span><span class="o">=</span><span class="n">company</span><span class="p">,</span>
         <span class="n">schema</span><span class="o">=</span><span class="n">schema</span><span class="p">,</span>
         <span class="n">read_all</span><span class="o">=</span><span class="n">read_all</span><span class="p">,</span>
-        <span class="n">coerce_crs</span><span class="o">=</span><span class="n">horizontal_reference</span><span class="p">,</span>
+        <span class="n">coerce_crs</span><span class="o">=</span><span class="n">crs</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">header</span> <span class="o">=</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">(</span>
         <span class="n">header</span><span class="p">,</span>
         <span class="n">geometry</span><span class="o">=</span><span class="n">gpd</span><span class="o">.</span><span class="n">points_from_xy</span><span class="p">(</span><span class="n">header</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">header</span><span class="o">.</span><span class="n">y</span><span class="p">),</span>
-        <span class="n">crs</span><span class="o">=</span><span class="n">horizontal_reference</span><span class="p">,</span>
+        <span class="n">crs</span><span class="o">=</span><span class="n">crs</span><span class="p">,</span>
     <span class="p">)</span>
 
-    <span class="k">return</span> <span class="n">BoreholeCollection</span><span class="p">(</span><span class="n">header</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span></div>
+    <span class="k">return</span> <span class="n">Collection</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="n">header</span><span class="p">,</span> <span class="n">vertical_datum</span><span class="o">=</span><span class="n">vertical_datum</span><span class="p">)</span></div>
 
 
 
@@ -941,12 +955,12 @@
     <span class="n">files</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span> <span class="o">|</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">],</span>
     <span class="n">company</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">schema</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">horizontal_reference</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">int</span> <span class="o">|</span> <span class="n">CRS</span> <span class="o">=</span> <span class="mi">28992</span><span class="p">,</span>
+    <span class="n">crs</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">int</span> <span class="o">|</span> <span class="n">CRS</span> <span class="o">=</span> <span class="mi">28992</span><span class="p">,</span>
     <span class="n">read_all</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BoreholeCollection</span><span class="p">:</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Collection</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Read sample data in a Geotechnical borehole (BHR-GT) XML file or files into a</span>
-<span class="sd">    `BoreholeCollection`. This reads the XML files according to a `schema` that describes</span>
+<span class="sd">    `Collection`. This reads the XML files according to a `schema` that describes</span>
 <span class="sd">    the structure of the of the XML data to find the relevant sample data. Geost provides</span>
 <span class="sd">    predefined schemas for the BHR-GT XML files that are used in the Netherlands from</span>
 <span class="sd">    the Dutch national BRO database. A predefined schema may also be present for a specific</span>
@@ -966,7 +980,7 @@
 <span class="sd">        Schema to use for reading the data which describes the structure of the XML data.</span>
 <span class="sd">        If not given and `company` is None, the predefined schema for BRO BHR-GT XML files</span>
 <span class="sd">        is used.</span>
-<span class="sd">    horizontal_reference : str | int | CRS, optional</span>
+<span class="sd">    crs : str | int | CRS, optional</span>
 <span class="sd">        EPSG of the desired data&#39;s horizontal reference. Takes anything that can be interpreted</span>
 <span class="sd">        by pyproj.crs.CRS.from_user_input(). The default is 28992.</span>
 <span class="sd">    read_all : bool, optional</span>
@@ -976,8 +990,8 @@
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
-<span class="sd">    :class:`~geost.base.BoreholeCollection`</span>
-<span class="sd">        BoreholeCollection containing the header and data attributes of the BHR-GT data.</span>
+<span class="sd">    :class:`~geost.base.Collection`</span>
+<span class="sd">        Collection containing the header and data attributes of the BHR-GT data.</span>
 
 <span class="sd">    Examples</span>
 <span class="sd">    --------</span>
@@ -985,18 +999,18 @@
 <span class="sd">    https://deltares-research.github.io/geost/api_reference/generated/bhrgt_samples.html</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">header</span><span class="p">,</span> <span class="n">data</span> <span class="o">=</span> <span class="n">xml</span><span class="o">.</span><span class="n">read</span><span class="p">(</span>
+    <span class="n">header</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">vertical_datum</span> <span class="o">=</span> <span class="n">xml</span><span class="o">.</span><span class="n">read</span><span class="p">(</span>
         <span class="n">files</span><span class="p">,</span>
         <span class="n">xml</span><span class="o">.</span><span class="n">read_bhrgt_samples</span><span class="p">,</span>
         <span class="n">company</span><span class="o">=</span><span class="n">company</span><span class="p">,</span>
         <span class="n">schema</span><span class="o">=</span><span class="n">schema</span><span class="p">,</span>
         <span class="n">read_all</span><span class="o">=</span><span class="n">read_all</span><span class="p">,</span>
-        <span class="n">coerce_crs</span><span class="o">=</span><span class="n">horizontal_reference</span><span class="p">,</span>
+        <span class="n">coerce_crs</span><span class="o">=</span><span class="n">crs</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">header</span> <span class="o">=</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">(</span>
         <span class="n">header</span><span class="p">,</span>
         <span class="n">geometry</span><span class="o">=</span><span class="n">gpd</span><span class="o">.</span><span class="n">points_from_xy</span><span class="p">(</span><span class="n">header</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">header</span><span class="o">.</span><span class="n">y</span><span class="p">),</span>
-        <span class="n">crs</span><span class="o">=</span><span class="n">horizontal_reference</span><span class="p">,</span>
+        <span class="n">crs</span><span class="o">=</span><span class="n">crs</span><span class="p">,</span>
     <span class="p">)</span>
 
     <span class="k">if</span> <span class="s2">&quot;beginDepth&quot;</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">columns</span> <span class="ow">or</span> <span class="s2">&quot;endDepth&quot;</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
@@ -1006,12 +1020,12 @@
     <span class="c1"># If no sample data was found, the data table will be empty. In that case, we can</span>
     <span class="c1"># just return an empty collection.</span>
     <span class="k">if</span> <span class="s2">&quot;top&quot;</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">columns</span> <span class="ow">and</span> <span class="s2">&quot;bottom&quot;</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">BoreholeCollection</span><span class="p">(</span><span class="n">header</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">Collection</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="n">header</span><span class="p">,</span> <span class="n">vertical_datum</span><span class="o">=</span><span class="n">vertical_datum</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
             <span class="s2">&quot;No sample data found in the provided XML file(s). Returning an empty collection.&quot;</span>
         <span class="p">)</span>
-        <span class="k">return</span> <span class="n">Collection</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="n">Collection</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></div>
 
 
 
@@ -1021,11 +1035,11 @@
     <span class="n">files</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span> <span class="o">|</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">],</span>
     <span class="n">company</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">schema</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">horizontal_reference</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">int</span> <span class="o">|</span> <span class="n">CRS</span> <span class="o">=</span> <span class="mi">28992</span><span class="p">,</span>
+    <span class="n">crs</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">int</span> <span class="o">|</span> <span class="n">CRS</span> <span class="o">=</span> <span class="mi">28992</span><span class="p">,</span>
     <span class="n">read_all</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BoreholeCollection</span><span class="p">:</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Collection</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Read Pedological borehole (BHR-P) XML file or files into a `BoreholeCollection`. This</span>
+<span class="sd">    Read Pedological borehole (BHR-P) XML file or files into a `Collection`. This</span>
 <span class="sd">    reads the XML files according to a `schema` that describes the structure of the of the</span>
 <span class="sd">    XML data to find the relevant borehole data. Geost provides predefined schemas for the</span>
 <span class="sd">    BHR-P XML files that are used in the Netherlands from the Dutch national BRO database.</span>
@@ -1046,7 +1060,7 @@
 <span class="sd">        Schema to use for reading the data which describes the structure of the XML data.</span>
 <span class="sd">        If not given and `company` is None, the predefined schema for BRO BHR-P XML files</span>
 <span class="sd">        is used.</span>
-<span class="sd">    horizontal_reference: str | int | CRS, optional</span>
+<span class="sd">    crs: str | int | CRS, optional</span>
 <span class="sd">        EPSG of the desired data&#39;s horizontal reference. Takes anything that can be interpreted</span>
 <span class="sd">        by pyproj.crs.CRS.from_user_input(). The default is 28992.</span>
 <span class="sd">    read_all : bool, optional</span>
@@ -1056,8 +1070,8 @@
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
-<span class="sd">    :class:`~geost.base.BoreholeCollection`</span>
-<span class="sd">        BoreholeCollection containing the header and data attributes of the BHR-P data.</span>
+<span class="sd">    :class:`~geost.base.Collection`</span>
+<span class="sd">        Collection containing the header and data attributes of the BHR-P data.</span>
 
 <span class="sd">    Examples</span>
 <span class="sd">    --------</span>
@@ -1065,21 +1079,21 @@
 <span class="sd">    https://deltares-research.github.io/geost/api_reference/generated/geost.bro_api_read.html</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">header</span><span class="p">,</span> <span class="n">data</span> <span class="o">=</span> <span class="n">xml</span><span class="o">.</span><span class="n">read</span><span class="p">(</span>
+    <span class="n">header</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">vertical_datum</span> <span class="o">=</span> <span class="n">xml</span><span class="o">.</span><span class="n">read</span><span class="p">(</span>
         <span class="n">files</span><span class="p">,</span>
         <span class="n">xml</span><span class="o">.</span><span class="n">read_bhrp</span><span class="p">,</span>
         <span class="n">company</span><span class="o">=</span><span class="n">company</span><span class="p">,</span>
         <span class="n">schema</span><span class="o">=</span><span class="n">schema</span><span class="p">,</span>
         <span class="n">read_all</span><span class="o">=</span><span class="n">read_all</span><span class="p">,</span>
-        <span class="n">coerce_crs</span><span class="o">=</span><span class="n">horizontal_reference</span><span class="p">,</span>
+        <span class="n">coerce_crs</span><span class="o">=</span><span class="n">crs</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">header</span> <span class="o">=</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">(</span>
         <span class="n">header</span><span class="p">,</span>
         <span class="n">geometry</span><span class="o">=</span><span class="n">gpd</span><span class="o">.</span><span class="n">points_from_xy</span><span class="p">(</span><span class="n">header</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">header</span><span class="o">.</span><span class="n">y</span><span class="p">),</span>
-        <span class="n">crs</span><span class="o">=</span><span class="n">horizontal_reference</span><span class="p">,</span>
+        <span class="n">crs</span><span class="o">=</span><span class="n">crs</span><span class="p">,</span>
     <span class="p">)</span>
 
-    <span class="k">return</span> <span class="n">BoreholeCollection</span><span class="p">(</span><span class="n">header</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span></div>
+    <span class="k">return</span> <span class="n">Collection</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="n">header</span><span class="p">,</span> <span class="n">vertical_datum</span><span class="o">=</span><span class="n">vertical_datum</span><span class="p">)</span></div>
 
 
 
@@ -1089,14 +1103,14 @@
     <span class="n">files</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span> <span class="o">|</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">],</span>
     <span class="n">company</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">schema</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">horizontal_reference</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">int</span> <span class="o">|</span> <span class="n">CRS</span> <span class="o">=</span> <span class="mi">28992</span><span class="p">,</span>
+    <span class="n">crs</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">int</span> <span class="o">|</span> <span class="n">CRS</span> <span class="o">=</span> <span class="mi">28992</span><span class="p">,</span>
     <span class="n">read_all</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BoreholeCollection</span><span class="p">:</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Collection</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Read Geological borehole (BHR-G) XML file or files into a `BoreholeCollection`. This</span>
+<span class="sd">    Read Geological borehole (BHR-G) XML file or files into a `Collection`. This</span>
 <span class="sd">    reads the XML files according to a `schema` that describes the structure of the of the</span>
 <span class="sd">    XML data to find the relevant borehole data. Geost provides predefined schemas for the</span>
-<span class="sd">    BHR-G) XML file or files into a BoreholeCollection. This XML files that are used in the</span>
+<span class="sd">    BHR-G) XML file or files into a Collection. This XML files that are used in the</span>
 <span class="sd">    Netherlands from the Dutch national BRO database. A predefined schema may also be present</span>
 <span class="sd">    for a specific company, which can be specified using the `company` parameter. Predefined</span>
 <span class="sd">    schemas from Geost can be used and extended or you can provide your own schema to extract</span>
@@ -1109,13 +1123,13 @@
 <span class="sd">    company : str | None, optional</span>
 <span class="sd">        Company name to use a predefined schema for. See :mod:`geost.io.xml.schemas` for</span>
 <span class="sd">        available schemas. If None, the predefined schema for BRO BHR-G) XML file or files</span>
-<span class="sd">        into a BoreholeCollection. This XML files is used by default to read the data. The</span>
+<span class="sd">        into a Collection. This XML files is used by default to read the data. The</span>
 <span class="sd">        default is None.</span>
 <span class="sd">    schema : dict[str, Any], optional</span>
 <span class="sd">        Schema to use for reading the data which describes the structure of the XML data.</span>
 <span class="sd">        If not given and `company` is None, the predefined schema for BRO BHR-G) XML file</span>
-<span class="sd">        or files into a BoreholeCollection. This XML files is used.</span>
-<span class="sd">    horizontal_reference : str | int | CRS, optional</span>
+<span class="sd">        or files into a Collection. This XML files is used.</span>
+<span class="sd">    crs : str | int | CRS, optional</span>
 <span class="sd">        EPSG of the desired data&#39;s horizontal reference. Takes anything that can be interpreted</span>
 <span class="sd">        by pyproj.crs.CRS.from_user_input(). The default is 28992.</span>
 <span class="sd">    read_all : bool, optional</span>
@@ -1125,8 +1139,8 @@
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
-<span class="sd">    :class:`~geost.base.BoreholeCollection`</span>
-<span class="sd">        BoreholeCollection containing the header and data attributes of the BHR-G data.</span>
+<span class="sd">    :class:`~geost.base.Collection`</span>
+<span class="sd">        Collection containing the header and data attributes of the BHR-G data.</span>
 
 <span class="sd">    Examples</span>
 <span class="sd">    --------</span>
@@ -1134,21 +1148,21 @@
 <span class="sd">    https://deltares-research.github.io/geost/api_reference/generated/geost.bro_api_read.html</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">header</span><span class="p">,</span> <span class="n">data</span> <span class="o">=</span> <span class="n">xml</span><span class="o">.</span><span class="n">read</span><span class="p">(</span>
+    <span class="n">header</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">vertical_datum</span> <span class="o">=</span> <span class="n">xml</span><span class="o">.</span><span class="n">read</span><span class="p">(</span>
         <span class="n">files</span><span class="p">,</span>
         <span class="n">xml</span><span class="o">.</span><span class="n">read_bhrg</span><span class="p">,</span>
         <span class="n">company</span><span class="o">=</span><span class="n">company</span><span class="p">,</span>
         <span class="n">schema</span><span class="o">=</span><span class="n">schema</span><span class="p">,</span>
         <span class="n">read_all</span><span class="o">=</span><span class="n">read_all</span><span class="p">,</span>
-        <span class="n">coerce_crs</span><span class="o">=</span><span class="n">horizontal_reference</span><span class="p">,</span>
+        <span class="n">coerce_crs</span><span class="o">=</span><span class="n">crs</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">header</span> <span class="o">=</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">(</span>
         <span class="n">header</span><span class="p">,</span>
         <span class="n">geometry</span><span class="o">=</span><span class="n">gpd</span><span class="o">.</span><span class="n">points_from_xy</span><span class="p">(</span><span class="n">header</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">header</span><span class="o">.</span><span class="n">y</span><span class="p">),</span>
-        <span class="n">crs</span><span class="o">=</span><span class="n">horizontal_reference</span><span class="p">,</span>
+        <span class="n">crs</span><span class="o">=</span><span class="n">crs</span><span class="p">,</span>
     <span class="p">)</span>
 
-    <span class="k">return</span> <span class="n">BoreholeCollection</span><span class="p">(</span><span class="n">header</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span></div>
+    <span class="k">return</span> <span class="n">Collection</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="n">header</span><span class="p">,</span> <span class="n">vertical_datum</span><span class="o">=</span><span class="n">vertical_datum</span><span class="p">)</span></div>
 
 
 
@@ -1158,14 +1172,14 @@
     <span class="n">files</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span> <span class="o">|</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">],</span>
     <span class="n">company</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">schema</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">horizontal_reference</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">int</span> <span class="o">|</span> <span class="n">CRS</span> <span class="o">=</span> <span class="mi">28992</span><span class="p">,</span>
+    <span class="n">crs</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">int</span> <span class="o">|</span> <span class="n">CRS</span> <span class="o">=</span> <span class="mi">28992</span><span class="p">,</span>
     <span class="n">read_all</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BoreholeCollection</span><span class="p">:</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Collection</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Read Pedological soilprofile description (SFR) XML file or files into a `BoreholeCollection`.</span>
+<span class="sd">    Read Pedological soilprofile description (SFR) XML file or files into a `Collection`.</span>
 <span class="sd">    This reads the XML files according to a `schema` that describes the structure of the of</span>
 <span class="sd">    the XML data to find the relevant borehole data. Geost provides predefined schemas for</span>
-<span class="sd">    the SFR XML file or files into a BoreholeCollection. This XML files that are used in the</span>
+<span class="sd">    the SFR XML file or files into a Collection. This XML files that are used in the</span>
 <span class="sd">    Netherlands from the Dutch national BRO database. A predefined schema may also be present</span>
 <span class="sd">    for a specific company, which can be specified using the `company` parameter. Predefined</span>
 <span class="sd">    schemas from Geost can be used and extended or you can provide your own schema to extract</span>
@@ -1178,13 +1192,13 @@
 <span class="sd">    company : str | None, optional</span>
 <span class="sd">        Company name to use a predefined schema for. See :mod:`geost.io.xml.schemas` for</span>
 <span class="sd">        available schemas. If None, the predefined schema for BRO SFR XML file or files</span>
-<span class="sd">        into a BoreholeCollection. This XML files is used by default to read the data. The</span>
+<span class="sd">        into a Collection. This XML files is used by default to read the data. The</span>
 <span class="sd">        default is None.</span>
 <span class="sd">    schema : dict[str, Any], optional</span>
 <span class="sd">        Schema to use for reading the data which describes the structure of the XML data.</span>
 <span class="sd">        If not given and `company` is None, the predefined schema for BRO SFR XML file or</span>
-<span class="sd">        files into a BoreholeCollection. This XML files is used.</span>
-<span class="sd">    horizontal_reference : str | int | CRS, optional</span>
+<span class="sd">        files into a Collection. This XML files is used.</span>
+<span class="sd">    crs : str | int | CRS, optional</span>
 <span class="sd">        EPSG of the desired data&#39;s horizontal reference. Takes anything that can be interpreted</span>
 <span class="sd">        by pyproj.crs.CRS.from_user_input(). The default is 28992.</span>
 <span class="sd">    read_all : bool, optional</span>
@@ -1194,8 +1208,8 @@
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
-<span class="sd">    :class:`~geost.base.BoreholeCollection`</span>
-<span class="sd">        BoreholeCollection containing the header and data attributes of the SFR data.</span>
+<span class="sd">    :class:`~geost.base.Collection`</span>
+<span class="sd">        Collection containing the header and data attributes of the SFR data.</span>
 
 <span class="sd">    Examples</span>
 <span class="sd">    --------</span>
@@ -1203,44 +1217,53 @@
 <span class="sd">    https://deltares-research.github.io/geost/api_reference/generated/geost.bro_api_read.html</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">header</span><span class="p">,</span> <span class="n">data</span> <span class="o">=</span> <span class="n">xml</span><span class="o">.</span><span class="n">read</span><span class="p">(</span>
+    <span class="n">header</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">vertical_datum</span> <span class="o">=</span> <span class="n">xml</span><span class="o">.</span><span class="n">read</span><span class="p">(</span>
         <span class="n">files</span><span class="p">,</span>
         <span class="n">xml</span><span class="o">.</span><span class="n">read_sfr</span><span class="p">,</span>
         <span class="n">company</span><span class="o">=</span><span class="n">company</span><span class="p">,</span>
         <span class="n">schema</span><span class="o">=</span><span class="n">schema</span><span class="p">,</span>
         <span class="n">read_all</span><span class="o">=</span><span class="n">read_all</span><span class="p">,</span>
-        <span class="n">coerce_crs</span><span class="o">=</span><span class="n">horizontal_reference</span><span class="p">,</span>
+        <span class="n">coerce_crs</span><span class="o">=</span><span class="n">crs</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">header</span> <span class="o">=</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">(</span>
         <span class="n">header</span><span class="p">,</span>
         <span class="n">geometry</span><span class="o">=</span><span class="n">gpd</span><span class="o">.</span><span class="n">points_from_xy</span><span class="p">(</span><span class="n">header</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">header</span><span class="o">.</span><span class="n">y</span><span class="p">),</span>
-        <span class="n">crs</span><span class="o">=</span><span class="n">horizontal_reference</span><span class="p">,</span>
+        <span class="n">crs</span><span class="o">=</span><span class="n">crs</span><span class="p">,</span>
     <span class="p">)</span>
 
-    <span class="k">return</span> <span class="n">BoreholeCollection</span><span class="p">(</span><span class="n">header</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span></div>
+    <span class="k">return</span> <span class="n">Collection</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="n">header</span><span class="p">,</span> <span class="n">vertical_datum</span><span class="o">=</span><span class="n">vertical_datum</span><span class="p">)</span></div>
 
 
 
 <div class="viewcode-block" id="read_gef_cpts">
 <a class="viewcode-back" href="../../../api_reference/generated/geost.read_gef_cpts.html#geost.read_gef_cpts">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">read_gef_cpts</span><span class="p">(</span><span class="n">file_or_folder</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CptCollection</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">read_gef_cpts</span><span class="p">(</span>
+    <span class="n">file_or_folder</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">,</span> <span class="n">as_collection</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Collection</span> <span class="o">|</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Read one or more GEF files of CPT data into a geost CptCollection.</span>
+<span class="sd">    Read one or more GEF files of CPT data into a geost Collection.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    file_or_folder : str | Path</span>
 <span class="sd">        GEF files to read.</span>
+<span class="sd">    as_collection : bool, optional</span>
+<span class="sd">        If True, return a :class:`~geost.base.Collection` from the GEF files. If False,</span>
+<span class="sd">        a `pd.DataFrame` is returned.</span>
+<span class="sd">    **kwargs</span>
+<span class="sd">        Additional keyword arguments that can be given to :meth:`~geost.accessor.GeostFrame.to_collection`</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
-<span class="sd">    :class:`~geost.base.CptCollection`</span>
-<span class="sd">        :class:`~geost.base.CptCollection` of the GEF file(s).</span>
+<span class="sd">    :class:`~geost.base.Collection` or `pd.DataFrame`</span>
+<span class="sd">        :class:`~geost.base.Collection` of the GEF file(s).</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">data</span> <span class="o">=</span> <span class="n">_parse_cpt_gef_files</span><span class="p">(</span><span class="n">file_or_folder</span><span class="p">)</span>
-    <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">df</span><span class="o">.</span><span class="n">gstda</span><span class="o">.</span><span class="n">to_collection</span><span class="p">()</span></div>
+    <span class="n">cpts</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">as_collection</span><span class="p">:</span>
+        <span class="n">cpts</span> <span class="o">=</span> <span class="n">cpts</span><span class="o">.</span><span class="n">gst</span><span class="o">.</span><span class="n">to_collection</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">cpts</span></div>
 
 
 
@@ -1250,14 +1273,14 @@
     <span class="n">files</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span> <span class="o">|</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">],</span>
     <span class="n">company</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">schema</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">horizontal_reference</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">int</span> <span class="o">|</span> <span class="n">CRS</span> <span class="o">=</span> <span class="mi">28992</span><span class="p">,</span>
+    <span class="n">crs</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">int</span> <span class="o">|</span> <span class="n">CRS</span> <span class="o">=</span> <span class="mi">28992</span><span class="p">,</span>
     <span class="n">read_all</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CptCollection</span><span class="p">:</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Collection</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Read Cone Penetration Test (CPT) XML file or files into a `CptCollection`. This reads</span>
+<span class="sd">    Read Cone Penetration Test (CPT) XML file or files into a `Collection`. This reads</span>
 <span class="sd">    the XML files according to a `schema` that describes the structure of the of the XML</span>
 <span class="sd">    data to find the relevant CPT data. Geost provides predefined schemas for the CPT XML</span>
-<span class="sd">    file or files into a CptCollection. This XML files that are used in the Netherlands</span>
+<span class="sd">    file or files into a Collection. This XML files that are used in the Netherlands</span>
 <span class="sd">    from the Dutch national BRO database. A predefined schema may also be present for a</span>
 <span class="sd">    specific company, which can be specified using the `company` parameter. Predefined</span>
 <span class="sd">    schemas from Geost can be used and extended or you can provide your own schema to</span>
@@ -1270,13 +1293,13 @@
 <span class="sd">    company : str | None, optional</span>
 <span class="sd">        Company name to use a predefined schema for. See :mod:`geost.io.xml.schemas` for</span>
 <span class="sd">        available schemas. If None, the predefined schema for BRO CPT XML file or files</span>
-<span class="sd">        into a CptCollection. This XML files is used by default to read the data. The</span>
+<span class="sd">        into a Collection. This XML files is used by default to read the data. The</span>
 <span class="sd">        default is None.</span>
 <span class="sd">    schema : dict[str, Any], optional</span>
 <span class="sd">        Schema to use for reading the data which describes the structure of the XML data.</span>
 <span class="sd">        If not given and `company` is None, the predefined schema for BRO CPT XML file or</span>
-<span class="sd">        files into a CptCollection. This XML files is used.</span>
-<span class="sd">    horizontal_reference: str | int | CRS, optional</span>
+<span class="sd">        files into a Collection. This XML files is used.</span>
+<span class="sd">    crs: str | int | CRS, optional</span>
 <span class="sd">        EPSG of the desired data&#39;s horizontal reference. Takes anything that can be interpreted</span>
 <span class="sd">        by pyproj.crs.CRS.from_user_input(). The default is 28992.</span>
 <span class="sd">    read_all : bool, optional</span>
@@ -1286,8 +1309,8 @@
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
-<span class="sd">    :class:`~geost.base.CptCollection`</span>
-<span class="sd">        CptCollection containing the header and data attributes of the CPT data.</span>
+<span class="sd">    :class:`~geost.base.Collection`</span>
+<span class="sd">        Collection containing the header and data attributes of the CPT data.</span>
 
 <span class="sd">    Examples</span>
 <span class="sd">    --------</span>
@@ -1295,23 +1318,24 @@
 <span class="sd">    https://deltares-research.github.io/geost/api_reference/generated/geost.bro_api_read.html</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">header</span><span class="p">,</span> <span class="n">data</span> <span class="o">=</span> <span class="n">xml</span><span class="o">.</span><span class="n">read</span><span class="p">(</span>
+    <span class="n">header</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">vertical_datum</span> <span class="o">=</span> <span class="n">xml</span><span class="o">.</span><span class="n">read</span><span class="p">(</span>
         <span class="n">files</span><span class="p">,</span>
         <span class="n">xml</span><span class="o">.</span><span class="n">read_cpt</span><span class="p">,</span>
         <span class="n">company</span><span class="o">=</span><span class="n">company</span><span class="p">,</span>
         <span class="n">schema</span><span class="o">=</span><span class="n">schema</span><span class="p">,</span>
         <span class="n">read_all</span><span class="o">=</span><span class="n">read_all</span><span class="p">,</span>
-        <span class="n">coerce_crs</span><span class="o">=</span><span class="n">horizontal_reference</span><span class="p">,</span>
+        <span class="n">coerce_crs</span><span class="o">=</span><span class="n">crs</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">header</span> <span class="o">=</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">(</span>
         <span class="n">header</span><span class="p">,</span>
         <span class="n">geometry</span><span class="o">=</span><span class="n">gpd</span><span class="o">.</span><span class="n">points_from_xy</span><span class="p">(</span><span class="n">header</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">header</span><span class="o">.</span><span class="n">y</span><span class="p">),</span>
-        <span class="n">crs</span><span class="o">=</span><span class="n">horizontal_reference</span><span class="p">,</span>
+        <span class="n">crs</span><span class="o">=</span><span class="n">crs</span><span class="p">,</span>
     <span class="p">)</span>
 
     <span class="n">data</span><span class="o">.</span><span class="n">fillna</span><span class="p">({</span><span class="s2">&quot;depth&quot;</span><span class="p">:</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;penetrationlength&quot;</span><span class="p">]},</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">data</span><span class="o">.</span><span class="n">sort_values</span><span class="p">([</span><span class="s2">&quot;nr&quot;</span><span class="p">,</span> <span class="s2">&quot;depth&quot;</span><span class="p">],</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
-    <span class="k">return</span> <span class="n">CptCollection</span><span class="p">(</span><span class="n">header</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span></div>
+    <span class="k">return</span> <span class="n">Collection</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="n">header</span><span class="p">,</span> <span class="n">vertical_datum</span><span class="o">=</span><span class="n">vertical_datum</span><span class="p">)</span></div>
 
 
 
@@ -1320,13 +1344,13 @@
 <span class="k">def</span><span class="w"> </span><span class="nf">read_uullg_tables</span><span class="p">(</span>
     <span class="n">header_table</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">,</span>
     <span class="n">data_table</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">,</span>
-    <span class="n">horizontal_reference</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">int</span> <span class="o">|</span> <span class="n">CRS</span> <span class="o">=</span> <span class="mi">28992</span><span class="p">,</span>
-    <span class="n">vertical_reference</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">int</span> <span class="o">|</span> <span class="n">CRS</span> <span class="o">=</span> <span class="mi">5709</span><span class="p">,</span>
+    <span class="n">crs</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">int</span> <span class="o">|</span> <span class="n">CRS</span> <span class="o">=</span> <span class="mi">28992</span><span class="p">,</span>
+    <span class="n">vertical_datum</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">int</span> <span class="o">|</span> <span class="n">CRS</span> <span class="o">=</span> <span class="mi">5709</span><span class="p">,</span>
     <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BoreholeCollection</span><span class="p">:</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Collection</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Read the header and data tables from UU-LLG boreholes (see: EasyDans KNAW) from a</span>
-<span class="sd">    local csv or parquet file into a GeoST BoreholeCollection object.</span>
+<span class="sd">    local csv or parquet file into a GeoST Collection object.</span>
 
 <span class="sd">    Reference dataset: https://easy.dans.knaw.nl/ui/datasets/id/easy-dataset:74935</span>
 <span class="sd">    See https://wikiwfs.geo.uu.nl/ for additional information.</span>
@@ -1337,10 +1361,10 @@
 <span class="sd">        Path to file of the UU-LLG header table.</span>
 <span class="sd">    data_table : str | Path</span>
 <span class="sd">        Path to file of the UU-LLG data table.</span>
-<span class="sd">    horizontal_reference : str | int | CRS, optional</span>
+<span class="sd">    crs : str | int | CRS, optional</span>
 <span class="sd">        EPSG of the data&#39;s horizontal reference. Takes anything that can be interpreted</span>
 <span class="sd">        by pyproj.crs.CRS.from_user_input(). The default is 28992.</span>
-<span class="sd">    vertical_reference : str | int | CRS, optional</span>
+<span class="sd">    vertical_datum : str | int | CRS, optional</span>
 <span class="sd">        EPSG of the data&#39;s vertical datum. Takes anything that can be interpreted by</span>
 <span class="sd">        pyproj.crs.CRS.from_user_input(). However, it must be a vertical datum. FYI:</span>
 <span class="sd">        &quot;NAP&quot; is EPSG 5709 and The Belgian reference system (Ostend height) is ESPG</span>
@@ -1348,12 +1372,12 @@
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
-<span class="sd">    :class:`~geost.base.BoreholeCollection`</span>
-<span class="sd">        Instance of :class:`~geost.base.BoreholeCollection` of the UU-LLG data.</span>
+<span class="sd">    :class:`~geost.base.Collection`</span>
+<span class="sd">        Instance of :class:`~geost.base.Collection` of the UU-LLG data.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">header</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">_pandas_read</span><span class="p">(</span><span class="n">header_table</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-    <span class="n">data</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">_pandas_read</span><span class="p">(</span><span class="n">data_table</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="n">header</span> <span class="o">=</span> <span class="n">io_helpers</span><span class="o">.</span><span class="n">_pandas_read</span><span class="p">(</span><span class="n">header_table</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">io_helpers</span><span class="o">.</span><span class="n">_pandas_read</span><span class="p">(</span><span class="n">data_table</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
     <span class="n">header</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="n">LLG_COLUMN_MAPPING</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="n">data</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="n">LLG_COLUMN_MAPPING</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
@@ -1361,15 +1385,13 @@
     <span class="n">header</span> <span class="o">=</span> <span class="n">header</span><span class="o">.</span><span class="n">astype</span><span class="p">({</span><span class="s2">&quot;nr&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">})</span>
     <span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">astype</span><span class="p">({</span><span class="s2">&quot;nr&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">})</span>
 
-    <span class="n">header</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">dataframe_to_geodataframe</span><span class="p">(</span><span class="n">header</span><span class="p">)</span><span class="o">.</span><span class="n">set_crs</span><span class="p">(</span><span class="n">horizontal_reference</span><span class="p">)</span>
+    <span class="n">header</span> <span class="o">=</span> <span class="n">conversion</span><span class="o">.</span><span class="n">dataframe_to_geodataframe</span><span class="p">(</span><span class="n">header</span><span class="p">)</span><span class="o">.</span><span class="n">set_crs</span><span class="p">(</span><span class="n">crs</span><span class="p">)</span>
 
     <span class="n">add_header_cols</span> <span class="o">=</span> <span class="p">[</span><span class="n">c</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="p">{</span><span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="s2">&quot;y&quot;</span><span class="p">,</span> <span class="s2">&quot;surface&quot;</span><span class="p">,</span> <span class="s2">&quot;end&quot;</span><span class="p">}</span> <span class="k">if</span> <span class="n">c</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">columns</span><span class="p">]</span>
     <span class="k">if</span> <span class="n">add_header_cols</span><span class="p">:</span>
         <span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">header</span><span class="p">[[</span><span class="s2">&quot;nr&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="n">add_header_cols</span><span class="p">],</span> <span class="n">on</span><span class="o">=</span><span class="s2">&quot;nr&quot;</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s2">&quot;left&quot;</span><span class="p">)</span>
 
-    <span class="k">return</span> <span class="n">BoreholeCollection</span><span class="p">(</span>
-        <span class="n">header</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">has_inclined</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">vertical_reference</span><span class="o">=</span><span class="n">vertical_reference</span>
-    <span class="p">)</span></div>
+    <span class="k">return</span> <span class="n">Collection</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="n">header</span><span class="p">,</span> <span class="n">vertical_datum</span><span class="o">=</span><span class="n">vertical_datum</span><span class="p">)</span></div>
 
 
 
@@ -1377,30 +1399,25 @@
 <a class="viewcode-back" href="../../../api_reference/generated/geost.read_collection_geopackage.html#geost.read_collection_geopackage">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">read_collection_geopackage</span><span class="p">(</span>
     <span class="n">filepath</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">,</span>
-    <span class="n">collection_type</span><span class="p">:</span> <span class="n">Collection</span><span class="p">,</span>
     <span class="n">has_inclined</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-    <span class="n">horizontal_reference</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">int</span> <span class="o">|</span> <span class="n">CRS</span> <span class="o">=</span> <span class="mi">28992</span><span class="p">,</span>
-    <span class="n">vertical_reference</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">int</span> <span class="o">|</span> <span class="n">CRS</span> <span class="o">=</span> <span class="mi">5709</span><span class="p">,</span>
+    <span class="n">crs</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">int</span> <span class="o">|</span> <span class="n">CRS</span> <span class="o">=</span> <span class="mi">28992</span><span class="p">,</span>
+    <span class="n">vertical_datum</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">int</span> <span class="o">|</span> <span class="n">CRS</span> <span class="o">=</span> <span class="mi">5709</span><span class="p">,</span>
 <span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Read a GeoST stored Geopackage file of `geost.base.Collection` objects. The</span>
-<span class="sd">    Geopackage contains the Collection&#39;s &quot;header&quot; and &quot;data&quot; attributes as layers which</span>
-<span class="sd">    are read into the specified Collection.</span>
+<span class="sd">    Read a GeoST stored Geopackage file of `geost.base.Collection` objects. The Geopackage</span>
+<span class="sd">    contains the Collection&#39;s &quot;header&quot; and &quot;data&quot; attributes as layers which are read into</span>
+<span class="sd">    the specified Collection.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    filepath : str | Path</span>
 <span class="sd">        GeoST stored Geopackage file of a `geost.base.Collection` object.</span>
-<span class="sd">    collection_type : Collection</span>
-<span class="sd">        Type of GeoST Collection object the data needs to be. Subclasses of `Collection`</span>
-<span class="sd">        (e.g. :class:`geost.base.BoreholeCollection`, :class:`geost.base.CptCollection`)</span>
-<span class="sd">        for the available types.</span>
 <span class="sd">    has_inclined : bool, optional</span>
 <span class="sd">        If True, the borehole data table contains inclined data. The default is False.</span>
-<span class="sd">    horizontal_reference : str | int | CRS, optional</span>
+<span class="sd">    crs : str | int | CRS, optional</span>
 <span class="sd">        EPSG of the data&#39;s horizontal reference. Takes anything that can be interpreted</span>
 <span class="sd">        by pyproj.crs.CRS.from_user_input(). The default is 28992.</span>
-<span class="sd">    vertical_reference : str | int | CRS, optional</span>
+<span class="sd">    vertical_datum : str | int | CRS, optional</span>
 <span class="sd">        EPSG of the data&#39;s vertical datum. Takes anything that can be interpreted by</span>
 <span class="sd">        pyproj.crs.CRS.from_user_input(). However, it must be a vertical datum. FYI:</span>
 <span class="sd">        &quot;NAP&quot; is EPSG 5709 and The Belgian reference system (Ostend height) is ESPG</span>
@@ -1408,13 +1425,7 @@
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
-<span class="sd">    Subclass of `geost.base.Collection`</span>
-<span class="sd">        Subclass which is specified as collection_type.</span>
-
-<span class="sd">    Raises</span>
-<span class="sd">    ------</span>
-<span class="sd">    ValueError</span>
-<span class="sd">        Raises ValueError if the collection_type is not supported.</span>
+<span class="sd">    `geost.base.Collection`</span>
 
 <span class="sd">    Examples</span>
 <span class="sd">    --------</span>
@@ -1422,36 +1433,28 @@
 
 <span class="sd">    &gt;&gt;&gt; original_collection = geost.data.boreholes_usp()</span>
 <span class="sd">    &gt;&gt;&gt; original_collection</span>
-<span class="sd">    BoreholeCollection:</span>
+<span class="sd">    Collection:</span>
 <span class="sd">    # header = 67</span>
 <span class="sd">    &gt;&gt;&gt; original_collection.to_geopackage(&quot;./collection.gpkg&quot;)</span>
 
 <span class="sd">    Reading the stored collection using `geost.read_collection_geopackage` returns the</span>
 <span class="sd">    stored collection:</span>
 
-<span class="sd">    &gt;&gt;&gt; collection = geost.read_collection_geopackage(</span>
-<span class="sd">    ...     &quot;./collection.gpkg&quot;, collection_type=BoreholeCollection</span>
-<span class="sd">    ...     )</span>
+<span class="sd">    &gt;&gt;&gt; collection = geost.read_collection_geopackage(&quot;./collection.gpkg&quot;)</span>
 <span class="sd">    &gt;&gt;&gt; collection</span>
-<span class="sd">    BoreholeCollection:</span>
+<span class="sd">    Collection:</span>
 <span class="sd">    # header = 67</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
-
     <span class="n">header</span> <span class="o">=</span> <span class="n">gpd</span><span class="o">.</span><span class="n">read_file</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="n">layer</span><span class="o">=</span><span class="s2">&quot;header&quot;</span><span class="p">)</span>
-    <span class="n">header</span><span class="o">.</span><span class="n">set_crs</span><span class="p">(</span><span class="n">horizontal_reference</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">allow_override</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">header</span><span class="o">.</span><span class="n">set_crs</span><span class="p">(</span><span class="n">crs</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">allow_override</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="n">data</span> <span class="o">=</span> <span class="n">gpd</span><span class="o">.</span><span class="n">read_file</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="n">layer</span><span class="o">=</span><span class="s2">&quot;data&quot;</span><span class="p">)</span>
 
-    <span class="c1"># TODO: Check collection type inference possibility from geopackage metadata.</span>
-    <span class="k">if</span> <span class="n">collection_type</span> <span class="o">==</span> <span class="n">BoreholeCollection</span><span class="p">:</span>
-        <span class="k">pass</span>
-    <span class="k">elif</span> <span class="n">collection_type</span> <span class="o">==</span> <span class="n">CptCollection</span><span class="p">:</span>
-        <span class="k">pass</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Collection type </span><span class="si">{</span><span class="n">collection_type</span><span class="si">}</span><span class="s2"> not supported.&quot;</span><span class="p">)</span>
-
-    <span class="k">return</span> <span class="n">collection_type</span><span class="p">(</span>
-        <span class="n">header</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">has_inclined</span><span class="o">=</span><span class="n">has_inclined</span><span class="p">,</span> <span class="n">vertical_reference</span><span class="o">=</span><span class="n">vertical_reference</span>
+    <span class="k">return</span> <span class="n">Collection</span><span class="p">(</span>
+        <span class="n">data</span><span class="p">,</span>
+        <span class="n">header</span><span class="o">=</span><span class="n">header</span><span class="p">,</span>
+        <span class="n">has_inclined</span><span class="o">=</span><span class="n">has_inclined</span><span class="p">,</span>
+        <span class="n">vertical_datum</span><span class="o">=</span><span class="n">vertical_datum</span><span class="p">,</span>
     <span class="p">)</span></div>
 
 
@@ -1480,7 +1483,7 @@
 
 <span class="sd">    &gt;&gt;&gt; original_collection = geost.data.boreholes_usp()</span>
 <span class="sd">    &gt;&gt;&gt; original_collection</span>
-<span class="sd">    BoreholeCollection:</span>
+<span class="sd">    Collection:</span>
 <span class="sd">    # header = 67</span>
 <span class="sd">    &gt;&gt;&gt; original_collection.to_pickle(&quot;./collection.pkl&quot;)</span>
 
@@ -1488,7 +1491,7 @@
 
 <span class="sd">    &gt;&gt;&gt; collection = geost.read_pickle(&quot;./collection.pkl&quot;)</span>
 <span class="sd">    &gt;&gt;&gt; collection</span>
-<span class="sd">    BoreholeCollection:</span>
+<span class="sd">    Collection:</span>
 <span class="sd">    # header = 67</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -1502,13 +1505,13 @@
 <span class="k">def</span><span class="w"> </span><span class="nf">bro_api_read</span><span class="p">(</span>
     <span class="n">object_type</span><span class="p">:</span> <span class="n">BroObject</span><span class="p">,</span>
     <span class="o">*</span><span class="p">,</span>
-    <span class="n">bro_ids</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">epsg</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">28992</span><span class="p">,</span>
+    <span class="n">bro_ids</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">crs</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">CRS</span> <span class="o">=</span> <span class="mi">28992</span><span class="p">,</span>
     <span class="n">bbox</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">geometry</span><span class="p">:</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">buffer</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="nb">float</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">schema</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-<span class="p">):</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Collection</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Read data directly from the BRO API. This allows to read BHR-GT, BHR-P, BHR-G and</span>
 <span class="sd">    CPT data from the BRO API into `geost` objects without having to download the data</span>
@@ -1521,14 +1524,14 @@
 <span class="sd">    object_type : BroObject</span>
 <span class="sd">        Type of BRO object to read. This can be one of the following: &quot;BHR-GT&quot;, &quot;BHR-GT-samples&quot;,</span>
 <span class="sd">        &quot;BHR-P&quot;, &quot;BHR-G&quot;, &quot;CPT&quot;, &quot;SFR&quot;.</span>
-<span class="sd">    bro_ids : str | list[str], optional (keyword only)</span>
+<span class="sd">    bro_ids : str | list[str] | pd.Series, optional (keyword only)</span>
 <span class="sd">        List of BRO object ids to read. If not given, the bbox or geometry must be</span>
 <span class="sd">        provided to select the objects to read. If given, bbox and geometry are ignored.</span>
-<span class="sd">    epsg : int, optional (keyword only)</span>
+<span class="sd">    crs : int, optional (keyword only)</span>
 <span class="sd">        EPSG code of the coordinate reference system that the collection will be coerced to.</span>
-<span class="sd">        If using a bbox for selection, this EPSG code is also used to interpret the bbox coordinates.</span>
+<span class="sd">        If using a bbox for selection, this crs is also used to interpret the bbox coordinates.</span>
 <span class="sd">        Note that when using a geometry for selection, the geometry&#39;s CRS is used instead unless</span>
-<span class="sd">        the geometry has no CRS defined. In that case, this EPSG code is also used.</span>
+<span class="sd">        the geometry has no CRS defined. In that case, this crs is also used.</span>
 <span class="sd">        The default is 28992 (RD New).</span>
 <span class="sd">    bbox : tuple[float, float, float, float], optional</span>
 <span class="sd">        Bounding box (xmin, ymin, xmax, ymax) to search BRO objects within. The default is</span>
@@ -1551,45 +1554,51 @@
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
-<span class="sd">    Subclass of `geost.base.Collection`</span>
-<span class="sd">        Returns a subclass of `geost.base.Collection` depending on the object_type.</span>
+<span class="sd">    :class:`~geost.base.Collection`</span>
+<span class="sd">        Returns a subclass of `geost.Collection` depending on the object_type.</span>
 
 <span class="sd">    Examples</span>
 <span class="sd">    --------</span>
 <span class="sd">    Read a list of specific borehole ids from the BRO API (max 2000 objects):</span>
+
 <span class="sd">    &gt;&gt;&gt; import geost</span>
 <span class="sd">    ... bhrgt = geost.bro_api_read(&quot;BHR-GT&quot;, bro_ids=[&quot;BHR000000339725&quot;, &quot;BHR000000339735&quot;])</span>
 <span class="sd">    ... bhrgt</span>
-<span class="sd">    BoreholeCollection:</span>
+<span class="sd">    Collection:</span>
 <span class="sd">    # header = 2</span>
 
-<span class="sd">    Or read geological boreholes (BHR-G) within a bounding box. Note the epsg parameter</span>
+<span class="sd">    Or read geological boreholes (BHR-G) within a bounding box. Note the crs parameter</span>
 <span class="sd">    is used to interpret the bbox coordinates (by default it is 28992 - RD New):</span>
+
 <span class="sd">    &gt;&gt;&gt; import geost</span>
 <span class="sd">    ... bbox = (126_800, 448_000, 127_800, 449_000)  # xmin, ymin, xmax, ymax</span>
-<span class="sd">    ... bhrg = geost.bro_api_read(&quot;BHR-G&quot;, bbox=bbox, epsg=28992)</span>
-<span class="sd">    BoreholeCollection:</span>
+<span class="sd">    ... bhrg = geost.bro_api_read(&quot;BHR-G&quot;, bbox=bbox, crs=28992)</span>
+<span class="sd">    Collection:</span>
 <span class="sd">    # header = 3</span>
 
 <span class="sd">    Or within shapefile containing a Polygon geometry of the same bounding box of the</span>
-<span class="sd">    previous example (Point or Line geometries are also supported). Note that the epsg</span>
-<span class="sd">    of the geometry is used if it has a defined CRS, otherwise the epsg parameter must be used:</span>
+<span class="sd">    previous example (Point or Line geometries are also supported). Note that the crs</span>
+<span class="sd">    of the geometry is used if it has a defined CRS, otherwise the crs parameter must be used:</span>
+
 <span class="sd">    &gt;&gt;&gt; import geost</span>
 <span class="sd">    ... bhrg = geost.bro_api_read(&quot;BHR-G&quot;, geometry=&quot;my_polygon.shp&quot;)</span>
-<span class="sd">    BoreholeCollection:</span>
+<span class="sd">    Collection:</span>
 <span class="sd">    # header = 3</span>
 
 <span class="sd">    Or within the shapefile and applying a buffer:</span>
+
 <span class="sd">    &gt;&gt;&gt; import geost</span>
 <span class="sd">    ... bhrg = geost.bro_api_read(&quot;BHR-G&quot;, geometry=&quot;my_polygon.shp&quot;, buffer=500)</span>
-<span class="sd">    BoreholeCollection:</span>
+<span class="sd">    Collection:</span>
 <span class="sd">    # header = 5</span>
 
 <span class="sd">    When there are no objects found, you will get an empty collection:</span>
+
 <span class="sd">    &gt;&gt;&gt; import geost</span>
 <span class="sd">    ... bhrg = geost.bro_api_read(&quot;BHR-G&quot;, bbox=[0, 0, 1, 1])</span>
 <span class="sd">    Collection:</span>
 <span class="sd">    &lt;EMPTY COLLECTION&gt;</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">readers</span> <span class="o">=</span> <span class="p">{</span>
         <span class="s2">&quot;BHR-GT&quot;</span><span class="p">:</span> <span class="n">read_bhrgt</span><span class="p">,</span>
@@ -1599,24 +1608,27 @@
         <span class="s2">&quot;CPT&quot;</span><span class="p">:</span> <span class="n">read_cpt</span><span class="p">,</span>
         <span class="s2">&quot;SFR&quot;</span><span class="p">:</span> <span class="n">read_sfr</span><span class="p">,</span>
     <span class="p">}</span>
-    <span class="n">reader</span> <span class="o">=</span> <span class="n">readers</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">object_type</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">reader</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">object_type</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">readers</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Object type &#39;</span><span class="si">{</span><span class="n">object_type</span><span class="si">}</span><span class="s2">&#39; is not supported for reading.&quot;</span><span class="p">)</span>
+
+    <span class="n">reader</span> <span class="o">=</span> <span class="n">readers</span><span class="p">[</span><span class="n">object_type</span><span class="p">]</span>
+
+    <span class="n">crs</span> <span class="o">=</span> <span class="n">CRS</span><span class="o">.</span><span class="n">from_user_input</span><span class="p">(</span><span class="n">crs</span><span class="p">)</span>
 
     <span class="n">api</span> <span class="o">=</span> <span class="n">BroApi</span><span class="p">()</span>
 
-    <span class="k">if</span> <span class="n">bro_ids</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">bro_ids</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">bro_data</span> <span class="o">=</span> <span class="n">api</span><span class="o">.</span><span class="n">get_objects</span><span class="p">(</span><span class="n">bro_ids</span><span class="p">,</span> <span class="n">object_type</span><span class="o">=</span><span class="n">object_type</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">bbox</span><span class="p">:</span>
             <span class="n">xmin</span><span class="p">,</span> <span class="n">ymin</span><span class="p">,</span> <span class="n">xmax</span><span class="p">,</span> <span class="n">ymax</span> <span class="o">=</span> <span class="n">bbox</span>
         <span class="k">elif</span> <span class="n">geometry</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">geometry</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">check_geometry_instance</span><span class="p">(</span><span class="n">geometry</span><span class="p">)</span>
-            <span class="n">epsg</span> <span class="o">=</span> <span class="n">CRS</span><span class="o">.</span><span class="n">from_user_input</span><span class="p">(</span><span class="n">geometry</span><span class="o">.</span><span class="n">crs</span> <span class="ow">or</span> <span class="n">epsg</span><span class="p">)</span>
+            <span class="n">geometry</span> <span class="o">=</span> <span class="n">conversion</span><span class="o">.</span><span class="n">check_geometry_instance</span><span class="p">(</span><span class="n">geometry</span><span class="p">)</span>
+            <span class="n">crs</span> <span class="o">=</span> <span class="n">CRS</span><span class="o">.</span><span class="n">from_user_input</span><span class="p">(</span><span class="n">geometry</span><span class="o">.</span><span class="n">crs</span> <span class="ow">or</span> <span class="n">crs</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">geometry</span><span class="o">.</span><span class="n">crs</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
                     <span class="sa">f</span><span class="s2">&quot;Geometry for retrieving &#39;</span><span class="si">{</span><span class="n">object_type</span><span class="si">}</span><span class="s2">&#39; objects has no CRS defined. &quot;</span>
-                    <span class="sa">f</span><span class="s2">&quot;Using the provided epsg parameter (</span><span class="si">{</span><span class="n">epsg</span><span class="o">.</span><span class="n">to_string</span><span class="p">()</span><span class="si">}</span><span class="s2">) to interpret &quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;Using the provided crs parameter (</span><span class="si">{</span><span class="n">crs</span><span class="o">.</span><span class="n">to_string</span><span class="p">()</span><span class="si">}</span><span class="s2">) to interpret &quot;</span>
                     <span class="s2">&quot;the geometry CRS. CHECK IF THIS IS CORRECT!&quot;</span><span class="p">,</span>
                     <span class="n">category</span><span class="o">=</span><span class="ne">UserWarning</span><span class="p">,</span>
                 <span class="p">)</span>
@@ -1624,14 +1636,14 @@
                 <span class="n">geometry</span> <span class="o">=</span> <span class="n">geometry</span><span class="o">.</span><span class="n">buffer</span><span class="p">(</span><span class="n">buffer</span><span class="p">)</span>
             <span class="n">xmin</span><span class="p">,</span> <span class="n">ymin</span><span class="p">,</span> <span class="n">xmax</span><span class="p">,</span> <span class="n">ymax</span> <span class="o">=</span> <span class="n">geometry</span><span class="o">.</span><span class="n">total_bounds</span>
         <span class="n">api</span><span class="o">.</span><span class="n">search_objects_in_bbox</span><span class="p">(</span>
-            <span class="n">xmin</span><span class="p">,</span> <span class="n">ymin</span><span class="p">,</span> <span class="n">xmax</span><span class="p">,</span> <span class="n">ymax</span><span class="p">,</span> <span class="n">epsg</span><span class="o">=</span><span class="n">epsg</span><span class="p">,</span> <span class="n">object_type</span><span class="o">=</span><span class="n">object_type</span>
+            <span class="n">xmin</span><span class="p">,</span> <span class="n">ymin</span><span class="p">,</span> <span class="n">xmax</span><span class="p">,</span> <span class="n">ymax</span><span class="p">,</span> <span class="n">epsg</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">crs</span><span class="o">.</span><span class="n">to_epsg</span><span class="p">()),</span> <span class="n">object_type</span><span class="o">=</span><span class="n">object_type</span>
         <span class="p">)</span>
         <span class="n">bro_data</span> <span class="o">=</span> <span class="n">api</span><span class="o">.</span><span class="n">get_objects</span><span class="p">(</span><span class="n">api</span><span class="o">.</span><span class="n">object_list</span><span class="p">,</span> <span class="n">object_type</span><span class="o">=</span><span class="n">object_type</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="n">bro_data</span><span class="p">:</span>
-        <span class="n">collection</span> <span class="o">=</span> <span class="n">reader</span><span class="p">(</span><span class="n">bro_data</span><span class="p">,</span> <span class="n">schema</span><span class="o">=</span><span class="n">schema</span><span class="p">,</span> <span class="n">horizontal_reference</span><span class="o">=</span><span class="n">epsg</span><span class="p">)</span>
+        <span class="n">collection</span> <span class="o">=</span> <span class="n">reader</span><span class="p">(</span><span class="n">bro_data</span><span class="p">,</span> <span class="n">schema</span><span class="o">=</span><span class="n">schema</span><span class="p">,</span> <span class="n">crs</span><span class="o">=</span><span class="n">crs</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="n">collection</span> <span class="o">=</span> <span class="n">Collection</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="n">collection</span> <span class="o">=</span> <span class="n">Collection</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="n">collection</span></div>
 
@@ -1664,8 +1676,8 @@
   </div>
   
   <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script defer src="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
-<script defer src="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+  <script defer src="../../../_static/scripts/bootstrap.js?digest=55c26ed414f5f8a31ebb"></script>
+<script defer src="../../../_static/scripts/pydata-sphinx-theme.js?digest=55c26ed414f5f8a31ebb"></script>
 
   <footer class="bd-footer">
 <div class="bd-footer__inner bd-page-width">
@@ -1699,7 +1711,7 @@
         <div class="footer-item">
 <p class="theme-version">
   <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
-  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.17.1.
 </p></div>
       
     </div>

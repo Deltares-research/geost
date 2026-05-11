@@ -1,0 +1,6 @@
+﻿geost.add\_positional\_columns
+==============================
+
+.. currentmodule:: geost
+
+.. autofunction:: add_positional_columns

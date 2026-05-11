@@ -1,0 +1,6 @@
+﻿geost.validation.validate.ValidationResult.has\_errors
+======================================================
+
+.. currentmodule:: geost.validation.validate
+
+.. autoproperty:: ValidationResult.has_errors

@@ -1,0 +1,6 @@
+﻿geost.read\_xml\_boris
+======================
+
+.. currentmodule:: geost
+
+.. autofunction:: read_xml_boris

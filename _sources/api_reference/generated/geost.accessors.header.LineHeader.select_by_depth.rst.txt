@@ -1,6 +1,0 @@
-﻿geost.accessors.header.LineHeader.select\_by\_depth
-===================================================
-
-.. currentmodule:: geost.accessors.header
-
-.. automethod:: LineHeader.select_by_depth

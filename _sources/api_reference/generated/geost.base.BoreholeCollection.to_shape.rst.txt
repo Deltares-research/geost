@@ -1,6 +1,0 @@
-﻿geost.base.BoreholeCollection.to\_shape
-=======================================
-
-.. currentmodule:: geost.base
-
-.. automethod:: BoreholeCollection.to_shape

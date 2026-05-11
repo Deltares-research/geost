@@ -1,0 +1,6 @@
+﻿geost.analysis.cpt.calc\_lithology
+==================================
+
+.. currentmodule:: geost.analysis.cpt
+
+.. autofunction:: calc_lithology

@@ -1,6 +1,0 @@
-﻿geost.base.BoreholeCollection.select\_by\_values
-================================================
-
-.. currentmodule:: geost.base
-
-.. automethod:: BoreholeCollection.select_by_values

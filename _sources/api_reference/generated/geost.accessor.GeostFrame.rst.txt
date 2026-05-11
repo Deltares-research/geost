@@ -1,0 +1,62 @@
+﻿geost.accessor.GeostFrame
+=========================
+
+.. currentmodule:: geost.accessor
+
+.. autoclass:: GeostFrame
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~GeostFrame.__init__
+      ~GeostFrame.calculate_thickness
+      ~GeostFrame.determine_end_depth
+      ~GeostFrame.get_cumulative_thickness
+      ~GeostFrame.get_layer_base
+      ~GeostFrame.get_layer_top
+      ~GeostFrame.select_by_condition
+      ~GeostFrame.select_by_elevation
+      ~GeostFrame.select_by_length
+      ~GeostFrame.select_by_values
+      ~GeostFrame.select_with_lines
+      ~GeostFrame.select_with_points
+      ~GeostFrame.select_within_bbox
+      ~GeostFrame.select_within_polygons
+      ~GeostFrame.slice_by_values
+      ~GeostFrame.slice_depth_interval
+      ~GeostFrame.spatial_join
+      ~GeostFrame.standardize_column_names
+      ~GeostFrame.to_collection
+      ~GeostFrame.to_crs
+      ~GeostFrame.to_header
+      ~GeostFrame.to_kingdom
+      ~GeostFrame.to_pyvista_cylinders
+      ~GeostFrame.to_pyvista_grid
+      ~GeostFrame.to_qgis3d
+      ~GeostFrame.to_vertical_datum
+      ~GeostFrame.transform_coordinates
+      ~GeostFrame.validate
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~GeostFrame.first_row_survey
+      ~GeostFrame.has_depth_columns
+      ~GeostFrame.has_geometry
+      ~GeostFrame.has_surface_column
+      ~GeostFrame.has_xy_columns
+      ~GeostFrame.is_layered
+      ~GeostFrame.last_row_survey
+      ~GeostFrame.positional_columns
+   
+   

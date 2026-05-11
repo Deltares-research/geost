@@ -26,47 +26,54 @@
   </noscript>
   
   <!-- Loaded before other Sphinx assets -->
-  <link href="../../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
-<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+  <link href="../../../_static/styles/theme.css?digest=55c26ed414f5f8a31ebb" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=55c26ed414f5f8a31ebb" rel="stylesheet" />
 
     <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=8f2a1f02" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/mystnb.8ecb98da25f57f5357bf6f572d296f466b2cfe2517ffebfabe82451661e28f02.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/mystnb.11b39860a7a0cbfd473a3ad8a317855267ff0bd372690045ca344a6b62be495e.css" />
     <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=6e1425e8" />
     <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-design.min.css?v=95c83b7e" />
     <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=6e1425e8" />
   
   <!-- So that users can add custom icons -->
-  <script src="../../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <script defer src="../../../_static/scripts/fontawesome.js?digest=55c26ed414f5f8a31ebb"></script>
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
-<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=55c26ed414f5f8a31ebb" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=55c26ed414f5f8a31ebb" />
 
     <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = '_modules/geost/validation/validate';</script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
     <link rel="icon" href="../../../_static/geost_logo.png"/>
     <link rel="author" title="About these documents" href="../../../about.html" />
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="0.4.1" />
+  <meta name="docsearch:version" content="0.5.0" />
+  
+    
+    <script src="../../../_static/searchtools.js"></script>
+    <script src="../../../_static/language_data.js"></script>
+    <script src="../../../searchindex.js"></script>
+  
   </head>
-  
-  
-  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
-
+  <body data-default-mode="">
   
   
   <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+
   
   <div id="pst-scroll-pixel-helper"></div>
   
   <button type="button" class="btn rounded-pill" id="pst-back-to-top">
     <i class="fa-solid fa-arrow-up"></i>Back to top</button>
-
+  
+  
+  
   
   <dialog id="pst-search-dialog">
     
@@ -92,7 +99,7 @@
 </div>
 
   
-    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
 <div class="bd-header__inner bd-page-width">
   <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
     <span class="fa-solid fa-bars"></span>
@@ -459,70 +466,369 @@
                 <article class="bd-article">
                   
   <h1>Source code for geost.validation.validate</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">contextlib</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">warnings</span>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">warnings</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">functools</span><span class="w"> </span><span class="kn">import</span> <span class="n">reduce</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">NamedTuple</span>
 
+<span class="kn">import</span><span class="w"> </span><span class="nn">geopandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">gpd</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">pandera.errors</span><span class="w"> </span><span class="kn">import</span> <span class="n">SchemaError</span><span class="p">,</span> <span class="n">SchemaErrors</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">pandera.pandas</span><span class="w"> </span><span class="kn">import</span> <span class="n">DataFrameSchema</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">geost</span><span class="w"> </span><span class="kn">import</span> <span class="n">config</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">geost._warnings</span><span class="w"> </span><span class="kn">import</span> <span class="n">ValidationWarning</span>
 
 
-<div class="viewcode-block" id="safe_validate">
-<a class="viewcode-back" href="../../../api_reference/generated/geost.validation.safe_validate.html#geost.validation.safe_validate">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">safe_validate</span><span class="p">(</span><span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">schema</span><span class="p">:</span> <span class="n">DataFrameSchema</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">ValidationResult</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">errors</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># Note: length of unique validation issues, not number of affected rows or surveys</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">errors</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;ValidationResult(num_issues=</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="si">}</span><span class="s2">)&quot;</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">has_errors</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Indicates whether any validation errors were recorded.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">errors</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">error_indices</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">Index</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns the indices of all rows with validation errors.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">reduce</span><span class="p">(</span>
+            <span class="k">lambda</span> <span class="n">acc</span><span class="p">,</span> <span class="n">error</span><span class="p">:</span> <span class="n">acc</span><span class="o">.</span><span class="n">union</span><span class="p">(</span><span class="n">error</span><span class="p">[</span><span class="s2">&quot;indices&quot;</span><span class="p">]),</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">errors</span><span class="o">.</span><span class="n">values</span><span class="p">(),</span>
+            <span class="n">pd</span><span class="o">.</span><span class="n">Index</span><span class="p">([]),</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">error_nrs</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns the unique survey numbers associated with validation errors.&quot;&quot;&quot;</span>
+        <span class="n">nrs</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">error</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">errors</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+            <span class="n">nrs</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">error</span><span class="p">[</span><span class="s2">&quot;nrs&quot;</span><span class="p">])</span>
+        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">nrs</span><span class="p">)</span>
+
+<div class="viewcode-block" id="ValidationResult.add">
+<a class="viewcode-back" href="../../../api_reference/generated/geost.validation.validate.ValidationResult.add.html#geost.validation.validate.ValidationResult.add">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">add</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">column</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">error_message</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">affected_nrs</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span>
+        <span class="n">affected_indices</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Index</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Add a validation error to the result.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        column : str</span>
+<span class="sd">            The name of the column where the error occurred.</span>
+<span class="sd">        error_message : str</span>
+<span class="sd">            The error message describing the validation issue.</span>
+<span class="sd">        affected_nrs : list</span>
+<span class="sd">            The list of affected survey numbers.</span>
+<span class="sd">        affected_indices : pd.Index</span>
+<span class="sd">            The indices of the affected rows in the DataFrame.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">error_message</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">errors</span><span class="p">[</span><span class="n">column</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s2">&quot;warning&quot;</span><span class="p">:</span> <span class="n">error_message</span><span class="p">,</span>
+                <span class="s2">&quot;nrs&quot;</span><span class="p">:</span> <span class="n">affected_nrs</span><span class="p">,</span>
+                <span class="s2">&quot;indices&quot;</span><span class="p">:</span> <span class="n">affected_indices</span><span class="p">,</span>
+            <span class="p">}</span></div>
+
+
+<div class="viewcode-block" id="ValidationResult.display_warnings">
+<a class="viewcode-back" href="../../../api_reference/generated/geost.validation.validate.ValidationResult.display_warnings.html#geost.validation.validate.ValidationResult.display_warnings">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">display_warnings</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Display all recorded validation warnings in a readable format.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">has_errors</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="p">(</span><span class="n">column</span><span class="p">,</span> <span class="n">error_data</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">errors</span><span class="o">.</span><span class="n">items</span><span class="p">()):</span>
+                <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="si">{</span><span class="s1">&#39;=&#39;</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">60</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;⚠️  VALIDATION ISSUE (</span><span class="si">{</span><span class="n">i</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="si">}</span><span class="s2">)</span><span class="se">\n</span><span class="s2">&quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="s1">&#39;=&#39;</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">60</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;Column    : &#39;</span><span class="si">{</span><span class="n">column</span><span class="si">}</span><span class="s2">&#39;</span><span class="se">\n</span><span class="s2">&quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;Message   : </span><span class="si">{</span><span class="n">error_data</span><span class="p">[</span><span class="s1">&#39;warning&#39;</span><span class="p">]</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;# surveys : </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">error_data</span><span class="p">[</span><span class="s1">&#39;nrs&#39;</span><span class="p">])</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;# rows    : </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">error_data</span><span class="p">[</span><span class="s1">&#39;indices&#39;</span><span class="p">])</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="s1">&#39;=&#39;</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">60</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span>
+                    <span class="n">category</span><span class="o">=</span><span class="n">ValidationWarning</span><span class="p">,</span>
+                    <span class="n">source</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="ValidationResult.handle_errors">
+<a class="viewcode-back" href="../../../api_reference/generated/geost.validation.validate.ValidationResult.handle_errors.html#geost.validation.validate.ValidationResult.handle_errors">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">handle_errors</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">nr_col</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Handle validation errors by flagging or dropping invalid rows depending on geost</span>
+<span class="sd">        configuration settings.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        df : pd.DataFrame</span>
+<span class="sd">            The DataFrame to handle validation errors for.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        pd.DataFrame</span>
+<span class="sd">            The DataFrame with validation errors handled.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">has_errors</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">df</span>
+
+        <span class="n">df_validated</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">validation</span><span class="o">.</span><span class="n">FLAG_INVALID</span><span class="p">:</span>
+            <span class="n">df_validated</span><span class="p">[</span><span class="s2">&quot;is_valid&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="o">~</span><span class="n">df_validated</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">error_indices</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">validation</span><span class="o">.</span><span class="n">DROP_INVALID</span><span class="p">:</span>
+            <span class="n">df_validated</span> <span class="o">=</span> <span class="n">df_validated</span><span class="p">[</span><span class="o">~</span><span class="n">df_validated</span><span class="p">[</span><span class="n">nr_col</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">error_nrs</span><span class="p">)]</span>
+
+        <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">validation</span><span class="o">.</span><span class="n">VERBOSE</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">validation</span><span class="o">.</span><span class="n">FLAG_INVALID</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">config</span><span class="o">.</span><span class="n">validation</span><span class="o">.</span><span class="n">DROP_INVALID</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="si">{</span><span class="s1">&#39;</span><span class="se">\u2705</span><span class="s1">&#39;</span><span class="si">}</span><span class="s2"> Invalid rows were flagged with an &#39;is_valid&#39; column because&quot;</span>
+                    <span class="s2">&quot; geost.config.validation.FLAG_INVALID=True and geost.config.validation.DROP_INVALID=False&quot;</span>
+                <span class="p">)</span>
+            <span class="k">elif</span> <span class="n">config</span><span class="o">.</span><span class="n">validation</span><span class="o">.</span><span class="n">DROP_INVALID</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="si">{</span><span class="s1">&#39;</span><span class="se">\u2705</span><span class="s1">&#39;</span><span class="si">}</span><span class="s2"> Invalid surveys were dropped from the DataFrame because&quot;</span>
+                    <span class="s2">&quot; geost.config.validation.DROP_INVALID=True&quot;</span>
+                <span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="si">{</span><span class="s1">&#39;</span><span class="se">\u274c</span><span class="s1">&#39;</span><span class="si">}</span><span class="s2"> Invalid surveys were retained in the DataFrame because geost.config.validation.FLAG_INVALID and DROP_INVALID are False&quot;</span>
+                <span class="p">)</span>
+
+            <span class="nb">print</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="si">{</span><span class="s1">&#39;</span><span class="se">\U0001f4d6</span><span class="s1">&#39;</span><span class="si">}</span><span class="s2"> See the user guide section on validation for advanced handling of validation issues: https://deltares-research.github.io/geost/user_guide/validation.html&quot;</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="n">df_validated</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">coerce_numeric</span><span class="p">(</span>
+    <span class="n">obj</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+    <span class="n">columns</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+    <span class="n">validation_result</span><span class="p">:</span> <span class="n">ValidationResult</span><span class="p">,</span>
+    <span class="n">nullable</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Catch validation errors and raise a warning instead while returning the DataFrame</span>
-<span class="sd">    unchanged. If rows are dropped due to validation, report which rows were dropped.</span>
+<span class="sd">    Attempt to coerce a column or columns to numeric, raising a ValueError if coercion</span>
+<span class="sd">    fails.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    df : pd.DataFrame</span>
-<span class="sd">        The DataFrame to validate.</span>
-<span class="sd">    schema : DataFrameSchema</span>
-<span class="sd">        The schema to validate the DataFrame against.</span>
-<span class="sd">    **kwargs : keyword arguments</span>
-<span class="sd">        Additional arguments to pass to the Pandera DataFrameSchema.validate method. Note</span>
-<span class="sd">        that the inplace argument is ignored and the DataFrame will not be modified in place.</span>
-<span class="sd">        i.e. this function always returns a DataFrame.</span>
+<span class="sd">    obj : pd.DataFrame</span>
+<span class="sd">        The DataFrame containing the column to coerce.</span>
+<span class="sd">    column : str</span>
+<span class="sd">        The name(s) of the column(s) to coerce.</span>
+<span class="sd">    validation_result : ValidationResult</span>
+<span class="sd">        The ValidationResult object to record any validation errors.</span>
+<span class="sd">    nullable : bool, optional</span>
+<span class="sd">        Whether to allow null values in the column. If False, any null values will cause</span>
+<span class="sd">        coercion to fail. Default is False.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    pd.DataFrame</span>
-<span class="sd">        Either the validated (and possibly changed) DataFrame or the unchanged DataFrame</span>
-<span class="sd">        if validation failed.</span>
+<span class="sd">        The DataFrame with the specified column coerced to numeric.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+
+<span class="sd">    ValueError</span>
+<span class="sd">        If the column cannot be coerced to numeric.</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="s2">&quot;inplace&quot;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;&#39;inplace&#39; argument is not supported.&quot;</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">column</span> <span class="ow">in</span> <span class="n">columns</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">pd</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">types</span><span class="o">.</span><span class="n">is_numeric_dtype</span><span class="p">(</span><span class="n">obj</span><span class="p">[</span><span class="n">column</span><span class="p">]):</span>
+            <span class="n">obj</span><span class="p">[</span><span class="n">column</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_numeric</span><span class="p">(</span><span class="n">obj</span><span class="p">[</span><span class="n">column</span><span class="p">],</span> <span class="n">errors</span><span class="o">=</span><span class="s2">&quot;coerce&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">nullable</span><span class="p">:</span>
+                <span class="n">isna</span> <span class="o">=</span> <span class="n">obj</span><span class="p">[</span><span class="n">column</span><span class="p">]</span><span class="o">.</span><span class="n">isna</span><span class="p">()</span>
+                <span class="k">if</span> <span class="n">isna</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
+                    <span class="n">errors</span> <span class="o">=</span> <span class="n">obj</span><span class="p">[</span><span class="n">isna</span><span class="p">]</span>
+                    <span class="n">error_nrs</span> <span class="o">=</span> <span class="n">errors</span><span class="p">[</span><span class="n">obj</span><span class="o">.</span><span class="n">gst</span><span class="o">.</span><span class="n">_nr</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+                    <span class="n">warning</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Column &#39;</span><span class="si">{</span><span class="n">column</span><span class="si">}</span><span class="s2">&#39; must contain only numeric values, but some values could not be coerced. &quot;</span>
+                    <span class="n">validation_result</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">column</span><span class="p">,</span> <span class="n">warning</span><span class="p">,</span> <span class="n">error_nrs</span><span class="p">,</span> <span class="n">errors</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
 
-    <span class="c1"># Update schema drop invalid rows setting, adjust lazy validation accordingly</span>
-    <span class="c1"># (Pandera requires lazy validation when drop_invalid_rows is True)</span>
-    <span class="n">schema</span><span class="o">.</span><span class="n">drop_invalid_rows</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">validation</span><span class="o">.</span><span class="n">DROP_INVALID</span>
-    <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;lazy&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span> <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">validation</span><span class="o">.</span><span class="n">DROP_INVALID</span> <span class="k">else</span> <span class="kc">False</span>
+        <span class="k">elif</span> <span class="n">pd</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">types</span><span class="o">.</span><span class="n">is_numeric_dtype</span><span class="p">(</span><span class="n">obj</span><span class="p">[</span><span class="n">column</span><span class="p">])</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">nullable</span><span class="p">:</span>
+            <span class="n">isna</span> <span class="o">=</span> <span class="n">obj</span><span class="p">[</span><span class="n">column</span><span class="p">]</span><span class="o">.</span><span class="n">isna</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">isna</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
+                <span class="n">errors</span> <span class="o">=</span> <span class="n">obj</span><span class="p">[</span><span class="n">isna</span><span class="p">]</span>
+                <span class="n">error_nrs</span> <span class="o">=</span> <span class="n">errors</span><span class="p">[</span><span class="n">obj</span><span class="o">.</span><span class="n">gst</span><span class="o">.</span><span class="n">_nr</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+                <span class="n">warning</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Column &#39;</span><span class="si">{</span><span class="n">column</span><span class="si">}</span><span class="s2">&#39; must not contain NaN values, but some values are NaN.&quot;</span>
+                <span class="n">validation_result</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">column</span><span class="p">,</span> <span class="n">warning</span><span class="p">,</span> <span class="n">error_nrs</span><span class="p">,</span> <span class="n">errors</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
 
-    <span class="k">try</span><span class="p">:</span>
-        <span class="n">validated_df</span> <span class="o">=</span> <span class="n">schema</span><span class="o">.</span><span class="n">validate</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">validation</span><span class="o">.</span><span class="n">DROP_INVALID</span><span class="p">:</span>
-            <span class="n">dropped</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">difference</span><span class="p">(</span><span class="n">validated_df</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
-            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">dropped</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">config</span><span class="o">.</span><span class="n">validation</span><span class="o">.</span><span class="n">VERBOSE</span><span class="p">:</span>
-                <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Validation dropped </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">dropped</span><span class="p">)</span><span class="si">}</span><span class="s2"> row(s) for schema &#39;</span><span class="si">{</span><span class="n">schema</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39;.</span><span class="se">\n</span><span class="s2">&quot;</span>
-                    <span class="sa">f</span><span class="s2">&quot;Dropped indices: </span><span class="si">{</span><span class="nb">list</span><span class="p">(</span><span class="n">dropped</span><span class="p">)</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span>
-                    <span class="n">category</span><span class="o">=</span><span class="n">ValidationWarning</span><span class="p">,</span>
-                <span class="p">)</span>
-        <span class="k">return</span> <span class="n">validated_df</span>
-    <span class="k">except</span> <span class="p">(</span><span class="n">SchemaError</span><span class="p">,</span> <span class="n">SchemaErrors</span><span class="p">)</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-        <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">validation</span><span class="o">.</span><span class="n">VERBOSE</span><span class="p">:</span>
-            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Validation failed for schema &#39;</span><span class="si">{</span><span class="n">schema</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39;.</span><span class="se">\n</span><span class="s2">Details:</span><span class="se">\n</span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span>
-                <span class="n">category</span><span class="o">=</span><span class="n">ValidationWarning</span><span class="p">,</span>
+    <span class="k">return</span> <span class="n">obj</span><span class="p">,</span> <span class="n">validation_result</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">validate_base</span><span class="p">(</span>
+    <span class="n">obj</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span> <span class="o">|</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">,</span>
+    <span class="n">column_names</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span> <span class="o">|</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Perform basic validation checks on the input DataFrame or GeoDataFrame.</span>
+<span class="sd">    Checks for required columns and attempts to coerce the &#39;surface&#39; column to numeric.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    obj : pd.DataFrame | gpd.GeoDataFrame</span>
+<span class="sd">        The DataFrame or GeoDataFrame to validate.</span>
+<span class="sd">    column_names : dict</span>
+<span class="sd">        A dictionary containing the names of GeostFrame positional columns.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        If required columns are missing.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">column_names</span><span class="p">[</span><span class="s2">&quot;nr&quot;</span><span class="p">]</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">obj</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;GeostFrame missing required column: &#39;</span><span class="si">{</span><span class="n">column_names</span><span class="p">[</span><span class="s1">&#39;nr&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&#39;&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">column_names</span><span class="p">[</span><span class="s2">&quot;surface&quot;</span><span class="p">]</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">obj</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;GeostFrame missing required column: &#39;</span><span class="si">{</span><span class="n">column_names</span><span class="p">[</span><span class="s1">&#39;surface&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&#39;&quot;</span>
+        <span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">validate_top_bottom</span><span class="p">(</span>
+    <span class="n">obj</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span> <span class="o">|</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">,</span>
+    <span class="n">column_names</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span>
+    <span class="n">first_row_in_survey</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">,</span>
+    <span class="n">validation_result</span><span class="p">:</span> <span class="n">ValidationResult</span><span class="p">,</span>
+<span class="p">):</span>
+    <span class="n">nr_</span><span class="p">,</span> <span class="n">top_</span><span class="p">,</span> <span class="n">depth_</span> <span class="o">=</span> <span class="n">column_names</span><span class="p">[</span><span class="s2">&quot;nr&quot;</span><span class="p">],</span> <span class="n">column_names</span><span class="p">[</span><span class="s2">&quot;top&quot;</span><span class="p">],</span> <span class="n">column_names</span><span class="p">[</span><span class="s2">&quot;depth&quot;</span><span class="p">]</span>
+
+    <span class="c1"># Ensure top is above bottom (i.e. top &lt; bottom)</span>
+    <span class="n">invalid_top_above_bottom</span> <span class="o">=</span> <span class="n">obj</span><span class="p">[</span><span class="n">top_</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">obj</span><span class="p">[</span><span class="n">depth_</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">invalid_top_above_bottom</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
+        <span class="n">invalid</span> <span class="o">=</span> <span class="n">obj</span><span class="p">[</span><span class="n">invalid_top_above_bottom</span><span class="p">]</span>
+        <span class="n">invalid_nrs</span> <span class="o">=</span> <span class="n">invalid</span><span class="p">[</span><span class="n">nr_</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+        <span class="n">warning</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Column &#39;</span><span class="si">{</span><span class="n">top_</span><span class="si">}</span><span class="s2">&#39; must be less than &#39;</span><span class="si">{</span><span class="n">depth_</span><span class="si">}</span><span class="s2">&#39;, but some rows violate this condition.&quot;</span>
+
+        <span class="n">validation_result</span><span class="o">.</span><span class="n">add</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">top_</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">depth_</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="n">warning</span><span class="p">,</span>
+            <span class="n">invalid_nrs</span><span class="p">,</span>
+            <span class="n">invalid</span><span class="o">.</span><span class="n">index</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="c1"># Ensure top and bottom are positive downwards (i.e. &gt;= 0)</span>
+    <span class="n">invalid_depth_direction</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="p">(</span><span class="n">obj</span><span class="p">[</span><span class="n">top_</span><span class="p">]</span><span class="o">.</span><span class="n">diff</span><span class="p">()</span> <span class="o">&lt;=</span> <span class="mf">0.0</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">obj</span><span class="p">[</span><span class="n">depth_</span><span class="p">]</span><span class="o">.</span><span class="n">diff</span><span class="p">()</span> <span class="o">&lt;=</span> <span class="mf">0.0</span><span class="p">)</span>
+    <span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="o">~</span><span class="n">first_row_in_survey</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">invalid_depth_direction</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
+        <span class="n">invalid</span> <span class="o">=</span> <span class="n">obj</span><span class="p">[</span><span class="n">invalid_depth_direction</span><span class="p">]</span>
+        <span class="n">invalid_nrs</span> <span class="o">=</span> <span class="n">invalid</span><span class="p">[</span><span class="n">nr_</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+        <span class="n">warning</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Columns &#39;</span><span class="si">{</span><span class="n">top_</span><span class="si">}</span><span class="s2">&#39; and &#39;</span><span class="si">{</span><span class="n">depth_</span><span class="si">}</span><span class="s2">&#39; must be positive downwards (i.e. &gt;= 0), but some rows violate this condition.&quot;</span>
+
+        <span class="n">validation_result</span><span class="o">.</span><span class="n">add</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">top_</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">depth_</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="n">warning</span><span class="p">,</span>
+            <span class="n">invalid_nrs</span><span class="p">,</span>
+            <span class="n">invalid</span><span class="o">.</span><span class="n">index</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="k">return</span> <span class="n">validation_result</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">validate_depths</span><span class="p">(</span>
+    <span class="n">obj</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span> <span class="o">|</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">,</span>
+    <span class="n">column_names</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span>
+    <span class="n">first_row_in_survey</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">,</span>
+    <span class="n">validation_result</span><span class="p">:</span> <span class="n">ValidationResult</span><span class="p">,</span>
+<span class="p">):</span>
+    <span class="n">nr_</span><span class="p">,</span> <span class="n">depth_</span> <span class="o">=</span> <span class="n">column_names</span><span class="p">[</span><span class="s2">&quot;nr&quot;</span><span class="p">],</span> <span class="n">column_names</span><span class="p">[</span><span class="s2">&quot;depth&quot;</span><span class="p">]</span>
+
+    <span class="c1"># Ensure depth column is positive downwards (i.e. &gt;= 0)</span>
+    <span class="n">invalid_depth_direction</span> <span class="o">=</span> <span class="p">(</span><span class="n">obj</span><span class="p">[</span><span class="n">depth_</span><span class="p">]</span><span class="o">.</span><span class="n">diff</span><span class="p">()</span> <span class="o">&lt;=</span> <span class="mf">0.0</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="o">~</span><span class="n">first_row_in_survey</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">invalid_depth_direction</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
+        <span class="n">invalid</span> <span class="o">=</span> <span class="n">obj</span><span class="p">[</span><span class="n">invalid_depth_direction</span><span class="p">]</span>
+        <span class="n">invalid_nrs</span> <span class="o">=</span> <span class="n">invalid</span><span class="p">[</span><span class="n">nr_</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+        <span class="n">warning</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Column &#39;</span><span class="si">{</span><span class="n">depth_</span><span class="si">}</span><span class="s2">&#39; must be positive downwards (i.e. &gt;= 0), but some rows violate this condition.&quot;</span>
+
+        <span class="n">validation_result</span><span class="o">.</span><span class="n">add</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">depth_</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="n">warning</span><span class="p">,</span>
+            <span class="n">invalid_nrs</span><span class="p">,</span>
+            <span class="n">invalid</span><span class="o">.</span><span class="n">index</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="k">return</span> <span class="n">validation_result</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">validate_geostframe</span><span class="p">(</span>
+    <span class="n">obj</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span> <span class="o">|</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">,</span>
+    <span class="n">has_depth_columns</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">is_layered</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">first_row_in_survey</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">positional_columns</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Validate a GeostFrame, display warnings and handle errors as specified by the GeoST</span>
+<span class="sd">    configuration.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    obj : pd.DataFrame | gpd.GeoDataFrame</span>
+<span class="sd">        The GeostFrame to be validated.</span>
+<span class="sd">    has_depth_columns : bool, optional</span>
+<span class="sd">        Indicates if the GeostFrame has depth columns, by default None</span>
+<span class="sd">    is_layered : bool, optional</span>
+<span class="sd">        Indicates if the GeostFrame is layered, by default None</span>
+<span class="sd">    first_row_in_survey : pd.Series, optional</span>
+<span class="sd">        Indicates the first row in each survey, by default None</span>
+<span class="sd">    positional_columns : dict, optional</span>
+<span class="sd">        A dictionary containing the names of GeostFrame positional columns, by default None</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    validated_obj : pd.DataFrame | gpd.GeoDataFrame</span>
+<span class="sd">        The validated GeostFrame with errors handled according to configuration settings.</span>
+<span class="sd">    validation_result : ValidationResult</span>
+<span class="sd">        The result of the validation, a :class:`~geost.validation.validate.ValidationResult`</span>
+<span class="sd">        object.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">validation_result</span> <span class="o">=</span> <span class="n">ValidationResult</span><span class="p">()</span>
+
+    <span class="n">numeric_columns</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">col</span>
+        <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;surface&quot;</span><span class="p">,</span> <span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="s2">&quot;y&quot;</span><span class="p">,</span> <span class="s2">&quot;top&quot;</span><span class="p">,</span> <span class="s2">&quot;depth&quot;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">col</span> <span class="o">:=</span> <span class="n">positional_columns</span><span class="p">[</span><span class="n">name</span><span class="p">])</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+    <span class="p">]</span>
+
+    <span class="n">validate_base</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">positional_columns</span><span class="p">)</span>
+    <span class="n">validated_obj</span><span class="p">,</span> <span class="n">validation_result</span> <span class="o">=</span> <span class="n">coerce_numeric</span><span class="p">(</span>
+        <span class="n">obj</span><span class="p">,</span> <span class="n">numeric_columns</span><span class="p">,</span> <span class="n">validation_result</span>
+    <span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">has_depth_columns</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">is_layered</span><span class="p">:</span>
+            <span class="n">validation_result</span> <span class="o">=</span> <span class="n">validate_top_bottom</span><span class="p">(</span>
+                <span class="n">validated_obj</span><span class="p">,</span>
+                <span class="n">positional_columns</span><span class="p">,</span>
+                <span class="n">first_row_in_survey</span><span class="p">,</span>
+                <span class="n">validation_result</span><span class="p">,</span>
             <span class="p">)</span>
-        <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">validation</span><span class="o">.</span><span class="n">FLAG_INVALID</span><span class="p">:</span>
-            <span class="n">df</span><span class="p">[</span><span class="s2">&quot;is_valid&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="o">~</span><span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">failure_cases</span><span class="p">[</span><span class="s2">&quot;index&quot;</span><span class="p">])</span>
-        <span class="k">return</span> <span class="n">df</span></div>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">validation_result</span> <span class="o">=</span> <span class="n">validate_depths</span><span class="p">(</span>
+                <span class="n">validated_obj</span><span class="p">,</span>
+                <span class="n">positional_columns</span><span class="p">,</span>
+                <span class="n">first_row_in_survey</span><span class="p">,</span>
+                <span class="n">validation_result</span><span class="p">,</span>
+            <span class="p">)</span>
 
+    <span class="n">validation_result</span><span class="o">.</span><span class="n">display_warnings</span><span class="p">()</span>
+    <span class="n">validated_obj</span> <span class="o">=</span> <span class="n">validation_result</span><span class="o">.</span><span class="n">handle_errors</span><span class="p">(</span>
+        <span class="n">validated_obj</span><span class="p">,</span> <span class="n">positional_columns</span><span class="p">[</span><span class="s2">&quot;nr&quot;</span><span class="p">]</span>
+    <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">validated_obj</span><span class="p">,</span> <span class="n">validation_result</span>
 </pre></div>
 
                 </article>
@@ -552,8 +858,8 @@
   </div>
   
   <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script defer src="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
-<script defer src="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+  <script defer src="../../../_static/scripts/bootstrap.js?digest=55c26ed414f5f8a31ebb"></script>
+<script defer src="../../../_static/scripts/pydata-sphinx-theme.js?digest=55c26ed414f5f8a31ebb"></script>
 
   <footer class="bd-footer">
 <div class="bd-footer__inner bd-page-width">
@@ -587,7 +893,7 @@
         <div class="footer-item">
 <p class="theme-version">
   <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
-  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.17.1.
 </p></div>
       
     </div>

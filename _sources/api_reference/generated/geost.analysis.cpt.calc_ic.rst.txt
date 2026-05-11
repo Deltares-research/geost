@@ -1,0 +1,6 @@
+﻿geost.analysis.cpt.calc\_ic
+===========================
+
+.. currentmodule:: geost.analysis.cpt
+
+.. autofunction:: calc_ic

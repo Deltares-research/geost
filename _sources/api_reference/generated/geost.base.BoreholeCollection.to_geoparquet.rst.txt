@@ -1,6 +1,0 @@
-﻿geost.base.BoreholeCollection.to\_geoparquet
-============================================
-
-.. currentmodule:: geost.base
-
-.. automethod:: BoreholeCollection.to_geoparquet

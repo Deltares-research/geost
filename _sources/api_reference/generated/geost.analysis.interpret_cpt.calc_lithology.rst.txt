@@ -1,6 +1,0 @@
-﻿geost.analysis.interpret\_cpt.calc\_lithology
-=============================================
-
-.. currentmodule:: geost.analysis.interpret_cpt
-
-.. autofunction:: calc_lithology

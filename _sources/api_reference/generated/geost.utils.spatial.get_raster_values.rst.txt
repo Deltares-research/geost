@@ -1,0 +1,6 @@
+﻿geost.utils.spatial.get\_raster\_values
+=======================================
+
+.. currentmodule:: geost.utils.spatial
+
+.. autofunction:: get_raster_values

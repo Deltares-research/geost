@@ -1,6 +1,0 @@
-﻿geost.base.BoreholeCollection.change\_vertical\_reference
-=========================================================
-
-.. currentmodule:: geost.base
-
-.. automethod:: BoreholeCollection.change_vertical_reference

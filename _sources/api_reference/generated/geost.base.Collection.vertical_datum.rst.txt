@@ -1,0 +1,6 @@
+﻿geost.base.Collection.vertical\_datum
+=====================================
+
+.. currentmodule:: geost.base
+
+.. autoproperty:: Collection.vertical_datum

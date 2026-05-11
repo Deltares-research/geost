@@ -1,0 +1,6 @@
+﻿geost.accessor.GeostFrame.slice\_by\_values
+===========================================
+
+.. currentmodule:: geost.accessor
+
+.. automethod:: GeostFrame.slice_by_values

@@ -1,6 +1,0 @@
-﻿geost.base.CptCollection.to\_csv
-================================
-
-.. currentmodule:: geost.base
-
-.. automethod:: CptCollection.to_csv

@@ -1,6 +1,0 @@
-﻿geost.base.BoreholeCollection.to\_geopackage
-============================================
-
-.. currentmodule:: geost.base
-
-.. automethod:: BoreholeCollection.to_geopackage

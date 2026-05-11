@@ -1,0 +1,6 @@
+﻿geost.delete\_user\_positional\_column\_aliases
+===============================================
+
+.. currentmodule:: geost
+
+.. autofunction:: delete_user_positional_column_aliases

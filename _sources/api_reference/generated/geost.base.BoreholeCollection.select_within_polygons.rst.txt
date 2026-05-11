@@ -1,6 +1,0 @@
-﻿geost.base.BoreholeCollection.select\_within\_polygons
-======================================================
-
-.. currentmodule:: geost.base
-
-.. automethod:: BoreholeCollection.select_within_polygons

@@ -1,0 +1,6 @@
+﻿geost.base.Collection.select\_by\_elevation
+===========================================
+
+.. currentmodule:: geost.base
+
+.. automethod:: Collection.select_by_elevation

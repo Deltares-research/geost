@@ -27,47 +27,54 @@
   </noscript>
   
   <!-- Loaded before other Sphinx assets -->
-  <link href="../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
-<link href="../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+  <link href="../_static/styles/theme.css?digest=55c26ed414f5f8a31ebb" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=55c26ed414f5f8a31ebb" rel="stylesheet" />
 
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
-    <link rel="stylesheet" type="text/css" href="../_static/mystnb.8ecb98da25f57f5357bf6f572d296f466b2cfe2517ffebfabe82451661e28f02.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/mystnb.11b39860a7a0cbfd473a3ad8a317855267ff0bd372690045ca344a6b62be495e.css" />
     <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=6e1425e8" />
     <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
     <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=6e1425e8" />
   
   <!-- So that users can add custom icons -->
-  <script src="../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <script defer src="../_static/scripts/fontawesome.js?digest=55c26ed414f5f8a31ebb"></script>
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
-<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=55c26ed414f5f8a31ebb" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=55c26ed414f5f8a31ebb" />
 
     <script src="../_static/documentation_options.js?v=5929fcd5"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'examples/boreholes_geotop_3d';</script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
     <link rel="icon" href="../_static/geost_logo.png"/>
     <link rel="author" title="About these documents" href="../about.html" />
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="0.4.1" />
+  <meta name="docsearch:version" content="0.5.0" />
+  
+    
+    <script src="../_static/searchtools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <script src="../searchindex.js"></script>
+  
   </head>
-  
-  
-  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
-
+  <body data-default-mode="">
   
   
   <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+
   
   <div id="pst-scroll-pixel-helper"></div>
   
   <button type="button" class="btn rounded-pill" id="pst-back-to-top">
     <i class="fa-solid fa-arrow-up"></i>Back to top</button>
-
+  
+  
+  
   
   <dialog id="pst-search-dialog">
     
@@ -93,7 +100,7 @@
 </div>
 
   
-    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
 <div class="bd-header__inner bd-page-width">
   <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
     <span class="fa-solid fa-bars"></span>
@@ -491,15 +498,13 @@ Utrecht Science Park (USP).</p>
 <div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Downloading file &#39;boreholes_usp.parquet&#39; from &#39;https://github.com/Deltares-research/geost/raw/main/data/boreholes_usp.parquet&#39; to &#39;/home/runner/.cache/geost&#39;.
 </pre></div>
 </div>
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>/home/runner/work/geost/geost/.pixi/envs/default/lib/python3.14/site-packages/pydap/handlers/dap.py:143: UserWarning: PyDAP was unable to determine the DAP protocol defaulting to DAP2. DAP2 is consider legacy and may result in slower responses. 
-Consider replacing `http` in your `url` with either `dap2` or `dap4` to specify the DAP protocol (e.g. `dap2://&lt;data_url&gt;` or `dap4://&lt;data_url&gt;`).  For more 
-information, go to https://www.opendap.org/faq-page.
-  warnings.warn(
-</pre></div>
-</div>
 <div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Boreholes:
- BoreholeCollection:
-# header = 67
+ Collection
+  header (rows, columns) : (67, 5)
+  data (rows, columns)   : (1398, 32)
+crs: Amersfoort / RD New
+vertical datum: NAP height
+
 
 
 Voxel model:
@@ -534,27 +539,27 @@ Resolution (y, x, z): (100.0, 100.0, 0.5)
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p>BoreholeCollection.to_pyvista_cylinders</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="../api_reference/generated/geost.base.Collection.to_pyvista_cylinders.html"><span class="std std-doc">Collection.to_pyvista_cylinders</span></a></p></td>
 <td><p>PyVista.MultiBlock</p></td>
 <td><p>Fancy cylinder geometries of boreholes</p></td>
 </tr>
-<tr class="row-odd"><td><p>BoreholeCollection.to_pyvista_grid</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="../api_reference/generated/geost.base.Collection.to_pyvista_grid.html"><span class="std std-doc">Collection.to_pyvista_grid</span></a></p></td>
 <td><p>PyVista.UnstructuredGrid</p></td>
 <td><p>Simple geometries, useful for large datasets</p></td>
 </tr>
-<tr class="row-even"><td><p>VoxelModel.to_pyvista_grid(structured=True)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="../api_reference/generated/geost.models.VoxelModel.to_pyvista_grid.html"><span class="std std-doc">VoxelModel.to_pyvista_grid</span></a>(structured=True)</p></td>
 <td><p>PyVista.ImageData</p></td>
 <td><p>Structured grid, useful for large datasets</p></td>
 </tr>
-<tr class="row-odd"><td><p>VoxelModel.to_pyvista_grid(structured=False)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="../api_reference/generated/geost.models.VoxelModel.to_pyvista_grid.html"><span class="std std-doc">VoxelModel.to_pyvista_grid</span></a>(structured=False)</p></td>
 <td><p>PyVista.UnstructuredGrid</p></td>
 <td><p>Individual rendering of each voxel</p></td>
 </tr>
 </tbody>
 </table>
 </div>
-<p>We will apply <code class="docutils literal notranslate"><span class="pre">to_pyvista_grid</span></code> for our boreholes to get a PyVista.UnstructuredGrid and
-<code class="docutils literal notranslate"><span class="pre">to_pyvista_grid</span></code> with <code class="docutils literal notranslate"><span class="pre">structured=True</span></code> (default) for the GeoTOP model to get a PyVista.ImageData object.</p>
+<p>We will apply <a class="reference internal" href="../api_reference/generated/geost.base.Collection.to_pyvista_grid.html"><span class="std std-doc"><code class="docutils literal notranslate"><span class="pre">to_pyvista_grid</span></code></span></a> for our boreholes to get a PyVista.UnstructuredGrid and
+<a class="reference internal" href="../api_reference/generated/geost.models.VoxelModel.to_pyvista_grid.html"><span class="std std-doc"><code class="docutils literal notranslate"><span class="pre">to_pyvista_grid</span></code></span></a> with <code class="docutils literal notranslate"><span class="pre">structured=True</span></code> (default) for the GeoTOP model to get a PyVista.ImageData object.</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># The boreholes are converted to an unstructured grid of the lithology data. The borehole</span>
@@ -573,7 +578,7 @@ Resolution (y, x, z): (100.0, 100.0, 0.5)
 </div>
 <div class="cell_output docutils container">
 <div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Boreholes PyVista grid:
- UnstructuredGrid (0x7f6682dd7820)
+ UnstructuredGrid (0x7faf08139ae0)
   N Cells:    1398
   N Points:   11184
   X Bounds:   1.395e+05, 1.413e+05
@@ -583,7 +588,7 @@ Resolution (y, x, z): (100.0, 100.0, 0.5)
 
 
 GeoTOP PyVista grid:
- ImageData (0x7f6750492380)
+ ImageData (0x7fafc89671c0)
   N Cells:      78876
   N Points:     89490
   X Bounds:     1.396e+05, 1.414e+05
@@ -621,17 +626,19 @@ to VTK and use <a class="reference external" href="https://www.paraview.org/">Pa
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span><span class=" -Color -Color-Yellow">2026-02-12 13:56:34.628 (  40.329s) [    7F675883D740]vtkXOpenGLRenderWindow.:1458  WARN| bad X server connection. DISPLAY=</span>
-<span class=" -Color -Color-Yellow">2026-02-12 13:56:34.629 (  40.329s) [    7F675883D740] vtkEGLRenderWindow.cxx:391   WARN| vtkEGLRenderWindow (0x556c1b9e24d0): Setting an EGL display to device index: -1 require EGL_EXT_device_base EGL_EXT_platform_device EGL_EXT_platform_base extensions</span>
-<span class=" -Color -Color-Yellow">2026-02-12 13:56:34.629 (  40.329s) [    7F675883D740] vtkEGLRenderWindow.cxx:396   WARN| vtkEGLRenderWindow (0x556c1b9e24d0): Attempting to use EGL_DEFAULT_DISPLAY...</span>
-<span class=" -Color -Color-Yellow">2026-02-12 13:56:34.629 (  40.329s) [    7F675883D740] vtkEGLRenderWindow.cxx:401   WARN| vtkEGLRenderWindow (0x556c1b9e24d0): Could not initialize a device. Exiting...</span>
-<span class=" -Color -Color-Yellow">2026-02-12 13:56:34.629 (  40.329s) [    7F675883D740]vtkOpenGLRenderWindow.c:920   WARN| vtkEGLRenderWindow (0x556c1b9e24d0): Failed to initialize OpenGL functions!</span>
-<span class=" -Color -Color-Yellow">2026-02-12 13:56:34.629 (  40.329s) [    7F675883D740]vtkOpenGLRenderWindow.c:939   WARN| vtkEGLRenderWindow (0x556c1b9e24d0): Unable to find a valid OpenGL 3.2 or later implementation. Please update your video card driver to the latest version. If you are using Mesa please make sure you have version 11.2 or later and make sure your driver in Mesa supports OpenGL 3.2 such as llvmpipe or openswr. If you are on windows and using Microsoft remote desktop note that it only supports OpenGL 3.2 with nvidia quadro cards. You can use other remoting software such as nomachine to avoid this issue.</span>
-<span class=" -Color -Color-Yellow">2026-02-12 13:56:34.641 (  40.341s) [    7F675883D740] vtkEGLRenderWindow.cxx:391   WARN| vtkEGLRenderWindow (0x556c1b9e24d0): Setting an EGL display to device index: -1 require EGL_EXT_device_base EGL_EXT_platform_device EGL_EXT_platform_base extensions</span>
-<span class=" -Color -Color-Yellow">2026-02-12 13:56:34.641 (  40.342s) [    7F675883D740] vtkEGLRenderWindow.cxx:396   WARN| vtkEGLRenderWindow (0x556c1b9e24d0): Attempting to use EGL_DEFAULT_DISPLAY...</span>
-<span class=" -Color -Color-Yellow">2026-02-12 13:56:34.641 (  40.342s) [    7F675883D740] vtkEGLRenderWindow.cxx:401   WARN| vtkEGLRenderWindow (0x556c1b9e24d0): Could not initialize a device. Exiting...</span>
-<span class=" -Color -Color-Yellow">2026-02-12 13:56:34.641 (  40.342s) [    7F675883D740]vtkOpenGLRenderWindow.c:920   WARN| vtkEGLRenderWindow (0x556c1b9e24d0): Failed to initialize OpenGL functions!</span>
-<span class=" -Color -Color-Yellow">2026-02-12 13:56:34.641 (  40.342s) [    7F675883D740]vtkOpenGLRenderWindow.c:939   WARN| vtkEGLRenderWindow (0x556c1b9e24d0): Unable to find a valid OpenGL 3.2 or later implementation. Please update your video card driver to the latest version. If you are using Mesa please make sure you have version 11.2 or later and make sure your driver in Mesa supports OpenGL 3.2 such as llvmpipe or openswr. If you are on windows and using Microsoft remote desktop note that it only supports OpenGL 3.2 with nvidia quadro cards. You can use other remoting software such as nomachine to avoid this issue.</span>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span><span class=" -Color -Color-Yellow">2026-05-11 09:43:22.011 (  38.995s) [    7FAFCEA3F740]vtkXOpenGLRenderWindow.:1460  WARN| bad X server connection. DISPLAY=</span>
+<span class=" -Color -Color-Yellow">2026-05-11 09:43:22.012 (  38.995s) [    7FAFCEA3F740]vtkEGLRenderWindowInter:251   WARN| Setting an EGL display to device index: -1 require EGL_EXT_device_base EGL_EXT_platform_device EGL_EXT_platform_base extensions</span>
+<span class=" -Color -Color-Yellow">2026-05-11 09:43:22.012 (  38.995s) [    7FAFCEA3F740]vtkEGLRenderWindowInter:257   WARN| Attempting to use the default egl display for the current platform...</span>
+<span class=" -Color -Color-Yellow">2026-05-11 09:43:22.012 (  38.995s) [    7FAFCEA3F740]vtkEGLRenderWindowInter:263   WARN| Could not initialize a device. Exiting...</span>
+<span class=" -Color -Color-Yellow">2026-05-11 09:43:22.012 (  38.995s) [    7FAFCEA3F740]vtkEGLRenderWindowInter:307   WARN| Could not set device as display. EGL_EXT_device_base, EGL_EXT_platform_device and EGL_EXT_platform_base extensions are required.</span>
+<span class=" -Color -Color-Yellow">2026-05-11 09:43:22.012 (  38.996s) [    7FAFCEA3F740]vtkOpenGLRenderWindow.c:916   WARN| vtkEGLRenderWindow (0x55d083fa5960): Failed to initialize OpenGL functions!</span>
+<span class=" -Color -Color-Yellow">2026-05-11 09:43:22.012 (  38.996s) [    7FAFCEA3F740]vtkOpenGLRenderWindow.c:935   WARN| vtkEGLRenderWindow (0x55d083fa5960): Unable to find a valid OpenGL 3.2 or later implementation. Please update your video card driver to the latest version. If you are using Mesa please make sure you have version 11.2 or later and make sure your driver in Mesa supports OpenGL 3.2 such as llvmpipe or openswr. If you are on windows and using Microsoft remote desktop note that it only supports OpenGL 3.2 with nvidia quadro cards. You can use other remoting software such as nomachine to avoid this issue.</span>
+<span class=" -Color -Color-Yellow">2026-05-11 09:43:22.025 (  39.009s) [    7FAFCEA3F740]vtkEGLRenderWindowInter:251   WARN| Setting an EGL display to device index: -1 require EGL_EXT_device_base EGL_EXT_platform_device EGL_EXT_platform_base extensions</span>
+<span class=" -Color -Color-Yellow">2026-05-11 09:43:22.025 (  39.009s) [    7FAFCEA3F740]vtkEGLRenderWindowInter:257   WARN| Attempting to use the default egl display for the current platform...</span>
+<span class=" -Color -Color-Yellow">2026-05-11 09:43:22.025 (  39.009s) [    7FAFCEA3F740]vtkEGLRenderWindowInter:263   WARN| Could not initialize a device. Exiting...</span>
+<span class=" -Color -Color-Yellow">2026-05-11 09:43:22.025 (  39.009s) [    7FAFCEA3F740]vtkEGLRenderWindowInter:307   WARN| Could not set device as display. EGL_EXT_device_base, EGL_EXT_platform_device and EGL_EXT_platform_base extensions are required.</span>
+<span class=" -Color -Color-Yellow">2026-05-11 09:43:22.025 (  39.009s) [    7FAFCEA3F740]vtkOpenGLRenderWindow.c:916   WARN| vtkEGLRenderWindow (0x55d083fa5960): Failed to initialize OpenGL functions!</span>
+<span class=" -Color -Color-Yellow">2026-05-11 09:43:22.025 (  39.009s) [    7FAFCEA3F740]vtkOpenGLRenderWindow.c:935   WARN| vtkEGLRenderWindow (0x55d083fa5960): Unable to find a valid OpenGL 3.2 or later implementation. Please update your video card driver to the latest version. If you are using Mesa please make sure you have version 11.2 or later and make sure your driver in Mesa supports OpenGL 3.2 such as llvmpipe or openswr. If you are on windows and using Microsoft remote desktop note that it only supports OpenGL 3.2 with nvidia quadro cards. You can use other remoting software such as nomachine to avoid this issue.</span>
 </pre></div>
 </div>
 <img alt="../_images/1d3690c78f6df50cc9340ac9460b33d2aad9c9c1ef267f5df9c6556016125e47.png" src="../_images/1d3690c78f6df50cc9340ac9460b33d2aad9c9c1ef267f5df9c6556016125e47.png" />
@@ -661,13 +668,13 @@ to VTK and use <a class="reference external" href="https://www.paraview.org/">Pa
 
 
   <div class="sidebar-secondary-item">
-  <div role="note" aria-label="source link">
-    <h3>This Page</h3>
-    <ul class="this-page-menu">
-      <li><a href="../_sources/examples/boreholes_geotop_3d.ipynb.txt"
-            rel="nofollow">Show Source</a></li>
-    </ul>
-   </div></div>
+
+  <div class="tocsection sourcelink">
+    <a href="../_sources/examples/boreholes_geotop_3d.ipynb.txt">
+      <i class="fa-solid fa-file-lines"></i> Show Source
+    </a>
+  </div>
+</div>
 
 </div></div>
               
@@ -682,8 +689,8 @@ to VTK and use <a class="reference external" href="https://www.paraview.org/">Pa
   </div>
   
   <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script defer src="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
-<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+  <script defer src="../_static/scripts/bootstrap.js?digest=55c26ed414f5f8a31ebb"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=55c26ed414f5f8a31ebb"></script>
 
   <footer class="bd-footer">
 <div class="bd-footer__inner bd-page-width">
@@ -717,7 +724,7 @@ to VTK and use <a class="reference external" href="https://www.paraview.org/">Pa
         <div class="footer-item">
 <p class="theme-version">
   <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
-  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.17.1.
 </p></div>
       
     </div>

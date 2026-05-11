@@ -1,6 +1,0 @@
-﻿geost.base.CptCollection.get\_cumulative\_thickness
-===================================================
-
-.. currentmodule:: geost.base
-
-.. automethod:: CptCollection.get_cumulative_thickness

@@ -1,0 +1,6 @@
+﻿geost.base.Collection.spatial\_join
+===================================
+
+.. currentmodule:: geost.base
+
+.. automethod:: Collection.spatial_join

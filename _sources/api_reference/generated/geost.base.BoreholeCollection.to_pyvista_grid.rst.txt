@@ -1,6 +1,0 @@
-﻿geost.base.BoreholeCollection.to\_pyvista\_grid
-===============================================
-
-.. currentmodule:: geost.base
-
-.. automethod:: BoreholeCollection.to_pyvista_grid

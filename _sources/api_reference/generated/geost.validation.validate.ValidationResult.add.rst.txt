@@ -1,0 +1,6 @@
+﻿geost.validation.validate.ValidationResult.add
+==============================================
+
+.. currentmodule:: geost.validation.validate
+
+.. automethod:: ValidationResult.add

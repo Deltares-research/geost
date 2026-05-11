@@ -1,0 +1,6 @@
+﻿geost.base.Collection.get
+=========================
+
+.. currentmodule:: geost.base
+
+.. automethod:: Collection.get

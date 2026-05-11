@@ -1,6 +1,0 @@
-﻿geost.base.BoreholeCollection.n\_points
-=======================================
-
-.. currentmodule:: geost.base
-
-.. autoproperty:: BoreholeCollection.n_points

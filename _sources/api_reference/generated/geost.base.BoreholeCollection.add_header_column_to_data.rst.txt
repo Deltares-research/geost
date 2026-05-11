@@ -1,6 +1,0 @@
-﻿geost.base.BoreholeCollection.add\_header\_column\_to\_data
-===========================================================
-
-.. currentmodule:: geost.base
-
-.. automethod:: BoreholeCollection.add_header_column_to_data

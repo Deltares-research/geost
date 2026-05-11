@@ -1,0 +1,6 @@
+﻿geost.accessor.GeostFrame.validate
+==================================
+
+.. currentmodule:: geost.accessor
+
+.. automethod:: GeostFrame.validate

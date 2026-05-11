@@ -1,0 +1,6 @@
+﻿geost.accessor.GeostFrame.select\_with\_points
+==============================================
+
+.. currentmodule:: geost.accessor
+
+.. automethod:: GeostFrame.select_with_points

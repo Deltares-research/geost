@@ -1,6 +1,0 @@
-﻿geost.base.BoreholeCollection.select\_by\_depth
-===============================================
-
-.. currentmodule:: geost.base
-
-.. automethod:: BoreholeCollection.select_by_depth
