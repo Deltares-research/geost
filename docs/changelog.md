@@ -1,5 +1,19 @@
 # Release notes
 
+## v0.5.0
+
+Update to accessors, collections, reference systems and data validation resulting in a
+much more unified and flexible approach to subsurface data. Most important changes are:
+
+- `gsthd` and `gstda` accessors were replaced by a single `gst` accessor. [Data structures](./user_guide/data-structures.ipynb) and [Survey data](./user_guide/survey-data.ipynb) sections.
+- `BoreholeCollection` and `CptCollection` replaced by generic `Collection`.
+- Generic `read_table` replaces `read_borehole_table` and `read_cpt_table` functions.
+- `Collection.find_area_labels` replaced by `Collection.spatial_join`.
+- Added `set_crs`, `to_crs`, `set_vertical_datum` and `to_vertical_datum` to replace `change_horizontal_reference` and `change_vertical_reference` in a `Collection`.
+- Improved performance and features of data validation. See [Validation](./user_guide/validation.ipynb)
+
+[**Full Changelog**](https://github.com/Deltares-research/geost/compare/0.4.2...0.5.0)
+
 ## v0.4.2
 
 Replaced core header and data structures (e.g. `PointHeader`, `LayeredData`) in `Collection` instances by accessors on GeoDataFrames (header) and DataFrames (data). Now the header and data attributes of Collections have direct access to all Geopandas and Pandas methods. See the [GeoST accessors](./user_guide/accessors.ipynb) section in the User guide for detailed explanation of the new accessors. Other notable changes are Python 3.14 support and BHRGT grain size sample support in `geost.bro_api_read`

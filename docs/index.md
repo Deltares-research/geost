@@ -17,6 +17,9 @@ functions around GeoST data objects.
 > Use our [GitHub discussions page](https://github.com/Deltares-research/geost/discussions) for questions, support, and suggestions. Issues you come across can be reported [here](https://github.com/Deltares-research/geost/issues).
 
 
+
+
+
 ````{grid} 1 2 2 4
 ```{grid-item-card}  <i class="fa-solid fa-circle-question"></i>  [About GeoST](about.md)
 :text-align: center

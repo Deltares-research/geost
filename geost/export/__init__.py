@@ -1,2 +1,1 @@
-from geost.export.geodataclass import to_dftgeodata
 from geost.export.vtk import borehole_to_multiblock, layerdata_to_pyvista_unstructured

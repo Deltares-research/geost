@@ -1,9 +1,13 @@
+from __future__ import annotations
+
 from functools import singledispatch
+from typing import TYPE_CHECKING
 
 import pandas as pd
 from numpy._core.multiarray import interp as compiled_interp
 
-from geost import BoreholeCollection
+if TYPE_CHECKING:
+    from geost.base import Collection
 
 BHRGT_CLASSIFICATION = {
     "fractionSmaller63um": 63,
@@ -27,48 +31,20 @@ BHRGT_CLASSIFICATION = {
 
 @singledispatch
 def calculate_bhrgt_grainsize_percentiles(
-    sample_data: pd.DataFrame | BoreholeCollection,
+    sample_data: pd.DataFrame | Collection,
     percentiles: int | float | list[int | float] = 50,
     only_sand: bool = False,
-) -> pd.DataFrame | BoreholeCollection:
+) -> pd.DataFrame | Collection:
     """
     Calculate the grain size percentiles (e.g. D10, D50, D90) for each sample in the
     provided DataFrame.
 
     Parameters
     ----------
-    sample_data : pd.DataFrame | BoreholeCollection
-        DataFrame or BoreholeCollection containing the grain size distribution data for
-        multiple boreholes and samples following the minimum requirements for a
-        GeoST-BHRGT-samples grainsize data table.
-
-    Returns
-    -------
-    pd.DataFrame | BoreholeCollection
-        DataFrame or BoreholeCollection containing the estimated grain size percentiles
-        (D10, D50, D90) for each sample.
-    """
-    raise NotImplementedError(
-        f"Grain size percentile calculation not implemented for type {type(sample_data)}"
-    )
-
-
-@calculate_bhrgt_grainsize_percentiles.register
-def _(
-    sample_data: pd.DataFrame,
-    percentiles: int | float | list[int | float] = 50,
-    only_sand: bool = False,
-) -> pd.DataFrame:
-    """
-    Calculate the grain size percentiles (e.g. D10, D50, D90) for each sample in the
-    provided DataFrame.
-
-    Parameters
-    ----------
-    sample_data : pd.DataFrame
-        DataFrame containing the grain size distribution data for multiple boreholes and
-        samples following the minimum requirements for a GeoST-BHRGT-samples grainsize
-        data table.
+    sample_data : pd.DataFrame | Collection
+        DataFrame or Collection containing the grain size distribution data for multiple
+        boreholes and samples following the minimum requirements for a GeoST-BHRGT-samples
+        grainsize data table.
     percentiles : int | float | list[int | float], optional
         Percentiles to calculate (e.g. 10, 50, 90). The default is 50 (D50).
     only_sand : bool, optional
@@ -81,7 +57,28 @@ def _(
         DataFrame containing the estimated grain size percentiles for each sample. The
         percentile columns are named "d{percentile}" (e.g. "d50") or "d{percentile}_sand"
         (e.g. "d50_sand") if only_sand is True.
+
     """
+    from geost.base import Collection
+
+    if isinstance(sample_data, Collection):
+        sample_data.data = calculate_bhrgt_grainsize_percentiles(
+            sample_data.data, percentiles=percentiles, only_sand=only_sand
+        )
+    else:
+        raise NotImplementedError(
+            f"Grain size percentile calculation not implemented for type {type(sample_data)}"
+        )
+
+    return sample_data
+
+
+@calculate_bhrgt_grainsize_percentiles.register(pd.DataFrame)
+def _(
+    sample_data: pd.DataFrame,
+    percentiles: int | float | list[int | float],
+    only_sand: bool,
+) -> pd.DataFrame:
     sample_data_result = sample_data.copy()
 
     if isinstance(percentiles, (int, float)):
@@ -116,48 +113,42 @@ def _(
     return sample_data_result
 
 
-@calculate_bhrgt_grainsize_percentiles.register
-def _(
-    sample_data: BoreholeCollection,
-    percentiles: int | float | list[int | float] = 50,
-    only_sand: bool = False,
-) -> BoreholeCollection:
-    sample_data.data = calculate_bhrgt_grainsize_percentiles(
-        sample_data.data, percentiles=percentiles, only_sand=only_sand
-    )
-    return sample_data
-
-
 @singledispatch
 def calculate_bhrgt_grainsize_fractions(
-    sample_data: pd.DataFrame | BoreholeCollection,
-) -> pd.DataFrame:
+    sample_data: pd.DataFrame | Collection,
+) -> pd.DataFrame | Collection:
     """
     Calculate fractions of fines, sand and gravel for each sample in the provided
     DataFrame.
 
     Parameters
     ----------
-    sample_data : pd.DataFrame | BoreholeCollection
-        DataFrame or BoreholeCollection containing the grain size distribution data for
+    sample_data : pd.DataFrame | Collection
+        DataFrame or Collection containing the grain size distribution data for
         multiple boreholes and samples following the minimum requirements for a
         GeoST-BHRGT-samples grainsize data table.
 
     Returns
     -------
-    pd.DataFrame | BoreholeCollection
-        DataFrame or BoreholeCollection containing the estimated grain size fractions
+    pd.DataFrame | Collection
+        DataFrame or Collection containing the estimated grain size fractions
         (fines, sand, gravel) for each sample.
+
     """
-    raise NotImplementedError(
-        f"Grain size fraction calculation not implemented for type {type(sample_data)}"
-    )
+    from geost.base import Collection
+
+    if isinstance(sample_data, Collection):
+        sample_data.data = calculate_bhrgt_grainsize_fractions(sample_data.data)
+    else:
+        raise NotImplementedError(
+            f"Grain size fraction calculation not implemented for type {type(sample_data)}"
+        )
+
+    return sample_data
 
 
-@calculate_bhrgt_grainsize_fractions.register
-def _(
-    sample_data: pd.DataFrame,
-) -> pd.DataFrame:
+@calculate_bhrgt_grainsize_fractions.register(pd.DataFrame)
+def _(sample_data: pd.DataFrame) -> pd.DataFrame:
     sample_data["perc_fines"] = sample_data["fractionSmaller63um"]
     sample_data["perc_sand"] = sample_data[
         [
@@ -184,12 +175,4 @@ def _(
         ]
     ].sum(axis=1)
 
-    return sample_data
-
-
-@calculate_bhrgt_grainsize_fractions.register
-def _(
-    sample_data: BoreholeCollection,
-) -> BoreholeCollection:
-    sample_data.data = calculate_bhrgt_grainsize_fractions(sample_data.data)
     return sample_data

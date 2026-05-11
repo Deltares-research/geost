@@ -7,7 +7,7 @@ import pooch
 import xarray as xr
 
 from geost.bro import GeoTop
-from geost.io.read import read_borehole_table, read_cpt_table
+from geost.io.read import read_table
 
 REGISTRY = pooch.create(
     path=pooch.os_cache("geost"),
@@ -18,53 +18,65 @@ REGISTRY = pooch.create(
 REGISTRY.load_registry(importlib.resources.files("geost.data") / "registry.txt")
 
 
-def boreholes_usp(pandas=False):
+def boreholes_usp(pandas=False, return_filepath=False):
     """
-    Return a :class:`~geost.base.BoreholeCollection` with a selection of DINOloket boreholes
+    Return a :class:`~geost.base.Collection` with a selection of DINOloket boreholes
     in the area of the Utrecht Science Park to use in GeoST tutorials.
 
     Parameters
     ----------
     pandas : bool, optional
         If True, read the boreholes into a `Pandas DataFrame`. The default is False, this
-        returns a :class:`~geost.base.BoreholeCollection`.
+        returns a :class:`~geost.base.Collection`.
+    return_filepath : bool, optional
+        If True, return the file path to the borehole data instead of reading it. The
+        default is False.
 
     Returns
     -------
-    :class:`~geost.base.BoreholeCollection`
+    :class:`~geost.base.Collection`
 
     """
     filename = REGISTRY.fetch("boreholes_usp.parquet")
+    if return_filepath:
+        return Path(filename)
+
     if pandas:
         return pd.read_parquet(filename)
     else:
-        return read_borehole_table(filename)
+        return read_table(filename, crs=28992, vertical_datum=5709)
 
 
-def cpts_usp(pandas=False):
+def cpts_usp(pandas=False, return_filepath=False):
     """
-    Return a :class:`~geost.base.CptCollection` with a selection of BROloket CPTs in the
+    Return a :class:`~geost.base.Collection` with a selection of BROloket CPTs in the
     area of the Utrecht Science Park to use in GeoST tutorials.
 
     Parameters
     ----------
     pandas : bool, optional
-        If True, read the boreholes into a `Pandas DataFrame`. The default is False, this
-        returns a :class:`~geost.base.CptCollection`.
+        If True, read the CPTs into a `Pandas DataFrame`. The default is False, this
+        returns a :class:`~geost.base.Collection`.
+    return_filepath : bool, optional
+        If True, return the file path to the CPT data instead of reading it. The default
+        is False.
 
     Returns
     -------
-    :class:`~geost.base.CptCollection`
+    :class:`~geost.base.Collection`
 
     """
     filename = REGISTRY.fetch("cpts_usp.parquet")
+    if return_filepath:
+        return Path(filename)
+
     if pandas:
         return pd.read_parquet(filename)
     else:
-        return read_cpt_table(filename)
+        return read_table(filename, crs=28992, vertical_datum=5709)
 
 
-def geotop_usp(xarray=False):
+def geotop_usp(xarray=False, return_filepath=False):
     """
     Return a :class:`~geost.bro.GeoTop` instance in the area of the Utrecht Science Park
     to use in GeoST tutorials.
@@ -74,6 +86,9 @@ def geotop_usp(xarray=False):
     xarray : bool, optional
         If True, read the GeoTOP data as an `xarray.Dataset`. The default is False, this
         returns a :class:`~geost.bro.GeoTop`.
+    return_filepath : bool, optional
+        If True, return the file path to the GeoTOP data instead of reading it. The
+        default is False.
 
     Returns
     -------
@@ -81,6 +96,9 @@ def geotop_usp(xarray=False):
 
     """
     filename = REGISTRY.fetch("geotop_usp.nc")
+    if return_filepath:
+        return Path(filename)
+
     if xarray:
         return xr.open_dataset(filename)
     else:

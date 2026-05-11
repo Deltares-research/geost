@@ -26,6 +26,27 @@ def parse_crs(el: etree.Element) -> str:
     return el.attrib.get("srsName", "unknown")
 
 
+def parse_vertical_datum(vertical_datum: str) -> str:
+    """
+    Retrieve the vertical datum from a string.
+
+    Parameters
+    ----------
+    vertical_datum : str
+        The string containing the vertical datum information.
+
+    Returns
+    -------
+    str
+        String representing the vertical datum (e.g. 'LAT depth'), or
+        "Unknown_height_system_(meters)" if not found.
+
+    """
+    vertical_datum = vertical_datum or "Unknown_height_system_(meters)"
+    vertical_datum = "LAT depth" if vertical_datum == "LAT" else vertical_datum
+    return vertical_datum
+
+
 def parse_coordinates(coords: str) -> tuple[float, float]:
     """
     Parse a string containing coordinates as a tuple of floats.
