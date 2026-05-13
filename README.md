@@ -13,22 +13,24 @@ The internal BoreholeCollection, LogCollection and CptCollection classes use [Pa
 GeoST is a work-in-progress and aims to support an increasing number of data sources.
 
 ## Installation (user)
-In a Python >= 3.12 environment, install the latest stable release with `pixi` or with `pip`:
+GeoST is distributed via the Python package index (PyPi) and Conda-forge. In a Python >= 3.13 environment, install the latest stable release in your environment with either [pip](https://pypi.org/project/pip/), [Pixi](https://pixi.prefix.dev/latest/) or [Conda](https://conda.org/):
 
-```
-pixi add geost --pypi
-```
 ```
 pip install geost
 ```
+```
+pixi add geost
+```
+When using Conda, make sure to specify the conda-forge channel:
+```
+conda install -c conda-forge geost
+```
+Or when using [miniforge](https://github.com/conda-forge/miniforge), which uses the conda-forge channel by default:
+```
+conda install geost
+```
 
-Or the latest (experimental) version of the main branch directly from GitHub using:
-```
-pixi add --git https://github.com/Deltares-research/geost.git geost --pypi
-```
-```
-pip install git+https://github.com/Deltares-research/geost.git
-```
+
 
 ## Installation (developer)
 GeoST uses [Pixi](https://github.com/prefix-dev/pixi) for package management and workflows.
@@ -59,7 +61,7 @@ the [Deltares sst-examples repository](https://github.com/Deltares-research/sst-
 ## Contributing
 You can contribute by testing, raising issues and making pull requests. Some general guidelines:
 
-- Use new branches for developing new features or bugfixes. Use prefixes such as feature/ bugfix/ experimental/ to indicate the type of branch
+- Use new branches in your fork for developing new features or bugfixes. Use prefixes such as feature/ bugfix/ experimental/ to indicate the type of branch
 - Add unit tests (and test data) for new methods and functions using pytest.
 - Add Numpy-style docstrings
 - Use pre-commit (see installation for developers on this page)
