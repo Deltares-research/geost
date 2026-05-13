@@ -9,7 +9,7 @@ maintainers = [
     {name = "Erik van Onselen", email = "erik.vanonselen@deltares.nl"},
     {name = "Bas Knaake", email = "bas.knaake@deltares.nl"},
 ]
-description = "The Python interface for geological point data in The Netherlands"
+description = "GeoST is a Python interface for subsurface data"
 readme = "README.md"
 license = {file = "LICENSE"}
 keywords = [
