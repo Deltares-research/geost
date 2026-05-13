@@ -397,17 +397,17 @@ class Collection(AbstractBase):
         --------
         To change the current vertical reference from Ostend height to NAP:
 
-        >>> collection.change_vertical_reference(5710, 5709)
+        >>> collection.to_vertical_datum(5710, 5709)
 
         This would be the same as:
 
-        >>> collection.change_vertical_reference("epsg:5710", "epsg:5709")
+        >>> collection.to_vertical_datum("epsg:5710", "epsg:5709")
 
         As the Pyproj constructors are very flexible, you can even use the CRS's full
         official name instead of an EPSG number. E.g. for changing to NAP and the
-        Belgian Ostend height vertical datums repsectively, you can use:
+        Belgian Ostend height vertical datums respectively, you can use:
 
-        >>> collection.change_vertical_reference("Ostend height", "NAP")
+        >>> collection.to_vertical_datum("Ostend height", "NAP")
 
         """
         raise NotImplementedError(

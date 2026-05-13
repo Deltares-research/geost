@@ -371,7 +371,7 @@ class GeostFrame(AbstractBase):
         row per unique object in the DataFrame, identified by the "nr" column. The header
         can contain a geometry column with point geometries created from specified coordinate
         columns in the DataFrame. By default only the columns 'nr', 'surface', 'x', and 'y'
-        or aliases (see `POSSIBLE_COLUMN_NAMING` in :module:`~geost.validation.column_names`)
+        or aliases (see `POSSIBLE_COLUMN_NAMING` in :py:mod:`~geost.validation.column_names`)
         are included. Optional columns can be given to be included using the include_columns parameter.
 
         Parameters
@@ -383,7 +383,7 @@ class GeostFrame(AbstractBase):
             Tuple specifying the names of the columns to be used as coordinates for the
             geometry column. The default is None, which means that it automatically tries
             to find the names of the x and y columns (see `POSSIBLE_COLUMN_NAMING` in
-            :module:`~geost.validation.column_names` ). If not found, no geometry column
+            :py:mod:`~geost.validation.column_names` ). If not found, no geometry column
             will be created.
         crs : str | int | CRS, optional
             Coordinate reference system for the geometry column. The default is None,
@@ -472,8 +472,7 @@ class GeostFrame(AbstractBase):
         coordinate_names : tuple[str, str], optional
             Tuple specifying the names of the columns to be used as coordinates for the
             geometry column. The default is None, which means that it automatically tries
-            to find the names of the x and y columns (see `POSSIBLE_COLUMN_NAMING` in
-            :module:`~geost.validation.column_names` ). If not found, no geometry column
+            to find the names of the x and y columns (see :py:mod:`~geost.validation.column_names` ). If not found, no geometry column
             will be created.
         include_in_header: str | Iterable[str] | None, optional
             Columns to aditionally include in the header. The default is None, which means

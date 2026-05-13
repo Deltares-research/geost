@@ -66,7 +66,7 @@ def read_table(
         Tuple specifying the names of the columns to be used as coordinates for the
         geometry column. The default is None, which means that it automatically tries
         to find the names of the x and y columns (see `POSSIBLE_COLUMN_NAMING` in
-        :module:`~geost.validation.column_names` ). If not found, no geometry column
+        :py:mod:`~geost.validation.column_names`). If not found, no geometry column
         will be created.
     include_in_header: str | Iterable[str] | None, optional
         Columns to aditionally include in the header. The default is None, which means
@@ -163,7 +163,7 @@ def read_borehole_table(
         Tuple specifying the names of the columns to be used as coordinates for the
         geometry column. The default is None, which means that it automatically tries
         to find the names of the x and y columns (see `POSSIBLE_COLUMN_NAMING` in
-        :module:`~geost.validation.column_names` ). If not found, no geometry column
+        :py:mod:`~geost.validation.column_names` ). If not found, no geometry column
         will be created.
     include_in_header: str | Iterable[str] | None, optional
         Columns to aditionally include in the header. The default is None, which means
@@ -264,7 +264,7 @@ def read_cpt_table(
         Tuple specifying the names of the columns to be used as coordinates for the
         geometry column. The default is None, which means that it automatically tries
         to find the names of the x and y columns (see `POSSIBLE_COLUMN_NAMING` in
-        :module:`~geost.validation.column_names` ). If not found, no geometry column
+        :py:mod:`~geost.validation.column_names` ). If not found, no geometry column
         will be created.
     include_in_header: str | Iterable[str] | None, optional
         Columns to aditionally include in the header. The default is None, which means
