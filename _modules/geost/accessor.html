@@ -705,6 +705,8 @@
             <span class="k">return</span> <span class="n">validated_obj</span></div>
 
 
+<div class="viewcode-block" id="GeostFrame.to_crs">
+<a class="viewcode-back" href="../../api_reference/generated/geost.accessor.GeostFrame.to_crs.html#geost.accessor.GeostFrame.to_crs">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">to_crs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">crs</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">int</span> <span class="o">|</span> <span class="n">CRS</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Change the coordinate reference system (CRS) to a given target CRS.</span>
@@ -756,8 +758,11 @@
             <span class="n">transformed</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_x</span><span class="p">]</span> <span class="o">=</span> <span class="n">transformed</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">x</span>
             <span class="n">transformed</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_y</span><span class="p">]</span> <span class="o">=</span> <span class="n">transformed</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">y</span>
 
-        <span class="k">return</span> <span class="n">transformed</span>
+        <span class="k">return</span> <span class="n">transformed</span></div>
 
+
+<div class="viewcode-block" id="GeostFrame.to_vertical_datum">
+<a class="viewcode-back" href="../../api_reference/generated/geost.accessor.GeostFrame.to_vertical_datum.html#geost.accessor.GeostFrame.to_vertical_datum">[docs]</a>
     <span class="nd">@_requires_surface</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">to_vertical_datum</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">vertical_datum</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">int</span> <span class="o">|</span> <span class="n">CRS</span>
@@ -786,7 +791,8 @@
             <span class="s2">&quot;future version of GeoST. For now, you can use the set_vertical_datum method&quot;</span>
             <span class="s2">&quot; to set the vertical datum without transforming the surface levels directly, &quot;</span>
             <span class="s2">&quot;and then perform the transformation manually&quot;</span>
-        <span class="p">)</span>
+        <span class="p">)</span></div>
+
 
 <div class="viewcode-block" id="GeostFrame.transform_coordinates">
 <a class="viewcode-back" href="../../api_reference/generated/geost.accessor.GeostFrame.transform_coordinates.html#geost.accessor.GeostFrame.transform_coordinates">[docs]</a>
@@ -852,7 +858,7 @@
 <span class="sd">        row per unique object in the DataFrame, identified by the &quot;nr&quot; column. The header</span>
 <span class="sd">        can contain a geometry column with point geometries created from specified coordinate</span>
 <span class="sd">        columns in the DataFrame. By default only the columns &#39;nr&#39;, &#39;surface&#39;, &#39;x&#39;, and &#39;y&#39;</span>
-<span class="sd">        or aliases (see `POSSIBLE_COLUMN_NAMING` in :module:`~geost.validation.column_names`)</span>
+<span class="sd">        or aliases (see `POSSIBLE_COLUMN_NAMING` in :py:mod:`~geost.validation.column_names`)</span>
 <span class="sd">        are included. Optional columns can be given to be included using the include_columns parameter.</span>
 
 <span class="sd">        Parameters</span>
@@ -864,7 +870,7 @@
 <span class="sd">            Tuple specifying the names of the columns to be used as coordinates for the</span>
 <span class="sd">            geometry column. The default is None, which means that it automatically tries</span>
 <span class="sd">            to find the names of the x and y columns (see `POSSIBLE_COLUMN_NAMING` in</span>
-<span class="sd">            :module:`~geost.validation.column_names` ). If not found, no geometry column</span>
+<span class="sd">            :py:mod:`~geost.validation.column_names` ). If not found, no geometry column</span>
 <span class="sd">            will be created.</span>
 <span class="sd">        crs : str | int | CRS, optional</span>
 <span class="sd">            Coordinate reference system for the geometry column. The default is None,</span>
@@ -956,8 +962,7 @@
 <span class="sd">        coordinate_names : tuple[str, str], optional</span>
 <span class="sd">            Tuple specifying the names of the columns to be used as coordinates for the</span>
 <span class="sd">            geometry column. The default is None, which means that it automatically tries</span>
-<span class="sd">            to find the names of the x and y columns (see `POSSIBLE_COLUMN_NAMING` in</span>
-<span class="sd">            :module:`~geost.validation.column_names` ). If not found, no geometry column</span>
+<span class="sd">            to find the names of the x and y columns (see :py:mod:`~geost.validation.column_names` ). If not found, no geometry column</span>
 <span class="sd">            will be created.</span>
 <span class="sd">        include_in_header: str | Iterable[str] | None, optional</span>
 <span class="sd">            Columns to aditionally include in the header. The default is None, which means</span>

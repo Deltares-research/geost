@@ -515,6 +515,8 @@
 <li class="toctree-l3"><a class="reference internal" href="geost.accessor.GeostFrame.get_cumulative_thickness.html">geost.accessor.GeostFrame.get_cumulative_thickness</a></li>
 <li class="toctree-l3"><a class="reference internal" href="geost.accessor.GeostFrame.get_layer_base.html">geost.accessor.GeostFrame.get_layer_base</a></li>
 <li class="toctree-l3"><a class="reference internal" href="geost.accessor.GeostFrame.get_layer_top.html">geost.accessor.GeostFrame.get_layer_top</a></li>
+<li class="toctree-l3"><a class="reference internal" href="geost.accessor.GeostFrame.to_crs.html">geost.accessor.GeostFrame.to_crs</a></li>
+<li class="toctree-l3"><a class="reference internal" href="geost.accessor.GeostFrame.to_vertical_datum.html">geost.accessor.GeostFrame.to_vertical_datum</a></li>
 <li class="toctree-l3"><a class="reference internal" href="geost.accessor.GeostFrame.transform_coordinates.html">geost.accessor.GeostFrame.transform_coordinates</a></li>
 <li class="toctree-l3"><a class="reference internal" href="geost.accessor.GeostFrame.calculate_thickness.html">geost.accessor.GeostFrame.calculate_thickness</a></li>
 <li class="toctree-l3"><a class="reference internal" href="geost.accessor.GeostFrame.standardize_column_names.html">geost.accessor.GeostFrame.standardize_column_names</a></li>
@@ -760,7 +762,7 @@ the creation of a <a class="reference internal" href="geost.base.Collection.html
 row per unique object in the DataFrame, identified by the “nr” column. The header
 can contain a geometry column with point geometries created from specified coordinate
 columns in the DataFrame. By default only the columns ‘nr’, ‘surface’, ‘x’, and ‘y’
-or aliases (see <cite>POSSIBLE_COLUMN_NAMING</cite> in <a href="#id1"><span class="problematic" id="id2">:module:`~geost.validation.column_names`</span></a>)
+or aliases (see <cite>POSSIBLE_COLUMN_NAMING</cite> in <code class="xref py py-mod docutils literal notranslate"><span class="pre">column_names</span></code>)
 are included. Optional columns can be given to be included using the include_columns parameter.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -770,7 +772,7 @@ that only the default columns ‘nr’, ‘surface’, ‘x’ and ‘y’ or th
 <li><p><strong>coordinate_names</strong> (<em>tuple</em><em>[</em><em>str</em><em>, </em><em>str</em><em>]</em><em>, </em><em>optional</em>) – Tuple specifying the names of the columns to be used as coordinates for the
 geometry column. The default is None, which means that it automatically tries
 to find the names of the x and y columns (see <cite>POSSIBLE_COLUMN_NAMING</cite> in
-<a href="#id3"><span class="problematic" id="id4">:module:`~geost.validation.column_names`</span></a> ). If not found, no geometry column
+<code class="xref py py-mod docutils literal notranslate"><span class="pre">column_names</span></code> ). If not found, no geometry column
 will be created.</p></li>
 <li><p><strong>crs</strong> (<em>str</em><em> | </em><em>int</em><em> | </em><em>CRS</em><em>, </em><em>optional</em>) – Coordinate reference system for the geometry column. The default is None,
 which means no CRS will be assigned to the resulting GeoDataFrame.</p></li>

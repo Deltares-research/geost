@@ -515,6 +515,8 @@
 <li class="toctree-l3"><a class="reference internal" href="geost.accessor.GeostFrame.get_cumulative_thickness.html">geost.accessor.GeostFrame.get_cumulative_thickness</a></li>
 <li class="toctree-l3"><a class="reference internal" href="geost.accessor.GeostFrame.get_layer_base.html">geost.accessor.GeostFrame.get_layer_base</a></li>
 <li class="toctree-l3"><a class="reference internal" href="geost.accessor.GeostFrame.get_layer_top.html">geost.accessor.GeostFrame.get_layer_top</a></li>
+<li class="toctree-l3"><a class="reference internal" href="geost.accessor.GeostFrame.to_crs.html">geost.accessor.GeostFrame.to_crs</a></li>
+<li class="toctree-l3"><a class="reference internal" href="geost.accessor.GeostFrame.to_vertical_datum.html">geost.accessor.GeostFrame.to_vertical_datum</a></li>
 <li class="toctree-l3"><a class="reference internal" href="geost.accessor.GeostFrame.transform_coordinates.html">geost.accessor.GeostFrame.transform_coordinates</a></li>
 <li class="toctree-l3"><a class="reference internal" href="geost.accessor.GeostFrame.calculate_thickness.html">geost.accessor.GeostFrame.calculate_thickness</a></li>
 <li class="toctree-l3"><a class="reference internal" href="geost.accessor.GeostFrame.standardize_column_names.html">geost.accessor.GeostFrame.standardize_column_names</a></li>
@@ -820,11 +822,11 @@
 <tr class="row-odd"><td><p><a class="reference internal" href="geost.accessor.GeostFrame.to_collection.html#geost.accessor.GeostFrame.to_collection" title="geost.accessor.GeostFrame.to_collection"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_collection</span></code></a>([crs, vertical_datum, ...])</p></td>
 <td><p>Create a <a class="reference internal" href="geost.base.Collection.html#geost.base.Collection" title="geost.base.Collection"><code class="xref py py-class docutils literal notranslate"><span class="pre">geost.base.Collection</span></code></a> from the current GeoDataFrame or DataFrame.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_crs</span></code>(crs)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="geost.accessor.GeostFrame.to_crs.html#geost.accessor.GeostFrame.to_crs" title="geost.accessor.GeostFrame.to_crs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_crs</span></code></a>(crs)</p></td>
 <td><p>Change the coordinate reference system (CRS) to a given target CRS.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="geost.accessor.GeostFrame.to_header.html#geost.accessor.GeostFrame.to_header" title="geost.accessor.GeostFrame.to_header"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_header</span></code></a>([include_columns, ...])</p></td>
-<td><p>Create a header GeoDataFrame from the DataFrame to be used as a header table for the creation of a <a class="reference internal" href="geost.base.Collection.html#geost.base.Collection" title="geost.base.Collection"><code class="xref py py-class docutils literal notranslate"><span class="pre">Collection</span></code></a> object. The header contains one row per unique object in the DataFrame, identified by the &quot;nr&quot; column. The header can contain a geometry column with point geometries created from specified coordinate columns in the DataFrame. By default only the columns 'nr', 'surface', 'x', and 'y' or aliases (see <cite>POSSIBLE_COLUMN_NAMING</cite> in <a href="#id1"><span class="problematic" id="id2">:module:`~geost.validation.column_names`</span></a>) are included. Optional columns can be given to be included using the include_columns parameter.</p></td>
+<td><p>Create a header GeoDataFrame from the DataFrame to be used as a header table for the creation of a <a class="reference internal" href="geost.base.Collection.html#geost.base.Collection" title="geost.base.Collection"><code class="xref py py-class docutils literal notranslate"><span class="pre">Collection</span></code></a> object.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="geost.accessor.GeostFrame.to_kingdom.html#geost.accessor.GeostFrame.to_kingdom" title="geost.accessor.GeostFrame.to_kingdom"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_kingdom</span></code></a>(outfile[, tdstart, vw, vs])</p></td>
 <td><p>Write data to 2 csv files: 1) interval data and 2) time-depth chart.</p></td>
@@ -838,7 +840,7 @@
 <tr class="row-odd"><td><p><a class="reference internal" href="geost.accessor.GeostFrame.to_qgis3d.html#geost.accessor.GeostFrame.to_qgis3d" title="geost.accessor.GeostFrame.to_qgis3d"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_qgis3d</span></code></a>(outfile[, crs])</p></td>
 <td><p>Write data to geopackage file that can be directly loaded in the Qgis2threejs plugin.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_vertical_datum</span></code>(vertical_datum)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="geost.accessor.GeostFrame.to_vertical_datum.html#geost.accessor.GeostFrame.to_vertical_datum" title="geost.accessor.GeostFrame.to_vertical_datum"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_vertical_datum</span></code></a>(vertical_datum)</p></td>
 <td><p>Change the vertical datum of the object's surface levels.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="geost.accessor.GeostFrame.transform_coordinates.html#geost.accessor.GeostFrame.transform_coordinates" title="geost.accessor.GeostFrame.transform_coordinates"><code class="xref py py-obj docutils literal notranslate"><span class="pre">transform_coordinates</span></code></a>(original_crs, target_crs)</p></td>

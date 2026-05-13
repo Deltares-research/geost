@@ -887,17 +887,17 @@
 <span class="sd">        --------</span>
 <span class="sd">        To change the current vertical reference from Ostend height to NAP:</span>
 
-<span class="sd">        &gt;&gt;&gt; collection.change_vertical_reference(5710, 5709)</span>
+<span class="sd">        &gt;&gt;&gt; collection.to_vertical_datum(5710, 5709)</span>
 
 <span class="sd">        This would be the same as:</span>
 
-<span class="sd">        &gt;&gt;&gt; collection.change_vertical_reference(&quot;epsg:5710&quot;, &quot;epsg:5709&quot;)</span>
+<span class="sd">        &gt;&gt;&gt; collection.to_vertical_datum(&quot;epsg:5710&quot;, &quot;epsg:5709&quot;)</span>
 
 <span class="sd">        As the Pyproj constructors are very flexible, you can even use the CRS&#39;s full</span>
 <span class="sd">        official name instead of an EPSG number. E.g. for changing to NAP and the</span>
-<span class="sd">        Belgian Ostend height vertical datums repsectively, you can use:</span>
+<span class="sd">        Belgian Ostend height vertical datums respectively, you can use:</span>
 
-<span class="sd">        &gt;&gt;&gt; collection.change_vertical_reference(&quot;Ostend height&quot;, &quot;NAP&quot;)</span>
+<span class="sd">        &gt;&gt;&gt; collection.to_vertical_datum(&quot;Ostend height&quot;, &quot;NAP&quot;)</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span>

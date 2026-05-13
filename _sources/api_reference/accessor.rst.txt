@@ -49,8 +49,8 @@ Coordinate Reference System
 .. autosummary::
    :toctree: generated/
 
-   GeostFrame.change_horizontal_reference
-   GeostFrame.change_vertical_reference
+   GeostFrame.to_crs
+   GeostFrame.to_vertical_datum
    GeostFrame.transform_coordinates
 
 Generic

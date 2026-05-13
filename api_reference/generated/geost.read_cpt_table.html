@@ -515,6 +515,8 @@
 <li class="toctree-l3"><a class="reference internal" href="geost.accessor.GeostFrame.get_cumulative_thickness.html">geost.accessor.GeostFrame.get_cumulative_thickness</a></li>
 <li class="toctree-l3"><a class="reference internal" href="geost.accessor.GeostFrame.get_layer_base.html">geost.accessor.GeostFrame.get_layer_base</a></li>
 <li class="toctree-l3"><a class="reference internal" href="geost.accessor.GeostFrame.get_layer_top.html">geost.accessor.GeostFrame.get_layer_top</a></li>
+<li class="toctree-l3"><a class="reference internal" href="geost.accessor.GeostFrame.to_crs.html">geost.accessor.GeostFrame.to_crs</a></li>
+<li class="toctree-l3"><a class="reference internal" href="geost.accessor.GeostFrame.to_vertical_datum.html">geost.accessor.GeostFrame.to_vertical_datum</a></li>
 <li class="toctree-l3"><a class="reference internal" href="geost.accessor.GeostFrame.transform_coordinates.html">geost.accessor.GeostFrame.transform_coordinates</a></li>
 <li class="toctree-l3"><a class="reference internal" href="geost.accessor.GeostFrame.calculate_thickness.html">geost.accessor.GeostFrame.calculate_thickness</a></li>
 <li class="toctree-l3"><a class="reference internal" href="geost.accessor.GeostFrame.standardize_column_names.html">geost.accessor.GeostFrame.standardize_column_names</a></li>
@@ -775,7 +777,7 @@ be assigned to the resulting Collection. Only used if <cite>as_collection=True</
 <li><p><strong>coordinate_names</strong> (<em>tuple</em><em>[</em><em>str</em><em>, </em><em>str</em><em>]</em><em>, </em><em>optional</em>) – Tuple specifying the names of the columns to be used as coordinates for the
 geometry column. The default is None, which means that it automatically tries
 to find the names of the x and y columns (see <cite>POSSIBLE_COLUMN_NAMING</cite> in
-<a href="#id1"><span class="problematic" id="id2">:module:`~geost.validation.column_names`</span></a> ). If not found, no geometry column
+<code class="xref py py-mod docutils literal notranslate"><span class="pre">column_names</span></code> ). If not found, no geometry column
 will be created.</p></li>
 <li><p><strong>include_in_header</strong> (<em>str</em><em> | </em><em>Iterable</em><em>[</em><em>str</em><em>] </em><em>| </em><em>None</em><em>, </em><em>optional</em>) – Columns to aditionally include in the header. The default is None, which means
 that only the default columns ‘nr’, ‘surface’, ‘x’ and ‘y’ or their aliases are included.</p></li>
