@@ -257,6 +257,22 @@ def validate_top_bottom(
             invalid_nrs,
             invalid.index,
         )
+
+    # Ensure first top is at 0
+    invalid_first_top = obj.loc[first_row_in_survey, top_] != 0
+    if invalid_first_top.any():
+        invalid = obj.loc[invalid_first_top[invalid_first_top].index]
+        invalid_nrs = invalid[nr_].unique().tolist()
+        warning = (
+            f"Column '{top_}' must start at 0, but some rows violate this condition."
+        )
+
+        validation_result.add(
+            f"{top_}",
+            warning,
+            invalid_nrs,
+            invalid.index,
+        )
     return validation_result
 
 
