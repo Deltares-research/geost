@@ -52,36 +52,16 @@ def concat(
             "All collections must have the same vertical datum to be concatenated."
         )
 
-    # Positional column names to use for final concatenated result
-    header_colnames = collections[0].header.gst.positional_columns
-    data_colnames = collections[0].data.gst.positional_columns
-
-    headers = [collection.header.copy() for collection in collections]
-    datas = [collection.data.copy() for collection in collections]
-
-    # Rename positional columns to match those of the first collection in the iterable
-    for header, data in zip(headers, datas):
-        header.rename(
-            columns={
-                v: cn
-                for v, cn in zip(
-                    header.gst.positional_columns.values(),
-                    header_colnames.values(),
-                )
-                if v is not None
-            },
-            inplace=True,
-        )
-        data.rename(
-            columns={
-                v: cn
-                for v, cn in zip(
-                    data.gst.positional_columns.values(), data_colnames.values()
-                )
-                if v is not None
-            },
-            inplace=True,
-        )
+    # Get list of headers and data with renamed positional columns to match those of the 
+    # first collection in the iterable
+    headers = [
+        collection.header.gst._rename_positional_columns(collections[0].header)
+        for collection in collections
+    ]
+    datas = [
+        collection.data.gst._rename_positional_columns(collections[0].data)
+        for collection in collections
+    ]
 
     # Concat and drop duplicates
     concatenated_header = pd.concat(

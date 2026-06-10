@@ -67,6 +67,27 @@ class GeostFrame(AbstractBase):
         self._top = check("top")
         self._bottom = check("depth")
 
+    def _rename_positional_columns(self, other):
+        """
+        Rename the positional columns of this DataFrame to match those of another
+        DataFrame.
+
+        """
+        obj = self._obj.copy()
+        obj.rename(
+            columns={
+                v: cn
+                for v, cn in zip(
+                    self.positional_columns.values(),
+                    other.gst.positional_columns.values(),
+                )
+                if v is not None
+            },
+            errors="ignore",
+            inplace=True,
+        )
+        return obj
+
     @property
     def positional_columns(self) -> dict:
         return {
