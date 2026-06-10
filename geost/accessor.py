@@ -73,8 +73,7 @@ class GeostFrame(AbstractBase):
         DataFrame.
 
         """
-        obj = self._obj.copy()
-        obj.rename(
+        obj = self._obj.rename(
             columns={
                 v: cn
                 for v, cn in zip(
@@ -84,7 +83,6 @@ class GeostFrame(AbstractBase):
                 if v is not None
             },
             errors="ignore",
-            inplace=True,
         )
         return obj
 
