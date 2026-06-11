@@ -35,8 +35,8 @@ def concat(
     The names of positional columns (e.g. "nr", "x", "y", "surface", "depth") in the header
     and data tables of the given Collection instances will be set to the positional column
     names of the first Collection in the iterable. For example, if the first Collection
-    has "nr" as positional columns for the survey name, but the second Collection has "id",
-    the concatenated Collection will have "nr" as positional columns.
+    has "nr" as positional column for the survey name, but the second Collection has "id",
+    the concatenated Collection will have "nr" as positional column for survey name.
 
     """
     # Check collections can be concatenated
@@ -52,14 +52,14 @@ def concat(
             "All collections must have the same vertical datum to be concatenated."
         )
 
-    # Get list of headers and data with renamed positional columns to match those of the 
+    # Get list of headers and data with renamed positional columns to match those of the
     # first collection in the iterable
     headers = [
-        collection.header.gst._rename_positional_columns(collections[0].header)
+        collection.header.gst._rename_positional_columns_like(collections[0].header)
         for collection in collections
     ]
     datas = [
-        collection.data.gst._rename_positional_columns(collections[0].data)
+        collection.data.gst._rename_positional_columns_like(collections[0].data)
         for collection in collections
     ]
 

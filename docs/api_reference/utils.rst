@@ -25,6 +25,14 @@ Projection
     projections.vertical_reference_transformer
 
 
+Collection Utils
+----------------
+.. autosummary::
+    :toctree: generated/
+
+    collection.concat
+
+
 Model Utils
 ------------
 .. currentmodule:: geost
