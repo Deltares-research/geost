@@ -1,5 +1,6 @@
 # GeoST - Geological Subsurface Toolbox
 [![PyPI version](https://img.shields.io/pypi/v/geost.svg)](https://pypi.org/project/geost)
+[![Conda-forge version](https://camo.githubusercontent.com/d4ba6ff1940b5f52d46826f2504d06bb1559079d70d5a0579ff5c4156f3a64f6/68747470733a2f2f696d672e736869656c64732e696f2f636f6e64612f766e2f636f6e64612d666f7267652f67656f73742e737667)](https://anaconda.org/channels/conda-forge/packages/geost/overview)
 [![License: LGPLv3](https://img.shields.io/pypi/l/geost)](https://choosealicense.com/licenses/lgpl-3.0)
 [![Lifecycle: experimental](https://lifecycle.r-lib.org/articles/figures/lifecycle-experimental.svg)](https://lifecycle.r-lib.org/articles/stages.html)
 [![Build: status](https://img.shields.io/github/actions/workflow/status/deltares-research/geost/ci.yml)](https://github.com/Deltares-research/geost/actions)
