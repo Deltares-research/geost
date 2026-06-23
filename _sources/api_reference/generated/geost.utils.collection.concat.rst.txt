@@ -1,0 +1,6 @@
+﻿geost.utils.collection.concat
+=============================
+
+.. currentmodule:: geost.utils.collection
+
+.. autofunction:: concat
