@@ -1,19 +1,20 @@
 # GeoST - Geological Subsurface Toolbox
+![PyPI - Python Version](https://img.shields.io/pypi/pyversions/geost)
 [![PyPI version](https://img.shields.io/pypi/v/geost.svg)](https://pypi.org/project/geost)
+[![Conda-forge version](https://camo.githubusercontent.com/d4ba6ff1940b5f52d46826f2504d06bb1559079d70d5a0579ff5c4156f3a64f6/68747470733a2f2f696d672e736869656c64732e696f2f636f6e64612f766e2f636f6e64612d666f7267652f67656f73742e737667)](https://anaconda.org/channels/conda-forge/packages/geost/overview)
 [![License: LGPLv3](https://img.shields.io/pypi/l/geost)](https://choosealicense.com/licenses/lgpl-3.0)
-[![Lifecycle: experimental](https://lifecycle.r-lib.org/articles/figures/lifecycle-experimental.svg)](https://lifecycle.r-lib.org/articles/stages.html)
 [![Build: status](https://img.shields.io/github/actions/workflow/status/deltares-research/geost/ci.yml)](https://github.com/Deltares-research/geost/actions)
 [![codecov](https://codecov.io/gh/Deltares-research/geost/graph/badge.svg?token=HCNGLWTQ2H)](https://codecov.io/gh/Deltares-research/geost)
 [![Formatting: ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/charliermarsh/ruff)
 
-The Geological Subsurface Toolbox (GeoST) package is designed to be an easy-to-use Python interface for working with subsurface point data in The Netherlands (boreholes, well logs and CPT's). It provides selection, analysis and export methods that can be applied generically to the loaded data. It is designed to connect with other Deltares developments such as [iMod](https://github.com/Deltares/imod-python) and [DataFusionTools](https://publicwiki.deltares.nl/display/TKIP/Data+Fusion+Tools).
+The Geological Subsurface Toolbox (GeoST) package is designed to be an easy-to-use Python interface for working with subsurface point data in The Netherlands (boreholes, well logs and CPT's). It provides selection, analysis and export methods that can be applied generically to the loaded data.
 
-The internal BoreholeCollection, LogCollection and CptCollection classes use [Pandas](https://pandas.pydata.org/) for storing data and header information and  [Pandera](https://pandera.readthedocs.io/en/stable/) for data validation. For spatial functions [Geopandas](https://geopandas.org/en/stable/) is used. The package also supports reading/writing parquet and geoparquet files through Pandas and Geopandas respectively.
+The internal Collection object and GeoST accessor rely on [Pandas](https://pandas.pydata.org/) for storing data and header information and. For spatial functions [Geopandas](https://geopandas.org/en/stable/) is used. The package also supports reading/writing parquet and geoparquet files through Pandas and Geopandas respectively.
 
 GeoST is a work-in-progress and aims to support an increasing number of data sources.
 
 ## Installation (user)
-GeoST is distributed via the Python package index (PyPi) and Conda-forge. In a Python >= 3.13 environment, install the latest stable release in your environment with either [pip](https://pypi.org/project/pip/), [Pixi](https://pixi.prefix.dev/latest/) or [Conda](https://conda.org/):
+GeoST is distributed via the Python package index (PyPi) and Conda-forge. In a Python >= 3.12 environment, install the latest stable release in your environment with either [pip](https://pypi.org/project/pip/), [Pixi](https://pixi.prefix.dev/latest/) or [Conda](https://conda.org/):
 
 ```
 pip install geost

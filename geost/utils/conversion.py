@@ -171,9 +171,9 @@ def _adjust_discrete(
     surface_values = df.loc[first_row_mask, surface]
     depth_values = df.loc[first_row_mask, depth] - dz[first_row_mask]
 
-    if np.allclose(surface_values, depth_values):
+    if np.allclose(surface_values, depth_values, equal_nan=True):
         df[depth] = df[surface] - df[depth]
-    elif np.allclose(depth_values, 0):
+    elif np.allclose(depth_values, 0, equal_nan=True):
         df[depth] *= np.sign(df[depth])
     else:
         from geost._warnings import MixedDepthWarning

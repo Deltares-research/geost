@@ -10,7 +10,7 @@ if TYPE_CHECKING:
 
 
 DEFAULT_POSITIONAL_COLUMNS = {
-    "nr": {"nr", "bro_id", "nitg_nr", "nitg", "boorp"},
+    "nr": {"nr", "id", "bro_id", "nitg_nr", "nitg", "boorp"},
     "surface": {
         "surface",
         "maaiveld",

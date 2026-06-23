@@ -19,6 +19,7 @@ from geost.io.read import (
     read_uullg_tables,
     read_xml_boris,
 )
+from geost.utils.collection import concat
 from geost.utils.columns import add_positional_columns
 
-__version__ = "0.5.0"
+__version__ = "0.5.1"

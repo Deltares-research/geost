@@ -11,7 +11,7 @@ Introduction to GeoST <getting_started/introduction>
 ```
 
 ## Installation (user)
-GeoST is distributed via the Python package index (PyPi) and Conda-forge. In a Python >= 3.13 environment, install the latest stable release in your environment with either [pip](https://pypi.org/project/pip/), [Pixi](https://pixi.prefix.dev/latest/) or [Conda](https://conda.org/):
+GeoST is distributed via the Python package index (PyPi) and Conda-forge. In a Python >= 3.12 environment, install the latest stable release in your environment with either [pip](https://pypi.org/project/pip/), [Pixi](https://pixi.prefix.dev/latest/) or [Conda](https://conda.org/):
 
 ```
 pip install geost
