@@ -258,7 +258,7 @@ def validate_top_bottom(
             invalid.index,
         )
 
-    # Ensure first top is at 0
+    # Ensure first top is at 0. TODO: make optional in config, as some surveys may not start at 0.
     # invalid_first_top = obj.loc[first_row_in_survey, top_] != 0
     # if invalid_first_top.any():
     #     invalid = obj.loc[invalid_first_top[invalid_first_top].index]
