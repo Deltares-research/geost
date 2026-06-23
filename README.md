@@ -14,7 +14,7 @@ The internal Collection object and GeoST accessor rely on [Pandas](https://panda
 GeoST is a work-in-progress and aims to support an increasing number of data sources.
 
 ## Installation (user)
-GeoST is distributed via the Python package index (PyPi) and Conda-forge. In a Python >= 3.11 environment, install the latest stable release in your environment with either [pip](https://pypi.org/project/pip/), [Pixi](https://pixi.prefix.dev/latest/) or [Conda](https://conda.org/):
+GeoST is distributed via the Python package index (PyPi) and Conda-forge. In a Python >= 3.12 environment, install the latest stable release in your environment with either [pip](https://pypi.org/project/pip/), [Pixi](https://pixi.prefix.dev/latest/) or [Conda](https://conda.org/):
 
 ```
 pip install geost
