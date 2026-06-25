@@ -1,8 +1,8 @@
 import warnings
 from functools import reduce
-from typing import NamedTuple
 
 import geopandas as gpd
+import numpy as np
 import pandas as pd
 
 from geost import config
@@ -105,7 +105,7 @@ class ValidationResult:
         if not self.has_errors:
             return df
 
-        df_validated = df.copy()
+        df_validated = df
         if config.validation.FLAG_INVALID:
             df_validated["is_valid"] = ~df_validated.index.isin(self.error_indices)
 
@@ -148,7 +148,7 @@ def coerce_numeric(
     ----------
     obj : pd.DataFrame
         The DataFrame containing the column to coerce.
-    column : str
+    columns : str | list[str]
         The name(s) of the column(s) to coerce.
     validation_result : ValidationResult
         The ValidationResult object to record any validation errors.
@@ -168,30 +168,34 @@ def coerce_numeric(
         If the column cannot be coerced to numeric.
 
     """
-    for column in columns:
-        if not pd.api.types.is_numeric_dtype(obj[column]):
-            obj[column] = pd.to_numeric(obj[column], errors="coerce")
-            if not nullable:
-                isna = obj[column].isna()
-                if isna.any():
-                    errors = obj[isna]
-                    error_nrs = errors[obj.gst._nr].unique().tolist()
-                    warning = f"Column '{column}' must contain only numeric values, but some values could not be coerced. "
-                    validation_result.add(column, warning, error_nrs, errors.index)
+    columns = [columns] if isinstance(columns, str) else columns
 
-        elif pd.api.types.is_numeric_dtype(obj[column]) and not nullable:
+    # Coerce non-numeric columns
+    non_numeric_cols = [
+        col for col in columns if not pd.api.types.is_numeric_dtype(obj[col])
+    ]
+    if non_numeric_cols:
+        obj[non_numeric_cols] = obj[non_numeric_cols].apply(
+            lambda x: pd.to_numeric(x, errors="coerce")
+        )
+
+    # Check for null values if not nullable
+    if not nullable:
+        for column in columns:
             isna = obj[column].isna()
             if isna.any():
                 errors = obj[isna]
                 error_nrs = errors[obj.gst._nr].unique().tolist()
-                warning = f"Column '{column}' must not contain NaN values, but some values are NaN."
+                if pd.api.types.is_numeric_dtype(obj[column]):
+                    warning = f"Column '{column}' must not contain NaN values, but some values are NaN."
+                else:
+                    warning = f"Column '{column}' must contain only numeric values, but some values could not be coerced. "
                 validation_result.add(column, warning, error_nrs, errors.index)
 
     return obj, validation_result
 
 
 def validate_base(
-    obj: pd.DataFrame | gpd.GeoDataFrame,
     column_names: dict,
 ) -> pd.DataFrame | gpd.GeoDataFrame:
     """
@@ -200,8 +204,6 @@ def validate_base(
 
     Parameters
     ----------
-    obj : pd.DataFrame | gpd.GeoDataFrame
-        The DataFrame or GeoDataFrame to validate.
     column_names : dict
         A dictionary containing the names of GeostFrame positional columns.
 
@@ -211,11 +213,13 @@ def validate_base(
         If required columns are missing.
 
     """
-    if column_names["nr"] not in obj.columns:
-        raise ValueError(f"GeostFrame missing required column: '{column_names['nr']}'")
-    if column_names["surface"] not in obj.columns:
+    if column_names["nr"] is None:
         raise ValueError(
-            f"GeostFrame missing required column: '{column_names['surface']}'"
+            "GeostFrame missing required positional column: 'nr' or any of its aliases."
+        )
+    if column_names["surface"] is None:
+        raise ValueError(
+            "GeostFrame missing required column: 'surface' or any of its aliases."
         )
 
 
@@ -341,7 +345,7 @@ def validate_geostframe(
         if (col := positional_columns[name]) is not None
     ]
 
-    validate_base(obj, positional_columns)
+    validate_base(positional_columns)
     validated_obj, validation_result = coerce_numeric(
         obj, numeric_columns, validation_result
     )

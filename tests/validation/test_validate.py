@@ -226,9 +226,8 @@ class TestValidationFunctions:
         assert all(validation_result.errors["y"]["indices"] == [2])
 
     @pytest.mark.unittest
-    def test_validate_base(self, base_df, invalid_base_df, column_names_depth):
-        validate.validate_base(base_df, column_names_depth)
-        validate.validate_base(invalid_base_df, column_names_depth)
+    def test_validate_base(self, column_names_depth):
+        validate.validate_base(column_names_depth)
 
     @pytest.mark.unittest
     def test_validate_top_bottom(

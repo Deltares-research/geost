@@ -99,6 +99,8 @@ myst-nb = "*"
 pooch = "*"
 pre-commit = "*"
 platformdirs = "*"
+lasio = ">=0.32,<0.33"
+pyinstrument = ">=5.1.2,<6"
 
 [tool.pixi.pypi-dependencies]
 geost = { path = ".", editable = true }

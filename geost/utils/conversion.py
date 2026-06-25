@@ -56,7 +56,7 @@ def dataframe_to_geodataframe(
     """
     from shapely import points
 
-    pts = points(df[x_col_label], df[y_col_label])
+    pts = points(df[x_col_label].astype(float), df[y_col_label].astype(float))
     gdf = gpd.GeoDataFrame(df, geometry=pts, crs=crs)
     return gdf
 

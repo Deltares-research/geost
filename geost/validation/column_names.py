@@ -10,17 +10,30 @@ if TYPE_CHECKING:
 
 
 DEFAULT_POSITIONAL_COLUMNS = {
-    "nr": {"nr", "id", "bro_id", "nitg_nr", "nitg", "boorp"},
+    "nr": {
+        "nr",
+        "id",
+        "bro_id",
+        "nitg_nr",
+        "nitg",
+        "boorp",
+        "well",
+        "well:1",
+        "well:2",
+    },
     "surface": {
         "surface",
         "maaiveld",
         "mv",
+        "z",
         "height_nap",
         "surface_nap",
         "height_nap_corr",
+        "ground_level",
     },
     "end": {
         "end",
+        "stop",
         "einddiepte",
         "einddiepte_nap",
         "end_depth",
@@ -30,6 +43,7 @@ DEFAULT_POSITIONAL_COLUMNS = {
     "x_coordinate": {
         "x",
         "x-coord",
+        "xcoord",
         "longitude",
         "lon",
         "easting",
@@ -40,6 +54,7 @@ DEFAULT_POSITIONAL_COLUMNS = {
     "y_coordinate": {
         "y",
         "y-coord",
+        "ycoord",
         "latitude",
         "lat",
         "northing",
