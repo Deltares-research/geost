@@ -9,8 +9,8 @@ UNITS = {
         "cm": 10,
         "dm": 100,
         "m": 1000,
-        "ohmm": 1000,  # idiots making well logs with ohm*m as unit for depth
-        "pu": 1000,  # pu = 1 meter denk ik ofzo
+        # "ohmm": 1000,  # idiots making well logs with ohm*m as unit for depth
+        # "pu": 1000,  # pu = 1 meter denk ik ofzo
         "f": 304.8,
         "ft": 304.8,
         "feet": 304.8,
@@ -74,6 +74,13 @@ UNITS = {
         "week": 604800,
         "yr": 31536000,
         "year": 31536000,
+    },
+    # Pressure units, base = 1 Pa
+    "pressure": {
+        "pa": 1,
+        "kpa": 1000,
+        "mpa": 1000000,
+        "gpa": 1000000000,
     },
     # Gamma ray units, base = 1 API
     "gamma": {

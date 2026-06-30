@@ -33,7 +33,6 @@ DEFAULT_POSITIONAL_COLUMNS = {
     },
     "end": {
         "end",
-        "stop",
         "einddiepte",
         "einddiepte_nap",
         "end_depth",
