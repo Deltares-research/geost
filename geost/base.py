@@ -445,13 +445,26 @@ class Collection(AbstractBase):
         self.data = data
         self.set_vertical_datum(vertical_datum)
 
-    def reset_header(self):
+    def reset_header(self, hard: bool = False):
         """
         Refresh the header based on the loaded data in case the header got messed up.
+
+        Parameters
+        ----------
+        hard : bool, optional
+            If True, the header will be completely reset based on the data. If False, the
+            header will be filtered to only include surveys that are present in the data.
+            Soft reset retains any extra header columns that are not present in the data.
+            The default is False.
         """
-        self.header = self.data.gst.to_header(
-            crs=self.crs, include_columns=list(self.header.columns)
-        )
+        if hard:
+            self.header = self.data.gst.to_header(
+                crs=self.crs, include_columns=list(self.header.columns)
+            )
+        else:
+            self.header = self.header[
+                self.header[self._nr].isin(self.data[self._nr].drop_duplicates().values)
+            ]
 
     def check_header_to_data_alignment(self):
         """

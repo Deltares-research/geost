@@ -18,6 +18,7 @@ from shapely.geometry import LineString, Point, Polygon
 from geost import config
 from geost._warnings import AlignmentWarning
 from geost.base import Collection
+from tests.conftest import borehole_collection
 
 
 @pytest.fixture
@@ -274,7 +275,17 @@ class TestCollection:
 
     @pytest.mark.unittest
     def test_reset_header(self, borehole_collection):
-        borehole_collection.reset_header()
+        # Add extra column to header
+        borehole_collection.header["extra_col"] = ["A", "B", "C", "D", "E"]
+
+        # Test soft reset
+        borehole_collection.reset_header(hard=False)
+        assert "extra_col" in borehole_collection.header.columns
+        assert borehole_collection.crs == 28992
+
+        # Test hard reset
+        borehole_collection.reset_header(hard=True)
+        assert "extra_col" not in borehole_collection.header.columns
         assert borehole_collection.crs == 28992
 
     @pytest.mark.unittest
