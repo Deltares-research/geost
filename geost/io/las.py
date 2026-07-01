@@ -97,7 +97,10 @@ def standardize_well_log_las(
                         headeritem.mnemonic = standard_mnemonic
                         checked_mnemonics.add(standard_mnemonic)
                         # Convert header item value to standard unit
-                        if headeritem.unit != "":
+                        if (
+                            headeritem.unit != ""
+                            and standard_mnemonic in WELL_LOG_STANDARD_UNITS["well"]
+                        ):
                             standard_unit = WELL_LOG_STANDARD_UNITS["well"][
                                 standard_mnemonic.lower()
                             ]
@@ -121,7 +124,10 @@ def standardize_well_log_las(
                 try:
                     curve.mnemonic = _standard_names("curve")[curve.mnemonic]
                     # Convert curve item data to standard unit
-                    if curve.unit != "":
+                    if (
+                        curve.unit != ""
+                        and curve.mnemonic in WELL_LOG_STANDARD_UNITS["curve"]
+                    ):
                         standard_unit = WELL_LOG_STANDARD_UNITS["curve"][
                             curve.mnemonic.lower()
                         ]

@@ -124,6 +124,31 @@ def _all_units() -> dict[str, float]:
     return all_units
 
 
+@cache
+def _get_unit_category(unit: str) -> str:
+    """
+    Return the category of a given unit.
+
+    Parameters
+    ----------
+    unit : str
+        The unit to find the category for.
+
+    Returns
+    -------
+    str
+        The category of the unit.
+
+    Raises
+    ------
+    ValueError
+        If the unit is not found in any category.
+    """
+    for category, units in UNITS.items():
+        if unit is not None and unit in units:
+            return category
+
+
 @lru_cache(maxsize=128)
 def parse_unit_expression(expr: str):
     """
@@ -182,7 +207,9 @@ def calculate_factor(from_unit: str, to_unit: str) -> float:
     Raises
     ------
     ValueError
-        If the unit expressions are incompatible (one is division and the other is multiplication).
+        If the from and to unit expressions cannot be converted into each other, for
+        example: if the units are not in the same category such as m/s (distance/time)
+        and m2/s (area/time).
 
     Examples
     --------
@@ -194,24 +221,44 @@ def calculate_factor(from_unit: str, to_unit: str) -> float:
     0.001
     """
     all_units = _all_units()
-    from_unit = parse_unit_expression(from_unit)
-    to_unit = parse_unit_expression(to_unit)
+    from_unit_p = parse_unit_expression(from_unit)
+    to_unit_p = parse_unit_expression(to_unit)
+    cat_from_left = _get_unit_category(from_unit_p["left"])
+    cat_to_left = _get_unit_category(to_unit_p["left"])
+    cat_from_right = _get_unit_category(from_unit_p["right"])
+    cat_to_right = _get_unit_category(to_unit_p["right"])
 
-    if from_unit["operator"] is None and to_unit["operator"] is None:
-        return all_units[from_unit["left"]] / all_units[to_unit["left"]]
+    if from_unit_p["operator"] is None and to_unit_p["operator"] is None:
+        if cat_from_left != cat_to_left:
+            raise ValueError(
+                f"Incompatible unit expressions: '{from_unit}' and '{to_unit}' are not in the same category."
+            )
+        else:
+            return all_units[from_unit_p["left"]] / all_units[to_unit_p["left"]]
 
     else:
-        if from_unit["operator"] in DIV_STRS and to_unit["operator"] in DIV_STRS:
-            op = operator.truediv
-        elif from_unit["operator"] in MULT_STRS and to_unit["operator"] in MULT_STRS:
-            op = operator.mul
-        else:
-            return 1
+        if cat_from_left != cat_to_left or cat_from_right != cat_to_right:
             raise ValueError(
-                "Incompatible unit expressions. Both must be either division or multiplication."
+                f"Incompatible unit expressions: '{from_unit}' and '{to_unit}' are not in the same category."
             )
+        else:
+            if (
+                from_unit_p["operator"] in DIV_STRS
+                and to_unit_p["operator"] in DIV_STRS
+            ):
+                op = operator.truediv
+            elif (
+                from_unit_p["operator"] in MULT_STRS
+                and to_unit_p["operator"] in MULT_STRS
+            ):
+                op = operator.mul
+            else:
+                return 1
+                raise ValueError(
+                    "Incompatible unit expressions. Both must be either division or multiplication."
+                )
 
-        return op(
-            all_units[from_unit["left"]] / all_units[to_unit["left"]],
-            all_units[from_unit["right"]] / all_units[to_unit["right"]],
-        )
+            return op(
+                all_units[from_unit_p["left"]] / all_units[to_unit_p["left"]],
+                all_units[from_unit_p["right"]] / all_units[to_unit_p["right"]],
+            )
