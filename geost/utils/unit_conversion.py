@@ -62,6 +62,13 @@ UNITS = {
         "km3": 1000000000000000,
         "km^3": 1000000000000000,
     },
+    # Weight units, base = 1 mg
+    "weight": {
+        "mg": 1,
+        "g": 1000,
+        "kg": 1000000,
+        "t": 1000000000,
+    },
     # Time units, base = 1 s
     "time": {
         "s": 1,
@@ -183,6 +190,10 @@ def parse_unit_expression(expr: str):
                 "right": right.strip(),
                 "operator": op,
             }
+
+    # TODO if expr is not in all_units and no operator was found, try to figure out with
+    # regex if a unit is composed of two parts that are in all_units, for example ohmm
+    # should be interpreted as ohm*m.
 
     return {"left": expr, "right": None, "operator": None}
 

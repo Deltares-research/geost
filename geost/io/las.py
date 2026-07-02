@@ -9,7 +9,7 @@ import geost
 from geost.utils.unit_conversion import calculate_factor
 
 WELL_LOG_STANDARD_NAMES = {
-    "curve": {
+    "Curves": {
         "depth": ["DEPTH", "DEPT"],
         "gamma": ["GAMMA", "GAM(NAT)", "GR"],
         "caliper": [
@@ -19,27 +19,33 @@ WELL_LOG_STANDARD_NAMES = {
         "resistivity": ["RESISTIVITY", "RES", "RT"],
         "speed": ["SPEED", "SP"],
     },
-    "well": {
+    "Well": {
         "nr": ["WELL", "WELL:1", "WELL:2", "SITE_WELL_NAME", "HOLE_NAME"],
-        "x": ["X", "XCOORD", "EASTING"],
-        "y": ["Y", "YCOORD", "NORTHING"],
+        "x": ["X", "XCOORD", "EASTING", "LOCX"],
+        "y": ["Y", "YCOORD", "NORTHING", "LOCY"],
         "surface": ["EGL", "Z", "EDF", "GROUND_LEVEL"],
         "strt": ["STRT", "START"],
         "stop": ["STOP"],
         "step": ["STEP"],
     },
+    "Parameter": {
+        "x": ["X", "XCOORD", "EASTING", "LOCX"],
+        "y": ["Y", "YCOORD", "NORTHING", "LOCY"],
+        "casb": ["CASB", "CASING_BOREHOLE"],
+    },
 }
 
 WELL_LOG_STANDARD_UNITS = {
-    "well": {
+    "Well": {
         "surface": "m",
         "strt": "m",
         "stop": "m",
         "step": "m",
     },
-    "curve": {
+    "Curves": {
         "depth": "m",
         "gamma": "gapi",
+        "gamma_raw": "cps",
         "caliper": "mm",
         "resistivity": "ohm.m",
         "speed": "m/min",
@@ -50,7 +56,7 @@ NULL_POLICY = [("-999999.0", "-999.25", "-999999.25", "-999.0", "-9999")]
 
 
 @cache
-def _standard_names(category: Literal["curve", "well"]) -> dict:
+def _standard_names(category: Literal["Well", "Curves", "Parameter"]) -> dict:
     """Return a dictionary mapping well log curve aliases to their standard names."""
     rename_map = {
         alias: standard
@@ -59,6 +65,73 @@ def _standard_names(category: Literal["curve", "well"]) -> dict:
     }
     rename_map.update({k: k for k in WELL_LOG_STANDARD_NAMES[category].keys()})
     return rename_map
+
+
+def _standardize_las_section(
+    las: lasio.LASFile,
+    section: Literal["Well", "Curves", "Parameter"],
+    errors: Literal["raise", "warn", "ignore"] = "raise",
+) -> None:
+    """
+    Standardize the mnemonics and units in a given section of a LAS file.
+
+    Parameters
+    ----------
+    las : lasio.LASFile
+        The LAS file to standardize.
+    section : str
+        The section to standardize ('Well', 'Curves', or 'Parameter').
+    errors : {'raise', 'warn', 'ignore'}, optional
+                How to handle errors during standardization. 'raise' will raise an exception,
+        'warn' will print a warning, and 'ignore' will silently ignore errors. Default
+        is 'raise'.
+
+    Raises
+    ------
+    ValueError
+        If the section is not 'Well', 'Curves', or 'Parameter'.
+    """
+    if section not in ["Well", "Curves", "Parameter"]:
+        raise ValueError("Section must be 'Well', 'Curves', or 'Parameter'.")
+
+    checked_mnemonics = set()
+
+    for item in las.sections[section]:
+        if item.mnemonic in _standard_names(section):
+            try:
+                if (
+                    standard_name := _standard_names(section)[item.mnemonic]
+                ) not in checked_mnemonics:
+                    item.mnemonic = standard_name
+                    checked_mnemonics.add(standard_name)
+                    # Convert units to standard units if applicable
+                    if (
+                        item.unit != ""
+                        and standard_name in WELL_LOG_STANDARD_UNITS[section]
+                    ):
+                        standard_unit = WELL_LOG_STANDARD_UNITS[section][standard_name]
+                        if section == "Well" or section == "Parameter":
+                            # Convert single header value
+                            item.value = float(item.value) * calculate_factor(
+                                item.unit.lower(), standard_unit
+                            )
+                        elif section == "Curves":
+                            # Convert the array of data values
+                            item.data = item.data * calculate_factor(
+                                item.unit.lower(), standard_unit
+                            )
+                        item.unit = standard_unit
+            except Exception as e:
+                if errors == "raise":
+                    raise e
+                elif errors == "warn":
+                    print(
+                        UserWarning(
+                            f"Warning: Could not standardize {section} '{item.mnemonic}': {e}"
+                        )
+                    )
+                elif errors == "ignore":
+                    continue
 
 
 def standardize_well_log_las(
@@ -86,64 +159,9 @@ def standardize_well_log_las(
         las_objects = [las_objects]
 
     for las in las_objects:
-        checked_mnemonics = set()
-
-        # Standardize well header mnemonics and units
-        for headeritem in las.well:
-            if headeritem.mnemonic in _standard_names("well"):
-                standard_mnemonic = _standard_names("well")[headeritem.mnemonic]
-                if standard_mnemonic not in checked_mnemonics:
-                    try:
-                        headeritem.mnemonic = standard_mnemonic
-                        checked_mnemonics.add(standard_mnemonic)
-                        # Convert header item value to standard unit
-                        if (
-                            headeritem.unit != ""
-                            and standard_mnemonic in WELL_LOG_STANDARD_UNITS["well"]
-                        ):
-                            standard_unit = WELL_LOG_STANDARD_UNITS["well"][
-                                standard_mnemonic.lower()
-                            ]
-                            headeritem.value = float(
-                                headeritem.value
-                            ) * calculate_factor(headeritem.unit.lower(), standard_unit)
-                            headeritem.unit = standard_unit
-                    except Exception as e:
-                        if errors == "raise":
-                            raise e
-                        elif errors == "warn":
-                            print(
-                                UserWarning(
-                                    f"Warning: Could not standardize header '{headeritem.mnemonic}': {e}"
-                                )
-                            )
-
-        # Standardize curve mnemonics and units
-        for curve in las.curves:
-            if curve.mnemonic in _standard_names("curve"):
-                try:
-                    curve.mnemonic = _standard_names("curve")[curve.mnemonic]
-                    # Convert curve item data to standard unit
-                    if (
-                        curve.unit != ""
-                        and curve.mnemonic in WELL_LOG_STANDARD_UNITS["curve"]
-                    ):
-                        standard_unit = WELL_LOG_STANDARD_UNITS["curve"][
-                            curve.mnemonic.lower()
-                        ]
-                        curve.data = curve.data * calculate_factor(
-                            curve.unit.lower(), standard_unit
-                        )
-                        curve.unit = standard_unit
-                except Exception as e:
-                    if errors == "raise":
-                        raise e
-                    elif errors == "warn":
-                        print(
-                            UserWarning(
-                                f"Warning: Could not standardize curve '{curve.mnemonic}': {e}"
-                            )
-                        )
+        _standardize_las_section(las, "Well", errors=errors)
+        _standardize_las_section(las, "Curves", errors=errors)
+        _standardize_las_section(las, "Parameter", errors=errors)
 
     return las_objects[0] if len(las_objects) == 1 else las_objects
 
@@ -177,7 +195,10 @@ def well_logs_to_collection(
     las_dataframes = []
     for las in las_objects:
         las_header = pd.DataFrame(
-            {header_item.mnemonic: [str(header_item.value)] for header_item in las.well}
+            {
+                header_item.mnemonic: [str(header_item.value)]
+                for header_item in las.well + las.params
+            }
         )
         las_dataframe = las.df().reset_index()
 
