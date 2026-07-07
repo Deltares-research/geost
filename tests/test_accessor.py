@@ -1018,6 +1018,31 @@ class TestGeostFrame:
         assert_array_equal(result, [0.0])
 
     @pytest.mark.unittest
+    def test_compute_discretized_fractions(self, borehole_data):
+        discretization = np.array([0.5, 1.0, 2.0, 4.0])
+        subset = borehole_data.gst.select_by_values("nr", ["A", "B"])
+        result = subset.gst.compute_discretized_fractions("lith", discretization)
+        assert isinstance(result, pd.DataFrame)
+        assert_array_almost_equal(
+            result["top"], [0.0, 0.5, 1.0, 2.0, 0.0, 0.5, 1.0, 2.0]
+        )
+        assert_array_almost_equal(
+            result["bottom"], [0.5, 1.0, 2.0, 4.0, 0.5, 1.0, 2.0, 4.0]
+        )
+        assert_array_almost_equal(
+            result["dz"], [0.5, 0.5, 1.0, 2.0, 0.5, 0.5, 1.0, 2.0]
+        )
+        assert_array_almost_equal(
+            result["K"], [1.0, 1.0, 0.5, 0.15, 1.0, 1.0, 0.2, 0.4]
+        )
+        assert_array_almost_equal(
+            result["V"], [np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, 0.8, 0.55]
+        )
+        assert_array_almost_equal(
+            result["Z"], [np.nan, np.nan, 0.5, 0.85, np.nan, np.nan, np.nan, np.nan]
+        )
+
+    @pytest.mark.unittest
     def test_to_pyvista_cylinders(self, borehole_data, cpt_data):
         vtk_object = borehole_data.gst.to_pyvista_cylinders("lith")
         assert isinstance(vtk_object, pv.MultiBlock)

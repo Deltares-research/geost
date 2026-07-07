@@ -23,6 +23,7 @@ from geost.validation.method_checks import (
 )
 
 if TYPE_CHECKING:
+    import numpy as np
     from shapely.geometry.base import BaseGeometry
 
 
@@ -1111,6 +1112,7 @@ class Collection(AbstractBase):
             vertical_datum=self.vertical_datum,
         )
 
+    @_requires_depth
     def get_cumulative_thickness(
         self, column: str, values: str | list[str], include_in_header: bool = False
     ) -> pd.Series | None:
@@ -1169,6 +1171,7 @@ class Collection(AbstractBase):
         else:
             return thickness
 
+    @_requires_depth
     def get_layer_top(
         self,
         column: str,
@@ -1239,6 +1242,7 @@ class Collection(AbstractBase):
         else:
             return top
 
+    @_requires_depth
     def get_layer_base(
         self,
         column: str,
@@ -1295,6 +1299,18 @@ class Collection(AbstractBase):
             self.header = self.header.merge(base, on=self._nr, how="left")
         else:
             return base
+
+    @_requires_depth
+    def compute_discretized_fractions(
+        self,
+        column: str,
+        discretization: np.ndarray,
+        bins: np.ndarray = None,
+        bin_labels: list[str] = None,
+    ):
+        return self.data.gst.compute_discretized_fractions(
+            column, discretization, bins=bins, bin_labels=bin_labels
+        )
 
     def to_geoparquet(self, outfile: str | Path, **kwargs):
         """
