@@ -546,6 +546,8 @@ class Collection(AbstractBase):
         self,
         points: str | Path | gpd.GeoDataFrame | GeometryType,
         max_distance: float | int,
+        n_points: int = None,
+        return_pairs: bool = False,
         invert: bool = False,
     ):
         """
@@ -559,6 +561,11 @@ class Collection(AbstractBase):
             MultiPoint or list containing Point objects.
         max_distance : float | int
             Maximum distance from the selection points.
+        n_points : int, optional
+            Number of nearest points to select, by default None, which means that all points
+            within the buffer are selected.
+        return_pairs : bool, optional
+            Return a dataframe with the pairs of selected points, by default False.
         invert : bool, optional
             Invert the selection, selects all data that lie outside the specified maximum
             distance from the given point geometries. The default is False.
@@ -568,20 +575,35 @@ class Collection(AbstractBase):
         :class:`~geost.base.Collection`
             New Collection instance containing only the surveys that are located within
             the specified maximum distance from the given point geometries.
+        np.ndarray, optional
+            Array containing the pairs of selected points, only returned if `return_pairs` is True.
+            The array has shape (n_pairs, 2), where each row contains the indices of the selected points
+            in the original `gdf` (data points) in position 0 and `point_gdf` (query points) in position 1.
 
         """
         selected_header = self.header.gst.select_with_points(
-            points, max_distance, invert=invert
+            points,
+            max_distance,
+            n_points=n_points,
+            return_pairs=return_pairs,
+            invert=invert,
         )
+        if return_pairs:
+            selected_header, pairs = selected_header[0], selected_header[1]
+
         selected_data = self.data.gst.select_by_values(
             self._nr, selected_header[self._nr].unique()
         )
-        return self.__class__(
+        collection = self.__class__(
             selected_data,
             header=selected_header,
             has_inclined=self.has_inclined,
             vertical_datum=self.vertical_datum,
         )
+
+        if return_pairs:
+            return collection, pairs
+        return collection
 
     @_requires_geometry
     def select_with_lines(

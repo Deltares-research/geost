@@ -475,13 +475,27 @@ class TestGeostFrame:
             geometry=gpd.points_from_xy([1, 4, 1, 4], [1, 4, 4, 1]), crs=28992
         )
         max_distance = 1.1
-        selected = point_header.gst.select_with_points(selection_points, max_distance)
+        selected, pairs = point_header.gst.select_with_points(
+            selection_points, max_distance, return_pairs=True
+        )
         assert len(selected) == 16
+        assert pairs.shape == (16, 2)
 
         inverted_selection = point_header.gst.select_with_points(
-            selection_points, max_distance, invert=True
+            selection_points, max_distance, invert=True, return_pairs=False
         )
         assert len(inverted_selection) == 9
+
+        # Select only the two nearest points
+        selected = point_header.gst.select_with_points(
+            selection_points, max_distance, n_points=2
+        )
+        assert len(selected) == 8
+
+        inverted_selection = point_header.gst.select_with_points(
+            selection_points, max_distance, invert=True, n_points=2
+        )
+        assert len(inverted_selection) == 17
 
         # Select with Shapely object
         selected = point_header.gst.select_with_points(

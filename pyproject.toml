@@ -36,6 +36,7 @@ classifiers = [
 requires-python = ">=3.12,<3.15"
 dependencies = [
     "numpy",
+    "scipy",
     "pandas",
     "pyarrow",
     "lxml",
@@ -72,6 +73,7 @@ platforms = ["win-64", "linux-64", "osx-64", "osx-arm64"]
 [tool.pixi.dependencies]
 python = ">=3.13"
 numpy = "*"
+scipy = "*"
 pandas = "*"
 pyarrow = "*"
 lxml = "*"
@@ -99,6 +101,7 @@ myst-nb = "*"
 pooch = "*"
 pre-commit = "*"
 platformdirs = "*"
+pyinstrument = "*"
 
 [tool.pixi.pypi-dependencies]
 geost = { path = ".", editable = true }

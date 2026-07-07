@@ -595,6 +595,8 @@ class GeostFrame(AbstractBase):
         self,
         points: str | Path | gpd.GeoDataFrame | GeometryType,
         max_distance: float | int,
+        n_points: int = None,
+        return_pairs: bool = False,
         invert: bool = False,
     ) -> gpd.GeoDataFrame:
         """
@@ -608,6 +610,11 @@ class GeostFrame(AbstractBase):
             MultiPoint or list containing Point objects.
         max_distance : float | int
             Maximum distance from the selection points.
+        n_points : int, optional
+            Number of nearest points to select, by default None, which means that all points
+            within the buffer are selected.
+        return_pairs : bool, optional
+            Return a dataframe with the pairs of selected points, by default False.
         invert : bool, optional
             Invert the selection, by default False.
 
@@ -615,11 +622,22 @@ class GeostFrame(AbstractBase):
         -------
         gpd.GeoDataFrame
             GeoDataFrame instance containing only the selected geometries.
+        np.ndarray, optional
+            Array containing the pairs of selected points, only returned if `return_pairs` is True.
+            The array has shape (n_pairs, 2), where each row contains the indices of the selected points
+            in the original `gdf` (data points) in position 0 and `point_gdf` (query points) in position 1.
 
         """
         selection = spatial.select_points_near_points(
-            self._obj, points, max_distance, invert=invert
+            self._obj,
+            points,
+            max_distance,
+            n_points=n_points,
+            return_pairs=return_pairs,
+            invert=invert,
         )
+        if return_pairs:
+            return selection[0], selection[1]
         return selection
 
     @_requires_geometry

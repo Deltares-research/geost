@@ -99,6 +99,8 @@ def select_points_near_points(
     gdf: str | Path | gpd.GeoDataFrame,
     point_gdf: str | Path | gpd.GeoDataFrame,
     buffer: float | int,
+    n_points: int = None,
+    return_pairs: bool = False,
     invert: bool = False,
 ) -> gpd.GeoDataFrame:
     """
@@ -112,6 +114,11 @@ def select_points_near_points(
         Geodataframe (or file that can be parsed to a geodataframe) to select with.
     buffer : float | int
         Buffer distance for selection geometries.
+    n_points : int, optional
+        Number of nearest points to select, by default None, which means that all points
+        within the buffer are selected.
+    return_pairs : bool, optional
+        Return a dataframe with the pairs of selected points, by default False.
     invert : bool, optional
         Invert the selection, by default False.
 
@@ -119,7 +126,13 @@ def select_points_near_points(
     -------
     gpd.GeoDataFrame
         Geodataframe containing only selected geometries.
+    np.ndarray, optional
+        Array containing the pairs of selected points, only returned if `return_pairs` is True.
+        The array has shape (n_pairs, 2), where each row contains the indices of the selected points
+        in the original `gdf` (data points) in position 0 and `point_gdf` (query points) in position 1.
     """
+    from scipy.spatial import KDTree
+
     # Instance checks and coerce to geodataframe if required
     gdf = conversion.check_geometry_instance(gdf)
     point_gdf = conversion.check_geometry_instance(point_gdf)
@@ -130,16 +143,36 @@ def select_points_near_points(
         [point_gdf["geometry"].x, point_gdf["geometry"].y]
     ).transpose()
 
-    bool_array = np.full(len(data_points), False)
-    for query_point in query_points:
-        distance = np.sqrt(
-            (query_point[0] - data_points[:, 0]) ** 2
-            + (query_point[1] - data_points[:, 1]) ** 2
+    data_tree = KDTree(data_points)
+
+    if n_points is None:
+        index = data_tree.query_ball_point(query_points, buffer, workers=-1)
+        selection_index = np.array([i for sublist in index for i in sublist])
+
+    elif isinstance(n_points, int):
+        distances, index = data_tree.query(
+            query_points, k=n_points, distance_upper_bound=buffer, workers=-1
         )
-        bool_array += distance < buffer
+        selection_index = index[np.isfinite(distances)]
+
+    if return_pairs:
+        pairs = np.array(
+            [
+                (i, j)
+                for i, sublist in enumerate(index)
+                for j in sublist
+                if j != data_tree.n
+            ]
+        )
+
     if invert:
-        bool_array = np.invert(bool_array)
-    gdf_selected = gdf[bool_array]
+        gdf_reindexed = gdf.copy().reset_index(drop=True)
+        gdf_selected = gdf.iloc[~gdf_reindexed.index.isin(selection_index)]
+    else:
+        gdf_selected = gdf.iloc[selection_index]
+
+    if return_pairs:
+        return gdf_selected, pairs
     return gdf_selected
 
 
