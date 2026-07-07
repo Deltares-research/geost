@@ -3,7 +3,7 @@ from __future__ import annotations
 from collections.abc import Iterable
 from functools import partial, singledispatchmethod
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Iterable
+from typing import TYPE_CHECKING, Any, Iterable, Literal
 
 import geopandas as gpd
 import numpy as np
@@ -596,7 +596,6 @@ class GeostFrame(AbstractBase):
         points: str | Path | gpd.GeoDataFrame | GeometryType,
         max_distance: float | int,
         n_points: int = None,
-        return_pairs: bool = False,
         invert: bool = False,
     ) -> gpd.GeoDataFrame:
         """
@@ -613,8 +612,6 @@ class GeostFrame(AbstractBase):
         n_points : int, optional
             Number of nearest points to select, by default None, which means that all points
             within the buffer are selected.
-        return_pairs : bool, optional
-            Return a dataframe with the pairs of selected points, by default False.
         invert : bool, optional
             Invert the selection, by default False.
 
@@ -622,10 +619,6 @@ class GeostFrame(AbstractBase):
         -------
         gpd.GeoDataFrame
             GeoDataFrame instance containing only the selected geometries.
-        np.ndarray, optional
-            Array containing the pairs of selected points, only returned if `return_pairs` is True.
-            The array has shape (n_pairs, 2), where each row contains the indices of the selected points
-            in the original `gdf` (data points) in position 0 and `point_gdf` (query points) in position 1.
 
         """
         selection = spatial.select_points_near_points(
@@ -633,11 +626,8 @@ class GeostFrame(AbstractBase):
             points,
             max_distance,
             n_points=n_points,
-            return_pairs=return_pairs,
             invert=invert,
         )
-        if return_pairs:
-            return selection[0], selection[1]
         return selection
 
     @_requires_geometry
@@ -705,6 +695,63 @@ class GeostFrame(AbstractBase):
             self._obj, polygons, buffer, invert=invert
         )
         return selection
+
+    @_requires_geometry
+    def find_point_pairs(
+        self,
+        points: str | Path | gpd.GeoDataFrame | GeometryType,
+        max_distance: float | int,
+        direction: Literal["data_to_query", "query_to_data"] = "data_to_query",
+    ):
+        """
+        Find pairs of points between the data and the given query points that are within
+        a specified maximum distance.
+
+        Parameters
+        ----------
+        points : str | Path | gpd.GeoDataFrame | GeometryType
+            Any type of point geometries that can be used for the selection: GeoDataFrame
+            containing points or filepath to a shapefile like file, or Shapely Point,
+            MultiPoint or list containing Point objects.
+        max_distance : float | int
+            Maximum distance between points to be considered a pair.
+        direction: Literal["data_to_query", "query_to_data"], optional
+            Direction of the returned pairs. If "data_to_query", the first element of each pair
+            will be the index of the point in the data, and the second element will be the
+            indices of the points in the query points. If "query_to_data", the direction will be
+            reversed. The default is "data_to_query".
+
+        Returns
+        -------
+        list
+            List of pairs of points that are within the specified maximum distance.
+
+        """
+        from scipy.spatial import KDTree
+
+        points = conversion.check_geometry_instance(points)
+
+        data_tree = KDTree(
+            np.array([self._obj["geometry"].x, self._obj["geometry"].y]).transpose()
+        )
+        query_tree = KDTree(
+            np.array([points["geometry"].x, points["geometry"].y]).transpose()
+        )
+
+        if direction == "data_to_query":
+            pairs = data_tree.query_ball_tree(query_tree, max_distance)
+            pairs = [[i, pair] for pair, i in zip(pairs, self._obj.index) if pair]
+        elif direction == "query_to_data":
+            pairs = query_tree.query_ball_tree(data_tree, max_distance)
+            pairs = [[i, pair] for pair, i in zip(pairs, points.index) if pair]
+
+        df = pd.DataFrame(
+            data=[[values] for _, values in pairs],
+            index=[idx for idx, _ in pairs],
+            columns=["points_in_range"],
+        )
+
+        return df
 
     @_requires_depth
     def determine_end_depth(self) -> pd.Series:

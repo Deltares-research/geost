@@ -117,8 +117,6 @@ def select_points_near_points(
     n_points : int, optional
         Number of nearest points to select, by default None, which means that all points
         within the buffer are selected.
-    return_pairs : bool, optional
-        Return a dataframe with the pairs of selected points, by default False.
     invert : bool, optional
         Invert the selection, by default False.
 
@@ -126,10 +124,6 @@ def select_points_near_points(
     -------
     gpd.GeoDataFrame
         Geodataframe containing only selected geometries.
-    np.ndarray, optional
-        Array containing the pairs of selected points, only returned if `return_pairs` is True.
-        The array has shape (n_pairs, 2), where each row contains the indices of the selected points
-        in the original `gdf` (data points) in position 0 and `point_gdf` (query points) in position 1.
     """
     from scipy.spatial import KDTree
 
@@ -155,24 +149,12 @@ def select_points_near_points(
         )
         selection_index = index[np.isfinite(distances)]
 
-    if return_pairs:
-        pairs = np.array(
-            [
-                (i, j)
-                for i, sublist in enumerate(index)
-                for j in sublist
-                if j != data_tree.n
-            ]
-        )
-
     if invert:
         gdf_reindexed = gdf.copy().reset_index(drop=True)
         gdf_selected = gdf.iloc[~gdf_reindexed.index.isin(selection_index)]
     else:
         gdf_selected = gdf.iloc[selection_index]
 
-    if return_pairs:
-        return gdf_selected, pairs
     return gdf_selected
 
 
