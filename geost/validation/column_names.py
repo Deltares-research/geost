@@ -18,6 +18,7 @@ DEFAULT_POSITIONAL_COLUMNS = {
         "height_nap",
         "surface_nap",
         "height_nap_corr",
+        "elevation",
     },
     "end": {
         "end",
@@ -47,7 +48,14 @@ DEFAULT_POSITIONAL_COLUMNS = {
         "y_rd_crd",
         "y_calc_crd",
     },
-    "top": {"top", "tv_top_nap", "top_diepte", "top_depth", "upperboundary"},
+    "top": {
+        "top",
+        "tv_top_nap",
+        "top_diepte",
+        "top_depth",
+        "upperboundary",
+        "dep_top",
+    },
     "depth": {
         "depth",
         "bottom",
@@ -55,6 +63,7 @@ DEFAULT_POSITIONAL_COLUMNS = {
         "basis_diepte",
         "bottom_depth",
         "lowerboundary",
+        "dep_bot",
     },
 }
 
