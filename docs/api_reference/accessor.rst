@@ -95,6 +95,7 @@ Spatial
    GeostFrame.select_with_points
    GeostFrame.select_within_bbox
    GeostFrame.select_within_polygons
+   GeostFrame.find_point_pairs
    GeostFrame.spatial_join
 
 

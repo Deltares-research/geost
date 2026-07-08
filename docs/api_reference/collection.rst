@@ -80,6 +80,7 @@ Spatial
    Collection.select_with_points
    Collection.select_within_bbox
    Collection.select_within_polygons
+   Collection.find_point_pairs
    Collection.spatial_join
 
 
