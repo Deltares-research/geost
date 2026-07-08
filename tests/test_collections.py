@@ -369,6 +369,21 @@ class TestCollection:
             borehole_collection.select_within_polygons(selection_gdf, 0.6)
 
     @pytest.mark.unittest
+    def test_find_point_pairs(self, borehole_collection):
+        selection_points = [Point(1, 1), Point(4, 4), Point(1, 4), Point(4, 1)]
+        selection_gdf = gpd.GeoDataFrame(
+            {"id": [0, 1, 2, 3]}, geometry=selection_points
+        )
+
+        # Return variant
+        pairs = borehole_collection.find_point_pairs(selection_gdf, 1.1)
+        assert len(pairs) == 3
+
+        # In-Place variant
+        borehole_collection.find_point_pairs(selection_gdf, 1.1, include_in_header=True)
+        assert "points_in_range" in borehole_collection.header.columns
+
+    @pytest.mark.unittest
     def test_spatial_join(self, borehole_collection):
         label_gdf = gpd.GeoDataFrame(
             {"id": [1]}, geometry=[Polygon(((2, 1), (5, 4), (4, 5), (1, 4)))], crs=28992

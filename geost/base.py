@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import warnings
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Iterable
+from typing import TYPE_CHECKING, Any, Iterable, Literal
 
 import geopandas as gpd
 import pandas as pd
@@ -672,6 +672,49 @@ class Collection(AbstractBase):
             has_inclined=self.has_inclined,
             vertical_datum=self.vertical_datum,
         )
+
+    @_requires_geometry
+    def find_point_pairs(
+        self,
+        points: str | Path | gpd.GeoDataFrame | GeometryType,
+        max_distance: float | int,
+        direction: Literal["data_to_query", "query_to_data"] = "data_to_query",
+        include_in_header: bool = False,
+    ):
+        """
+        Find pairs of points between the data and the given query points that are within
+        a specified maximum distance.
+
+        Parameters
+        ----------
+        points : str | Path | gpd.GeoDataFrame | GeometryType
+            Any type of point geometries that can be used for the selection: GeoDataFrame
+            containing points or filepath to a shapefile like file, or Shapely Point,
+            MultiPoint or list containing Point objects.
+        max_distance : float | int
+            Maximum distance between points to be considered a pair.
+        direction: Literal["data_to_query", "query_to_data"], optional
+            Direction of the returned pairs. If "data_to_query", the first element of each pair
+            will be the index of the point in the data, and the second element will be the
+            indices of the points in the query points. If "query_to_data", the direction will be
+            reversed. The default is "data_to_query".
+        include_in_header : bool, optional
+            If True, the found pairs will be included in the header of the Collection instance.
+            Only applicable if direction is "data_to_query". The default is False.
+
+        Returns
+        -------
+        list
+            List of pairs of points that are within the specified maximum distance.
+
+        """
+        pairs = self.header.gst.find_point_pairs(
+            points, max_distance, direction=direction
+        )
+        if include_in_header and direction == "data_to_query":
+            self.header = self.header.join(pairs)
+        else:
+            return pairs
 
     @_requires_geometry
     def spatial_join(

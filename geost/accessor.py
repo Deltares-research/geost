@@ -731,12 +731,8 @@ class GeostFrame(AbstractBase):
 
         points = conversion.check_geometry_instance(points)
 
-        data_tree = KDTree(
-            np.array([self._obj["geometry"].x, self._obj["geometry"].y]).transpose()
-        )
-        query_tree = KDTree(
-            np.array([points["geometry"].x, points["geometry"].y]).transpose()
-        )
+        data_tree = KDTree(self._obj.get_coordinates())
+        query_tree = KDTree(points.get_coordinates())
 
         if direction == "data_to_query":
             pairs = data_tree.query_ball_tree(query_tree, max_distance)
