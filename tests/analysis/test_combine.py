@@ -34,11 +34,11 @@ def strat_deeper_than_cpt():
 
 @pytest.mark.unittest
 def test_add_nearest_voxelmodel_variable_zero_tolerance(
-    borehole_collection, voxelmodel
+    borehole_collection, to_remove_voxelmodel
 ):
     result = add_nearest_voxelmodel_variable(
         borehole_collection,
-        voxelmodel,
+        to_remove_voxelmodel,
         ["strat", "lith"],
         tolerances=(0, 0, 0),
     )
@@ -51,10 +51,12 @@ def test_add_nearest_voxelmodel_variable_zero_tolerance(
 
 
 @pytest.mark.unittest
-def test_add_nearest_voxelmodel_variable_layered(borehole_collection, voxelmodel):
+def test_add_nearest_voxelmodel_variable_layered(
+    borehole_collection, to_remove_voxelmodel
+):
     result = add_nearest_voxelmodel_variable(
         borehole_collection,
-        voxelmodel,
+        to_remove_voxelmodel,
         ["strat", "lith"],
     )
     assert isinstance(result, Collection)
@@ -94,10 +96,10 @@ def test_add_nearest_voxelmodel_variable_layered(borehole_collection, voxelmodel
 
 
 @pytest.mark.unittest
-def test_add_nearest_voxelmodel_variable_discrete(cpt_collection, voxelmodel):
+def test_add_nearest_voxelmodel_variable_discrete(cpt_collection, to_remove_voxelmodel):
     result = add_nearest_voxelmodel_variable(
         cpt_collection,
-        voxelmodel,
+        to_remove_voxelmodel,
         ["strat", "lith"],
     )
     assert isinstance(result, Collection)
@@ -132,8 +134,8 @@ def test_add_nearest_voxelmodel_variable_discrete(cpt_collection, voxelmodel):
 
 
 @pytest.mark.unittest
-def test_add_voxelmodel_variable_layered(borehole_collection, voxelmodel):
-    result = add_voxelmodel_variable(borehole_collection, voxelmodel, "strat")
+def test_add_voxelmodel_variable_layered(borehole_collection, to_remove_voxelmodel):
+    result = add_voxelmodel_variable(borehole_collection, to_remove_voxelmodel, "strat")
     assert isinstance(result, Collection)
     assert result.data.shape == (35, 9)
     assert_array_equal(
@@ -259,8 +261,8 @@ def test_add_voxelmodel_variable_layered(borehole_collection, voxelmodel):
 
 
 @pytest.mark.unittest
-def test_add_voxelmodel_variable_discrete(cpt_collection, voxelmodel):
-    result = add_voxelmodel_variable(cpt_collection, voxelmodel, "strat")
+def test_add_voxelmodel_variable_discrete(cpt_collection, to_remove_voxelmodel):
+    result = add_voxelmodel_variable(cpt_collection, to_remove_voxelmodel, "strat")
     assert isinstance(result, Collection)
     assert result.data.shape == (24, 10)
     assert_array_equal(
@@ -324,9 +326,9 @@ def test_add_voxelmodel_variable_discrete(cpt_collection, voxelmodel):
 
 
 @pytest.mark.unittest
-def test_removes_if_column_is_present(borehole_collection, voxelmodel):
+def test_removes_if_column_is_present(borehole_collection, to_remove_voxelmodel):
     borehole_collection.data["strat"] = 1000
-    result = add_voxelmodel_variable(borehole_collection, voxelmodel, "strat")
+    result = add_voxelmodel_variable(borehole_collection, to_remove_voxelmodel, "strat")
     assert_array_equal(
         result.data["strat"],
         [

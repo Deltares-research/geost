@@ -207,9 +207,9 @@ def test_layerdata_to_pyvista_unstructured(borehole_data, cpt_data):
 
 
 @pytest.mark.unittest
-def test_to_pyvista_structured(xarray_dataset):
+def test_to_pyvista_structured(voxelmodel):
     vms_single_var = vtk.voxelmodel_to_pyvista_structured(
-        xarray_dataset, resolution=(1, 1, 0.5), displayed_variables=["strat"]
+        voxelmodel, resolution=(1, 1, 0.5), displayed_variables=["strat"]
     )
     assert isinstance(vms_single_var, pv.ImageData)
     assert vms_single_var.n_points == 150
@@ -217,7 +217,7 @@ def test_to_pyvista_structured(xarray_dataset):
     assert vms_single_var.n_arrays == 1
 
     vms_multi_var = vtk.voxelmodel_to_pyvista_structured(
-        xarray_dataset, resolution=(1, 1, 0.5)
+        voxelmodel, resolution=(1, 1, 0.5)
     )
     assert isinstance(vms_multi_var, pv.ImageData)
     assert vms_multi_var.n_points == 150
@@ -226,9 +226,9 @@ def test_to_pyvista_structured(xarray_dataset):
 
 
 @pytest.mark.unittest
-def test_to_pyvista_unstructured(xarray_dataset):
+def test_to_pyvista_unstructured(voxelmodel):
     vmu_single_var = vtk.voxelmodel_to_pyvista_unstructured(
-        xarray_dataset, resolution=(1, 1, 0.5), displayed_variables=["strat"]
+        voxelmodel, resolution=(1, 1, 0.5), displayed_variables=["strat"]
     )
     assert isinstance(vmu_single_var, pv.UnstructuredGrid)
     assert vmu_single_var.n_points == 142
@@ -236,7 +236,7 @@ def test_to_pyvista_unstructured(xarray_dataset):
     assert vmu_single_var.n_arrays == 1
 
     vmu_multi_var = vtk.voxelmodel_to_pyvista_unstructured(
-        xarray_dataset, resolution=(1, 1, 0.5)
+        voxelmodel, resolution=(1, 1, 0.5)
     )
     assert isinstance(vmu_multi_var, pv.UnstructuredGrid)
     assert vmu_multi_var.n_points == 142

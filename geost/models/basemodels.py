@@ -1,118 +1,20 @@
 import operator
-from abc import ABC, abstractmethod
 from pathlib import Path
-from typing import List, Literal
+from typing import TYPE_CHECKING, List, Literal
 
-import geopandas as gpd
 import numpy as np
 import rioxarray as rio
 import xarray as xr
 
 from geost.export import vtk
+from geost.models import model_utils
 from geost.utils.conversion import check_geometry_instance
 
-from . import model_utils
+if TYPE_CHECKING:
+    import geopandas as gpd
 
 
-class AbstractModel3D(ABC):  # pragma: no cover
-    @property
-    @abstractmethod
-    def xmin(self):
-        pass
-
-    @property
-    @abstractmethod
-    def xmax(self):
-        pass
-
-    @property
-    @abstractmethod
-    def ymin(self):
-        pass
-
-    @property
-    @abstractmethod
-    def ymax(self):
-        pass
-
-    @property
-    @abstractmethod
-    def zmin(self):
-        pass
-
-    @property
-    @abstractmethod
-    def zmax(self):
-        pass
-
-    @property
-    @abstractmethod
-    def resolution(self):
-        pass
-
-    @property
-    @abstractmethod
-    def crs(self):
-        pass
-
-    @abstractmethod
-    def sel(self):
-        pass
-
-    @abstractmethod
-    def isel(self):
-        pass
-
-    @abstractmethod
-    def select_with_line(self):
-        pass
-
-    @abstractmethod
-    def select_with_points(self):
-        pass
-
-    @abstractmethod
-    def select_within_polygons(self):
-        pass
-
-    @abstractmethod
-    def select_within_bbox(self):
-        pass
-
-    @abstractmethod
-    def select_by_values(self):
-        pass
-
-    @abstractmethod
-    def select_top(self):
-        pass
-
-    @abstractmethod
-    def select_bottom(self):
-        pass
-
-    @abstractmethod
-    def slice_depth_interval(self):
-        pass
-
-    @abstractmethod
-    def select_surface_level(self):
-        pass
-
-    @abstractmethod
-    def zslice_to_tiff(self):
-        pass
-
-    @abstractmethod
-    def get_thickness(self):
-        pass
-
-    @abstractmethod
-    def to_pyvista_grid(self):
-        pass
-
-
-class VoxelModel(AbstractModel3D):
+class VoxelModel:
     def __init__(self, ds: xr.Dataset):
         self.ds = ds
 
@@ -130,7 +32,7 @@ class VoxelModel(AbstractModel3D):
         return f"{instance}\n{layers}\n{dimensions}\n{resolution}"
 
     @classmethod
-    def from_netcdf(
+    def from_netcdf(  # TODO: This will become general read method
         cls,
         nc_path: str | Path,
         data_vars: list[str] = None,
@@ -210,7 +112,7 @@ class VoxelModel(AbstractModel3D):
         return cls(ds)
 
     @classmethod
-    def from_opendap(
+    def from_opendap(  # TODO: This will become general read method
         cls,
         url: str,
         data_vars: List[str] = None,
@@ -419,7 +321,7 @@ class VoxelModel(AbstractModel3D):
     def select_bottom(self):  # pragma: no cover
         raise NotImplementedError()
 
-    def slice_depth_interval(
+    def slice_depth_interval(  # NOTE: Method will differ between voxel and layer model
         self,
         upper: int | float | xr.DataArray = None,
         lower: int | float | xr.DataArray = None,
@@ -524,10 +426,12 @@ class VoxelModel(AbstractModel3D):
     def select_surface_level(self):  # pragma: no cover
         raise NotImplementedError()
 
-    def zslice_to_tiff(self):  # pragma: no cover
+    def zslice_to_tiff(
+        self,
+    ):  # pragma: no cover # NOTE: Method will differ between voxel and layer model
         raise NotImplementedError()
 
-    def get_thickness(
+    def get_thickness(  # NOTE: Method will differ between voxel and layer model
         self,
         condition: xr.Dataset,
         depth_range: tuple[float, float] = None,
@@ -583,7 +487,9 @@ class VoxelModel(AbstractModel3D):
 
         return thickness
 
-    def most_common(self, variable: str) -> xr.Dataset:
+    def most_common(
+        self, variable: str
+    ) -> xr.Dataset:  # NOTE: Method will differ between voxel and layer model
         """
         Determine the "most common" value and corresponding thickness in a variable of
         a `VoxelModel`. This method calculates the mode (most frequently occurring value)
@@ -617,7 +523,7 @@ class VoxelModel(AbstractModel3D):
 
     def value_counts(
         self, variable: str, dim: str = None, normalize: bool = False
-    ) -> xr.DataArray:
+    ) -> xr.DataArray:  # NOTE: Method will differ between voxel and layer model
         """
         Return a DataArray containing the value counts of unique values in a `VoxelModel`
         variable.
@@ -644,7 +550,7 @@ class VoxelModel(AbstractModel3D):
 
     def to_pyvista_grid(
         self, data_vars: str | list[str] = None, structured: bool = True
-    ):
+    ):  # NOTE: Method will differ between voxel and layer model
         """
         Convert the VoxelModel to a PyVista grid.
 
@@ -681,80 +587,3 @@ class VoxelModel(AbstractModel3D):
                 self.resolution,
                 displayed_variables=data_vars,
             )
-
-
-class LayerModel(AbstractModel3D):  # pragma: no cover TODO: add to doc
-    def __init__(self):
-        raise NotImplementedError("No support of LayerModel yet.")
-
-    @property
-    def xmin(self):
-        raise NotImplementedError()
-
-    @property
-    def xmax(self):
-        raise NotImplementedError()
-
-    @property
-    def ymin(self):
-        raise NotImplementedError()
-
-    @property
-    def ymax(self):
-        raise NotImplementedError()
-
-    @property
-    def bounds(self):
-        raise NotImplementedError()
-
-    @property
-    def resolution(self):
-        raise NotImplementedError()
-
-    @property
-    def crs(self):
-        raise NotImplementedError()
-
-    def sel(self):
-        raise NotImplementedError()
-
-    def isel(self):
-        raise NotImplementedError()
-
-    def select_with_line(self):
-        raise NotImplementedError()
-
-    def select_with_points(self):
-        raise NotImplementedError()
-
-    def select_within_polygons(self):
-        raise NotImplementedError()
-
-    def select_within_bbox(self):
-        raise NotImplementedError()
-
-    def select_by_values(self):
-        raise NotImplementedError()
-
-    @property
-    def zmin(self):
-        raise NotImplementedError()
-
-    @property
-    def zmax(self):
-        raise NotImplementedError()
-
-    def select_top(self):
-        raise NotImplementedError()
-
-    def select_bottom(self):
-        raise NotImplementedError()
-
-    def slice_depth_interval(self):
-        raise NotImplementedError()
-
-    def select_surface_level(self):
-        raise NotImplementedError()
-
-    def zslice_to_tiff(self):
-        raise NotImplementedError()

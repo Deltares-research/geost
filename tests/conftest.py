@@ -259,7 +259,77 @@ def cpt_collection(cpt_data):
 
 
 @pytest.fixture
-def xarray_dataset():
+def layermodel():
+    x = np.arange(4) + 0.5
+    y = x[::-1]
+    layer = ["A", "B", "C", "D"]
+
+    surface = np.array(
+        [
+            [0.2, 0.3, 0.25, 0.1],
+            [0.2, 0.3, 0.25, 0.1],
+            [0.2, 0.3, 0.25, 0.1],
+            [0.2, 0.3, 0.25, 0.1],
+        ]
+    )
+    a_thickness = np.full_like(surface, 0.45)
+    b_thickness = np.array(
+        [
+            [0.8, 0.7, 0.75, 0],
+            [0.8, 0.7, 0.75, 0],
+            [0.8, 0.7, 0, 0],
+            [0, 0, 0, 0],
+        ]
+    )
+    c_thickness = np.array(
+        [
+            [0, 0, 1.6, 1.8],
+            [0, 0, 1.6, 1.8],
+            [0, 1.6, 1.8, 0],
+            [0, 1.8, 1.8, 0],
+        ]
+    )
+    d_thickness = np.array(
+        [
+            [2.2, 2.4, 0.8, 1.2],
+            [2.2, 2.4, 0.8, 1.2],
+            [2.2, 0.8, 1.2, 2.6],
+            [2.9, 1.2, 1.2, 2.6],
+        ]
+    )
+    thickness = np.stack([a_thickness, b_thickness, c_thickness, d_thickness])
+    bottom = surface - np.cumsum(thickness, axis=0)
+    top = bottom + thickness
+
+    kh = np.stack(
+        [
+            np.full_like(surface, 0.04),
+            np.full_like(surface, 0.2),
+            np.full_like(surface, 20.1),
+            np.full_like(surface, 85.0),
+        ]
+    )
+
+    layermodel = xr.Dataset(
+        data_vars={
+            "top": (("layer", "y", "x"), top),
+            "bottom": (("layer", "y", "x"), bottom),
+            "thickness": (("layer", "y", "x"), thickness),
+            "kh": (("layer", "y", "x"), kh),
+            "surface": (("y", "x"), surface),
+        },
+        coords={
+            "x": x,
+            "y": y,
+            "layer": layer,
+        },
+    )
+    layermodel.rio.write_crs(28992, inplace=True)
+    return layermodel
+
+
+@pytest.fixture
+def voxelmodel():
     x = np.arange(4) + 0.5
     y = x[::-1]
     z = np.arange(-2.5, 0, 0.5) + 0.25
@@ -322,11 +392,6 @@ def xarray_dataset():
     )
     ds.rio.write_crs(28992, inplace=True)
     return ds
-
-
-@pytest.fixture
-def voxelmodel(xarray_dataset):
-    return VoxelModel(xarray_dataset)
 
 
 def create_polygons() -> gpd.GeoDataFrame:
