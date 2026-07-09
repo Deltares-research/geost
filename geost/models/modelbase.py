@@ -26,6 +26,10 @@ class ModelBase:
                 self._top = top
                 self._bottom = bottom
 
+        # Initialize properties for caching
+        self._zmin = None
+        self._zmax = None
+
     @property
     def crs(self):
         return self._obj.rio.crs
@@ -49,14 +53,84 @@ class ModelBase:
     def write_crs(self, crs, **kwargs):
         return self._obj.rio.write_crs(crs, **kwargs)
 
-    def resolution(self):
-        raise NotImplementedError()
+    def resolution(self) -> tuple[float, float] | tuple[float, float, float]:
+        """
+        Determine the resolution of the model.
 
-    def bounds(self):  # pragma: no cover
-        raise NotImplementedError()
+        Returns
+        -------
+        tuple[float, float] | tuple[float, float, float]
+            Resolution of the model. For a voxelmodel, returns (xres, yres, zres). For a
+            layermodel, returns (xres, yres).
 
-    def vertical_bounds(self):  # pragma: no cover
-        raise NotImplementedError()
+        Raises
+        ------
+        ValueError
+            Resolution cannot be determined for 1D models.
+
+        """
+        try:
+            xres, yres = self._obj.rio.resolution()
+        except rioxarray.exceptions.DimensionError as e:
+            raise ValueError("Resolution cannot be determined for 1D models.") from e
+
+        if self._model_type == ModelType.VOXEL:
+            bottom, top = self._internal_z_bounds()
+            zres = (top - bottom) / (self._obj.sizes[self._z] - 1)
+            return xres, yres, zres
+
+        return xres, yres
+
+    def bounds(self) -> tuple[float, float, float, float]:
+        """
+        Determine the bounding box of the model.
+
+        Returns
+        -------
+        tuple[float, float, float, float]
+            Bounding box of the model (xmin, ymin, xmax, ymax).
+
+        """
+        return self._obj.rio.bounds()
+
+    def _internal_z_bounds(self):  # pragma: no cover
+        if self._zmin is not None and self._zmax is not None:
+            return self._zmin, self._zmax
+
+        if self._model_type == ModelType.VOXEL:
+            top = float(self._obj[self._z].max())
+            bottom = float(self._obj[self._z].min())
+        elif self._model_type == ModelType.LAYER:
+            top = float(self._obj[self._top].max())
+            bottom = float(self._obj[self._bottom].min())
+
+        # Cache the computed bounds for future calls
+        self._zmin = bottom
+        self._zmax = top
+
+        return bottom, top
+
+    def vertical_bounds(self) -> tuple[float, float]:
+        """
+        Determine the vertical bounds (zmin, zmax) of the model.
+
+        Returns
+        -------
+        tuple[float, float]
+            Vertical bounds of the model (zmin, zmax).
+
+        """
+        if isinstance(self._obj, xr.DataArray) and self._model_type == ModelType.LAYER:
+            pass  # TODO: think about what to do when not a dataset, but a dataarray. Should we raise an error?
+
+        bottom, top = self._internal_z_bounds()
+
+        if self._model_type == ModelType.VOXEL:
+            _, _, resolution_z = self.resolution()
+            top += 0.5 * resolution_z
+            bottom -= 0.5 * resolution_z
+
+        return bottom, top
 
     @property
     def shape(self):

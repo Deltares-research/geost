@@ -36,17 +36,19 @@ def detect_vertical_dim(ds: xr.DataArray | xr.Dataset) -> VerticalSpec:
     Parameters
     ----------
     ds : xr.Dataset
-        _description_
+        Voxelmodel or layermodel dataset.
 
     Returns
     -------
     VerticalSpec
-        _description_
+        Vertical dimension information for the model containing the name of the z-dimension
+        and the inferred model type.
 
     Raises
     ------
     ValueError
-        _description_
+        If both a voxelmodel and layermodel vertical dimension is detected, an error is
+        raised.
 
     """
     dims = tuple(ds.dims)
@@ -74,6 +76,23 @@ def detect_vertical_dim(ds: xr.DataArray | xr.Dataset) -> VerticalSpec:
 def detect_top_and_bottom(
     ds: xr.DataArray | xr.Dataset,
 ) -> tuple[str | None, str | None]:
+    """
+    Detect the names of top and bottom data variables in layermodel Datasets. Will only
+    try to detect in `xarray.Dataset` instances as an `xarray.DataArray` cannot contain
+    both variables.
+
+    Parameters
+    ----------
+    ds : xr.DataArray | xr.Dataset
+        Layermodel Dataset to detect the names in.
+
+    Returns
+    -------
+    tuple[str | None, str | None]
+        Tuple containing the names of the top and bottom data variables. If not found,
+        returns None for that variable.
+
+    """
     top = None
     bottom = None
 
@@ -81,7 +100,6 @@ def detect_top_and_bottom(
         for var_ in ds.data_vars:
             if var_.lower() in LAYERMODEL_TOP_NAMES:
                 top = var_
-                break
 
             if var_.lower() in LAYERMODEL_BOTTOM_NAMES:
                 bottom = var_
