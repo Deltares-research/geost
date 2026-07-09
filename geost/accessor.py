@@ -701,8 +701,7 @@ class GeostFrame(AbstractBase):
         self,
         points: str | Path | gpd.GeoDataFrame | GeometryType,
         max_distance: float | int,
-        direction: Literal["data_to_query", "query_to_data"] = "data_to_query",
-    ):
+    ) -> np.ndarray:
         """
         Find pairs of points between the data and the given query points that are within
         a specified maximum distance.
@@ -715,16 +714,12 @@ class GeostFrame(AbstractBase):
             MultiPoint or list containing Point objects.
         max_distance : float | int
             Maximum distance between points to be considered a pair.
-        direction: Literal["data_to_query", "query_to_data"], optional
-            Direction of the returned pairs. If "data_to_query", the first element of each pair
-            will be the index of the point in the data, and the second element will be the
-            indices of the points in the query points. If "query_to_data", the direction will be
-            reversed. The default is "data_to_query".
 
         Returns
         -------
-        list
-            List of pairs of points that are within the specified maximum distance.
+        np.ndarray
+            Array of shape (n_pairs, 2) containing the dataframe indices of the paired
+            points in the data (column 0) and the query points (column 1) within range.
 
         """
         from scipy.spatial import KDTree
@@ -734,20 +729,12 @@ class GeostFrame(AbstractBase):
         data_tree = KDTree(self._obj.get_coordinates())
         query_tree = KDTree(points.get_coordinates())
 
-        if direction == "data_to_query":
-            pairs = data_tree.query_ball_tree(query_tree, max_distance)
-            pairs = [[i, pair] for pair, i in zip(pairs, self._obj.index) if pair]
-        elif direction == "query_to_data":
-            pairs = query_tree.query_ball_tree(data_tree, max_distance)
-            pairs = [[i, pair] for pair, i in zip(pairs, points.index) if pair]
-
-        df = pd.DataFrame(
-            data=[[values] for _, values in pairs],
-            index=[idx for idx, _ in pairs],
-            columns=["points_in_range"],
+        pairs = data_tree.query_ball_tree(query_tree, max_distance)
+        pairs = np.array(
+            [[i, p] for pair, i in zip(pairs, self._obj.index) for p in pair if pair]
         )
 
-        return df
+        return pairs
 
     @_requires_depth
     def determine_end_depth(self) -> pd.Series:

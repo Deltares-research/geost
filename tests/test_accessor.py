@@ -8,7 +8,6 @@ import pandas as pd
 import pytest
 import pyvista as pv
 from numpy.testing import assert_array_almost_equal, assert_array_equal
-from pandas.testing import assert_frame_equal
 from shapely.geometry import LineString, Polygon
 
 from geost.accessor import GeostFrame
@@ -584,53 +583,58 @@ class TestGeostFrame:
         )
         max_distance = 1.1
 
-        # Test query_to_data, so it lists the indices of points in the header that are
-        # within the max_distance of each point in the selection_points.
-        result = point_header.gst.find_point_pairs(
-            selection_points, max_distance, direction="query_to_data"
-        )
-        assert_frame_equal(
+        # Normal test, so it lists the indices of points in the selection_points that are
+        # within the max_distance of each point in the header.
+        result = point_header.gst.find_point_pairs(selection_points, max_distance)
+        assert_array_equal(
             result,
-            pd.DataFrame(
-                data=[
-                    [[0, 1, 5]],
-                    [[13, 17, 18, 19, 23]],
-                    [[2, 3, 4, 8]],
-                    [[10, 15, 16, 20]],
-                ],
-                index=[0, 1, 2, 3],
-                columns=["points_in_range"],
+            np.array(
+                [
+                    [0, 0],
+                    [1, 0],
+                    [2, 2],
+                    [3, 2],
+                    [4, 2],
+                    [5, 0],
+                    [8, 2],
+                    [10, 3],
+                    [13, 1],
+                    [15, 3],
+                    [16, 3],
+                    [17, 1],
+                    [18, 1],
+                    [19, 1],
+                    [20, 3],
+                    [23, 1],
+                ]
             ),
         )
 
-        # Test data_to_query, so it lists the indices of points in the selection_points that are
-        # within the max_distance of each point in the header.
-        result = point_header.gst.find_point_pairs(
-            selection_points, max_distance, direction="data_to_query"
-        )
-        assert_frame_equal(
+        # Reversed test, so it lists the indices of points in the header that are
+        # within the max_distance of each point in the selection_points.
+        selection_points["nr"] = ["A", "B", "C", "D"]
+        result = selection_points.gst.find_point_pairs(point_header, max_distance)
+        assert_array_equal(
             result,
-            pd.DataFrame(
-                data=[
-                    [[0]],
-                    [[0]],
-                    [[2]],
-                    [[2]],
-                    [[2]],
-                    [[0]],
-                    [[2]],
-                    [[3]],
-                    [[1]],
-                    [[3]],
-                    [[3]],
-                    [[1]],
-                    [[1]],
-                    [[1]],
-                    [[3]],
-                    [[1]],
-                ],
-                index=[0, 1, 2, 3, 4, 5, 8, 10, 13, 15, 16, 17, 18, 19, 20, 23],
-                columns=["points_in_range"],
+            np.array(
+                [
+                    [0, 0],
+                    [0, 1],
+                    [0, 5],
+                    [1, 13],
+                    [1, 17],
+                    [1, 18],
+                    [1, 19],
+                    [1, 23],
+                    [2, 2],
+                    [2, 3],
+                    [2, 4],
+                    [2, 8],
+                    [3, 10],
+                    [3, 15],
+                    [3, 16],
+                    [3, 20],
+                ]
             ),
         )
 

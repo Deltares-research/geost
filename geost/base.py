@@ -678,9 +678,8 @@ class Collection(AbstractBase):
         self,
         points: str | Path | gpd.GeoDataFrame | GeometryType,
         max_distance: float | int,
-        direction: Literal["data_to_query", "query_to_data"] = "data_to_query",
         include_in_header: bool = False,
-    ):
+    ) -> np.ndarray | None:
         """
         Find pairs of points between the data and the given query points that are within
         a specified maximum distance.
@@ -693,26 +692,22 @@ class Collection(AbstractBase):
             MultiPoint or list containing Point objects.
         max_distance : float | int
             Maximum distance between points to be considered a pair.
-        direction: Literal["data_to_query", "query_to_data"], optional
-            Direction of the returned pairs. If "data_to_query", the first element of each pair
-            will be the index of the point in the data, and the second element will be the
-            indices of the points in the query points. If "query_to_data", the direction will be
-            reversed. The default is "data_to_query".
         include_in_header : bool, optional
             If True, the found pairs will be included in the header of the Collection instance.
             Only applicable if direction is "data_to_query". The default is False.
 
         Returns
         -------
-        list
-            List of pairs of points that are within the specified maximum distance.
+        np.ndarray, optional
+            Array of shape (n_pairs, 2) containing the dataframe indices of the paired
+            points in the data (column 0) and the query points (column 1) within range.
 
         """
-        pairs = self.header.gst.find_point_pairs(
-            points, max_distance, direction=direction
-        )
-        if include_in_header and direction == "data_to_query":
-            self.header = self.header.join(pairs)
+        pairs = self.header.gst.find_point_pairs(points, max_distance)
+        if include_in_header:
+            df = pd.DataFrame(pairs, columns=["index", "points_in_range"])
+            df = df.groupby("index")["points_in_range"].apply(list).to_frame()
+            self.header = self.header.join(df)
         else:
             return pairs
 
