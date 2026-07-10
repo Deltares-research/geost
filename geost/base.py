@@ -8,7 +8,7 @@ import geopandas as gpd
 import pandas as pd
 from pyproj import CRS
 
-from geost import config, utils
+from geost import config, data, utils
 from geost._warnings import AlignmentWarning
 from geost.abstract_classes import AbstractBase
 from geost.utils.projections import (
@@ -173,6 +173,30 @@ class Collection(AbstractBase):
     @property
     def header_has_geometry(self):
         return self.header._geometry_column_name is not None
+
+    @property
+    def header_to_data_index(self):
+        """
+        Returns a pandas Series that maps the range index of surveys in the data table
+        to the index of the header table.
+
+        Returns
+        -------
+        pd.Series
+            A pandas Series where the index corresponds to the header table's index and
+            the values are pandas RangeIndex objects that map to the corresponding rows
+            in the data table for each survey.
+        """
+        first_row_survey = self.data.gst.first_row_survey
+        last_row_survey = self.data.gst.last_row_survey
+        first_idx = first_row_survey.index[first_row_survey]
+        last_idx = last_row_survey.index[last_row_survey]
+
+        # Note directly creating pd.RangeIndex objects would be better, but makes it slow
+        # for large datasets...
+        ranges = [(s, e) for s, e in zip(first_idx, last_idx)]
+
+        return pd.Series(data=ranges, index=self.header.index)
 
     @header.setter
     def header(self, header):

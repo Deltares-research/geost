@@ -176,6 +176,23 @@ class TestCollection:
         )
 
     @pytest.mark.unittest
+    def test_header_to_data_index(self, borehole_collection):
+        index_map = borehole_collection.header_to_data_index
+        assert isinstance(index_map, pd.Series)
+        assert index_map.index.equals(borehole_collection.header.index)
+        assert all(
+            isinstance(idx, tuple) for idx in index_map.values
+        )  # Check that all values are tuples (May become pd.RangeIndex in future versions)
+
+        # Check that the ranges correspond to the correct rows in the data table
+        for header_idx, data_range in index_map.items():
+            header_id = borehole_collection.header.loc[header_idx, "nr"]
+            data_ids = borehole_collection.data.loc[
+                pd.RangeIndex(start=data_range[0], stop=data_range[1]), "nr"
+            ].unique()
+            assert len(data_ids) == 1 and data_ids[0] == header_id
+
+    @pytest.mark.unittest
     def test_get(self, borehole_collection):
         selection = borehole_collection.get("A")
         assert selection.header.iloc[0, 0] == "A"
