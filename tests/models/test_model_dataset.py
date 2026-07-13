@@ -5,6 +5,18 @@ from geost.models._core import ModelType
 from geost.models.model_dataset import ModelDataset
 
 
+@pytest.fixture
+def invalid_model(voxelmodel):
+    """
+    A model is invalid if it has both a voxelmodel ("z") and layermodel ("layer") vertical
+    dimension.
+
+    """
+    invalid = voxelmodel.copy()
+    invalid = invalid.assign_coords(layer=list(range(invalid.sizes["z"])))
+    return invalid
+
+
 class TestModelDataset:
     """
     Testing of accessor functionality on Datasets. Tests should exclusively use Dataset
@@ -12,10 +24,52 @@ class TestModelDataset:
     """
 
     @pytest.mark.unittest
-    def test_accessor(self):
+    def test_accessor_voxelmodel(self, voxelmodel):
+        assert hasattr(voxelmodel, "gst")
+        assert isinstance(voxelmodel.gst, ModelDataset)
+        assert voxelmodel.gst._x == "x"
+        assert voxelmodel.gst._y == "y"
+        assert voxelmodel.gst._z == "z"
+        assert voxelmodel.gst._model_type == ModelType.VOXEL
+        assert voxelmodel.gst._top is None
+        assert voxelmodel.gst._bottom is None
+        assert voxelmodel.gst._zmin is None
+        assert voxelmodel.gst._zmax is None
+
+    @pytest.mark.unittest
+    def test_accessor_layermodel(self, layermodel):
+        assert hasattr(layermodel, "gst")
+        assert isinstance(layermodel.gst, ModelDataset)
+        assert layermodel.gst._x == "x"
+        assert layermodel.gst._y == "y"
+        assert layermodel.gst._z == "layer"
+        assert layermodel.gst._model_type == ModelType.LAYER
+        assert layermodel.gst._top == "top"
+        assert layermodel.gst._bottom == "bottom"
+        assert layermodel.gst._zmin is None
+        assert layermodel.gst._zmax is None
+
+    @pytest.mark.unittest
+    def test_accessor_empty_dataset(self):
         ds = xr.Dataset()
         assert hasattr(ds, "gst")
         assert isinstance(ds.gst, ModelDataset)
+        assert ds.gst._x is None
+        assert ds.gst._y is None
+        assert ds.gst._z is None
+        assert ds.gst._model_type is None
+        assert ds.gst._top is None
+        assert ds.gst._bottom is None
+        assert ds.gst._zmin is None
+        assert ds.gst._zmax is None
+
+    @pytest.mark.unittest
+    def test_accessor_invalid_model(self, invalid_model):
+        with pytest.raises(
+            ValueError,
+            match="Ambiguous vertical dimension: voxel=z, layer=layer",
+        ):
+            invalid_model.gst
 
     @pytest.mark.unittest
     def test_crs(self, voxelmodel, layermodel):

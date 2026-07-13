@@ -107,4 +107,11 @@ def detect_top_and_bottom(
             if top and bottom:
                 break
 
+    elif isinstance(ds, xr.DataArray):
+        if ds.name.lower() in LAYERMODEL_TOP_NAMES:
+            top = ds.name
+
+        if ds.name.lower() in LAYERMODEL_BOTTOM_NAMES:
+            bottom = ds.name
+
     return top, bottom

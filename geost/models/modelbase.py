@@ -13,6 +13,7 @@ class ModelBase:
         self._x: str = xarray_obj.rio._x_dim  # Utilize rioxarray if possible
         self._y: str = xarray_obj.rio._y_dim
         self._z: str = None
+        self._model_type: ModelType = None
         self._top: str = None
         self._bottom: str = None
 
@@ -121,7 +122,10 @@ class ModelBase:
 
         """
         if isinstance(self._obj, xr.DataArray) and self._model_type == ModelType.LAYER:
-            pass  # TODO: think about what to do when not a dataset, but a dataarray. Should we raise an error?
+            raise TypeError(
+                "Vertical bounds cannot be determined for a layermodel DataArray. This method "
+                "can only be used on an xarray.Dataset with valid 'top' and 'bottom' variables."
+            )
 
         bottom, top = self._internal_z_bounds()
 
