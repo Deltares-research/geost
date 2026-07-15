@@ -64,6 +64,14 @@ Generic
    GeostFrame.to_header
    GeostFrame.validate
 
+Data manipulation
+-----------------------------
+.. autosummary::
+   :toctree: generated/
+
+   GeostFrame.map_categorical_data
+   GeostFrame.combine_consecutive_layers
+
 Export
 -----------------------------
 .. autosummary::

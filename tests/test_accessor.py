@@ -1116,6 +1116,109 @@ class TestGeostFrame:
         )
 
     @pytest.mark.unittest
+    def test_map_categorical_data(self, borehole_data):
+        mapping = {"V": "Veen", "K": "Klei"}
+
+        # With defined missing value
+        result = borehole_data.gst.map_categorical_data(
+            "lith", mapping, missing_value="x"
+        )
+        assert isinstance(result, pd.DataFrame)
+        assert_array_equal(
+            result["lith"],
+            [
+                "Klei",
+                "Klei",
+                "x",
+                "x",
+                "Klei",
+                "Klei",
+                "Klei",
+                "Veen",
+                "Veen",
+                "Klei",
+                "Klei",
+                "Klei",
+                "Klei",
+                "x",
+                "x",
+                "Klei",
+                "Veen",
+                "Klei",
+                "Veen",
+                "x",
+                "x",
+                "x",
+                "x",
+                "x",
+                "x",
+            ],
+        )
+
+        # Without defined missing value, keeps original value in-tact
+        result = borehole_data.gst.map_categorical_data("lith", mapping)
+        assert_array_equal(
+            result["lith"],
+            [
+                "Klei",
+                "Klei",
+                "Z",
+                "Z",
+                "Klei",
+                "Klei",
+                "Klei",
+                "Veen",
+                "Veen",
+                "Klei",
+                "Klei",
+                "Klei",
+                "Klei",
+                "Z",
+                "Z",
+                "Klei",
+                "Veen",
+                "Klei",
+                "Veen",
+                "Z",
+                "Z",
+                "Z",
+                "Z",
+                "Z",
+                "Z",
+            ],
+        )
+
+    @pytest.mark.unittest
+    def test_combine_consecutive_layers(self, borehole_data, cpt_data):
+        # Combine borehole layers
+        result = borehole_data.gst.combine_consecutive_layers("lith")
+        assert isinstance(result, pd.DataFrame)
+        assert result.index.equals(
+            pd.Index([0, 2, 4, 5, 7, 9, 10, 13, 15, 16, 17, 18, 19, 20])
+        )
+        assert_array_equal(
+            result["lith"],
+            ["K", "Z", "K", "K", "V", "K", "K", "Z", "K", "V", "K", "V", "Z", "Z"],
+        )
+        assert_array_almost_equal(
+            result["top"],
+            [0.0, 1.5, 3.7, 0.0, 1.2, 3.1, 0.0, 2.9, 0.0, 0.5, 1.2, 1.8, 2.5, 0.0],
+        )
+        assert_array_almost_equal(
+            result["bottom"],
+            [1.5, 3.7, 4.2, 1.2, 3.1, 3.9, 2.9, 5.5, 0.5, 1.2, 1.8, 2.5, 3.0, 3.0],
+        )
+
+        # Combine CPT layers
+        cpt_data["categorical_data"] = (
+            ["A"] * 4 + ["B"] * 4 + ["A"] * 4 + ["C"] * 4 + ["B"] * 4
+        )
+        result = cpt_data.gst.combine_consecutive_layers(
+            "categorical_data", agg_funcs={"qc": "mean", "fs": "max"}
+        )
+        assert isinstance(result, pd.DataFrame)
+
+    @pytest.mark.unittest
     def test_to_pyvista_cylinders(self, borehole_data, cpt_data):
         vtk_object = borehole_data.gst.to_pyvista_cylinders("lith")
         assert isinstance(vtk_object, pv.MultiBlock)

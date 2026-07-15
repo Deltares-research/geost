@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import warnings
 from collections.abc import Iterable
 from functools import partial, singledispatchmethod
 from pathlib import Path
@@ -1425,6 +1426,132 @@ class GeostFrame(AbstractBase):
         )
 
         return discretized
+
+    def map_categorical_data(
+        self, column: str, mapping: dict, missing_value: str | float = None
+    ) -> pd.DataFrame:
+        """
+        Map categorical data in a column to new values based on a provided mapping dictionary.
+
+        Parameters
+        ----------
+        column : str
+            Name of the column containing categorical data to be mapped.
+        mapping : dict
+            Dictionary specifying the mapping of old values to new values. Keys are the
+            old values, and values are the new values.
+        missing_value : str | float, optional
+            Value to use for any entries in the column that do not have a corresponding value in the mapping dictionary.
+
+        Returns
+        -------
+        pd.DataFrame
+            New DataFrame with the specified column's categorical data mapped to new values.
+
+        Raises
+        ------
+        KeyError
+            If the specified column does not exist in the DataFrame.
+
+        Examples
+        --------
+        To map lithology codes to descriptive names:
+
+        >>> mapping = {'K': 'Clay', 'Z': 'Sand', 'V': 'Peat'}
+        >>> mapped_data = data.gst.map_categorical_data('lith', mapping)
+
+        """
+        mapped_df = self._obj.copy()
+
+        if column not in mapped_df.columns:
+            pass
+        else:
+            if missing_value is not None:
+                mapped_df[column] = mapped_df[column].map(mapping).fillna(missing_value)
+            else:
+                mapped_df[column] = (
+                    mapped_df[column].map(mapping).fillna(mapped_df[column])
+                )
+
+        return mapped_df
+
+    @_requires_depth
+    def combine_consecutive_layers(
+        self, column: str, agg_funcs: dict = None
+    ) -> pd.DataFrame:
+        """
+        Combine consecutive layers in the data that have the same value in a specified column.
+        The column to use for combining layers is typically categorical data, such as lithology or soil type.
+        Any other columns can be aggregated using the provided aggregation functions.
+
+
+        Parameters
+        ----------
+        column : str
+            Name of the column to check for consecutive identical values. Typically a column
+            holding categorical data.
+        agg_funcs : dict, optional
+            Dictionary specifying the aggregation functions to apply to other columns when combining layers.
+            Keys are column names, and values are aggregation functions. These can be e.g.
+            names such as'first', 'last', 'mean', etc. or actual functions such as np.sum, np.mean, etc.
+
+        Returns
+        -------
+        pd.DataFrame
+            New DataFrame with consecutive layers combined based on the specified column.
+
+        Raises
+        ------
+        KeyError
+            If the specified column does not exist in the DataFrame.
+
+        Examples
+        --------
+        Say we have CPT data which and lithology (column 'lith') for each row. We want to
+        combine consecutive layers with identical lithology and aggregate the 'qc' and 'fs'
+        columns by taking the mean:
+
+        >>> combined_data = data.gst.combine_consecutive_layers('lith', {'qc': 'mean', 'fs': 'mean'})
+        """
+        df = self._obj.copy()
+        df["original_index"] = df.index
+
+        # Create unique group id for consecutive identical layers according to values
+        # in the specified column and within the same survey.
+        groups = (df[column] != df[column].shift()).cumsum() + (
+            df[self._nr] != df[self._nr].shift()
+        ).cumsum()
+
+        # Create aggregation dict
+        agg_dict = {
+            "original_index": "first",
+            self._bottom: "last",
+            column: "first",
+        } | (agg_funcs or {})
+        if self._top is not None:
+            agg_dict[self._top] = "first"
+
+        # Aggregate
+        result = (
+            df.groupby(groups, group_keys=False)
+            .agg(agg_dict)
+            .set_index("original_index")
+        )
+
+        # Trim dataframe down to new index and replace columns with aggregated values
+        df = df.loc[result.index]
+        cols = (
+            ([self._top] if self._top is not None else [])
+            + [self._bottom, column]
+            + list(agg_funcs.keys() if agg_funcs else [])
+        )
+        df[cols] = result[cols]
+
+        # Clean-up
+        df.index.name = self._obj.index.name
+        df.drop("original_index", axis=1, inplace=True)
+
+        return df
 
     @_requires_depth
     @_requires_xy

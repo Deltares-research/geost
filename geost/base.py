@@ -1380,6 +1380,130 @@ class Collection(AbstractBase):
             column, discretization, bins=bins, bin_labels=bin_labels
         )
 
+    def map_categorical_data(
+        self,
+        column: str,
+        mapping: dict,
+        missing_value: str | float = None,
+        apply_to_header: bool = True,
+        apply_to_data: bool = True,
+        inplace: bool = False,
+    ):
+        """
+        Map categorical data in header and/or data columns to new values based on a
+        provided mapping dictionary. By default the mapping is applied to both the
+        Collection's header and data tables.
+
+        Parameters
+        ----------
+        column : str
+            Name of the column containing categorical data to be mapped.
+        mapping : dict
+            Dictionary specifying the mapping of old values to new values. Keys are the
+            old values, and values are the new values.
+        missing_value : str | float, optional
+            Value to use for any entries in the column that do not have a corresponding value in the mapping dictionary.
+            If None, the original value is retained. The default is None.
+        apply_to_header : bool, optional
+            If True, the mapping is applied to the header table of the Collection. The default is True.
+        apply_to_data : bool, optional
+            If True, the mapping is applied to the data table of the Collection. The default is True.
+        inplace : bool, optional
+            If True, the mapping is applied in place and the original Collection is modified.
+
+        Returns
+        -------
+        :class:`~geost.base.Collection`
+            New Collection instance containing only the data within the specified depth
+            boundaries.
+
+        Raises
+        ------
+        KeyError
+            If the specified column does not exist in the DataFrame.
+
+        Examples
+        --------
+        To map lithology codes to descriptive names:
+
+        >>> mapping = {'K': 'Clay', 'Z': 'Sand', 'V': 'Peat'}
+        >>> mapped_data = data.gst.map_categorical_data('lith', mapping)
+
+        """
+        if apply_to_header:
+            remapped_header = self.header.gst.map_categorical_data(
+                column, mapping, missing_value=missing_value
+            )
+        if apply_to_data:
+            remapped_data = self.data.gst.map_categorical_data(
+                column, mapping, missing_value=missing_value
+            )
+
+        if inplace:
+            if apply_to_header:
+                self.header = remapped_header
+            if apply_to_data:
+                self.data = remapped_data
+        else:
+            return self.__class__(
+                remapped_data if apply_to_data else self.data,
+                header=remapped_header if apply_to_header else self.header,
+                has_inclined=self.has_inclined,
+                vertical_datum=self.vertical_datum,
+            )
+
+    @_requires_depth
+    def combine_consecutive_layers(
+        self, column: str, agg_funcs: dict = None, inplace: bool = False
+    ) -> pd.DataFrame:
+        """
+        Combine consecutive layers in the data that have the same value in a specified column.
+        The column to use for combining layers is typically categorical data, such as lithology or soil type.
+        Any other columns can be aggregated using the provided aggregation functions.
+
+
+        Parameters
+        ----------
+        column : str
+            Name of the column to check for consecutive identical values. Typically a column
+            holding categorical data.
+        agg_funcs : dict, optional
+            Dictionary specifying the aggregation functions to apply to other columns when combining layers.
+            Keys are column names, and values are aggregation functions. These can be e.g.
+            names such as'first', 'last', 'mean', etc. or actual functions such as np.sum, np.mean, etc.
+        inplace : bool, optional
+            If True, the combination is applied in place and the original Collection is modified.
+            If False, a new DataFrame with combined layers is returned. The default is False.
+
+        Returns
+        -------
+        pd.DataFrame
+            New DataFrame with consecutive layers combined based on the specified column.
+
+        Raises
+        ------
+        KeyError
+            If the specified column does not exist in the DataFrame.
+
+        Examples
+        --------
+        Say we have CPT data which and lithology (column 'lith') for each row. We want to
+        combine consecutive layers with identical lithology and aggregate the 'qc' and 'fs'
+        columns by taking the mean:
+
+        >>> aggregated_collection = collection.combine_consecutive_layers('lith', {'qc': 'mean', 'fs': 'mean'})
+        """
+        combined_data = self.data.gst.combine_consecutive_layers(column, agg_funcs)
+        if inplace:
+            self.data = combined_data
+        else:
+            return self.__class__(
+                combined_data,
+                header=self.header,
+                has_inclined=self.has_inclined,
+                vertical_datum=self.vertical_datum,
+            )
+
     def to_geoparquet(self, outfile: str | Path, **kwargs):
         """
         Write header data to geoparquet. You can use the resulting file to display
