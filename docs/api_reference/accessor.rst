@@ -69,7 +69,7 @@ Data manipulation
    :toctree: generated/
 
    GeostFrame.standardize_column_names
-   GeostFrame.combine_consecutive_layers
+   GeostFrame.aggregate_consecutive_layers
 
 Export
 -----------------------------

@@ -1428,12 +1428,12 @@ class GeostFrame(AbstractBase):
         return discretized
 
     @_requires_depth
-    def combine_consecutive_layers(
-        self, column: str, agg_funcs: dict = None
+    def aggregate_consecutive_layers(
+        self, column: str, agg_funcs: dict = None, keep_original_index: bool = False
     ) -> pd.DataFrame:
         """
-        Combine consecutive layers in the data that have the same value in a specified column.
-        The column to use for combining layers is typically categorical data, such as lithology or soil type.
+        Aggregate consecutive layers in the data that have the same value in a specified column.
+        The column to use for aggregating layers is typically categorical data, such as lithology or soil type.
         Any other columns can be aggregated using the provided aggregation functions.
 
 
@@ -1446,6 +1446,9 @@ class GeostFrame(AbstractBase):
             Dictionary specifying the aggregation functions to apply to other columns when combining layers.
             Keys are column names, and values are aggregation functions. These can be e.g.
             names such as'first', 'last', 'mean', etc. or actual functions such as np.sum, np.mean, etc.
+        keep_original_index : bool, optional
+            If True, the original index of the DataFrame is preserved in the resulting DataFrame.
+            If False, the index is reset (recommended). The default is False.
 
         Returns
         -------
@@ -1463,7 +1466,7 @@ class GeostFrame(AbstractBase):
         combine consecutive layers with identical lithology and aggregate the 'qc' and 'fs'
         columns by taking the mean:
 
-        >>> combined_data = data.gst.combine_consecutive_layers('lith', {'qc': 'mean', 'fs': 'mean'})
+        >>> combined_data = data.gst.aggregate_consecutive_layers('lith', {'qc': 'mean', 'fs': 'mean'})
         """
         df = self._obj.copy()
         df["original_index"] = df.index
@@ -1502,6 +1505,8 @@ class GeostFrame(AbstractBase):
         # Clean-up
         df.index.name = self._obj.index.name
         df.drop("original_index", axis=1, inplace=True)
+        if not keep_original_index:
+            df.reset_index(drop=True, inplace=True)
 
         return df
 

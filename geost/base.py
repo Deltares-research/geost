@@ -1381,12 +1381,16 @@ class Collection(AbstractBase):
         )
 
     @_requires_depth
-    def combine_consecutive_layers(
-        self, column: str, agg_funcs: dict = None, inplace: bool = False
+    def aggregate_consecutive_layers(
+        self,
+        column: str,
+        agg_funcs: dict = None,
+        keep_original_index: bool = False,
+        inplace: bool = False,
     ) -> pd.DataFrame:
         """
-        Combine consecutive layers in the data that have the same value in a specified column.
-        The column to use for combining layers is typically categorical data, such as lithology or soil type.
+        Aggregate consecutive layers in the data that have the same value in a specified column.
+        The column to use for aggregating layers is typically categorical data, such as lithology or soil type.
         Any other columns can be aggregated using the provided aggregation functions.
 
 
@@ -1399,6 +1403,9 @@ class Collection(AbstractBase):
             Dictionary specifying the aggregation functions to apply to other columns when combining layers.
             Keys are column names, and values are aggregation functions. These can be e.g.
             names such as'first', 'last', 'mean', etc. or actual functions such as np.sum, np.mean, etc.
+        keep_original_index : bool, optional
+            If True, the original index of the data DataFrame is preserved in the resulting DataFrame.
+            If False, the index is reset (recommended). The default is False.
         inplace : bool, optional
             If True, the combination is applied in place and the original Collection is modified.
             If False, a new DataFrame with combined layers is returned. The default is False.
@@ -1416,12 +1423,14 @@ class Collection(AbstractBase):
         Examples
         --------
         Say we have CPT data which and lithology (column 'lith') for each row. We want to
-        combine consecutive layers with identical lithology and aggregate the 'qc' and 'fs'
+        aggregate consecutive layers with identical lithology and aggregate the 'qc' and 'fs'
         columns by taking the mean:
 
-        >>> aggregated_collection = collection.combine_consecutive_layers('lith', {'qc': 'mean', 'fs': 'mean'})
+        >>> aggregated_collection = collection.aggregate_consecutive_layers('lith', {'qc': 'mean', 'fs': 'mean'})
         """
-        combined_data = self.data.gst.combine_consecutive_layers(column, agg_funcs)
+        combined_data = self.data.gst.aggregate_consecutive_layers(
+            column, agg_funcs, keep_original_index=keep_original_index
+        )
         if inplace:
             self.data = combined_data
         else:

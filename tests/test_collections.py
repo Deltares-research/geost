@@ -750,12 +750,12 @@ class TestCollection:
         assert_array_almost_equal(collection.header[expected_column], expected_base)
 
     @pytest.mark.unittest
-    def test_combine_consecutive_layers(self, borehole_collection):
+    def test_aggregate_consecutive_layers(self, borehole_collection):
         # return variant
-        combined = borehole_collection.combine_consecutive_layers("lith")
+        combined = borehole_collection.aggregate_consecutive_layers("lith")
 
         # inplace variant
-        borehole_collection.combine_consecutive_layers("lith", inplace=True)
+        borehole_collection.aggregate_consecutive_layers("lith", inplace=True)
         assert_array_equal(
             borehole_collection.data["lith"],
             ["K", "Z", "K", "K", "V", "K", "K", "Z", "K", "V", "K", "V", "Z", "Z"],
@@ -764,7 +764,7 @@ class TestCollection:
 
         # return variant
         borehole_collection = borehole_collection.get(["A", "B", "C", "D", "E"])
-        combined = borehole_collection.combine_consecutive_layers("lith")
+        combined = borehole_collection.aggregate_consecutive_layers("lith")
 
     @pytest.mark.unittest
     def test_to_kingdom(self, borehole_collection):

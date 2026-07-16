@@ -1116,9 +1116,11 @@ class TestGeostFrame:
         )
 
     @pytest.mark.unittest
-    def test_combine_consecutive_layers(self, borehole_data, cpt_data):
+    def test_aggregate_consecutive_layers(self, borehole_data, cpt_data):
         # Combine borehole layers
-        result = borehole_data.gst.combine_consecutive_layers("lith")
+        result = borehole_data.gst.aggregate_consecutive_layers(
+            "lith", keep_original_index=True
+        )
         assert isinstance(result, pd.DataFrame)
         assert result.index.equals(
             pd.Index([0, 2, 4, 5, 7, 9, 10, 13, 15, 16, 17, 18, 19, 20])
@@ -1140,7 +1142,7 @@ class TestGeostFrame:
         cpt_data["categorical_data"] = (
             ["A"] * 4 + ["B"] * 4 + ["A"] * 4 + ["C"] * 4 + ["B"] * 4
         )
-        result = cpt_data.gst.combine_consecutive_layers(
+        result = cpt_data.gst.aggregate_consecutive_layers(
             "categorical_data", agg_funcs={"qc": "mean", "fs": "max"}
         )
         assert isinstance(result, pd.DataFrame)
