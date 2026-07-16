@@ -1,10 +1,19 @@
-from enum import Enum
-from typing import NamedTuple
+from typing import TYPE_CHECKING
 
 import rioxarray  # noqa: F401, register `rio` accessor
 import xarray as xr
 
 from geost.models._core import ModelType, detect_top_and_bottom, detect_vertical_dim
+from geost.utils import conversion
+
+if TYPE_CHECKING:
+    from pathlib import Path
+
+    import geopandas as gpd
+    from pyproj import CRS
+    from shapely.geometry.base import BaseGeometry
+
+type GeometryType = BaseGeometry | list[BaseGeometry]
 
 
 class ModelBase:
@@ -34,6 +43,10 @@ class ModelBase:
     @property
     def crs(self):
         return self._obj.rio.crs
+
+    @property
+    def ndims(self):
+        return len(self._obj.dims)
 
     @property
     def x_dim(self):
@@ -140,34 +153,150 @@ class ModelBase:
     def shape(self):
         return tuple(self._obj.sizes.values())
 
-    def select_with_points(self):  # pragma: no cover
+    def select_within_bbox(
+        self,
+        xmin: int | float,
+        ymin: int | float,
+        xmax: int | float,
+        ymax: int | float,
+        crs: str | int | CRS | None = None,
+    ) -> xr.Dataset | xr.DataArray:
         """
-        Implementation of method does not differ between DataArray or Dataset and VoxelModel
-        and LayerModel.
+        Select data within a specified bounding box (xmin, ymin, xmax, ymax).
+
+        Parameters
+        ----------
+        xmin : float | int
+            Minimum x-coordinate of the bounding box.
+        ymin : float | int
+            Minimum y-coordinate of the bounding box.
+        xmax : float | int
+            Maximum x-coordinate of the bounding box.
+        ymax : float | int
+            Maximum y-coordinate of the bounding box.
+        crs : str | int | CRS | None, optional
+            Coordinate reference system of the bounding box. If None, the CRS of the
+            bounding box is assumed to be the same as the dataset.
+
+        Returns
+        -------
+        xr.Dataset | xr.DataArray
+            Subset of the original dataset or data array within the specified bounding box.
+
+        Raises
+        ------
+        ValueError
+            If no data is found within the specified bounding box.
+
+        """
+        try:
+            return self._obj.rio.clip_box(
+                minx=xmin,
+                miny=ymin,
+                maxx=xmax,
+                maxy=ymax,
+                crs=crs,
+                allow_one_dimensional_raster=True,  # Otherwise rioxarray raises an error
+            )
+        except rioxarray.exceptions.NoDataInBounds as e:
+            raise ValueError(
+                "No data found within the specified bounding box: "
+                f"({xmin}, {ymin}, {xmax}, {ymax})"
+            ) from e
+
+    def select_points(self):  # pragma: no cover
+        """
+        This method must select each x,y column by point idx. The result should be
+        a new xarray.Dataset or xarray.DataArray with (idx, z) dimensions. The idx
+        dimension should be the same length as the number of points selected in case
+        when all points are within the model bounds. If some points are outside the
+        model bounds, the idx should contain a full NaN column or the idx should be
+        removed from the result.
 
         """
         raise NotImplementedError()
 
-    def select_with_line(self):  # pragma: no cover
+    def select_along_line(self):  # pragma: no cover
         """
-        Implementation of method does not differ between DataArray or Dataset and VoxelModel
-        and LayerModel.
+        This method is intended to select data along a line. This can be done in two ways:
+        1) sample an x,y-point at each distance x along the line.
+        2) take n-samples along the line between start and end.
+
+        The result should be a new xarray.Dataset or xarray.DataArray with (distance, z)
+        dimensions. The distance dimension should be the same length as the number of
+        points sampled along the line. If part of the line is outside the model bounds,
+        the result should contain full NaN columns for those distances or the distances
+        should be removed from the result.
 
         """
         raise NotImplementedError()
 
-    def select_within_polygons(self):  # pragma: no cover
+    def mask_geometries(
+        self,
+        geometries: str | Path | gpd.GeoDataFrame | GeometryType,
+        crs: str | int | CRS = None,
+        all_touched: bool = False,
+        invert: bool = False,
+        drop: bool = False,
+    ) -> xr.Dataset | xr.DataArray:
         """
-        Implementation of method does not differ between DataArray or Dataset and VoxelModel
-        and LayerModel.
+        Mask 'x','y'-locations that overlap with geometries (points, lines, polygons).
+
+        Parameters
+        ----------
+        geometries : str | Path | gpd.GeoDataFrame | GeometryType
+            Any type of geometry that can be used to mask the model. This can be a path
+            to shapefile-like file, a GeoDataFrame, or a single geometry or list of geometries.
+        crs : str | int | CRS, optional
+            The CRS of the input geometries. The default is None, then it is assumed to be
+            the same as the dataset's CRS.
+        all_touched : bool, optional
+            If True, all pixels touched by geometries will be selected. If false, only
+            pixels whose center is within the polygon or that are selected by Bresenham's
+            line algorithm (in case of lines) will selected. In case the geometries are
+            any cell that overlaps with a geometry will be selected. The default is False.
+        invert : bool, optional
+            If True, the mask will be inverted. By default False.
+        drop : bool, optional
+            If True, drop the data outside of the extent of the mask geometries. Otherwise,
+            it will return the result with the original shape. The default is False.
+
+        Returns
+        -------
+        xr.Dataset | xr.DataArray
+            The masked xarray.Dataset or xarray.DataArray.
+
+        Example
+        -------
+        Use a GeoDataFrame with points to select the x,y-locations of the model that overlap
+        with the points:
+
+        >>> import geopandas as gpd
+        >>> points = gpd.GeoDataFrame(
+        ...     geometry=gpd.points_from_xy([0.8, 2.4, 1.0], [0.8, 2.4, 0.5]), crs="EPSG:28992"
+        ... )
+        >>> model.gst.mask_geometries(points, drop=False) # Mask the point locations and keep original shape
+
+        Or use a Shapely geometry to select the overlapping x,y-locations of the model:
+
+        >>> import shapely
+        >>> line = shapely.LineString([(0.8, 0.9), (2.4, 2.5)])
+        >>> model.gst.mask_geometries(line, crs=28992) # Specify the CRS of the line
 
         """
-        raise NotImplementedError()
+        geometries = conversion.check_geometry_instance(geometries)
 
-    def select_within_bbox(self):  # pragma: no cover
-        """
-        Implementation of method does not differ between DataArray or Dataset and VoxelModel
-        and LayerModel.
+        clipped = self._obj
+        # Ensure that the dimensions are in the correct order
+        if self.ndims == 3 and clipped.dims != (self._y, self._x, self._z):
+            clipped = clipped.transpose(self._y, self._x, self._z)
+        elif self.ndims == 2 and clipped.dims != (self._y, self._x):
+            clipped = clipped.transpose(self._y, self._x)  # Also in 2D
 
-        """
-        raise NotImplementedError()
+        return clipped.rio.clip(
+            geometries.geometry.values,
+            crs=crs,
+            all_touched=all_touched,
+            invert=invert,
+            drop=drop,
+        )

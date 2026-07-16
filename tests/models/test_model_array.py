@@ -1,6 +1,8 @@
 import numpy as np
+import pandas as pd
 import pytest
 import xarray as xr
+from numpy.testing import assert_array_equal
 
 from geost.models._core import ModelType
 from geost.models.model_array import ModelDataArray
@@ -32,6 +34,18 @@ def invalid_dataarray():
         np.zeros((2, 3, 4, 5)),
         dims=("y", "x", "z", "layer"),
     )
+
+
+@pytest.fixture
+def dataarray_inverted_dims():
+    x = np.arange(0, 4) + 0.5
+    y = np.arange(3, 0, -1) - 0.5
+    z = [0.75, 0.25]
+    da = xr.DataArray(
+        np.ones((4, 3, 2)), dims=("x", "y", "z"), coords={"x": x, "y": y, "z": z}
+    )
+    da.rio.write_crs("EPSG:28992", inplace=True)
+    return da
 
 
 class TestModelDataArray:
@@ -111,6 +125,11 @@ class TestModelDataArray:
             invalid_dataarray.gst
 
     @pytest.mark.unittest
+    def test_ndims(self, voxelmodel_var, layermodel_var):
+        assert voxelmodel_var.gst.ndims == 3
+        assert layermodel_var.gst.ndims == 3
+
+    @pytest.mark.unittest
     def test_crs(self, voxelmodel_var, layermodel_var):
         assert voxelmodel_var.gst.crs == 28992
         assert layermodel_var.gst.crs == 28992
@@ -164,3 +183,272 @@ class TestModelDataArray:
             "can only be used on an xarray.Dataset with valid 'top' and 'bottom' variables.",
         ):
             layermodel_var.gst.vertical_bounds()
+
+    @pytest.mark.unittest
+    def test_select_within_bbox(self, voxelmodel_var):
+        sel = voxelmodel_var.gst.select_within_bbox(1, 1, 3, 3)
+        assert isinstance(sel, xr.DataArray)
+        assert sel.gst.shape == (2, 2, 5)
+        assert_array_equal(sel["x"].values, [1.5, 2.5])
+        assert_array_equal(sel["y"].values, [2.5, 1.5])
+
+        with pytest.raises(
+            ValueError, match="No data found within the specified bounding box"
+        ):
+            voxelmodel_var.gst.select_within_bbox(1, 1, 3, 3, crs=4326)
+
+    @pytest.mark.unittest
+    def test_mask_geometries_points(self, voxelmodel_var, points):
+        masked = voxelmodel_var.gst.mask_geometries(points)
+        assert isinstance(masked, xr.DataArray)
+        assert masked.gst.shape == voxelmodel_var.gst.shape
+        removed_xy_cells = masked.isnull().all(dim="z")
+        assert_array_equal(
+            removed_xy_cells,
+            [
+                [True, True, True, True],
+                [True, True, False, True],
+                [True, True, True, True],
+                [False, False, True, True],
+            ],
+        )
+        expected_xy_cells = pd.MultiIndex.from_tuples(
+            [(2.5, 2.5), (0.5, 0.5), (0.5, 1.5)], names=["y", "x"]
+        )
+        not_missing = (
+            ~removed_xy_cells
+        ).to_series()  # Created Series contains the coordinates of the cells as the index
+        assert_array_equal(not_missing[not_missing].index, expected_xy_cells)
+
+        masked = voxelmodel_var.gst.mask_geometries(points, all_touched=True)
+        not_missing = (~removed_xy_cells).to_series()
+        assert_array_equal(
+            not_missing[not_missing].index, expected_xy_cells
+        )  # all_touched=True does not change the result for points, so same expected_xy_cells
+
+        # Test invert=True, which should result in the inverse of the previous mask
+        masked = voxelmodel_var.gst.mask_geometries(points, invert=True)
+        removed_xy_cells = masked.isnull().all(dim="z")
+        assert_array_equal(
+            removed_xy_cells,
+            [
+                [False, False, False, False],
+                [False, False, True, False],
+                [False, False, False, False],
+                [True, True, False, False],
+            ],
+        )
+
+        masked = voxelmodel_var.gst.mask_geometries(points, crs=4326)
+        # CRS of the voxelmodel differs from the CRS of the points, so nothing is burned in
+        # in the resulting masked DataArray.
+        assert masked.isnull().all()
+
+        masked = voxelmodel_var.gst.mask_geometries(points, crs=4326, invert=True)
+        # Invert=True should result in the inverse of the previous mask, so the result
+        # should be the same as the original voxelmodel_var.
+        assert masked.equals(voxelmodel_var)
+
+        # Test drop=True, which should remove full rows and columns that are completely masked out
+        masked = voxelmodel_var.gst.mask_geometries(points, drop=True)
+        assert masked.sizes == {"y": 3, "x": 3, "z": 5}
+        removed_xy_cells = masked.isnull().all(dim="z")
+        assert_array_equal(
+            removed_xy_cells,
+            [[True, True, False], [True, True, True], [False, False, True]],
+        )
+        expected_xy_cells = pd.MultiIndex.from_tuples(
+            [(2.5, 2.5), (0.5, 0.5), (0.5, 1.5)], names=["y", "x"]
+        )
+        not_missing = (
+            ~removed_xy_cells
+        ).to_series()  # Created Series contains the coordinates of the cells as the index
+        assert_array_equal(not_missing[not_missing].index, expected_xy_cells)
+
+    @pytest.mark.unittest
+    def test_mask_geometries_lines(self, voxelmodel_var, lines):
+        masked = voxelmodel_var.gst.mask_geometries(lines)
+        assert isinstance(masked, xr.DataArray)
+        assert masked.gst.shape == voxelmodel_var.gst.shape
+        removed_xy_cells = masked.isnull().all(dim="z")
+        assert_array_equal(
+            removed_xy_cells,
+            [
+                [True, True, True, True],
+                [True, True, False, True],
+                [True, False, True, False],
+                [False, True, False, True],
+            ],
+        )
+        expected_xy_cells = pd.MultiIndex.from_tuples(
+            [(2.5, 2.5), (1.5, 1.5), (1.5, 3.5), (0.5, 0.5), (0.5, 2.5)],
+            names=["y", "x"],
+        )
+        not_missing = (
+            ~removed_xy_cells
+        ).to_series()  # Created Series contains the coordinates of the cells as the index
+        assert_array_equal(not_missing[not_missing].index, expected_xy_cells)
+
+        # Test all_touched=True and drop=True
+        masked = voxelmodel_var.gst.mask_geometries(lines, all_touched=True, drop=True)
+        assert masked.sizes == {"y": 3, "x": 4, "z": 5}
+        removed_xy_cells = masked.isnull().all(dim="z")
+        assert_array_equal(
+            removed_xy_cells,
+            [
+                [True, False, False, True],
+                [False, False, True, False],
+                [False, True, False, False],
+            ],
+        )
+        expected_xy_cells = pd.MultiIndex.from_tuples(
+            [
+                (2.5, 1.5),
+                (2.5, 2.5),
+                (1.5, 0.5),
+                (1.5, 1.5),
+                (1.5, 3.5),
+                (0.5, 0.5),
+                (0.5, 2.5),
+                (0.5, 3.5),
+            ],
+            names=["y", "x"],
+        )
+        not_missing = (
+            ~removed_xy_cells
+        ).to_series()  # Created Series contains the coordinates of the cells as the index
+        assert_array_equal(not_missing[not_missing].index, expected_xy_cells)
+
+        masked = voxelmodel_var.gst.mask_geometries(lines, crs=4326)
+        # CRS of the voxelmodel differs from the CRS of the lines, so nothing is burned in
+        # in the resulting masked DataArray.
+        assert masked.isnull().all()
+
+        masked = voxelmodel_var.gst.mask_geometries(lines, crs=4326, invert=True)
+        # Invert=True should result in the inverse of the previous mask, so the result
+        # should be the same as the original voxelmodel_var.
+        assert masked.equals(voxelmodel_var)
+
+        # Test invert=True
+        masked = voxelmodel_var.gst.mask_geometries(lines, invert=True)
+        removed_xy_cells = masked.isnull().all(dim="z")
+        assert_array_equal(
+            removed_xy_cells,
+            [
+                [False, False, False, False],
+                [False, False, True, False],
+                [False, True, False, True],
+                [True, False, True, False],
+            ],
+        )
+
+    def test_mask_geometries_polygons(self, voxelmodel_var, polygons):
+        masked = voxelmodel_var.gst.mask_geometries(polygons)
+        assert isinstance(masked, xr.DataArray)
+        assert masked.gst.shape == voxelmodel_var.gst.shape
+        removed_xy_cells = masked.isnull().all(dim="z")
+        assert_array_equal(
+            removed_xy_cells,
+            [
+                [True, True, True, True],
+                [True, True, True, True],
+                [False, False, True, True],
+                [False, False, True, True],
+            ],
+        )
+        expected_xy_cells = pd.MultiIndex.from_tuples(
+            [(1.5, 0.5), (1.5, 1.5), (0.5, 0.5), (0.5, 1.5)], names=["y", "x"]
+        )
+        not_missing = (
+            ~removed_xy_cells
+        ).to_series()  # Created Series contains the coordinates of the cells as the index
+        assert_array_equal(not_missing[not_missing].index, expected_xy_cells)
+
+        # Test drop=True: should remove rows, cols but select the same coordinates as the previous test
+        masked = voxelmodel_var.gst.mask_geometries(polygons, drop=True)
+        assert masked.sizes == {"y": 2, "x": 2, "z": 5}
+        removed_xy_cells = masked.isnull().all(dim="z")
+        not_missing = (
+            ~removed_xy_cells
+        ).to_series()  # Created Series contains the coordinates of the cells as the index
+        assert_array_equal(not_missing[not_missing].index, expected_xy_cells)
+
+        # Test invert=True
+        masked = voxelmodel_var.gst.mask_geometries(polygons, invert=True)
+        removed_xy_cells = masked.isnull().all(dim="z")
+        assert_array_equal(
+            removed_xy_cells,
+            [
+                [False, False, False, False],
+                [False, False, False, False],
+                [True, True, False, False],
+                [True, True, False, False],
+            ],
+        )
+
+        # Test all_touched=True
+        masked = voxelmodel_var.gst.mask_geometries(polygons, all_touched=True)
+        removed_xy_cells = masked.isnull().all(dim="z")
+        assert_array_equal(
+            removed_xy_cells,
+            [
+                [True, True, True, True],
+                [False, False, False, False],
+                [False, False, False, False],
+                [False, False, False, True],
+            ],
+        )
+        expected_xy_cells = pd.MultiIndex.from_tuples(
+            [
+                (2.5, 0.5),
+                (2.5, 1.5),
+                (2.5, 2.5),
+                (2.5, 3.5),
+                (1.5, 0.5),
+                (1.5, 1.5),
+                (1.5, 2.5),
+                (1.5, 3.5),
+                (0.5, 0.5),
+                (0.5, 1.5),
+                (0.5, 2.5),
+            ],
+            names=["y", "x"],
+        )
+        not_missing = (
+            ~removed_xy_cells
+        ).to_series()  # Created Series contains the coordinates of the cells as the index
+        assert_array_equal(not_missing[not_missing].index, expected_xy_cells)
+
+        masked = voxelmodel_var.gst.mask_geometries(polygons, crs=4326)
+        # CRS of the voxelmodel differs from the CRS of the polygons, so nothing is burned in
+        # in the resulting masked DataArray.
+        assert masked.isnull().all()
+
+        masked = voxelmodel_var.gst.mask_geometries(polygons, crs=4326, invert=True)
+        # Invert=True should result in the inverse of the previous mask, so the result
+        # should be the same as the original voxelmodel_var.
+        assert masked.equals(voxelmodel_var)
+
+    @pytest.mark.unittest
+    def test_mask_geometries_inverted_dims(self, dataarray_inverted_dims, points):
+        # With inverted x,y dimensions, the mask result will be transposed. This is needed
+        # for consistency in coordinates
+        assert dataarray_inverted_dims.gst.shape == (4, 3, 2)
+        masked = dataarray_inverted_dims.gst.mask_geometries(points)
+        assert masked.gst.shape == (3, 4, 2)
+        removed_xy_cells = masked.isnull().all(dim="z")
+        assert_array_equal(
+            removed_xy_cells,
+            [
+                [True, True, False, True],
+                [True, True, True, True],
+                [False, False, True, True],
+            ],
+        )
+        expected_xy_cells = pd.MultiIndex.from_tuples(
+            [(2.5, 2.5), (0.5, 0.5), (0.5, 1.5)], names=["y", "x"]
+        )
+        not_missing = (
+            ~removed_xy_cells
+        ).to_series()  # Created Series contains the coordinates of the cells as the index
+        assert_array_equal(not_missing[not_missing].index, expected_xy_cells)

@@ -297,8 +297,8 @@ def layermodel():
             [2.9, 1.2, 1.2, 2.6],
         ]
     )
-    thickness = np.stack([a_thickness, b_thickness, c_thickness, d_thickness])
-    bottom = surface - np.cumsum(thickness, axis=0)
+    thickness = np.stack([a_thickness, b_thickness, c_thickness, d_thickness], axis=2)
+    bottom = surface[:, :, None] - np.cumsum(thickness, axis=2)
     top = bottom + thickness
 
     kh = np.stack(
@@ -312,10 +312,10 @@ def layermodel():
 
     layermodel = xr.Dataset(
         data_vars={
-            "top": (("layer", "y", "x"), top),
-            "bottom": (("layer", "y", "x"), bottom),
-            "thickness": (("layer", "y", "x"), thickness),
-            "kh": (("layer", "y", "x"), kh),
+            "top": (("y", "x", "layer"), top),
+            "bottom": (("y", "x", "layer"), bottom),
+            "thickness": (("y", "x", "layer"), thickness),
+            "kh": (("y", "x", "layer"), kh),
             "surface": (("y", "x"), surface),
         },
         coords={
@@ -325,6 +325,8 @@ def layermodel():
         },
     )
     layermodel.rio.write_crs(28992, inplace=True)
+    vars_3d = ["top", "bottom", "thickness", "kh"]
+    layermodel[vars_3d] = layermodel[vars_3d].where(layermodel["thickness"] != 0)
     return layermodel
 
 
