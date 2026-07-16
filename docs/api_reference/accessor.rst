@@ -40,6 +40,7 @@ Analysis
 .. autosummary::
    :toctree: generated/
 
+   GeostFrame.calculate_thickness
    GeostFrame.get_cumulative_thickness
    GeostFrame.get_layer_base
    GeostFrame.get_layer_top
@@ -58,8 +59,6 @@ Generic
 .. autosummary::
    :toctree: generated/
 
-   GeostFrame.calculate_thickness
-   GeostFrame.standardize_column_names
    GeostFrame.to_collection
    GeostFrame.to_header
    GeostFrame.validate
@@ -69,7 +68,7 @@ Data manipulation
 .. autosummary::
    :toctree: generated/
 
-   GeostFrame.map_categorical_data
+   GeostFrame.standardize_column_names
    GeostFrame.combine_consecutive_layers
 
 Export

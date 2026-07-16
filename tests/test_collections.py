@@ -749,48 +749,22 @@ class TestCollection:
         collection.get_layer_base(column, value, include_in_header=True)
         assert_array_almost_equal(collection.header[expected_column], expected_base)
 
-    def test_map_categorical_data(self, borehole_collection):
-        mapping = {"V": "Veen", "K": "Klei"}
-        borehole_collection.map_categorical_data(
-            "lith", mapping, missing_value="x", inplace=True
-        )
-        assert_array_equal(
-            borehole_collection.data["lith"],
-            [
-                "Klei",
-                "Klei",
-                "x",
-                "x",
-                "Klei",
-                "Klei",
-                "Klei",
-                "Veen",
-                "Veen",
-                "Klei",
-                "Klei",
-                "Klei",
-                "Klei",
-                "x",
-                "x",
-                "Klei",
-                "Veen",
-                "Klei",
-                "Veen",
-                "x",
-                "x",
-                "x",
-                "x",
-                "x",
-                "x",
-            ],
-        )
-
+    @pytest.mark.unittest
     def test_combine_consecutive_layers(self, borehole_collection):
+        # return variant
+        combined = borehole_collection.combine_consecutive_layers("lith")
+
+        # inplace variant
         borehole_collection.combine_consecutive_layers("lith", inplace=True)
         assert_array_equal(
             borehole_collection.data["lith"],
             ["K", "Z", "K", "K", "V", "K", "K", "Z", "K", "V", "K", "V", "Z", "Z"],
         )
+        assert_array_equal(combined.data["lith"], borehole_collection.data["lith"])
+
+        # return variant
+        borehole_collection = borehole_collection.get(["A", "B", "C", "D", "E"])
+        combined = borehole_collection.combine_consecutive_layers("lith")
 
     @pytest.mark.unittest
     def test_to_kingdom(self, borehole_collection):

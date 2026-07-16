@@ -1427,54 +1427,6 @@ class GeostFrame(AbstractBase):
 
         return discretized
 
-    def map_categorical_data(
-        self, column: str, mapping: dict, missing_value: str | float = None
-    ) -> pd.DataFrame:
-        """
-        Map categorical data in a column to new values based on a provided mapping dictionary.
-
-        Parameters
-        ----------
-        column : str
-            Name of the column containing categorical data to be mapped.
-        mapping : dict
-            Dictionary specifying the mapping of old values to new values. Keys are the
-            old values, and values are the new values.
-        missing_value : str | float, optional
-            Value to use for any entries in the column that do not have a corresponding value in the mapping dictionary.
-
-        Returns
-        -------
-        pd.DataFrame
-            New DataFrame with the specified column's categorical data mapped to new values.
-
-        Raises
-        ------
-        KeyError
-            If the specified column does not exist in the DataFrame.
-
-        Examples
-        --------
-        To map lithology codes to descriptive names:
-
-        >>> mapping = {'K': 'Clay', 'Z': 'Sand', 'V': 'Peat'}
-        >>> mapped_data = data.gst.map_categorical_data('lith', mapping)
-
-        """
-        mapped_df = self._obj.copy()
-
-        if column not in mapped_df.columns:
-            pass
-        else:
-            if missing_value is not None:
-                mapped_df[column] = mapped_df[column].map(mapping).fillna(missing_value)
-            else:
-                mapped_df[column] = (
-                    mapped_df[column].map(mapping).fillna(mapped_df[column])
-                )
-
-        return mapped_df
-
     @_requires_depth
     def combine_consecutive_layers(
         self, column: str, agg_funcs: dict = None
