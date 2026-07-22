@@ -194,7 +194,7 @@ class Collection(AbstractBase):
 
         # Note directly creating pd.RangeIndex objects would be better, but makes it slow
         # for large datasets...
-        ranges = [(s, e) for s, e in zip(first_idx, last_idx)]
+        ranges = [(s, e + 1) for s, e in zip(first_idx, last_idx)]
 
         return pd.Series(data=ranges, index=self.header.index)
 

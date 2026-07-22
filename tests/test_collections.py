@@ -185,12 +185,15 @@ class TestCollection:
         )  # Check that all values are tuples (May become pd.RangeIndex in future versions)
 
         # Check that the ranges correspond to the correct rows in the data table
+        range_check = []
         for header_idx, data_range in index_map.items():
             header_id = borehole_collection.header.loc[header_idx, "nr"]
-            data_ids = borehole_collection.data.loc[
+            data = borehole_collection.data.loc[
                 pd.RangeIndex(start=data_range[0], stop=data_range[1]), "nr"
-            ].unique()
-            assert len(data_ids) == 1 and data_ids[0] == header_id
+            ]
+            range_check.append(len(data))
+            assert all(data == header_id)
+        assert range_check == [5, 5, 5, 5, 5]  # Each borehole has 5 data points
 
     @pytest.mark.unittest
     def test_get(self, borehole_collection):
