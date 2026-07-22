@@ -585,27 +585,29 @@ class TestGeostFrame:
 
         # Normal test, so it lists the indices of points in the selection_points that are
         # within the max_distance of each point in the header.
-        result = point_header.gst.find_point_pairs(selection_points, max_distance)
+        result = point_header.gst.find_point_pairs(
+            selection_points, max_distance, return_distance=True
+        )
         assert_array_equal(
             result,
             np.array(
                 [
-                    [0, 0],
-                    [1, 0],
-                    [2, 2],
-                    [3, 2],
-                    [4, 2],
-                    [5, 0],
-                    [8, 2],
-                    [10, 3],
-                    [13, 1],
-                    [15, 3],
-                    [16, 3],
-                    [17, 1],
-                    [18, 1],
-                    [19, 1],
-                    [20, 3],
-                    [23, 1],
+                    [0.0, 0.0, 0.0],
+                    [1.0, 0.0, 1.0],
+                    [2.0, 2.0, 1.0],
+                    [3.0, 2.0, 0.0],
+                    [4.0, 2.0, 1.0],
+                    [5.0, 0.0, 1.0],
+                    [8.0, 2.0, 1.0],
+                    [10.0, 3.0, 1.0],
+                    [13.0, 1.0, 1.0],
+                    [15.0, 3.0, 0.0],
+                    [16.0, 3.0, 1.0],
+                    [17.0, 1.0, 1.0],
+                    [18.0, 1.0, 0.0],
+                    [19.0, 1.0, 1.0],
+                    [20.0, 3.0, 1.0],
+                    [23.0, 1.0, 1.0],
                 ]
             ),
         )
@@ -613,27 +615,29 @@ class TestGeostFrame:
         # Reversed test, so it lists the indices of points in the header that are
         # within the max_distance of each point in the selection_points.
         selection_points["nr"] = ["A", "B", "C", "D"]
-        result = selection_points.gst.find_point_pairs(point_header, max_distance)
+        result = selection_points.gst.find_point_pairs(
+            point_header, max_distance, return_distance=True
+        )
         assert_array_equal(
             result,
             np.array(
                 [
-                    [0, 0],
-                    [0, 1],
-                    [0, 5],
-                    [1, 13],
-                    [1, 17],
-                    [1, 18],
-                    [1, 19],
-                    [1, 23],
-                    [2, 2],
-                    [2, 3],
-                    [2, 4],
-                    [2, 8],
-                    [3, 10],
-                    [3, 15],
-                    [3, 16],
-                    [3, 20],
+                    [0.0, 0.0, 0.0],
+                    [0.0, 1.0, 1.0],
+                    [0.0, 5.0, 1.0],
+                    [1.0, 13.0, 1.0],
+                    [1.0, 17.0, 1.0],
+                    [1.0, 18.0, 0.0],
+                    [1.0, 19.0, 1.0],
+                    [1.0, 23.0, 1.0],
+                    [2.0, 2.0, 1.0],
+                    [2.0, 3.0, 0.0],
+                    [2.0, 4.0, 1.0],
+                    [2.0, 8.0, 1.0],
+                    [3.0, 10.0, 1.0],
+                    [3.0, 15.0, 0.0],
+                    [3.0, 16.0, 1.0],
+                    [3.0, 20.0, 1.0],
                 ]
             ),
         )

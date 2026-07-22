@@ -393,11 +393,15 @@ class TestCollection:
         )
 
         # Return variant
-        pairs = borehole_collection.find_point_pairs(selection_gdf, 1.1)
+        pairs = borehole_collection.find_point_pairs(
+            selection_gdf, 1.1, return_distance=True
+        )
         assert len(pairs) == 3
 
         # In-Place variant
-        borehole_collection.find_point_pairs(selection_gdf, 1.1, include_in_header=True)
+        borehole_collection.find_point_pairs(
+            selection_gdf, 1.1, return_distance=True, include_in_header=True
+        )
         assert "points_in_range" in borehole_collection.header.columns
 
     @pytest.mark.unittest

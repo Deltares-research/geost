@@ -702,6 +702,7 @@ class GeostFrame(AbstractBase):
         self,
         points: str | Path | gpd.GeoDataFrame | GeometryType,
         max_distance: float | int,
+        return_distance: bool = False,
     ) -> np.ndarray:
         """
         Find pairs of points between the data and the given query points that are within
@@ -715,12 +716,17 @@ class GeostFrame(AbstractBase):
             MultiPoint or list containing Point objects.
         max_distance : float | int
             Maximum distance between points to be considered a pair.
+        return_distance : bool, optional
+            If True, the distances between the paired points will be returned as well. The
+            default is False.
 
         Returns
         -------
         np.ndarray
             Array of shape (n_pairs, 2) containing the dataframe indices of the paired
-            points in the data (column 0) and the query points (column 1) within range.
+            points in the data (column 0) and the query points (column 1) within range. If
+            ``return_distance`` is True, the array will have shape (n_pairs, 3) with the
+            third column containing the distances between the paired points.
 
         """
         from scipy.spatial import KDTree
@@ -734,6 +740,14 @@ class GeostFrame(AbstractBase):
         pairs = np.array(
             [[i, p] for pair, i in zip(pairs, self._obj.index) for p in pair if pair]
         )
+
+        if return_distance:
+            distances = np.linalg.norm(
+                self._obj.get_coordinates().loc[pairs[:, 0]].values
+                - points.get_coordinates().loc[pairs[:, 1]].values,
+                axis=1,
+            )
+            pairs = np.column_stack((pairs, distances))
 
         return pairs
 

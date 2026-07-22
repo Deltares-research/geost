@@ -702,6 +702,7 @@ class Collection(AbstractBase):
         self,
         points: str | Path | gpd.GeoDataFrame | GeometryType,
         max_distance: float | int,
+        return_distance: bool = False,
         include_in_header: bool = False,
     ) -> np.ndarray | None:
         """
@@ -716,20 +717,32 @@ class Collection(AbstractBase):
             MultiPoint or list containing Point objects.
         max_distance : float | int
             Maximum distance between points to be considered a pair.
+        return_distance : bool, optional
+            If True, the distances between the paired points will be returned as well. The
+            default is False.
         include_in_header : bool, optional
             If True, the found pairs will be included in the header of the Collection instance.
             Only applicable if direction is "data_to_query". The default is False.
 
         Returns
         -------
-        np.ndarray, optional
+        np.ndarray
             Array of shape (n_pairs, 2) containing the dataframe indices of the paired
-            points in the data (column 0) and the query points (column 1) within range.
+            points in the data (column 0) and the query points (column 1) within range. If
+            ``return_distance`` is True, the array will have shape (n_pairs, 3) with the
+            third column containing the distances between the paired points.
 
         """
-        pairs = self.header.gst.find_point_pairs(points, max_distance)
+        pairs = self.header.gst.find_point_pairs(
+            points, max_distance, return_distance=return_distance
+        )
         if include_in_header:
-            df = pd.DataFrame(pairs, columns=["index", "points_in_range"])
+            df = pd.DataFrame(
+                pairs,
+                columns=["index", "points_in_range"]
+                if not return_distance
+                else ["index", "points_in_range", "distances"],
+            )
             df = df.groupby("index")["points_in_range"].apply(list).to_frame()
             self.header = self.header.join(df)
         else:
