@@ -27,7 +27,7 @@ NEN5104_TO_LITHOCLASS_BASE = {
 }
 
 
-def __classify_clay(
+def _classify_clay(
     df: pd.DataFrame,
     col_names: dict,
 ) -> pd.Series:
@@ -61,7 +61,7 @@ def __classify_clay(
     return df
 
 
-def __classify_sand(
+def _classify_sand(
     df: pd.DataFrame,
     col_names: dict,
 ) -> pd.Series:
@@ -202,8 +202,8 @@ def nen5104_to_lithoclass(
         .fillna(-999)
         .astype(int)
     )
-    df = __classify_clay(df, col_names)
-    df = __classify_sand(df, col_names)
+    df = _classify_clay(df, col_names)
+    df = _classify_sand(df, col_names)
 
     if names:
         df.replace({"lithoklasse": LITHOCLASS_TO_NAME}, inplace=True)
