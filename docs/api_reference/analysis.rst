@@ -21,6 +21,14 @@ Cpts
     cpt.calc_lithology
 
 
+Classification
+--------------
+.. autosummary::
+    :toctree: generated/
+
+    classification.nen5104_to_lithoclass
+
+
 Grainsize samples
 -----------------
 .. autosummary::
