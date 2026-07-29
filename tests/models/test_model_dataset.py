@@ -308,3 +308,23 @@ class TestModelDataset:
                 ~removed
             ).to_series()  # Created Series contains the coordinates of the cells as the index
             assert_array_equal(not_missing[not_missing].index, expected_xy_cells)
+
+    @pytest.mark.unittest
+    def test_select_points(self, voxelmodel, layermodel, points):
+        """
+        All behaviour for crs and drop keyword arguments is tested in
+        `TestModelDataArray.test_select_points`.
+
+        """
+        selected = voxelmodel.gst.select_points(points)
+        assert isinstance(selected, xr.Dataset)
+        assert selected.sizes == {"idx": 3, "z": 5}
+        assert_array_equal(selected["x"].values, [0.5, 2.5, 1.5])
+        assert_array_equal(selected["y"].values, [0.5, 2.5, 0.5])
+
+        # Also test for layermodel, the same points should be selected
+        selected = layermodel.gst.select_points(points)
+        assert isinstance(selected, xr.Dataset)
+        assert selected.sizes == {"idx": 3, "layer": 4}
+        assert_array_equal(selected["x"].values, [0.5, 2.5, 1.5])
+        assert_array_equal(selected["y"].values, [0.5, 2.5, 0.5])

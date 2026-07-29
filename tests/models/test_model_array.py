@@ -452,3 +452,59 @@ class TestModelDataArray:
             ~removed_xy_cells
         ).to_series()  # Created Series contains the coordinates of the cells as the index
         assert_array_equal(not_missing[not_missing].index, expected_xy_cells)
+
+    @pytest.mark.unittest
+    def test_select_with_points(self, voxelmodel_var, layermodel_var, points):
+        selected = voxelmodel_var.gst.select_points(points)
+        assert isinstance(selected, xr.DataArray)
+        assert selected.sizes == {"idx": 3, "z": 5}
+        assert_array_equal(selected["idx"].values, [0, 1, 2])
+        assert_array_equal(selected["x"].values, [0.5, 2.5, 1.5])
+        assert_array_equal(selected["y"].values, [0.5, 2.5, 0.5])
+        assert_array_equal(selected["z"].values, [-2.25, -1.75, -1.25, -0.75, -0.25])
+        assert_array_equal(
+            selected,
+            [
+                [2.0, 2.0, 2.0, 1.0, np.nan],
+                [2.0, 1.0, 1.0, 1.0, np.nan],
+                [2.0, 1.0, 1.0, 1.0, 1.0],
+            ],
+        )
+
+        selected = layermodel_var.gst.select_points(points)
+        assert isinstance(selected, xr.DataArray)
+        assert selected.sizes == {"idx": 3, "layer": 4}
+        assert_array_equal(selected["idx"].values, [0, 1, 2])
+        assert_array_equal(selected["x"].values, [0.5, 2.5, 1.5])
+        assert_array_equal(selected["y"].values, [0.5, 2.5, 0.5])
+        assert_array_equal(selected["layer"].values, ["A", "B", "C", "D"])
+
+        selected = voxelmodel_var.gst.select_points(points, drop=False)
+        assert selected.sizes == {"idx": 4, "z": 5}
+        assert_array_equal(selected["idx"].values, [0, 1, 2, 3])
+        assert_array_equal(selected["x"].values, [0.5, 2.5, 1.5, np.nan])
+        assert_array_equal(selected["y"].values, [0.5, 2.5, 0.5, np.nan])
+        assert_array_equal(
+            selected,
+            [
+                [2.0, 2.0, 2.0, 1.0, np.nan],
+                [2.0, 1.0, 1.0, 1.0, np.nan],
+                [2.0, 1.0, 1.0, 1.0, 1.0],
+                [np.nan, np.nan, np.nan, np.nan, np.nan],
+            ],
+        )
+
+        # Test that selecting points outside the model bounds results in an empty selection
+        selected = voxelmodel_var.gst.select_points(points.to_crs(4326))
+        assert selected.sizes == {"idx": 0, "z": 5}
+
+        # Should produce the same result as the first test but differs due to coordinate
+        # transformation (see below)
+        selected = voxelmodel_var.gst.select_points(points.to_crs(4326), crs=4326)
+        assert selected.sizes == {"idx": 3, "z": 5}
+        assert_array_equal(selected["idx"].values, [0, 1, 2])
+        assert_array_equal(selected["y"].values, [0.5, 2.5, 0.5])
+        # The third point is exactly on the edge of a cell and now falls in the cell
+        # with x=0.5 instead of x=1.5 due to rounding errors in coordinate transformation.
+        # This is expected behavior.
+        assert_array_equal(selected["x"].values, [0.5, 2.5, 0.5])

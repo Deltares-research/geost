@@ -204,17 +204,75 @@ class ModelBase:
                 f"({xmin}, {ymin}, {xmax}, {ymax})"
             ) from e
 
-    def select_points(self):  # pragma: no cover
+    def select_points(
+        self,
+        points: str | Path | gpd.GeoDataFrame | GeometryType,
+        crs: str | int | CRS | None = None,
+        drop: bool = True,
+    ) -> xr.Dataset | xr.DataArray:
         """
-        This method must select each x,y column by point idx. The result should be
-        a new xarray.Dataset or xarray.DataArray with (idx, z) dimensions. The idx
-        dimension should be the same length as the number of points selected in case
-        when all points are within the model bounds. If some points are outside the
-        model bounds, the idx should contain a full NaN column or the idx should be
-        removed from the result.
+        Select model data at specified point locations. The points can be provided as a
+        GeoDataFrame, a shapely geometry, or a path to a file that can be read into a
+        GeoDataFrame. The points must have a valid coordinate reference system (CRS) that
+        matches the model's CRS, or the user can specify the CRS of the points using the
+        `crs` parameter.
+
+        Parameters
+        ----------
+        points : str | Path | gpd.GeoDataFrame | GeometryType
+            Points to select.
+        crs : str | int | CRS | None, optional
+            Coordinate reference system of the points. If None, the CRS of the
+            points is assumed to be the same as the model.
+        drop : bool, optional
+            If True, points outside the model bounds are removed from the result. If
+            False, points outside the model bounds result in full NaN columns. The
+            default is True.
+
+        Returns
+        -------
+        xr.Dataset | xr.DataArray
+            Subset of the original Dataset or DataArray with coordinate "idx" corresponding
+            to the selected points.
+
+        Example
+        -------
+        Use a GeoDataFrame with points to select the model at the x,y-locations of the points:
+
+        >>> import geopandas as gpd
+        >>> points = gpd.GeoDataFrame(
+        ...     geometry=gpd.points_from_xy([0.8, 2.4, 1.0], [0.8, 2.4, 0.5]), crs="EPSG:28992"
+        ... )
+        >>> model.gst.select_points(points) # Select the model at the point locations
+
+        If the points are in a different CRS than the model, specify the CRS of the points:
+
+        >>> points_wgs = points.to_crs(4326) # Change the CRS of the points to WGS84
+        >>> model.gst.select_points(points_wgs, crs=4326) # Specify the CRS of the points
 
         """
-        raise NotImplementedError()
+        points = conversion.check_geometry_instance(points)
+
+        if crs is not None and crs != self.crs:
+            points = points.to_crs(self.crs)
+
+        xmin, ymin, xmax, ymax = self.bounds()
+        points_in_bounds = points.cx[xmin:xmax, ymin:ymax]
+
+        coords = points_in_bounds.get_coordinates()
+
+        sel = self._obj.sel(
+            x=xr.DataArray(coords["x"], dims="idx"),
+            y=xr.DataArray(coords["y"], dims="idx"),
+            method="nearest",
+        )  # "x" and "y" are standard geopandas names from `get_coordinates()`
+
+        sel = sel.assign_coords(idx=("idx", coords.index))
+
+        if not drop:
+            sel = sel.reindex(idx=points.index)
+
+        return sel
 
     def select_along_line(self):  # pragma: no cover
         """
