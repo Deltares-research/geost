@@ -13,11 +13,19 @@ def points():
 
 @pytest.fixture
 def lines():
+    """
+    line 1: fully within model extent
+    line 2: begins outside model extent but is largely within
+    line 3: begins inside model extent but is largely outside, also the longest line
+    line 4: fully outside model extent
+
+    """
     return gpd.GeoDataFrame(
         geometry=[
             shapely.LineString([(0.8, 0.9), (2.4, 2.5)]),
-            shapely.LineString([(2.9, 0.1), (3.5, 1.6)]),
-            shapely.LineString([(4.5, 4.5), (5.0, 5.0)]),  # Outside the model extent
+            shapely.LineString([(2.9, -1), (2.9, 0.1), (3.5, 1.6)]),
+            shapely.LineString([(3.7, 1.4), (6.7, 1.4)]),
+            shapely.LineString([(4.5, 4.5), (5.0, 5.0)]),
         ],
         crs="EPSG:28992",
     )

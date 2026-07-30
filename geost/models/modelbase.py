@@ -1,10 +1,14 @@
+from __future__ import annotations
+
 from typing import TYPE_CHECKING
 
+import numpy as np
 import rioxarray  # noqa: F401, register `rio` accessor
 import xarray as xr
 
 from geost.models._core import ModelType, detect_top_and_bottom, detect_vertical_dim
 from geost.utils import conversion
+from geost.utils.spatial import get_points_along_lines
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -67,7 +71,9 @@ class ModelBase:
     def write_crs(self, crs, **kwargs):
         return self._obj.rio.write_crs(crs, **kwargs)
 
-    def resolution(self) -> tuple[float, float] | tuple[float, float, float]:
+    def resolution(
+        self, meters: bool = False
+    ) -> tuple[float, float] | tuple[float, float, float]:
         """
         Determine the resolution of the model.
 
@@ -76,6 +82,9 @@ class ModelBase:
         tuple[float, float] | tuple[float, float, float]
             Resolution of the model. For a voxelmodel, returns (xres, yres, zres). For a
             layermodel, returns (xres, yres).
+        meters : bool, optional
+            If True, the resolution is returned in meters. If False, the resolution is
+            returned in the units of the model's CRS. The default is False.
 
         Raises
         ------
@@ -84,7 +93,10 @@ class ModelBase:
 
         """
         try:
-            xres, yres = self._obj.rio.resolution()
+            grid = self._obj.isel({self._z: 0})
+            if self.crs.is_geographic and meters:
+                grid = grid.rio.reproject(grid.rio.estimate_utm_crs())
+            xres, yres = grid.rio.resolution()
         except rioxarray.exceptions.DimensionError as e:
             raise ValueError("Resolution cannot be determined for 1D models.") from e
 
@@ -223,7 +235,7 @@ class ModelBase:
             Points to select.
         crs : str | int | CRS | None, optional
             Coordinate reference system of the points. If None, the CRS of the
-            points is assumed to be the same as the model.
+            points is assumed to be the same as the model. The default is None.
         drop : bool, optional
             If True, points outside the model bounds are removed from the result. If
             False, points outside the model bounds result in full NaN columns. The
@@ -259,35 +271,132 @@ class ModelBase:
         xmin, ymin, xmax, ymax = self.bounds()
         points_in_bounds = points.cx[xmin:xmax, ymin:ymax]
 
-        coords = points_in_bounds.get_coordinates()
-
         sel = self._obj.sel(
-            x=xr.DataArray(coords["x"], dims="idx"),
-            y=xr.DataArray(coords["y"], dims="idx"),
+            x=xr.DataArray(points_in_bounds.geometry.x, dims="idx"),
+            y=xr.DataArray(points_in_bounds.geometry.y, dims="idx"),
             method="nearest",
-        )  # "x" and "y" are standard geopandas names from `get_coordinates()`
+        )
 
-        sel = sel.assign_coords(idx=("idx", coords.index))
+        sel = sel.assign_coords(idx=("idx", points_in_bounds.index))
 
         if not drop:
             sel = sel.reindex(idx=points.index)
 
         return sel
 
-    def select_along_line(self):  # pragma: no cover
+    def select_along_lines(
+        self,
+        lines: str | Path | gpd.GeoDataFrame | GeometryType,
+        crs: str | int | CRS | None = None,
+        distance: float | int = None,
+        start_at_zero: bool = True,
+        drop: bool = True,
+    ) -> xr.Dataset | xr.DataArray:
         """
-        This method is intended to select data along a line. This can be done in two ways:
-        1) sample an x,y-point at each distance x along the line.
-        2) take n-samples along the line between start and end.
+        Select model data at specified distances along given line geometries. The lines
+        can be provided as a GeoDataFrame, a shapely geometry, or a path to a file that
+        can be read into a GeoDataFrame. The lines must have a valid coordinate reference
+        system (CRS) that matches the model's CRS, or the user can specify the CRS of the
+        lines using the `crs` parameter.
 
-        The result should be a new xarray.Dataset or xarray.DataArray with (distance, z)
-        dimensions. The distance dimension should be the same length as the number of
-        points sampled along the line. If part of the line is outside the model bounds,
-        the result should contain full NaN columns for those distances or the distances
-        should be removed from the result.
+        Parameters
+        ----------
+        lines : str | Path | gpd.GeoDataFrame | GeometryType
+            Lines to select along.
+        crs : str | int | CRS | None, optional
+            Coordinate reference system of the lines. If None, the CRS of the
+            lines is assumed to be the same as the model. The default is None.
+        distance : float | int, optional
+            Distance between points along the lines in meters. If None, the distance is
+            set to the model's x-resolution in meters. The distance will be used to compute
+            the evenly spaced sampling points along each line. For each line, the model
+            is sampled at the computed sampling points. The default is None.
+        start_at_zero : bool, optional
+            If True, the first point along each line is at distance 0. If False, the first
+            point is at half the distance. The default is True.
+        drop : bool, optional
+            If True, anything that falls outside the model extent is dropped. So complete
+            lines outside the extent can be dropped or the parts of the lines outside the
+            extent can be dropped. The default is True.
+
+        Returns
+        -------
+        xr.Dataset | xr.DataArray
+            Subset of the original Dataset or DataArray with coordinates "line" and
+            "distance" corresponding to the selected lines and distances along the lines.
+
+        Example
+        -------
+        Use a GeoDataFrame with lines to select the model at the x,y-locations along the
+        lines:
+
+        >>> import geopandas as gpd
+        >>> lines = gpd.GeoDataFrame(
+        ...     geometry=[
+        ...         shapely.LineString([(0.8, 0.9), (2.4, 2.5)]),
+        ...         shapely.LineString([(1.0, 0.5), (2.0, 1.5)]),
+        ...     ],
+        ...     crs="EPSG:28992"
+        ... )
+        >>> model.gst.select_along_lines(lines, distance=0.2) # Select the model along the lines at 10m intervals
+
+        If the points are in a different CRS than the model, specify the CRS of the points:
+
+        >>> lines_wgs = lines.to_crs(4326) # Change the CRS of the lines to WGS84
+        >>> model.gst.select_along_lines(lines_wgs, crs=4326) # Specify the CRS of the lines
 
         """
-        raise NotImplementedError()
+        if distance is None:
+            xres, *_ = self.resolution(meters=True)
+            distance = abs(xres)
+
+        lines = conversion.check_geometry_instance(lines)
+        if lines.crs is None and crs is None:
+            lines = lines.set_crs(self.crs)
+        elif crs is not None and crs != self.crs:
+            lines = lines.to_crs(self.crs)
+
+        # We need all distance measures in meters so if geographic CRS, convert units to meters
+        if lines.crs.is_geographic:
+            lines_utm = lines.to_crs(lines.estimate_utm_crs())
+        else:
+            lines_utm = lines
+
+        # Add a small fraction of the distance to ensure the last point is included in the range
+        max_line_length = lines_utm.length.max() + 0.1 * distance
+        if start_at_zero:
+            distance = np.arange(0, max_line_length, distance)
+        else:
+            distance = np.arange(0.5 * distance, max_line_length, distance)
+
+        xmin, ymin, xmax, ymax = self.bounds()
+        lines_in_bounds = lines.cx[xmin:xmax, ymin:ymax]
+
+        # Get the points to sample from the lines at each distance: CRS is in meters
+        sample_points = get_points_along_lines(
+            lines_utm.loc[lines_in_bounds.index], distance
+        )
+        sample_points.set_index("distance", append=True, inplace=True)
+
+        if sample_points.crs != self.crs:
+            sample_points.to_crs(self.crs, inplace=True)
+
+        points_in_bounds = sample_points.cx[xmin:xmax, ymin:ymax]
+
+        sel = self._obj.sel(
+            x=xr.DataArray(points_in_bounds.geometry.x, dims="point"),
+            y=xr.DataArray(points_in_bounds.geometry.y, dims="point"),
+            method="nearest",
+        )
+
+        # Create dimensions ("z/layer", "line", "distance")
+        coords = xr.Coordinates.from_pandas_multiindex(points_in_bounds.index, "point")
+        sel = sel.assign_coords(coords).unstack("point")
+
+        if not drop:
+            sel = sel.reindex(line=lines.index, distance=distance)
+
+        return sel
 
     def mask_geometries(
         self,

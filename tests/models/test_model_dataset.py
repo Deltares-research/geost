@@ -1,3 +1,4 @@
+import numpy as np
 import pandas as pd
 import pytest
 import xarray as xr
@@ -328,3 +329,25 @@ class TestModelDataset:
         assert selected.sizes == {"idx": 3, "layer": 4}
         assert_array_equal(selected["x"].values, [0.5, 2.5, 1.5])
         assert_array_equal(selected["y"].values, [0.5, 2.5, 0.5])
+
+    @pytest.mark.unittest
+    def test_select_along_lines(self, voxelmodel, layermodel, lines):
+        """
+        All behaviour for crs, distance and drop keyword arguments is tested in
+        `TestModelDataArray.test_select_along_lines`.
+
+        """
+        expected_x_coords = [[0.5, 1.5, 2.5], [np.nan, 2.5, 3.5], [3.5, np.nan, np.nan]]
+        expected_y_coords = [[0.5, 1.5, 2.5], [np.nan, 0.5, 0.5], [1.5, np.nan, np.nan]]
+        selected = voxelmodel.gst.select_along_lines(lines)
+        assert isinstance(selected, xr.Dataset)
+        assert selected.sizes == {"line": 3, "distance": 3, "z": 5}
+        assert_array_equal(selected["x"], expected_x_coords)
+        assert_array_equal(selected["y"], expected_y_coords)
+
+        # Also test for layermodel, the same points should be selected
+        selected = layermodel.gst.select_along_lines(lines)
+        assert isinstance(selected, xr.Dataset)
+        assert selected.sizes == {"line": 3, "distance": 3, "layer": 4}
+        assert_array_equal(selected["x"], expected_x_coords)
+        assert_array_equal(selected["y"], expected_y_coords)

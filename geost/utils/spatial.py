@@ -1,6 +1,5 @@
 import warnings
 from pathlib import Path
-from typing import Iterable
 
 import geopandas as gpd
 import numpy as np
@@ -9,6 +8,46 @@ import rioxarray
 import xarray as xr
 
 from geost.utils import conversion
+
+
+def get_points_along_lines(
+    lines: gpd.GeoDataFrame, dist: np.ndarray
+) -> gpd.GeoDataFrame:
+    """
+    Sample points along lines at a given distance.
+
+    Parameters
+    ----------
+    lines : gpd.GeoDataFrame
+        Geodataframe containing line geometries to sample points from.
+    dist : np.ndarray or array-like
+        1D array of distances at which to sample points along the lines.
+
+    Returns
+    -------
+    gpd.GeoDataFrame
+        Geodataframe containing sampled points along the lines.
+
+    """
+    index = []
+    distance = []
+    points = []
+    for idx, line in zip(lines.index, lines.geometry):
+        for d in dist:
+            if d > line.length:
+                break
+
+            index.append(idx)
+            distance.append(d)
+            points.append(line.interpolate(d))
+
+    return gpd.GeoDataFrame(
+        distance,
+        columns=["distance"],
+        geometry=points,
+        index=pd.Index(index, name="line"),
+        crs=lines.crs,
+    )
 
 
 def check_and_coerce_crs(gdf: gpd.GeoDataFrame, to_crs: int):

@@ -1,8 +1,10 @@
+import geopandas as gpd
 import numpy as np
 import pandas as pd
 import pytest
+import shapely
 import xarray as xr
-from numpy.testing import assert_array_equal
+from numpy.testing import assert_array_almost_equal, assert_array_equal
 
 from geost.models._core import ModelType
 from geost.models.model_array import ModelDataArray
@@ -46,6 +48,27 @@ def dataarray_inverted_dims():
     )
     da.rio.write_crs("EPSG:28992", inplace=True)
     return da
+
+
+@pytest.fixture
+def model_wgs(voxelmodel_var):
+    new_x = [110_050, 110_150, 110_250, 110_350]
+    new_y = [487_950, 487_850, 487_750, 487_650]
+    coords = {"x": new_x, "y": new_y, "z": voxelmodel_var["z"].values}
+    new = xr.DataArray(voxelmodel_var.data, coords=coords, dims=("y", "x", "z"))
+    new.rio.write_crs(28992, inplace=True)
+    return new.transpose("z", "y", "x").rio.reproject(4326)
+
+
+@pytest.fixture
+def lines_wgs():
+    return gpd.GeoDataFrame(
+        geometry=[
+            shapely.LineString([(110_060, 487_970), (110_060, 487_870)]),
+            shapely.LineString([(120_250, 487_950), (121_350, 487_650)]),
+        ],
+        crs=28992,
+    ).to_crs(4326)
 
 
 class TestModelDataArray:
@@ -163,6 +186,17 @@ class TestModelDataArray:
     def test_resolution(self, voxelmodel_var, layermodel_var):
         assert voxelmodel_var.gst.resolution() == (1.0, -1.0, 0.5)
         assert layermodel_var.gst.resolution() == (1.0, -1.0)
+
+        model_wgs = voxelmodel_var.transpose("z", "y", "x").rio.reproject(4326)
+        xres, yres, zres = model_wgs.gst.resolution()
+        assert np.isclose(xres, 1.151273157390868e-05)
+        assert np.isclose(yres, -1.151273157390868e-05)
+        assert np.isclose(zres, 0.5)
+
+        xres, yres, zres = model_wgs.gst.resolution(meters=True)
+        assert np.isclose(xres, 0.9880535778432994)
+        assert np.isclose(yres, -0.9880535778432994)
+        assert np.isclose(zres, 0.5)
 
         with pytest.raises(
             ValueError, match="Resolution cannot be determined for 1D models."
@@ -494,6 +528,15 @@ class TestModelDataArray:
             ],
         )
 
+        # Also coordinates have no CRS but the same metric units can work
+        selected = voxelmodel_var.gst.select_points(
+            points.set_crs(None, allow_override=True)
+        )
+        assert selected.sizes == {"idx": 3, "z": 5}
+        assert_array_equal(selected["idx"].values, [0, 1, 2])
+        assert_array_equal(selected["x"].values, [0.5, 2.5, 1.5])
+        assert_array_equal(selected["y"].values, [0.5, 2.5, 0.5])
+
         # Test that selecting points outside the model bounds results in an empty selection
         selected = voxelmodel_var.gst.select_points(points.to_crs(4326))
         assert selected.sizes == {"idx": 0, "z": 5}
@@ -508,3 +551,243 @@ class TestModelDataArray:
         # with x=0.5 instead of x=1.5 due to rounding errors in coordinate transformation.
         # This is expected behavior.
         assert_array_equal(selected["x"].values, [0.5, 2.5, 0.5])
+
+    @pytest.mark.unittest
+    def test_select_along_line(self, voxelmodel_var, layermodel_var, lines):
+        # Define expected coordinates and values for the selection along the lines. These
+        # must be the same for several selection results
+        expected_x_coords = [
+            [0.5, 1.5, 1.5, 1.5, 1.5, 2.5, np.nan],
+            [np.nan, np.nan, np.nan, 2.5, 3.5, 3.5, 3.5],
+            [3.5, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan],
+        ]
+        expected_y_coords = [
+            [0.5, 1.5, 1.5, 1.5, 2.5, 2.5, np.nan],
+            [np.nan, np.nan, np.nan, 0.5, 0.5, 0.5, 1.5],
+            [1.5, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan],
+        ]
+        expected_selection_values = [
+            [
+                [2.0, 2.0, 2.0, 2.0, 2.0, 2.0, np.nan],
+                [np.nan, np.nan, np.nan, 2.0, 2.0, 2.0, np.nan],
+                [np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan],
+            ],
+            [
+                [2.0, 1.0, 1.0, 1.0, 2.0, 1.0, np.nan],
+                [np.nan, np.nan, np.nan, 2.0, 2.0, 2.0, 2.0],
+                [2.0, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan],
+            ],
+            [
+                [2.0, 1.0, 1.0, 1.0, 1.0, 1.0, np.nan],
+                [np.nan, np.nan, np.nan, 1.0, 2.0, 2.0, 2.0],
+                [2.0, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan],
+            ],
+            [
+                [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, np.nan],
+                [np.nan, np.nan, np.nan, 1.0, 1.0, 1.0, 1.0],
+                [1.0, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan],
+            ],
+            [
+                [np.nan, 1.0, 1.0, 1.0, 1.0, np.nan, np.nan],
+                [np.nan, np.nan, np.nan, np.nan, 1.0, 1.0, np.nan],
+                [np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan],
+            ],
+        ]
+
+        # Normal selection from voxelmodel
+        selected = voxelmodel_var.gst.select_along_lines(lines, distance=0.4)
+        assert isinstance(selected, xr.DataArray)
+        assert selected.sizes == {"z": 5, "line": 3, "distance": 7}
+        assert_array_almost_equal(
+            selected["distance"], [0.0, 0.4, 0.8, 1.2, 1.6, 2.0, 2.4]
+        )
+        assert_array_equal(
+            selected["line"], [0, 1, 2]
+        )  # line 3 is outside extent and is dropped
+        assert_array_equal(selected["z"].values, [-2.25, -1.75, -1.25, -0.75, -0.25])
+        assert selected["x"].dims == selected["y"].dims == ("line", "distance")
+        assert_array_almost_equal(selected["x"], expected_x_coords)
+        assert_array_almost_equal(selected["y"], expected_y_coords)
+        assert_array_equal(selected, expected_selection_values)
+
+        # Normal selection from layermodel
+        selected = layermodel_var.gst.select_along_lines(lines, distance=0.4)
+        assert selected.sizes == {"layer": 4, "line": 3, "distance": 7}
+        assert_array_equal(selected["line"], [0, 1, 2])
+        assert_array_almost_equal(
+            selected["distance"], [0.0, 0.4, 0.8, 1.2, 1.6, 2.0, 2.4]
+        )
+        assert_array_equal(selected["layer"].values, ["A", "B", "C", "D"])
+        assert_array_almost_equal(selected["x"], expected_x_coords)
+        assert_array_almost_equal(selected["y"], expected_y_coords)
+
+        # Test selection with lines in other CRS
+        selected = voxelmodel_var.gst.select_along_lines(
+            lines.to_crs(4326), distance=0.4, crs=4326
+        )
+        assert selected.sizes == {"z": 5, "line": 3, "distance": 7}
+        assert_array_almost_equal(
+            selected["distance"], [0.0, 0.4, 0.8, 1.2, 1.6, 2.0, 2.4]
+        )
+        assert_array_equal(selected["line"], [0, 1, 2])
+        assert selected["x"].dims == selected["y"].dims == ("line", "distance")
+        assert_array_almost_equal(selected["x"], expected_x_coords)
+        assert_array_almost_equal(selected["y"], expected_y_coords)
+        assert_array_equal(selected, expected_selection_values)
+
+        # Also coordinates have no CRS but the same metric units can work
+        selected = voxelmodel_var.gst.select_along_lines(
+            lines.set_crs(None, allow_override=True), distance=0.4
+        )
+        assert selected.sizes == {"z": 5, "line": 3, "distance": 7}
+        assert_array_almost_equal(
+            selected["distance"], [0.0, 0.4, 0.8, 1.2, 1.6, 2.0, 2.4]
+        )
+        assert_array_equal(selected["line"], [0, 1, 2])
+        assert selected["x"].dims == selected["y"].dims == ("line", "distance")
+        assert_array_almost_equal(selected["x"], expected_x_coords)
+        assert_array_almost_equal(selected["y"], expected_y_coords)
+        assert_array_equal(selected, expected_selection_values)
+
+        # Outside the model extent, should return an empty selection
+        selected = voxelmodel_var.gst.select_along_lines(
+            lines.to_crs(4326), distance=0.4
+        )
+        assert selected.sizes == {"z": 5, "line": 0, "distance": 0}
+        # Using drop is False should return with all line and distance coordinates but filled with NaN values
+        selected = voxelmodel_var.gst.select_along_lines(
+            lines.to_crs(4326), distance=0.4, drop=False
+        )
+        assert selected.sizes == {"z": 5, "line": 4, "distance": 8}
+        assert_array_equal(selected["line"], [0, 1, 2, 3])
+        assert_array_almost_equal(
+            selected["distance"], [0.0, 0.4, 0.8, 1.2, 1.6, 2.0, 2.4, 2.8]
+        )
+        assert selected.isnull().all()
+
+        # Use start_at_zero=False: distance coordinates start at half the distance
+        selected = voxelmodel_var.gst.select_along_lines(
+            lines, distance=0.4, start_at_zero=False
+        )
+        assert selected.sizes == {"z": 5, "line": 3, "distance": 7}
+        assert_array_almost_equal(
+            selected["distance"], [0.2, 0.6, 1.0, 1.4, 1.8, 2.2, 2.6]
+        )
+        assert_array_equal(
+            selected["x"],
+            [
+                [0.5, 1.5, 1.5, 1.5, 2.5, 2.5, np.nan],
+                [np.nan, np.nan, 2.5, 3.5, 3.5, 3.5, 3.5],
+                [3.5, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan],
+            ],
+        )
+        assert_array_equal(
+            selected["y"],
+            [
+                [1.5, 1.5, 1.5, 1.5, 2.5, 2.5, np.nan],
+                [np.nan, np.nan, 0.5, 0.5, 0.5, 1.5, 1.5],
+                [1.5, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan],
+            ],
+        )
+
+        # Use start_at_zero=False and drop=False
+        selected = voxelmodel_var.gst.select_along_lines(
+            lines, distance=0.4, drop=False, start_at_zero=False
+        )
+        assert selected.sizes == {"z": 5, "line": 4, "distance": 8}
+        assert_array_almost_equal(
+            selected["distance"], [0.2, 0.6, 1.0, 1.4, 1.8, 2.2, 2.6, 3.0]
+        )
+        assert_array_equal(
+            selected["x"],
+            [
+                [0.5, 1.5, 1.5, 1.5, 2.5, 2.5, np.nan, np.nan],
+                [np.nan, np.nan, 2.5, 3.5, 3.5, 3.5, 3.5, np.nan],
+                [3.5, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan],
+                [np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan],
+            ],
+        )
+        assert_array_equal(
+            selected["y"],
+            [
+                [1.5, 1.5, 1.5, 1.5, 2.5, 2.5, np.nan, np.nan],
+                [np.nan, np.nan, 0.5, 0.5, 0.5, 1.5, 1.5, np.nan],
+                [1.5, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan],
+                [np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan],
+            ],
+        )
+
+        # Don't specify a distance, should fall back to using the model x-resolution as distance
+        selected = voxelmodel_var.gst.select_along_lines(lines)
+        assert selected.sizes == {"z": 5, "line": 3, "distance": 3}
+        assert_array_almost_equal(selected["distance"], [0.0, 1.0, 2.0])
+        assert_array_equal(selected["line"], [0, 1, 2])
+
+        selected = layermodel_var.gst.select_along_lines(lines, start_at_zero=False)
+        assert selected.sizes == {"layer": 4, "line": 2, "distance": 3}
+        assert_array_almost_equal(selected["distance"], [0.5, 1.5, 2.5])
+        assert_array_equal(
+            selected["line"], [0, 1]
+        )  # Line 3 falls outside the extent now
+
+        selected = layermodel_var.gst.select_along_lines(
+            lines, start_at_zero=False, drop=False
+        )
+        assert selected.sizes == {"layer": 4, "line": 4, "distance": 3}
+
+    @pytest.mark.unittest
+    def test_select_along_lines_wgs_coords(self, model_wgs, lines_wgs):
+        selected = model_wgs.gst.select_along_lines(lines_wgs, distance=20)
+        assert selected.sizes == {"z": 5, "line": 1, "distance": 5}
+        assert_array_almost_equal(selected["distance"], [0.0, 20.0, 40.0, 60.0, 80.0])
+        assert_array_equal(selected["line"], [0])
+        assert_array_almost_equal(
+            selected["x"],
+            [[4.72694039, 4.72694039, 4.72694039, 4.72694039, 4.72694039]],
+        )
+        assert_array_almost_equal(
+            selected["y"],
+            [[52.3774435, 52.3774435, 52.3774435, 52.3774435, 52.3774435]],
+        )
+
+        selected = model_wgs.gst.select_along_lines(
+            lines_wgs, distance=20, start_at_zero=False
+        )
+        assert selected.sizes == {"z": 5, "line": 1, "distance": 5}
+        assert_array_almost_equal(selected["distance"], [10.0, 30.0, 50.0, 70.0, 90.0])
+
+        selected = model_wgs.gst.select_along_lines(lines_wgs, drop=False)
+        assert selected.sizes == {"z": 5, "line": 2, "distance": 12}
+        assert_array_almost_equal(
+            selected["distance"],
+            [
+                0.0,
+                99.947068,
+                199.894136,
+                299.841203,
+                399.788271,
+                499.735339,
+                599.682407,
+                699.629475,
+                799.576542,
+                899.52361,
+                999.470678,
+                1099.417746,
+            ],
+        )
+
+        # Check if the other way around works correctly too
+        selected = model_wgs.gst.select_along_lines(
+            lines_wgs.to_crs(28992), crs=28992, distance=20
+        )
+        assert selected.sizes == {"z": 5, "line": 1, "distance": 5}
+        assert_array_almost_equal(selected["distance"], [0.0, 20.0, 40.0, 60.0, 80.0])
+        assert_array_equal(selected["line"], [0])
+        assert_array_almost_equal(
+            selected["x"],
+            [[4.72694039, 4.72694039, 4.72694039, 4.72694039, 4.72694039]],
+        )
+        assert_array_almost_equal(
+            selected["y"],
+            [[52.3774435, 52.3774435, 52.3774435, 52.3774435, 52.3774435]],
+        )
