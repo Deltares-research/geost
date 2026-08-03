@@ -6,7 +6,8 @@ import numpy as np
 import rioxarray  # noqa: F401, register `rio` accessor
 import xarray as xr
 
-from geost.models._core import ModelType, detect_top_and_bottom, detect_vertical_dim
+from geost.exceptions import InvalidModelError
+from geost.models._core import ModelType, detect_top_and_bottom, get_model_specs
 from geost.utils import conversion
 from geost.utils.spatial import get_points_along_lines
 
@@ -23,26 +24,48 @@ type GeometryType = BaseGeometry | list[BaseGeometry]
 class ModelBase:
     def __init__(self, xarray_obj: xr.Dataset | xr.DataArray):
         self._obj = xarray_obj
-        self._x: str = xarray_obj.rio._x_dim  # Utilize rioxarray if possible
-        self._y: str = xarray_obj.rio._y_dim
+        self._x: str = None
+        self._y: str = None
         self._z: str = None
         self._model_type: ModelType = None
         self._top: str = None
         self._bottom: str = None
 
-        vertical_spec = detect_vertical_dim(xarray_obj)
-        if vertical_spec is not None:
-            self._z = vertical_spec.z_dim
-            self._model_type: ModelType = vertical_spec.model_type
+        model_spec = get_model_specs(xarray_obj)
+        if model_spec is not None:
+            self._x = model_spec.x_dim
+            self._y = model_spec.y_dim
+            self._z = model_spec.z_dim
+            self._model_type: ModelType = model_spec.model_type
+            self._top = model_spec.top
+            self._bottom = model_spec.bottom
 
-            if self._model_type == ModelType.LAYER:
-                top, bottom = detect_top_and_bottom(xarray_obj)
-                self._top = top
-                self._bottom = bottom
+        self._validate_model()
 
         # Initialize properties for caching
         self._zmin = None
         self._zmax = None
+
+    def _validate_model(self):
+        errors = []
+        if not self._has_xy():
+            errors.append("Missing x and/or y dimensions.")
+        if not self._has_depth():
+            errors.append(
+                "Missing z dimension for voxelmodel or top/bottom for layermodel."
+            )
+        if errors:
+            raise InvalidModelError("Invalid model: \n" + "\n".join(errors))
+
+    def _has_xy(self) -> bool:
+        return self._x is not None and self._y is not None
+
+    def _has_depth(self) -> bool:
+        if self._model_type == ModelType.VOXEL:
+            return self._z is not None
+        elif self._model_type == ModelType.LAYER:
+            return self._top is not None and self._bottom is not None
+        return False
 
     @property
     def crs(self):

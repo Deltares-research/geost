@@ -4,6 +4,7 @@ import pytest
 import xarray as xr
 from numpy.testing import assert_array_equal
 
+from geost.exceptions import InvalidModelError
 from geost.models._core import ModelType
 from geost.models.model_dataset import ModelDataset
 
@@ -55,16 +56,13 @@ class TestModelDataset:
     @pytest.mark.unittest
     def test_accessor_empty_dataset(self):
         ds = xr.Dataset()
-        assert hasattr(ds, "gst")
-        assert isinstance(ds.gst, ModelDataset)
-        assert ds.gst._x is None
-        assert ds.gst._y is None
-        assert ds.gst._z is None
-        assert ds.gst._model_type is None
-        assert ds.gst._top is None
-        assert ds.gst._bottom is None
-        assert ds.gst._zmin is None
-        assert ds.gst._zmax is None
+        error = (
+            "Invalid model: \n"
+            "Missing x and/or y dimensions.\n"
+            "Missing z dimension for voxelmodel or top/bottom for layermodel."
+        )
+        with pytest.raises(InvalidModelError, match=error):
+            ds.gst
 
     @pytest.mark.unittest
     def test_accessor_invalid_model(self, invalid_model):
