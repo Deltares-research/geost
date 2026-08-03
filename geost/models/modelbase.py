@@ -68,9 +68,6 @@ class ModelBase:
     def model_type(self):
         return self._model_type
 
-    def write_crs(self, crs, **kwargs):
-        return self._obj.rio.write_crs(crs, **kwargs)
-
     def resolution(
         self, meters: bool = False
     ) -> tuple[float, float] | tuple[float, float, float]:

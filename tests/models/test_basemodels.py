@@ -37,7 +37,7 @@ def simple_voxelmodel(voxelmodel):
 
 
 @pytest.fixture
-def depth_mask(to_remove_voxelmodel):
+def depth_mask(voxelmodel):
     return xr.DataArray(
         [
             [-0.5, -0.5, -0.8, -0.7],
@@ -45,7 +45,7 @@ def depth_mask(to_remove_voxelmodel):
             [-0.7, -0.7, -0.7, -0.7],
             [-1.0, -1.0, -0.6, -0.6],
         ],
-        coords={"y": to_remove_voxelmodel["y"], "x": to_remove_voxelmodel["x"]},
+        coords={"y": voxelmodel["y"], "x": voxelmodel["x"]},
         dims=("y", "x"),
     )
 
@@ -141,9 +141,10 @@ class TestVoxelModel:
         assert isinstance(select, xr.Dataset)
 
     @pytest.mark.unittest
-    def test_slice_depth_interval(self, to_remove_voxelmodel, depth_mask):
+    def test_slice_depth_interval(self, voxelmodel, depth_mask):
         # Test selection where the upper and lower bounds cut through cells
-        sliced = to_remove_voxelmodel.slice_depth_interval(upper=-0.4, lower=-1.6)
+        voxelmodel = VoxelModel(voxelmodel)
+        sliced = voxelmodel.slice_depth_interval(upper=-0.4, lower=-1.6)
         assert isinstance(sliced, VoxelModel)
         assert sliced.shape == (4, 4, 4)
         assert_array_equal(
@@ -208,7 +209,7 @@ class TestVoxelModel:
         )
 
         # Test with upper and lower bounds at cell boundaries
-        sliced = to_remove_voxelmodel.slice_depth_interval(upper=-0.5, lower=-1.5)
+        sliced = voxelmodel.slice_depth_interval(upper=-0.5, lower=-1.5)
         assert sliced.shape == (4, 4, 2)
         assert_array_equal(
             sliced["strat"],
@@ -221,9 +222,7 @@ class TestVoxelModel:
         )
 
         # Test using a depth grids as mask
-        sliced = to_remove_voxelmodel.slice_depth_interval(
-            upper=depth_mask, lower=depth_mask - 1
-        )
+        sliced = voxelmodel.slice_depth_interval(upper=depth_mask, lower=depth_mask - 1)
         assert_array_equal(
             sliced["strat"],
             [
@@ -284,10 +283,8 @@ class TestVoxelModel:
         )
 
         # Test with drop=False --> keep original shape of sliced but set values to NaN
-        sliced = to_remove_voxelmodel.slice_depth_interval(
-            upper=-0.4, lower=-1.6, drop=False
-        )
-        assert sliced.shape == to_remove_voxelmodel.shape
+        sliced = voxelmodel.slice_depth_interval(upper=-0.4, lower=-1.6, drop=False)
+        assert sliced.shape == voxelmodel.shape
         assert_array_equal(
             sliced["strat"],
             [
@@ -318,10 +315,8 @@ class TestVoxelModel:
             ],
         )
 
-        sliced = to_remove_voxelmodel.slice_depth_interval(
-            depth_mask, depth_mask - 1, drop=False
-        )
-        assert sliced.shape == to_remove_voxelmodel.shape
+        sliced = voxelmodel.slice_depth_interval(depth_mask, depth_mask - 1, drop=False)
+        assert sliced.shape == voxelmodel.shape
         assert_array_equal(
             sliced["strat"],
             [
@@ -353,10 +348,10 @@ class TestVoxelModel:
         )
 
         # Test error when upper is deeper than lower
-        sliced = to_remove_voxelmodel.slice_depth_interval(upper=-1.5, lower=-0.5)
+        sliced = voxelmodel.slice_depth_interval(upper=-1.5, lower=-0.5)
         assert sliced.shape == (4, 4, 0)
 
-        sliced = to_remove_voxelmodel.slice_depth_interval(upper=-0.5, lower=depth_mask)
+        sliced = voxelmodel.slice_depth_interval(upper=-0.5, lower=depth_mask)
         assert_array_equal(
             sliced["strat"],
             [
@@ -369,7 +364,7 @@ class TestVoxelModel:
 
         # Test with 1D DataArray inputs
         da_1d = xr.DataArray([-1.0, -1.5, -2.0, -2.5], dims=["x"])
-        sliced = to_remove_voxelmodel.slice_depth_interval(upper=da_1d, lower=da_1d - 1)
+        sliced = voxelmodel.slice_depth_interval(upper=da_1d, lower=da_1d - 1)
         assert_array_equal(
             sliced["strat"],
             [
@@ -383,12 +378,12 @@ class TestVoxelModel:
         with pytest.raises(
             TypeError, match="Input for 'upper' must be int, float or xr.DataArray"
         ):
-            to_remove_voxelmodel.slice_depth_interval(upper="invalid", lower=-1.5)
+            voxelmodel.slice_depth_interval(upper="invalid", lower=-1.5)
 
         with pytest.raises(
             TypeError, match="Input for 'lower' must be int, float or xr.DataArray"
         ):
-            to_remove_voxelmodel.slice_depth_interval(upper=-1.5, lower="invalid")
+            voxelmodel.slice_depth_interval(upper=-1.5, lower="invalid")
 
     @pytest.mark.parametrize(
         "how, upper, lower, result_shape, result_z",

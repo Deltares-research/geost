@@ -1,6 +1,7 @@
 import geopandas as gpd
 import pytest
 import shapely
+import xarray as xr
 
 
 @pytest.fixture
@@ -40,4 +41,18 @@ def polygons():
             shapely.box(4.5, 4.5, 5.0, 5.0),  # Outside the model extent
         ],
         crs="EPSG:28992",
+    )
+
+
+@pytest.fixture
+def depth_grid(voxelmodel):
+    return xr.DataArray(
+        [
+            [-0.5, -0.5, -0.8, -0.7],
+            [-0.8, -0.8, -0.8, -0.8],
+            [-0.7, -0.7, -0.7, -0.7],
+            [-1.0, -1.0, -0.6, -0.6],
+        ],
+        coords={"y": voxelmodel["y"], "x": voxelmodel["x"]},
+        dims=("y", "x"),
     )

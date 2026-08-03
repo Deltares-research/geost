@@ -351,3 +351,7 @@ class TestModelDataset:
         assert selected.sizes == {"line": 3, "distance": 3, "layer": 4}
         assert_array_equal(selected["x"], expected_x_coords)
         assert_array_equal(selected["y"], expected_y_coords)
+
+    @pytest.mark.unittest
+    def test_slice_depth_interval(self, voxelmodel, layermodel):
+        pass
