@@ -760,3 +760,29 @@ class TestModelDataArray:
             selected["y"],
             [[52.3774435, 52.3774435, 52.3774435, 52.3774435, 52.3774435]],
         )
+
+    @pytest.mark.parametrize(
+        "depth",
+        [
+            -0.4,
+            np.full((4, 4), -0.4),
+            xr.DataArray(
+                np.full((4, 4), -0.4),
+                coords={"y": [3.5, 2.5, 1.5, 0.5], "x": [0.5, 1.5, 2.5, 3.5]},
+                dims=["y", "x"],
+            ),
+        ],
+        ids=["scalar", "array", "dataarray"],
+    )
+    def test_slice_depth_interval(self, voxelmodel_var, layermodel_var, depth):
+        """
+        All behaviour for upper, lower, how, update_top_bottom and drop keyword arguments is
+        tested in the module tests/models/test_voxelmodels.py and tests/models/test_layermodels.py.
+
+        """
+        sliced = voxelmodel_var.gst.slice_depth_interval(upper=depth, lower=depth - 1.2)
+        assert isinstance(sliced, xr.DataArray)
+        assert sliced.sizes == {"y": 4, "x": 4, "z": 4}
+
+        with pytest.raises(NotImplementedError):
+            layermodel_var.gst.slice_depth_interval(upper=depth, lower=depth - 1.2)

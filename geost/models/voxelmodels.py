@@ -12,6 +12,10 @@ def slice_depth_interval(
     how: Literal["overlap", "majority", "inner"] = "overlap",
     drop: bool = True,
 ):
+    """
+    See docstring of :meth:`geost.models.ModelDataset.slice_depth_interval` for details.
+
+    """
     sliced = ds.copy()
     _, _, zres = ds.gst.resolution()
 
@@ -48,6 +52,10 @@ def _check_to_broadcast(
     bounds: xr.DataArray,
     ds: xr.Dataset,
 ):
+    """
+    Helper function for `slice_depth_interval` to broadcast selection criteria if needed.
+
+    """
     if isinstance(values, (int, float)):
         return values, bounds
 

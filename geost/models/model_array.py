@@ -13,21 +13,4 @@ if TYPE_CHECKING:
 
 @xr.register_dataarray_accessor("gst")
 class ModelDataArray(ModelBase):
-    def slice_depth_interval(
-        self,
-        upper: int | float | np.ndarray | xr.DataArray = None,
-        lower: int | float | np.ndarray | xr.DataArray = None,
-        how: Literal["overlap", "majority", "inner"] = "overlap",
-        update_top_bottom: bool = True,
-        drop: bool = True,
-    ) -> xr.Dataset:
-        if self._model_type == ModelType.VOXEL:
-            return vm.slice_depth_interval(
-                self._obj, upper=upper, lower=lower, how=how, drop=drop
-            )
-        elif self._model_type == ModelType.LAYER:
-            pass
-
-        raise NotImplementedError(
-            f"Slice depth interval not implemented for model type: {self._model_type}"
-        )
+    pass

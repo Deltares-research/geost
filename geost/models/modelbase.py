@@ -1,13 +1,15 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Literal
 
 import numpy as np
 import rioxarray  # noqa: F401, register `rio` accessor
 import xarray as xr
 
 from geost.exceptions import InvalidModelError
-from geost.models._core import ModelType, detect_top_and_bottom, get_model_specs
+from geost.models import layermodels as lm
+from geost.models import voxelmodels as vm
+from geost.models._core import ModelType, get_model_specs
 from geost.utils import conversion
 from geost.utils.spatial import get_points_along_lines
 
@@ -487,3 +489,88 @@ class ModelBase:
             invert=invert,
             drop=drop,
         )
+
+    def slice_depth_interval(
+        self,
+        upper: int | float | np.ndarray | xr.DataArray = None,
+        lower: int | float | np.ndarray | xr.DataArray = None,
+        how: Literal["overlap", "majority", "inner"] = "overlap",
+        update_top_bottom: bool = True,
+        drop: bool = True,
+    ) -> xr.Dataset | xr.DataArray:
+        """
+        Slice a specified depth interval from a voxelmodel or layermodel between upper
+        and lower bounds.
+
+        Parameters
+        ----------
+        upper, lower : int | float | xr.DataArray, optional
+            Upper and/or lower bound of the depth interval. This can be a single value or
+            a 1D or 2D DataArray containing variable depths. In case of a DataArray, a 1D
+            DataArray should contain either the "x" or "y" dimension and a 2D DataArray
+            should contain both "x" and "y" dimensions. Otherwise broadcasting cannot be
+            done correctly and the slicing cannot be done. The default is None.
+        how : {"overlap", "majority", "inner"}, optional
+            Method to use for slicing. This parameter is only applicable to voxelmodels
+            (i.e., `model.gst.model_type` is `ModelType.VOXEL`) and will be ignored for
+            layermodels. The default is "overlap".
+            - "overlap": Include voxels that at least partially overlap with the specified
+            depth interval.
+            - "majority": Include voxels that have 50% or more of their volume within
+            the specified depth interval.
+            - "inner": Include only voxels that are completely within the specified depth
+            interval.
+        update_top_bottom : bool, optional
+            If True, the "top" and "bottom" variables of a layermodel will be updated to
+            reflect the new depth interval after slicing. If False, the "top" and "bottom"
+            variables will remain unchanged. This parameter is only applicable to layermodels
+            (i.e., `model.gst.model_type` is `ModelType.LAYER`) and will be ignored for
+            voxelmodels. The default is True.
+        drop : bool, optional
+            If True, depths where the result only contains missing values will be dropped
+            from the slice result. If False, the original shape is kept. The default is
+            True.
+
+        Returns
+        -------
+        xr.Dataset | xr.DataArray
+            A new xarray.Dataset or xarray.DataArray containing only the data within the
+            specified depth interval.
+
+        Examples
+        --------
+        Slice a fixed depth interval between -10 and -20:
+
+        >>> sliced = model.gst.slice_depth_interval(upper=-10, lower=-20)
+
+        Slice a model of 2 rows and 2 columns between variable depth intervals using
+        DataArrays.
+
+        >>> upper = xr.DataArray([[-10, -15], [-12, -18]], dims=("y", "x"))
+        >>> upper  # 2D array with different depth interval for each "x" and "y"
+        <xarray.DataArray (y: 2, x: 2)>
+        array([[-15, -20],
+               [-17, -23]])
+        Dimensions without coordinates: y, x
+        >>> sliced = model.gst.slice_depth_interval(upper=upper, lower=upper - 5)
+
+        >>> upper = xr.DataArray([-10, -15], dims=("y",)) # slice along "y"
+        >>> upper  # 1D array with different depth interval for each "y" but the same for every "x"
+        <xarray.DataArray (y: 2)>
+        array([-15, -20])
+        Dimensions without coordinates: y
+        >>> sliced = model.gst.slice_depth_interval(upper=upper, lower=upper - 5)
+
+        """
+        if self._model_type == ModelType.VOXEL:
+            return vm.slice_depth_interval(
+                self._obj, upper=upper, lower=lower, how=how, drop=drop
+            )
+        elif self._model_type == ModelType.LAYER:
+            return lm.slice_depth_interval(
+                self._obj,
+                upper=upper,
+                lower=lower,
+                update_top_bottom=update_top_bottom,
+                drop=drop,
+            )
