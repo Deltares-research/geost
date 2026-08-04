@@ -7,8 +7,7 @@ import rioxarray  # noqa: F401, register `rio` accessor
 import xarray as xr
 
 from geost.exceptions import InvalidModelError
-from geost.models import layermodels as lm
-from geost.models import voxelmodels as vm
+from geost.models import layermodels, voxelmodels
 from geost.models._core import ModelType, get_model_specs
 from geost.utils import conversion
 from geost.utils.spatial import get_points_along_lines
@@ -563,11 +562,11 @@ class ModelBase:
 
         """
         if self._model_type == ModelType.VOXEL:
-            return vm.slice_depth_interval(
+            return voxelmodels.slice_depth_interval(
                 self._obj, upper=upper, lower=lower, how=how, drop=drop
             )
         elif self._model_type == ModelType.LAYER:
-            return lm.slice_depth_interval(
+            return layermodels.slice_depth_interval(
                 self._obj,
                 upper=upper,
                 lower=lower,

@@ -6,7 +6,7 @@ import xarray as xr
 
 
 def slice_depth_interval(
-    ds: xr.Dataset | xr.DataArray,
+    model: xr.Dataset | xr.DataArray,
     upper: int | float | np.ndarray | xr.DataArray = None,
     lower: int | float | np.ndarray | xr.DataArray = None,
     how: Literal["overlap", "majority", "inner"] = "overlap",
@@ -16,8 +16,8 @@ def slice_depth_interval(
     See docstring of :meth:`geost.models.ModelDataset.slice_depth_interval` for details.
 
     """
-    sliced = ds.copy()
-    _, _, zres = ds.gst.resolution()
+    sliced = model.copy()
+    _, _, zres = model.gst.resolution()
 
     check_upper = operator.lt if how == "overlap" else operator.le
     check_lower = operator.gt if how == "overlap" else operator.ge
@@ -37,11 +37,11 @@ def slice_depth_interval(
         )
 
     if upper is not None:
-        upper, upper_bound = _check_to_broadcast(upper, upper_bound, ds)
+        upper, upper_bound = _check_to_broadcast(upper, upper_bound, model)
         sliced = sliced.where(check_upper(upper_bound, upper), drop=drop)
 
     if lower is not None:
-        lower, lower_bound = _check_to_broadcast(lower, lower_bound, ds)
+        lower, lower_bound = _check_to_broadcast(lower, lower_bound, model)
         sliced = sliced.where(check_lower(lower_bound, lower), drop=drop)
 
     return sliced
@@ -50,7 +50,7 @@ def slice_depth_interval(
 def _check_to_broadcast(
     values: int | float | np.ndarray | xr.DataArray,
     bounds: xr.DataArray,
-    ds: xr.Dataset,
+    ds: xr.Dataset | xr.DataArray,
 ):
     """
     Helper function for `slice_depth_interval` to broadcast selection criteria if needed.

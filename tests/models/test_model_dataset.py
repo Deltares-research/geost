@@ -360,8 +360,11 @@ class TestModelDataset:
                 coords={"y": [3.5, 2.5, 1.5, 0.5], "x": [0.5, 1.5, 2.5, 3.5]},
                 dims=["y", "x"],
             ),
+            xr.DataArray(
+                np.full((4,), -0.4), coords={"x": [0.5, 1.5, 2.5, 3.5]}, dims=["x"]
+            ),
         ],
-        ids=["scalar", "array", "dataarray"],
+        ids=["scalar", "2D-array", "2D-dataarray", "1D-dataarray"],
     )
     def test_slice_depth_interval(self, voxelmodel, layermodel, depth):
         """
@@ -372,6 +375,12 @@ class TestModelDataset:
         sliced = voxelmodel.gst.slice_depth_interval(upper=depth, lower=depth - 1.2)
         assert isinstance(sliced, xr.Dataset)
         assert sliced.sizes == {"y": 4, "x": 4, "z": 4}
+        assert_array_equal(sliced.data_vars, voxelmodel.data_vars)
+        assert_array_equal(sliced["z"], [-1.75, -1.25, -0.75, -0.25])
 
-        with pytest.raises(NotImplementedError):
-            layermodel.gst.slice_depth_interval(upper=depth, lower=depth - 1.2)
+        sliced = layermodel.gst.slice_depth_interval(upper=depth, lower=depth - 1.2)
+        assert isinstance(sliced, xr.Dataset)
+        assert sliced.sizes == {"y": 4, "x": 4, "layer": 3}
+        assert_array_equal(sliced["layer"], ["B", "C", "D"])
+        assert_array_equal(sliced.data_vars, layermodel.data_vars)
+        assert_array_equal(sliced["surface"], layermodel["surface"])
