@@ -1443,7 +1443,7 @@ class GeostFrame(AbstractBase):
 
     @_requires_depth
     def aggregate_consecutive_layers(
-        self, column: str, agg_funcs: dict = None, keep_original_index: bool = False
+        self, columns: str | list[str], agg_funcs: dict = None, keep_original_index: bool = False
     ) -> pd.DataFrame:
         """
         Aggregate consecutive layers in the data that have the same value in a specified column.
@@ -1453,8 +1453,8 @@ class GeostFrame(AbstractBase):
 
         Parameters
         ----------
-        column : str
-            Name of the column to check for consecutive identical values. Typically a column
+        columns : str | list[str]
+            Name or names of the columns to check for consecutive identical values. Typically columns
             holding categorical data.
         agg_funcs : dict, optional
             Dictionary specifying the aggregation functions to apply to other columns when combining layers.
@@ -1487,7 +1487,10 @@ class GeostFrame(AbstractBase):
 
         # Create unique group id for consecutive identical layers according to values
         # in the specified column and within the same survey.
-        groups = (df[column] != df[column].shift()).cumsum() + (
+        if isinstance(columns, str):
+            columns = [columns]
+
+        groups = (df[columns] != df[columns].shift()).any(axis=1).cumsum() + (
             df[self._nr] != df[self._nr].shift()
         ).cumsum()
 
@@ -1495,7 +1498,7 @@ class GeostFrame(AbstractBase):
         agg_dict = {
             "original_index": "first",
             self._bottom: "last",
-            column: "first",
+            **{col: "first" for col in columns},
         } | (agg_funcs or {})
         if self._top is not None:
             agg_dict[self._top] = "first"
@@ -1511,7 +1514,7 @@ class GeostFrame(AbstractBase):
         df = df.loc[result.index]
         cols = (
             ([self._top] if self._top is not None else [])
-            + [self._bottom, column]
+            + [self._bottom] + columns
             + list(agg_funcs.keys() if agg_funcs else [])
         )
         df[cols] = result[cols]

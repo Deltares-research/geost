@@ -1396,7 +1396,7 @@ class Collection(AbstractBase):
     @_requires_depth
     def aggregate_consecutive_layers(
         self,
-        column: str,
+        columns: str | list[str],
         agg_funcs: dict = None,
         keep_original_index: bool = False,
         inplace: bool = False,
@@ -1409,8 +1409,8 @@ class Collection(AbstractBase):
 
         Parameters
         ----------
-        column : str
-            Name of the column to check for consecutive identical values. Typically a column
+        columns : str | list[str]
+            Name of the column(s) to check for consecutive identical values. Typically columns
             holding categorical data.
         agg_funcs : dict, optional
             Dictionary specifying the aggregation functions to apply to other columns when combining layers.
@@ -1442,7 +1442,7 @@ class Collection(AbstractBase):
         >>> aggregated_collection = collection.aggregate_consecutive_layers('lith', {'qc': 'mean', 'fs': 'mean'})
         """
         combined_data = self.data.gst.aggregate_consecutive_layers(
-            column, agg_funcs, keep_original_index=keep_original_index
+            columns, agg_funcs, keep_original_index=keep_original_index
         )
         if inplace:
             self.data = combined_data

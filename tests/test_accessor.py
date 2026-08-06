@@ -1142,6 +1142,17 @@ class TestGeostFrame:
             [1.5, 3.7, 4.2, 1.2, 3.1, 3.9, 2.9, 5.5, 0.5, 1.2, 1.8, 2.5, 3.0, 3.0],
         )
 
+        # Combine borehole layers, aggregate over more than one column.
+        borehole_data["categorical_data"] = ["A", "B", "A", "B"] + 21 * ["A"]
+        result = borehole_data.gst.aggregate_consecutive_layers(
+            ["lith", "categorical_data"], keep_original_index=True
+        )
+        assert isinstance(result, pd.DataFrame)
+        assert result.index.equals(
+            pd.Index([0, 1, 2, 3, 4, 5, 7, 9, 10, 13, 15, 16, 17, 18, 19, 20])
+        )
+
+
         # Combine CPT layers
         cpt_data["categorical_data"] = (
             ["A"] * 4 + ["B"] * 4 + ["A"] * 4 + ["C"] * 4 + ["B"] * 4
