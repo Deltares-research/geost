@@ -453,10 +453,10 @@ class TestModelDataset:
     @pytest.mark.unittest
     def test_most_common_layermodel(self, layermodel):
         expected_mode = [
-            [0.04, 0.04, 0.04, 0.04],
-            [0.2, 0.2, 0.2, 0.2],
-            [20.1, 20.1, 20.1, 20.1],
-            [85.0, 85.0, 85.0, 85.0],
+            [85.0, 85.0, 20.1, 20.1],
+            [85.0, 85.0, 20.1, 20.1],
+            [85.0, 20.1, 20.1, 85.0],
+            [85.0, 20.1, 20.1, 85.0],
         ]
         expected_most_common_layer = [
             ["D", "D", "C", "C"],

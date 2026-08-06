@@ -307,7 +307,8 @@ def layermodel():
             np.full_like(surface, 0.2),
             np.full_like(surface, 20.1),
             np.full_like(surface, 85.0),
-        ]
+        ],
+        axis=2,
     )
 
     layermodel = xr.Dataset(

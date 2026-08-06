@@ -840,10 +840,10 @@ class TestModelDataArray:
     @pytest.mark.unittest
     def test_most_common_layermodel(self, layermodel_var):
         expected_mode = [
-            [0.04, 0.04, 0.04, 0.04],
-            [0.2, 0.2, 0.2, 0.2],
-            [20.1, 20.1, 20.1, 20.1],
-            [85.0, 85.0, 85.0, 85.0],
+            [85.0, 85.0, 20.1, 20.1],
+            [85.0, 85.0, 20.1, 20.1],
+            [85.0, 20.1, 20.1, 85.0],
+            [85.0, 20.1, 20.1, 85.0],
         ]
         expected_most_common_layer = [
             ["D", "D", "C", "C"],
@@ -867,3 +867,69 @@ class TestModelDataArray:
         assert isinstance(result, xr.Dataset)
         assert_array_equal(result["most_common"], expected_mode)
         assert_array_equal(result["thickness"], expected_thickness)
+
+    @pytest.mark.unittest
+    def test_value_counts(self, voxelmodel_var, layermodel_var):
+        result = layermodel_var.gst.value_counts()
+        assert isinstance(result, xr.DataArray)
+        assert result.sizes == {"kh": 4}
+        assert_array_equal(result["kh"], [0.04, 0.2, 20.1, 85.0])
+        assert_array_equal(result, [16, 8, 8, 16])
+
+        result = voxelmodel_var.gst.value_counts()
+        assert isinstance(result, xr.DataArray)
+        assert result.sizes == {"strat": 2}
+        assert_array_equal(result["strat"], [1.0, 2.0])
+        assert_array_equal(result, [38, 32])
+
+        result = voxelmodel_var.gst.value_counts(normalize=True)
+        assert_array_equal(result["strat"], [1.0, 2.0])
+        assert_array_almost_equal(result, [0.54285714, 0.45714286])
+
+        result = voxelmodel_var.gst.value_counts(dim="z")
+        assert result.sizes == {"strat": 2, "y": 4, "x": 4}
+        assert_array_equal(
+            result,
+            [
+                [[2, 2, 3, 2], [3, 3, 3, 2], [1, 4, 3, 1], [1, 4, 2, 2]],
+                [[3, 2, 1, 2], [2, 2, 1, 2], [3, 1, 2, 2], [3, 1, 2, 3]],
+            ],
+        )
+        result = voxelmodel_var.gst.value_counts(dim="z", normalize=True)
+        assert_array_almost_equal(
+            result,
+            [
+                [
+                    [0.4, 0.5, 0.75, 0.5],
+                    [0.6, 0.6, 0.75, 0.5],
+                    [0.25, 0.8, 0.6, 0.33333333],
+                    [0.25, 0.8, 0.5, 0.4],
+                ],
+                [
+                    [0.6, 0.5, 0.25, 0.5],
+                    [0.4, 0.4, 0.25, 0.5],
+                    [0.75, 0.2, 0.4, 0.66666667],
+                    [0.75, 0.2, 0.5, 0.6],
+                ],
+            ],
+        )
+
+        result = voxelmodel_var.gst.value_counts(dim="y")
+        assert result.sizes == {"strat": 2, "x": 4, "z": 5}
+        assert_array_equal(
+            result,
+            [
+                [[0, 0, 1, 4, 2], [0, 2, 4, 4, 3], [0, 2, 4, 4, 1], [0, 1, 1, 4, 1]],
+                [[4, 4, 3, 0, 0], [4, 2, 0, 0, 0], [4, 2, 0, 0, 0], [3, 3, 3, 0, 0]],
+            ],
+        )
+
+        result = voxelmodel_var.gst.value_counts(dim="x")
+        assert result.sizes == {"strat": 2, "y": 4, "z": 5}
+        assert_array_equal(
+            result,
+            [
+                [[0, 1, 3, 4, 1], [0, 2, 3, 4, 2], [0, 1, 2, 4, 2], [0, 1, 2, 4, 2]],
+                [[4, 3, 1, 0, 0], [4, 2, 1, 0, 0], [3, 3, 2, 0, 0], [4, 3, 2, 0, 0]],
+            ],
+        )

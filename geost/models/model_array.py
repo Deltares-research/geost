@@ -1,3 +1,4 @@
+import numpy as np
 import xarray as xr
 
 from geost.models import voxelmodels
@@ -49,3 +50,38 @@ class ModelDataArray(ModelBase):
             result["thickness"] = thickness.sel({self._z: most_common_layer})
 
         return result
+
+    def value_counts(self, dim: str = None, normalize: bool = False) -> xr.DataArray:
+        """
+        Get the value counts of unique values in a DataArray.
+
+        Parameters
+        ----------
+        dim : str, optional
+            Dimension along which to count unique values. The default is None.
+        normalize : bool, optional
+            If True, return the relative frequencies of the unique values instead of the
+            absolute counts. The default is False.
+
+        Returns
+        -------
+        xr.DataArray
+            DataArray containing the counts of unique values along the specified dimension.
+
+        """
+        var_ = self._obj.values
+        values, counts = np.unique(var_[~np.isnan(var_)], return_counts=True)
+
+        name = self._obj.name or "variable"
+
+        if dim is None:
+            counts = xr.DataArray(counts, coords={name: values})
+        else:
+            counts = [(self._obj == v).sum(dim=dim) for v in values]
+            counts = xr.concat(counts, dim=xr.DataArray(values, dims=name))
+
+        if normalize:
+            total = counts.sum(dim=name)
+            counts = counts / total
+
+        return counts
