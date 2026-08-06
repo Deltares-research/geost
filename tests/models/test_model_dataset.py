@@ -482,6 +482,12 @@ class TestModelDataset:
             [-3.25, -2.45, -2.0, -2.95],
             [-3.15, -1.95, -2.0, -2.95],
         ]
+        result = layermodel.gst.most_common(only_unit=True)
+        assert isinstance(result, xr.Dataset)
+        assert result.sizes == {"x": 4, "y": 4}
+        assert_array_equal(result.data_vars, ["most_common_layer"])
+        assert_array_equal(result["most_common_layer"], expected_most_common_layer)
+
         result = layermodel.gst.most_common()
         assert isinstance(result, xr.Dataset)
         assert result.sizes == {"x": 4, "y": 4}
@@ -508,11 +514,11 @@ class TestModelDataset:
             result.data_vars,
             [
                 "most_common_layer",
+                "thickness",
                 "top_most_common",
                 "bottom_most_common",
                 "thickness_most_common",
                 "kh_most_common",
-                "thickness",
             ],
         )
         assert_array_equal(result["most_common_layer"], expected_most_common_layer)

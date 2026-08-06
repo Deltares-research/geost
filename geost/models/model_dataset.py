@@ -7,7 +7,9 @@ from geost.models.modelbase import ModelBase
 
 @xr.register_dataset_accessor("gst")
 class ModelDataset(ModelBase):
-    def most_common(self, return_thickness=False) -> xr.DataArray | xr.Dataset:
+    def most_common(
+        self, return_thickness=False, only_most_common_layer=False
+    ) -> xr.DataArray | xr.Dataset:
         """
         Determine the "most common" value and corresponding thickness in a voxelmodel or
         a layermodel. In a voxelmodel, this calculates the mode (most frequently occurring
@@ -21,6 +23,9 @@ class ModelDataset(ModelBase):
             If True, also return the thickness of the most common value. The default is
             False. Note that a layermodel that already has a thickness variable will
             return a duplicate thickness variable if this is set to True.
+        only_most_common_layer : bool, optional
+            If True, only return the most common layer and thickness (if `return_thickness=True`)
+            for layermodels. The default is False. This option is ignored for voxelmodels.
 
         Returns
         -------
@@ -50,16 +55,18 @@ class ModelDataset(ModelBase):
             most_common_layer = thickness.idxmax(dim=self._z)
             result = most_common_layer.to_dataset(name="most_common_layer")
 
+            if return_thickness:
+                result["thickness"] = thickness.sel({self._z: most_common_layer})
+
+            if only_most_common_layer:
+                return result
+
             vars_3d = [
                 var for var in self._obj.data_vars if self._z in self._obj[var].dims
             ]
-
             for var in vars_3d:
                 result_var = f"{var}_most_common"
                 result[result_var] = self._obj[var].sel({self._z: most_common_layer})
-
-            if return_thickness:
-                result["thickness"] = thickness.sel({self._z: most_common_layer})
 
             result = result.drop_vars(
                 [self._z, self._top, self._bottom], errors="ignore"
