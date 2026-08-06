@@ -8,3 +8,7 @@ class ModelError(GeostError):
 
 class InvalidModelError(ModelError):
     """Raised when a model is invalid."""
+
+
+class ModelTypeError(ModelError):
+    """Raised when a model is of the wrong type."""

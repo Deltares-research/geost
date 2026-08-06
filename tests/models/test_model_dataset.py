@@ -2,9 +2,9 @@ import numpy as np
 import pandas as pd
 import pytest
 import xarray as xr
-from numpy.testing import assert_array_equal
+from numpy.testing import assert_array_almost_equal, assert_array_equal
 
-from geost.exceptions import InvalidModelError
+from geost.exceptions import InvalidModelError, ModelTypeError
 from geost.models._core import ModelType
 from geost.models.model_dataset import ModelDataset
 
@@ -39,6 +39,18 @@ class TestModelDataset:
         assert voxelmodel.gst._bottom is None
         assert voxelmodel.gst._zmin is None
         assert voxelmodel.gst._zmax is None
+        assert_array_equal(voxelmodel.gst.x, voxelmodel["x"])
+        assert_array_equal(voxelmodel.gst.y, voxelmodel["y"])
+        assert_array_equal(voxelmodel.gst.z, voxelmodel["z"])
+
+        with pytest.raises(
+            ModelTypeError, match="Only ModelType.LAYER has a 'top' property."
+        ):
+            voxelmodel.gst.top
+        with pytest.raises(
+            ModelTypeError, match="Only ModelType.LAYER has a 'bottom' property."
+        ):
+            voxelmodel.gst.bottom
 
     @pytest.mark.unittest
     def test_accessor_layermodel(self, layermodel):
@@ -52,6 +64,11 @@ class TestModelDataset:
         assert layermodel.gst._bottom == "bottom"
         assert layermodel.gst._zmin is None
         assert layermodel.gst._zmax is None
+        assert_array_equal(layermodel.gst.x, layermodel["x"])
+        assert_array_equal(layermodel.gst.y, layermodel["y"])
+        assert_array_equal(layermodel.gst.z, layermodel["layer"])
+        assert_array_equal(layermodel.gst.top, layermodel["top"])
+        assert_array_equal(layermodel.gst.bottom, layermodel["bottom"])
 
     @pytest.mark.unittest
     def test_accessor_empty_dataset(self):
@@ -384,3 +401,124 @@ class TestModelDataset:
         assert_array_equal(sliced["layer"], ["B", "C", "D"])
         assert_array_equal(sliced.data_vars, layermodel.data_vars)
         assert_array_equal(sliced["surface"], layermodel["surface"])
+
+    @pytest.mark.unittest
+    def test_most_common_voxelmodel(self, voxelmodel):
+        expected_mode_strat = [
+            [2.0, 1.0, 1.0, 1.0],
+            [1.0, 1.0, 1.0, 1.0],
+            [2.0, 1.0, 1.0, 2.0],
+            [2.0, 1.0, 1.0, 2.0],
+        ]
+        expected_mode_lith = [
+            [1.0, 1.0, 1.0, 1.0],
+            [1.0, 1.0, 1.0, 2.0],
+            [2.0, 1.0, 1.0, 2.0],
+            [2.0, 1.0, 2.0, 1.0],
+        ]
+        expected_thickness_strat = [
+            [1.5, 1.0, 1.5, 1.0],
+            [1.5, 1.5, 1.5, 1.0],
+            [1.5, 2.0, 1.5, 1.0],
+            [1.5, 2.0, 1.0, 1.5],
+        ]
+        expected_thickness_lith = [
+            [1.0, 1.0, 1.5, 1.0],
+            [1.5, 1.5, 1.5, 1.0],
+            [1.0, 1.0, 1.5, 1.0],
+            [1.5, 2.0, 1.0, 1.0],
+        ]
+        result = voxelmodel.gst.most_common()
+        assert isinstance(result, xr.DataArray)
+        assert result.sizes == {"data_var": 2, "y": 4, "x": 4}
+        assert_array_equal(result.sel(data_var="strat"), expected_mode_strat)
+        assert_array_equal(result.sel(data_var="lith"), expected_mode_lith)
+
+        result = voxelmodel.gst.most_common(return_thickness=True)
+        assert isinstance(result, xr.Dataset)
+        assert result.sizes == {"data_var": 2, "y": 4, "x": 4}
+        assert_array_equal(
+            result["most_common"].sel(data_var="strat"), expected_mode_strat
+        )
+        assert_array_equal(
+            result["most_common"].sel(data_var="lith"), expected_mode_lith
+        )
+        assert_array_equal(
+            result["thickness"].sel(data_var="strat"), expected_thickness_strat
+        )
+        assert_array_equal(
+            result["thickness"].sel(data_var="lith"), expected_thickness_lith
+        )
+
+    @pytest.mark.unittest
+    def test_most_common_layermodel(self, layermodel):
+        expected_mode = [
+            [0.04, 0.04, 0.04, 0.04],
+            [0.2, 0.2, 0.2, 0.2],
+            [20.1, 20.1, 20.1, 20.1],
+            [85.0, 85.0, 85.0, 85.0],
+        ]
+        expected_most_common_layer = [
+            ["D", "D", "C", "C"],
+            ["D", "D", "C", "C"],
+            ["D", "C", "C", "D"],
+            ["D", "C", "C", "D"],
+        ]
+        expected_thickness = [
+            [2.2, 2.4, 1.6, 1.8],
+            [2.2, 2.4, 1.6, 1.8],
+            [2.2, 1.6, 1.8, 2.6],
+            [2.9, 1.8, 1.8, 2.6],
+        ]
+        expected_top = [
+            [-1.05, -0.85, -0.95, -0.35],
+            [-1.05, -0.85, -0.95, -0.35],
+            [-1.05, -0.85, -0.2, -0.35],
+            [-0.25, -0.15, -0.2, -0.35],
+        ]
+        expected_bottom = [
+            [-3.25, -3.25, -2.55, -2.15],
+            [-3.25, -3.25, -2.55, -2.15],
+            [-3.25, -2.45, -2.0, -2.95],
+            [-3.15, -1.95, -2.0, -2.95],
+        ]
+        result = layermodel.gst.most_common()
+        assert isinstance(result, xr.Dataset)
+        assert result.sizes == {"x": 4, "y": 4}
+        assert_array_equal(
+            result.data_vars,
+            [
+                "most_common_layer",
+                "top_most_common",
+                "bottom_most_common",
+                "thickness_most_common",
+                "kh_most_common",
+            ],
+        )
+        assert_array_equal(result["most_common_layer"], expected_most_common_layer)
+        assert_array_almost_equal(result["top_most_common"], expected_top)
+        assert_array_almost_equal(result["bottom_most_common"], expected_bottom)
+        assert_array_almost_equal(result["thickness_most_common"], expected_thickness)
+        assert_array_almost_equal(result["kh_most_common"], expected_mode)
+
+        result = layermodel.gst.most_common(return_thickness=True)
+        assert isinstance(result, xr.Dataset)
+        assert result.sizes == {"x": 4, "y": 4}
+        assert_array_equal(
+            result.data_vars,
+            [
+                "most_common_layer",
+                "top_most_common",
+                "bottom_most_common",
+                "thickness_most_common",
+                "kh_most_common",
+                "thickness",
+            ],
+        )
+        assert_array_equal(result["most_common_layer"], expected_most_common_layer)
+        assert_array_almost_equal(result["top_most_common"], expected_top)
+        assert_array_almost_equal(result["bottom_most_common"], expected_bottom)
+        assert_array_almost_equal(result["thickness_most_common"], expected_thickness)
+        assert_array_almost_equal(result["kh_most_common"], expected_mode)
+        assert_array_almost_equal(result["thickness"], expected_thickness)
+        assert_array_almost_equal(result["thickness"], result["thickness_most_common"])

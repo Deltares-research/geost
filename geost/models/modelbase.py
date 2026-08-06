@@ -6,7 +6,7 @@ import numpy as np
 import rioxarray  # noqa: F401, register `rio` accessor
 import xarray as xr
 
-from geost.exceptions import InvalidModelError
+from geost.exceptions import InvalidModelError, ModelTypeError
 from geost.models import layermodels, voxelmodels
 from geost.models._core import ModelType, get_model_specs
 from geost.utils import conversion
@@ -51,7 +51,7 @@ class ModelBase:
         errors = []
         if not self._has_xy():
             errors.append("Missing x and/or y dimensions.")
-        if not self._has_depth():
+        if not self._has_z():
             errors.append(
                 "Missing z dimension for voxelmodel or top/bottom for layermodel."
             )
@@ -61,7 +61,7 @@ class ModelBase:
     def _has_xy(self) -> bool:
         return self._x is not None and self._y is not None
 
-    def _has_depth(self) -> bool:
+    def _has_z(self) -> bool:
         if self._model_type == ModelType.VOXEL:
             return self._z is not None
         elif self._model_type == ModelType.LAYER:
@@ -87,6 +87,30 @@ class ModelBase:
     @property
     def z_dim(self):
         return self._z
+
+    @property
+    def x(self):
+        return self._obj[self._x]
+
+    @property
+    def y(self):
+        return self._obj[self._y]
+
+    @property
+    def z(self):
+        return self._obj[self._z]
+
+    @property
+    def top(self):
+        if self._model_type != ModelType.LAYER:
+            raise ModelTypeError("Only ModelType.LAYER has a 'top' property.")
+        return self._obj[self._top]
+
+    @property
+    def bottom(self):
+        if self._model_type != ModelType.LAYER:
+            raise ModelTypeError("Only ModelType.LAYER has a 'bottom' property.")
+        return self._obj[self._bottom]
 
     @property
     def model_type(self):

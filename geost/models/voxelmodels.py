@@ -23,14 +23,14 @@ def slice_depth_interval(
     check_lower = operator.gt if how == "overlap" else operator.ge
 
     if how == "overlap":
-        upper_bound = sliced["z"] - 0.5 * zres
-        lower_bound = sliced["z"] + 0.5 * zres
+        upper_bound = sliced.gst.z - 0.5 * zres
+        lower_bound = sliced.gst.z + 0.5 * zres
     elif how == "majority":
-        upper_bound = sliced["z"]
-        lower_bound = sliced["z"]
+        upper_bound = sliced.gst.z
+        lower_bound = sliced.gst.z
     elif how == "inner":
-        upper_bound = sliced["z"] + 0.5 * zres
-        lower_bound = sliced["z"] - 0.5 * zres
+        upper_bound = sliced.gst.z + 0.5 * zres
+        lower_bound = sliced.gst.z - 0.5 * zres
     else:
         raise ValueError(
             "Invalid value for 'how', use 'overlap', 'majority' or 'inner'"
@@ -73,3 +73,31 @@ def _check_to_broadcast(
     values, bounds, _ = xr.broadcast(values, bounds, ds)
 
     return values, bounds
+
+
+def most_common(da: xr.DataArray, return_thickness=False) -> xr.DataArray | xr.Dataset:
+    """
+    See docstring of :meth:`geost.models.ModelDataArray.most_common` for details.
+
+    """
+    from scipy import stats
+
+    x_dim, y_dim = da.gst.x_dim, da.gst.y_dim
+
+    result, counts = stats.mode(
+        da, axis=da.get_axis_num(da.gst.z_dim), nan_policy="omit"
+    )
+    *_, zres = da.gst.resolution()
+
+    result = xr.DataArray(
+        result, coords={y_dim: da[y_dim], x_dim: da[x_dim]}, dims=(y_dim, x_dim)
+    )
+
+    if return_thickness:
+        thickness = counts * zres
+        thickness = xr.DataArray(
+            thickness, coords={y_dim: da[y_dim], x_dim: da[x_dim]}, dims=(y_dim, x_dim)
+        )
+        result = xr.Dataset({"most_common": result, "thickness": thickness})
+
+    return result

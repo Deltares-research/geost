@@ -6,9 +6,10 @@ import shapely
 import xarray as xr
 from numpy.testing import assert_array_almost_equal, assert_array_equal
 
-from geost.exceptions import InvalidModelError
+from geost.exceptions import InvalidModelError, ModelTypeError
 from geost.models._core import ModelType
 from geost.models.model_array import ModelDataArray
+from tests.conftest import voxelmodel
 
 
 @pytest.fixture
@@ -83,6 +84,18 @@ class TestModelDataArray:
         assert voxelmodel_var.gst._bottom is None
         assert voxelmodel_var.gst._zmin is None
         assert voxelmodel_var.gst._zmax is None
+        assert_array_equal(voxelmodel_var.gst.x, voxelmodel_var["x"])
+        assert_array_equal(voxelmodel_var.gst.y, voxelmodel_var["y"])
+        assert_array_equal(voxelmodel_var.gst.z, voxelmodel_var["z"])
+
+        with pytest.raises(
+            ModelTypeError, match="Only ModelType.LAYER has a 'top' property."
+        ):
+            voxelmodel_var.gst.top
+        with pytest.raises(
+            ModelTypeError, match="Only ModelType.LAYER has a 'bottom' property."
+        ):
+            voxelmodel_var.gst.bottom
 
     @pytest.mark.unittest
     def test_accessor_layermodel(self, layermodel_var):
@@ -96,6 +109,11 @@ class TestModelDataArray:
         assert layermodel_var.gst._bottom == "bottom"
         assert layermodel_var.gst._zmin is None
         assert layermodel_var.gst._zmax is None
+        assert_array_equal(layermodel_var.gst.x, layermodel_var["x"])
+        assert_array_equal(layermodel_var.gst.y, layermodel_var["y"])
+        assert_array_equal(layermodel_var.gst.z, layermodel_var["layer"])
+        assert_array_equal(layermodel_var.gst.top, layermodel_var["top"])
+        assert_array_equal(layermodel_var.gst.bottom, layermodel_var["bottom"])
 
     @pytest.mark.unittest
     def test_accessor_empty_dataarray(self):
@@ -792,3 +810,60 @@ class TestModelDataArray:
         assert isinstance(sliced, xr.DataArray)
         assert sliced.sizes == {"y": 4, "x": 4, "layer": 3}
         assert_array_equal(sliced["layer"], ["B", "C", "D"])
+
+    @pytest.mark.unittest
+    def test_most_common_voxelmodel(self, voxelmodel_var):
+        expected_mode = [
+            [2.0, 1.0, 1.0, 1.0],
+            [1.0, 1.0, 1.0, 1.0],
+            [2.0, 1.0, 1.0, 2.0],
+            [2.0, 1.0, 1.0, 2.0],
+        ]
+
+        result = voxelmodel_var.gst.most_common()
+        assert isinstance(result, xr.DataArray)
+        assert_array_equal(result, expected_mode)
+
+        result = voxelmodel_var.gst.most_common(return_thickness=True)
+        assert isinstance(result, xr.Dataset)
+        assert_array_equal(result["most_common"], expected_mode)
+        assert_array_equal(
+            result["thickness"],
+            [
+                [1.5, 1.0, 1.5, 1.0],
+                [1.5, 1.5, 1.5, 1.0],
+                [1.5, 2.0, 1.5, 1.0],
+                [1.5, 2.0, 1.0, 1.5],
+            ],
+        )
+
+    @pytest.mark.unittest
+    def test_most_common_layermodel(self, layermodel_var):
+        expected_mode = [
+            [0.04, 0.04, 0.04, 0.04],
+            [0.2, 0.2, 0.2, 0.2],
+            [20.1, 20.1, 20.1, 20.1],
+            [85.0, 85.0, 85.0, 85.0],
+        ]
+        expected_most_common_layer = [
+            ["D", "D", "C", "C"],
+            ["D", "D", "C", "C"],
+            ["D", "C", "C", "D"],
+            ["D", "C", "C", "D"],
+        ]
+        result = layermodel_var.gst.most_common()
+        assert isinstance(result, xr.Dataset)
+        assert_array_equal(result["most_common"], expected_mode)
+        assert_array_equal(result["most_common_layer"], expected_most_common_layer)
+
+        expected_thickness = [
+            [2.2, 2.4, 1.6, 1.8],
+            [2.2, 2.4, 1.6, 1.8],
+            [2.2, 1.6, 1.8, 2.6],
+            [2.9, 1.8, 1.8, 2.6],
+        ]
+
+        result = layermodel_var.gst.most_common(return_thickness=True)
+        assert isinstance(result, xr.Dataset)
+        assert_array_equal(result["most_common"], expected_mode)
+        assert_array_equal(result["thickness"], expected_thickness)
