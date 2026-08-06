@@ -522,3 +522,33 @@ class TestModelDataset:
         assert_array_almost_equal(result["kh_most_common"], expected_mode)
         assert_array_almost_equal(result["thickness"], expected_thickness)
         assert_array_almost_equal(result["thickness"], result["thickness_most_common"])
+
+    @pytest.mark.unittest
+    def test_get_thickness(self, voxelmodel, layermodel):
+        result = voxelmodel.gst.get_thickness(
+            (voxelmodel["strat"] == 1) & voxelmodel["lith"].isin([1, 2])
+        )
+        assert isinstance(result, xr.DataArray)
+        assert result.sizes == {"y": 4, "x": 4}
+        assert_array_almost_equal(
+            result,
+            [
+                [1.0, 1.0, 1.5, 1.0],
+                [1.5, 1.5, 1.5, 0.5],
+                [0.5, 1.0, 1.5, 0.5],
+                [0.5, 2.0, 0.5, 1.0],
+            ],
+        )
+
+        result = layermodel.gst.get_thickness(
+            (layermodel["layer"].isin(["B", "D"])) & (layermodel["kh"] < 10)
+        )
+        assert_array_almost_equal(
+            result,
+            [
+                [0.8, 0.7, 0.75, 0.0],
+                [0.8, 0.7, 0.75, 0.0],
+                [0.8, 0.7, 0.0, 0.0],
+                [0.0, 0.0, 0.0, 0.0],
+            ],
+        )

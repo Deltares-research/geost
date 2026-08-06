@@ -933,3 +933,47 @@ class TestModelDataArray:
                 [[4, 3, 1, 0, 0], [4, 2, 1, 0, 0], [3, 3, 2, 0, 0], [4, 3, 2, 0, 0]],
             ],
         )
+
+    @pytest.mark.unittest
+    def test_get_thickness(self, voxelmodel_var, layermodel_var):
+        result = voxelmodel_var.gst.get_thickness(voxelmodel_var == 1)
+        assert isinstance(result, xr.DataArray)
+        assert result.sizes == {"y": 4, "x": 4}
+        assert_array_almost_equal(
+            result,
+            [
+                [1.0, 1.0, 1.5, 1.0],
+                [1.5, 1.5, 1.5, 1.0],
+                [0.5, 2.0, 1.5, 0.5],
+                [0.5, 2.0, 1.0, 1.0],
+            ],
+        )
+
+        result = layermodel_var.gst.get_thickness(layermodel_var < 10)
+        assert isinstance(result, xr.DataArray)
+        assert result.sizes == {"y": 4, "x": 4}
+        assert_array_almost_equal(
+            result,
+            [
+                [1.25, 1.15, 1.2, 0.45],
+                [1.25, 1.15, 1.2, 0.45],
+                [1.25, 1.15, 0.45, 0.45],
+                [0.45, 0.45, 0.45, 0.45],
+            ],
+        )
+
+        # This condition is a 1D array which should be broadcasted internally to produce the correct result
+        result = layermodel_var.gst.get_thickness(
+            (layermodel_var["layer"].isin(["B", "D"])) & (layermodel_var < 10)
+        )
+        assert isinstance(result, xr.DataArray)
+        assert result.sizes == {"y": 4, "x": 4}
+        assert_array_almost_equal(
+            result,
+            [
+                [0.8, 0.7, 0.75, 0.0],
+                [0.8, 0.7, 0.75, 0.0],
+                [0.8, 0.7, 0.0, 0.0],
+                [0.0, 0.0, 0.0, 0.0],
+            ],
+        )
