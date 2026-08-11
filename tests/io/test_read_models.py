@@ -19,6 +19,16 @@ def layermodel_netcdf(tmp_path, layermodel):
     return nc_path
 
 
+@pytest.fixture
+def geotop_netcdf(testdatadir):
+    return testdatadir / "geotop_small_selection.nc"
+
+
+@pytest.fixture
+def regis_netcdf(testdatadir):
+    return testdatadir / "regis_small_selection.nc"
+
+
 @pytest.mark.unittest
 def test_read_model_netcdf(voxelmodel_netcdf):
     model = geost.read_model_netcdf(voxelmodel_netcdf)
