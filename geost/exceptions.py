@@ -2,6 +2,10 @@ class GeostError(Exception):
     """Base class for all geost exceptions."""
 
 
+class MissingCRSError(GeostError):
+    """Raised when a coordinate reference system (CRS) is missing."""
+
+
 class ModelError(GeostError):
     """Base class for all geost model exceptions."""
 

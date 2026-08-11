@@ -1,10 +1,12 @@
+import re
+
 import numpy as np
 import pandas as pd
 import pytest
 import xarray as xr
 from numpy.testing import assert_array_almost_equal, assert_array_equal
 
-from geost.exceptions import InvalidModelError, ModelTypeError
+from geost.exceptions import InvalidModelError, MissingCRSError, ModelTypeError
 from geost.models._core import ModelType
 from geost.models.model_dataset import ModelDataset
 
@@ -19,6 +21,18 @@ def invalid_model(voxelmodel):
     invalid = voxelmodel.copy()
     invalid = invalid.assign_coords(layer=list(range(invalid.sizes["z"])))
     return invalid
+
+
+@pytest.fixture
+def dataset_no_crs():
+    return xr.Dataset(
+        data_vars={"data": (("y", "x", "z"), np.ones((4, 4, 5)))},
+        coords={
+            "x": [0.5, 1.5, 2.5, 3.5],
+            "y": [3.5, 2.5, 1.5, 0.5],
+            "z": [-2.25, -1.75, -1.25, -0.75, -0.25],
+        },
+    )
 
 
 class TestModelDataset:
@@ -154,6 +168,35 @@ class TestModelDataset:
         assert upper == pytest.approx(0.3)
 
     @pytest.mark.unittest
+    def test_write_crs(self, dataset_no_crs):
+        dataarray_with_crs = dataset_no_crs.gst.write_crs(28992, inplace=False)
+        assert dataset_no_crs.gst.crs is None  # The original should not be modified
+        assert dataarray_with_crs.gst.crs == 28992
+        assert "spatial_ref" in dataarray_with_crs.coords
+
+        dataset_no_crs.gst.write_crs(28992, inplace=True)
+        assert dataset_no_crs.gst.crs == 28992
+        assert "spatial_ref" in dataset_no_crs.coords
+
+    @pytest.mark.unittest
+    def test_slice_xy(self, dataset_no_crs):
+        # `slice_xy` also works if the data does not have a valid CRS
+        sel = dataset_no_crs.gst.slice_xy(1, 1, 3, 3)
+        assert isinstance(sel, xr.Dataset)
+        assert sel.gst.shape == (2, 2, 5)
+        assert_array_equal(sel["x"].values, [1.5, 2.5])
+        assert_array_equal(sel["y"].values, [2.5, 1.5])
+
+        # Invert the coordinate order to make sure the selection will still work
+        dataset_no_crs = dataset_no_crs.sortby("x", ascending=False)
+        dataset_no_crs = dataset_no_crs.sortby("y", ascending=True)
+        sel = dataset_no_crs.gst.slice_xy(1, 1, 3, 3)
+        assert isinstance(sel, xr.Dataset)
+        assert sel.gst.shape == (2, 2, 5)
+        assert_array_equal(sel["x"].values, [2.5, 1.5])
+        assert_array_equal(sel["y"].values, [1.5, 2.5])
+
+    @pytest.mark.unittest
     def test_select_within_bbox(self, voxelmodel):
         sel = voxelmodel.gst.select_within_bbox(1, 1, 3, 3)
         assert isinstance(sel, xr.Dataset)
@@ -165,6 +208,17 @@ class TestModelDataset:
             ValueError, match="No data found within the specified bounding box"
         ):
             voxelmodel.gst.select_within_bbox(1, 1, 3, 3, crs=4326)
+
+        # Remove the CRS from the DataArray to test the MissingCRSError
+        data_no_crs = voxelmodel.drop_vars("spatial_ref")
+        data_no_crs.attrs.pop("crs", None)
+        with pytest.raises(
+            MissingCRSError,
+            match=re.escape(
+                "Missing CRS for the dataset, use `model.gst.write_crs(crs)`"
+            ),
+        ):
+            data_no_crs.gst.select_within_bbox(1, 1, 3, 3)
 
     @pytest.mark.unittest
     def test_mask_geometries_points(self, voxelmodel, layermodel, points):

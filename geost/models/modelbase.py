@@ -6,7 +6,7 @@ import numpy as np
 import rioxarray  # noqa: F401, register `rio` accessor
 import xarray as xr
 
-from geost.exceptions import InvalidModelError, ModelTypeError
+from geost.exceptions import InvalidModelError, MissingCRSError, ModelTypeError
 from geost.models import layermodels, voxelmodels
 from geost.models._core import ModelType, get_model_specs
 from geost.utils import conversion
@@ -210,6 +210,56 @@ class ModelBase:
     def shape(self):
         return tuple(self._obj.sizes.values())
 
+    def write_crs(self, crs: str | int | CRS, inplace: bool = False, **kwargs) -> None:
+        """
+        Write the coordinate reference system (CRS) to the model. This method only writes
+        a valid CRS to the model and does not perform any reprojection of the data. See
+        Rioxarray documentation for reprojection methods.
+
+        Parameters
+        ----------
+        crs : str | int | CRS
+            The coordinate reference system to write to the model. This can be a string
+            (e.g., "EPSG:4326"), an integer (e.g., 4326), or a pyproj.CRS object.
+        inplace : bool, optional
+            If True, the CRS is written to the model in place. If False, a new model with
+            the CRS written is returned. The default is False.
+        **kwargs
+            Additional keyword arguments to pass to the `rio.write_crs` method. See
+            relevant documentation for details.
+
+        """
+        return self._obj.rio.write_crs(crs, inplace=inplace, **kwargs)
+
+    def slice_xy(
+        self, xmin: float, ymin: float, xmax: float, ymax: float
+    ) -> xr.Dataset | xr.DataArray:
+        """
+        Slice the model in the x and y dimensions.
+
+        Parameters
+        ----------
+        xmin : float
+            Minimum x-coordinate of the slice.
+        ymin : float
+            Minimum y-coordinate of the slice.
+        xmax : float
+            Maximum x-coordinate of the slice.
+        ymax : float
+            Maximum y-coordinate of the slice.
+
+        Returns
+        -------
+        xr.Dataset | xr.DataArray
+            Sliced model in the x and y dimensions.
+
+        """
+        if self._obj.indexes[self._x].is_monotonic_decreasing:
+            xmin, xmax = xmax, xmin
+        if self._obj.indexes[self._y].is_monotonic_decreasing:
+            ymin, ymax = ymax, ymin
+        return self._obj.sel({self._x: slice(xmin, xmax), self._y: slice(ymin, ymax)})
+
     def select_within_bbox(
         self,
         xmin: int | float,
@@ -219,7 +269,8 @@ class ModelBase:
         crs: str | int | CRS | None = None,
     ) -> xr.Dataset | xr.DataArray:
         """
-        Select data within a specified bounding box (xmin, ymin, xmax, ymax).
+        Select data within a specified bounding box (xmin, ymin, xmax, ymax). This method
+        needs the model to have a valid coordinate reference system (CRS) defined.
 
         Parameters
         ----------
@@ -259,6 +310,11 @@ class ModelBase:
             raise ValueError(
                 "No data found within the specified bounding box: "
                 f"({xmin}, {ymin}, {xmax}, {ymax})"
+            ) from e
+        except rioxarray.exceptions.MissingCRS as e:
+            raise MissingCRSError(
+                "Missing CRS for the dataset, use `model.gst.write_crs(crs)` to set "
+                "the CRS before selecting within a bounding box."
             ) from e
 
     def select_points(
