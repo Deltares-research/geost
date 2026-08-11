@@ -4,7 +4,6 @@ import xarray as xr
 from numpy.testing import assert_array_almost_equal, assert_array_equal
 
 from geost.models import voxelmodels as vm
-from tests.conftest import voxelmodel
 
 
 @pytest.fixture

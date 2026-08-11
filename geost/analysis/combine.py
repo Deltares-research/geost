@@ -10,7 +10,7 @@ from geost.base import Collection
 from geost.models.model_utils import label_consecutive_2d
 
 if TYPE_CHECKING:
-    from geost.models import VoxelModel
+    from geost.models.basemodels import VoxelModel
 
 
 def add_nearest_voxelmodel_variable(

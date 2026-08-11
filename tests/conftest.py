@@ -9,7 +9,6 @@ import xarray as xr
 from shapely import geometry as gmt
 
 from geost import read_nlog_cores
-from geost.models.basemodels import VoxelModel
 
 
 def borehole_a():

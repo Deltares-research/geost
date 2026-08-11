@@ -5,7 +5,7 @@ import rioxarray as rio
 import xarray as xr
 
 from geost.enums import UnitEnum
-from geost.models import VoxelModel
+from geost.models.basemodels import VoxelModel
 
 from .bro_utils import coordinates_to_cellcenters, flip_ycoordinates
 
