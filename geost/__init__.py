@@ -19,6 +19,7 @@ from geost.io.read import (
     read_uullg_tables,
     read_xml_boris,
 )
+from geost.io.read_models import read_model_from_opendap, read_model_netcdf
 from geost.models import (
     model_array,
     model_dataset,
