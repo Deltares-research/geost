@@ -67,6 +67,7 @@ def test_read_geotop_netcdf(geotop_netcdf):
     gtp = geost.read_geotop_netcdf(geotop_netcdf)
     assert isinstance(gtp, xr.Dataset)
     assert gtp.sizes == {"x": 5, "y": 5, "z": 101}
+    assert gtp.gst.crs == 28992
     assert gtp.gst.bounds() == (110000.0, 440000.0, 110500.0, 440500.0)
     assert_array_almost_equal(gtp["x"], [110050, 110150, 110250, 110350, 110450])
     assert_array_almost_equal(gtp["y"], [440050, 440150, 440250, 440350, 440450])
@@ -88,13 +89,77 @@ def test_read_geotop_netcdf(geotop_netcdf):
 
 
 @pytest.mark.unittest
-def test_read_geotop_from_opendap():
+def test_read_geotop_from_opendap(geotop_netcdf):
     bbox = (110_200, 440_200, 110_400, 440_400)
     gtp = geost.read_geotop_from_opendap(data_vars=["strat", "lithok"], bbox=bbox)
     assert isinstance(gtp, xr.Dataset)
+    assert gtp.gst.crs == 28992
     assert gtp.sizes == {"x": 2, "y": 2, "z": 313}
     assert_array_equal(gtp.data_vars, ["strat", "lithok"])
     assert gtp.gst.bounds() == bbox
     assert_array_almost_equal(gtp["x"], [110250, 110350])
     assert_array_almost_equal(gtp["y"], [440250, 440350])
     assert_array_almost_equal(gtp["z"], np.linspace(-49.75, 106.25, gtp.sizes["z"]))
+
+    # Check if reading from the OpenDAP server gives the same result as reading from the local netcdf file
+    gtp_local = geost.read_geotop_netcdf(
+        geotop_netcdf, data_vars=["strat", "lithok"], bbox=bbox
+    )
+    assert gtp.sel(z=gtp_local["z"]).equals(gtp_local)
+    # We need to select the same z coordinates because the geotop_netcdf fixture has a subset
+    # of the z coordinates to keep the file size of the netcdf file the tests/data directory
+    # small.
+
+
+@pytest.mark.unittest
+def test_read_regis_netcdf(regis_netcdf):
+    regis = geost.read_regis_netcdf(regis_netcdf)
+    assert isinstance(regis, xr.Dataset)
+    assert "mv" not in regis["layer"]
+    assert_array_equal(regis.data_vars, ["hgv", "kD", "c", "kh", "kv", "sdh", "sdv"])
+    assert_array_equal(regis.coords, ["crs", "top", "bottom", "x", "y", "layer"])
+    assert regis.sizes == {"layer": 131, "y": 5, "x": 5}
+    assert regis.gst.crs == 28992
+    assert regis.gst.bounds() == (110000.0, 440000.0, 110500.0, 440500.0)
+    assert_array_almost_equal(regis["x"], [110050, 110150, 110250, 110350, 110450])
+    assert_array_almost_equal(regis["y"], [440050, 440150, 440250, 440350, 440450])
+
+    bbox = (110_200, 440_200, 110_400, 440_400)
+    regis = geost.read_regis_netcdf(regis_netcdf, bbox=bbox)
+    assert isinstance(regis, xr.Dataset)
+    assert regis.sizes == {"layer": 131, "y": 2, "x": 2}
+    assert regis.gst.bounds() == bbox
+    assert_array_almost_equal(regis["x"], [110250, 110350])
+    assert_array_almost_equal(regis["y"], [440250, 440350])
+
+    # Test usage of data_vars behavior
+    regis = geost.read_regis_netcdf(regis_netcdf, data_vars=["hgv", "kD"])
+    assert_array_equal(regis.data_vars, ["hgv", "kD"])
+    assert_array_equal(regis.coords, ["crs", "top", "bottom", "x", "y", "layer"])
+
+    regis = geost.read_regis_netcdf(
+        regis_netcdf, data_vars=["top", "bottom", "hgv", "kD"]
+    )  # Adding top and bottom to data_vars should not affect the coords and data_vars
+    assert_array_equal(regis.data_vars, ["hgv", "kD"])
+    assert_array_equal(regis.coords, ["top", "bottom", "crs", "x", "y", "layer"])
+
+
+@pytest.mark.unittest
+def test_read_regis_from_opendap(regis_netcdf):
+    bbox = (110_200, 440_200, 110_400, 440_400)
+    regis = geost.read_regis_from_opendap(data_vars=["hgv", "kD"], bbox=bbox)
+    assert isinstance(regis, xr.Dataset)
+    assert "mv" not in regis["layer"]
+    assert_array_equal(regis.data_vars, ["hgv", "kD"])
+    assert_array_equal(regis.coords, ["crs", "top", "bottom", "x", "y", "layer"])
+    assert regis.sizes == {"layer": 131, "y": 2, "x": 2}
+    assert regis.gst.crs == 28992
+    assert regis.gst.bounds() == bbox
+    assert_array_almost_equal(regis["x"], [110250, 110350])
+    assert_array_almost_equal(regis["y"], [440250, 440350])
+
+    # Check if reading from the OpenDAP server gives the same result as reading from the local netcdf file
+    regis_local = geost.read_regis_netcdf(
+        regis_netcdf, data_vars=["hgv", "kD"], bbox=bbox
+    )
+    assert regis.equals(regis_local)

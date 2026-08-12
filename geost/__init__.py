@@ -24,6 +24,8 @@ from geost.io.read_models import (
     read_geotop_netcdf,
     read_model_from_opendap,
     read_model_netcdf,
+    read_regis_from_opendap,
+    read_regis_netcdf,
 )
 from geost.models import (
     model_array,
