@@ -101,3 +101,33 @@ def most_common(da: xr.DataArray, return_thickness=False) -> xr.DataArray | xr.D
         result = xr.Dataset({"most_common": result, "thickness": thickness})
 
     return result
+
+
+def get_surface_level(da: xr.Dataset | xr.DataArray) -> xr.DataArray:
+    """
+    Get the surface level of a voxelmodel. The surface is calculated by determining the
+    highest elevation where the voxelmodel has non-null values and adding half of the
+    vertical resolution.
+
+    Parameters
+    ----------
+    da : xr.Dataset | xr.DataArray
+        The voxelmodel from which to determine the surface level. If a Dataset is provided,
+        the first data variable will be used to determine the surface.
+
+    Returns
+    -------
+    xr.DataArray
+        A DataArray representing the surface level of the voxelmodel, with the same x and y
+        coordinates as the input model. The surface level is calculated as the highest
+        non-null value along the z dimension plus half of the vertical resolution.
+
+    """
+    if isinstance(da, xr.Dataset):
+        da = da[list(da.data_vars)[0]]  # Use first data variable to get surface
+
+    *_, zres = da.gst.resolution()
+    surface = da[da.gst.z_dim].where(da.notnull()).max(dim=da.gst.z_dim) + abs(
+        0.5 * zres
+    )
+    return surface

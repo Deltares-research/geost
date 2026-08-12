@@ -143,6 +143,37 @@ class TestModelDataset:
         assert layermodel.gst.shape == (4, 4, 4)
 
     @pytest.mark.unittest
+    def test_surface(self, voxelmodel, layermodel):
+        assert_array_almost_equal(
+            voxelmodel.gst.surface_level,
+            [
+                [0.0, -0.5, -0.5, -0.5],
+                [0.0, 0.0, -0.5, -0.5],
+                [-0.5, 0.0, 0.0, -0.5],
+                [-0.5, 0.0, -0.5, 0.0],
+            ],
+        )
+        assert_array_almost_equal(
+            layermodel.gst.surface_level,
+            [
+                [0.2, 0.3, 0.25, 0.1],
+                [0.2, 0.3, 0.25, 0.1],
+                [0.2, 0.3, 0.25, 0.1],
+                [0.2, 0.3, 0.25, 0.1],
+            ],
+        )
+
+        # Test that a subset does not use the cache and recalculates the attribute
+        voxel_subset = voxelmodel.isel(x=[0, 1], y=[0, 1])
+        assert_array_almost_equal(
+            voxel_subset.gst.surface_level, [[0.0, -0.5], [0.0, 0.0]]
+        )
+        layer_subset = layermodel.isel(x=[0, 1], y=[0, 1])
+        assert_array_almost_equal(
+            layer_subset.gst.surface_level, [[0.2, 0.3], [0.2, 0.3]]
+        )
+
+    @pytest.mark.unittest
     def test_resolution(self, voxelmodel, layermodel):
         assert voxelmodel.gst.resolution() == (1.0, -1.0, 0.5)
         assert layermodel.gst.resolution() == (1.0, -1.0)

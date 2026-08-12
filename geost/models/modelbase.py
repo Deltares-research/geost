@@ -44,6 +44,7 @@ class ModelBase:
         self._validate_model()
 
         # Initialize properties for caching
+        self._surface_level = None
         self._zmin = None
         self._zmax = None
 
@@ -69,51 +70,111 @@ class ModelBase:
         return False
 
     @property
-    def crs(self):
+    def crs(self) -> CRS | None:
+        """
+        The Coordinate Reference System (CRS) represented as a `pyproj.CRS` object.
+
+        """
         return self._obj.rio.crs
 
     @property
-    def ndims(self):
+    def ndims(self) -> int:
+        """
+        The number of dimensions in the `Dataset`/`DataArray`
+
+        """
         return len(self._obj.dims)
 
     @property
-    def x_dim(self):
+    def x_dim(self) -> str:
+        """
+        The name of the x dimension in the `Dataset`/`DataArray`
+
+        """
         return self._x
 
     @property
-    def y_dim(self):
+    def y_dim(self) -> str:
+        """
+        The name of the y dimension in the `Dataset`/`DataArray`
+
+        """
         return self._y
 
     @property
-    def z_dim(self):
+    def z_dim(self) -> str:
+        """
+        The name of the z dimension in the `Dataset`/`DataArray`
+
+        """
         return self._z
 
     @property
-    def x(self):
+    def x(self) -> xr.DataArray:
+        """
+        The x coordinates of the model as an `xarray.DataArray`.
+
+        """
         return self._obj[self._x]
 
     @property
-    def y(self):
+    def y(self) -> xr.DataArray:
+        """
+        The y coordinates of the model as an `xarray.DataArray`.
+
+        """
         return self._obj[self._y]
 
     @property
-    def z(self):
+    def z(self) -> xr.DataArray:
+        """
+        The coordinates of the model's vertical dimension as an `xarray.DataArray`.
+
+        """
         return self._obj[self._z]
 
     @property
-    def top(self):
+    def top(self) -> xr.DataArray:
+        """
+        `xarray.DataArray` with the depths of the top of each layer in a layermodel.
+
+        """
         if self._model_type != ModelType.LAYER:
             raise ModelTypeError("Only ModelType.LAYER has a 'top' property.")
         return self._obj[self._top]
 
     @property
-    def bottom(self):
+    def bottom(self) -> xr.DataArray:
+        """
+        `xarray.DataArray` with the depths of the bottom of each layer in a layermodel.
+
+        """
         if self._model_type != ModelType.LAYER:
             raise ModelTypeError("Only ModelType.LAYER has a 'bottom' property.")
         return self._obj[self._bottom]
 
     @property
-    def model_type(self):
+    def surface_level(self) -> xr.DataArray:
+        """
+        `xarray.DataArray` with the surface level elevation of the model.
+
+        """
+        if self._surface_level is not None:
+            return self._surface_level
+
+        if self._model_type == ModelType.VOXEL:
+            self._surface_level = voxelmodels.get_surface_level(self._obj)
+        elif self._model_type == ModelType.LAYER:
+            self._surface_level = self.top.max(dim=self._z)
+
+        return self._surface_level
+
+    @property
+    def model_type(self) -> ModelType:
+        """
+        The type of the model as a `ModelType` enum member.
+
+        """
         return self._model_type
 
     def resolution(
@@ -208,6 +269,10 @@ class ModelBase:
 
     @property
     def shape(self):
+        """
+        The shape of the model as a tuple of integers with the size of each dimension.
+
+        """
         return tuple(self._obj.sizes.values())
 
     def write_crs(self, crs: str | int | CRS, inplace: bool = False, **kwargs) -> None:
