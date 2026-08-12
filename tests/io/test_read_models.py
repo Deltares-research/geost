@@ -116,8 +116,10 @@ def test_read_regis_netcdf(regis_netcdf):
     regis = geost.read_regis_netcdf(regis_netcdf)
     assert isinstance(regis, xr.Dataset)
     assert "mv" not in regis["layer"]
-    assert_array_equal(regis.data_vars, ["hgv", "kD", "c", "kh", "kv", "sdh", "sdv"])
-    assert_array_equal(regis.coords, ["crs", "top", "bottom", "x", "y", "layer"])
+    assert_array_equal(
+        regis.data_vars, ["top", "bottom", "hgv", "kD", "c", "kh", "kv", "sdh", "sdv"]
+    )
+    assert_array_equal(regis.coords, ["crs", "x", "y", "layer"])
     assert regis.sizes == {"layer": 131, "y": 5, "x": 5}
     assert regis.gst.crs == 28992
     assert regis.gst.bounds() == (110000.0, 440000.0, 110500.0, 440500.0)
@@ -134,14 +136,14 @@ def test_read_regis_netcdf(regis_netcdf):
 
     # Test usage of data_vars behavior
     regis = geost.read_regis_netcdf(regis_netcdf, data_vars=["hgv", "kD"])
-    assert_array_equal(regis.data_vars, ["hgv", "kD"])
-    assert_array_equal(regis.coords, ["crs", "top", "bottom", "x", "y", "layer"])
+    # Not including top and bottom in data_vars should still include them in the result
+    # otherwise, the read data is not a valid layermodel and the .gst accessor will not work.
+    assert_array_equal(regis.data_vars, ["top", "bottom", "hgv", "kD"])
 
     regis = geost.read_regis_netcdf(
         regis_netcdf, data_vars=["top", "bottom", "hgv", "kD"]
-    )  # Adding top and bottom to data_vars should not affect the coords and data_vars
-    assert_array_equal(regis.data_vars, ["hgv", "kD"])
-    assert_array_equal(regis.coords, ["top", "bottom", "crs", "x", "y", "layer"])
+    )  # Adding top and bottom to data_vars should off course include them in the result
+    assert_array_equal(regis.data_vars, ["top", "bottom", "hgv", "kD"])
 
 
 @pytest.mark.unittest
@@ -150,8 +152,8 @@ def test_read_regis_from_opendap(regis_netcdf):
     regis = geost.read_regis_from_opendap(data_vars=["hgv", "kD"], bbox=bbox)
     assert isinstance(regis, xr.Dataset)
     assert "mv" not in regis["layer"]
-    assert_array_equal(regis.data_vars, ["hgv", "kD"])
-    assert_array_equal(regis.coords, ["crs", "top", "bottom", "x", "y", "layer"])
+    assert_array_equal(regis.data_vars, ["top", "bottom", "hgv", "kD"])
+    assert_array_equal(regis.coords, ["crs", "x", "y", "layer"])
     assert regis.sizes == {"layer": 131, "y": 2, "x": 2}
     assert regis.gst.crs == 28992
     assert regis.gst.bounds() == bbox

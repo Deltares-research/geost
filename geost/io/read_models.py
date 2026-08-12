@@ -310,7 +310,7 @@ def read_regis_netcdf(
     bbox: tuple[float, float, float, float] | None = None,
     load: bool = False,
     **xr_kwargs,
-) -> xr.Dataset | xr.DataArray:
+) -> xr.Dataset:
     """
     Read REGIS NetCDF data into GeoST compatible xarray Dataset or DataArray.
 
@@ -374,17 +374,21 @@ def read_regis_netcdf(
     ds.gst.write_crs(28992, inplace=True)
 
     x_dim, y_dim, layer = ds.gst.x_dim, ds.gst.y_dim, ds.gst.z_dim
-    ds = (
-        ds.assign_coords(
-            {
-                x_dim: ds["x_bounds"].sum(axis=1) / 2,
-                y_dim: ds["y_bounds"].sum(axis=1) / 2,
-                layer: ds[layer].str.decode("utf-8"),
-            }
-        )
-        .set_coords([ds.gst._top, ds.gst._bottom])
-        .drop_vars(["x_bounds", "y_bounds", "lat_bounds", "lon_bounds", "lat", "lon"])
+    ds = ds.assign_coords(
+        {
+            x_dim: ds["x_bounds"].sum(axis=1) / 2,
+            y_dim: ds["y_bounds"].sum(axis=1) / 2,
+            layer: ds[layer].str.decode("utf-8"),
+        }
+    ).drop_vars(
+        ["x_bounds", "y_bounds", "lat_bounds", "lon_bounds", "lat", "lon"]
     )  # These variables are not needed for further analysis and can cause errors
+
+    if data_vars is not None:
+        if ds.gst._bottom not in data_vars:
+            data_vars = [ds.gst._bottom] + data_vars
+        if ds.gst._top not in data_vars:
+            data_vars = [ds.gst._top] + data_vars
 
     ds = _prepare_dataset(ds, data_vars=data_vars, bbox=bbox, load=load)
     ds = ds.sel({layer: ds[layer] != "mv"})
