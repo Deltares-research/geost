@@ -1687,7 +1687,7 @@ class Collection(AbstractBase):
         crs = CRS(crs) if crs is not None else self.crs
         self.data.gst.to_qgis3d(outfile, crs=crs, **kwargs)
 
-    def to_geopackage3d(
+    def to_geopackage_3d(
         self,
         outfile: str | Path,
         crs: str | CRS = None,
@@ -1723,8 +1723,8 @@ class Collection(AbstractBase):
         lines_3d = self.data.gst.create_linestrings_3d(crs, x_end=x_end, y_end=y_end)
         data = gpd.GeoDataFrame(data, geometry=lines_3d, crs=crs)
 
-        locations.to_file(outfile, layer="header", driver="GPKG", **kwargs)
-        data.to_file(outfile, layer="data", driver="GPKG", **kwargs)
+        locations.to_file(outfile, layer="locations", driver="GPKG", **kwargs)
+        data.to_file(outfile, layer="3dlines", driver="GPKG", **kwargs)
 
     def to_kingdom(
         self,

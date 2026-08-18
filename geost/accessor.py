@@ -1725,7 +1725,7 @@ class GeostFrame(AbstractBase):
 
     @_requires_depth
     @_requires_xy
-    def to_geopackage3d(
+    def to_geopackage_3d(
         self,
         outfile: str | Path,
         crs: str | int | CRS = None,
@@ -1744,11 +1744,17 @@ class GeostFrame(AbstractBase):
         crs : str | int | CRS
             EPSG of the target crs. Takes anything that can be interpreted by
             pyproj.crs.CRS.from_user_input().
-
+        x_end : str | None, optional
+            Column name for x-coordinates of bottom endpoints in inclined boreholes.
+            The default is None.
+        y_end : str | None, optional
+            Column name for y-coordinates of bottom endpoints in inclined boreholes.
+            The default is None.
         **kwargs
             geopandas.GeodataFrame.to_file kwargs. See relevant Geopandas documentation.
 
         """
+
         data = self._obj
         lines_3d = self.create_linestrings_3d(crs=crs, x_end=x_end, y_end=y_end)
 

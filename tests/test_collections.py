@@ -774,6 +774,18 @@ class TestCollection:
         combined = borehole_collection.aggregate_consecutive_layers("lith")
 
     @pytest.mark.unittest
+    def test_to_geopackage3d(self, borehole_collection, tmp_path):
+        from shapely import LineString
+
+        outfile = tmp_path / "test_3d.gpkg"
+        borehole_collection.to_geopackage_3d(outfile)
+        assert outfile.is_file()
+
+        test_layers = gpd.list_layers(outfile)
+        assert_array_equal(test_layers["name"], ["locations", "3dlines"])
+        assert_array_equal(test_layers["geometry_type"], ["Point", "LineString Z"])
+
+    @pytest.mark.unittest
     def test_to_kingdom(self, borehole_collection):
         outfile = Path("temp_kingdom.csv")
         tdfile = Path(outfile.parent, f"{outfile.stem}_TDCHART{outfile.suffix}")

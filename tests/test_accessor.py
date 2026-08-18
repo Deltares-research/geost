@@ -1209,12 +1209,8 @@ class TestGeostFrame:
         assert outfile.is_file()
 
         test_layers = gpd.list_layers(outfile)
-        # Check "name" column in both layers
-        assert test_layers.name.iloc[0] == "locations"
-        assert test_layers.name.iloc[1] == "3dlines"
-        # Check "geometry type" in both layers
-        assert test_layers.geometry_type.iloc[0] == "Point"
-        assert test_layers.geometry_type.iloc[1] == "LineString Z"
+        assert_array_equal(test_layers["name"], ["locations", "3dlines"])
+        assert_array_equal(test_layers["geometry_type"], ["Point", "LineString Z"])
 
         # Check if linestring coordinates are OK
         test_lines = gpd.read_file(outfile, layer="3dlines")
