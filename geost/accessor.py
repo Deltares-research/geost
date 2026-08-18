@@ -1443,7 +1443,10 @@ class GeostFrame(AbstractBase):
 
     @_requires_depth
     def aggregate_consecutive_layers(
-        self, columns: str | list[str], agg_funcs: dict = None, keep_original_index: bool = False
+        self,
+        columns: str | list[str],
+        agg_funcs: dict = None,
+        keep_original_index: bool = False,
     ) -> pd.DataFrame:
         """
         Aggregate consecutive layers in the data that have the same value in a specified column.
@@ -1514,7 +1517,8 @@ class GeostFrame(AbstractBase):
         df = df.loc[result.index]
         cols = (
             ([self._top] if self._top is not None else [])
-            + [self._bottom] + columns
+            + [self._bottom]
+            + columns
             + list(agg_funcs.keys() if agg_funcs else [])
         )
         df[cols] = result[cols]
@@ -1636,9 +1640,11 @@ class GeostFrame(AbstractBase):
 
     @_requires_depth
     @_requires_xy
-    def _create_geodataframe_3d(
+    def create_linestrings_3d(
         self,
         crs: str | int | CRS = None,
+        x_end: str | None = None,
+        y_end: str | None = None,
     ):
         """
         Helper method for export method "to_qgis3d" to create the necessary GeoDataFrame
@@ -1663,12 +1669,6 @@ class GeostFrame(AbstractBase):
 
         data = self._get_depth_relative_to_surface()
 
-        data_columns = [
-            col
-            for col in data.columns
-            if col not in {"nr", "x", "y", "surface", "depth", "top", "bottom"}
-        ]
-
         # Prepare top, bottom and corresponding x and y values for geometry creation.
         # Infer the top of layers from the bottom of layers if the top column is not present.
         if self._top is None:
@@ -1677,46 +1677,24 @@ class GeostFrame(AbstractBase):
                 .shift()
                 .mask(self.first_row_survey, data[self._surface])
             )
-            x_bot, y_bot = data["x"], data["y"]
-            x_top = data["x"].shift().mask(self.first_row_survey, data["x"])
-            y_top = data["y"].shift().mask(self.first_row_survey, data["y"])
+            x_bot, y_bot = data[self._x], data[self._y]
+            x_top = x_bot.shift().mask(self.first_row_survey, x_bot)
+            y_top = y_bot.shift().mask(self.first_row_survey, y_bot)
         else:
             top = data[self._top]
-            x_top, y_top = data["x"], data["y"]
-            x_bot = data["x"].shift(-1).mask(self.last_row_survey, data["x"])
-            y_bot = data["y"].shift(-1).mask(self.last_row_survey, data["y"])
+            x_top, y_top = data[self._x], data[self._y]
+            if x_end is not None and y_end is not None:
+                x_bot, y_bot = data[x_end], data[y_end]
+            else:
+                x_bot = x_top.shift(-1).mask(self.last_row_survey, x_top)
+                y_bot = y_top.shift(-1).mask(self.last_row_survey, y_top)
 
-        # TODO: slight problem persists here for inclined boreholes. The last layer will
-        # always be non-inclined because we miss information on the bottom x/y coords.
-        # This cannot be correctly inferred from the data.
+        begin = np.c_[x_top, y_top, top + 0.01]
+        end = np.c_[x_bot, y_bot, data[self._bottom]]
+        geometries = linestrings(np.stack((begin, end), axis=1))
 
-        data_to_write = dict(
-            nr=data[self._nr].values,
-            top=top.values.astype(float),
-            bottom=data[self._bottom].values.astype(float),
-        )
-
-        data_to_write.update(data[data_columns].to_dict(orient="list"))
-
-        geometries = linestrings(
-            [
-                [[x, y, top + 0.01], [x_bot, y_bot, bottom + 0.01]]
-                for x, y, x_bot, y_bot, top, bottom in zip(
-                    x_top.values.astype(float),
-                    y_top.values.astype(float),
-                    x_bot.values.astype(float),
-                    y_bot.values.astype(float),
-                    top.values.astype(float),
-                    data[self._bottom].values.astype(float),
-                )
-            ]
-        )
-
-        return gpd.GeoDataFrame(
-            data=data_to_write,
-            geometry=geometries,
-            crs=crs,
-        )
+        # Only return series of geometries
+        return gpd.GeoSeries(geometries, crs=crs)
 
     @_requires_depth
     @_requires_xy
@@ -1742,8 +1720,66 @@ class GeostFrame(AbstractBase):
             geopandas.GeodataFrame.to_file kwargs. See relevant Geopandas documentation.
 
         """
-        qgis3d = self._create_geodataframe_3d(crs=crs)
+        qgis3d = self.create_linestrings_3d(crs=crs)
         qgis3d.to_file(outfile, driver="GPKG", **kwargs)
+
+    @_requires_depth
+    @_requires_xy
+    def to_geopackage3d(
+        self,
+        outfile: str | Path,
+        crs: str | int | CRS = None,
+        x_end: str | None = None,
+        y_end: str | None = None,
+        **kwargs,
+    ):
+        """
+        Write data to geopackage file that can be directly loaded in the Qgis2threejs
+        plugin. Works only for layered (borehole) data.
+
+        Parameters
+        ----------
+        outfile : str | Path
+            Path to geopackage file to be written.
+        crs : str | int | CRS
+            EPSG of the target crs. Takes anything that can be interpreted by
+            pyproj.crs.CRS.from_user_input().
+
+        **kwargs
+            geopandas.GeodataFrame.to_file kwargs. See relevant Geopandas documentation.
+
+        """
+        data = self._obj
+        lines_3d = self.create_linestrings_3d(crs=crs, x_end=x_end, y_end=y_end)
+
+        locations = data.drop_duplicates(subset=self._nr)
+        locations = gpd.GeoDataFrame(
+            locations,
+            geometry=gpd.points_from_xy(locations[self._x], locations[self._y]),
+            crs=crs,
+        )
+
+        data = gpd.GeoDataFrame(
+            data=data,
+            geometry=lines_3d,
+            crs=crs,
+        )
+
+        # write point locations layer
+        locations.to_file(
+            outfile,
+            layer="locations",
+            driver="GPKG",
+            **kwargs,
+        )
+
+        # append 3D line layer
+        data.to_file(
+            outfile,
+            layer="3dlines",
+            driver="GPKG",
+            **kwargs,
+        )
 
     @_requires_depth
     @_requires_xy

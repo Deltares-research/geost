@@ -1152,7 +1152,6 @@ class TestGeostFrame:
             pd.Index([0, 1, 2, 3, 4, 5, 7, 9, 10, 13, 15, 16, 17, 18, 19, 20])
         )
 
-
         # Combine CPT layers
         cpt_data["categorical_data"] = (
             ["A"] * 4 + ["B"] * 4 + ["A"] * 4 + ["C"] * 4 + ["B"] * 4
@@ -1184,6 +1183,47 @@ class TestGeostFrame:
         borehole_data.gst.to_qgis3d(outfile, crs=28992)
         assert outfile.is_file()
         outfile.unlink()
+
+    @pytest.mark.unittest
+    def test_create_linestrings_3d(self, borehole_data):
+        result = borehole_data.gst.create_linestrings_3d()
+        assert isinstance(result, gpd.GeoDataFrame)
+
+        from shapely.geometry import LineString
+
+        assert all(isinstance(geom, LineString) for geom in result.geometry)
+
+        assert len(result) == len(borehole_data)
+        assert all(col in result.columns for col in borehole_data.columns)
+
+        for geom in result.geometry:
+            assert len(geom.coords[0]) == 3, "Geometry should have 3D coordinates"
+            assert len(geom.coords[-1]) == 3, "Geometry should have 3D coordinates"
+
+    @pytest.mark.unittest
+    def test_to_geopackage3d(self, borehole_data, tmp_path):
+        from shapely import LineString
+
+        outfile = tmp_path / "test_3d.gpkg"
+        borehole_data.gst.to_geopackage3d(outfile)
+        assert outfile.is_file()
+
+        test_layers = gpd.list_layers(outfile)
+        # Check "name" column in both layers
+        assert test_layers.name.iloc[0] == "locations"
+        assert test_layers.name.iloc[1] == "3dlines"
+        # Check "geometry type" in both layers
+        assert test_layers.geometry_type.iloc[0] == "Point"
+        assert test_layers.geometry_type.iloc[1] == "LineString Z"
+
+        # Check if linestring coordinates are OK
+        test_lines = gpd.read_file(outfile, layer="3dlines")
+        assert test_lines.geometry.iloc[0].equals(
+            LineString([(2, 3, 0.21), (2, 3, -0.6)])
+        )
+        assert test_lines.geometry.iloc[1].equals(
+            LineString([(2, 3, -0.59), (2, 3, -1.3)])
+        )
 
     @pytest.mark.unittest
     def test_to_kingdom(self, borehole_data):

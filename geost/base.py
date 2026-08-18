@@ -739,9 +739,11 @@ class Collection(AbstractBase):
         if include_in_header:
             df = pd.DataFrame(
                 pairs,
-                columns=["index", "points_in_range"]
-                if not return_distance
-                else ["index", "points_in_range", "distances"],
+                columns=(
+                    ["index", "points_in_range"]
+                    if not return_distance
+                    else ["index", "points_in_range", "distances"]
+                ),
             )
             df = df.groupby("index")["points_in_range"].apply(list).to_frame()
             self.header = self.header.join(df)
@@ -1684,6 +1686,45 @@ class Collection(AbstractBase):
         """
         crs = CRS(crs) if crs is not None else self.crs
         self.data.gst.to_qgis3d(outfile, crs=crs, **kwargs)
+
+    def to_geopackage3d(
+        self,
+        outfile: str | Path,
+        crs: str | CRS = None,
+        x_end: str | None = None,
+        y_end: str | None = None,
+        **kwargs,
+    ):
+        """
+        Write data to geopackage file that can be directly loaded in the Qgis2threejs
+        plugin. Works only for layered (borehole) data.
+
+        Parameters
+        ----------
+        outfile : str | Path
+            Path to geopackage file to be written.
+        crs : str | CRS, optional
+            Coordinate reference system to use for the geometries in the output file. If
+            None, the horizontal reference of the Collection is used. The default is None.
+        x_end : str | None, optional
+            Column name for x-coordinates of bottom endpoints in inclined boreholes.
+            The default is None.
+        y_end : str | None, optional
+            Column name for y-coordinates of bottom endpoints in inclined boreholes.
+            The default is None.
+        **kwargs
+            geopandas.GeoDataFrame.to_file kwargs. See relevant Geopandas documentation.
+
+        """
+        locations = self.header
+        data = self.data
+
+        crs = CRS(crs) if crs is not None else self.crs
+        lines_3d = self.data.gst.create_linestrings_3d(crs, x_end=x_end, y_end=y_end)
+        data = gpd.GeoDataFrame(data, geometry=lines_3d, crs=crs)
+
+        locations.to_file(outfile, layer="header", driver="GPKG", **kwargs)
+        data.to_file(outfile, layer="data", driver="GPKG", **kwargs)
 
     def to_kingdom(
         self,
