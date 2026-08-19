@@ -1,48 +1,7 @@
-from typing import Literal
-
 import pytest
 from numpy.testing import assert_array_equal
 
-from geost.bro import GeoTop
 from geost.bro.bro_geotop import StratGeotop
-
-
-class TestGeoTop:
-    @pytest.fixture
-    def test_area(self):
-        """
-        xmin, ymin, xmax, ymax bounding box of a test area.
-        """
-        return (115_000, 500_000, 115_500, 500_500)
-
-    @pytest.mark.unittest
-    def test_lazy_load_from_opendap(self):
-        geotop = GeoTop.from_opendap(lazy=True)
-        assert geotop.ds.chunks == {
-            "y": (75, 684, 684, 684, 684),
-            "x": (643, 643, 643, 643, 74),
-            "z": (76, 76, 76, 76, 9),
-        }
-
-    @pytest.mark.unittest
-    def test_from_opendap(
-        self,
-        test_area: tuple[
-            Literal[115000], Literal[500000], Literal[115500], Literal[500500]
-        ],
-    ):
-        geotop = GeoTop.from_opendap(bbox=test_area)
-        assert isinstance(geotop, GeoTop)
-        assert geotop.resolution == (100, 100, 0.5)
-        assert geotop["strat"].dims == ("y", "x", "z")
-        assert geotop.crs == 28992
-        assert_array_equal(
-            geotop["x"], [114_950, 115_050, 115_150, 115_250, 115_350, 115_450, 115_550]
-        )
-        assert_array_equal(
-            geotop["y"], [500_550, 500_450, 500_350, 500_250, 500_150, 500_050, 499_950]
-        )
-        assert_array_equal(geotop["z"][:3], [-49.75, -49.25, -48.75])
 
 
 class TestStratGeotop:

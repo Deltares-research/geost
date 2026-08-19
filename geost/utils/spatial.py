@@ -4,7 +4,6 @@ from pathlib import Path
 import geopandas as gpd
 import numpy as np
 import pandas as pd
-import rioxarray
 import xarray as xr
 
 from geost.utils import conversion
@@ -287,6 +286,8 @@ def get_raster_values(
     np.ndarray
         1D array of sampled values
     """
+    import rioxarray
+
     if isinstance(raster_to_read, (str, Path)):
         raster_to_read = rioxarray.open_rasterio(raster_to_read).squeeze()
 

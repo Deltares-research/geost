@@ -73,3 +73,8 @@ class ModelDataset(ModelBase):
             )
 
         return result
+
+    def to_pyvista_grid(self, structured: bool = True, **kwargs):
+        raise NotImplementedError(
+            "The `to_pyvista_grid` method is not implemented for ModelDataset. "
+        )

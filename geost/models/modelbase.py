@@ -3,7 +3,6 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Literal
 
 import numpy as np
-import rioxarray  # noqa: F401, register `rio` accessor
 import xarray as xr
 
 from geost.exceptions import InvalidModelError, MissingCRSError, ModelTypeError
@@ -24,6 +23,9 @@ type GeometryType = BaseGeometry | list[BaseGeometry]
 
 class ModelBase:
     def __init__(self, xarray_obj: xr.Dataset | xr.DataArray):
+        # Register `rio` accessor. Do it here to not trigger direct import with `import geost`
+        import rioxarray  # noqa: F401
+
         self._obj = xarray_obj
         self._x: str = None
         self._y: str = None
@@ -198,6 +200,8 @@ class ModelBase:
             Resolution cannot be determined for 1D models.
 
         """
+        import rioxarray
+
         try:
             grid = self._obj.isel({self._z: 0})
             if self.crs.is_geographic and meters:
@@ -362,6 +366,8 @@ class ModelBase:
             If no data is found within the specified bounding box.
 
         """
+        import rioxarray
+
         try:
             return self._obj.rio.clip_box(
                 minx=xmin,

@@ -5,6 +5,7 @@ import geopandas as gpd
 import numpy as np
 import pandas as pd
 import pytest
+import rioxarray  # noqa: F401, register rioxarray extension for xarray
 import xarray as xr
 from shapely import geometry as gmt
 

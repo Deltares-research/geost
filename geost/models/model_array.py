@@ -85,3 +85,8 @@ class ModelDataArray(ModelBase):
             counts = counts / total
 
         return counts
+
+    def to_pyvista_grid(self, structured: bool = True, **kwargs):
+        raise NotImplementedError(
+            "The `to_pyvista_grid` method is not implemented for ModelDataArray. "
+        )
