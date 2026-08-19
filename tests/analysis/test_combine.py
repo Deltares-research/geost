@@ -34,13 +34,10 @@ def strat_deeper_than_cpt():
 
 @pytest.mark.unittest
 def test_add_nearest_voxelmodel_variable_zero_tolerance(
-    borehole_collection, to_remove_voxelmodel
+    borehole_collection, voxelmodel
 ):
     result = add_nearest_voxelmodel_variable(
-        borehole_collection,
-        to_remove_voxelmodel,
-        ["strat", "lith"],
-        tolerances=(0, 0, 0),
+        borehole_collection, voxelmodel, ["strat", "lith"], tolerances=(0, 0, 0)
     )
     assert isinstance(result, Collection)
     assert result.data.shape == (25, 9)
@@ -51,91 +48,81 @@ def test_add_nearest_voxelmodel_variable_zero_tolerance(
 
 
 @pytest.mark.unittest
-def test_add_nearest_voxelmodel_variable_layered(
-    borehole_collection, to_remove_voxelmodel
-):
+def test_add_nearest_voxelmodel_variable_layered(borehole_collection, voxelmodel):
     result = add_nearest_voxelmodel_variable(
-        borehole_collection,
-        to_remove_voxelmodel,
-        ["strat", "lith"],
+        borehole_collection, voxelmodel, ["strat", "lith"]
     )
     assert isinstance(result, Collection)
     assert result.data.shape == (25, 9)
     assert_array_equal(
         result.data[["lith", "strat"]],
-        np.array(
-            [
-                [np.nan, np.nan],
-                [1.0, 1.0],
-                [1.0, 1.0],
-                [np.nan, np.nan],
-                [np.nan, np.nan],
-                [np.nan, np.nan],
-                [1.0, 1.0],
-                [3.0, 2.0],
-                [2.0, 2.0],
-                [np.nan, np.nan],
-                [np.nan, np.nan],
-                [2.0, 2.0],
-                [2.0, 2.0],
-                [np.nan, np.nan],
-                [np.nan, np.nan],
-                [np.nan, np.nan],
-                [np.nan, np.nan],
-                [np.nan, np.nan],
-                [np.nan, np.nan],
-                [np.nan, np.nan],
-                [3.0, 1.0],
-                [3.0, 1.0],
-                [1.0, 1.0],
-                [2.0, 2.0],
-                [np.nan, np.nan],
-            ]
-        ),
+        [
+            [np.nan, np.nan],
+            [1.0, 1.0],
+            [1.0, 1.0],
+            [np.nan, np.nan],
+            [np.nan, np.nan],
+            [np.nan, np.nan],
+            [1.0, 1.0],
+            [3.0, 2.0],
+            [2.0, 2.0],
+            [np.nan, np.nan],
+            [np.nan, np.nan],
+            [2.0, 2.0],
+            [2.0, 2.0],
+            [np.nan, np.nan],
+            [np.nan, np.nan],
+            [np.nan, np.nan],
+            [np.nan, np.nan],
+            [np.nan, np.nan],
+            [np.nan, np.nan],
+            [np.nan, np.nan],
+            [3.0, 1.0],
+            [3.0, 1.0],
+            [1.0, 1.0],
+            [2.0, 2.0],
+            [np.nan, np.nan],
+        ],
     )
 
 
 @pytest.mark.unittest
-def test_add_nearest_voxelmodel_variable_discrete(cpt_collection, to_remove_voxelmodel):
+def test_add_nearest_voxelmodel_variable_discrete(cpt_collection, voxelmodel):
     result = add_nearest_voxelmodel_variable(
-        cpt_collection,
-        to_remove_voxelmodel,
-        ["strat", "lith"],
+        cpt_collection, voxelmodel, ["strat", "lith"]
     )
     assert isinstance(result, Collection)
     assert result.data.shape == (20, 11)
     assert_array_equal(
         result.data[["lith", "strat"]],
-        np.array(
-            [
-                [np.nan, np.nan],
-                [3.0, 1.0],
-                [3.0, 1.0],
-                [1.0, 1.0],
-                [np.nan, np.nan],
-                [np.nan, np.nan],
-                [np.nan, np.nan],
-                [np.nan, np.nan],
-                [np.nan, np.nan],
-                [np.nan, np.nan],
-                [np.nan, np.nan],
-                [np.nan, np.nan],
-                [1.0, 1.0],
-                [1.0, 1.0],
-                [1.0, 1.0],
-                [2.0, 2.0],
-                [2.0, 2.0],
-                [np.nan, np.nan],
-                [np.nan, np.nan],
-                [np.nan, np.nan],
-            ]
-        ),
+        [
+            [np.nan, np.nan],
+            [3.0, 1.0],
+            [3.0, 1.0],
+            [1.0, 1.0],
+            [np.nan, np.nan],
+            [np.nan, np.nan],
+            [np.nan, np.nan],
+            [np.nan, np.nan],
+            [np.nan, np.nan],
+            [np.nan, np.nan],
+            [np.nan, np.nan],
+            [np.nan, np.nan],
+            [1.0, 1.0],
+            [1.0, 1.0],
+            [1.0, 1.0],
+            [2.0, 2.0],
+            [2.0, 2.0],
+            [np.nan, np.nan],
+            [np.nan, np.nan],
+            [np.nan, np.nan],
+        ],
     )
 
 
 @pytest.mark.unittest
-def test_add_voxelmodel_variable_layered(borehole_collection, to_remove_voxelmodel):
-    result = add_voxelmodel_variable(borehole_collection, to_remove_voxelmodel, "strat")
+def test_add_voxelmodel_variable_layered(borehole_collection, voxelmodel):
+    result = add_voxelmodel_variable(borehole_collection, voxelmodel, "strat")
     assert isinstance(result, Collection)
     assert result.data.shape == (35, 9)
     assert_array_equal(
@@ -261,8 +248,8 @@ def test_add_voxelmodel_variable_layered(borehole_collection, to_remove_voxelmod
 
 
 @pytest.mark.unittest
-def test_add_voxelmodel_variable_discrete(cpt_collection, to_remove_voxelmodel):
-    result = add_voxelmodel_variable(cpt_collection, to_remove_voxelmodel, "strat")
+def test_add_voxelmodel_variable_discrete(cpt_collection, voxelmodel):
+    result = add_voxelmodel_variable(cpt_collection, voxelmodel, "strat")
     assert isinstance(result, Collection)
     assert result.data.shape == (24, 10)
     assert_array_equal(
@@ -326,9 +313,9 @@ def test_add_voxelmodel_variable_discrete(cpt_collection, to_remove_voxelmodel):
 
 
 @pytest.mark.unittest
-def test_removes_if_column_is_present(borehole_collection, to_remove_voxelmodel):
+def test_removes_if_column_is_present(borehole_collection, voxelmodel):
     borehole_collection.data["strat"] = 1000
-    result = add_voxelmodel_variable(borehole_collection, to_remove_voxelmodel, "strat")
+    result = add_voxelmodel_variable(borehole_collection, voxelmodel, "strat")
     assert_array_equal(
         result.data["strat"],
         [
