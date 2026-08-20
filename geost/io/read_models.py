@@ -385,6 +385,7 @@ def read_regis_netcdf(
     )  # These variables are not needed for further analysis and can cause errors
 
     if data_vars is not None:
+        data_vars = [data_vars] if isinstance(data_vars, str) else data_vars
         # If data_vars is specified, ensure that the bottom and top variables are included
         if ds.gst._bottom not in data_vars:
             data_vars = [ds.gst._bottom] + data_vars

@@ -16,3 +16,7 @@ class InvalidModelError(ModelError):
 
 class ModelTypeError(ModelError):
     """Raised when a model is of the wrong type."""
+
+
+class MissingUnitError(ModelError):
+    """Raised when a unit is missing in the model."""
