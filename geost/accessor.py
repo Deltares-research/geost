@@ -1694,7 +1694,7 @@ class GeostFrame(AbstractBase):
         geometries = linestrings(np.stack((begin, end), axis=1))
 
         # Only return series of geometries
-        return gpd.GeoSeries(geometries, crs=crs)
+        return gpd.GeoSeries(geometries, index=self._obj.index, crs=crs)
 
     @_requires_depth
     @_requires_xy
