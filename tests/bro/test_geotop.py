@@ -5,10 +5,10 @@ from numpy.testing import assert_array_equal
 
 from geost import read_geotop_netcdf
 from geost.bro.geotop import (
-    GeotopMetadata,
-    MetadataType,
-    get_geotop_metadata_lithok,
-    get_geotop_metadata_strat,
+    GeotopUnits,
+    UnitType,
+    geotop_lithok_units,
+    geotop_strat_units,
 )
 from geost.exceptions import MissingUnitError
 
@@ -16,13 +16,13 @@ from geost.exceptions import MissingUnitError
 @pytest.fixture
 def metadata_strat(testdatadir):
     meta = pd.read_parquet(testdatadir / "geotop_metadata_strat.parquet")
-    return GeotopMetadata(meta, MetadataType.STRAT)
+    return GeotopUnits(meta, UnitType.STRAT)
 
 
 @pytest.fixture
 def metadata_lithok(testdatadir):
     meta = pd.read_parquet(testdatadir / "geotop_metadata_lithok.parquet")
-    return GeotopMetadata(meta, MetadataType.LITHOK, _unit="LITHO_CLASS_CD")
+    return GeotopUnits(meta, UnitType.LITHOK, _unit="LITHO_CLASS_CD")
 
 
 @pytest.fixture
@@ -34,11 +34,11 @@ def geotop_small(testdatadir):
     reason="Will fail in CI because pooch data can only be found from main branch"
 )
 @pytest.mark.unittest
-def test_get_geotop_metadata_strat():
-    metadata = get_geotop_metadata_strat()
-    assert isinstance(metadata, GeotopMetadata)
+def test_geotop_strat_units():
+    metadata = geotop_strat_units()
+    assert isinstance(metadata, GeotopUnits)
     assert isinstance(metadata.df, pd.DataFrame)
-    assert metadata.metadata_type == MetadataType.STRAT
+    assert metadata.unit_type == UnitType.STRAT
     assert isinstance(metadata.voxel_nr, pd.Index)
     assert isinstance(metadata.unit, pd.Series)
     assert isinstance(metadata.description, pd.Series)
@@ -51,11 +51,11 @@ def test_get_geotop_metadata_strat():
     reason="Will fail in CI because pooch data can only be found from main branch"
 )
 @pytest.mark.unittest
-def test_get_geotop_metadata_lithok():
-    metadata = get_geotop_metadata_lithok()
-    assert isinstance(metadata, GeotopMetadata)
+def test_geotop_lithok_units():
+    metadata = geotop_lithok_units()
+    assert isinstance(metadata, GeotopUnits)
     assert isinstance(metadata.df, pd.DataFrame)
-    assert metadata.metadata_type == MetadataType.LITHOK
+    assert metadata.unit_type == UnitType.LITHOK
     assert isinstance(metadata.voxel_nr, pd.Index)
     assert isinstance(metadata.unit, pd.Series)
     assert isinstance(metadata.description, pd.Series)
@@ -113,17 +113,17 @@ class TestGeotopMetadata:
     )
     def test_select_voxel_nr(self, metadata_strat, values):
         selected = metadata_strat.select_voxel_nr(values)
-        assert isinstance(selected, GeotopMetadata)
+        assert isinstance(selected, GeotopUnits)
         assert isinstance(selected.df, pd.DataFrame)
-        assert selected.metadata_type == MetadataType.STRAT
+        assert selected.unit_type == UnitType.STRAT
         assert_array_equal(selected.voxel_nr, values)
 
     @pytest.mark.unittest
     def test_select_voxel_nr_with_geotop(self, metadata_strat, geotop_small):
         selected = metadata_strat.select_voxel_nr(geotop_small["strat"])
-        assert isinstance(selected, GeotopMetadata)
+        assert isinstance(selected, GeotopUnits)
         assert isinstance(selected.df, pd.DataFrame)
-        assert selected.metadata_type == MetadataType.STRAT
+        assert selected.unit_type == UnitType.STRAT
         assert_array_equal(
             selected.voxel_nr,
             [1070, 1090, 1130, 2010, 4000, 4010, 5060, 5070, 5120, 6400],
@@ -142,9 +142,9 @@ class TestGeotopMetadata:
     )
     def test_select_units(self, metadata_strat, units):
         selected = metadata_strat.select_units(units)
-        assert isinstance(selected, GeotopMetadata)
+        assert isinstance(selected, GeotopUnits)
         assert isinstance(selected.df, pd.DataFrame)
-        assert selected.metadata_type == MetadataType.STRAT
+        assert selected.unit_type == UnitType.STRAT
         assert_array_equal(selected.unit, units)
 
     @pytest.mark.unittest
@@ -156,9 +156,9 @@ class TestGeotopMetadata:
     @pytest.mark.unittest
     def test_select_unit_contains_single_value(self, metadata_strat):
         selected = metadata_strat.select_unit_contains("NAWA")
-        assert isinstance(selected, GeotopMetadata)
+        assert isinstance(selected, GeotopUnits)
         assert isinstance(selected.df, pd.DataFrame)
-        assert selected.metadata_type == MetadataType.STRAT
+        assert selected.unit_type == UnitType.STRAT
         assert_array_equal(selected.voxel_nr, [1030, 1048, 1049, 1050, 6010, 6110])
         assert_array_equal(
             selected.unit,
@@ -172,16 +172,16 @@ class TestGeotopMetadata:
     )
     def test_select_unit_contains_list_of_values(self, metadata_strat, substring):
         selected = metadata_strat.select_unit_contains(substring)
-        assert isinstance(selected, GeotopMetadata)
+        assert isinstance(selected, GeotopUnits)
         assert isinstance(selected.df, pd.DataFrame)
-        assert selected.metadata_type == MetadataType.STRAT
+        assert selected.unit_type == UnitType.STRAT
         assert_array_equal(selected.voxel_nr, [1090, 1130])
         assert_array_equal(selected.unit, ["NUNIHO", "NUNIBA"])
 
     @pytest.mark.unittest
     def test_select_unit_contains_case_insensitive(self, metadata_strat):
         selected = metadata_strat.select_unit_contains("niho", case_sensitive=False)
-        assert isinstance(selected, GeotopMetadata)
+        assert isinstance(selected, GeotopUnits)
         assert_array_equal(selected.voxel_nr, 1090)
         assert_array_equal(selected.unit, "NUNIHO")
 
@@ -189,7 +189,7 @@ class TestGeotopMetadata:
         selected = metadata_strat.select_unit_contains(
             ["niho", "NIBA"], case_sensitive=True
         )
-        assert isinstance(selected, GeotopMetadata)
+        assert isinstance(selected, GeotopUnits)
         assert_array_equal(selected.voxel_nr, 1130)
         assert_array_equal(selected.unit, "NUNIBA")
 
@@ -205,9 +205,9 @@ class TestGeotopMetadata:
     @pytest.mark.unittest
     def test_select_description_contains_single_value(self, metadata_strat):
         selected = metadata_strat.select_description_contains("Formatie van Naaldwijk")
-        assert isinstance(selected, GeotopMetadata)
+        assert isinstance(selected, GeotopUnits)
         assert isinstance(selected.df, pd.DataFrame)
-        assert selected.metadata_type == MetadataType.STRAT
+        assert selected.unit_type == UnitType.STRAT
         assert_array_equal(
             selected.voxel_nr,
             [
@@ -262,9 +262,9 @@ class TestGeotopMetadata:
         self, metadata_strat, substring
     ):
         selected = metadata_strat.select_description_contains(substring)
-        assert isinstance(selected, GeotopMetadata)
+        assert isinstance(selected, GeotopUnits)
         assert isinstance(selected.df, pd.DataFrame)
-        assert selected.metadata_type == MetadataType.STRAT
+        assert selected.unit_type == UnitType.STRAT
         assert_array_equal(
             selected.voxel_nr,
             [
@@ -331,7 +331,7 @@ class TestGeotopMetadata:
         selected = metadata_strat.select_description_contains(
             "formatie van nieuwkoop", case_sensitive=False
         )
-        assert isinstance(selected, GeotopMetadata)
+        assert isinstance(selected, GeotopUnits)
         assert_array_equal(
             selected.voxel_nr,
             [1010, 1045, 1040, 1070, 1085, 1089, 1090, 1095, 1125, 1130, 2010, 2020],
@@ -341,7 +341,7 @@ class TestGeotopMetadata:
         selected = metadata_strat.select_description_contains(
             ["Formatie van Nieuwkoop", "formatie van naaldwijk"], case_sensitive=True
         )
-        assert isinstance(selected, GeotopMetadata)
+        assert isinstance(selected, GeotopUnits)
         assert_array_equal(
             selected.voxel_nr,
             [1010, 1045, 1040, 1070, 1085, 1089, 1090, 1095, 1125, 1130, 2010, 2020],
@@ -367,9 +367,9 @@ class TestGeotopMetadata:
             metadata_lithok.get_antropogenic_units()
 
         antropogenic_units = metadata_strat.get_antropogenic_units()
-        assert isinstance(antropogenic_units, GeotopMetadata)
+        assert isinstance(antropogenic_units, GeotopUnits)
         assert isinstance(antropogenic_units.df, pd.DataFrame)
-        assert antropogenic_units.metadata_type == MetadataType.STRAT
+        assert antropogenic_units.unit_type == UnitType.STRAT
         assert_array_equal(antropogenic_units.voxel_nr, [1000, 1005])
         assert_array_equal(antropogenic_units.unit, ["NUAAOP", "NUAAES"])
 
@@ -382,9 +382,9 @@ class TestGeotopMetadata:
             metadata_lithok.get_holocene_channel_units()
 
         holocene_channel_units = metadata_strat.get_holocene_channel_units()
-        assert isinstance(holocene_channel_units, GeotopMetadata)
+        assert isinstance(holocene_channel_units, GeotopUnits)
         assert isinstance(holocene_channel_units.df, pd.DataFrame)
-        assert holocene_channel_units.metadata_type == MetadataType.STRAT
+        assert holocene_channel_units.unit_type == UnitType.STRAT
         assert_array_equal(
             holocene_channel_units.voxel_nr,
             [6000, 6005, 6010, 6100, 6110, 6200, 6300, 6320, 6400, 6420],
@@ -414,9 +414,9 @@ class TestGeotopMetadata:
             metadata_lithok.get_holocene_units()
 
         holocene = metadata_strat.get_holocene_units()
-        assert isinstance(holocene, GeotopMetadata)
+        assert isinstance(holocene, GeotopUnits)
         assert isinstance(holocene.df, pd.DataFrame)
-        assert holocene.metadata_type == MetadataType.STRAT
+        assert holocene.unit_type == UnitType.STRAT
         assert_array_equal(
             holocene.voxel_nr,
             [
@@ -491,9 +491,9 @@ class TestGeotopMetadata:
         )
 
         holocene = metadata_strat.get_holocene_units(include_channel_units=False)
-        assert isinstance(holocene, GeotopMetadata)
+        assert isinstance(holocene, GeotopUnits)
         assert isinstance(holocene.df, pd.DataFrame)
-        assert holocene.metadata_type == MetadataType.STRAT
+        assert holocene.unit_type == UnitType.STRAT
         assert_array_equal(
             holocene.voxel_nr,
             [
