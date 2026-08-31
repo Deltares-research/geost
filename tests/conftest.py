@@ -329,6 +329,34 @@ def voxelmodel(xarray_dataset):
     return VoxelModel(xarray_dataset)
 
 
+@pytest.fixture
+def nap_grid(voxelmodel):
+    return xr.DataArray(
+        [
+            [-0.5, -0.5, -0.8, -0.7],
+            [-0.8, -0.8, -0.8, -0.8],
+            [-0.7, -0.7, -0.7, -0.7],
+            [-1.0, -1.0, -0.6, -0.6],
+        ],
+        coords={"y": voxelmodel["y"], "x": voxelmodel["x"]},
+        dims=("y", "x"),
+    )
+
+
+@pytest.fixture
+def depth_grid(voxelmodel):
+    return xr.DataArray(
+        [
+            [0.5, 0.5, 0.8, 0.7],
+            [0.8, 0.8, 0.8, 0.8],
+            [0.7, 0.7, 0.7, 0.7],
+            [1.0, 1.0, 0.6, 0.6],
+        ],
+        coords={"y": voxelmodel["y"], "x": voxelmodel["x"]},
+        dims=("y", "x"),
+    )
+
+
 def create_polygons() -> gpd.GeoDataFrame:
     """
     Helper function to create a GeoDataFrame with 10 random irregular shaped polygons to

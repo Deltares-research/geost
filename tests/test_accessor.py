@@ -1,6 +1,7 @@
 import itertools
 import warnings
 from pathlib import Path
+from typing import Literal
 
 import geopandas as gpd
 import numpy as np
@@ -961,6 +962,38 @@ class TestGeostFrame:
         )
         assert_array_equal(sliced["depth"], [1.0, 2.0, 0.5])
         assert_array_equal(sliced.index, [0, 1, 10])
+
+    @pytest.mark.unittest
+    @pytest.mark.parametrize(
+        "grid, reference, update, expected_bottoms",
+        [
+            ("nap_grid", True, True, [0.8, 1.0, 0.6, 0.8, 1.05, 0.5, 0.6]),
+            ("depth_grid", False, True, [0.8, 0.5, 0.8, 0.5, 0.7]),
+            ("nap_grid", True, False, [0.8, 1.5, 0.6, 1.2, 1.4, 0.5, 1.2]),
+            ("depth_grid", False, False, [0.8, 0.6, 1.4, 0.5, 1.2]),
+        ],
+    )
+    def test_slice_depth_interval_with_grid(
+        self,
+        borehole_data,
+        grid: Literal["nap_grid"] | Literal["depth_grid"],
+        reference: bool,
+        update: bool,
+        expected_bottoms: list | None,
+        request: pytest.FixtureRequest,
+    ):
+        lower_boundary = request.getfixturevalue(grid)
+        sliced = borehole_data.gst.slice_depth_interval(
+            lower_boundary=lower_boundary,
+            relative_to_vertical_reference=reference,
+            update_layer_boundaries=update,
+        )
+        assert sliced is not None
+        if expected_bottoms is not None:
+            assert_array_almost_equal(
+                sliced["bottom"].tolist(),
+                expected_bottoms,
+            )
 
     @pytest.mark.unittest
     def test_calculate_thickness_layered(self, borehole_data):
