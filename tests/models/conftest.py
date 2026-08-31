@@ -1,7 +1,10 @@
 import geopandas as gpd
+import pandas as pd
 import pytest
 import shapely
 import xarray as xr
+
+from geost.bro.geotop import GeotopUnits, UnitType
 
 
 @pytest.fixture

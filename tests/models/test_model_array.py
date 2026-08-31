@@ -81,6 +81,11 @@ def lines_wgs():
     ).to_crs(4326)
 
 
+@pytest.fixture
+def geotop_small_strat(geotop_small):
+    return geotop_small["strat"]
+
+
 class TestModelDataArray:
     """
     Testing of accessor functionality on DataArrays. Tests should exclusively use
@@ -1063,3 +1068,28 @@ class TestModelDataArray:
                 [0.0, 0.0, 0.0, 0.0],
             ],
         )
+
+    @pytest.mark.unittest
+    def test_get_thickness_geotop(self, geotop_small_strat, metadata_strat):
+        thickness = geotop_small_strat.gst.get_thickness(
+            metadata_strat.select_unit_contains("NUNI")
+        )
+        assert isinstance(thickness, xr.DataArray)
+        assert_array_almost_equal(
+            thickness,
+            [
+                [5.0, 5.5, 4.5, 4.5, 4.5],
+                [4.0, 5.0, 5.5, 5.5, 5.5],
+                [4.0, 5.0, 5.0, 5.0, 4.5],
+                [3.5, 5.0, 6.5, 4.5, 4.5],
+                [2.5, 4.0, 5.0, 5.5, 6.5],
+            ],
+        )
+
+        with pytest.warns(
+            UserWarning,
+            match="The model version cannot be found in a DataArray of a GeoTOP variable",
+        ):
+            thickness = geotop_small_strat.gst.get_thickness(
+                metadata_strat.select_unit_contains("NUNI")
+            )

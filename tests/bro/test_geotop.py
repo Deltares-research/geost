@@ -13,23 +13,6 @@ from geost.bro.geotop import (
 from geost.exceptions import MissingUnitError
 
 
-@pytest.fixture
-def metadata_strat(testdatadir):
-    meta = pd.read_parquet(testdatadir / "geotop_metadata_strat.parquet")
-    return GeotopUnits(meta, UnitType.STRAT)
-
-
-@pytest.fixture
-def metadata_lithok(testdatadir):
-    meta = pd.read_parquet(testdatadir / "geotop_metadata_lithok.parquet")
-    return GeotopUnits(meta, UnitType.LITHOK, _unit="LITHO_CLASS_CD")
-
-
-@pytest.fixture
-def geotop_small(testdatadir):
-    return read_geotop_netcdf(testdatadir / "geotop_small_selection.nc")
-
-
 @pytest.mark.xfail(
     reason="Will fail in CI because pooch data can only be found from main branch"
 )
@@ -39,6 +22,7 @@ def test_geotop_strat_units():
     assert isinstance(metadata, GeotopUnits)
     assert isinstance(metadata.df, pd.DataFrame)
     assert metadata.unit_type == UnitType.STRAT
+    assert metadata.data_var == "strat"
     assert isinstance(metadata.voxel_nr, pd.Index)
     assert isinstance(metadata.unit, pd.Series)
     assert isinstance(metadata.description, pd.Series)
@@ -57,6 +41,7 @@ def test_geotop_lithok_units():
     assert isinstance(metadata.df, pd.DataFrame)
     assert metadata.unit_type == UnitType.LITHOK
     assert isinstance(metadata.voxel_nr, pd.Index)
+    assert metadata.data_var == "lithok"
     assert isinstance(metadata.unit, pd.Series)
     assert isinstance(metadata.description, pd.Series)
     assert isinstance(metadata.colors_rgb, pd.DataFrame)
@@ -97,16 +82,17 @@ class TestGeotopMetadata:
 
     @pytest.mark.unittest
     def test_check_version(self, metadata_strat, geotop_small):
-        assert metadata_strat.check_version(geotop_small) is True
+        assert metadata_strat.check_version_matches(geotop_small) is True
 
         with pytest.raises(
             TypeError,
-            match="The GeoTOP version cannot be found in a single GeoTOP DataArray",
+            match="The model version cannot be found in a DataArray of a GeoTOP variable",
         ):
-            metadata_strat.check_version(geotop_small["strat"])
+            metadata_strat.check_version_matches(geotop_small["strat"])
 
-        geotop_small.attrs["title"] = "v01r5s1"
-        assert metadata_strat.check_version(geotop_small) is False
+        with pytest.warns(UserWarning, match="GeoTOP version mismatch"):
+            geotop_small.attrs["title"] = "v01r5s1"
+            assert metadata_strat.check_version_matches(geotop_small) is False
 
     @pytest.mark.parametrize(
         "values", [1130, [1130, 2010]], ids=["single-value", "list-of-values"]

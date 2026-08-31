@@ -643,3 +643,26 @@ class TestModelDataset:
                 [0.0, 0.0, 0.0, 0.0],
             ],
         )
+
+    @pytest.mark.unittest
+    def test_get_thickness_geotop(self, geotop_small, metadata_strat):
+        thickness = geotop_small.gst.get_thickness(
+            metadata_strat.select_unit_contains("NUNI")
+        )
+        assert isinstance(thickness, xr.DataArray)
+        assert_array_almost_equal(
+            thickness,
+            [
+                [5.0, 5.5, 4.5, 4.5, 4.5],
+                [4.0, 5.0, 5.5, 5.5, 5.5],
+                [4.0, 5.0, 5.0, 5.0, 4.5],
+                [3.5, 5.0, 6.5, 4.5, 4.5],
+                [2.5, 4.0, 5.0, 5.5, 6.5],
+            ],
+        )
+
+        with pytest.warns(UserWarning, match="GeoTOP version mismatch"):
+            geotop_small.attrs["title"] = "v01r5s1"
+            thickness = geotop_small.gst.get_thickness(
+                metadata_strat.select_unit_contains("NUNI")
+            )

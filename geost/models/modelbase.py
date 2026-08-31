@@ -510,7 +510,7 @@ class ModelBase:
         ...     ],
         ...     crs="EPSG:28992"
         ... )
-        >>> model.gst.select_along_lines(lines, distance=0.2) # Select the model along the lines at 10m intervals
+        >>> model.gst.select_along_lines(lines, distance=0.2) # Select the model along the lines at 0.2m intervals
 
         If the points are in a different CRS than the model, specify the CRS of the points:
 
@@ -518,6 +518,7 @@ class ModelBase:
         >>> model.gst.select_along_lines(lines_wgs, crs=4326) # Specify the CRS of the lines
 
         """
+        # TODO: Check what happens if model misses CRS
         if distance is None:
             xres, *_ = self.resolution(meters=True)
             distance = abs(xres)
@@ -724,56 +725,3 @@ class ModelBase:
                 update_top_bottom=update_top_bottom,
                 drop=drop,
             )
-
-    def get_thickness(self, condition: xr.DataArray | xr.Dataset) -> xr.DataArray:
-        """
-        Calculate the thickness of a voxelmodel or layermodel based on a specified
-        condition. The condition can be a boolean DataArray or Dataset that indicates
-        which voxels or layers to include in the thickness calculation.
-
-        Parameters
-        ----------
-        condition : xr.DataArray | xr.Dataset
-            A boolean DataArray or Dataset indicating which voxels or layers to include
-            in the thickness calculation. The condition should have the same dimensions
-            as the model.
-
-        Returns
-        -------
-        xr.DataArray
-            xarray.DataArray containing the calculated thickness for each horizontal x,y-
-            location in the model.
-
-        Examples
-        --------
-        Determine the thickness in a voxelmodel `Dataset` where "strat" equals 1100 and
-        "lith" equals 1:
-
-        >>> thickness = voxelmodel.gst.get_thickness(
-        ...    (voxelmodel["lithology"] == 1) & (voxelmodel["strat"] == 1100)
-        ... )
-
-        Or in a voxelmodel `DataArray` of stratigraphy the thickness where the stratigraphy
-        equals 1100 or 1200:
-
-        >>> thickness = voxelmodel_strat.gst.get_thickness(
-        ...    (voxelmodel_strat == 1100) | (voxelmodel_strat == 1200)
-        ... )
-
-        Or in a layermodel for a subset of units where the a value is smaller than 10:
-
-        >>> thickness = layermodel.gst.get_thickness(
-        ...    (layermodel["layer"].isin(["B", "D"])) & (layermodel["value"] < 10)
-        ... )
-
-        """
-        condition, _ = xr.broadcast(condition, self._obj)
-
-        if self._model_type == ModelType.VOXEL:
-            *_, zres = self.resolution()
-            thickness = xr.where(condition, zres, 0)
-        elif self._model_type == ModelType.LAYER:
-            thickness = self.top - self.bottom
-            thickness = xr.where(condition, thickness, 0)
-
-        return thickness.sum(dim=self._z)

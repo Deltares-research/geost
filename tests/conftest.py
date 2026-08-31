@@ -9,7 +9,8 @@ import rioxarray  # noqa: F401, register rioxarray extension for xarray
 import xarray as xr
 from shapely import geometry as gmt
 
-from geost import read_nlog_cores
+from geost import read_geotop_netcdf, read_nlog_cores
+from geost.bro.geotop import GeotopUnits, UnitType
 
 
 def borehole_a():
@@ -478,3 +479,20 @@ def bro_cpt_gpkg(testdatadir):
 
     """
     return testdatadir / r"test_bro_cpt_geopackage.gpkg"
+
+
+@pytest.fixture
+def metadata_strat(testdatadir):
+    meta = pd.read_parquet(testdatadir / "geotop_metadata_strat.parquet")
+    return GeotopUnits(meta, UnitType.STRAT, "strat")
+
+
+@pytest.fixture
+def metadata_lithok(testdatadir):
+    meta = pd.read_parquet(testdatadir / "geotop_metadata_lithok.parquet")
+    return GeotopUnits(meta, UnitType.LITHOK, "lithok", _unit="LITHO_CLASS_CD")
+
+
+@pytest.fixture
+def geotop_small(testdatadir):
+    return read_geotop_netcdf(testdatadir / "geotop_small_selection.nc")

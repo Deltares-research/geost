@@ -1,6 +1,9 @@
+import warnings
+
 import numpy as np
 import xarray as xr
 
+from geost.bro.geotop import GeotopUnits
 from geost.models import voxelmodels
 from geost.models._core import ModelType
 from geost.models.modelbase import ModelBase
@@ -8,6 +11,68 @@ from geost.models.modelbase import ModelBase
 
 @xr.register_dataarray_accessor("gst")
 class ModelDataArray(ModelBase):
+    def get_thickness(self, condition: GeotopUnits | xr.DataArray) -> xr.DataArray:
+        """
+        Calculate the thickness of a voxelmodel or layermodel based on a specified
+        condition. The condition can be a boolean DataArray or Dataset that indicates
+        which voxels or layers to include in the thickness calculation.
+
+        Parameters
+        ----------
+        condition : GeotopUnits | xr.DataArray
+            A boolean DataArray or Dataset indicating which voxels or layers to include
+            in the thickness calculation. The condition should have the same dimensions
+            as the model.
+
+        Returns
+        -------
+        xr.DataArray
+            xarray.DataArray containing the calculated thickness for each horizontal x,y-
+            location in the model.
+
+        Examples
+        --------
+        Determine the thickness in a voxelmodel `DataArray` of stratigraphy where the
+        stratigraphy equals 1100 or 1200:
+
+        >>> thickness = voxelmodel_strat.gst.get_thickness(
+        ...    (voxelmodel_strat == 1100) | (voxelmodel_strat == 1200)
+        ... )
+
+        Or in a layermodel for a subset of units:
+
+        >>> thickness = layermodel.gst.get_thickness(layermodel["layer"].isin(["B", "D"]))
+
+        If you are working with GeoTOP, you can also use a :class:`~geost.bro.geotop.GeotopUnits`
+        object to specify the condition, for example to get the thickness of the "Formatie van
+        Echteld" unit:
+
+        >>> geotop = geost.read_geotop_from_opendap(bbox=(110_000, 440_000, 120_000, 450_000))
+        >>> strat_units = geost.bro.geotop_strat_units()
+        >>> echteld = strat_units.select_description_contains("Formatie van Echteld")
+        >>> thickness_echteld = geotop.gst.get_thickness(echteld)
+
+        """
+        if isinstance(condition, GeotopUnits):
+            warnings.warn(
+                "The model version cannot be found in a DataArray of a GeoTOP variable, "
+                "cannot check if the metadata version matches the model version. Please "
+                "check the model version against the `xarray.Dataset` of GeoTOP.",
+                UserWarning,
+            )
+            condition = self._obj.isin(condition.voxel_nr)
+
+        condition, _ = xr.broadcast(condition, self._obj)
+
+        if self._model_type == ModelType.VOXEL:
+            *_, zres = self.resolution()
+            thickness = xr.where(condition, zres, 0)
+        elif self._model_type == ModelType.LAYER:
+            thickness = self.top - self.bottom
+            thickness = xr.where(condition, thickness, 0)
+
+        return thickness.sum(dim=self._z)
+
     def most_common(self, return_thickness=False) -> xr.DataArray | xr.Dataset:
         """
         Determine the "most common" value and corresponding thickness in a voxelmodel or

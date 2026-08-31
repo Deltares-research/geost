@@ -1,6 +1,7 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
+import warnings
+from dataclasses import dataclass, replace
 from enum import Enum
 
 import numpy as np
@@ -26,6 +27,9 @@ class GeotopUnits:
         DataFrame containing the metadata information.
     metadata_type : UnitType
         Type of the metadata (stratigraphic or lithologic).
+    data_var : str
+        Name of the GeoTOP variable that corresponds to the metadata (e.g. "strat" for
+        stratigraphic units, "lithok" for lithologic units).
     _nr : str, optional
         Column name for the voxel number in the metadata DataFrame. Default is "VOXEL_NR".
     _unit : str, optional
@@ -44,6 +48,7 @@ class GeotopUnits:
 
     df: pd.DataFrame
     unit_type: UnitType
+    data_var: str
     _nr: str = "VOXEL_NR"
     _unit: str = "STR_UNIT_CD"
     _desc: str = "DESCRIPTION"
@@ -99,7 +104,7 @@ class GeotopUnits:
         """
         return self.df.attrs.get("geotop version", "unknown")
 
-    def check_version(self, geotop: xr.Dataset) -> bool:
+    def check_version_matches(self, geotop: xr.Dataset) -> bool:
         """
         Check if the GeoTOP modeldata version matches the metadata version.
 
@@ -116,11 +121,23 @@ class GeotopUnits:
         """
         if isinstance(geotop, xr.DataArray):
             raise TypeError(
-                "The GeoTOP version cannot be found in a single GeoTOP DataArray. Please "
-                "provide the GeoTOP modeldata as an `xarray.Dataset`."
+                "The model version cannot be found in a DataArray of a GeoTOP variable, "
+                "cannot check if the metadata version matches the model version. Please "
+                "check the model version against the `xarray.Dataset` of GeoTOP.",
             )
+
         model_version = geotop.attrs.get("title", "unknown")
-        return self.geotop_version in model_version
+
+        version_matches = self.geotop_version in model_version
+
+        if not version_matches:
+            warnings.warn(
+                f"GeoTOP version mismatch: metadata version is {self.geotop_version}, "
+                f"model version is {model_version}",
+                UserWarning,
+            )
+
+        return version_matches
 
     def select_voxel_nr(
         self, values: int | float | list[int | float] | xr.DataArray
@@ -168,7 +185,8 @@ class GeotopUnits:
         values = [values] if isinstance(values, (int, float)) else values
 
         try:
-            return self.__class__(self.df.loc[values], self.unit_type)
+            sel = self.df.loc[values]
+            return replace(self, df=sel)
         except KeyError:
             raise MissingUnitError(
                 f"One or more voxel numbers from {values} are not present in the metadata."
@@ -218,7 +236,7 @@ class GeotopUnits:
             raise MissingUnitError(
                 f"None of the selection units in {units} are present in the metadata."
             )
-        return self.__class__(sel, self.unit_type)
+        return replace(self, df=sel)
 
     def _select_contains(
         self, substring: str | list[str], column: str, case_sensitive: bool
@@ -271,9 +289,8 @@ class GeotopUnits:
         >>> selected_meta = gtp_meta_strat.select_unit_contains(["NIHO", "NIBA"]) # Select multiple substrings
 
         """
-        return self.__class__(
-            self._select_contains(substring, self._unit, case_sensitive),
-            self.unit_type,
+        return replace(
+            self, df=self._select_contains(substring, self._unit, case_sensitive)
         )
 
     def select_description_contains(
@@ -310,9 +327,8 @@ class GeotopUnits:
         ... ) # Select multiple substrings
 
         """
-        return self.__class__(
-            self._select_contains(substring, self._desc, case_sensitive),
-            self.unit_type,
+        return replace(
+            self, df=self._select_contains(substring, self._desc, case_sensitive)
         )
 
     def get_antropogenic_units(self) -> GeotopUnits:
@@ -330,9 +346,9 @@ class GeotopUnits:
             raise ValueError(
                 "Stratigraphic units are not present in the lithologic metadata of GeoTOP."
             )
-        return self.__class__(
-            self._select_contains("antropoge", self._desc, case_sensitive=False),
-            self.unit_type,
+        return replace(
+            self,
+            df=self._select_contains("antropoge", self._desc, case_sensitive=False),
         )
 
     def get_holocene_channel_units(self) -> GeotopUnits:
@@ -350,9 +366,11 @@ class GeotopUnits:
             raise ValueError(
                 "Stratigraphic units are not present in the lithologic metadata of GeoTOP."
             )
-        return self.__class__(
-            self._select_contains("geulafzettingen", self._desc, case_sensitive=False),
-            self.unit_type,
+        return replace(
+            self,
+            df=self._select_contains(
+                "geulafzettingen", self._desc, case_sensitive=False
+            ),
         )
 
     def get_holocene_units(self, include_channel_units: bool = True) -> GeotopUnits:
@@ -388,7 +406,7 @@ class GeotopUnits:
             channel_units = self.get_holocene_channel_units()
             holocene = pd.concat([holocene, channel_units.df])
 
-        return self.__class__(holocene, self.unit_type)
+        return replace(self, df=holocene)
 
 
 def geotop_strat_units() -> GeotopUnits:
@@ -408,7 +426,7 @@ def geotop_strat_units() -> GeotopUnits:
     from geost.data import REGISTRY
 
     meta = pd.read_parquet(REGISTRY.fetch("geotop_v01r6s1_metadata_strat.parquet"))
-    return GeotopUnits(meta, UnitType.STRAT)
+    return GeotopUnits(meta, UnitType.STRAT, "strat")
 
 
 def geotop_lithok_units() -> GeotopUnits:
@@ -427,7 +445,7 @@ def geotop_lithok_units() -> GeotopUnits:
     from geost.data import REGISTRY
 
     meta = pd.read_parquet(REGISTRY.fetch("geotop_v01r6s1_metadata_lithok.parquet"))
-    return GeotopUnits(meta, UnitType.LITHOK, _unit="LITHO_CLASS_CD")
+    return GeotopUnits(meta, UnitType.LITHOK, "lithok", _unit="LITHO_CLASS_CD")
 
 
 if __name__ == "__main__":
