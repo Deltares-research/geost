@@ -741,6 +741,9 @@ class GeostFrame(AbstractBase):
         pairs = np.array(
             [[i, p] for pair, i in zip(pairs, self._obj.index) for p in pair if pair]
         )
+        # Map the query point indices back to the original indices of the points
+        # GeoDataFrame. Important if the points index is not a simple range index.
+        pairs[:, 1] = points.iloc[pairs[:, 1]].index
 
         if return_distance:
             distances = np.linalg.norm(
