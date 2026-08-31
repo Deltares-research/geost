@@ -1150,10 +1150,10 @@ class GeostFrame(AbstractBase):
         if lower_boundary is None:
             lower_boundary = -1e34 if relative_to_vertical_reference else 1e34
 
-        if isinstance(upper_boundary, xr.DataArray):
+        if isinstance(upper_boundary, xr.DataArray | str | Path):
             sliced, upper_boundary = boundaries_from_grid(sliced, upper_boundary)
 
-        if isinstance(lower_boundary, xr.DataArray):
+        if isinstance(lower_boundary, xr.DataArray | str | Path):
             sliced, lower_boundary = boundaries_from_grid(sliced, lower_boundary)
 
         if relative_to_vertical_reference:

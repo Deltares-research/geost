@@ -988,12 +988,10 @@ class TestGeostFrame:
             relative_to_vertical_reference=reference,
             update_layer_boundaries=update,
         )
-        assert sliced is not None
-        if expected_bottoms is not None:
-            assert_array_almost_equal(
-                sliced["bottom"].tolist(),
-                expected_bottoms,
-            )
+        assert_array_almost_equal(
+            sliced["bottom"].tolist(),
+            expected_bottoms,
+        )
 
     @pytest.mark.unittest
     def test_calculate_thickness_layered(self, borehole_data):
