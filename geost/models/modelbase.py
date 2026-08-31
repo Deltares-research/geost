@@ -248,12 +248,12 @@ class ModelBase:
 
     def vertical_bounds(self) -> tuple[float, float]:
         """
-        Determine the vertical bounds (zmin, zmax) of the model.
+        Determine the vertical bounds (depth min, depth max) of the model.
 
         Returns
         -------
         tuple[float, float]
-            Vertical bounds of the model (zmin, zmax).
+            Vertical bounds of the model (depth min, depth max).
 
         """
         if isinstance(self._obj, xr.DataArray) and self._model_type == ModelType.LAYER:
