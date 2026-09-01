@@ -1,3 +1,3 @@
-from .api import BroApi
-from .bro_cpt_geopackage import BroCptGeopackage
-from .bro_geotop import GeoTop, Lithology, StratGeotop
+from geost.bro.api import BroApi
+from geost.bro.bro_cpt_geopackage import BroCptGeopackage
+from geost.bro.geotop import geotop_lithok_units, geotop_strat_units

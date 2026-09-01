@@ -5,11 +5,12 @@ import geopandas as gpd
 import numpy as np
 import pandas as pd
 import pytest
+import rioxarray  # noqa: F401, register rioxarray extension for xarray
 import xarray as xr
 from shapely import geometry as gmt
 
-from geost import read_nlog_cores
-from geost.models.basemodels import VoxelModel
+from geost import read_geotop_netcdf, read_nlog_cores
+from geost.bro.geotop import GeotopUnits, UnitType
 
 
 def borehole_a():
@@ -259,7 +260,80 @@ def cpt_collection(cpt_data):
 
 
 @pytest.fixture
-def xarray_dataset():
+def layermodel():
+    x = np.arange(4) + 0.5
+    y = x[::-1]
+    layer = ["A", "B", "C", "D"]
+
+    surface = np.array(
+        [
+            [0.2, 0.3, 0.25, 0.1],
+            [0.2, 0.3, 0.25, 0.1],
+            [0.2, 0.3, 0.25, 0.1],
+            [0.2, 0.3, 0.25, 0.1],
+        ]
+    )
+    a_thickness = np.full_like(surface, 0.45)
+    b_thickness = np.array(
+        [
+            [0.8, 0.7, 0.75, 0],
+            [0.8, 0.7, 0.75, 0],
+            [0.8, 0.7, 0, 0],
+            [0, 0, 0, 0],
+        ]
+    )
+    c_thickness = np.array(
+        [
+            [0, 0, 1.6, 1.8],
+            [0, 0, 1.6, 1.8],
+            [0, 1.6, 1.8, 0],
+            [0, 1.8, 1.8, 0],
+        ]
+    )
+    d_thickness = np.array(
+        [
+            [2.2, 2.4, 0.8, 1.2],
+            [2.2, 2.4, 0.8, 1.2],
+            [2.2, 0.8, 1.2, 2.6],
+            [2.9, 1.2, 1.2, 2.6],
+        ]
+    )
+    thickness = np.stack([a_thickness, b_thickness, c_thickness, d_thickness], axis=2)
+    bottom = surface[:, :, None] - np.cumsum(thickness, axis=2)
+    top = bottom + thickness
+
+    kh = np.stack(
+        [
+            np.full_like(surface, 0.04),
+            np.full_like(surface, 0.2),
+            np.full_like(surface, 20.1),
+            np.full_like(surface, 85.0),
+        ],
+        axis=2,
+    )
+
+    layermodel = xr.Dataset(
+        data_vars={
+            "top": (("y", "x", "layer"), top),
+            "bottom": (("y", "x", "layer"), bottom),
+            "thickness": (("y", "x", "layer"), thickness),
+            "kh": (("y", "x", "layer"), kh),
+            "surface": (("y", "x"), surface),
+        },
+        coords={
+            "x": x,
+            "y": y,
+            "layer": layer,
+        },
+    )
+    layermodel.rio.write_crs(28992, inplace=True)
+    vars_3d = ["top", "bottom", "thickness", "kh"]
+    layermodel[vars_3d] = layermodel[vars_3d].where(layermodel["thickness"] != 0)
+    return layermodel
+
+
+@pytest.fixture
+def voxelmodel():
     x = np.arange(4) + 0.5
     y = x[::-1]
     z = np.arange(-2.5, 0, 0.5) + 0.25
@@ -325,8 +399,31 @@ def xarray_dataset():
 
 
 @pytest.fixture
-def voxelmodel(xarray_dataset):
-    return VoxelModel(xarray_dataset)
+def nap_grid(voxelmodel):
+    return xr.DataArray(
+        [
+            [-0.5, -0.5, -0.8, -0.7],
+            [-0.8, -0.8, -0.8, -0.8],
+            [-0.7, -0.7, -0.7, -0.7],
+            [-1.0, -1.0, -0.6, -0.6],
+        ],
+        coords={"y": voxelmodel["y"], "x": voxelmodel["x"]},
+        dims=("y", "x"),
+    )
+
+
+@pytest.fixture
+def depth_grid(voxelmodel):
+    return xr.DataArray(
+        [
+            [0.5, 0.5, 0.8, 0.7],
+            [0.8, 0.8, 0.8, 0.8],
+            [0.7, 0.7, 0.7, 0.7],
+            [1.0, 1.0, 0.6, 0.6],
+        ],
+        coords={"y": voxelmodel["y"], "x": voxelmodel["x"]},
+        dims=("y", "x"),
+    )
 
 
 def create_polygons() -> gpd.GeoDataFrame:
@@ -410,3 +507,20 @@ def bro_cpt_gpkg(testdatadir):
 
     """
     return testdatadir / r"test_bro_cpt_geopackage.gpkg"
+
+
+@pytest.fixture
+def metadata_strat(testdatadir):
+    meta = pd.read_parquet(testdatadir / "geotop_metadata_strat.parquet")
+    return GeotopUnits(meta, UnitType.STRAT, "strat")
+
+
+@pytest.fixture
+def metadata_lithok(testdatadir):
+    meta = pd.read_parquet(testdatadir / "geotop_metadata_lithok.parquet")
+    return GeotopUnits(meta, UnitType.LITHOK, "lithok", _unit="LITHO_CLASS_CD")
+
+
+@pytest.fixture
+def geotop_small(testdatadir):
+    return read_geotop_netcdf(testdatadir / "geotop_small_selection.nc")

@@ -24,6 +24,7 @@ from geost.validation.method_checks import (
 
 if TYPE_CHECKING:
     import numpy as np
+    import xarray as xr
     from shapely.geometry.base import BaseGeometry
 
 
@@ -1011,29 +1012,48 @@ class Collection(AbstractBase):
     @_requires_depth
     def slice_depth_interval(
         self,
-        upper_boundary: float | int = None,
-        lower_boundary: float | int = None,
+        upper_boundary: float | int | xr.DataArray | str | Path = None,
+        lower_boundary: float | int | xr.DataArray | str | Path = None,
         relative_to_vertical_reference: bool = False,
         update_layer_boundaries: bool = True,
+        drop_outside_grid_extent: bool = True,
     ):
         """
         Slice data based on given upper and lower boundaries. This returns a new object
-        containing only the sliced data.
+        containing only the sliced data. You may use fixed boundaries or grids for spatially
+        varying boundaries.
+
+        Note on using grids as upper and/or lower boundaries: if you notice unexpected
+        results do check the following:
+        -   Your data and your boundary grid(s) are in the same coordinate reference system
+        -   You have set `relative_to_vertical_reference` correctly according to the nature
+            of your grid. If your grid is relative to a vertical reference plane (e.g. "NAP"),
+            set this parameter to True. If your grid is relative to depth below the surface,
+            set this parameter to False.
 
         Parameters
         ----------
-        upper_boundary : float | int, optional
-            Every layer that starts above this is removed. The default is None.
-        lower_boundary : float | int, optional
-            Every layer that starts below this is removed. The default is None.
+        upper_boundary : float | int | xr.DataArray | str | Path, optional
+            Every layer that starts above this is removed. If you are using an xarray
+            DataArray (directly or through a file path), please set `relative_to_vertical_reference`
+            according to the nature of your grid. The default is None.
+        lower_boundary : float | int | xr.DataArray | str | Path, optional
+            Every layer that starts below this is removed. If you are using an xarray
+            DataArray (directly or through a file path), please set `relative_to_vertical_reference`
+            according to the nature of your grid. The default is None.
         relative_to_vertical_reference : bool, optional
             If True, the slicing is done with respect to any kind of vertical reference
             plane (e.g. "NAP", "TAW"). If False, the slice is done with respect to depth
             below the surface. The default is False.
         update_layer_boundaries : bool, optional
-            If True, the layer boundaries in the sliced data are updated according to the
-            upper and lower boundaries used with the slice. If False, the original layer
-            boundaries are kept in the sliced object. The default is False.
+            Only used when the data is layered, i.e. the data contains tops and bottoms for
+            individual layers. If True, the layer boundaries in the sliced data are updated
+            according to the upper and lower boundaries used with the slice. If False, the
+            original layer boundaries are kept in the sliced object. The default is False.
+        drop_outside_grid_extent : bool, optional
+            If True, any data outside the horizontal bounds of the grid are removed.
+            This only applies when either or both of the upper and lower boundaries are
+            given as xarray DataArrays. The default is True.
 
         Returns
         -------
@@ -1061,12 +1081,26 @@ class Collection(AbstractBase):
 
         >>> data.slice_depth_interval(-3, -5, relative_to_vertical_reference=True)
 
+        You can also slice data based on spatially varying upper and lower boundaries by
+        giving an xarray DataArray or file path to a raster file that serves as the upper
+        and/or lower boundary. For example, if you have a grid representing the Holocene-
+        Pleistocene boundary height in NAP and you want to select only data in the
+        Holocene depth interval but below -2 m NAP you would use:
+
+        >>> data.slice_depth_interval(
+        ...     upper_boundary=-2,
+        ...     lower_boundary="holocene_pleistocene_boundary.geotiff",
+        ...     relative_to_vertical_reference=True,
+        ...     update_layer_boundaries=True,
+        ... )
+
         """
         selected_data = self.data.gst.slice_depth_interval(
             upper_boundary=upper_boundary,
             lower_boundary=lower_boundary,
             relative_to_vertical_reference=relative_to_vertical_reference,
             update_layer_boundaries=update_layer_boundaries,
+            drop_outside_grid_extent=drop_outside_grid_extent,
         )
         selected_header = self.header.gst.select_by_values(
             self._nr, selected_data[self._nr].unique()

@@ -9,6 +9,7 @@ from typing import TYPE_CHECKING, Any, Iterable, Literal
 import geopandas as gpd
 import numpy as np
 import pandas as pd
+import xarray as xr
 from pyproj import CRS
 
 from geost import (
@@ -740,6 +741,9 @@ class GeostFrame(AbstractBase):
         pairs = np.array(
             [[i, p] for pair, i in zip(pairs, self._obj.index) for p in pair if pair]
         )
+        # Map the query point indices back to the original indices of the points
+        # GeoDataFrame. Important if the points index is not a simple range index.
+        pairs[:, 1] = points.iloc[pairs[:, 1]].index
 
         if return_distance:
             distances = np.linalg.norm(
@@ -1039,21 +1043,35 @@ class GeostFrame(AbstractBase):
     @_requires_depth
     def slice_depth_interval(
         self,
-        upper_boundary: float | int = None,
-        lower_boundary: float | int = None,
+        upper_boundary: float | int | xr.DataArray | str | Path = None,
+        lower_boundary: float | int | xr.DataArray | str | Path = None,
         relative_to_vertical_reference: bool = False,
         update_layer_boundaries: bool = True,
+        drop_outside_grid_extent: bool = True,
     ) -> pd.DataFrame:
         """
         Slice data based on given upper and lower boundaries. This returns a new object
-        containing only the sliced data.
+        containing only the sliced data. You may use fixed boundaries or grids for spatially
+        varying boundaries.
+
+        Note on using grids as upper and/or lower boundaries: if you notice unexpected
+        results do check the following:
+        -   Your data and your boundary grid(s) are in the same coordinate reference system
+        -   You have set `relative_to_vertical_reference` correctly according to the nature
+            of your grid. If your grid is relative to a vertical reference plane (e.g. "NAP"),
+            set this parameter to True. If your grid is relative to depth below the surface,
+            set this parameter to False.
 
         Parameters
         ----------
-        upper_boundary : float | int, optional
-            Every layer that starts above this is removed. The default is None.
-        lower_boundary : float | int, optional
-            Every layer that starts below this is removed. The default is None.
+        upper_boundary : float | int | xr.DataArray | str | Path, optional
+            Every layer that starts above this is removed. If you are using an xarray
+            DataArray (directly or through a file path), please set `relative_to_vertical_reference`
+            according to the nature of your grid. The default is None.
+        lower_boundary : float | int | xr.DataArray | str | Path, optional
+            Every layer that starts below this is removed. If you are using an xarray
+            DataArray (directly or through a file path), please set `relative_to_vertical_reference`
+            according to the nature of your grid. The default is None.
         relative_to_vertical_reference : bool, optional
             If True, the slicing is done with respect to any kind of vertical reference
             plane (e.g. "NAP", "TAW"). If False, the slice is done with respect to depth
@@ -1063,6 +1081,10 @@ class GeostFrame(AbstractBase):
             individual layers. If True, the layer boundaries in the sliced data are updated
             according to the upper and lower boundaries used with the slice. If False, the
             original layer boundaries are kept in the sliced object. The default is False.
+        drop_outside_grid_extent : bool, optional
+            If True, any data outside the horizontal bounds of the grid are removed.
+            This only applies when either or both of the upper and lower boundaries are
+            given as xarray DataArrays. The default is True.
 
         Returns
         -------
@@ -1090,18 +1112,56 @@ class GeostFrame(AbstractBase):
 
         >>> sliced = data.gst.slice_depth_interval(-3, -5, relative_to_vertical_reference=True)
 
+        You can also slice data based on spatially varying upper and lower boundaries by
+        giving an xarray DataArray or file path to a raster file that serves as the upper
+        and/or lower boundary. For example, if you have a grid representing the Holocene-
+        Pleistocene boundary height in NAP and you want to select only data in the
+        Holocene depth interval but below -2 m NAP you would use:
+
+        >>> sliced = data.gst.slice_depth_interval(
+        ...     upper_boundary=-2,
+        ...     lower_boundary="holocene_pleistocene_boundary.geotiff",
+        ...     relative_to_vertical_reference=True,
+        ...     update_layer_boundaries=True,
+        ... )
+
         """
+
+        def boundaries_from_grid(
+            obj_to_slice: pd.DataFrame, boundary: xr.DataArray
+        ) -> np.ndarray:
+            """
+            Get the boundary values from the grid at the locations of the data to slice.
+            """
+            boundary = spatial.get_raster_values(
+                obj_to_slice[self._x], obj_to_slice[self._y], boundary
+            )
+            if drop_outside_grid_extent:
+                obj_to_slice = obj_to_slice.iloc[np.where(np.isfinite(boundary))[0]]
+                boundary = pd.Series(
+                    boundary[np.where(np.isfinite(boundary))[0]],
+                    index=obj_to_slice.index,
+                )
+
+            return obj_to_slice, boundary
+
         sliced = self._obj
 
-        if not upper_boundary:
+        if upper_boundary is None:
             upper_boundary = 1e34 if relative_to_vertical_reference else -1e34
 
-        if not lower_boundary:
+        if lower_boundary is None:
             lower_boundary = -1e34 if relative_to_vertical_reference else 1e34
 
+        if isinstance(upper_boundary, xr.DataArray | str | Path):
+            sliced, upper_boundary = boundaries_from_grid(sliced, upper_boundary)
+
+        if isinstance(lower_boundary, xr.DataArray | str | Path):
+            sliced, lower_boundary = boundaries_from_grid(sliced, lower_boundary)
+
         if relative_to_vertical_reference:
-            upper_boundary = self._obj[self._surface] - upper_boundary
-            lower_boundary = self._obj[self._surface] - lower_boundary
+            upper_boundary = self._obj.loc[sliced.index, self._surface] - upper_boundary
+            lower_boundary = self._obj.loc[sliced.index, self._surface] - lower_boundary
 
         if layered_selection := self._top and self._bottom:
             sliced = sliced[
@@ -1115,9 +1175,9 @@ class GeostFrame(AbstractBase):
 
         # We do not update layer boundaries when slicing discrete data
         if update_layer_boundaries and layered_selection:
-            bounds_are_series = True if relative_to_vertical_reference else False
-            if bounds_are_series:
+            if isinstance(upper_boundary, Iterable):
                 upper_boundary = upper_boundary.loc[sliced.index]
+            if isinstance(lower_boundary, Iterable):
                 lower_boundary = lower_boundary.loc[sliced.index]
 
             sliced.loc[sliced[self._top] <= upper_boundary, self._top] = upper_boundary
