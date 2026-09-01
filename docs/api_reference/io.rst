@@ -40,6 +40,19 @@ Data from specific file formats
    read_xml_boris
 
 
+Model data (NetCDF / OPeNDAP)
+-----------------------------
+.. autosummary::
+   :toctree: generated/
+
+   read_model_netcdf
+   read_model_from_opendap
+   read_geotop_netcdf
+   read_geotop_from_opendap
+   read_regis_netcdf
+   read_regis_from_opendap
+
+
 GIS vector files
 ----------------
 .. autosummary::

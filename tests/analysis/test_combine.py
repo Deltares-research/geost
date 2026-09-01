@@ -37,10 +37,7 @@ def test_add_nearest_voxelmodel_variable_zero_tolerance(
     borehole_collection, voxelmodel
 ):
     result = add_nearest_voxelmodel_variable(
-        borehole_collection,
-        voxelmodel,
-        ["strat", "lith"],
-        tolerances=(0, 0, 0),
+        borehole_collection, voxelmodel, ["strat", "lith"], tolerances=(0, 0, 0)
     )
     assert isinstance(result, Collection)
     assert result.data.shape == (25, 9)
@@ -53,81 +50,73 @@ def test_add_nearest_voxelmodel_variable_zero_tolerance(
 @pytest.mark.unittest
 def test_add_nearest_voxelmodel_variable_layered(borehole_collection, voxelmodel):
     result = add_nearest_voxelmodel_variable(
-        borehole_collection,
-        voxelmodel,
-        ["strat", "lith"],
+        borehole_collection, voxelmodel, ["strat", "lith"]
     )
     assert isinstance(result, Collection)
     assert result.data.shape == (25, 9)
     assert_array_equal(
         result.data[["lith", "strat"]],
-        np.array(
-            [
-                [np.nan, np.nan],
-                [1.0, 1.0],
-                [1.0, 1.0],
-                [np.nan, np.nan],
-                [np.nan, np.nan],
-                [np.nan, np.nan],
-                [1.0, 1.0],
-                [3.0, 2.0],
-                [2.0, 2.0],
-                [np.nan, np.nan],
-                [np.nan, np.nan],
-                [2.0, 2.0],
-                [2.0, 2.0],
-                [np.nan, np.nan],
-                [np.nan, np.nan],
-                [np.nan, np.nan],
-                [np.nan, np.nan],
-                [np.nan, np.nan],
-                [np.nan, np.nan],
-                [np.nan, np.nan],
-                [3.0, 1.0],
-                [3.0, 1.0],
-                [1.0, 1.0],
-                [2.0, 2.0],
-                [np.nan, np.nan],
-            ]
-        ),
+        [
+            [np.nan, np.nan],
+            [1.0, 1.0],
+            [1.0, 1.0],
+            [np.nan, np.nan],
+            [np.nan, np.nan],
+            [np.nan, np.nan],
+            [1.0, 1.0],
+            [3.0, 2.0],
+            [2.0, 2.0],
+            [np.nan, np.nan],
+            [np.nan, np.nan],
+            [2.0, 2.0],
+            [2.0, 2.0],
+            [np.nan, np.nan],
+            [np.nan, np.nan],
+            [np.nan, np.nan],
+            [np.nan, np.nan],
+            [np.nan, np.nan],
+            [np.nan, np.nan],
+            [np.nan, np.nan],
+            [3.0, 1.0],
+            [3.0, 1.0],
+            [1.0, 1.0],
+            [2.0, 2.0],
+            [np.nan, np.nan],
+        ],
     )
 
 
 @pytest.mark.unittest
 def test_add_nearest_voxelmodel_variable_discrete(cpt_collection, voxelmodel):
     result = add_nearest_voxelmodel_variable(
-        cpt_collection,
-        voxelmodel,
-        ["strat", "lith"],
+        cpt_collection, voxelmodel, ["strat", "lith"]
     )
     assert isinstance(result, Collection)
     assert result.data.shape == (20, 11)
     assert_array_equal(
         result.data[["lith", "strat"]],
-        np.array(
-            [
-                [np.nan, np.nan],
-                [3.0, 1.0],
-                [3.0, 1.0],
-                [1.0, 1.0],
-                [np.nan, np.nan],
-                [np.nan, np.nan],
-                [np.nan, np.nan],
-                [np.nan, np.nan],
-                [np.nan, np.nan],
-                [np.nan, np.nan],
-                [np.nan, np.nan],
-                [np.nan, np.nan],
-                [1.0, 1.0],
-                [1.0, 1.0],
-                [1.0, 1.0],
-                [2.0, 2.0],
-                [2.0, 2.0],
-                [np.nan, np.nan],
-                [np.nan, np.nan],
-                [np.nan, np.nan],
-            ]
-        ),
+        [
+            [np.nan, np.nan],
+            [3.0, 1.0],
+            [3.0, 1.0],
+            [1.0, 1.0],
+            [np.nan, np.nan],
+            [np.nan, np.nan],
+            [np.nan, np.nan],
+            [np.nan, np.nan],
+            [np.nan, np.nan],
+            [np.nan, np.nan],
+            [np.nan, np.nan],
+            [np.nan, np.nan],
+            [1.0, 1.0],
+            [1.0, 1.0],
+            [1.0, 1.0],
+            [2.0, 2.0],
+            [2.0, 2.0],
+            [np.nan, np.nan],
+            [np.nan, np.nan],
+            [np.nan, np.nan],
+        ],
     )
 
 

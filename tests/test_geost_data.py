@@ -31,8 +31,6 @@ def test_cpts_usp():
 @pytest.mark.unittest
 def test_geotop_usp():
     gtp = geost.data.geotop_usp()
-    assert isinstance(gtp, geost.bro.GeoTop)
-    gtp = geost.data.geotop_usp(xarray=True)
     assert isinstance(gtp, xr.Dataset)
     as_filepath = geost.data.geotop_usp(return_filepath=True)
     assert isinstance(as_filepath, Path)

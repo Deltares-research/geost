@@ -10,13 +10,10 @@ from geost.base import Collection
 from geost.models.model_utils import label_consecutive_2d
 from geost.utils.depth import reset_tops
 
-if TYPE_CHECKING:
-    from geost.models import VoxelModel
-
 
 def add_nearest_voxelmodel_variable(
     collection: Collection,
-    model: VoxelModel,
+    model: xr.Dataset | xr.DataArray,
     data_vars: str | list[str],
     tolerances: tuple[float, float, float] | None = None,
 ) -> Collection:
@@ -39,19 +36,19 @@ def add_nearest_voxelmodel_variable(
     ----------
     collection : :class:`~geost.base.Collection`
         `Collection` to add the `VoxelModel` variable to.
-    model : :class:`~geost.models.VoxelModel`
-        `VoxelModel` instance to add the information from to the `Collection` instance.
+    model : xr.Dataset | xr.DataArray
+        Model data to add the information from to the `Collection` instance.
     data_vars : str | list[str]
-        Name(s) of the variable(s) in the `VoxelModel` to add.
+        Name(s) of the variable(s) in the model to add.
     tolerances : tuple[float, float, float] | None
         Optional tolerances in x, y and z direction for matching the survey points to the
-        voxel centers. If not given, the x/y/z resolution of the `VoxelModel` is used as
+        voxel centers. If not given, the x/y/z resolution of the model is used as
         tolerance.
 
     Returns
     -------
     :class:`~geost.base.Collection`
-        `Collection` instance with the information from the `VoxelModel` variable added.
+        `Collection` instance with the information from the model variable added.
     """
 
     collection_data = collection.data.gst._get_depth_relative_to_surface().copy()
@@ -68,25 +65,28 @@ def add_nearest_voxelmodel_variable(
     else:
         z_queried = collection_data[collection_data.gst._bottom].values
 
-    result = model.ds.sel(
-        x=xr.DataArray(x_queried, dims="points"),
-        y=xr.DataArray(y_queried, dims="points"),
-        z=xr.DataArray(z_queried, dims="points"),
+    x_, y_, z_ = model.gst.x_dim, model.gst.y_dim, model.gst.z_dim
+    result = model.sel(
+        {
+            x_: xr.DataArray(x_queried, dims="points"),
+            y_: xr.DataArray(y_queried, dims="points"),
+            z_: xr.DataArray(z_queried, dims="points"),
+        },
         method="nearest",
     )
 
     # Custom implementation of tolerance per dimension because the tolerance kwarg in
     # xarray's sel is applied to all dimensions.)
-    dx = np.abs(result["x"].values - x_queried)
-    dy = np.abs(result["y"].values - y_queried)
-    dz = np.abs(result["z"].values - z_queried)
+    dx = np.abs(result[x_].values - x_queried)
+    dy = np.abs(result[y_].values - y_queried)
+    dz = np.abs(result[z_].values - z_queried)
 
     # Use given tolerances or default to voxel resolution if not given
     if tolerances is not None:
         tol_x, tol_y, tol_z = tolerances
     else:
-        tol_x, tol_y, tol_z = model.resolution
-    mask = (dx <= tol_x) & (dy <= tol_y) & (dz <= tol_z)
+        tol_x, tol_y, tol_z = model.gst.resolution()
+    mask = (dx <= abs(tol_x)) & (dy <= abs(tol_y)) & (dz <= abs(tol_z))
 
     for data_var in data_vars if isinstance(data_vars, list) else [data_vars]:
         collection_data[data_var] = np.where(mask, result[data_var], np.nan)
@@ -100,10 +100,10 @@ def add_nearest_voxelmodel_variable(
 
 
 def add_voxelmodel_variable(
-    collection: Collection, model: VoxelModel, variable: str
+    collection: Collection, model: xr.Dataset | xr.DataArray, variable: str
 ) -> Collection:
     """
-    Add a information from a variable of a `VoxelModel` instance as a column to the data
+    Add information from a variable of a model as a column to the data
     of a :class:`~geost.base.Collection` instance. This checks for each survey in the
     Collection in which voxel stack the survey is located and adds the relevant layer
     boundaries of the variable to the data object of the Collection based on depth.
@@ -118,15 +118,15 @@ def add_voxelmodel_variable(
     ----------
     collection : :class:`~geost.base.Collection`
         `Collection` to add the `VoxelModel` variable to.
-    model : :class:`~geost.models.VoxelModel`
-        `VoxelModel` instance to add the information from to the `Collection` instance.
+    model : xr.Dataset | xr.DataArray
+        Model data to add the information from to the `Collection` instance.
     variable : str
-        Name of the variable in the `VoxelModel` to add.
+        Name of the variable in the model to add.
 
     Returns
     -------
     :class:`~geost.base.Collection`
-        `Collection` instance with the information from the `VoxelModel` variable added
+        `Collection` instance with the information from the model variable added
         to the data table.
 
     """
@@ -145,15 +145,20 @@ def add_voxelmodel_variable(
 
     surface_level = data.groupby(nr_).agg({surface_: "first"})
 
-    var_select = model.select_with_points(collection.header)
+    var_select = model.gst.select_points(collection.header)
     var_select = var_select.assign_coords(
         idx=collection.header[nr_].loc[var_select["idx"]]
     )
 
-    _, _, dz = model.resolution
+    _, _, dz = model.gst.resolution()
 
     var_df = _reduce_to_top_bottom(
-        var_select, dz, survey_name=nr_, depth_name=bottom_, value_name=variable
+        var_select,
+        dz,
+        z_dim=model.gst.z_dim,
+        survey_name=nr_,
+        depth_name=bottom_,
+        value_name=variable,
     )
     var_df = var_df.merge(surface_level, left_on=nr_, right_index=True, how="left")
     var_df = var_df[
@@ -186,18 +191,19 @@ def add_voxelmodel_variable(
 def _reduce_to_top_bottom(
     da: xr.DataArray,
     dz: int | float,
+    z_dim: str = "z",
     survey_name: str = "idx",
     depth_name: str = "bottom",
     value_name: str = "values",
 ) -> pd.DataFrame:
     """
-    Helper to reduce the selection DataArray from `VoxelModel.select_with_points` to a
+    Helper to reduce the selection DataArray from `model.gst.select_points` to a
     DataFrame containing "idx", "top" and "bottoms" of relevant layer boundaries.
 
     Parameters
     ----------
     da : xr.DataArray
-        Selection result of `VoxelModel.select_with_points`.
+        Selection result of `model.gst.select_points`.
     dz : int | float
         Vertical size of voxels in the VoxelModel.
     depth_name : str
@@ -212,8 +218,8 @@ def _reduce_to_top_bottom(
     layer_ids = label_consecutive_2d(da.values, axis=1)
     df = pd.DataFrame(
         {
-            survey_name: np.repeat(da["idx"], da.sizes["z"]),
-            depth_name: np.tile(da["z"] - (0.5 * dz), da.sizes["idx"]),
+            survey_name: np.repeat(da["idx"], da.sizes[z_dim]),
+            depth_name: np.tile(da[z_dim] - (0.5 * dz), da.sizes["idx"]),
             "layer": layer_ids.ravel(),
             value_name: da.values.ravel(),
         }
