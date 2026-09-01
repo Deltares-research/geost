@@ -1103,3 +1103,16 @@ class TestModelDataArray:
         result = layermodel_var.gst.unique()
         assert isinstance(result, np.ndarray)
         assert_array_equal(result, [0.04, 0.2, 20.1, 85.0])
+
+
+    @pytest.mark.unittest
+    def test_to_pyvista_grid(self, voxelmodel_var, layermodel_var):
+        # TODO set up good testing after layermodel implementation is complete
+        result = voxelmodel_var.gst.to_pyvista_grid(structured=True)
+        assert result is not None
+
+        result = voxelmodel_var.gst.to_pyvista_grid(structured=False)
+        assert result is not None
+
+        result = layermodel_var.gst.to_pyvista_grid()
+        assert result is not None

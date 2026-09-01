@@ -6,6 +6,7 @@ import numpy as np
 import xarray as xr
 
 from geost.exceptions import InvalidModelError, MissingCRSError, ModelTypeError
+from geost.export import vtk
 from geost.models import layermodels, voxelmodels
 from geost.models._core import ModelType, get_model_specs
 from geost.utils import conversion
@@ -26,6 +27,8 @@ class ModelBase:
         # Register `rio` accessor. Do it here to not trigger direct import with `import geost`
         import rioxarray  # noqa: F401
 
+        if isinstance(xarray_obj, xr.DataArray):
+            xarray_obj = xarray_obj.to_dataset()
         self._obj = xarray_obj
         self._x: str = None
         self._y: str = None
@@ -724,4 +727,61 @@ class ModelBase:
                 lower=lower,
                 update_top_bottom=update_top_bottom,
                 drop=drop,
+            )
+
+    def to_pyvista_grid(
+        self, data_vars: str | list[str] = None, structured: bool = True
+    ):  # NOTE: Method will differ between voxel and layer model
+        """
+        Convert the model to a PyVista grid.
+
+        Parameters
+        ----------
+        data_vars : str | list[str], optional
+            String representing one data variable or list of data variables to include
+            in the PyVista grid. If None, all data variables are included. The default
+            is None.
+        structured : bool, optional
+            If True, convert to a structured grid. If False, convert to an unstructured
+            grid. The default is True.
+
+        Returns
+        -------
+        pyvista.UnstructuredGrid or pyvista.StructuredGrid
+            PyVista grid representation of the model.
+
+        """
+        if data_vars is None:
+            data_vars = self._obj.data_vars
+        elif isinstance(data_vars, str):
+            data_vars = [data_vars]
+
+        if self._model_type == ModelType.VOXEL:
+            if structured:
+                return vtk.voxelmodel_to_pyvista_structured(
+                    self._obj,
+                    tuple(abs(r) for r in self.resolution()),
+                    displayed_variables=data_vars,
+                    x=self._x,
+                    y=self._y,
+                    z=self._z,
+                )
+            else:
+                return vtk.voxelmodel_to_pyvista_unstructured(
+                    self._obj,
+                    tuple(abs(r) for r in self.resolution()),
+                    displayed_variables=data_vars,
+                    x=self._x,
+                    y=self._y,
+                    z=self._z,
+                )
+        elif self._model_type == ModelType.LAYER:
+            # TODO IMPLEMENT layermodel to PyVista conversion
+            return vtk.layermodel_to_pyvista_unstructured(
+                self._obj,
+                tuple(abs(r) for r in self.resolution()),
+                displayed_variables=data_vars,
+                x=self._x,
+                y=self._y,
+                z=self._z,
             )

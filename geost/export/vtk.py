@@ -245,6 +245,9 @@ def voxelmodel_to_pyvista_structured(
     dataset: xr.Dataset,
     resolution: tuple[float, float, float],
     displayed_variables: list[str] = None,
+    x: str = "x",
+    y: str = "y",
+    z: str = "z",
 ) -> pv.StructuredGrid:
     """
     Convert an xarray dataset to a PyVista voxel model (StructuredGrid).
@@ -273,25 +276,22 @@ def voxelmodel_to_pyvista_structured(
     # Check if the dataset has the required dimensions and order. Because we treat the
     # voxelmodel as image data, we need dimensions in the order (x, y, z) with
     # coordinates in increasing order with respect to the origin.
-    dataset = check_voxelmodel_dims(dataset, dim_order=("x", "y", "z"))
+    dataset = check_model_dims(dataset, dim_order=(x, y, z))
 
     # Define PyVista structured grid using ImageData
     grid = pv.ImageData()
     grid.spacing = resolution[1], resolution[0], resolution[2]
-    grid.origin = dataset.x.values[0], dataset.y.values[0], dataset.z.values[0]
+    grid.origin = dataset[x].values[0], dataset[y].values[0], dataset[z].values[0]
     grid.dimensions = (
-        np.array(
-            [dataset.sizes["x"], dataset.sizes["y"], dataset.sizes["z"]], dtype=int
-        )
-        + 1
+        np.array([dataset.sizes[x], dataset.sizes[y], dataset.sizes[z]], dtype=int) + 1
     )
 
     # Add the variables to the grid
     for var in displayed_variables:
-        if not all(dim in dataset[var].sizes for dim in {"x", "y", "z"}):
+        if not all(dim in dataset[var].sizes for dim in {x, y, z}):
             print(
-                f"Variable '{var}' does not have the required dimensions 'x', 'y', and "
-                "'z'. Skipping this variable."
+                f"Variable '{var}' does not have the required dimensions '{x}', '{y}', and "
+                f"'{z}'. Skipping this variable."
             )
             continue
         data = dataset[var].values
@@ -304,6 +304,9 @@ def voxelmodel_to_pyvista_unstructured(
     dataset: xr.Dataset,
     resolution: tuple[float, float, float],
     displayed_variables: list[str] = None,
+    x: str = "x",
+    y: str = "y",
+    z: str = "z",
 ) -> pv.UnstructuredGrid:
     """
     Convert an xarray dataset to a PyVista voxel model (UnstructuredGrid).
@@ -330,14 +333,14 @@ def voxelmodel_to_pyvista_unstructured(
         displayed_variables = dataset.data_vars
 
     # Check if the dataset has the required dimensions and order
-    dataset = check_voxelmodel_dims(dataset, dim_order=("y", "x", "z"))
+    dataset = check_model_dims(dataset, dim_order=(y, x, z))
 
     # Get half resolution (used to compute voxel corners with respect to cell centers)
     xres, yres, zres = resolution[0] / 2, resolution[1] / 2, resolution[2] / 2
 
     # Compute cell centers (Making use of the fact that xarray coordinates represent
     # those cell centers, so we can use them directly with meshgrid)
-    xx, yy, zz = np.meshgrid(dataset.x.values, dataset.y.values, dataset.z.values)
+    xx, yy, zz = np.meshgrid(dataset[x].values, dataset[y].values, dataset[z].values)
     cell_centers = np.stack([xx, yy, zz], axis=-1).reshape(-1, 3)
 
     # Compute voxel corners by offsetting cell centers with half resolution in all
@@ -364,10 +367,10 @@ def voxelmodel_to_pyvista_unstructured(
     # Create unstructured grid and assign data variables
     grid = pv.UnstructuredGrid({pv.CellType.VOXEL: cells_voxel}, points)
     for var in displayed_variables:
-        if not all(dim in dataset[var].dims for dim in {"x", "y", "z"}):
+        if not all(dim in dataset[var].dims for dim in {x, y, z}):
             print(
-                f"Variable '{var}' does not have the required dimensions 'x', 'y', and "
-                "'z'. Skipping this variable."
+                f"Variable '{var}' does not have the required dimensions '{x}', '{y}', and "
+                f"'{z}'. Skipping this variable."
             )
             continue
         data = dataset[var].values
@@ -383,11 +386,11 @@ def voxelmodel_to_pyvista_unstructured(
     return grid
 
 
-def check_voxelmodel_dims(
+def check_model_dims(
     dataset: xr.Dataset, dim_order: tuple = ("x", "y", "z")
 ) -> xr.Dataset:
     """
-    Check if the voxelmodel dataset dimensions are in the required order and contain
+    Check if the model dataset dimensions are in the required order and contain
     the required dimensions 'x', 'y', and 'z'.
 
     - If dimensions are missing or wrongly named, raise a ValueError.
@@ -444,3 +447,44 @@ def check_voxelmodel_dims(
             dataset = dataset.sortby(dim)
 
     return dataset
+
+
+def layermodel_to_pyvista_unstructured(
+    dataset: xr.Dataset,
+    resolution: tuple[float, float],
+    displayed_variables: list[str] = None,
+    x: str = "x",
+    y: str = "y",
+    z: str = "layer",
+) -> pv.UnstructuredGrid:
+    """
+    Convert a layermodel dataset to an unstructured PyVista grid.
+
+    Parameters
+    ----------
+    dataset : xarray.Dataset
+        The input layermodel dataset.
+    resolution : tuple of float
+        The resolution of the layermodel grid in the (y, x) directions.
+    displayed_variables : list of str, optional
+        List of data variables to include in the PyVista grid. If None, all data variables are included.
+
+    Returns
+    -------
+    pyvista.UnstructuredGrid
+        The unstructured PyVista grid representation of the layermodel dataset.
+    """
+    pv = _get_pyvista()
+
+    if displayed_variables is None:
+        displayed_variables = list(dataset.data_vars)
+
+    # Check if the dataset has the required dimensions and order
+    dataset = check_model_dims(dataset, dim_order=(y, x, z))
+
+    # Placeholder implementation: create an empty unstructured grid
+    grid = pv.UnstructuredGrid()
+
+    # TODO: Implement the actual conversion from layermodel dataset to PyVista unstructured grid
+
+    return grid
