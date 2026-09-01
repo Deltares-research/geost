@@ -127,6 +127,14 @@ def test_slice_depth_interval_values(voxelmodel):
     sliced = vm.slice_depth_interval(voxelmodel, upper=-1.5, lower=-0.5)
     assert sliced.sizes == {"y": 4, "x": 4, "z": 0}
 
+    # Test with only upper
+    sliced = vm.slice_depth_interval(voxelmodel, upper=-1.5)
+    assert sliced.sizes == {"y": 4, "x": 4, "z": 2}
+
+    # Test with only upper
+    sliced = vm.slice_depth_interval(voxelmodel, lower=-0.5)
+    assert sliced.sizes == {"y": 4, "x": 4, "z": 1}
+
 
 @pytest.mark.parametrize("as_array", [True, False], ids=["as_array", "as_dataarray"])
 def test_slice_depth_interval_with_grids(voxelmodel, depth_grid, as_array):
@@ -225,6 +233,14 @@ def test_slice_depth_interval_with_grids(voxelmodel, depth_grid, as_array):
             ],
         ],
     )
+
+    # Test with only upper
+    sliced = vm.slice_depth_interval(voxelmodel, upper=depth_grid)
+    assert sliced.sizes == {"y": 4, "x": 4, "z": 4}
+
+    # Test with only lower
+    sliced = vm.slice_depth_interval(voxelmodel, lower=depth_grid)
+    assert sliced.sizes == {"y": 4, "x": 4, "z": 2}
 
 
 @pytest.mark.unittest

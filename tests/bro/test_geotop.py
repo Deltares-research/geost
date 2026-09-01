@@ -136,18 +136,18 @@ class TestGeotopMetadata:
         ["NUNIHO", ["NUNIHO", "NUNIBA"]],
         ids=["single-value", "list-of-values"],
     )
-    def test_select_units(self, metadata_strat, units):
-        selected = metadata_strat.select_units(units)
+    def test_select_unit(self, metadata_strat, units):
+        selected = metadata_strat.select_unit(units)
         assert isinstance(selected, GeotopUnits)
         assert isinstance(selected.df, pd.DataFrame)
         assert selected.unit_type == UnitType.STRAT
         assert_array_equal(selected.unit, units)
 
     @pytest.mark.unittest
-    def test_select_units_error(self, metadata_strat):
+    def test_select_unit_error(self, metadata_strat):
         non_existing_unit = "NONEXISTENT_UNIT"
         with pytest.raises(MissingUnitError):
-            metadata_strat.select_units(non_existing_unit)
+            metadata_strat.select_unit(non_existing_unit)
 
     @pytest.mark.unittest
     def test_select_unit_contains_single_value(self, metadata_strat):

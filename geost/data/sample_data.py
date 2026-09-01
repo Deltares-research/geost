@@ -7,6 +7,7 @@ import pooch
 import xarray as xr
 
 from geost.io.read import read_table
+from geost.io.read_models import read_geotop_netcdf
 
 REGISTRY = pooch.create(
     path=pooch.os_cache("geost"),
@@ -94,7 +95,7 @@ def geotop_usp(return_filepath=False):
     filename = REGISTRY.fetch("geotop_usp.nc")
     if return_filepath:
         return Path(filename)
-    return xr.open_dataset(filename)
+    return read_geotop_netcdf(filename)
 
 
 def bhrg_bro():
