@@ -1187,25 +1187,24 @@ class TestGeostFrame:
     @pytest.mark.unittest
     def test_create_linestrings_3d(self, borehole_data):
         result = borehole_data.gst.create_linestrings_3d()
-        assert isinstance(result, gpd.GeoDataFrame)
+
+        assert isinstance(result, gpd.GeoSeries)
 
         from shapely.geometry import LineString
 
-        assert all(isinstance(geom, LineString) for geom in result.geometry)
-
+        assert all(isinstance(geom, LineString) for geom in result)
         assert len(result) == len(borehole_data)
-        assert all(col in result.columns for col in borehole_data.columns)
 
-        for geom in result.geometry:
-            assert len(geom.coords[0]) == 3, "Geometry should have 3D coordinates"
-            assert len(geom.coords[-1]) == 3, "Geometry should have 3D coordinates"
+        for geom in result:
+            assert len(geom.coords[0]) == 3
+            assert len(geom.coords[-1]) == 3
 
     @pytest.mark.unittest
-    def test_to_geopackage3d(self, borehole_data, tmp_path):
+    def test_to_geopackage_3d(self, borehole_data, tmp_path):
         from shapely import LineString
 
         outfile = tmp_path / "test_3d.gpkg"
-        borehole_data.gst.to_geopackage3d(outfile)
+        borehole_data.gst.to_geopackage_3d(outfile)
         assert outfile.is_file()
 
         test_layers = gpd.list_layers(outfile)
