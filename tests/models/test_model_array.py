@@ -1093,3 +1093,13 @@ class TestModelDataArray:
             thickness = geotop_small_strat.gst.get_thickness(
                 metadata_strat.select_unit_contains("NUNI")
             )
+
+    @pytest.mark.unittest
+    def test_unique(self, voxelmodel_var, layermodel_var):
+        result = voxelmodel_var.gst.unique()
+        assert isinstance(result, np.ndarray)
+        assert_array_equal(result, [1.0, 2.0])
+
+        result = layermodel_var.gst.unique()
+        assert isinstance(result, np.ndarray)
+        assert_array_equal(result, [0.04, 0.2, 20.1, 85.0])

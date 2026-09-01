@@ -172,15 +172,19 @@ class GeotopUnits:
         >>> selected_meta = gtp_meta.select_voxel_nr(1130) # Select a single voxel number
         >>> selected_meta = gtp_meta.select_voxel_nr([1130, 2010]) # Select multiple voxel numbers
 
-        Or use the stratigraphic variable from a GeoTOP model to select the corresponding
-        metadata:
+        Or use the the GeoTOP model to select the corresponding metadata or the stratigraphic
+        variable from GeoTOP directly:
 
+        >>> selected_meta = gtp_meta.select_voxel_nr(geotop)
         >>> selected_meta = gtp_meta.select_voxel_nr(geotop["strat"])
 
         """
-        if isinstance(values, xr.DataArray):
-            values = np.unique(values)
-            values = values[~np.isnan(values)]
+        if isinstance(values, (xr.DataArray, xr.Dataset)):
+            values = (
+                values.gst.unique()
+                if isinstance(values, xr.DataArray)
+                else values[self.data_var].gst.unique()
+            )
 
         values = [values] if isinstance(values, (int, float)) else values
 
@@ -446,10 +450,3 @@ def geotop_lithok_units() -> GeotopUnits:
 
     meta = pd.read_parquet(REGISTRY.fetch("geotop_v01r6s1_metadata_lithok.parquet"))
     return GeotopUnits(meta, UnitType.LITHOK, "lithok", _unit="LITHO_CLASS_CD")
-
-
-if __name__ == "__main__":
-    gtp_meta_strat = geotop_strat_units()
-    gtp_meta_lithok = geotop_lithok_units()
-
-    print(gtp_meta_lithok)

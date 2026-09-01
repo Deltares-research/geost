@@ -115,6 +115,16 @@ class TestGeotopMetadata:
             [1070, 1090, 1130, 2010, 4000, 4010, 5060, 5070, 5120, 6400],
         )
 
+        # Should work on the entire dataset as well, not just a single variable
+        selected = metadata_strat.select_voxel_nr(geotop_small)
+        assert isinstance(selected, GeotopUnits)
+        assert isinstance(selected.df, pd.DataFrame)
+        assert selected.unit_type == UnitType.STRAT
+        assert_array_equal(
+            selected.voxel_nr,
+            [1070, 1090, 1130, 2010, 4000, 4010, 5060, 5070, 5120, 6400],
+        )
+
     @pytest.mark.unittest
     def test_select_voxel_nr_error(self, metadata_strat):
         non_existing_voxel_nr = 9999

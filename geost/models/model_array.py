@@ -151,6 +151,18 @@ class ModelDataArray(ModelBase):
 
         return counts
 
+    def unique(self) -> np.ndarray:
+        """
+        Get the unique values in a DataArray without NaNs.
+
+        Returns
+        -------
+        np.ndarray
+            Array of unique values in the DataArray.
+
+        """
+        return np.unique(self._obj.values[~np.isnan(self._obj.values)])
+
     def to_pyvista_grid(self, structured: bool = True, **kwargs):
         raise NotImplementedError(
             "The `to_pyvista_grid` method is not implemented for ModelDataArray. "

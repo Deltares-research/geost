@@ -31,6 +31,7 @@ Analysis
    ModelDataArray.get_thickness
    ModelDataArray.most_common
    ModelDataArray.value_counts
+   ModelDataArray.unique
 
 
 Coordinate Reference System
