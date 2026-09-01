@@ -146,6 +146,82 @@ def test_slice_depth_interval_values(layermodel):
     assert_array_equal(sliced["top"].notnull(), sliced["thickness"].notnull())
     assert_array_equal(sliced["top"].notnull(), sliced["kh"].notnull())
 
+    # Test with only upper bound
+    sliced = layermodels.slice_depth_interval(layermodel, upper=-0.4)
+    assert_array_equal(sliced["layer"], ["B", "C", "D"])
+    assert_array_almost_equal(
+        sliced["top"],
+        [
+            [
+                [-0.4, np.nan, -1.05],
+                [-0.4, np.nan, -0.85],
+                [-0.4, -0.95, -2.55],
+                [np.nan, -0.4, -2.15],
+            ],
+            [
+                [-0.4, np.nan, -1.05],
+                [-0.4, np.nan, -0.85],
+                [-0.4, -0.95, -2.55],
+                [np.nan, -0.4, -2.15],
+            ],
+            [
+                [-0.4, np.nan, -1.05],
+                [-0.4, -0.85, -2.45],
+                [np.nan, -0.4, -2.0],
+                [np.nan, np.nan, -0.4],
+            ],
+            [
+                [np.nan, np.nan, -0.4],
+                [np.nan, -0.4, -1.95],
+                [np.nan, -0.4, -2.0],
+                [np.nan, np.nan, -0.4],
+            ],
+        ],
+    )
+    assert_array_almost_equal(
+        sliced["bottom"],
+        [
+            [
+                [-1.05, np.nan, -3.25],
+                [-0.85, np.nan, -3.25],
+                [-0.95, -2.55, -3.35],
+                [np.nan, -2.15, -3.35],
+            ],
+            [
+                [-1.05, np.nan, -3.25],
+                [-0.85, np.nan, -3.25],
+                [-0.95, -2.55, -3.35],
+                [np.nan, -2.15, -3.35],
+            ],
+            [
+                [-1.05, np.nan, -3.25],
+                [-0.85, -2.45, -3.25],
+                [np.nan, -2.0, -3.2],
+                [np.nan, np.nan, -2.95],
+            ],
+            [
+                [np.nan, np.nan, -3.15],
+                [np.nan, -1.95, -3.15],
+                [np.nan, -2.0, -3.2],
+                [np.nan, np.nan, -2.95],
+            ],
+        ],
+    )
+
+    # Test with only lower bound
+    sliced = layermodels.slice_depth_interval(layermodel, lower=0)
+    assert_array_equal(sliced["layer"], ["A"])
+    assert_array_almost_equal(
+        sliced["top"],
+        [
+            [[0.2], [0.3], [0.25], [0.1]],
+            [[0.2], [0.3], [0.25], [0.1]],
+            [[0.2], [0.3], [0.25], [0.1]],
+            [[0.2], [0.3], [0.25], [0.1]],
+        ],
+    )
+    assert (sliced["bottom"] == 0).all()
+
 
 @pytest.mark.parametrize("as_array", [True, False], ids=["as_array", "as_dataarray"])
 def test_slice_depth_interval_grid(layermodel, depth_grid, as_array):
@@ -292,6 +368,129 @@ def test_slice_depth_interval_grid(layermodel, depth_grid, as_array):
     # Check that the other variables are also sliced correctly
     assert_array_equal(sliced["top"].notnull(), sliced["thickness"].notnull())
     assert_array_equal(sliced["top"].notnull(), sliced["kh"].notnull())
+
+    # Test with only upper bound
+    sliced = layermodels.slice_depth_interval(layermodel, upper=depth_grid)
+    assert_array_equal(sliced["layer"], ["B", "C", "D"])
+    assert_array_almost_equal(
+        sliced["top"],
+        [
+            [
+                [-0.5, np.nan, -1.05],
+                [-0.5, np.nan, -0.85],
+                [-0.8, -0.95, -2.55],
+                [np.nan, -0.7, -2.15],
+            ],
+            [
+                [-0.8, np.nan, -1.05],
+                [-0.8, np.nan, -0.85],
+                [-0.8, -0.95, -2.55],
+                [np.nan, -0.8, -2.15],
+            ],
+            [
+                [-0.7, np.nan, -1.05],
+                [-0.7, -0.85, -2.45],
+                [np.nan, -0.7, -2.0],
+                [np.nan, np.nan, -0.7],
+            ],
+            [
+                [np.nan, np.nan, -1.0],
+                [np.nan, -1.0, -1.95],
+                [np.nan, -0.6, -2.0],
+                [np.nan, np.nan, -0.6],
+            ],
+        ],
+    )
+    assert_array_almost_equal(
+        sliced["bottom"],
+        [
+            [
+                [-1.05, np.nan, -3.25],
+                [-0.85, np.nan, -3.25],
+                [-0.95, -2.55, -3.35],
+                [np.nan, -2.15, -3.35],
+            ],
+            [
+                [-1.05, np.nan, -3.25],
+                [-0.85, np.nan, -3.25],
+                [-0.95, -2.55, -3.35],
+                [np.nan, -2.15, -3.35],
+            ],
+            [
+                [-1.05, np.nan, -3.25],
+                [-0.85, -2.45, -3.25],
+                [np.nan, -2.0, -3.2],
+                [np.nan, np.nan, -2.95],
+            ],
+            [
+                [np.nan, np.nan, -3.15],
+                [np.nan, -1.95, -3.15],
+                [np.nan, -2.0, -3.2],
+                [np.nan, np.nan, -2.95],
+            ],
+        ],
+    )
+    # Test with only lower bound
+    sliced = layermodels.slice_depth_interval(layermodel, lower=depth_grid)
+    assert_array_equal(sliced["layer"], ["A", "B", "C", "D"])
+    assert_array_almost_equal(
+        sliced["top"],
+        [
+            [
+                [0.2, -0.25, np.nan, np.nan],
+                [0.3, -0.15, np.nan, np.nan],
+                [0.25, -0.2, np.nan, np.nan],
+                [0.1, np.nan, -0.35, np.nan],
+            ],
+            [
+                [0.2, -0.25, np.nan, np.nan],
+                [0.3, -0.15, np.nan, np.nan],
+                [0.25, -0.2, np.nan, np.nan],
+                [0.1, np.nan, -0.35, np.nan],
+            ],
+            [
+                [0.2, -0.25, np.nan, np.nan],
+                [0.3, -0.15, np.nan, np.nan],
+                [0.25, np.nan, -0.2, np.nan],
+                [0.1, np.nan, np.nan, -0.35],
+            ],
+            [
+                [0.2, np.nan, np.nan, -0.25],
+                [0.3, np.nan, -0.15, np.nan],
+                [0.25, np.nan, -0.2, np.nan],
+                [0.1, np.nan, np.nan, -0.35],
+            ],
+        ],
+    )
+    assert_array_almost_equal(
+        sliced["bottom"],
+        [
+            [
+                [-0.25, -0.5, np.nan, np.nan],
+                [-0.15, -0.5, np.nan, np.nan],
+                [-0.2, -0.8, np.nan, np.nan],
+                [-0.35, np.nan, -0.7, np.nan],
+            ],
+            [
+                [-0.25, -0.8, np.nan, np.nan],
+                [-0.15, -0.8, np.nan, np.nan],
+                [-0.2, -0.8, np.nan, np.nan],
+                [-0.35, np.nan, -0.8, np.nan],
+            ],
+            [
+                [-0.25, -0.7, np.nan, np.nan],
+                [-0.15, -0.7, np.nan, np.nan],
+                [-0.2, np.nan, -0.7, np.nan],
+                [-0.35, np.nan, np.nan, -0.7],
+            ],
+            [
+                [-0.25, np.nan, np.nan, -1.0],
+                [-0.15, np.nan, -1.0, np.nan],
+                [-0.2, np.nan, -0.6, np.nan],
+                [-0.35, np.nan, np.nan, -0.6],
+            ],
+        ],
+    )
 
 
 @pytest.mark.unittest

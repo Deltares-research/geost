@@ -35,10 +35,12 @@ def slice_depth_interval(
         sliced = sliced.where(sliced[_top] >= lower_bound, drop=drop)
 
     if update_top_bottom:
-        upper = _check_to_broadcast(upper, sliced)
-        lower = _check_to_broadcast(lower, sliced)
-        sliced[_top] = xr.where(sliced[_top] > upper, upper, sliced[_top])
-        sliced[_bottom] = xr.where(sliced[_bottom] < lower, lower, sliced[_bottom])
+        if upper is not None:
+            upper = _check_to_broadcast(upper, sliced)
+            sliced[_top] = xr.where(sliced[_top] > upper, upper, sliced[_top])
+        if lower is not None:
+            lower = _check_to_broadcast(lower, sliced)
+            sliced[_bottom] = xr.where(sliced[_bottom] < lower, lower, sliced[_bottom])
 
     if isinstance(model, xr.Dataset):
         sliced.update(model[other_vars])
