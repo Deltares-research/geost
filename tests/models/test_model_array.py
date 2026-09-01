@@ -149,7 +149,7 @@ class TestModelDataArray:
     @pytest.mark.unittest
     def test_accessor_invalid_array(self, invalid_dataarray):
         with pytest.raises(
-            ValueError,
+            InvalidModelError,
             match="Ambiguous vertical dimension: voxel=z, layer=layer",
         ):
             invalid_dataarray.gst

@@ -98,7 +98,7 @@ class TestModelDataset:
     @pytest.mark.unittest
     def test_accessor_invalid_model(self, invalid_model):
         with pytest.raises(
-            ValueError,
+            InvalidModelError,
             match="Ambiguous vertical dimension: voxel=z, layer=layer",
         ):
             invalid_model.gst

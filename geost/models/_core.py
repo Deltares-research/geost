@@ -3,6 +3,8 @@ from typing import NamedTuple
 
 import xarray as xr
 
+from geost.exceptions import InvalidModelError
+
 XCOORD_NAMES = {"x", "xco", "xcoord", "longitude", "lon", "easting"}
 YCOORD_NAMES = {"y", "yco", "ycoord", "latitude", "lat", "northing"}
 VOXELMODEL_Z_NAMES = {"z", "depth", "elevation"}
@@ -85,7 +87,7 @@ def get_model_specs(xarray_obj: xr.DataArray | xr.Dataset) -> ModelSpec:
             layer_match = d
 
     if voxel_match and layer_match:
-        raise ValueError(
+        raise InvalidModelError(
             f"Ambiguous vertical dimension: voxel={voxel_match}, layer={layer_match}"
         )
 

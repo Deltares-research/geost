@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import re
 import warnings
 from dataclasses import dataclass, replace
 from enum import Enum
@@ -64,6 +65,13 @@ class GeotopUnits:
     def __repr__(self) -> str:
         return f"{self.unit_type}\n{self.df.__repr__()}"
 
+    def _repr_html_(self) -> str:
+        """
+        HTML representation for Jupyter notebook.
+
+        """
+        return f"{self.unit_type}<br>{self.df._repr_html_()}"
+
     @property
     def voxel_nr(self) -> pd.Index:
         """
@@ -126,9 +134,27 @@ class GeotopUnits:
                 "check the model version against the `xarray.Dataset` of GeoTOP.",
             )
 
-        model_version = geotop.attrs.get("title", "unknown")
+        title = geotop.attrs.get("title", "unknown")
+        version_pattern = re.compile(
+            r"""
+            v           # Fixed letter 'v'
+            \d+         # One or more digits, for example 01
+            r           # Fixed letter 'r'
+            \d+         # one or more digits, for example 6
+            (?:         # Optional group for extra letter-digit combinations
+                [a-zA-Z]  # a letter, for example 's'
+                \d+       # followed by one or more digits, for example 1
+            )*
+            """,
+            re.VERBOSE,
+        )
+        match = re.search(version_pattern, title)
 
-        version_matches = self.geotop_version in model_version
+        if match:
+            model_version = match.group(0)
+            version_matches = self.geotop_version == model_version
+        else:
+            version_matches = False
 
         if not version_matches:
             warnings.warn(
@@ -196,7 +222,7 @@ class GeotopUnits:
                 f"One or more voxel numbers from {values} are not present in the metadata."
             )
 
-    def select_units(self, units: str | list[str]) -> GeotopUnits:
+    def select_unit(self, units: str | list[str]) -> GeotopUnits:
         """
         Select metadata by unit codes (e.g. "NUNIBA", "zm").
 
