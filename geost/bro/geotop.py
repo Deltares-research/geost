@@ -135,16 +135,11 @@ class GeotopUnits:
             )
 
         title = geotop.attrs.get("title", "unknown")
-        version_pattern = re.compile(
+        version_pattern = re.compile(  # General pattern: v01r1..
             r"""
-            v           # Fixed letter 'v'
-            \d+         # One or more digits, for example 01
-            r           # Fixed letter 'r'
-            \d+         # one or more digits, for example 6
-            (?:         # Optional group for extra letter-digit combinations
-                [a-zA-Z]  # a letter, for example 's'
-                \d+       # followed by one or more digits, for example 1
-            )*
+            v\d+  # Fixed letter 'v' followed by one or more digits
+            r\d+  # Fixed letter 'r' followed by one or more digits
+            (?:[a-zA-Z]\d+)* # Optional group for extra letter-digit combinations
             """,
             re.VERBOSE,
         )

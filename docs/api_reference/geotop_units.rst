@@ -28,7 +28,7 @@ Selection
    GeotopUnits.get_holocene_units
    GeotopUnits.select_description_contains
    GeotopUnits.select_unit_contains
-   GeotopUnits.select_units
+   GeotopUnits.select_unit
    GeotopUnits.select_voxel_nr
 
 
