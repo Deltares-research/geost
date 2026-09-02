@@ -303,3 +303,14 @@ def test_slice_depth_interval_how(
         assert isinstance(sliced, xr.Dataset)
         assert sliced.gst.shape == result_shape
         assert_array_almost_equal(sliced["z"], result_z)
+
+
+@pytest.mark.unittest
+def test_slice_depth_interval_with_full_nan_column(voxelmodel, grid_with_nan_column):
+    sliced = vm.slice_depth_interval(
+        voxelmodel, upper=grid_with_nan_column, lower=grid_with_nan_column - 1
+    )
+    assert isinstance(sliced, xr.Dataset)
+    assert sliced.sizes == {"y": 4, "x": 3, "z": 2}
+    assert_array_equal(sliced["x"], [0.5, 1.5, 2.5])
+    assert_array_equal(sliced["z"], [-0.75, -0.25])

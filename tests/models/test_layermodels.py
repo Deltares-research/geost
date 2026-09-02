@@ -635,3 +635,33 @@ def test_slice_depth_interval_with_1d_dataarray(layermodel):
     # Check that the other variables are also sliced correctly
     assert_array_equal(sliced["top"].notnull(), sliced["thickness"].notnull())
     assert_array_equal(sliced["top"].notnull(), sliced["kh"].notnull())
+
+
+@pytest.mark.unittest
+def test_slice_depth_interval_with_full_nan_column(layermodel, grid_with_nan_column):
+    sliced = layermodels.slice_depth_interval(
+        layermodel, upper=grid_with_nan_column, lower=grid_with_nan_column - 0.4
+    )
+    assert isinstance(sliced, xr.Dataset)
+    assert sliced.sizes == {"x": 3, "y": 4, "layer": 3}
+    assert_array_equal(sliced.data_vars, layermodel.data_vars)
+    assert_array_equal(sliced["layer"], ["A", "B", "C"])
+    assert_array_equal(sliced["x"], [0.5, 1.5, 2.5])  # 3.5 should be dropped
+    assert_array_almost_equal(
+        sliced["top"],
+        [
+            [[0.2, np.nan, np.nan], [0.2, -0.15, np.nan], [0.2, -0.2, np.nan]],
+            [[0.2, np.nan, np.nan], [0.2, -0.15, np.nan], [0.2, -0.2, np.nan]],
+            [[0.2, np.nan, np.nan], [0.2, -0.15, np.nan], [0.2, np.nan, -0.2]],
+            [[0.2, np.nan, np.nan], [0.2, np.nan, -0.15], [0.2, np.nan, -0.2]],
+        ],
+    )
+    assert_array_almost_equal(
+        sliced["bottom"],
+        [
+            [[-0.2, np.nan, np.nan], [-0.15, -0.2, np.nan], [-0.2, -0.2, np.nan]],
+            [[-0.2, np.nan, np.nan], [-0.15, -0.2, np.nan], [-0.2, -0.2, np.nan]],
+            [[-0.2, np.nan, np.nan], [-0.15, -0.2, np.nan], [-0.2, np.nan, -0.2]],
+            [[-0.2, np.nan, np.nan], [-0.15, np.nan, -0.2], [-0.2, np.nan, -0.2]],
+        ],
+    )

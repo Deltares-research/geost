@@ -28,11 +28,11 @@ def slice_depth_interval(
 
     if upper is not None:
         upper_bound = _check_to_broadcast(upper, sliced)
-        sliced = sliced.where(sliced[_bottom] <= upper_bound, drop=drop)
+        sliced = sliced.where(sliced[_bottom] < upper_bound, drop=drop)
 
     if lower is not None:
         lower_bound = _check_to_broadcast(lower, sliced)
-        sliced = sliced.where(sliced[_top] >= lower_bound, drop=drop)
+        sliced = sliced.where(sliced[_top] > lower_bound, drop=drop)
 
     if update_top_bottom:
         if upper is not None:
@@ -70,6 +70,7 @@ def _check_to_broadcast(
                 "Failed to broadcast input array to dataset dimensions"
             ) from e
 
+    values, _ = xr.align(values, ds, join="right")
     values, _ = xr.broadcast(values, ds)
 
     return values

@@ -1,10 +1,8 @@
 import geopandas as gpd
-import pandas as pd
+import numpy as np
 import pytest
 import shapely
 import xarray as xr
-
-from geost.bro.geotop import GeotopUnits, UnitType
 
 
 @pytest.fixture
@@ -59,3 +57,15 @@ def depth_grid(voxelmodel):
         coords={"y": voxelmodel["y"], "x": voxelmodel["x"]},
         dims=("y", "x"),
     )
+
+
+@pytest.fixture
+def grid_with_nan_column(voxelmodel):
+    values = np.full((4, 4), 0.2)
+    values[:, -1] = np.nan
+    grid = xr.DataArray(
+        values,
+        coords={"y": voxelmodel["y"], "x": voxelmodel["x"]},
+        dims=("y", "x"),
+    )
+    return grid

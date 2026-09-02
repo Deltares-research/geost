@@ -14,6 +14,8 @@ def _prepare_dataset(
     the dataset based on the provided bounding box and optionally loading it into memory.
 
     """
+    ds.gst  # Ensure that the dataset is a valid model, if not _validate raises an error
+
     if bbox is not None:
         ds = ds.gst.slice_xy(*bbox)
 
