@@ -784,4 +784,6 @@ class ModelBase:
                 x=self._x,
                 y=self._y,
                 z=self._z,
+                top=self._top,
+                bottom=self._bottom,
             )
