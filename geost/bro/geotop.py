@@ -216,11 +216,12 @@ class GeotopUnits:
             version_matches = self.geotop_version == model_version
         else:
             version_matches = False
+            model_version = title
 
         if not version_matches:
             warnings.warn(
                 f"GeoTOP version mismatch: metadata version is {self.geotop_version}, "
-                f"model version is {model_version}",
+                f"model version is '{model_version}'",
                 UserWarning,
             )
 
