@@ -1,9 +1,11 @@
 from __future__ import annotations
 
+import operator
 import re
 import warnings
 from dataclasses import dataclass, replace
 from enum import Enum
+from typing import Any
 
 import numpy as np
 import pandas as pd
@@ -15,6 +17,64 @@ from geost.exceptions import MissingUnitError
 class UnitType(Enum):
     STRAT = "strat"
     LITHOK = "lithok"
+
+
+class _GeotopCondition:
+    """
+    Helper class so `GeotopUnits` class can be used with boolean operators `&` `|` in
+    methods of the `geost.models` extension of Xarray.
+
+    For example, use in `get_thickness` method:
+
+    ```python
+    import geost
+
+    geotop = geost.read_geotop_from_opendap()
+    strat = geost.bro.geotop_strat_units()
+    lithok = geost.bro.geotop_lithok_units()
+
+    thickness = geotop.gst.get_thickness(
+        strat.get_holocene_units()
+        & lithok.select_unit("k")
+        | (geotop["kans_1"] > 0.5) # Also possible to combine with boolean arrays
+    )
+    ```
+    """
+
+    def __init__(self, left, right, op):
+        self.left = left
+        self.right = right
+        self.op = op
+
+    def evaluate(self, geotop: xr.Dataset) -> xr.DataArray:
+        left = _evaluate_geotop_condition(self.left, geotop)
+        right = _evaluate_geotop_condition(self.right, geotop)
+        return self.op(left, right)
+
+    def __and__(self, other):
+        return self.__class__(self, other, operator.and_)
+
+    def __or__(self, other):
+        return self.__class__(self, other, operator.or_)
+
+
+def _evaluate_geotop_condition(
+    condition: GeotopUnits | _GeotopCondition | Any,
+    geotop: xr.Dataset,
+) -> xr.DataArray:
+    """
+    Helper function to evaluate a geotop condition with `GeotopUnits` or `_GeotopCondition`
+    objects.
+
+    """
+    if isinstance(condition, _GeotopCondition):
+        return condition.evaluate(geotop)
+
+    if isinstance(condition, GeotopUnits):
+        condition.check_version_matches(geotop)
+        return geotop[condition.data_var].isin(condition.voxel_nr)
+
+    return condition
 
 
 @dataclass(repr=False)
@@ -71,6 +131,12 @@ class GeotopUnits:
 
         """
         return f"{self.unit_type}<br>{self.df._repr_html_()}"
+
+    def __and__(self, other):
+        return _GeotopCondition(self, other, operator.and_)
+
+    def __or__(self, other):
+        return _GeotopCondition(self, other, operator.or_)
 
     @property
     def voxel_nr(self) -> pd.Index:
@@ -207,7 +273,8 @@ class GeotopUnits:
                 else values[self.data_var].gst.unique()
             )
 
-        values = [values] if isinstance(values, (int, float)) else values
+        values = np.array(values)
+        values = values[~np.isnan(values)]
 
         try:
             sel = self.df.loc[values]

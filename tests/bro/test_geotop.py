@@ -105,6 +105,15 @@ class TestGeotopMetadata:
         assert_array_equal(selected.voxel_nr, values)
 
     @pytest.mark.unittest
+    def test_select_voxel_nr_with_nan(self, metadata_strat):
+        values_with_nan = [1130, 2010, np.nan]
+        selected = metadata_strat.select_voxel_nr(values_with_nan)
+        assert isinstance(selected, GeotopUnits)
+        assert isinstance(selected.df, pd.DataFrame)
+        assert selected.unit_type == UnitType.STRAT
+        assert_array_equal(selected.voxel_nr, [1130, 2010])
+
+    @pytest.mark.unittest
     def test_select_voxel_nr_with_geotop(self, metadata_strat, geotop_small):
         selected = metadata_strat.select_voxel_nr(geotop_small["strat"])
         assert isinstance(selected, GeotopUnits)

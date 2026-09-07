@@ -645,7 +645,7 @@ class TestModelDataset:
         )
 
     @pytest.mark.unittest
-    def test_get_thickness_geotop(self, geotop_small, metadata_strat):
+    def test_get_thickness_geotop(self, geotop_small, metadata_strat, metadata_lithok):
         thickness = geotop_small.gst.get_thickness(
             metadata_strat.select_unit_contains("NUNI")
         )
@@ -661,8 +661,44 @@ class TestModelDataset:
             ],
         )
 
+        # Test `GeotopUnits` objects with boolean operators
+        thickness = geotop_small.gst.get_thickness(
+            metadata_strat.get_holocene_units() & metadata_lithok.select_unit("k")
+        )
+        assert_array_almost_equal(
+            thickness,
+            [
+                [0.0, 1.0, 2.5, 4.5, 3.5],
+                [1.0, 5.5, 2.0, 2.0, 1.5],
+                [5.0, 4.0, 4.0, 2.0, 2.0],
+                [5.0, 5.5, 4.0, 2.0, 2.0],
+                [7.0, 7.0, 5.5, 3.5, 0.5],
+            ],
+        )
+
+        # Test combining GeotopUnits with boolean OR operator
+        thickness = geotop_small.gst.get_thickness(
+            metadata_strat.get_holocene_units() | (geotop_small["kans_1"] > 0.8)
+        )
+        assert_array_almost_equal(
+            thickness,
+            [
+                [23.5, 23.5, 23.0, 22.0, 23.0],
+                [21.5, 23.5, 21.5, 23.0, 23.0],
+                [26.0, 23.0, 22.5, 22.5, 23.5],
+                [25.0, 22.0, 25.5, 24.5, 21.5],
+                [21.5, 25.5, 22.5, 23.5, 23.5],
+            ],
+        )
+
         with pytest.warns(UserWarning, match="GeoTOP version mismatch"):
             geotop_small.attrs["title"] = "v01r5s1"
             thickness = geotop_small.gst.get_thickness(
                 metadata_strat.select_unit_contains("NUNI")
+            )
+
+        with pytest.raises(TypeError):
+            # Putting the boolean DataArray first in the condition is not supported
+            thickness = geotop_small.gst.get_thickness(
+                (geotop_small["kans_1"] > 0.8) | metadata_strat.get_holocene_units()
             )

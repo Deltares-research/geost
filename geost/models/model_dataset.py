@@ -1,6 +1,6 @@
 import xarray as xr
 
-from geost.bro.geotop import GeotopUnits
+from geost.bro.geotop import GeotopUnits, _evaluate_geotop_condition, _GeotopCondition
 from geost.models import voxelmodels
 from geost.models._core import ModelType
 from geost.models.modelbase import ModelBase
@@ -52,9 +52,8 @@ class ModelDataset(ModelBase):
         >>> thickness_echteld = geotop.gst.get_thickness(echteld)
 
         """
-        if isinstance(condition, GeotopUnits):
-            condition.check_version_matches(self._obj)
-            condition = self._obj[condition.data_var].isin(condition.voxel_nr)
+        if isinstance(condition, (GeotopUnits, _GeotopCondition)):
+            condition = _evaluate_geotop_condition(condition, self._obj)
 
         condition, _ = xr.broadcast(condition, self._obj)
 
