@@ -1,5 +1,45 @@
 # Release notes
 
+## v0.6.0
+
+All model functionality is re-written as an **Xarray extension**. Importing GeoST now
+registers an [accessor](https://docs.xarray.dev/en/stable/internals/extending-xarray.html)
+on `Dataset`/`DataArray` objects. This replaces the old model functionality and deprecates
+the `VoxelModel` and other subclasses. This provides better consistency in working with
+model data and easier integration with Xarray. This re-write now adds full support for
+geological voxelmodels and layermodels.
+
+**Before**:
+```{python}
+from geost.models import VoxelModel # We had to import the class before reading data
+
+model = VoxelModel.from_netcdf("my-model.nc")
+print(type(model))
+# Output: `geost.models.VoxelModel`
+
+thickness = model.get_thickness(model["some_variable"] == 2) # Analysis example
+```
+
+**After**:
+```{python}
+import geost
+
+model = geost.read_model_netcdf("my-model.nc") # Now read data with generic read function
+print(type(model))
+# Output: `xarray.Dataset`
+
+# Methods are now available through the `.gst` accessor
+thickness = model.gst.get_thickness(model["some_variable"] == 2)
+```
+
+**Added**
+- Full support for geological voxelmodels and layermodels
+- `geotop_strat_units` and `geotop_lithok_units` for analyses with BRO GeoTOP (see the [User guide](./user_guide/bro_geotop.ipynb))
+
+**Removed**
+- `VoxelModel` and `GeoTop` objects, have been replaced by the Xarray extension and dedicated read functions (see the [User guide](./user_guide/model_data.ipynb))
+- `StratGeotop` and `Lithology` enums for analyses with BRO GeoTOP, have been replaced by `geotop_strat_units` and `geotop_lithok_units`
+
 ## v0.5.0
 
 Update to accessors, collections, reference systems and data validation resulting in a
