@@ -11,9 +11,88 @@ from geost.models.modelbase import ModelBase
 
 @xr.register_dataarray_accessor("gst")
 class ModelDataArray(ModelBase):
+    def _evaluate_condition(
+        self, condition: GeotopUnits | xr.DataArray
+    ) -> xr.DataArray:
+        """
+        Helper to evaluate conditions using `GeotopUnits` (and other GeoST objects in the
+        future) in methods that require conditional input. This translates all input into
+        valid conditional masks.
+
+        """
+        if isinstance(condition, GeotopUnits):
+            warnings.warn(
+                "The model version cannot be found in a DataArray of a GeoTOP variable, "
+                "cannot check if the metadata version matches the model version. Please "
+                "check the model version against the `xarray.Dataset` of GeoTOP.",
+                UserWarning,
+            )
+            condition = self._obj.isin(condition.voxel_nr)
+
+        condition, _ = xr.broadcast(condition, self._obj)
+        return condition
+
+    def get_top_bottom(self, condition: GeotopUnits | xr.DataArray) -> xr.Dataset:
+        """
+        Derive the top and bottom depths at each x,y-location of a specified condition
+        from a voxelmodel or layermodel. The condition can be a boolean DataArray or
+        Dataset that indicates which voxels or layers to include in the thickness
+        calculation.
+
+        Parameters
+        ----------
+        condition : GeotopUnits | xr.DataArray
+            A boolean DataArray or Dataset indicating which voxels or layers to include.
+            The condition should have the same dimensions as the model.
+
+        Returns
+        -------
+        xr.Dataset
+            xarray.Dataset containing "top" and "bottom" DataArrays for each horizontal
+            x,y-location in the model.
+
+        Examples
+        --------
+        Determine the top and bottom in a voxelmodel `DataArray` of stratigraphy where the
+        stratigraphy equals 1100 or 1200:
+
+        >>> top_bottom = voxelmodel_strat.gst.get_top_bottom(
+        ...     voxelmodel_strat.isin([1100, 1200])
+        ... )
+
+        Or in a layermodel for a subset of units:
+
+        >>> top_bottom = layermodel.gst.get_top_bottom(layermodel["layer"].isin(["B", "D"]))
+
+        If you are working with GeoTOP, you can also use a :class:`~geost.bro.geotop.GeotopUnits`
+        object to specify the condition, for example to get the top and bottom of the "Formatie van
+        Echteld" unit:
+
+        >>> geotop_strat = geost.read_geotop_from_opendap(
+        ...     data_vars="strat", bbox=(110_000, 440_000, 120_000, 450_000)
+        ... )
+        >>> strat_units = geost.bro.geotop_strat_units()
+        >>> top_bottom = geotop_strat.gst.get_top_bottom(
+        ...     strat_units.select_description_contains("Formatie van Echteld")
+        ... )
+
+        """
+        condition = self._evaluate_condition(condition)
+
+        if self._model_type == ModelType.VOXEL:
+            *_, zres = self.resolution()
+            depth = self.z.where(condition)
+            top = depth.max(dim=self._z) + abs(0.5 * zres)
+            bottom = depth.min(dim=self._z) - abs(0.5 * zres)
+        elif self._model_type == ModelType.LAYER:
+            top = self.top.where(condition).max(dim=self._z)
+            bottom = self.bottom.where(condition).min(dim=self._z)
+
+        return xr.Dataset({"top": top, "bottom": bottom})
+
     def get_thickness(self, condition: GeotopUnits | xr.DataArray) -> xr.DataArray:
         """
-        Calculate the thickness of a voxelmodel or layermodel based on a specified
+        Calculate the thickness where a voxelmodel or layermodel meets a specified
         condition. The condition can be a boolean DataArray or Dataset that indicates
         which voxels or layers to include in the thickness calculation.
 
@@ -36,7 +115,7 @@ class ModelDataArray(ModelBase):
         stratigraphy equals 1100 or 1200:
 
         >>> thickness = voxelmodel_strat.gst.get_thickness(
-        ...    (voxelmodel_strat == 1100) | (voxelmodel_strat == 1200)
+        ...     voxelmodel_strat.isin([1100, 1200])
         ... )
 
         Or in a layermodel for a subset of units:
@@ -47,22 +126,16 @@ class ModelDataArray(ModelBase):
         object to specify the condition, for example to get the thickness of the "Formatie van
         Echteld" unit:
 
-        >>> geotop = geost.read_geotop_from_opendap(bbox=(110_000, 440_000, 120_000, 450_000))
+        >>> geotop_strat = geost.read_geotop_from_opendap(
+        ...     data_vars="strat", bbox=(110_000, 440_000, 120_000, 450_000)
+        ... )
         >>> strat_units = geost.bro.geotop_strat_units()
-        >>> echteld = strat_units.select_description_contains("Formatie van Echteld")
-        >>> thickness_echteld = geotop.gst.get_thickness(echteld)
+        >>> thickness = geotop_strat.gst.get_thickness(
+        ...     strat_units.select_description_contains("Formatie van Echteld")
+        ... )
 
         """
-        if isinstance(condition, GeotopUnits):
-            warnings.warn(
-                "The model version cannot be found in a DataArray of a GeoTOP variable, "
-                "cannot check if the metadata version matches the model version. Please "
-                "check the model version against the `xarray.Dataset` of GeoTOP.",
-                UserWarning,
-            )
-            condition = self._obj.isin(condition.voxel_nr)
-
-        condition, _ = xr.broadcast(condition, self._obj)
+        condition = self._evaluate_condition(condition)
 
         if self._model_type == ModelType.VOXEL:
             *_, zres = self.resolution()

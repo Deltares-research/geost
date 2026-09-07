@@ -634,6 +634,10 @@ class ModelBase:
         >>> line = shapely.LineString([(0.8, 0.9), (2.4, 2.5)])
         >>> model.gst.mask_geometries(line, crs=28992) # Specify the CRS of the line
 
+        .. figure:: /_static/mask_geometries.svg
+            :align: center
+            :width: 80%
+
         """
         geometries = conversion.check_geometry_instance(geometries)
 
