@@ -246,6 +246,13 @@ class TestModelDataArray:
         ):
             voxelmodel_var.isel(x=[0], y=[0]).gst.resolution()
 
+        model_wgs_no_crs = model_wgs.drop_vars("spatial_ref")
+        with pytest.warns(
+            UserWarning,
+            match="CRS is not defined. Resolution is given in the units of the model's CRS",
+        ):
+            model_wgs_no_crs.gst.resolution(meters=True)
+
     @pytest.mark.unittest
     def test_vertical_bounds(self, voxelmodel_var, layermodel_var):
         assert voxelmodel_var.gst.vertical_bounds() == (-2.5, 0.0)

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import warnings
 from typing import TYPE_CHECKING, Literal
 
 import numpy as np
@@ -191,7 +192,8 @@ class ModelBase:
             Resolution of the model. For a voxelmodel, returns (xres, yres, zres). For a
             layermodel, returns (xres, yres).
         meters : bool, optional
-            If True, the resolution is returned in meters. If False, the resolution is
+            If True, the resolution is returned in meters. Can be used when the model's
+            CRS is geographic (e.g. WGS84) but the resolution is desired in meters.  If False, the resolution is
             returned in the units of the model's CRS. The default is False.
 
         Raises
@@ -204,7 +206,16 @@ class ModelBase:
 
         try:
             grid = self._obj.isel({self._z: 0})
-            if self.crs.is_geographic and meters:
+            if meters and self.crs is None:
+                warnings.warn(
+                    (
+                        "CRS is not defined. Resolution is given in the units of the model's "
+                        "CRS. Use `model.gst.write_crs()` to define the CRS before requesting "
+                        "resolution in meters."
+                    ),
+                    UserWarning,
+                )
+            elif meters and self.crs.is_geographic:
                 grid = grid.rio.reproject(grid.rio.estimate_utm_crs())
             xres, yres = grid.rio.resolution()
         except rioxarray.exceptions.DimensionError as e:
