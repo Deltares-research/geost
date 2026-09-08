@@ -16,7 +16,7 @@ class BorisXML:
     The reader is naive, which means that all data is taken from the XML as is, without
     running any checks on the parsed data.
 
-    Note that currently only essential items to construct a BoreholeCollection are parsed.
+    Note that currently only essential items to construct a `Collection` are parsed.
     """
 
     attr_type_to_dtype = dict(

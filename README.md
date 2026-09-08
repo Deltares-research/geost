@@ -8,7 +8,7 @@
 
 The Geological Subsurface Toolbox (GeoST) package is designed to be an easy-to-use Python interface for working with subsurface point data in The Netherlands (boreholes, well logs and CPT's). It provides selection, analysis and export methods that can be applied generically to the loaded data. It is designed to connect with other Deltares developments such as [iMod](https://github.com/Deltares/imod-python) and [DataFusionTools](https://publicwiki.deltares.nl/display/TKIP/Data+Fusion+Tools).
 
-The internal BoreholeCollection, LogCollection and CptCollection classes use [Pandas](https://pandas.pydata.org/) for storing data and header information and  [Pandera](https://pandera.readthedocs.io/en/stable/) for data validation. For spatial functions [Geopandas](https://geopandas.org/en/stable/) is used. The package also supports reading/writing parquet and geoparquet files through Pandas and Geopandas respectively.
+The internal `Collection` class uses [Pandas](https://pandas.pydata.org/) and [Geopandas](https://geopandas.org/en/stable/) for storing data. The package also supports reading/writing parquet and geoparquet files through Pandas and Geopandas respectively.
 
 GeoST is a work-in-progress and aims to support an increasing number of data sources.
 

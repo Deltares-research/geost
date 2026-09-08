@@ -133,8 +133,7 @@ def borehole_to_multiblock(
     Parameters
     ----------
     data : pd.DataFrame
-        Table of borehole/CPT objects. This is CptCollection.data or
-        BoreholeCollection.data.
+        Table of borehole/CPT objects. This is `Collection.data`.
     depth_column : Literal['depth', 'bottom'] | list[Literal["top"], Literal["bottom"]]
         Name of the column or columns representing depth.
     displayed_variables : List[str]
