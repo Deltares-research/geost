@@ -59,17 +59,6 @@ def _check_to_broadcast(
     if isinstance(values, (int, float)):
         return values, bounds
 
-    # if isinstance(values, np.ndarray):
-    #     y_dim, x_dim = ds.gst.y_dim, ds.gst.x_dim
-    #     try:
-    #         values = xr.DataArray(
-    #             values, coords={y_dim: ds[y_dim], x_dim: ds[x_dim]}, dims=(y_dim, x_dim)
-    #         )
-    #     except ValueError as e:
-    #         raise ValueError(
-    #             "Failed to broadcast input array to dataset dimensions"
-    #         ) from e
-
     values, bounds, _ = xr.broadcast(values, bounds, ds)
 
     return values, bounds

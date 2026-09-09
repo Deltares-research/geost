@@ -6,6 +6,11 @@ from numpy.testing import assert_array_almost_equal, assert_array_equal
 from geost.models import layermodels
 
 
+@pytest.fixture
+def model_with_nan_row_and_col(layermodel):
+    return layermodel.reindex(y=[4.5, 3.5, 2.5, 1.5, 0.5], x=[0.5, 1.5, 2.5, 3.5, 4.5])
+
+
 @pytest.mark.unittest
 def test_slice_depth_interval_values(layermodel):
     sliced = layermodels.slice_depth_interval(layermodel, upper=-0.4, lower=-1.6)
@@ -642,6 +647,40 @@ def test_slice_depth_interval_with_full_nan_column(layermodel, grid_with_nan_col
     assert isinstance(sliced, xr.Dataset)
     assert sliced.sizes == {"x": 3, "y": 4, "layer": 3}
     assert_array_equal(sliced.data_vars, layermodel.data_vars)
+    assert_array_equal(sliced["layer"], ["A", "B", "C"])
+    assert_array_equal(sliced["x"], [0.5, 1.5, 2.5])  # 3.5 should be dropped
+    assert_array_almost_equal(
+        sliced["top"],
+        [
+            [[0.2, np.nan, np.nan], [0.2, -0.15, np.nan], [0.2, -0.2, np.nan]],
+            [[0.2, np.nan, np.nan], [0.2, -0.15, np.nan], [0.2, -0.2, np.nan]],
+            [[0.2, np.nan, np.nan], [0.2, -0.15, np.nan], [0.2, np.nan, -0.2]],
+            [[0.2, np.nan, np.nan], [0.2, np.nan, -0.15], [0.2, np.nan, -0.2]],
+        ],
+    )
+    assert_array_almost_equal(
+        sliced["bottom"],
+        [
+            [[-0.2, np.nan, np.nan], [-0.15, -0.2, np.nan], [-0.2, -0.2, np.nan]],
+            [[-0.2, np.nan, np.nan], [-0.15, -0.2, np.nan], [-0.2, -0.2, np.nan]],
+            [[-0.2, np.nan, np.nan], [-0.15, -0.2, np.nan], [-0.2, np.nan, -0.2]],
+            [[-0.2, np.nan, np.nan], [-0.15, np.nan, -0.2], [-0.2, np.nan, -0.2]],
+        ],
+    )
+
+
+@pytest.mark.unittest
+def test_slice_depth_interval_model_nan_row_and_col(
+    model_with_nan_row_and_col, grid_with_nan_column
+):
+    sliced = layermodels.slice_depth_interval(
+        model_with_nan_row_and_col,
+        upper=grid_with_nan_column,
+        lower=grid_with_nan_column - 0.4,
+    )
+    assert isinstance(sliced, xr.Dataset)
+    assert sliced.sizes == {"x": 3, "y": 4, "layer": 3}
+    assert_array_equal(sliced.data_vars, model_with_nan_row_and_col.data_vars)
     assert_array_equal(sliced["layer"], ["A", "B", "C"])
     assert_array_equal(sliced["x"], [0.5, 1.5, 2.5])  # 3.5 should be dropped
     assert_array_almost_equal(

@@ -68,4 +68,5 @@ def grid_with_nan_column(voxelmodel):
         coords={"y": voxelmodel["y"], "x": voxelmodel["x"]},
         dims=("y", "x"),
     )
+    grid.rio.write_crs("EPSG:28992", inplace=True)
     return grid
