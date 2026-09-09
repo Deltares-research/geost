@@ -47,7 +47,6 @@ dependencies = [
     "openpyxl",
 	"rioxarray",
     "shapely",
-    "pyvista",
     "pydap",
 	"platformdirs",
 ]
