@@ -2,6 +2,7 @@ import warnings
 from pathlib import Path
 
 import xarray as xr
+from pyproj import CRS
 
 
 def _prepare_dataset(
@@ -15,27 +16,14 @@ def _prepare_dataset(
     the dataset based on the provided bounding box and optionally loading it into memory.
 
     """
-
-    def _check_dim_order(ds: xr.Dataset) -> None:
-        # Below also ensures that the dataset is a valid model, if not _validate raises an error
-        x_dim, y_dim = ds.gst.x_dim, ds.gst.y_dim
-
-        for var in ds.data_vars:
-            if ds[var].ndim > 1 and (
-                ds[var].get_axis_num(y_dim) > ds[var].get_axis_num(x_dim)
-            ):
-                warnings.warn(
-                    f"The {var} variable in the model has an invalid dimension order (x before y). "
-                    "Some export functions expect y before x and may not work correctly. "
-                    "You can use `model.transpose(y, x)` to fix the order.",
-                    UserWarning,
-                    stacklevel=2,
-                )
-
+    ds = _check_crs(ds)
     _check_dim_order(ds)
 
     if bbox is not None:
-        ds = ds.gst.slice_xy(*bbox)
+        if ds.gst.crs is None:
+            ds = ds.gst.slice_xy(*bbox)
+        else:
+            ds = ds.gst.select_within_bbox(*bbox)
 
     if data_vars is not None:
         ds = ds[data_vars]
@@ -44,6 +32,40 @@ def _prepare_dataset(
         ds.load()
 
     return ds
+
+
+def _check_crs(ds: xr.Dataset) -> xr.Dataset:
+    """
+    Helper function for `_prepare_dataset` to check and set the CRS of the dataset based
+    on its data variables.
+
+    """
+    crs = None
+    if "spatial_ref" in ds.data_vars:  # Rioxarray convention for storing CRS
+        crs = CRS.from_cf(ds["spatial_ref"].attrs)
+    elif "crs" in ds.data_vars:  # Alternative convention for storing CRS information
+        crs = ds["crs"].attrs.get("epsg_code").strip('"').strip("'")
+
+    if crs is not None:
+        ds.gst.write_crs(crs, inplace=True)
+
+    return ds
+
+
+def _check_dim_order(ds: xr.Dataset) -> None:
+    x_dim, y_dim = ds.gst.x_dim, ds.gst.y_dim
+
+    for var in ds.data_vars:
+        if x_dim not in ds[var].dims or y_dim not in ds[var].dims:
+            continue
+        if ds[var].get_axis_num(y_dim) > ds[var].get_axis_num(x_dim):
+            warnings.warn(
+                f"The {var} variable in the model has an invalid dimension order (x before y). "
+                "Some export functions expect y before x and may not work correctly. "
+                "You can use `model.transpose(y, x)` to fix the order.",
+                UserWarning,
+                stacklevel=2,
+            )
 
 
 def read_model_netcdf(

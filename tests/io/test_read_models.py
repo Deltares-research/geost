@@ -17,6 +17,13 @@ def voxelmodel_netcdf(tmp_path, voxelmodel):
 
 
 @pytest.fixture
+def voxelmodel_netcdf_no_crs(tmp_path, voxelmodel):
+    nc_path = tmp_path / "voxelmodel_no_crs.nc"
+    voxelmodel.drop("spatial_ref").to_netcdf(nc_path)
+    return nc_path
+
+
+@pytest.fixture
 def layermodel_netcdf(tmp_path, layermodel):
     nc_path = tmp_path / "layermodel.nc"
     layermodel.to_netcdf(nc_path)
@@ -37,6 +44,7 @@ def regis_netcdf(testdatadir):
 def test_read_model_netcdf(voxelmodel_netcdf):
     model = geost.read_model_netcdf(voxelmodel_netcdf)
     assert isinstance(model, xr.Dataset)
+    assert model.gst.crs == 28992  # `read_model_netcdf` infers CRS if available
 
     model = geost.read_model_netcdf(
         voxelmodel_netcdf, data_vars="strat", bbox=(1, 1, 3, 3), load=True
@@ -180,7 +188,7 @@ def test_read_regis_from_opendap(regis_netcdf):
     assert isinstance(regis, xr.Dataset)
     assert "mv" not in regis["layer"]
     assert_array_equal(regis.data_vars, ["top", "bottom", "hgv", "kD"])
-    assert_array_equal(regis.coords, ["crs", "x", "y", "layer"])
+    assert_array_equal(regis.coords, ["x", "y", "layer", "crs"])
     assert regis.sizes == {"layer": 131, "y": 2, "x": 2}
     assert regis.gst.crs == 28992
     assert regis.gst.bounds() == bbox
@@ -192,3 +200,49 @@ def test_read_regis_from_opendap(regis_netcdf):
         regis_netcdf, data_vars=["hgv", "kD"], bbox=bbox
     )
     assert regis.equals(regis_local)
+
+
+@pytest.mark.unittest
+def test_read_model_netcdf_geotop(geotop_netcdf):
+    """
+    Test that using normal `geost.read_model_netcdf` correctly reads a GeoTop model.
+    """
+    geotop = geost.read_model_netcdf(geotop_netcdf)
+    assert isinstance(geotop, xr.Dataset)
+    assert geotop.gst.crs is None
+
+
+@pytest.mark.unittest
+def test_read_model_netcdf_regis(regis_netcdf):
+    """
+    Test that using normal `geost.read_model_netcdf` correctly reads a Regis model.
+    """
+    regis = geost.read_model_netcdf(regis_netcdf)
+    assert isinstance(regis, xr.Dataset)
+    assert regis.gst.crs == 28992
+
+
+def test_read_model_netcdf_bbox_difference(voxelmodel_netcdf, voxelmodel_netcdf_no_crs):
+    """
+    The same bounding box can produce a different result depending on whether the model
+    that is read, has a recognizable CRS or not. If no CRS is recognized, `slice_xy` is
+    used instead of `select_within_bbox`.
+
+    `slice_xy` only selects coordinates that fall within the specified bounding box, without
+    considering if a bbox coordinate overlaps with a cell or not.
+
+    `select_within_bbox` considers the CRS and selects all cells that overlap with the
+    specified bounding box.
+    """
+    bbox = (0.9, 0.9, 3, 3)
+    model = geost.read_model_netcdf(voxelmodel_netcdf, bbox=bbox)
+    assert isinstance(model, xr.Dataset)
+    assert model.gst.crs == 28992
+    assert_array_equal(model["x"], [0.5, 1.5, 2.5])
+    assert_array_equal(model["y"], [2.5, 1.5, 0.5])
+
+    model_no_crs = geost.read_model_netcdf(voxelmodel_netcdf_no_crs, bbox=bbox)
+    assert isinstance(model_no_crs, xr.Dataset)
+    assert model_no_crs.gst.crs is None
+    assert_array_equal(model_no_crs["x"], [1.5, 2.5])
+    assert_array_equal(model_no_crs["y"], [2.5, 1.5])
