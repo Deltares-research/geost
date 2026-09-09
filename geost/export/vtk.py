@@ -500,8 +500,10 @@ def layermodel_to_pyvista_unstructured(
     if displayed_variables is None:
         displayed_variables = list(dataset.data_vars)
 
+    dataset = dataset.isel(layer=slice(0, 1))
+
     # Check if the dataset has the required dimensions and order
-    dataset = check_model_dims(dataset, dim_order=(y, x, z))
+    dataset = check_model_dims(dataset, dim_order=(z, y, x))
 
     # Dim sizes and resolutions
     ny, nx, nlayer = dataset.sizes[y], dataset.sizes[x], dataset.sizes[z]
@@ -519,43 +521,61 @@ def layermodel_to_pyvista_unstructured(
     y_nodes[:ny] = dataset[y].values - yres / 2
     y_nodes[ny] = dataset[y].values[-1] + yres / 2
 
-    xy_nodes = np.array(np.meshgrid(x_nodes, y_nodes, indexing="ij")).T.reshape(-1, 2)
-    xy_node_ids = np.arange(len(xy_nodes)).reshape(ny + 1, nx + 1)
+    # Repeat x/y points that are corner points of multiple voxel cells. e.g.
+    # [0, 1, 2, 3] becomes [0, 1, 1, 2, 2, 3].
+    x_nodes = np.repeat(x_nodes, 2)[1:-1]
+    y_nodes = np.repeat(y_nodes, 2)[1:-1]
+
+    # Make grids containing every possible x/y coordinate combination.
+    xg, yg = np.meshgrid(x_nodes, y_nodes, indexing="xy")
+
 
     # Interfaces. Top surface is the top of the first layer, and subsequent interfaces
-    # are the bottoms of each layer in the dataset.
-    interfaces = np.empty((ny, nx, nlayer + 1), dtype=float)
-    interfaces[:, :, 0] = dataset.isel({z: 0})[top]
-    interfaces[:, :, 1:] = dataset.isel({z: slice(0, nlayer)})[bottom]
-    padded_interfaces = np.pad(interfaces, ((1, 0), (1, 0), (0, 0)), mode="edge")
+    # are the bottoms of each layer in the dataset. Also make repetitions here to match
+    # the corner points of the voxel cells.
+    interfaces = np.empty((nlayer + 1, ny * 2, nx * 2), dtype=float)
+    interfaces[0, ...] = np.repeat(
+        np.repeat(dataset.isel({z: 0})[top], 2, axis=1), 2, axis=0
+    )
+    interfaces[1:, ...] = np.repeat(
+        np.repeat(dataset.isel({z: slice(0, nlayer)})[bottom], 2, axis=2), 2, axis=1
+    )
 
-    # for i in range(interfaces.shape[2] - 1):
-    #     top_interface = padded_interfaces[:, :, i]
-    #     bottom_interface = padded_interfaces[:, :, i + 1]
+    # interfaces = np.empty((nlayer + 1, ny, nx), dtype=float)
+    # interfaces[0, ...] = dataset.isel({z: 0})[top].values
+    # interfaces[1:, ...] = dataset.isel({z: slice(0, nlayer)})[bottom].values
 
-    #     top_window = sliding_window_view(top_interface, (2, 2))
-    #     bottom_window = sliding_window_view(bottom_interface, (2, 2))
-    #     xy_node_ids_windows = sliding_window_view(xy_node_ids, (2, 2))
-    #     for top, bottom, xy_node_ids in zip(
-    #         top_window.reshape(-1, 2, 2),
-    #         bottom_window.reshape(-1, 2, 2),
-    #         xy_node_ids_windows.reshape(-1, 2, 2),
-    #     ):
-    #         # Each window represents the four corner points of a cell in the interface
-    #         # We can flatten the window to get the corner points in a consistent order
-    #         cell_corners = top.reshape(-1)
-    #         # Here you would typically store or process the cell_corners as needed
+    # Create all point coordinates. This is an n_points * 3 array, where each row
+    # represents the (x, y, z) coordinates of a point.
+    points = np.column_stack(
+        [
+            xg.ravel().repeat(nlayer),
+            yg.ravel().repeat(nlayer),
+            interfaces[0,...].ravel(order="F"),
+        ]
+    )
 
-    #         # Top surface node indices of the current cell
-    #         p0 = xy_nodes[xy_node_ids[0, 0]]
-    #         p1 = xy_nodes[xy_node_ids[0, 1]]
-    #         p2 = xy_nodes[xy_node_ids[1, 1]]
-    #         p3 = xy_nodes[xy_node_ids[1, 0]]
+    # Initialize array of cells. First column will store the number of points per cell
+    # (8 for hexahedrons), so immediately add it as the first column in the cells array.
+    cells = np.empty((nlayer * ny * nx, 9), dtype=int)
+    cells[:, 0] = 8
 
-    #         # Bottom surface node indices of the current cell
-    #         p4 = xy_nodes[xy_node_ids[0, 0]]
-    #         p5 = xy_nodes[xy_node_ids[0, 1]]
-    #         p6 = xy_nodes[xy_node_ids[1, 1]]
-    #         p7 = xy_nodes[xy_node_ids[1, 0]]
+    # Fill cells array with points indices using the order that PyVista requires.
+    # Hexahedron vertex ordering (VTK/PyVista):
+    #
+    #      7 -------- 6
+    #     /|         /|
+    #    4 -------- 5 |
+    #    | |        | |
+    #    | 3 -------|-2
+    #    |/         |/
+    #    0 -------- 1
+    #
 
-    return None
+    # cell_types = np.full((len(cells)), pv.CellType.HEXAHEDRON)
+    # grid = pv.UnstructuredGrid(cells, cell_types, points)
+
+    # for var in displayed_variables:
+    #     grid.cell_data[var] = dataset[var].values.ravel(order="C")
+
+    # return grid
