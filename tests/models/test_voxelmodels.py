@@ -11,6 +11,11 @@ def simple_voxelmodel(voxelmodel):
     return voxelmodel.isel(x=[1, 2], y=[1, 2])
 
 
+@pytest.fixture
+def model_with_nan_row_and_col(voxelmodel):
+    return voxelmodel.reindex(y=[4.5, 3.5, 2.5, 1.5, 0.5], x=[0.5, 1.5, 2.5, 3.5, 4.5])
+
+
 @pytest.mark.unittest
 def test_slice_depth_interval_values(voxelmodel):
     sliced = vm.slice_depth_interval(voxelmodel, upper=-0.4, lower=-1.6)
@@ -136,11 +141,8 @@ def test_slice_depth_interval_values(voxelmodel):
     assert sliced.sizes == {"y": 4, "x": 4, "z": 1}
 
 
-@pytest.mark.parametrize("as_array", [True, False], ids=["as_array", "as_dataarray"])
-def test_slice_depth_interval_with_grids(voxelmodel, depth_grid, as_array):
-    if as_array:
-        depth_grid = depth_grid.values
-
+@pytest.mark.unittest
+def test_slice_depth_interval_with_grids(voxelmodel, depth_grid):
     sliced = vm.slice_depth_interval(voxelmodel, upper=depth_grid, lower=depth_grid - 1)
     assert_array_equal(
         sliced["strat"],
@@ -257,15 +259,6 @@ def test_slice_depth_interval_with_1d_dataarray(voxelmodel):
         ],
     )
 
-    # With 1D Numpy array we cannot broadcast to the dataset dimensions because of unnamed dimensions
-    with pytest.raises(
-        ValueError, match="Failed to broadcast input array to dataset dimensions"
-    ):
-        da_1d_invalid = da_1d.values
-        vm.slice_depth_interval(
-            voxelmodel, upper=da_1d_invalid, lower=da_1d_invalid - 1
-        )
-
 
 @pytest.mark.parametrize(
     "how, upper, lower, result_shape, result_z",
@@ -303,3 +296,29 @@ def test_slice_depth_interval_how(
         assert isinstance(sliced, xr.Dataset)
         assert sliced.gst.shape == result_shape
         assert_array_almost_equal(sliced["z"], result_z)
+
+
+@pytest.mark.unittest
+def test_slice_depth_interval_with_full_nan_column(voxelmodel, grid_with_nan_column):
+    sliced = vm.slice_depth_interval(
+        voxelmodel, upper=grid_with_nan_column, lower=grid_with_nan_column - 1
+    )
+    assert isinstance(sliced, xr.Dataset)
+    assert sliced.sizes == {"y": 4, "x": 3, "z": 2}
+    assert_array_equal(sliced["x"], [0.5, 1.5, 2.5])
+    assert_array_equal(sliced["z"], [-0.75, -0.25])
+
+
+@pytest.mark.unittest
+def test_slice_depth_interval_model_nan_row_and_col(
+    model_with_nan_row_and_col, grid_with_nan_column
+):
+    sliced = vm.slice_depth_interval(
+        model_with_nan_row_and_col,
+        upper=grid_with_nan_column,
+        lower=grid_with_nan_column - 1,
+    )
+    assert isinstance(sliced, xr.Dataset)
+    assert sliced.sizes == {"y": 4, "x": 3, "z": 2}
+    assert_array_equal(sliced["x"], [0.5, 1.5, 2.5])
+    assert_array_equal(sliced["z"], [-0.75, -0.25])

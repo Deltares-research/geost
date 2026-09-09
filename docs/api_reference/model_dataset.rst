@@ -28,6 +28,7 @@ Analysis
    :toctree: generated/
 
    ModelDataset.get_thickness
+   ModelDataset.get_top_bottom
    ModelDataset.most_common
 
 

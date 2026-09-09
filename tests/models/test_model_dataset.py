@@ -488,6 +488,50 @@ class TestModelDataset:
         assert_array_equal(sliced["surface"], layermodel["surface"])
 
     @pytest.mark.unittest
+    def test_slice_depth_interval_errors(self, voxelmodel, layermodel, depth_grid):
+        array_shape_mismatch = np.full((4, 3), -0.4)
+        with pytest.raises(ValueError, match=r"Array shape \(4, 3\) does not match"):
+            voxelmodel.gst.slice_depth_interval(upper=array_shape_mismatch)
+            layermodel.gst.slice_depth_interval(upper=array_shape_mismatch)
+        with pytest.raises(ValueError, match=r"Array shape \(3, 4\) does not match"):
+            voxelmodel.gst.slice_depth_interval(upper=array_shape_mismatch.T)
+            layermodel.gst.slice_depth_interval(upper=array_shape_mismatch.T)
+        with pytest.raises(ValueError, match=r"Array shape \(4, 3\) does not match"):
+            voxelmodel.gst.slice_depth_interval(lower=array_shape_mismatch)
+            layermodel.gst.slice_depth_interval(lower=array_shape_mismatch)
+        with pytest.raises(ValueError, match=r"Array shape \(3, 4\) does not match"):
+            voxelmodel.gst.slice_depth_interval(lower=array_shape_mismatch.T)
+            layermodel.gst.slice_depth_interval(lower=array_shape_mismatch.T)
+
+        da_mismatch_dims = depth_grid.rename({"x": "wrong_x"})
+        with pytest.raises(
+            ValueError,
+            match="2D DataArray must contain both the 'x' and 'y' dimensions",
+        ):
+            voxelmodel.gst.slice_depth_interval(upper=da_mismatch_dims)
+            layermodel.gst.slice_depth_interval(upper=da_mismatch_dims)
+        with pytest.raises(
+            ValueError,
+            match="2D DataArray must contain both the 'x' and 'y' dimensions",
+        ):
+            voxelmodel.gst.slice_depth_interval(lower=da_mismatch_dims)
+            layermodel.gst.slice_depth_interval(lower=da_mismatch_dims)
+
+        da_mismatch_dims_1d = da_mismatch_dims.isel(y=0)
+        with pytest.raises(
+            ValueError,
+            match="1D DataArray must contain either the 'x' or 'y' dimension",
+        ):
+            voxelmodel.gst.slice_depth_interval(upper=da_mismatch_dims_1d)
+            layermodel.gst.slice_depth_interval(upper=da_mismatch_dims_1d)
+        with pytest.raises(
+            ValueError,
+            match="1D DataArray must contain either the 'x' or 'y' dimension",
+        ):
+            voxelmodel.gst.slice_depth_interval(upper=da_mismatch_dims_1d)
+            layermodel.gst.slice_depth_interval(upper=da_mismatch_dims_1d)
+
+    @pytest.mark.unittest
     def test_most_common_voxelmodel(self, voxelmodel):
         expected_mode_strat = [
             [2.0, 1.0, 1.0, 1.0],
@@ -645,7 +689,7 @@ class TestModelDataset:
         )
 
     @pytest.mark.unittest
-    def test_get_thickness_geotop(self, geotop_small, metadata_strat):
+    def test_get_thickness_geotop(self, geotop_small, metadata_strat, metadata_lithok):
         thickness = geotop_small.gst.get_thickness(
             metadata_strat.select_unit_contains("NUNI")
         )
@@ -653,11 +697,41 @@ class TestModelDataset:
         assert_array_almost_equal(
             thickness,
             [
-                [5.0, 5.5, 4.5, 4.5, 4.5],
-                [4.0, 5.0, 5.5, 5.5, 5.5],
-                [4.0, 5.0, 5.0, 5.0, 4.5],
-                [3.5, 5.0, 6.5, 4.5, 4.5],
-                [2.5, 4.0, 5.0, 5.5, 6.5],
+                [5.0, 4.0, 4.0, 3.5, 2.5],
+                [5.5, 5.0, 5.0, 5.0, 4.0],
+                [4.5, 5.5, 5.0, 6.5, 5.0],
+                [4.5, 5.5, 5.0, 4.5, 5.5],
+                [4.5, 5.5, 4.5, 4.5, 6.5],
+            ],
+        )
+
+        # Test `GeotopUnits` objects with boolean operators
+        thickness = geotop_small.gst.get_thickness(
+            metadata_strat.get_holocene_units() & metadata_lithok.select_unit("k")
+        )
+        assert_array_almost_equal(
+            thickness,
+            [
+                [0.0, 1.0, 5.0, 5.0, 7.0],
+                [1.0, 5.5, 4.0, 5.5, 7.0],
+                [2.5, 2.0, 4.0, 4.0, 5.5],
+                [4.5, 2.0, 2.0, 2.0, 3.5],
+                [3.5, 1.5, 2.0, 2.0, 0.5],
+            ],
+        )
+
+        # Test combining GeotopUnits with boolean OR operator
+        thickness = geotop_small.gst.get_thickness(
+            metadata_strat.get_holocene_units() | (geotop_small["kans_1"] > 0.8)
+        )
+        assert_array_almost_equal(
+            thickness,
+            [
+                [23.5, 21.5, 26.0, 25.0, 21.5],
+                [23.5, 23.5, 23.0, 22.0, 25.5],
+                [23.0, 21.5, 22.5, 25.5, 22.5],
+                [22.0, 23.0, 22.5, 24.5, 23.5],
+                [23.0, 23.0, 23.5, 21.5, 23.5],
             ],
         )
 
@@ -666,3 +740,81 @@ class TestModelDataset:
             thickness = geotop_small.gst.get_thickness(
                 metadata_strat.select_unit_contains("NUNI")
             )
+
+        with pytest.raises(TypeError):
+            # Putting the boolean DataArray first in the condition is not supported
+            thickness = geotop_small.gst.get_thickness(
+                (geotop_small["kans_1"] > 0.8) | metadata_strat.get_holocene_units()
+            )
+
+    @pytest.mark.unittest
+    def test_get_top_bottom(self, voxelmodel, layermodel):
+        result = voxelmodel.gst.get_top_bottom(voxelmodel["strat"] == 1)
+        assert isinstance(result, xr.Dataset)
+        assert_array_equal(result.data_vars, ["top", "bottom"])
+        assert_array_almost_equal(
+            result["top"],
+            [
+                [0.0, -0.5, -0.5, -0.5],
+                [0.0, 0.0, -0.5, -0.5],
+                [-0.5, 0.0, 0.0, -0.5],
+                [-0.5, 0.0, -0.5, 0.0],
+            ],
+        )
+        assert_array_almost_equal(
+            result["bottom"],
+            [
+                [-1.0, -1.5, -2.0, -1.5],
+                [-1.5, -1.5, -2.0, -2.0],
+                [-1.0, -2.0, -1.5, -1.0],
+                [-1.0, -2.0, -1.5, -1.0],
+            ],
+        )
+
+        result = layermodel.gst.get_top_bottom(layermodel["layer"].isin(["B", "D"]))
+        assert isinstance(result, xr.Dataset)
+        assert_array_equal(result.data_vars, ["top", "bottom"])
+        assert_array_almost_equal(
+            result["top"],
+            [
+                [-0.25, -0.15, -0.2, -2.15],
+                [-0.25, -0.15, -0.2, -2.15],
+                [-0.25, -0.15, -2.0, -0.35],
+                [-0.25, -1.95, -2.0, -0.35],
+            ],
+        )
+        assert_array_almost_equal(
+            result["bottom"],
+            [
+                [-3.25, -3.25, -3.35, -3.35],
+                [-3.25, -3.25, -3.35, -3.35],
+                [-3.25, -3.25, -3.2, -2.95],
+                [-3.15, -3.15, -3.2, -2.95],
+            ],
+        )
+
+    @pytest.mark.unittest
+    def test_get_top_bottom_geotop(self, geotop_small, metadata_strat):
+        result = geotop_small.gst.get_top_bottom(metadata_strat.select_unit("NUNIBA"))
+        assert isinstance(result, xr.Dataset)
+        assert_array_equal(result.data_vars, ["top", "bottom"])
+        assert_array_almost_equal(
+            result["top"],
+            [
+                [-12.0, -12.0, -12.5, -12.5, np.nan],
+                [-11.5, -11.0, -11.5, -12.0, -12.5],
+                [np.nan, -11.0, -11.5, -11.0, -11.5],
+                [np.nan, -12.0, np.nan, np.nan, -12.0],
+                [np.nan, -11.5, np.nan, np.nan, -11.5],
+            ],
+        )
+        assert_array_almost_equal(
+            result["bottom"],
+            [
+                [-13.0, -13.0, -13.0, -13.0, np.nan],
+                [-13.0, -12.5, -12.5, -13.0, -13.0],
+                [np.nan, -12.5, -12.5, -12.5, -12.5],
+                [np.nan, -12.5, np.nan, np.nan, -12.5],
+                [np.nan, -12.0, np.nan, np.nan, -12.0],
+            ],
+        )

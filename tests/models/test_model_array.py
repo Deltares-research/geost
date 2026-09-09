@@ -246,6 +246,13 @@ class TestModelDataArray:
         ):
             voxelmodel_var.isel(x=[0], y=[0]).gst.resolution()
 
+        model_wgs_no_crs = model_wgs.drop_vars("spatial_ref")
+        with pytest.warns(
+            UserWarning,
+            match="CRS is not defined. Resolution is given in the units of the model's CRS",
+        ):
+            model_wgs_no_crs.gst.resolution(meters=True)
+
     @pytest.mark.unittest
     def test_vertical_bounds(self, voxelmodel_var, layermodel_var):
         assert voxelmodel_var.gst.vertical_bounds() == (-2.5, 0.0)
@@ -1078,11 +1085,11 @@ class TestModelDataArray:
         assert_array_almost_equal(
             thickness,
             [
-                [5.0, 5.5, 4.5, 4.5, 4.5],
-                [4.0, 5.0, 5.5, 5.5, 5.5],
-                [4.0, 5.0, 5.0, 5.0, 4.5],
-                [3.5, 5.0, 6.5, 4.5, 4.5],
-                [2.5, 4.0, 5.0, 5.5, 6.5],
+                [5.0, 4.0, 4.0, 3.5, 2.5],
+                [5.5, 5.0, 5.0, 5.0, 4.0],
+                [4.5, 5.5, 5.0, 6.5, 5.0],
+                [4.5, 5.5, 5.0, 4.5, 5.5],
+                [4.5, 5.5, 4.5, 4.5, 6.5],
             ],
         )
 
@@ -1103,6 +1110,158 @@ class TestModelDataArray:
         result = layermodel_var.gst.unique()
         assert isinstance(result, np.ndarray)
         assert_array_equal(result, [0.04, 0.2, 20.1, 85.0])
+
+    @pytest.mark.unittest
+    def test_get_top_bottom(self, voxelmodel_var, layermodel_var):
+        result = voxelmodel_var.gst.get_top_bottom(voxelmodel_var == 1)
+        assert isinstance(result, xr.Dataset)
+        assert_array_equal(result.data_vars, ["top", "bottom"])
+        assert_array_almost_equal(
+            result["top"],
+            [
+                [0.0, -0.5, -0.5, -0.5],
+                [0.0, 0.0, -0.5, -0.5],
+                [-0.5, 0.0, 0.0, -0.5],
+                [-0.5, 0.0, -0.5, 0.0],
+            ],
+        )
+        assert_array_almost_equal(
+            result["bottom"],
+            [
+                [-1.0, -1.5, -2.0, -1.5],
+                [-1.5, -1.5, -2.0, -2.0],
+                [-1.0, -2.0, -1.5, -1.0],
+                [-1.0, -2.0, -1.5, -1.0],
+            ],
+        )
+
+        result = layermodel_var.gst.get_top_bottom(
+            layermodel_var["layer"].isin(["B", "D"])
+        )
+        assert isinstance(result, xr.Dataset)
+        assert_array_equal(result.data_vars, ["top", "bottom"])
+        assert_array_almost_equal(
+            result["top"],
+            [
+                [-0.25, -0.15, -0.2, -2.15],
+                [-0.25, -0.15, -0.2, -2.15],
+                [-0.25, -0.15, -2.0, -0.35],
+                [-0.25, -1.95, -2.0, -0.35],
+            ],
+        )
+        assert_array_almost_equal(
+            result["bottom"],
+            [
+                [-3.25, -3.25, -3.35, -3.35],
+                [-3.25, -3.25, -3.35, -3.35],
+                [-3.25, -3.25, -3.2, -2.95],
+                [-3.15, -3.15, -3.2, -2.95],
+            ],
+        )
+
+    @pytest.mark.unittest
+    def test_get_top_bottom_geotop(self, geotop_small_strat, metadata_strat):
+        result = geotop_small_strat.gst.get_top_bottom(
+            metadata_strat.select_unit("NUNIBA")
+        )
+        assert isinstance(result, xr.Dataset)
+        assert_array_equal(result.data_vars, ["top", "bottom"])
+        assert_array_almost_equal(
+            result["top"],
+            [
+                [-12.0, -12.0, -12.5, -12.5, np.nan],
+                [-11.5, -11.0, -11.5, -12.0, -12.5],
+                [np.nan, -11.0, -11.5, -11.0, -11.5],
+                [np.nan, -12.0, np.nan, np.nan, -12.0],
+                [np.nan, -11.5, np.nan, np.nan, -11.5],
+            ],
+        )
+        assert_array_almost_equal(
+            result["bottom"],
+            [
+                [-13.0, -13.0, -13.0, -13.0, np.nan],
+                [-13.0, -12.5, -12.5, -13.0, -13.0],
+                [np.nan, -12.5, -12.5, -12.5, -12.5],
+                [np.nan, -12.5, np.nan, np.nan, -12.5],
+                [np.nan, -12.0, np.nan, np.nan, -12.0],
+            ],
+        )
+
+    @pytest.mark.unittest
+    def test_get_top_bottom(self, voxelmodel_var, layermodel_var):
+        result = voxelmodel_var.gst.get_top_bottom(voxelmodel_var == 1)
+        assert isinstance(result, xr.Dataset)
+        assert_array_equal(result.data_vars, ["top", "bottom"])
+        assert_array_almost_equal(
+            result["top"],
+            [
+                [0.0, -0.5, -0.5, -0.5],
+                [0.0, 0.0, -0.5, -0.5],
+                [-0.5, 0.0, 0.0, -0.5],
+                [-0.5, 0.0, -0.5, 0.0],
+            ],
+        )
+        assert_array_almost_equal(
+            result["bottom"],
+            [
+                [-1.0, -1.5, -2.0, -1.5],
+                [-1.5, -1.5, -2.0, -2.0],
+                [-1.0, -2.0, -1.5, -1.0],
+                [-1.0, -2.0, -1.5, -1.0],
+            ],
+        )
+
+        result = layermodel_var.gst.get_top_bottom(
+            layermodel_var["layer"].isin(["B", "D"])
+        )
+        assert isinstance(result, xr.Dataset)
+        assert_array_equal(result.data_vars, ["top", "bottom"])
+        assert_array_almost_equal(
+            result["top"],
+            [
+                [-0.25, -0.15, -0.2, -2.15],
+                [-0.25, -0.15, -0.2, -2.15],
+                [-0.25, -0.15, -2.0, -0.35],
+                [-0.25, -1.95, -2.0, -0.35],
+            ],
+        )
+        assert_array_almost_equal(
+            result["bottom"],
+            [
+                [-3.25, -3.25, -3.35, -3.35],
+                [-3.25, -3.25, -3.35, -3.35],
+                [-3.25, -3.25, -3.2, -2.95],
+                [-3.15, -3.15, -3.2, -2.95],
+            ],
+        )
+
+    @pytest.mark.unittest
+    def test_get_top_bottom_geotop(self, geotop_small_strat, metadata_strat):
+        result = geotop_small_strat.gst.get_top_bottom(
+            metadata_strat.select_unit("NUNIBA")
+        )
+        assert isinstance(result, xr.Dataset)
+        assert_array_equal(result.data_vars, ["top", "bottom"])
+        assert_array_almost_equal(
+            result["top"],
+            [
+                [-12.0, -12.0, -12.5, -12.5, np.nan],
+                [-11.5, -11.0, -11.5, -12.0, -12.5],
+                [np.nan, -11.0, -11.5, -11.0, -11.5],
+                [np.nan, -12.0, np.nan, np.nan, -12.0],
+                [np.nan, -11.5, np.nan, np.nan, -11.5],
+            ],
+        )
+        assert_array_almost_equal(
+            result["bottom"],
+            [
+                [-13.0, -13.0, -13.0, -13.0, np.nan],
+                [-13.0, -12.5, -12.5, -13.0, -13.0],
+                [np.nan, -12.5, -12.5, -12.5, -12.5],
+                [np.nan, -12.5, np.nan, np.nan, -12.5],
+                [np.nan, -12.0, np.nan, np.nan, -12.0],
+            ],
+        )
 
 
     @pytest.mark.unittest

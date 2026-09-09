@@ -1,3 +1,4 @@
+import warnings
 from pathlib import Path
 
 import xarray as xr
@@ -14,6 +15,25 @@ def _prepare_dataset(
     the dataset based on the provided bounding box and optionally loading it into memory.
 
     """
+
+    def _check_dim_order(ds: xr.Dataset) -> None:
+        # Below also ensures that the dataset is a valid model, if not _validate raises an error
+        x_dim, y_dim = ds.gst.x_dim, ds.gst.y_dim
+
+        for var in ds.data_vars:
+            if ds[var].ndim > 1 and (
+                ds[var].get_axis_num(y_dim) > ds[var].get_axis_num(x_dim)
+            ):
+                warnings.warn(
+                    f"The {var} variable in the model has an invalid dimension order (x before y). "
+                    "Some export functions expect y before x and may not work correctly. "
+                    "You can use `model.transpose(y, x)` to fix the order.",
+                    UserWarning,
+                    stacklevel=2,
+                )
+
+    _check_dim_order(ds)
+
     if bbox is not None:
         ds = ds.gst.slice_xy(*bbox)
 
@@ -222,7 +242,7 @@ def read_geotop_netcdf(
 
     """
 
-    def _shift_coordinates(ds):
+    def _shift_coordinates_and_transpose(ds):
         """
         GeoTOP coordinates are lowerleft bottom of each voxel, we shift towards the
         centre coordinates.
@@ -230,17 +250,18 @@ def read_geotop_netcdf(
         """
         xres, yres, zres = ds.gst.resolution()
         x_dim, y_dim, z_dim = ds.gst.x_dim, ds.gst.y_dim, ds.gst.z_dim
+        ds = ds.transpose(y_dim, x_dim, z_dim)
         return ds.assign_coords(
             {
-                x_dim: ds[x_dim] + (xres / 2),
                 y_dim: ds[y_dim] + (yres / 2),
+                x_dim: ds[x_dim] + (xres / 2),
                 z_dim: ds[z_dim] + (zres / 2),
             }
         )
 
     ds = xr.open_dataset(nc_file, **xr_kwargs)
     ds.gst.write_crs(28992, inplace=True)
-    ds = _shift_coordinates(ds)
+    ds = _shift_coordinates_and_transpose(ds)
     return _prepare_dataset(ds, data_vars=data_vars, bbox=bbox, load=load)
 
 

@@ -29,6 +29,7 @@ Analysis
    :toctree: generated/
 
    ModelDataArray.get_thickness
+   ModelDataArray.get_top_bottom
    ModelDataArray.most_common
    ModelDataArray.value_counts
    ModelDataArray.unique
