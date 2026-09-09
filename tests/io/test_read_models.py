@@ -1,3 +1,5 @@
+import warnings
+
 import dask
 import numpy as np
 import pytest
@@ -63,8 +65,18 @@ def test_read_model_netcdf(voxelmodel_netcdf):
 
 
 @pytest.mark.unittest
+def test_read_model_netcdf_warning(geotop_netcdf):
+    with pytest.warns(UserWarning, match="invalid dimension order"):
+        geost.read_model_netcdf(geotop_netcdf)
+
+
+@pytest.mark.unittest
 def test_read_geotop_netcdf(geotop_netcdf):
-    gtp = geost.read_geotop_netcdf(geotop_netcdf)
+    with warnings.catch_warnings(record=True) as raised_warnings:
+        warnings.simplefilter("always")
+        gtp = geost.read_geotop_netcdf(geotop_netcdf)
+
+    assert not any("invalid dimension order" in str(w.message) for w in raised_warnings)
     assert isinstance(gtp, xr.Dataset)
     assert gtp.sizes == {"x": 5, "y": 5, "z": 101}
     assert gtp.gst.crs == 28992
@@ -72,16 +84,19 @@ def test_read_geotop_netcdf(geotop_netcdf):
     assert_array_almost_equal(gtp["x"], [110050, 110150, 110250, 110350, 110450])
     assert_array_almost_equal(gtp["y"], [440050, 440150, 440250, 440350, 440450])
     assert_array_almost_equal(gtp["z"], np.linspace(-49.75, 0.25, gtp.sizes["z"]))
+    assert all(gtp[v].dims == ("y", "x", "z") for v in gtp.data_vars)
 
     bbox = (110_200, 440_200, 110_400, 440_400)
     gtp = geost.read_geotop_netcdf(
         geotop_netcdf,
         data_vars=["strat", "lithok"],
+        chunks="auto",
         bbox=bbox,
     )
     assert isinstance(gtp, xr.Dataset)
     assert gtp.sizes == {"x": 2, "y": 2, "z": 101}
     assert_array_equal(gtp.data_vars, ["strat", "lithok"])
+    assert all(isinstance(v.data, dask.array.Array) for v in gtp.data_vars.values())
     assert gtp.gst.bounds() == bbox
     assert_array_almost_equal(gtp["x"], [110250, 110350])
     assert_array_almost_equal(gtp["y"], [440250, 440350])
@@ -91,7 +106,11 @@ def test_read_geotop_netcdf(geotop_netcdf):
 @pytest.mark.unittest
 def test_read_geotop_from_opendap(geotop_netcdf):
     bbox = (110_200, 440_200, 110_400, 440_400)
-    gtp = geost.read_geotop_from_opendap(data_vars=["strat", "lithok"], bbox=bbox)
+    with warnings.catch_warnings(record=True) as raised_warnings:
+        warnings.simplefilter("always")
+        gtp = geost.read_geotop_from_opendap(data_vars=["strat", "lithok"], bbox=bbox)
+
+    assert not any("invalid dimension order" in str(w.message) for w in raised_warnings)
     assert isinstance(gtp, xr.Dataset)
     assert gtp.gst.crs == 28992
     assert gtp.sizes == {"x": 2, "y": 2, "z": 313}
@@ -113,7 +132,11 @@ def test_read_geotop_from_opendap(geotop_netcdf):
 
 @pytest.mark.unittest
 def test_read_regis_netcdf(regis_netcdf):
-    regis = geost.read_regis_netcdf(regis_netcdf)
+    with warnings.catch_warnings(record=True) as raised_warnings:
+        warnings.simplefilter("always")
+        regis = geost.read_regis_netcdf(regis_netcdf)
+
+    assert not any("invalid dimension order" in str(w.message) for w in raised_warnings)
     assert isinstance(regis, xr.Dataset)
     assert "mv" not in regis["layer"]
     assert_array_equal(
@@ -149,7 +172,11 @@ def test_read_regis_netcdf(regis_netcdf):
 @pytest.mark.unittest
 def test_read_regis_from_opendap(regis_netcdf):
     bbox = (110_200, 440_200, 110_400, 440_400)
-    regis = geost.read_regis_from_opendap(data_vars=["hgv", "kD"], bbox=bbox)
+    with warnings.catch_warnings(record=True) as raised_warnings:
+        warnings.simplefilter("always")
+        regis = geost.read_regis_from_opendap(data_vars=["hgv", "kD"], bbox=bbox)
+
+    assert not any("invalid dimension order" in str(w.message) for w in raised_warnings)
     assert isinstance(regis, xr.Dataset)
     assert "mv" not in regis["layer"]
     assert_array_equal(regis.data_vars, ["top", "bottom", "hgv", "kD"])

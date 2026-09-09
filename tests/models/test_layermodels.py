@@ -223,11 +223,8 @@ def test_slice_depth_interval_values(layermodel):
     assert (sliced["bottom"] == 0).all()
 
 
-@pytest.mark.parametrize("as_array", [True, False], ids=["as_array", "as_dataarray"])
-def test_slice_depth_interval_grid(layermodel, depth_grid, as_array):
-    if as_array:
-        depth_grid = depth_grid.values
-
+@pytest.mark.unittest
+def test_slice_depth_interval_grid(layermodel, depth_grid):
     sliced = layermodels.slice_depth_interval(
         layermodel, upper=depth_grid, lower=depth_grid - 1
     )

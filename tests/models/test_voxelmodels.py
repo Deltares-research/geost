@@ -136,11 +136,8 @@ def test_slice_depth_interval_values(voxelmodel):
     assert sliced.sizes == {"y": 4, "x": 4, "z": 1}
 
 
-@pytest.mark.parametrize("as_array", [True, False], ids=["as_array", "as_dataarray"])
-def test_slice_depth_interval_with_grids(voxelmodel, depth_grid, as_array):
-    if as_array:
-        depth_grid = depth_grid.values
-
+@pytest.mark.unittest
+def test_slice_depth_interval_with_grids(voxelmodel, depth_grid):
     sliced = vm.slice_depth_interval(voxelmodel, upper=depth_grid, lower=depth_grid - 1)
     assert_array_equal(
         sliced["strat"],
@@ -256,15 +253,6 @@ def test_slice_depth_interval_with_1d_dataarray(voxelmodel):
             [[np.nan, 2.0, 2.0], [2.0, 1.0, np.nan], [2.0, np.nan, np.nan]],
         ],
     )
-
-    # With 1D Numpy array we cannot broadcast to the dataset dimensions because of unnamed dimensions
-    with pytest.raises(
-        ValueError, match="Failed to broadcast input array to dataset dimensions"
-    ):
-        da_1d_invalid = da_1d.values
-        vm.slice_depth_interval(
-            voxelmodel, upper=da_1d_invalid, lower=da_1d_invalid - 1
-        )
 
 
 @pytest.mark.parametrize(

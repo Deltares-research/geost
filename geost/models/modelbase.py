@@ -656,6 +656,42 @@ class ModelBase:
             drop=drop,
         )
 
+    def _check_dimensions(
+        self, data: int | float | np.ndarray | xr.DataArray | None
+    ) -> None:
+        """
+        Helper method to check the dimensions of an `xarray.DataArray` or `numpy.ndarray`
+        used in `slice_depth_interval` against the model's expected dimensions in x and y.
+
+        """
+        if isinstance(data, xr.DataArray):
+            if data.ndim == 1:
+                if self._x not in data.dims and self._y not in data.dims:
+                    raise ValueError(
+                        f"1D DataArray must contain either the '{self._x}' or '{self._y}' "
+                        f"dimension for correct broadcasting, instead of: '{data.dims}'."
+                    )
+            elif data.ndim == 2:
+                if self._x not in data.dims or self._y not in data.dims:
+                    raise ValueError(
+                        f"2D DataArray must contain both the '{self._x}' and '{self._y}' "
+                        f"dimensions for correct broadcasting, instead of: '{data.dims}'."
+                    )
+
+        elif isinstance(data, np.ndarray):
+            try:
+                data = xr.DataArray(
+                    data,
+                    coords={self._y: self.y, self._x: self.x},
+                    dims=(self._y, self._x),
+                )
+            except xr.core.coordinates.CoordinateValidationError as e:
+                raise ValueError(
+                    f"Array shape {data.shape} does not match the expected shape ({self.y.size}, {self.x.size})."
+                ) from e
+
+        return data
+
     def slice_depth_interval(  # TODO: add slice with respect to surface level
         self,
         upper: int | float | np.ndarray | xr.DataArray = None,
@@ -674,8 +710,10 @@ class ModelBase:
             Upper and/or lower bound of the depth interval. This can be a single value or
             a 1D or 2D DataArray containing variable depths. In case of a DataArray, a 1D
             DataArray should contain either the "x" or "y" dimension and a 2D DataArray
-            should contain both "x" and "y" dimensions. Otherwise broadcasting cannot be
-            done correctly and the slicing cannot be done. The default is None.
+            should contain both "x" and "y" dimensions. The names of the "x" and "y" dimensions
+            of the DataArray must match those of the model. Otherwise broadcasting cannot
+            be done correctly and the slicing cannot be done. In case of a Numpy array,
+            the axis order is expected to be (y, x) for 2D arrays. The default is None.
         how : {"overlap", "majority", "inner"}, optional
             Method to use for slicing. This parameter is only applicable to voxelmodels
             (i.e., `model.gst.model_type` is `ModelType.VOXEL`) and will be ignored for
@@ -728,6 +766,9 @@ class ModelBase:
         >>> sliced = model.gst.slice_depth_interval(upper=upper, lower=upper - 5)
 
         """
+        upper = self._check_dimensions(upper)
+        lower = self._check_dimensions(lower)
+
         if self._model_type == ModelType.VOXEL:
             return voxelmodels.slice_depth_interval(
                 self._obj, upper=upper, lower=lower, how=how, drop=drop

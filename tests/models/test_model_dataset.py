@@ -488,6 +488,50 @@ class TestModelDataset:
         assert_array_equal(sliced["surface"], layermodel["surface"])
 
     @pytest.mark.unittest
+    def test_slice_depth_interval_errors(self, voxelmodel, layermodel, depth_grid):
+        array_shape_mismatch = np.full((4, 3), -0.4)
+        with pytest.raises(ValueError, match=r"Array shape \(4, 3\) does not match"):
+            voxelmodel.gst.slice_depth_interval(upper=array_shape_mismatch)
+            layermodel.gst.slice_depth_interval(upper=array_shape_mismatch)
+        with pytest.raises(ValueError, match=r"Array shape \(3, 4\) does not match"):
+            voxelmodel.gst.slice_depth_interval(upper=array_shape_mismatch.T)
+            layermodel.gst.slice_depth_interval(upper=array_shape_mismatch.T)
+        with pytest.raises(ValueError, match=r"Array shape \(4, 3\) does not match"):
+            voxelmodel.gst.slice_depth_interval(lower=array_shape_mismatch)
+            layermodel.gst.slice_depth_interval(lower=array_shape_mismatch)
+        with pytest.raises(ValueError, match=r"Array shape \(3, 4\) does not match"):
+            voxelmodel.gst.slice_depth_interval(lower=array_shape_mismatch.T)
+            layermodel.gst.slice_depth_interval(lower=array_shape_mismatch.T)
+
+        da_mismatch_dims = depth_grid.rename({"x": "wrong_x"})
+        with pytest.raises(
+            ValueError,
+            match="2D DataArray must contain both the 'x' and 'y' dimensions",
+        ):
+            voxelmodel.gst.slice_depth_interval(upper=da_mismatch_dims)
+            layermodel.gst.slice_depth_interval(upper=da_mismatch_dims)
+        with pytest.raises(
+            ValueError,
+            match="2D DataArray must contain both the 'x' and 'y' dimensions",
+        ):
+            voxelmodel.gst.slice_depth_interval(lower=da_mismatch_dims)
+            layermodel.gst.slice_depth_interval(lower=da_mismatch_dims)
+
+        da_mismatch_dims_1d = da_mismatch_dims.isel(y=0)
+        with pytest.raises(
+            ValueError,
+            match="1D DataArray must contain either the 'x' or 'y' dimension",
+        ):
+            voxelmodel.gst.slice_depth_interval(upper=da_mismatch_dims_1d)
+            layermodel.gst.slice_depth_interval(upper=da_mismatch_dims_1d)
+        with pytest.raises(
+            ValueError,
+            match="1D DataArray must contain either the 'x' or 'y' dimension",
+        ):
+            voxelmodel.gst.slice_depth_interval(upper=da_mismatch_dims_1d)
+            layermodel.gst.slice_depth_interval(upper=da_mismatch_dims_1d)
+
+    @pytest.mark.unittest
     def test_most_common_voxelmodel(self, voxelmodel):
         expected_mode_strat = [
             [2.0, 1.0, 1.0, 1.0],
@@ -653,11 +697,11 @@ class TestModelDataset:
         assert_array_almost_equal(
             thickness,
             [
-                [5.0, 5.5, 4.5, 4.5, 4.5],
-                [4.0, 5.0, 5.5, 5.5, 5.5],
-                [4.0, 5.0, 5.0, 5.0, 4.5],
-                [3.5, 5.0, 6.5, 4.5, 4.5],
-                [2.5, 4.0, 5.0, 5.5, 6.5],
+                [5.0, 4.0, 4.0, 3.5, 2.5],
+                [5.5, 5.0, 5.0, 5.0, 4.0],
+                [4.5, 5.5, 5.0, 6.5, 5.0],
+                [4.5, 5.5, 5.0, 4.5, 5.5],
+                [4.5, 5.5, 4.5, 4.5, 6.5],
             ],
         )
 
@@ -668,11 +712,11 @@ class TestModelDataset:
         assert_array_almost_equal(
             thickness,
             [
-                [0.0, 1.0, 2.5, 4.5, 3.5],
-                [1.0, 5.5, 2.0, 2.0, 1.5],
-                [5.0, 4.0, 4.0, 2.0, 2.0],
-                [5.0, 5.5, 4.0, 2.0, 2.0],
-                [7.0, 7.0, 5.5, 3.5, 0.5],
+                [0.0, 1.0, 5.0, 5.0, 7.0],
+                [1.0, 5.5, 4.0, 5.5, 7.0],
+                [2.5, 2.0, 4.0, 4.0, 5.5],
+                [4.5, 2.0, 2.0, 2.0, 3.5],
+                [3.5, 1.5, 2.0, 2.0, 0.5],
             ],
         )
 
@@ -683,11 +727,11 @@ class TestModelDataset:
         assert_array_almost_equal(
             thickness,
             [
-                [23.5, 23.5, 23.0, 22.0, 23.0],
-                [21.5, 23.5, 21.5, 23.0, 23.0],
-                [26.0, 23.0, 22.5, 22.5, 23.5],
-                [25.0, 22.0, 25.5, 24.5, 21.5],
-                [21.5, 25.5, 22.5, 23.5, 23.5],
+                [23.5, 21.5, 26.0, 25.0, 21.5],
+                [23.5, 23.5, 23.0, 22.0, 25.5],
+                [23.0, 21.5, 22.5, 25.5, 22.5],
+                [22.0, 23.0, 22.5, 24.5, 23.5],
+                [23.0, 23.0, 23.5, 21.5, 23.5],
             ],
         )
 
@@ -757,20 +801,20 @@ class TestModelDataset:
         assert_array_almost_equal(
             result["top"],
             [
-                [-12.0, -11.5, np.nan, np.nan, np.nan],
-                [-12.0, -11.0, -11.0, -12.0, -11.5],
-                [-12.5, -11.5, -11.5, np.nan, np.nan],
-                [-12.5, -12.0, -11.0, np.nan, np.nan],
-                [np.nan, -12.5, -11.5, -12.0, -11.5],
+                [-12.0, -12.0, -12.5, -12.5, np.nan],
+                [-11.5, -11.0, -11.5, -12.0, -12.5],
+                [np.nan, -11.0, -11.5, -11.0, -11.5],
+                [np.nan, -12.0, np.nan, np.nan, -12.0],
+                [np.nan, -11.5, np.nan, np.nan, -11.5],
             ],
         )
         assert_array_almost_equal(
             result["bottom"],
             [
-                [-13.0, -13.0, np.nan, np.nan, np.nan],
-                [-13.0, -12.5, -12.5, -12.5, -12.0],
-                [-13.0, -12.5, -12.5, np.nan, np.nan],
-                [-13.0, -13.0, -12.5, np.nan, np.nan],
-                [np.nan, -13.0, -12.5, -12.5, -12.0],
+                [-13.0, -13.0, -13.0, -13.0, np.nan],
+                [-13.0, -12.5, -12.5, -13.0, -13.0],
+                [np.nan, -12.5, -12.5, -12.5, -12.5],
+                [np.nan, -12.5, np.nan, np.nan, -12.5],
+                [np.nan, -12.0, np.nan, np.nan, -12.0],
             ],
         )
