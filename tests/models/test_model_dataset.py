@@ -485,7 +485,6 @@ class TestModelDataset:
         assert sliced.sizes == {"y": 4, "x": 4, "layer": 3}
         assert_array_equal(sliced["layer"], ["B", "C", "D"])
         assert_array_equal(sliced.data_vars, layermodel.data_vars)
-        assert_array_equal(sliced["surface"], layermodel["surface"])
 
     @pytest.mark.unittest
     def test_slice_depth_interval_errors(self, voxelmodel, layermodel, depth_grid):

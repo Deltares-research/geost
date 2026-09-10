@@ -28,8 +28,6 @@ class ModelBase:
         # Register `rio` accessor. Do it here to not trigger direct import with `import geost`
         import rioxarray  # noqa: F401
 
-        if isinstance(xarray_obj, xr.DataArray):
-            xarray_obj = xarray_obj.to_dataset()
         self._obj = xarray_obj
         self._x: str = None
         self._y: str = None
@@ -807,15 +805,20 @@ class ModelBase:
             PyVista grid representation of the model.
 
         """
+        if isinstance(self._obj, xr.DataArray):
+            ds = self._obj.to_dataset()
+        else:
+            ds = self._obj
+
         if data_vars is None:
-            data_vars = self._obj.data_vars
+            data_vars = ds.data_vars
         elif isinstance(data_vars, str):
             data_vars = [data_vars]
 
         if self._model_type == ModelType.VOXEL:
             if structured:
                 return vtk.voxelmodel_to_pyvista_structured(
-                    self._obj,
+                    ds,
                     tuple(abs(r) for r in self.resolution()),
                     displayed_variables=data_vars,
                     x=self._x,
@@ -824,7 +827,7 @@ class ModelBase:
                 )
             else:
                 return vtk.voxelmodel_to_pyvista_unstructured(
-                    self._obj,
+                    ds,
                     tuple(abs(r) for r in self.resolution()),
                     displayed_variables=data_vars,
                     x=self._x,
@@ -833,7 +836,7 @@ class ModelBase:
                 )
         elif self._model_type == ModelType.LAYER:
             return vtk.layermodel_to_pyvista_unstructured(
-                self._obj,
+                ds,
                 tuple(abs(r) for r in self.resolution()),
                 displayed_variables=data_vars,
                 x=self._x,

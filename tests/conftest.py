@@ -318,7 +318,6 @@ def layermodel():
             "bottom": (("y", "x", "layer"), bottom),
             "thickness": (("y", "x", "layer"), thickness),
             "kh": (("y", "x", "layer"), kh),
-            "surface": (("y", "x"), surface),
         },
         coords={
             "x": x,

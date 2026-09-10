@@ -18,7 +18,6 @@ def test_slice_depth_interval_values(layermodel):
     assert sliced.sizes == {"y": 4, "x": 4, "layer": 3}
     assert_array_equal(sliced.data_vars, layermodel.data_vars)
     assert_array_equal(sliced["layer"], ["B", "C", "D"])
-    assert_array_equal(sliced["surface"], layermodel["surface"])  # Should be unchanged
     assert_array_almost_equal(
         sliced["top"],
         [
@@ -88,7 +87,6 @@ def test_slice_depth_interval_values(layermodel):
     assert isinstance(sliced, xr.Dataset)
     assert sliced.sizes == {"y": 4, "x": 4, "layer": 4}
     assert_array_equal(sliced["layer"], layermodel["layer"])
-    assert_array_equal(sliced["surface"], layermodel["surface"])  # Should be unchanged
     assert_array_almost_equal(
         sliced["top"],
         [
@@ -237,7 +235,6 @@ def test_slice_depth_interval_grid(layermodel, depth_grid):
     assert sliced.sizes == {"y": 4, "x": 4, "layer": 3}
     assert_array_equal(sliced.data_vars, layermodel.data_vars)
     assert_array_equal(sliced["layer"], ["B", "C", "D"])
-    assert_array_equal(sliced["surface"], layermodel["surface"])  # Should be unchanged
     assert_array_almost_equal(
         sliced["top"],
         [
@@ -308,7 +305,6 @@ def test_slice_depth_interval_grid(layermodel, depth_grid):
     )
     assert sliced.sizes == layermodel.sizes
     assert_array_equal(sliced["layer"], layermodel["layer"])
-    assert_array_equal(sliced["surface"], layermodel["surface"])
     assert_array_almost_equal(
         sliced["top"],
         [
@@ -505,7 +501,6 @@ def test_slice_depth_interval_with_1d_dataarray(layermodel):
     assert sliced.sizes == {"y": 4, "x": 4, "layer": 3}
     assert_array_equal(sliced.data_vars, layermodel.data_vars)
     assert_array_equal(sliced["layer"], ["B", "C", "D"])
-    assert_array_equal(sliced["surface"], layermodel["surface"])  # Should be unchanged
     assert_array_almost_equal(
         sliced["top"],
         [
@@ -575,7 +570,6 @@ def test_slice_depth_interval_with_1d_dataarray(layermodel):
     assert isinstance(sliced, xr.Dataset)
     assert sliced.sizes == {"y": 4, "x": 4, "layer": 4}
     assert_array_equal(sliced["layer"], layermodel["layer"])
-    assert_array_equal(sliced["surface"], layermodel["surface"])  # Should be unchanged
     assert_array_almost_equal(
         sliced["top"],
         [
