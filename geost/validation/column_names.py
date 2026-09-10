@@ -64,6 +64,7 @@ DEFAULT_POSITIONAL_COLUMNS = {
         "bottom_depth",
         "lowerboundary",
         "dep_bot",
+        "z",
     },
 }
 

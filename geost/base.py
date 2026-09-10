@@ -1791,3 +1791,19 @@ class Collection(AbstractBase):
 
         """
         self.data.gst.to_kingdom(outfile, tdstart, vw, vs)
+
+    @_requires_depth
+    @_requires_xy
+    def add_model_data(
+        self, model: xr.Dataset | xr.DataArray, suffix: str = None
+    ) -> Collection:
+        from geost.analysis.combine import add_model_data
+
+        return add_model_data(
+            self,
+            model,
+            suffix=suffix,
+            nr=self._nr,
+            surface_=self._surface,
+            bottom_=self._bottom,
+        )

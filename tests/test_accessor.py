@@ -1269,3 +1269,8 @@ class TestGeostFrame:
         assert tdfile.is_file()
         outfile.unlink()
         tdfile.unlink()
+
+    @pytest.mark.unittest
+    def test_add_model_data(self, borehole_data, voxelmodel, layermodel):
+        result = borehole_data.gst.add_model_data(layermodel)
+        assert isinstance(result, pd.DataFrame)

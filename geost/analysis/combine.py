@@ -99,9 +99,15 @@ def add_nearest_voxelmodel_variable(
     )
 
 
-def add_voxelmodel_variable(
-    collection: Collection, model: xr.Dataset | xr.DataArray, variable: str
-) -> Collection:
+def add_model_data(
+    survey_data: Collection | pd.DataFrame,
+    model: xr.Dataset | xr.DataArray,
+    *,
+    suffix: str = None,
+    nr_: str = "nr",
+    surface_: str = "surface",
+    bottom_: str = "bottom",
+) -> Collection | pd.DataFrame:
     """
     Add information from a variable of a model as a column to the data
     of a :class:`~geost.base.Collection` instance. This checks for each survey in the
@@ -130,101 +136,107 @@ def add_voxelmodel_variable(
         to the data table.
 
     """
-    data = collection.data
+    from geost.models._core import ModelType
 
-    if variable in data.columns:
-        data.drop(columns=[variable], inplace=True)
+    if return_collection := isinstance(survey_data, Collection):
+        header = survey_data.header
+        data = survey_data.data
+    elif isinstance(survey_data, pd.DataFrame):
+        header = survey_data.gst.to_header()
+        data = survey_data
+    else:
+        raise TypeError("survey_data must be either a Collection or a pd.DataFrame")
 
-    columns: dict = data.gst.positional_columns
-    nr_, surface_, top_, bottom_ = (
-        columns["nr"],
-        columns["surface"],
-        columns["top"],
-        columns["depth"],
+    variable = list(model.data_vars) if isinstance(model, xr.Dataset) else [model.name]
+    if suffix is not None:
+        result_vars = [f"{var}_{suffix}" for var in variable]
+    else:
+        result_vars = variable
+
+    data.drop(
+        columns=result_vars, inplace=True, errors="ignore"
+    )  # Drop existing column if present to avoid conflicts
+
+    if model.gst.model_type == ModelType.VOXEL:
+        var_df = _get_voxelmodel_df(model, header, nr_, bottom_, surface_, variable)
+    else:
+        raise NotImplementedError("Only voxel models are currently supported.")
+
+    var_df.rename(
+        columns={v: rv for v, rv in zip(variable, result_vars)},
+        inplace=True,
     )
+    result = data.gst.merge_sorted(var_df[[nr_, bottom_, *result_vars]], backfill=True)
 
-    surface_level = data.groupby(nr_).agg({surface_: "first"})
+    if return_collection:
+        result = Collection(
+            result,
+            header=header.copy(),
+            has_inclined=survey_data.has_inclined,
+            vertical_datum=survey_data.vertical_datum,
+        )
+    return result
 
-    var_select = model.gst.select_points(collection.header)
+
+def _get_voxelmodel_df(model, header, nr_, bottom_, surface_, variable):
+    *_, dz = model.gst.resolution()
+
+    var_select = model.gst.select_points(header)
+    var_select = var_select.rename({model.gst.z_dim: bottom_})
     var_select = var_select.assign_coords(
-        idx=collection.header[nr_].loc[var_select["idx"]]
+        {bottom_: var_select[bottom_] - (0.5 * dz)}
+    )  # Translate voxel mid depths to bottom depths
+    var_select[nr_] = (("idx"), header[nr_].loc[var_select["idx"]])
+    var_select[surface_] = (("idx"), header[surface_].loc[var_select["idx"]])
+
+    var_df = _create_dataframe_and_reduce(
+        var_select, nr=nr_, bottom=bottom_, surface=surface_, variable=variable
     )
-
-    _, _, dz = model.gst.resolution()
-
-    var_df = _reduce_to_top_bottom(
-        var_select,
-        dz,
-        z_dim=model.gst.z_dim,
-        survey_name=nr_,
-        depth_name=bottom_,
-        value_name=variable,
-    )
-    var_df = var_df.merge(surface_level, left_on=nr_, right_index=True, how="left")
-    var_df = var_df[
-        var_df[bottom_] < var_df[surface_]
-    ]  # Only keep layers below surface, strat boundaries are bottoms of layers
-    var_df[bottom_] = var_df[surface_] - var_df[bottom_]
-    var_df = var_df.drop(columns=surface_)
-
-    result = pd.concat([data, var_df]).sort_values(by=[nr_, bottom_])
-    nr = result[nr_]  # Keep survey ID because it is lost in the groupby backfill step
-    result = pd.concat([nr, result.groupby(nr_).bfill()], axis=1)
-    result = (
-        result.dropna(subset=surface_)
-        .drop_duplicates(subset=[nr_, bottom_])
-        .reset_index(drop=True)
-    )
-    # Drop duplicate bottom values because combining may cause duplicate depths
-
-    if top_ is not None:
-        result = reset_tops(result, nr=nr_, top=top_, bottom=bottom_)
-
-    return Collection(
-        result,
-        header=collection.header.copy(),
-        has_inclined=collection.has_inclined,
-        vertical_datum=collection.vertical_datum,
-    )
+    return var_df
 
 
-def _reduce_to_top_bottom(
-    da: xr.DataArray,
-    dz: int | float,
-    z_dim: str = "z",
-    survey_name: str = "idx",
-    depth_name: str = "bottom",
-    value_name: str = "values",
+def _get_layermodel_df():
+    pass
+
+
+def _create_dataframe_and_reduce(
+    ds: xr.Dataset | xr.DataArray,
+    nr: str,
+    bottom: str,
+    surface: str,
+    variable: str | list,
 ) -> pd.DataFrame:
     """
-    Helper to reduce the selection DataArray from `model.gst.select_points` to a
-    DataFrame containing "idx", "top" and "bottoms" of relevant layer boundaries.
+    Helper for `add_voxelmodel_variable` to reduce the selection DataArray from
+    `model.gst.select_points` to a DataFrame containing relevant layer boundaries.
 
     Parameters
     ----------
-    da : xr.DataArray
+    ds : xr.Dataset | xr.DataArray
         Selection result of `model.gst.select_points`.
-    dz : int | float
-        Vertical size of voxels in the VoxelModel.
-    depth_name : str
-        Name to use for the depth column in the resulting DataFrame.
+    nr : str
+        Name of the survey ID column.
+    bottom : str
+        Name of the bottom depth column.
+    surface : str
+        Name of the surface depth column.
+    variable : str | list
+        Name or names of the variable(s) to add from the voxelmodel, these are treated
+        as consecutive layers to add.
 
     Returns
     -------
     pd.DataFrame
 
     """
-    da = da[value_name]
-    layer_ids = label_consecutive_2d(da.values, axis=1)
-    df = pd.DataFrame(
-        {
-            survey_name: np.repeat(da["idx"], da.sizes[z_dim]),
-            depth_name: np.tile(da[z_dim] - (0.5 * dz), da.sizes["idx"]),
-            "layer": layer_ids.ravel(),
-            value_name: da.values.ravel(),
-        }
+    var_df = ds.to_dataframe().reset_index()
+    var_df = var_df.dropna(subset=variable).sort_values(
+        by=[nr, bottom], ascending=[True, False]
     )
-    reduced = df.pivot_table(
-        index=[survey_name, "layer", value_name], values=depth_name, aggfunc="min"
-    ).reset_index()
-    return reduced.drop(columns=["layer"])
+    var_df = var_df.gst.aggregate_consecutive_layers(variable)
+    var_df = var_df[
+        var_df[bottom] < var_df[surface]
+    ]  # Only keep layers below surface, strat boundaries are bottoms of layers
+    var_df[bottom] = var_df[surface] - var_df[bottom]
+
+    return var_df

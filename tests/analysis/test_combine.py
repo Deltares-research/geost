@@ -4,8 +4,8 @@ import pytest
 from numpy.testing import assert_array_almost_equal, assert_array_equal
 
 from geost.analysis.combine import (
+    add_model_data,
     add_nearest_voxelmodel_variable,
-    add_voxelmodel_variable,
 )
 from geost.base import Collection
 
@@ -122,7 +122,8 @@ def test_add_nearest_voxelmodel_variable_discrete(cpt_collection, voxelmodel):
 
 @pytest.mark.unittest
 def test_add_voxelmodel_variable_layered(borehole_collection, voxelmodel):
-    result = add_voxelmodel_variable(borehole_collection, voxelmodel, "strat")
+    # add_voxelmodel_variable(borehole_collection, voxelmodel, ["strat", "lith"])
+    result = add_model_data(borehole_collection, voxelmodel["strat"])
     assert isinstance(result, Collection)
     assert result.data.shape == (35, 9)
     assert_array_equal(
@@ -249,7 +250,7 @@ def test_add_voxelmodel_variable_layered(borehole_collection, voxelmodel):
 
 @pytest.mark.unittest
 def test_add_voxelmodel_variable_discrete(cpt_collection, voxelmodel):
-    result = add_voxelmodel_variable(cpt_collection, voxelmodel, "strat")
+    result = add_model_data(cpt_collection, voxelmodel, "strat")
     assert isinstance(result, Collection)
     assert result.data.shape == (24, 10)
     assert_array_equal(
@@ -315,7 +316,7 @@ def test_add_voxelmodel_variable_discrete(cpt_collection, voxelmodel):
 @pytest.mark.unittest
 def test_removes_if_column_is_present(borehole_collection, voxelmodel):
     borehole_collection.data["strat"] = 1000
-    result = add_voxelmodel_variable(borehole_collection, voxelmodel, "strat")
+    result = add_model_data(borehole_collection, voxelmodel, "strat")
     assert_array_equal(
         result.data["strat"],
         [

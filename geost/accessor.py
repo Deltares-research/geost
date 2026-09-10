@@ -12,10 +12,7 @@ import pandas as pd
 import xarray as xr
 from pyproj import CRS
 
-from geost import (
-    export,
-    validation,
-)  # FIXME: spatial triggers import of xarray, rioxarray. We don't want this automatically.
+from geost import export, validation
 from geost.abstract_classes import AbstractBase
 from geost.utils import conversion, depth, spatial
 from geost.validation.method_checks import (
@@ -1944,4 +1941,35 @@ class GeostFrame(AbstractBase):
         tdchart.to_csv(
             outfile.parent.joinpath(f"{outfile.stem}_TDCHART{outfile.suffix}"),
             index=False,
+        )
+
+    @_requires_depth
+    def merge_sorted(self, other: pd.DataFrame, backfill: bool = True) -> pd.DataFrame:
+        result = pd.merge_ordered(self._obj, other, on=[self._nr, self._bottom])
+        if backfill:
+            result = pd.concat(
+                [result[self._nr], result.groupby(self._nr).bfill()], axis=1
+            )
+
+        if self.is_layered:
+            result = depth.reset_tops(
+                result, nr=self._nr, top=self._top, bottom=self._bottom
+            )
+
+        return result
+
+    @_requires_depth
+    @_requires_xy
+    def add_model_data(
+        self, model: xr.Dataset | xr.DataArray, suffix: str = None
+    ) -> pd.DataFrame:
+        from geost.analysis.combine import add_model_data
+
+        return add_model_data(
+            self._obj,
+            model,
+            suffix=suffix,
+            nr_=self._nr,
+            surface_=self._surface,
+            bottom_=self._bottom,
         )

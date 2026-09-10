@@ -19,7 +19,6 @@ from geost.io.read import (
     read_uullg_tables,
     read_xml_boris,
 )
-from geost.utils.collection import concat
 from geost.io.read_models import (
     read_geotop_from_opendap,
     read_geotop_netcdf,
@@ -28,10 +27,8 @@ from geost.io.read_models import (
     read_regis_from_opendap,
     read_regis_netcdf,
 )
-from geost.models import (
-    model_array,
-    model_dataset,
-)
+from geost.models import model_array, model_dataset
+from geost.utils.collection import concat
 from geost.utils.columns import add_positional_columns
 
 __version__ = "0.5.1"
