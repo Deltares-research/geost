@@ -703,6 +703,7 @@ class Collection(AbstractBase):
         self,
         points: str | Path | gpd.GeoDataFrame | GeometryType,
         max_distance: float | int,
+        n_points: int | None = None,
         return_distance: bool = False,
         include_in_header: bool = False,
     ) -> np.ndarray | None:
@@ -718,6 +719,9 @@ class Collection(AbstractBase):
             MultiPoint or list containing Point objects.
         max_distance : float | int
             Maximum distance between points to be considered a pair.
+        n_points : int | None, optional
+            Number of nearest points to consider for each point. If None, all points within
+            the maximum distance will be considered. The default is None.
         return_distance : bool, optional
             If True, the distances between the paired points will be returned as well. The
             default is False.
@@ -735,7 +739,7 @@ class Collection(AbstractBase):
 
         """
         pairs = self.header.gst.find_point_pairs(
-            points, max_distance, return_distance=return_distance
+            points, max_distance, n_points=n_points, return_distance=return_distance
         )
         if include_in_header:
             df = pd.DataFrame(

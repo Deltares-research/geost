@@ -703,6 +703,7 @@ class GeostFrame(AbstractBase):
         self,
         points: str | Path | gpd.GeoDataFrame | GeometryType,
         max_distance: float | int,
+        n_points: int = None,
         return_distance: bool = False,
     ) -> np.ndarray:
         """
@@ -717,6 +718,9 @@ class GeostFrame(AbstractBase):
             MultiPoint or list containing Point objects.
         max_distance : float | int
             Maximum distance between points to be considered a pair.
+        n_points : int, optional
+            The maximum number of nearest points to return for each point. If None,
+            all points within the max_distance are returned. The default is None.
         return_distance : bool, optional
             If True, the distances between the paired points will be returned as well. The
             default is False.
@@ -745,15 +749,33 @@ class GeostFrame(AbstractBase):
         # GeoDataFrame. Important if the points index is not a simple range index.
         pairs[:, 1] = points.iloc[pairs[:, 1]].index
 
-        if return_distance:
-            distances = np.linalg.norm(
-                self._obj.get_coordinates().loc[pairs[:, 0]].values
-                - points.get_coordinates().loc[pairs[:, 1]].values,
-                axis=1,
-            )
-            pairs = np.column_stack((pairs, distances))
+        # Get distances for point pairs
+        distances = np.linalg.norm(
+            self._obj.get_coordinates().loc[pairs[:, 0]].values
+            - points.get_coordinates().loc[pairs[:, 1]].values,
+            axis=1,
+        )
+        pairs_distance = np.c_[(pairs, distances)]
 
-        return pairs
+        # Get the nearest n points only from each query point
+        if n_points is not None:
+            ordering = np.lexsort((distances, pairs[:, 1]))
+            pairs_distance_ordered = pairs_distance[ordering]
+            to_keep = (
+                np.roll(pairs_distance_ordered[:, 1], 1) != pairs_distance_ordered[:, 1]
+            )
+            to_keep = (
+                np.convolve(
+                    to_keep.astype(int), np.ones(n_points, dtype=int), mode="full"
+                )[: len(to_keep)]
+                > 0
+            )
+            pairs_distance = pairs_distance_ordered[to_keep]
+
+        if return_distance:
+            return pairs_distance
+
+        return pairs_distance[:, :-1]
 
     @_requires_depth
     def determine_end_depth(self) -> pd.Series:
