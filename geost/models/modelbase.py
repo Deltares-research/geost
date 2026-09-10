@@ -787,7 +787,7 @@ class ModelBase:
 
     def to_pyvista_grid(
         self, data_vars: str | list[str] = None, structured: bool = True
-    ):  # NOTE: Method will differ between voxel and layer model
+    ):
         """
         Convert the model to a PyVista grid.
 
@@ -832,7 +832,6 @@ class ModelBase:
                     z=self._z,
                 )
         elif self._model_type == ModelType.LAYER:
-            # TODO IMPLEMENT layermodel to PyVista conversion
             return vtk.layermodel_to_pyvista_unstructured(
                 self._obj,
                 tuple(abs(r) for r in self.resolution()),

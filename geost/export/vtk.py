@@ -166,6 +166,93 @@ def borehole_to_multiblock(
     return cylinders_multiblock
 
 
+def check_model_dims(
+    dataset: xr.Dataset, dim_order: tuple = ("x", "y", "z")
+) -> xr.Dataset:
+    """
+    Check if the model dataset dimensions are in the required order and contain
+    the required dimensions 'x', 'y', and 'z'.
+
+    - If dimensions are missing or wrongly named, raise a ValueError.
+    - If the dimensions are in the wrong order, reorder them to dim_order.
+    - If the coordinates are not in increasing order, sort them.
+
+    Unless a ValueError was raised, this will return the dataset with the correct
+    dimensions. If the dataset is already in the correct order, it will be returned
+    unchanged.
+
+    Parameters
+    ----------
+    dataset : xarray.Dataset
+        The input dataset to check.
+    dim_order : tuple of str, optional
+        The required order of dimensions. Default is ('x', 'y', 'z').
+
+    Returns
+    -------
+    xr.Dataset
+        The dataset with the correct dimensions and order.
+
+    Raises
+    ------
+    ValueError
+        If the dataset does not contain the required dimensions 'x', 'y', and 'z'.
+    """
+    for dim in dim_order:
+        if dim not in dataset.dims or dim not in dataset.coords:
+            raise ValueError(
+                (
+                    f"Dataset must contain '{dim}' dimension. Make sure that this "
+                    "spatial dimension exists in the dataset or if it has a different "
+                    "name use xarray.Dataset.rename() to rename the corresponding "
+                    f"dimension to '{dim}'."
+                )
+            )
+
+    # Order dataset dimensions to match required order.
+    if tuple(dataset.sizes.keys()) != dim_order:
+        dataset = dataset.transpose(*dim_order)
+    # Also transpose all data_vars to match the required order. You have to do this
+    # because the above dataset.transpose() call will not transpose the data_vars.
+    for var in dataset.data_vars:
+        if tuple(dataset[var].sizes) != dim_order and all(
+            [dim in dataset[var].sizes for dim in dim_order]
+        ):
+            dataset[var] = dataset[var].transpose(*dim_order)
+
+    # Ensure all coordinates are increasing and sort the data if needed.
+    for dim in dim_order:
+        coord = dataset.coords[dim]
+        if coord[0] > coord[-1]:
+            dataset = dataset.sortby(dim)
+
+    return dataset
+
+
+def _clean_up_unstructured_grid(grid: pv.UnstructuredGrid) -> pv.UnstructuredGrid:
+    """
+    Clean up an unstructured grid by removing unused points and ensuring proper connectivity.
+
+    Parameters
+    ----------
+    grid : pv.UnstructuredGrid
+        The input unstructured grid to clean up.
+
+    Returns
+    -------
+    pv.UnstructuredGrid
+        The cleaned-up unstructured grid.
+    """
+    # Take the first data var to check for NaN values and extract only cells in grid
+    # that are not NaN. (perhaps this should be done for all data vars?)
+    nan_mask = np.isnan(grid.cell_data[grid.cell_data.keys()[0]])
+    if np.any(nan_mask):
+        grid = grid.extract_cells(~nan_mask, pass_point_ids=False, pass_cell_ids=False)
+        grid = grid.clean(produce_merge_map=False)
+
+    return grid
+
+
 def layerdata_to_pyvista_unstructured(
     data: pd.DataFrame,
     depth_column: Literal["depth", "bottom"] | list[Literal["top"], Literal["bottom"]],
@@ -376,77 +463,9 @@ def voxelmodel_to_pyvista_unstructured(
         data = dataset[var].values
         grid.cell_data[var] = data.flatten(order="C")
 
-    # Take the first data var to check for NaN values and extract only cells in grid
-    # that are not NaN. (perhaps this should be done for all data vars?)
-    nan_mask = np.isnan(grid.cell_data[grid.cell_data.keys()[0]])
-    if np.any(nan_mask):
-        grid = grid.extract_cells(~nan_mask, pass_point_ids=False, pass_cell_ids=False)
-        grid = grid.clean(produce_merge_map=False)
+    grid = _clean_up_unstructured_grid(grid)
 
     return grid
-
-
-def check_model_dims(
-    dataset: xr.Dataset, dim_order: tuple = ("x", "y", "z")
-) -> xr.Dataset:
-    """
-    Check if the model dataset dimensions are in the required order and contain
-    the required dimensions 'x', 'y', and 'z'.
-
-    - If dimensions are missing or wrongly named, raise a ValueError.
-    - If the dimensions are in the wrong order, reorder them to dim_order.
-    - If the coordinates are not in increasing order, sort them.
-
-    Unless a ValueError was raised, this will return the dataset with the correct
-    dimensions. If the dataset is already in the correct order, it will be returned
-    unchanged.
-
-    Parameters
-    ----------
-    dataset : xarray.Dataset
-        The input dataset to check.
-    dim_order : tuple of str, optional
-        The required order of dimensions. Default is ('x', 'y', 'z').
-
-    Returns
-    -------
-    xr.Dataset
-        The dataset with the correct dimensions and order.
-
-    Raises
-    ------
-    ValueError
-        If the dataset does not contain the required dimensions 'x', 'y', and 'z'.
-    """
-    for dim in dim_order:
-        if dim not in dataset.dims or dim not in dataset.coords:
-            raise ValueError(
-                (
-                    f"Dataset must contain '{dim}' dimension. Make sure that this "
-                    "spatial dimension exists in the dataset or if it has a different "
-                    "name use xarray.Dataset.rename() to rename the corresponding "
-                    f"dimension to '{dim}'."
-                )
-            )
-
-    # Order dataset dimensions to match required order.
-    if tuple(dataset.sizes.keys()) != dim_order:
-        dataset = dataset.transpose(*dim_order)
-    # Also transpose all data_vars to match the required order. You have to do this
-    # because the above dataset.transpose() call will not transpose the data_vars.
-    for var in dataset.data_vars:
-        if tuple(dataset[var].sizes) != dim_order and all(
-            [dim in dataset[var].sizes for dim in dim_order]
-        ):
-            dataset[var] = dataset[var].transpose(*dim_order)
-
-    # Ensure all coordinates are increasing and sort the data if needed.
-    for dim in dim_order:
-        coord = dataset.coords[dim]
-        if coord[0] > coord[-1]:
-            dataset = dataset.sortby(dim)
-
-    return dataset
 
 
 def layermodel_to_pyvista_unstructured(
@@ -470,111 +489,74 @@ def layermodel_to_pyvista_unstructured(
         The resolution of the layermodel grid in the (y, x) directions.
     displayed_variables : list of str, optional
         List of data variables to include in the PyVista grid. If None, all data variables are included.
+    x : str, optional
+        Name of the x coordinate in the dataset. Default is "x".
+    y : str, optional
+        Name of the y coordinate in the dataset. Default is "y".
+    z : str, optional
+        Name of the layer coordinate in the dataset. Default is "layer".
+    top : str, optional
+        Name of the top coordinate in the dataset. Default is "top".
+    bottom : str, optional
+        Name of the bottom coordinate in the dataset. Default is "bottom".
 
     Returns
     -------
     pyvista.UnstructuredGrid
         The unstructured PyVista grid representation of the layermodel dataset.
 
-    Note
-    ----
-    We use a shared-point implementation here, meaning that the points at the corners of
-    the cells are shared among adjacent cells. This drastically reduces processing and
-    rendering times compared to calculating each cell's corner points independently.
-    The idea is that every node has a unique ID that is shared among cells. e.g.
-
-    (1) ---- (2) ---- (5) ---- (7)
-     |        |        |        |
-     |        |        |        |
-    (3) ---- (4) ---- (6) ---- (8)
-
-    In this example, the corners of the cells are shared among adjacent cells.
     """
-
-    # def node_id(iy, ix, k):
-    #     return k * ny * nx + iy * nx + ix
-
     pv = _get_pyvista()
 
     if displayed_variables is None:
         displayed_variables = list(dataset.data_vars)
 
-    dataset = dataset.isel(layer=slice(0, 1))
-
     # Check if the dataset has the required dimensions and order
     dataset = check_model_dims(dataset, dim_order=(z, y, x))
 
-    # Dim sizes and resolutions
-    ny, nx, nlayer = dataset.sizes[y], dataset.sizes[x], dataset.sizes[z]
-    xres, yres = resolution[0], resolution[1]
+    # Extract the resolution and grid dimensions from the dataset
+    yres, xres = dataset.gst.resolution()
+    nx, ny = dataset.sizes[x], dataset.sizes[y]
 
-    # Define all x/y points. Since x/y are cell midpoints (TODO: check assumption for REGIS-like layer models)
-    # We calculate the corner points of each voxel by offsetting the cell centers with
-    # half the resolution in both x and y directions.
-    x_nodes = np.empty(nx + 1)
-    y_nodes = np.empty(ny + 1)
-
-    x_nodes[:nx] = dataset[x].values - xres / 2
-    x_nodes[nx] = dataset[x].values[-1] + xres / 2
-
-    y_nodes[:ny] = dataset[y].values - yres / 2
-    y_nodes[ny] = dataset[y].values[-1] + yres / 2
-
-    # Repeat x/y points that are corner points of multiple voxel cells. e.g.
-    # [0, 1, 2, 3] becomes [0, 1, 1, 2, 2, 3].
-    x_nodes = np.repeat(x_nodes, 2)[1:-1]
-    y_nodes = np.repeat(y_nodes, 2)[1:-1]
-
-    # Make grids containing every possible x/y coordinate combination.
-    xg, yg = np.meshgrid(x_nodes, y_nodes, indexing="xy")
-
-
-    # Interfaces. Top surface is the top of the first layer, and subsequent interfaces
-    # are the bottoms of each layer in the dataset. Also make repetitions here to match
-    # the corner points of the voxel cells.
-    interfaces = np.empty((nlayer + 1, ny * 2, nx * 2), dtype=float)
-    interfaces[0, ...] = np.repeat(
-        np.repeat(dataset.isel({z: 0})[top], 2, axis=1), 2, axis=0
-    )
-    interfaces[1:, ...] = np.repeat(
-        np.repeat(dataset.isel({z: slice(0, nlayer)})[bottom], 2, axis=2), 2, axis=1
+    # Create a unique cell ID for each cell based on its y and x indices, then use it to
+    # sort the dataframe that was created from the dataset based on cell ID and vertical coordinates
+    dataset["cell_id"] = ((y, x), np.arange(ny * nx).reshape(ny, nx))
+    df = dataset.to_dataframe().reset_index()
+    df = df.dropna(subset=[top, bottom]).sort_values(
+        by=["cell_id", top, bottom],
+        ascending=[True, False, False],
+        ignore_index=True,
     )
 
-    # interfaces = np.empty((nlayer + 1, ny, nx), dtype=float)
-    # interfaces[0, ...] = dataset.isel({z: 0})[top].values
-    # interfaces[1:, ...] = dataset.isel({z: slice(0, nlayer)})[bottom].values
+    # Define corner coordinates for each cell
+    ncell_coords = 8  # number of corner coordinates per cell (4 bottom + 4 top)
+    ll_bot = np.c_[df[x] - abs(xres / 2), df[y] - abs(yres / 2), df[bottom]]
+    lr_bot = np.c_[df[x] + abs(xres / 2), df[y] - abs(yres / 2), df[bottom]]
+    ur_bot = np.c_[df[x] + abs(xres / 2), df[y] + abs(yres / 2), df[bottom]]
+    ul_bot = np.c_[df[x] - abs(xres / 2), df[y] + abs(yres / 2), df[bottom]]
+    ll_top = np.c_[df[x] - abs(xres / 2), df[y] - abs(yres / 2), df[top]]
+    lr_top = np.c_[df[x] + abs(xres / 2), df[y] - abs(yres / 2), df[top]]
+    ur_top = np.c_[df[x] + abs(xres / 2), df[y] + abs(yres / 2), df[top]]
+    ul_top = np.c_[df[x] - abs(xres / 2), df[y] + abs(yres / 2), df[top]]
 
-    # Create all point coordinates. This is an n_points * 3 array, where each row
-    # represents the (x, y, z) coordinates of a point.
-    points = np.column_stack(
-        [
-            xg.ravel().repeat(nlayer),
-            yg.ravel().repeat(nlayer),
-            interfaces[0,...].ravel(order="F"),
-        ]
+    # Stack the corner coordinates into a single array
+    corners = np.stack(
+        (ll_bot, lr_bot, ur_bot, ul_bot, ll_top, lr_top, ur_top, ul_top), axis=1
     )
+    points = corners.reshape(-1, 3)
 
-    # Initialize array of cells. First column will store the number of points per cell
-    # (8 for hexahedrons), so immediately add it as the first column in the cells array.
-    cells = np.empty((nlayer * ny * nx, 9), dtype=int)
-    cells[:, 0] = 8
+    # Create cell connectivity array for the unstructured grid
+    cell_indices = np.arange(len(points)).reshape(len(df), ncell_coords)
+    cell_indices = np.c_[np.full((len(df)), ncell_coords), cell_indices]
 
-    # Fill cells array with points indices using the order that PyVista requires.
-    # Hexahedron vertex ordering (VTK/PyVista):
-    #
-    #      7 -------- 6
-    #     /|         /|
-    #    4 -------- 5 |
-    #    | |        | |
-    #    | 3 -------|-2
-    #    |/         |/
-    #    0 -------- 1
-    #
+    # Define the cell types for the unstructured grid and then create the unstructured grid object
+    cell_types = np.full((len(cell_indices)), pv.CellType.HEXAHEDRON)
+    grid = pv.UnstructuredGrid(cell_indices, cell_types, points)
 
-    # cell_types = np.full((len(cells)), pv.CellType.HEXAHEDRON)
-    # grid = pv.UnstructuredGrid(cells, cell_types, points)
+    # Add the desired cell data to the unstructured grid
+    for var in displayed_variables:
+        grid.cell_data[var] = df[var].values
 
-    # for var in displayed_variables:
-    #     grid.cell_data[var] = dataset[var].values.ravel(order="C")
+    grid = _clean_up_unstructured_grid(grid)
 
-    # return grid
+    return grid

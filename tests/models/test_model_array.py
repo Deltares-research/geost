@@ -1263,15 +1263,35 @@ class TestModelDataArray:
             ],
         )
 
-
     @pytest.mark.unittest
-    def test_to_pyvista_grid(self, voxelmodel_var, layermodel_var):
-        # TODO set up good testing after layermodel implementation is complete
-        result = voxelmodel_var.gst.to_pyvista_grid(structured=True)
-        assert result is not None
+    @pytest.mark.parametrize(
+        (
+            "model_fixture",
+            "structured",
+            "expected_n_cells",
+            "expected_n_points",
+        ),
+        [
+            ("voxelmodel_var", True, 80, 150),
+            ("voxelmodel_var", False, 70, 142),
+            ("layermodel_var", None, 48, 384),
+        ],
+    )
+    def test_to_pyvista_grid(
+        self,
+        request,
+        model_fixture,
+        structured,
+        expected_n_cells,
+        expected_n_points,
+    ):
+        model = request.getfixturevalue(model_fixture)
+        if structured is None:
+            result = model.gst.to_pyvista_grid()
+        else:
+            result = model.gst.to_pyvista_grid(structured=structured)
 
-        result = voxelmodel_var.gst.to_pyvista_grid(structured=False)
+        # Assertions
         assert result is not None
-
-        result = layermodel_var.gst.to_pyvista_grid()
-        assert result is not None
+        assert result.n_cells == expected_n_cells
+        assert result.n_points == expected_n_points
