@@ -16,6 +16,7 @@ Generic
    :toctree: generated/
 
    GeotopUnits.check_version_matches
+   GeotopUnits.get_plot_colormap
 
 
 Selection

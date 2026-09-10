@@ -222,6 +222,7 @@ def test_read_model_netcdf_regis(regis_netcdf):
     assert regis.gst.crs == 28992
 
 
+@pytest.mark.unittest
 def test_read_model_netcdf_bbox_difference(voxelmodel_netcdf, voxelmodel_netcdf_no_crs):
     """
     The same bounding box can produce a different result depending on whether the model

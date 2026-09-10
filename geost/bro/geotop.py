@@ -5,13 +5,16 @@ import re
 import warnings
 from dataclasses import dataclass, replace
 from enum import Enum
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 import numpy as np
 import pandas as pd
 import xarray as xr
 
 from geost.exceptions import MissingUnitError
+
+if TYPE_CHECKING:
+    from matplotlib.colors import BoundaryNorm, ListedColormap
 
 
 class UnitType(Enum):
@@ -500,6 +503,50 @@ class GeotopUnits:
             holocene = pd.concat([holocene, channel_units.df])
 
         return replace(self, df=holocene)
+
+    def get_plot_colormap(self) -> dict[ListedColormap, BoundaryNorm]:
+        """
+        Get a dictionary with a plot colormap and value boundaries for use in matplotlib
+        figures. The resulting dictionary contains a `ListedColormap` object, derived
+        from the RGB codes and a `BoundaryNorm` object which determines the value boundaries
+        for which color to use.
+
+        Returns
+        -------
+        dict[ListedColormap, BoundaryNorm]
+            Dictionary containing the colormap (`cmap`) and the normalization (`norm`)
+            for plotting.
+
+        Example
+        -------
+        For example when a 2D section of the GeoTOP stratigraphy, first load the model
+        data and stratigraphic metadata:
+
+        >>> import geost
+        ... geotop = geost.data.geotop_usp() # Load the GeoTOP model data
+        ... strat = geost.bro.geotop_strat_units() # Load the stratigraphic metadata of GeoTOP
+
+        Then select the stratigraphic units that are present in the model from the metadata:
+
+        >>> strat = strat.select_voxel_nr(geotop)
+
+        Finally, select a 2D section and pass the resulting dictionary to the plotting function:
+
+        >>> section = geotop["strat"].sel(x=139850, z=slice(-10, None))
+        >>> section.plot.imshow(x="y", **strat.get_plot_colormap())
+
+        .. figure:: /_static/example_section_geotop.svg
+            :align: left
+
+        """
+        from matplotlib.colors import BoundaryNorm, ListedColormap
+
+        cmap = ListedColormap(self.colors_rgb.values / 255)
+
+        boundaries = (self.voxel_nr[:1] + self.voxel_nr[:-1]) / 2
+        boundaries = np.r_[self.voxel_nr[0] - 1, boundaries, self.voxel_nr[-1] + 1]
+        norm = BoundaryNorm(boundaries, cmap.N)
+        return {"cmap": cmap, "norm": norm}
 
 
 def geotop_strat_units() -> GeotopUnits:
