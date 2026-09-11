@@ -1795,15 +1795,24 @@ class Collection(AbstractBase):
     @_requires_depth
     @_requires_xy
     def add_model_data(
-        self, model: xr.Dataset | xr.DataArray, suffix: str = None
+        self,
+        model: xr.Dataset | xr.DataArray,
+        *,
+        data_vars: str | list[str] = None,
+        suffix: str = None,
+        agg_funcs: dict[str, str] = None,
     ) -> Collection:
         from geost.analysis.combine import add_model_data
+
+        positional_columns = self.data.gst.positional_columns
 
         return add_model_data(
             self,
             model,
+            data_vars=data_vars,
             suffix=suffix,
-            nr=self._nr,
-            surface_=self._surface,
-            bottom_=self._bottom,
+            agg_funcs=agg_funcs,
+            nr_=self._nr,
+            surface_=positional_columns["surface"],
+            bottom_=positional_columns["depth"],
         )

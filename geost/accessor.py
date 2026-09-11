@@ -1523,25 +1523,26 @@ class GeostFrame(AbstractBase):
     @_requires_depth
     def aggregate_consecutive_layers(
         self,
-        columns: str | list[str],
+        over: str | list[str],
         agg_funcs: dict = None,
         keep_original_index: bool = False,
     ) -> pd.DataFrame:
         """
-        Aggregate consecutive layers in the data that have the same value in a specified column.
-        The column to use for aggregating layers is typically categorical data, such as lithology or soil type.
-        Any other columns can be aggregated using the provided aggregation functions.
-
+        Aggregate consecutive layers in the data over columns that have the same value or
+        values over consecutive rows. The column to use for aggregating layers is typically
+        categorical data, such as lithology or soil type. Any other columns can be aggregated
+        using the provided aggregation functions provided by `agg_funcs`.
 
         Parameters
         ----------
-        columns : str | list[str]
-            Name or names of the columns to check for consecutive identical values. Typically columns
-            holding categorical data.
+        over : str | list[str]
+            Name or names of the column or columns to aggregate over (i.e., to check for
+            consecutive identical values). Typically columns holding categorical data.
         agg_funcs : dict, optional
-            Dictionary specifying the aggregation functions to apply to other columns when combining layers.
-            Keys are column names, and values are aggregation functions. These can be e.g.
-            names such as'first', 'last', 'mean', etc. or actual functions such as np.sum, np.mean, etc.
+            Dictionary specifying the aggregation functions to apply to other columns when
+            combining layers. Keys are column names, and values are aggregation functions.
+            These can be e.g. names such as'first', 'last', 'mean', etc. or actual functions
+            such as np.sum, np.mean, etc.
         keep_original_index : bool, optional
             If True, the original index of the DataFrame is preserved in the resulting DataFrame.
             If False, the index is reset (recommended). The default is False.
@@ -1558,57 +1559,75 @@ class GeostFrame(AbstractBase):
 
         Examples
         --------
-        Say we have CPT data which and lithology (column 'lith') for each row. We want to
-        combine consecutive layers with identical lithology and aggregate the 'qc' and 'fs'
-        columns by taking the mean:
+        Say we have borehole data and we want to combine consecutive layers with the same
+        lithology.
 
-        >>> combined_data = data.gst.aggregate_consecutive_layers('lith', {'qc': 'mean', 'fs': 'mean'})
+        >>> import pandas as pd
+        ... import geost # Register the `.gst` accessor
+        ... boreholes = pd.DataFrame(
+        ...     {
+        ...         "nr": ["A", "A", "A", "B", "B", "B"],
+        ...         "surface": [0.2, 0.2, 0.2, 0.3, 0.3, 0.3],
+        ...         "top": [0, 0.8, 1.2, 0, 1.0, 1.5],
+        ...         "bottom": [0.8, 1.2, 2.0, 1.0, 1.5, 2.0],
+        ...         "lith": ["K", "K", "Z", "K", "K", "K"],
+        ...         "value": [10, 20, 30, 40, 50, 60],
+        ...     }
+        ... )
+        ... boreholes
+          nr  surface  top  bottom lith  value
+        0  A      0.2  0.0     0.8    K     10
+        1  A      0.2  0.8     1.2    K     20
+        2  A      0.2  1.2     2.0    Z     30
+        3  B      0.3  0.0     1.0    K     40
+        4  B      0.3  1.0     1.5    K     50
+        5  B      0.3  1.5     2.0    K     60
+
+        >>> result = boreholes.gst.aggregate_consecutive_layers('lith')
+        ... result
+          nr  surface  top  bottom lith  value
+        0  A      0.2  0.0     1.2    K     10
+        1  A      0.2  1.2     2.0    Z     30
+        2  B      0.3  0.0     2.0    K     40
+
+        We can also use a custom aggregation function by providing the `agg_funcs` parameter.
+        For example, to take the mean of the 'value' column for consecutive layers with the same lithology:
+
+        >>> result = boreholes.gst.aggregate_consecutive_layers('lith', agg_funcs={'value': 'mean'})
+        ... result
+          nr  surface  top  bottom lith  value
+        0  A      0.2  0.0     1.2    K     15
+        1  A      0.2  1.2     2.0    Z     30
+        2  B      0.3  0.0     2.0    K     50
+
         """
         df = self._obj.copy()
         df["original_index"] = df.index
 
+        if isinstance(over, str):
+            over = [over]
+
         # Create unique group id for consecutive identical layers according to values
         # in the specified column and within the same survey.
-        if isinstance(columns, str):
-            columns = [columns]
-
-        groups = (df[columns] != df[columns].shift()).any(axis=1).cumsum() + (
+        groups = (df[over] != df[over].shift()).any(axis=1).cumsum() + (
             df[self._nr] != df[self._nr].shift()
         ).cumsum()
 
-        # Create aggregation dict
-        agg_dict = {
-            "original_index": "first",
-            self._bottom: "last",
-            **{col: "first" for col in columns},
-        } | (agg_funcs or {})
-        if self._top is not None:
-            agg_dict[self._top] = "first"
+        # Create aggregation dict, default is 'first' for every column except depth
+        agg_dict = (
+            {col: "first" if col != self._bottom else "last" for col in df.columns}
+            | (agg_funcs or {}) # This overrides defaults if `agg_funcs` is given
+        )  # fmt: skip
 
-        # Aggregate
-        result = (
-            df.groupby(groups, group_keys=False)
-            .agg(agg_dict)
-            .set_index("original_index")
-        )
+        result = df.groupby(groups).agg(agg_dict)
 
-        # Trim dataframe down to new index and replace columns with aggregated values
-        df = df.loc[result.index]
-        cols = (
-            ([self._top] if self._top is not None else [])
-            + [self._bottom]
-            + columns
-            + list(agg_funcs.keys() if agg_funcs else [])
-        )
-        df[cols] = result[cols]
+        if keep_original_index:
+            result.set_index("original_index", inplace=True)
+            result.index.name = df.index.name
+        else:
+            result = result.drop(columns="original_index").reset_index(drop=True)
 
-        # Clean-up
-        df.index.name = self._obj.index.name
-        df.drop("original_index", axis=1, inplace=True)
-        if not keep_original_index:
-            df.reset_index(drop=True, inplace=True)
-
-        return df
+        return result
 
     @_requires_depth
     @_requires_xy
@@ -1961,14 +1980,21 @@ class GeostFrame(AbstractBase):
     @_requires_depth
     @_requires_xy
     def add_model_data(
-        self, model: xr.Dataset | xr.DataArray, suffix: str = None
+        self,
+        model: xr.Dataset | xr.DataArray,
+        *,
+        data_vars: str | list[str] = None,
+        suffix: str = None,
+        agg_funcs: dict[str, str] = None,
     ) -> pd.DataFrame:
         from geost.analysis.combine import add_model_data
 
         return add_model_data(
             self._obj,
             model,
+            data_vars=data_vars,
             suffix=suffix,
+            agg_funcs=agg_funcs,
             nr_=self._nr,
             surface_=self._surface,
             bottom_=self._bottom,

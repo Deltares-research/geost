@@ -103,7 +103,9 @@ def add_model_data(
     survey_data: Collection | pd.DataFrame,
     model: xr.Dataset | xr.DataArray,
     *,
+    data_vars: str | list[str] = None,
     suffix: str = None,
+    agg_funcs: dict[str, str] = None,
     nr_: str = "nr",
     surface_: str = "surface",
     bottom_: str = "bottom",
@@ -147,26 +149,42 @@ def add_model_data(
     else:
         raise TypeError("survey_data must be either a Collection or a pd.DataFrame")
 
-    variable = list(model.data_vars) if isinstance(model, xr.Dataset) else [model.name]
+    if data_vars is None:
+        variable = (
+            list(model.data_vars) if isinstance(model, xr.Dataset) else [model.name]
+        )
+    else:
+        variable = [data_vars] if isinstance(data_vars, str) else data_vars
+
+    agg_funcs = agg_funcs or {}
     if suffix is not None:
-        result_vars = [f"{var}_{suffix}" for var in variable]
+        result_vars = [f"{var}{suffix}" for var in variable]
+        extra = [f"{key}{suffix}" for key in agg_funcs.keys()]
     else:
         result_vars = variable
+        extra = list(agg_funcs.keys())
+    result_vars += extra
 
     data.drop(
         columns=result_vars, inplace=True, errors="ignore"
     )  # Drop existing column if present to avoid conflicts
 
     if model.gst.model_type == ModelType.VOXEL:
-        var_df = _get_voxelmodel_df(model, header, nr_, bottom_, surface_, variable)
+        var_df = _get_voxelmodel_df(
+            model, header, nr_, bottom_, surface_, variable, agg_funcs
+        )
     else:
         raise NotImplementedError("Only voxel models are currently supported.")
 
+    variable = variable + list(agg_funcs.keys())
     var_df.rename(
-        columns={v: rv for v, rv in zip(variable, result_vars)},
+        columns={v: rv for v, rv in zip(variable, result_vars, strict=True)},
         inplace=True,
     )
     result = data.gst.merge_sorted(var_df[[nr_, bottom_, *result_vars]], backfill=True)
+    result.dropna(
+        subset=surface_, inplace=True
+    )  # Rows with NaN in the surface column are rows where the model is deeper than the survey
 
     if return_collection:
         result = Collection(
@@ -178,7 +196,7 @@ def add_model_data(
     return result
 
 
-def _get_voxelmodel_df(model, header, nr_, bottom_, surface_, variable):
+def _get_voxelmodel_df(model, header, nr_, bottom_, surface_, variable, agg_funcs):
     *_, dz = model.gst.resolution()
 
     var_select = model.gst.select_points(header)
@@ -190,7 +208,12 @@ def _get_voxelmodel_df(model, header, nr_, bottom_, surface_, variable):
     var_select[surface_] = (("idx"), header[surface_].loc[var_select["idx"]])
 
     var_df = _create_dataframe_and_reduce(
-        var_select, nr=nr_, bottom=bottom_, surface=surface_, variable=variable
+        var_select,
+        nr=nr_,
+        bottom=bottom_,
+        surface=surface_,
+        variable=variable,
+        agg_funcs=agg_funcs,
     )
     return var_df
 
@@ -205,6 +228,7 @@ def _create_dataframe_and_reduce(
     bottom: str,
     surface: str,
     variable: str | list,
+    agg_funcs: dict[str, str],
 ) -> pd.DataFrame:
     """
     Helper for `add_voxelmodel_variable` to reduce the selection DataArray from
@@ -233,7 +257,7 @@ def _create_dataframe_and_reduce(
     var_df = var_df.dropna(subset=variable).sort_values(
         by=[nr, bottom], ascending=[True, False]
     )
-    var_df = var_df.gst.aggregate_consecutive_layers(variable)
+    var_df = var_df.gst.aggregate_consecutive_layers(variable, agg_funcs)
     var_df = var_df[
         var_df[bottom] < var_df[surface]
     ]  # Only keep layers below surface, strat boundaries are bottoms of layers
