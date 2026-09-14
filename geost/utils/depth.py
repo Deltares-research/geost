@@ -33,6 +33,8 @@ def reset_tops(layered: pd.DataFrame, nr: str, top: str, bottom: str) -> pd.Data
         top,
     ] = bottom_shift_down
 
+    layered[top] = layered[top].fillna(layered[bottom].shift())
+
     # Remove layers with zero thickness
     layered = layered[layered[top] - layered[bottom] != 0].reset_index(drop=True)
 

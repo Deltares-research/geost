@@ -1,14 +1,12 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+import itertools
 
 import numpy as np
 import pandas as pd
 import xarray as xr
 
 from geost.base import Collection
-from geost.models.model_utils import label_consecutive_2d
-from geost.utils.depth import reset_tops
 
 
 def add_nearest_voxelmodel_variable(
@@ -104,50 +102,76 @@ def add_model_data(
     model: xr.Dataset | xr.DataArray,
     *,
     data_vars: str | list[str] = None,
+    aggregate_vars: dict[str, str] = None,
     suffix: str = None,
-    agg_funcs: dict[str, str] = None,
     nr_: str = "nr",
     surface_: str = "surface",
     bottom_: str = "bottom",
 ) -> Collection | pd.DataFrame:
     """
-    Add information from a variable of a model as a column to the data
-    of a :class:`~geost.base.Collection` instance. This checks for each survey in the
-    Collection in which voxel stack the survey is located and adds the relevant layer
-    boundaries of the variable to the data object of the Collection based on depth.
+    Add information from one or more model variables as columns to survey data.
 
-    Note
-    ----
-    If the variable name is already present in the columns of the data attribute of the
-    collection, the present column is overwritten. To avoid this, rename the variable
-    before either in collection.data or in the voxelmodel.
+    For each survey, this determines the vertical model stack at the survey's location
+    and identifies the layer boundaries within that stack based on changes in the selected
+    model variables. Survey intervals are split at these model layer boundaries, and the
+    corresponding model information is backfilled to the resulting intervals. The resulting
+    data are sorted by depth. This is illustrated in the example below.
+
+    .. code-block:: text
+
+        Survey data:
+           nr  top  bottom lith
+        0   A  0.0    10.0    Z
+
+        Layer boundaries derived from the model data for "variable" at the location of the
+        survey:
+           top  bottom  variable
+        0  0.0     8.0         1
+        1  8.0    11.0         2
+
+        Result:
+           nr  top  bottom lith  variable
+        0   A  0.0     8.0    Z       1.0
+        1   A  8.0    10.0    Z       2.0
 
     Parameters
     ----------
-    collection : :class:`~geost.base.Collection`
-        `Collection` to add the `VoxelModel` variable to.
+    survey_data : :class:`~geost.base.Collection` | pd.DataFrame
+        `Collection` or `DataFrame` to add the model data to.
     model : xr.Dataset | xr.DataArray
-        Model data to add the information from to the `Collection` instance.
-    variable : str
-        Name of the variable in the model to add.
+        Xarray Dataset or DataArray containing the model data.
+    data_vars : str | list[str], optional
+        Variable or variables from the model to add. These variables are used to determine
+        the layer boundaries. A layer boundary is defined where the value of a variable
+        changes with depth; consecutive equal values are considered part of the same layer.
+        If multiple variables are given, they are treated jointly when determining the
+        layer boundaries. If None, all model variables are added and jointly considered
+        for determining the layer boundaries.
+    aggregate_vars : dict[str, str], optional
+        Optional dictionary specifying how to aggregate additional model variables, not
+        given in `data_vars`, over the layers derived from `data_vars`. The keys are the
+        model variable names and the values are the aggregation functions (e.g., `"mean"`
+        or `"sum"`).
+    suffix : str, optional
+        Suffix to append to the added model variable columns to avoid name conflicts with
+        existing columns in the survey data. If None, no suffix is added. In case of a name
+        conflict, the existing column is overwritten.
 
     Returns
     -------
-    :class:`~geost.base.Collection`
-        `Collection` instance with the information from the model variable added
-        to the data table.
+    :class:`~geost.base.Collection` | pd.DataFrame
+        `Collection` or `pandas.DataFrame` instance with the information from the model
+        added to the data.
 
     """
-    from geost.models._core import ModelType
+    aggregate_vars = aggregate_vars or {}
 
     if return_collection := isinstance(survey_data, Collection):
-        header = survey_data.header
-        data = survey_data.data
-    elif isinstance(survey_data, pd.DataFrame):
-        header = survey_data.gst.to_header()
-        data = survey_data
+        header = survey_data.header.copy()
+        data = survey_data.data.copy()
     else:
-        raise TypeError("survey_data must be either a Collection or a pd.DataFrame")
+        header = survey_data.gst.to_header()
+        data = survey_data.copy()
 
     if data_vars is None:
         variable = (
@@ -156,79 +180,89 @@ def add_model_data(
     else:
         variable = [data_vars] if isinstance(data_vars, str) else data_vars
 
-    agg_funcs = agg_funcs or {}
+    mdf = _get_model_dataframe(
+        model, header, variable, aggregate_vars, nr_, bottom_, surface_
+    )
+
     if suffix is not None:
-        result_vars = [f"{var}{suffix}" for var in variable]
-        extra = [f"{key}{suffix}" for key in agg_funcs.keys()]
+        all_vars = list(itertools.chain(variable, aggregate_vars.keys()))
+        result_vars = [f"{var}{suffix}" for var in all_vars]
+        mdf.rename(columns=dict(zip(all_vars, result_vars)), inplace=True)
     else:
-        result_vars = variable
-        extra = list(agg_funcs.keys())
-    result_vars += extra
+        result_vars = variable.copy() + list(aggregate_vars.keys())
 
     data.drop(
         columns=result_vars, inplace=True, errors="ignore"
-    )  # Drop existing column if present to avoid conflicts
+    )  # Drop existing columns to avoid conflicts with new model data
 
-    if model.gst.model_type == ModelType.VOXEL:
-        var_df = _get_voxelmodel_df(
-            model, header, nr_, bottom_, surface_, variable, agg_funcs
-        )
-    else:
-        raise NotImplementedError("Only voxel models are currently supported.")
-
-    variable = variable + list(agg_funcs.keys())
-    var_df.rename(
-        columns={v: rv for v, rv in zip(variable, result_vars, strict=True)},
-        inplace=True,
-    )
-    result = data.gst.merge_sorted(var_df[[nr_, bottom_, *result_vars]], backfill=True)
+    temp_nodata = -999999
+    result = data.gst.merge_sorted(
+        mdf[[nr_, bottom_, *result_vars]].fillna(temp_nodata), # Use `temp_nodata` for correct backfill
+        backfill=True,
+    )  # fmt: skip
     result.dropna(
         subset=surface_, inplace=True
     )  # Rows with NaN in the surface column are rows where the model is deeper than the survey
+    result[result_vars] = result[result_vars].where(result[result_vars] != temp_nodata)
 
     if return_collection:
         result = Collection(
             result,
-            header=header.copy(),
+            header=header,
             has_inclined=survey_data.has_inclined,
             vertical_datum=survey_data.vertical_datum,
         )
+
     return result
 
 
-def _get_voxelmodel_df(model, header, nr_, bottom_, surface_, variable, agg_funcs):
-    *_, dz = model.gst.resolution()
+def _get_model_dataframe(
+    model: xr.Dataset | xr.DataArray,
+    header: pd.DataFrame,
+    variable: str | list,
+    agg_funcs: dict[str, str],
+    nr_: str,
+    bottom_: str,
+    surface_: str,
+) -> pd.DataFrame:
+    """
+    Helper function for `add_model_data` the select a model at locations of survey data
+    and reduce the result to a pandas.DataFrame that can be merged with the survey data.
 
-    var_select = model.gst.select_points(header)
-    var_select = var_select.rename({model.gst.z_dim: bottom_})
-    var_select = var_select.assign_coords(
-        {bottom_: var_select[bottom_] - (0.5 * dz)}
-    )  # Translate voxel mid depths to bottom depths
-    var_select[nr_] = (("idx"), header[nr_].loc[var_select["idx"]])
-    var_select[surface_] = (("idx"), header[surface_].loc[var_select["idx"]])
+    """
+    from geost.models._core import ModelType
 
-    var_df = _create_dataframe_and_reduce(
-        var_select,
+    sel = model.gst.select_points(header)
+    if model.gst.model_type == ModelType.VOXEL:
+        sel = sel.rename({model.gst.z_dim: bottom_})
+
+        *_, dz = model.gst.resolution()
+        sel = sel.assign_coords(
+            {bottom_: sel[bottom_] - (0.5 * dz)}
+        )  # Translate voxel mid depths to bottom depths
+    else:
+        sel = sel.rename({model.gst._bottom: bottom_})
+
+    sel[nr_] = (("idx"), header[nr_].loc[sel["idx"]])
+    sel[surface_] = (("idx"), header[surface_].loc[sel["idx"]])
+
+    return _create_dataframe_and_reduce(
+        sel,
+        variable=variable,
+        agg_funcs=agg_funcs,
         nr=nr_,
         bottom=bottom_,
         surface=surface_,
-        variable=variable,
-        agg_funcs=agg_funcs,
     )
-    return var_df
-
-
-def _get_layermodel_df():
-    pass
 
 
 def _create_dataframe_and_reduce(
     ds: xr.Dataset | xr.DataArray,
+    variable: str | list,
+    agg_funcs: dict[str, str],
     nr: str,
     bottom: str,
     surface: str,
-    variable: str | list,
-    agg_funcs: dict[str, str],
 ) -> pd.DataFrame:
     """
     Helper for `add_voxelmodel_variable` to reduce the selection DataArray from

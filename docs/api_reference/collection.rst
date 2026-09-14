@@ -62,6 +62,7 @@ Data manipulation
 .. autosummary::
    :toctree: generated/
 
+   Collection.add_model_data
    Collection.aggregate_consecutive_layers
 
 

@@ -794,3 +794,79 @@ class TestCollection:
         assert tdfile.is_file()
         outfile.unlink()
         tdfile.unlink()
+
+    @pytest.mark.unittest
+    def test_add_model_data_layered(self, borehole_collection, voxelmodel, layermodel):
+        """
+        Method uses `geost.analysis.combine.add_model_data` which is tested in detail
+        in `tests/analysis/test_combine.py`.
+
+        """
+        result = borehole_collection.add_model_data(
+            voxelmodel,
+            data_vars="strat",
+            aggregate_vars={"lith": "mean"},
+            suffix="_model",
+        )
+        assert isinstance(result, Collection)
+        assert result.header.shape == borehole_collection.header.shape
+        assert result.data.shape == (35, 10)
+        assert "strat_model" in result.data.columns
+        assert "lith_model" in result.data.columns
+
+        # Not specifying any data_vars with a layermodel should only add the layermodel's z-dimension
+        result = borehole_collection.add_model_data(layermodel)
+        assert isinstance(result, Collection)
+        assert result.header.shape == borehole_collection.header.shape
+        assert result.data.shape == (38, 9)
+        assert layermodel.gst.z_dim in result.data.columns
+
+        result = borehole_collection.add_model_data(
+            layermodel,
+            data_vars="layer",
+            aggregate_vars={"kh": "mean"},
+            suffix="_model",
+        )
+        assert isinstance(result, Collection)
+        assert result.header.shape == borehole_collection.header.shape
+        assert result.data.shape == (38, 10)
+        assert "layer_model" in result.data.columns
+        assert "kh_model" in result.data.columns
+
+    @pytest.mark.unittest
+    def test_add_model_data_discrete(self, cpt_collection, voxelmodel, layermodel):
+        """
+        Method uses `geost.analysis.combine.add_model_data` which is tested in detail
+        in `tests/analysis/test_combine.py`.
+
+        """
+        result = cpt_collection.add_model_data(
+            voxelmodel,
+            data_vars="strat",
+            aggregate_vars={"lith": "mean"},
+            suffix="_model",
+        )
+        assert isinstance(result, Collection)
+        assert result.header.shape == cpt_collection.header.shape
+        assert result.data.shape == (24, 11)
+        assert "strat_model" in result.data.columns
+        assert "lith_model" in result.data.columns
+
+        # Not specifying any data_vars with a layermodel should only add the layermodel's z-dimension
+        result = cpt_collection.add_model_data(layermodel)
+        assert isinstance(result, Collection)
+        assert result.header.shape == cpt_collection.header.shape
+        assert result.data.shape == (27, 10)
+        assert layermodel.gst.z_dim in result.data.columns
+
+        result = cpt_collection.add_model_data(
+            layermodel,
+            data_vars="layer",
+            aggregate_vars={"kh": "mean"},
+            suffix="_model",
+        )
+        assert isinstance(result, Collection)
+        assert result.header.shape == cpt_collection.header.shape
+        assert result.data.shape == (27, 11)
+        assert "layer_model" in result.data.columns
+        assert "kh_model" in result.data.columns

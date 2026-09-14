@@ -1271,6 +1271,122 @@ class TestGeostFrame:
         tdfile.unlink()
 
     @pytest.mark.unittest
-    def test_add_model_data(self, borehole_data, voxelmodel, layermodel):
+    def test_add_model_data_layered(self, borehole_data, voxelmodel, layermodel):
+        """
+        Method uses `geost.analysis.combine.add_model_data` which is tested in detail
+        in `tests/analysis/test_combine.py`.
+
+        """
+        result = borehole_data.gst.add_model_data(
+            voxelmodel,
+            data_vars="strat",
+            aggregate_vars={"lith": "mean"},
+            suffix="_model",
+        )
+        assert isinstance(result, pd.DataFrame)
+        assert result.shape == (35, 10)
+        assert "strat_model" in result.columns
+        assert "lith_model" in result.columns
+
+        # Not specifying any data_vars with a layermodel should only add the layermodel's z-dimension
         result = borehole_data.gst.add_model_data(layermodel)
         assert isinstance(result, pd.DataFrame)
+        assert result.shape == (38, 9)
+        assert layermodel.gst.z_dim in result.columns
+
+        result = borehole_data.gst.add_model_data(
+            layermodel,
+            data_vars="layer",
+            aggregate_vars={"kh": "mean"},
+            suffix="_model",
+        )
+        assert isinstance(result, pd.DataFrame)
+        assert result.shape == (38, 10)
+        assert "layer_model" in result.columns
+        assert "kh_model" in result.columns
+
+    @pytest.mark.unittest
+    def test_add_model_data_discrete(self, cpt_data, voxelmodel, layermodel):
+        """
+        Method uses `geost.analysis.combine.add_model_data` which is tested in detail
+        in `tests/analysis/test_combine.py`.
+
+        """
+        result = cpt_data.gst.add_model_data(
+            voxelmodel,
+            data_vars="strat",
+            aggregate_vars={"lith": "mean"},
+            suffix="_model",
+        )
+        assert isinstance(result, pd.DataFrame)
+        assert result.shape == (24, 11)
+        assert "strat_model" in result.columns
+        assert "lith_model" in result.columns
+
+        # Not specifying any data_vars with a layermodel should only add the layermodel's z-dimension
+        result = cpt_data.gst.add_model_data(layermodel)
+        assert isinstance(result, pd.DataFrame)
+        assert result.shape == (27, 10)
+        assert layermodel.gst.z_dim in result.columns
+
+        result = cpt_data.gst.add_model_data(
+            layermodel,
+            data_vars="layer",
+            aggregate_vars={"kh": "mean"},
+            suffix="_model",
+        )
+        assert isinstance(result, pd.DataFrame)
+        assert result.shape == (27, 11)
+        assert "layer_model" in result.columns
+        assert "kh_model" in result.columns
+
+    @pytest.mark.unittest
+    def test_add_merge_sorted(self):
+        data = pd.DataFrame(
+            {
+                "nr": ["A", "A", "B", "B"],
+                "surface": [0.2, 0.2, 0.3, 0.3],
+                "top": [0, 0.8, 0, 1.0],
+                "bottom": [0.8, 1.2, 1.0, 1.5],
+                "lith": ["K", "K", "Z", "K"],
+            }
+        )
+
+        to_insert = pd.DataFrame(
+            {
+                "nr": ["A", "B"],
+                "top": [0.0, 0.0],
+                "bottom": [1.1, 2.0],
+                "value": [15, 35],
+            }
+        )
+
+        result = data.gst.merge_sorted(to_insert)
+        assert isinstance(result, pd.DataFrame)
+        pd.testing.assert_frame_equal(
+            result,
+            pd.DataFrame(
+                {
+                    "nr": ["A", "A", "A", "B", "B", "B"],
+                    "surface": [0.2, 0.2, 0.2, 0.3, 0.3, np.nan],
+                    "top": [0.0, 0.8, 1.1, 0.0, 1.0, 1.5],
+                    "bottom": [0.8, 1.1, 1.2, 1.0, 1.5, 2.0],
+                    "lith": ["K", "K", "K", "Z", "K", np.nan],
+                    "value": [15, 15, np.nan, 35, 35, 35],
+                }
+            ),
+        )
+        result = data.gst.merge_sorted(to_insert, backfill=False)
+        pd.testing.assert_frame_equal(
+            result,
+            pd.DataFrame(
+                {
+                    "nr": ["A", "A", "A", "B", "B", "B"],
+                    "surface": [0.2, np.nan, 0.2, 0.3, 0.3, np.nan],
+                    "top": [0.0, 0.8, 1.1, 0.0, 1.0, 1.5],
+                    "bottom": [0.8, 1.1, 1.2, 1.0, 1.5, 2.0],
+                    "lith": ["K", np.nan, "K", "Z", "K", np.nan],
+                    "value": [np.nan, 15, np.nan, np.nan, np.nan, 35],
+                }
+            ),
+        )
