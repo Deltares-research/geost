@@ -25,6 +25,8 @@ def reset_tops(layered: pd.DataFrame, nr: str, top: str, bottom: str) -> pd.Data
         DataFrame with the tops reset.
 
     """
+    layered.loc[layered.gst.first_row_survey & layered[top].isna(), top] = 0
+
     bottom_shift_down = layered[bottom].shift()
     nr_shift_down = layered[nr].shift()
 

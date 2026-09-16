@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-import warnings
+import itertools
 from collections.abc import Iterable
 from functools import partial, singledispatchmethod
 from pathlib import Path
@@ -14,6 +14,7 @@ from pyproj import CRS
 
 from geost import export, validation
 from geost.abstract_classes import AbstractBase
+from geost.exceptions import MissingDepthError
 from geost.utils import conversion, depth, spatial
 from geost.validation.method_checks import (
     _requires_depth,
@@ -50,10 +51,11 @@ class GeostFrame(AbstractBase):
         check = partial(validation.check_column_name, self._obj.columns)
 
         if not (nr := check("nr")):
+            from geost.exceptions import MissingSurveyIDError
             from geost.validation import column_names
 
             known_names = column_names.POSITIONAL_COLUMN_NAMES["nr"]
-            raise KeyError(
+            raise MissingSurveyIDError(
                 "DataFrame must contain a column identifying survey ID. Make sure one of "
                 f"{known_names} is present."
             )
@@ -792,6 +794,7 @@ class GeostFrame(AbstractBase):
         ends = self._obj[self._surface] - ends
         return ends
 
+    @_requires_surface
     def select_by_elevation(
         self,
         top_min: float | int = None,
@@ -819,11 +822,6 @@ class GeostFrame(AbstractBase):
             GeoDataFrame instance containing only the selected surveys.
 
         """
-        if self._surface is None:
-            raise KeyError(
-                "Cannot use select_by_elevation if no surface column is found in the data."
-            )
-
         selected = self._obj
 
         if top_min is not None or top_max is not None:
@@ -838,8 +836,8 @@ class GeostFrame(AbstractBase):
             if self._end is None:
                 try:
                     end = self.determine_end_depth()
-                except KeyError as e:
-                    raise KeyError(
+                except MissingDepthError as e:
+                    raise MissingDepthError(
                         "Cannot use 'end_min' and 'end_max' in select_by_elevation data"
                         "has no column 'end' and no depth information is found in the data."
                     ) from e
@@ -880,8 +878,8 @@ class GeostFrame(AbstractBase):
             if self._end is None:
                 try:
                     end = self.determine_end_depth()
-                except KeyError as e:
-                    raise KeyError(
+                except MissingDepthError as e:
+                    raise MissingDepthError(
                         "Cannot use select_by_length if data has no column 'end' and no depth "
                         "information is found in the data."
                     ) from e
@@ -1472,16 +1470,36 @@ class GeostFrame(AbstractBase):
         self,
         column: str,
         discretization: np.ndarray,
-        bins: np.ndarray = None,
-        bin_labels: list[str] = None,
+        breaks: int | float | list | np.ndarray = None,
     ) -> pd.DataFrame:
+        """
+        _summary_
+
+        Parameters
+        ----------
+        column : str
+            _description_
+        discretization : np.ndarray
+            _description_
+        breaks : int | float | list | np.ndarray, optional
+            _description_, by default None
+
+        Returns
+        -------
+        pd.DataFrame
+            _description_
+
+        """
         dz = np.diff(discretization, prepend=0)
         nz = np.arange(len(discretization))
 
-        nr_, top_, bottom_ = self._nr, self._top, self._bottom
+        nr_, surface_, top_, bottom_ = self._nr, self._surface, self._top, self._bottom
         discretized = pd.DataFrame(
             {
                 nr_: np.repeat(self._obj[nr_].drop_duplicates(), len(discretization)),
+                surface_: np.repeat(
+                    self._obj[surface_].drop_duplicates(), len(discretization)
+                ),
                 bottom_: np.tile(discretization, self._obj[nr_].nunique()),
                 "nz": np.tile(nz, self._obj[nr_].nunique()),
                 "dz": np.tile(dz, self._obj[nr_].nunique()),
@@ -1490,17 +1508,19 @@ class GeostFrame(AbstractBase):
 
         if layered_data := self.is_layered:
             tops = discretization - dz
-            discretized.insert(1, top_, np.tile(tops, self._obj[nr_].nunique()))
+            discretized.insert(2, top_, np.tile(tops, self._obj[nr_].nunique()))
 
-        temp = (
-            pd.concat([self._obj, discretized])
-            .sort_values([nr_, bottom_])
-            .reset_index(drop=True)
-        )
+        temp = self.merge_sorted(discretized, backfill=True)
 
-        grouped = temp.groupby(nr_)
-        temp[[column, "nz", "dz"]] = grouped[[column, "nz", "dz"]].bfill()
-        temp[column] = temp[column].fillna("MISSING")
+        if breaks is not None:
+            if isinstance(breaks, (int, float)):
+                labels = [f"<={breaks}", f">{breaks}"]
+                breaks = [-np.inf, breaks, np.inf]
+            else:
+                labels = [f"{v1}-{v2}" for v1, v2 in itertools.pairwise(breaks)]
+                labels = [f"<={breaks[0]}", *labels, f">{breaks[-1]}"]
+                breaks = [-np.inf, *breaks, np.inf]
+            temp[column] = pd.cut(temp[column], bins=breaks, labels=labels)
 
         if layered_data:
             temp = depth.reset_tops(temp, nr=nr_, top=top_, bottom=bottom_)
@@ -1515,7 +1535,7 @@ class GeostFrame(AbstractBase):
         )
 
         discretized = discretized.merge(percentages, on=[nr_, "nz"], how="left").drop(
-            columns=["nz", "MISSING"], errors="ignore"
+            columns="nz", errors="ignore"
         )
 
         return discretized
@@ -1528,8 +1548,8 @@ class GeostFrame(AbstractBase):
         keep_original_index: bool = False,
     ) -> pd.DataFrame:
         """
-        Aggregate consecutive layers in the data over columns that have the same value or
-        values over consecutive rows. The column to use for aggregating layers is typically
+        Aggregate consecutive layers in a DataFrame over columns that have the same value or
+        values for consecutive rows. The column to use for aggregating layers is typically
         categorical data, such as lithology or soil type. Any other columns can be aggregated
         using the provided aggregation functions provided by `agg_funcs`.
 
@@ -1574,7 +1594,7 @@ class GeostFrame(AbstractBase):
         ...         "value": [10, 20, 30, 40, 50, 60],
         ...     }
         ... )
-        ... boreholes
+        >>> boreholes
           nr  surface  top  bottom lith  value
         0  A      0.2  0.0     0.8    K     10
         1  A      0.2  0.8     1.2    K     20
@@ -1584,7 +1604,7 @@ class GeostFrame(AbstractBase):
         5  B      0.3  1.5     2.0    K     60
 
         >>> result = boreholes.gst.aggregate_consecutive_layers('lith')
-        ... result
+        >>> result
           nr  surface  top  bottom lith  value
         0  A      0.2  0.0     1.2    K     10
         1  A      0.2  1.2     2.0    Z     30
@@ -1594,7 +1614,7 @@ class GeostFrame(AbstractBase):
         For example, to take the mean of the 'value' column for consecutive layers with the same lithology:
 
         >>> result = boreholes.gst.aggregate_consecutive_layers('lith', agg_funcs={'value': 'mean'})
-        ... result
+        >>> result
           nr  surface  top  bottom lith  value
         0  A      0.2  0.0     1.2    K     15
         1  A      0.2  1.2     2.0    Z     30
@@ -1962,8 +1982,57 @@ class GeostFrame(AbstractBase):
             index=False,
         )
 
+    def _merge_sorted(
+        self, data: pd.DataFrame, other: pd.DataFrame, backfill: bool
+    ) -> pd.DataFrame:
+        """
+        Merge logic for :meth:`~geost.accessor.GeostFrame.merge_sorted` for two DataFrames
+        of survey data.
+
+        """
+        data = data.gst._get_depth_relative_to_surface()
+        # Temporarily invert depth because merge_ordered merges in descending order
+        # which inverts order of the original DataFrame
+        data[self._bottom] *= -1
+        other[self._bottom] *= -1
+
+        result = pd.merge_ordered(
+            data, other, on=[self._nr, self._bottom], suffixes=("", "_right")
+        )
+
+        # Reset depth to original
+        result[self._bottom] *= -1
+
+        grouped = result.groupby(self._nr)
+        if backfill:
+            result = pd.concat([result[self._nr], grouped.bfill()], axis=1)
+
+        result[self._surface] = grouped[self._surface].transform("first")
+
+        # If an ID is in "other" but not original data, we keep the original surface of the other
+        if self._surface == (other_surface := other.gst._surface):
+            result = result.fillna({self._surface: result[f"{self._surface}_right"]})
+        else:
+            result = result.fillna({self._surface: result[other_surface]})
+
+        result = result.gst._get_depth_relative_to_surface()
+
+        if self.is_layered:
+            result = depth.reset_tops(
+                result, nr=self._nr, top=self._top, bottom=self._bottom
+            )
+
+        return result
+
     @_requires_depth
-    def merge_sorted(self, other: pd.DataFrame, backfill: bool = True) -> pd.DataFrame:
+    def merge_sorted(
+        self,
+        other: pd.DataFrame,
+        keep_surveys: Literal["left", "right", "outer", "inner"] = "outer",
+        backfill: bool = True,
+        relative_to_reference: bool = False,
+        drop_overlapping_columns: bool = False,
+    ) -> pd.DataFrame:
         """
         Insert intervals from another DataFrame into the current DataFrame, sorted by
         survey and depth. Intervals from `other` are inserted at their corresponding
@@ -1975,14 +2044,24 @@ class GeostFrame(AbstractBase):
         ----------
         other : pd.DataFrame
             DataFrame containing intervals to insert into the current DataFrame.
+        keep_surveys : Literal["left", "right", "outer", "inner"], optional
+            Determines which surveys to keep when merging intervals. Can be "left", "right",
+            "outer", or "inner". The default is "outer".
+            - "left": Keep only surveys present in the current DataFrame.
+            - "right": Keep only surveys present in the `other` DataFrame.
+            - "outer": Keep all surveys from both DataFrames.
+            - "inner": Keep only surveys present in both DataFrames.
         backfill : bool, optional
             If True, backfill missing values within each survey from inserted intervals
             to preceding intervals. The default is True.
-
-        Returns
-        -------
-        pd.DataFrame
-            A new DataFrame containing the combined and depth-sorted survey intervals.
+        relative_to_reference : bool, optional
+            If True, interpret the depths of the `other` DataFrame relative to a reference
+            level such as "NAP". The default is False, in this case depths are interpreted
+            as absolute depth.
+        drop_overlapping_columns : bool, optional
+            If True, drop columns from the `other` DataFrame that overlap with columns in the
+            current DataFrame. The default is False, then overlapping columns are kept with
+            the suffix "_right" in the result.
 
         Returns
         -------
@@ -1996,69 +2075,125 @@ class GeostFrame(AbstractBase):
         ... import geost # Register the `.gst` accessor
         ... boreholes = pd.DataFrame(
         ...     {
-        ...         "nr": ["A", "A", "B", "B"],
-        ...         "surface": [0.2, 0.2, 0.3, 0.3],
-        ...         "top": [0, 0.8, 0, 1.0],
-        ...         "bottom": [0.8, 1.2, 1.0, 1.5],
-        ...         "lith": ["K", "K", "Z", "K"],
+        ...         "nr": ["A", "A", "B", "B", "C", "C"],
+        ...         "surface": [0.2, 0.2, 0.3, 0.3, 0.25, 0.25],
+        ...         "top": [0, 0.8, 0, 1.0, 0, 0.4],
+        ...         "bottom": [0.8, 1.2, 1.0, 1.5, 0.4, 0.8],
+        ...         "lith": ["K", "K", "Z", "K", "K", "L"],
         ...     }
         ... )
-        ... boreholes
+        >>> boreholes
           nr  surface  top  bottom lith
-        0  A      0.2  0.0     0.8    K
-        1  A      0.2  0.8     1.2    K
-        2  B      0.3  0.0     1.0    Z
-        3  B      0.3  1.0     1.5    K
+        0  A     0.20  0.0     0.8    K
+        1  A     0.20  0.8     1.2    K
+        2  B     0.30  0.0     1.0    Z
+        3  B     0.30  1.0     1.5    K
+        4  C     0.25  0.0     0.4    K
+        5  C     0.25  0.4     0.8    L
 
         >>> to_merge = pd.DataFrame(
         ...        {
-        ...            "nr": ["A", "B"],
-        ...            "top": [0.0, 0.0],
-        ...            "bottom": [1.1, 2.0],
-        ...            "value": [15, 35],
+        ...            "nr": ["A", "B", "D"],
+        ...            "surface": [0.3, 0.4, 0.15],
+        ...            "top": [0.0, 0.0, 0.0],
+        ...            "bottom": [1.1, 2.0, 0.4],
+        ...            "value": [15, 35, 45],
         ...        }
         ...    )
-        ... to_merge
-          nr  top  bottom  value
-        0  A  0.0     1.1     15
-        1  B  0.0     2.0     35
+        >>> to_merge
+          nr  surface  top  bottom  value
+        0  A     0.30  0.0     1.1     15
+        1  B     0.40  0.0     2.0     35
+        2  D     0.15  0.0     0.4     45
+
+        By default, all survey IDs are preserved from the left and right DataFrames (i.e.
+        ``keep_surveys='outer'``).
 
         >>> result = boreholes.gst.merge_sorted(to_merge, backfill=True)
-        ... result
-          nr  surface  top  bottom lith  value
-        0  A      0.2  0.0     0.8    K   15.0
-        1  A      0.2  0.8     1.1    K   15.0
-        2  A      0.2  1.1     1.2    K    NaN
-        3  B      0.3  0.0     1.0    Z   35.0
-        4  B      0.3  1.0     1.5    K   35.0
-        5  B      NaN  1.5     2.0  NaN   35.0
+        >>> result
+          nr  surface  top  bottom lith  surface_right  value
+        0  A     0.20  0.0     0.8    K           0.30   15.0
+        1  A     0.20  0.8     1.0    K           0.30   15.0
+        2  A     0.20  1.0     1.2    K            NaN    NaN
+        3  B     0.30  0.0     1.0    Z           0.40   35.0
+        4  B     0.30  1.0     1.5    K           0.40   35.0
+        5  B     0.30  1.5     1.9  NaN           0.40   35.0
+        6  C     0.25  0.0     0.4    K            NaN    NaN
+        7  C     0.25  0.4     0.8    L            NaN    NaN
+        8  D     0.15  0.0     0.4  NaN           0.15   45.0
 
         >>> result = boreholes.gst.merge_sorted(to_merge, backfill=False)
-        ... result
+        >>> result
+          nr  surface  top  bottom lith  surface_right  value
+        0  A     0.20  0.0     0.8    K            NaN    NaN
+        1  A     0.20  0.8     1.0  NaN           0.30   15.0
+        2  A     0.20  1.0     1.2    K            NaN    NaN
+        3  B     0.30  0.0     1.0    Z            NaN    NaN
+        4  B     0.30  1.0     1.5    K            NaN    NaN
+        5  B     0.30  1.5     1.9  NaN           0.40   35.0
+        6  C     0.25  0.0     0.4    K            NaN    NaN
+        7  C     0.25  0.4     0.8    L            NaN    NaN
+        8  D     0.15  0.0     0.4  NaN           0.15   45.0
+
+        If you only want to keep surveys that are present in both DataFrames and drop the
+        overlapping columns, use ``keep_surveys='inner'`` and ``drop_overlapping_columns=True``.
+
+        >>> result = boreholes.gst.merge_sorted(
+        ...     to_merge, keep_surveys="inner", drop_overlapping_columns=True
+        ... )
+        >>> result
           nr  surface  top  bottom lith  value
-        0  A      0.2  0.0     0.8    K    NaN
-        1  A      NaN  0.8     1.1  NaN   15.0
-        2  A      0.2  1.1     1.2    K    NaN
-        3  B      0.3  0.0     1.0    Z    NaN
-        4  B      0.3  1.0     1.5    K    NaN
-        5  B      NaN  1.5     2.0  NaN   35.0
+        0  A      0.2  0.0     0.8    K   15.0
+        1  A      0.2  0.8     1.0    K   15.0
+        2  A      0.2  1.0     1.2    K    NaN
+        3  B      0.3  0.0     1.0    Z   35.0
+        4  B      0.3  1.0     1.5    K   35.0
+        5  B      0.3  1.5     1.9  NaN   35.0
 
         """
-        top_other = other.gst._top
-        if top_other is not None:
+        if other.gst._bottom is None:
+            from geost.exceptions import MissingDepthError
+
+            raise MissingDepthError(
+                "The other DataFrame is missing bottom depths of layers."
+            )
+
+        if relative_to_reference:
+            other = other.copy()
+        else:
+            other = other.gst._get_depth_relative_to_surface()
+
+        other.rename(
+            columns={other.gst._nr: self._nr, other.gst._bottom: self._bottom},
+            inplace=True,
+        )  # Make sure the 'nr' and 'bottom' match so we can merge correctly
+
+        if (top_other := other.gst._top) is not None:
             other = other.drop(
                 columns=top_other
             )  # We don't need the other top for the merge because we recalculate it from the new data
 
-        result = pd.merge_ordered(self._obj, other, on=[self._nr, self._bottom])
-        if backfill:
-            result = pd.concat(
-                [result[self._nr], result.groupby(self._nr).bfill()], axis=1
+        if keep_surveys == "outer":
+            data = self._obj
+        elif keep_surveys == "inner":
+            data = self.select_by_values(self._nr, other[self._nr].unique())
+            other = other.gst.select_by_values(self._nr, data[self._nr].unique())
+        elif keep_surveys == "left":
+            data = self._obj
+            other = other.gst.select_by_values(self._nr, data[self._nr].unique())
+        elif keep_surveys == "right":
+            data = self.select_by_values(self._nr, other[self._nr].unique())
+        else:
+            raise ValueError(
+                f"Invalid value for keep_surveys: {keep_surveys}, use 'outer', 'inner', "
+                "'left', or 'right'"
             )
 
-        if self.is_layered:
-            result = depth.reset_tops(
-                result, nr=self._nr, top=self._top, bottom=self._bottom
+        result = self._merge_sorted(data, other, backfill)
+
+        if drop_overlapping_columns:
+            result = result.drop(
+                columns=result.columns[result.columns.str.endswith("_right")]
             )
 
         return result

@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import warnings
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Iterable, Literal
+from typing import TYPE_CHECKING, Any, Iterable
 
 import geopandas as gpd
 import pandas as pd
@@ -11,10 +11,8 @@ from pyproj import CRS
 from geost import config, data, utils
 from geost._warnings import AlignmentWarning
 from geost.abstract_classes import AbstractBase
-from geost.utils.projections import (
-    horizontal_reference_transformer,
-    vertical_reference_transformer,
-)
+from geost.exceptions import MissingSurveyIDError
+from geost.utils.projections import vertical_reference_transformer
 from geost.validation.method_checks import (
     _requires_depth,
     _requires_geometry,
@@ -124,8 +122,8 @@ class Collection(AbstractBase):
     def _check_survey_id_col(df, df_name):
         try:
             return df.gst._nr
-        except KeyError as e:
-            raise KeyError(
+        except MissingSurveyIDError as e:
+            raise MissingSurveyIDError(
                 f"{df_name} table must contain a column identifying the survey IDs."
             ) from e
 
@@ -1436,29 +1434,30 @@ class Collection(AbstractBase):
     @_requires_depth
     def aggregate_consecutive_layers(
         self,
-        columns: str | list[str],
+        over: str | list[str],
         agg_funcs: dict = None,
         keep_original_index: bool = False,
         inplace: bool = False,
     ) -> pd.DataFrame:
         """
-        Aggregate consecutive layers in the data that have the same value in a specified column.
-        The column to use for aggregating layers is typically categorical data, such as lithology or soil type.
-        Any other columns can be aggregated using the provided aggregation functions.
-
+        Aggregate consecutive layers in the data table of a ``Collection`` that have the
+        same value in a specified column. The column to use for aggregating layers is
+        typically categorical data, such as lithology or soil type. Any other columns can
+        be aggregated using the provided aggregation functions.
 
         Parameters
         ----------
-        columns : str | list[str]
-            Name of the column(s) to check for consecutive identical values. Typically columns
-            holding categorical data.
+        over : str | list[str]
+            Name or names of the column or columns to check for consecutive identical values.
+            Typically columns holding categorical data.
         agg_funcs : dict, optional
-            Dictionary specifying the aggregation functions to apply to other columns when combining layers.
-            Keys are column names, and values are aggregation functions. These can be e.g.
-            names such as'first', 'last', 'mean', etc. or actual functions such as np.sum, np.mean, etc.
+            Dictionary specifying the aggregation functions to apply to other columns when
+            combining layers. Keys are column names, and values are aggregation functions.
+            These can be e.g. names such as'first', 'last', 'mean', etc. or actual functions
+            such as np.sum, np.mean, etc.
         keep_original_index : bool, optional
-            If True, the original index of the data DataFrame is preserved in the resulting DataFrame.
-            If False, the index is reset (recommended). The default is False.
+            If True, the original index of the ``data`` DataFrame is preserved in the resulting
+            DataFrame. If False, the index is reset (recommended). The default is False.
         inplace : bool, optional
             If True, the combination is applied in place and the original Collection is modified.
             If False, a new DataFrame with combined layers is returned. The default is False.
@@ -1479,10 +1478,13 @@ class Collection(AbstractBase):
         aggregate consecutive layers with identical lithology and aggregate the 'qc' and 'fs'
         columns by taking the mean:
 
-        >>> aggregated_collection = collection.aggregate_consecutive_layers('lith', {'qc': 'mean', 'fs': 'mean'})
+        >>> result = collection.aggregate_consecutive_layers(
+        ...     'lith', {'qc': 'mean', 'fs': 'mean'}
+        ... )
+
         """
         combined_data = self.data.gst.aggregate_consecutive_layers(
-            columns, agg_funcs, keep_original_index=keep_original_index
+            over, agg_funcs, keep_original_index=keep_original_index
         )
         if inplace:
             self.data = combined_data

@@ -1,4 +1,3 @@
-import itertools
 import warnings
 from pathlib import Path
 from typing import Literal
@@ -13,6 +12,13 @@ from shapely.geometry import LineString, Polygon
 
 from geost.accessor import GeostFrame
 from geost.base import Collection
+from geost.exceptions import (
+    MissingDepthError,
+    MissingGeometryError,
+    MissingSurfaceError,
+    MissingSurveyIDError,
+    MissingXYError,
+)
 from geost.validation import column_names
 
 
@@ -101,7 +107,8 @@ class TestGeostFrame:
         assert df.gst._y == "Latitude"
 
         with pytest.raises(
-            KeyError, match="DataFrame must contain a column identifying survey ID"
+            MissingSurveyIDError,
+            match="DataFrame must contain a column identifying survey ID",
         ):
             df_invalid = pd.DataFrame({"a": [1, 2], "b": [3, 4]})
             df_invalid.gst
@@ -372,14 +379,14 @@ class TestGeostFrame:
             "Cannot use 'end_min' and 'end_max' in select_by_elevation data"
             "has no column 'end' and no depth information is found in the data."
         )
-        with pytest.raises(KeyError, match=expected_error):
+        with pytest.raises(MissingDepthError, match=expected_error):
             borehole_data.drop(
                 columns=["end", "top", "bottom"]
             ).gst.select_by_elevation(end_max=-3, end_min=-4)
 
         with pytest.raises(
-            KeyError,
-            match="Cannot use select_by_elevation if no surface column is found",
+            MissingSurfaceError,
+            match="Method 'select_by_elevation' requires a surface column",
         ):
             borehole_data.rename(
                 columns={"surface": "invalid_surface"}
@@ -405,7 +412,7 @@ class TestGeostFrame:
             "Cannot use select_by_length if data has no column 'end' and no depth "
             "information is found in the data."
         )
-        with pytest.raises(KeyError, match=expected_error):
+        with pytest.raises(MissingDepthError, match=expected_error):
             borehole_data.drop(columns=["end", "top", "bottom"]).gst.select_by_length(
                 min_length=4.0, max_length=5.0
             )
@@ -448,7 +455,7 @@ class TestGeostFrame:
         assert_array_almost_equal(result["y_bot"], [55.68101195, 55.68101242])
 
         with pytest.raises(
-            KeyError,
+            MissingXYError,
             match="Method 'transform_coordinates' requires x, y information in the DataFrame.",
         ):
             data.drop(columns=["x", "y"]).gst.transform_coordinates(28992, 4326)
@@ -463,7 +470,7 @@ class TestGeostFrame:
         assert len(selected) == 16
 
         with pytest.raises(
-            TypeError,
+            MissingGeometryError,
             match="Method 'select_within_bbox' requires a GeoDataFrame with a valid geometry column.",
         ):
             point_header = point_header.drop(columns="geometry")
@@ -507,7 +514,7 @@ class TestGeostFrame:
         )
         assert len(selected) == 16
 
-        with pytest.raises(TypeError):
+        with pytest.raises(MissingGeometryError):
             point_header = point_header.drop(columns="geometry")
             # Remove geometry column to make it invalid for spatial selection
             point_header.gst.select_with_points(selection_points, max_distance)
@@ -534,7 +541,7 @@ class TestGeostFrame:
         selected = point_header.gst.select_with_lines(selection_lines, max_distance)
         assert len(selected) == 21
 
-        with pytest.raises(TypeError):
+        with pytest.raises(MissingGeometryError):
             point_header = point_header.drop(columns="geometry")
             # Remove geometry column to make it invalid for spatial selection
             point_header.gst.select_with_lines(selection_gdf, max_distance)
@@ -572,7 +579,7 @@ class TestGeostFrame:
         selected = point_header.gst.select_within_polygons([selection_polygon])
         assert len(selected) == 3
 
-        with pytest.raises(TypeError):
+        with pytest.raises(MissingGeometryError):
             point_header = point_header.drop(columns="geometry")
             # Remove geometry column to make it invalid for spatial selection
             point_header.gst.select_within_polygons(selection_gdf)
@@ -740,7 +747,7 @@ class TestGeostFrame:
         assert (result["id"] == 1).all()
 
         with pytest.raises(
-            TypeError,
+            MissingGeometryError,
             match="Method 'spatial_join' requires a GeoDataFrame with a valid geometry column.",
         ):
             point_header = point_header.drop(columns="geometry")
@@ -935,7 +942,7 @@ class TestGeostFrame:
         assert_array_equal(bottoms_of_slice, expected_bottoms_of_slice)
 
         with pytest.raises(
-            KeyError,
+            MissingDepthError,
             match="Method 'slice_depth_interval' requires depth information in the DataFrame.",
         ):
             borehole_data_no_depth = borehole_data.drop(columns=["top", "bottom"])
@@ -1135,11 +1142,77 @@ class TestGeostFrame:
         assert_array_equal(result, [0.0])
 
     @pytest.mark.unittest
-    def test_compute_discretized_fractions(self, borehole_data):
+    def test_compute_discretized_fractions_with_bins(self, borehole_data):
+        rand_rng = np.random.default_rng(seed=12)
+
+        discretization = np.array([0.5, 1.0, 2.0, 4.0])
+        subset = borehole_data.gst.select_by_values("nr", ["A", "B"])
+        subset["value"] = rand_rng.random(len(subset))
+
+        result = subset.gst.compute_discretized_fractions(
+            "value", discretization, breaks=[0.33, 0.67]
+        )
+        assert isinstance(result, pd.DataFrame)
+        assert_array_equal(result["nr"], ["A", "A", "A", "A", "B", "B", "B", "B"])
+        assert_array_equal(result["surface"], [0.2, 0.2, 0.2, 0.2, 0.3, 0.3, 0.3, 0.3])
+        assert_array_almost_equal(
+            result["top"], [0.0, 0.5, 1.0, 2.0, 0.0, 0.5, 1.0, 2.0]
+        )
+        assert_array_almost_equal(
+            result["bottom"], [0.5, 1.0, 2.0, 4.0, 0.5, 1.0, 2.0, 4.0]
+        )
+        assert_array_almost_equal(
+            result["dz"], [0.5, 0.5, 1.0, 2.0, 0.5, 0.5, 1.0, 2.0]
+        )
+        assert_array_almost_equal(
+            result["<=0.33"], [1.0, 0.6, 0.5, 0.85, 1.0, 0.2, 0.8, 0.25]
+        )
+        assert_array_almost_equal(
+            result["0.33-0.67"],
+            [np.nan, np.nan, np.nan, 0.15, np.nan, np.nan, np.nan, np.nan],
+        )
+        assert_array_almost_equal(
+            result[">0.67"], [np.nan, 0.4, 0.5, np.nan, np.nan, 0.8, 0.2, 0.7]
+        )
+
+        # If we specify breaks that cover the entire range, only the column names should be changed
+        result_entire_range = subset.gst.compute_discretized_fractions(
+            "value", discretization, breaks=[0, 0.33, 0.67, 1]
+        )
+        assert_array_equal(
+            result_entire_range.columns,
+            ["nr", "surface", "top", "bottom", "dz", "0-0.33", "0.33-0.67", "0.67-1"],
+        )
+        assert result[["nr", "surface", "top", "bottom", "dz"]].equals(
+            result_entire_range[["nr", "surface", "top", "bottom", "dz"]]
+        )
+        assert_array_almost_equal(result["<=0.33"], result_entire_range["0-0.33"])
+        assert_array_almost_equal(result["0.33-0.67"], result_entire_range["0.33-0.67"])
+        assert_array_almost_equal(result[">0.67"], result_entire_range["0.67-1"])
+
+        # Test using only one value as "break"
+        result_single_break = subset.gst.compute_discretized_fractions(
+            "value", discretization, breaks=0.5
+        )
+        assert result[["nr", "top", "bottom", "dz"]].equals(
+            result_entire_range[["nr", "top", "bottom", "dz"]]
+        )
+        assert_array_almost_equal(
+            result_single_break["<=0.5"], [1.0, 0.6, 0.5, 1.0, 1.0, 0.2, 0.8, 0.25]
+        )
+        assert_array_almost_equal(
+            result_single_break[">0.5"],
+            [np.nan, 0.4, 0.5, np.nan, np.nan, 0.8, 0.2, 0.7],
+        )
+
+    @pytest.mark.unittest
+    def test_compute_discretized_fractions_categorical(self, borehole_data):
         discretization = np.array([0.5, 1.0, 2.0, 4.0])
         subset = borehole_data.gst.select_by_values("nr", ["A", "B"])
         result = subset.gst.compute_discretized_fractions("lith", discretization)
         assert isinstance(result, pd.DataFrame)
+        assert_array_equal(result["nr"], ["A", "A", "A", "A", "B", "B", "B", "B"])
+        assert_array_equal(result["surface"], [0.2, 0.2, 0.2, 0.2, 0.3, 0.3, 0.3, 0.3])
         assert_array_almost_equal(
             result["top"], [0.0, 0.5, 1.0, 2.0, 0.0, 0.5, 1.0, 2.0]
         )
@@ -1340,53 +1413,250 @@ class TestGeostFrame:
         assert "layer_model" in result.columns
         assert "kh_model" in result.columns
 
+    @pytest.fixture
+    def data_merge_sorted(self):
+        return pd.DataFrame(
+            {
+                "nr": ["A", "A", "B", "B", "C", "C"],
+                "surface": [0.2, 0.2, 0.3, 0.3, 0.25, 0.25],
+                "top": [0, 0.8, 0, 1.0, 0, 0.4],
+                "bottom": [0.8, 1.2, 1.0, 1.5, 0.4, 0.8],
+                "lith": ["K", "K", "Z", "K", "K", "L"],
+            }
+        )
+
+    @pytest.fixture
+    def to_insert_merge_sorted(self):
+        return pd.DataFrame(
+            {
+                "nr": ["A", "B", "D"],
+                "surface": [0.3, 0.4, 0.15],
+                "top": [0.0, 0.0, 0.0],
+                "bottom": [1.1, 2.0, 0.4],
+                "value": [15, 35, 45],
+            }
+        )
+
     @pytest.mark.unittest
-    def test_add_merge_sorted(self):
-        data = pd.DataFrame(
+    def test_merge_sorted_outer(self, data_merge_sorted, to_insert_merge_sorted):
+        expected_result = pd.DataFrame(
             {
-                "nr": ["A", "A", "B", "B"],
-                "surface": [0.2, 0.2, 0.3, 0.3],
-                "top": [0, 0.8, 0, 1.0],
-                "bottom": [0.8, 1.2, 1.0, 1.5],
-                "lith": ["K", "K", "Z", "K"],
+                "nr": ["A", "A", "A", "B", "B", "B", "C", "C", "D"],
+                "surface": [0.2, 0.2, 0.2, 0.3, 0.3, 0.3, 0.25, 0.25, 0.15],
+                "top": [0.0, 0.8, 1.0, 0.0, 1.0, 1.5, 0.0, 0.4, 0.0],
+                "bottom": [0.8, 1.0, 1.2, 1.0, 1.5, 1.9, 0.4, 0.8, 0.4],
+                "lith": ["K", "K", "K", "Z", "K", np.nan, "K", "L", np.nan],
+                "surface_right": [
+                    0.3,
+                    0.3,
+                    np.nan,
+                    0.4,
+                    0.4,
+                    0.4,
+                    np.nan,
+                    np.nan,
+                    0.15,
+                ],
+                "value": [
+                    15.0,
+                    15.0,
+                    np.nan,
+                    35.0,
+                    35.0,
+                    35.0,
+                    np.nan,
+                    np.nan,
+                    45.0,
+                ],
             }
         )
 
-        to_insert = pd.DataFrame(
-            {
-                "nr": ["A", "B"],
-                "top": [0.0, 0.0],
-                "bottom": [1.1, 2.0],
-                "value": [15, 35],
-            }
+        result = data_merge_sorted.gst.merge_sorted(
+            to_insert_merge_sorted, keep_surveys="outer"
         )
-
-        result = data.gst.merge_sorted(to_insert)
         assert isinstance(result, pd.DataFrame)
+        pd.testing.assert_frame_equal(result, expected_result)
+
+        # Drop overlapping columns from the right
+        result = data_merge_sorted.gst.merge_sorted(
+            to_insert_merge_sorted, keep_surveys="outer", drop_overlapping_columns=True
+        )
         pd.testing.assert_frame_equal(
-            result,
+            result, expected_result.drop(columns="surface_right")
+        )
+
+        # Without backfilling the result
+        result = data_merge_sorted.gst.merge_sorted(
+            to_insert_merge_sorted, keep_surveys="outer", backfill=False
+        )
+        assert_array_equal(result["nr"], expected_result["nr"])
+        assert_array_equal(result["surface"], expected_result["surface"])
+        assert_array_almost_equal(result["top"], expected_result["top"])
+        assert_array_almost_equal(result["bottom"], expected_result["bottom"])
+        # Test the last columns with `assert_frame_equal` because this automatically deals with Arrow types
+        pd.testing.assert_frame_equal(
+            result[["lith", "surface_right", "value"]],
             pd.DataFrame(
                 {
-                    "nr": ["A", "A", "A", "B", "B", "B"],
-                    "surface": [0.2, 0.2, 0.2, 0.3, 0.3, np.nan],
-                    "top": [0.0, 0.8, 1.1, 0.0, 1.0, 1.5],
-                    "bottom": [0.8, 1.1, 1.2, 1.0, 1.5, 2.0],
-                    "lith": ["K", "K", "K", "Z", "K", np.nan],
-                    "value": [15, 15, np.nan, 35, 35, 35],
+                    "lith": ["K", np.nan, "K", "Z", "K", np.nan, "K", "L", np.nan],
+                    "surface_right": [
+                        np.nan,
+                        0.3,
+                        np.nan,
+                        np.nan,
+                        np.nan,
+                        0.4,
+                        np.nan,
+                        np.nan,
+                        0.15,
+                    ],
+                    "value": [
+                        np.nan,
+                        15.0,
+                        np.nan,
+                        np.nan,
+                        np.nan,
+                        35.0,
+                        np.nan,
+                        np.nan,
+                        45.0,
+                    ],
                 }
             ),
         )
-        result = data.gst.merge_sorted(to_insert, backfill=False)
-        pd.testing.assert_frame_equal(
-            result,
-            pd.DataFrame(
-                {
-                    "nr": ["A", "A", "A", "B", "B", "B"],
-                    "surface": [0.2, np.nan, 0.2, 0.3, 0.3, np.nan],
-                    "top": [0.0, 0.8, 1.1, 0.0, 1.0, 1.5],
-                    "bottom": [0.8, 1.1, 1.2, 1.0, 1.5, 2.0],
-                    "lith": ["K", np.nan, "K", "Z", "K", np.nan],
-                    "value": [np.nan, 15, np.nan, np.nan, np.nan, 35],
+
+        # Test when "other" is relative to a reference such as "NAP"
+        nap_insert = to_insert_merge_sorted.gst._get_depth_relative_to_surface()
+        result = data_merge_sorted.gst.merge_sorted(
+            nap_insert, keep_surveys="outer", relative_to_reference=True
+        )
+        pd.testing.assert_frame_equal(result, expected_result)
+
+        # Other names of depth columns and surface should work too, if they are accepter positional columns
+        result = data_merge_sorted.gst.merge_sorted(
+            to_insert_merge_sorted.rename(
+                columns={
+                    "nr": "nitg",
+                    "bottom": "depth",
+                    "surface": "mv",
                 }
             ),
+            keep_surveys="outer",
         )
+        assert_array_equal(result["mv"], expected_result["surface_right"])
+        pd.testing.assert_frame_equal(
+            result.drop(columns="mv"), expected_result.drop(columns="surface_right")
+        )
+
+        with pytest.raises(ValueError, match="Invalid value for keep_surveys"):
+            data_merge_sorted.gst.merge_sorted(
+                to_insert_merge_sorted, keep_surveys="invalid"
+            )
+
+    @pytest.mark.unittest
+    def test_merge_sorted_inner(self, data_merge_sorted, to_insert_merge_sorted):
+        expected_result = pd.DataFrame(
+            {
+                "nr": ["A", "A", "A", "B", "B", "B"],
+                "surface": [0.2, 0.2, 0.2, 0.3, 0.3, 0.3],
+                "top": [0.0, 0.8, 1.0, 0.0, 1.0, 1.5],
+                "bottom": [0.8, 1.0, 1.2, 1.0, 1.5, 1.9],
+                "lith": ["K", "K", "K", "Z", "K", np.nan],
+                "surface_right": [
+                    0.3,
+                    0.3,
+                    np.nan,
+                    0.4,
+                    0.4,
+                    0.4,
+                ],
+                "value": [
+                    15.0,
+                    15.0,
+                    np.nan,
+                    35.0,
+                    35.0,
+                    35.0,
+                ],
+            }
+        )
+
+        result = data_merge_sorted.gst.merge_sorted(
+            to_insert_merge_sorted, keep_surveys="inner"
+        )
+        assert isinstance(result, pd.DataFrame)
+        pd.testing.assert_frame_equal(result, expected_result)
+
+    @pytest.mark.unittest
+    def test_merge_sorted_left(self, data_merge_sorted, to_insert_merge_sorted):
+        expected_result = pd.DataFrame(
+            {
+                "nr": ["A", "A", "A", "B", "B", "B", "C", "C"],
+                "surface": [0.2, 0.2, 0.2, 0.3, 0.3, 0.3, 0.25, 0.25],
+                "top": [0.0, 0.8, 1.0, 0.0, 1.0, 1.5, 0.0, 0.4],
+                "bottom": [0.8, 1.0, 1.2, 1.0, 1.5, 1.9, 0.4, 0.8],
+                "lith": ["K", "K", "K", "Z", "K", np.nan, "K", "L"],
+                "surface_right": [
+                    0.3,
+                    0.3,
+                    np.nan,
+                    0.4,
+                    0.4,
+                    0.4,
+                    np.nan,
+                    np.nan,
+                ],
+                "value": [
+                    15.0,
+                    15.0,
+                    np.nan,
+                    35.0,
+                    35.0,
+                    35.0,
+                    np.nan,
+                    np.nan,
+                ],
+            }
+        )
+
+        result = data_merge_sorted.gst.merge_sorted(
+            to_insert_merge_sorted, keep_surveys="left"
+        )
+        assert isinstance(result, pd.DataFrame)
+        pd.testing.assert_frame_equal(result, expected_result)
+
+    @pytest.mark.unittest
+    def test_merge_sorted_right(self, data_merge_sorted, to_insert_merge_sorted):
+        expected_result = pd.DataFrame(
+            {
+                "nr": ["A", "A", "A", "B", "B", "B", "D"],
+                "surface": [0.2, 0.2, 0.2, 0.3, 0.3, 0.3, 0.15],
+                "top": [0.0, 0.8, 1.0, 0.0, 1.0, 1.5, 0.0],
+                "bottom": [0.8, 1.0, 1.2, 1.0, 1.5, 1.9, 0.4],
+                "lith": ["K", "K", "K", "Z", "K", np.nan, np.nan],
+                "surface_right": [
+                    0.3,
+                    0.3,
+                    np.nan,
+                    0.4,
+                    0.4,
+                    0.4,
+                    0.15,
+                ],
+                "value": [
+                    15.0,
+                    15.0,
+                    np.nan,
+                    35.0,
+                    35.0,
+                    35.0,
+                    45.0,
+                ],
+            }
+        )
+
+        result = data_merge_sorted.gst.merge_sorted(
+            to_insert_merge_sorted, keep_surveys="right"
+        )
+        assert isinstance(result, pd.DataFrame)
+        pd.testing.assert_frame_equal(result, expected_result)

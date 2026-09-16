@@ -4,6 +4,7 @@ import warnings
 from typing import TYPE_CHECKING, Iterable
 
 from geost.config import load_user_positional_column_aliases
+from geost.exceptions import MissingSurveyIDError
 
 if TYPE_CHECKING:
     import pandas as pd
@@ -101,9 +102,9 @@ def check_column_name(columns: Iterable[str], column_type: str) -> str | None:
 
 def check_positional_column_presence(df: pd.DataFrame) -> None:
     try:
-        df.gst._nr  # Raises a KeyError if no survey ID can be found in the accessor
-    except KeyError as e:
-        raise KeyError(
+        df.gst._nr  # Raises a MissingSurveyIDError if no survey ID can be found in the accessor
+    except MissingSurveyIDError as e:
+        raise MissingSurveyIDError(
             "Input table is missing a mandatory column that identifies survey IDs. "
             f"This can be one of: {sorted(POSITIONAL_COLUMN_NAMES['nr'])}. Use the "
             "'column_mapper' argument to specify which column identifies the survey ID."

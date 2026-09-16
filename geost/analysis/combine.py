@@ -197,12 +197,13 @@ def add_model_data(
 
     temp_nodata = -999999
     result = data.gst.merge_sorted(
-        mdf[[nr_, bottom_, *result_vars]].fillna(temp_nodata), # Use `temp_nodata` for correct backfill
+        mdf[[nr_, surface_, bottom_, *result_vars]].fillna(temp_nodata), # Use `temp_nodata` for correct backfill
         backfill=True,
+        drop_overlapping_columns=True,
     )  # fmt: skip
     result.dropna(
-        subset=surface_, inplace=True
-    )  # Rows with NaN in the surface column are rows where the model is deeper than the survey
+        subset=result.gst._x, inplace=True
+    )  # Rows with NaN in a coordinate column are rows where the model is deeper than the survey
     result[result_vars] = result[result_vars].where(result[result_vars] != temp_nodata)
 
     if return_collection:

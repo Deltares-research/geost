@@ -8,7 +8,6 @@ import pytest
 import pyvista as pv
 import xarray as xr
 from numpy.testing import (
-    assert_almost_equal,
     assert_array_almost_equal,
     assert_array_equal,
     assert_equal,
@@ -18,6 +17,11 @@ from shapely.geometry import LineString, Point, Polygon
 from geost import config
 from geost._warnings import AlignmentWarning
 from geost.base import Collection
+from geost.exceptions import (
+    MissingDepthError,
+    MissingGeometryError,
+    MissingSurveyIDError,
+)
 
 
 @pytest.fixture
@@ -53,7 +57,7 @@ class TestCollection:
         assert collection._nr == "nr"
 
         with pytest.raises(
-            KeyError,
+            MissingSurveyIDError,
             match="Data table must contain a column identifying the survey IDs.",
         ):
             Collection(borehole_data.rename(columns={"nr": "invalid"}))
@@ -89,7 +93,7 @@ class TestCollection:
         )  # Make sure the attribute is not shared between instances
 
         with pytest.raises(
-            KeyError,
+            MissingSurveyIDError,
             match="Header table must contain a column identifying the survey IDs",
         ):
             Collection(borehole_data, header=header.rename(columns={"nr": "invalid"}))
@@ -305,7 +309,7 @@ class TestCollection:
         assert all(selected.data["nr"].unique() == ["A", "D"])
 
         with pytest.raises(
-            TypeError,
+            MissingGeometryError,
             match="Method 'select_within_bbox' requires a header with a valid geometry column.",
         ):
             borehole_collection.header = borehole_collection.header.drop(
@@ -328,7 +332,7 @@ class TestCollection:
         assert selection_inverted.n_points == 2
 
         with pytest.raises(
-            TypeError,
+            MissingGeometryError,
             match="Method 'select_with_points' requires a header with a valid geometry column.",
         ):
             borehole_collection.header = borehole_collection.header.drop(
@@ -348,7 +352,7 @@ class TestCollection:
         assert selection_inverted.n_points == 3
 
         with pytest.raises(
-            TypeError,
+            MissingGeometryError,
             match="Method 'select_with_lines' requires a header with a valid geometry column.",
         ):
             borehole_collection.header = borehole_collection.header.drop(
@@ -380,7 +384,7 @@ class TestCollection:
         assert selection_inverted_buffer.n_points == 3
 
         with pytest.raises(
-            TypeError,
+            MissingGeometryError,
             match="Method 'select_within_polygons' requires a header with a valid geometry column.",
         ):
             borehole_collection.header = borehole_collection.header.drop(
@@ -432,7 +436,7 @@ class TestCollection:
             )
 
         with pytest.raises(
-            TypeError,
+            MissingGeometryError,
             match="Method 'spatial_join' requires a header with a valid geometry column.",
         ):
             borehole_collection.header = borehole_collection.header.drop(
@@ -516,7 +520,7 @@ class TestCollection:
         assert empty_slice.data.empty
 
         with pytest.raises(
-            KeyError,
+            MissingDepthError,
             match="Method 'slice_depth_interval' requires depth information in the DataFrame.",
         ):
             borehole_collection.data.drop(columns=["bottom"], inplace=True)
@@ -528,7 +532,7 @@ class TestCollection:
         assert sliced.data.shape == (11, 9)
 
         with pytest.raises(
-            KeyError,
+            MissingDepthError,
             match="Method 'slice_depth_interval' requires depth information in the DataFrame.",
         ):
             cpt_collection.data.drop(columns=["depth"], inplace=True)
