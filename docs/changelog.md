@@ -35,6 +35,8 @@ thickness = model.gst.get_thickness(model["some_variable"] == 2)
 **Added**
 - Full support for geological voxelmodels and layermodels
 - `geotop_strat_units` and `geotop_lithok_units` for analyses with BRO GeoTOP (see the [User guide](./user_guide/bro_geotop.ipynb))
+- [`add_model_data`](./api_reference/generated/geost.base.Collection.add_model_data.rst) method to add information from a voxelmodel or layermodel to survey data (see [Examples](./examples/combine_geotop_with_cpts.ipynb))
+- [`aggregate_consecutive_layers`](./api_reference/generated/geost.base.Collection.aggregate_consecutive_layers.rst) method
 
 **Removed**
 - `VoxelModel` and `GeoTop` objects, have been replaced by the Xarray extension and dedicated read functions (see the [User guide](./user_guide/model_data.ipynb))

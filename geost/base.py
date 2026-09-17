@@ -1424,11 +1424,23 @@ class Collection(AbstractBase):
         self,
         column: str,
         discretization: np.ndarray,
-        bins: np.ndarray = None,
-        bin_labels: list[str] = None,
+        relative_to_reference: bool = False,
+        breaks: int | float | list | np.ndarray = None,
     ):
-        return self.data.gst.compute_discretized_fractions(
-            column, discretization, bins=bins, bin_labels=bin_labels
+        discretized = self.data.gst.compute_discretized_fractions(
+            column=column,
+            discretization=discretization,
+            relative_to_reference=relative_to_reference,
+            breaks=breaks,
+        )
+        header = self.header.gst.select_by_values(
+            self._nr, discretized[self._nr].unique()
+        )
+        return self.__class__(
+            discretized,
+            header=header,
+            has_inclined=self.has_inclined,
+            vertical_datum=self.vertical_datum,
         )
 
     @_requires_depth

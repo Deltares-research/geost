@@ -14,7 +14,7 @@ from pyproj import CRS
 
 from geost import export, validation
 from geost.abstract_classes import AbstractBase
-from geost.exceptions import MissingDepthError
+from geost.exceptions import MissingDepthError, MissingSurfaceError
 from geost.utils import conversion, depth, spatial
 from geost.validation.method_checks import (
     _requires_depth,
@@ -1325,7 +1325,6 @@ class GeostFrame(AbstractBase):
 
         return selected
 
-    @_requires_depth
     def calculate_thickness(self) -> pd.Series:
         """
         Calculate the thickness of layers in the data. This method requires the presence
@@ -1338,7 +1337,12 @@ class GeostFrame(AbstractBase):
             Series containing the thickness for each layer in the data.
 
         """
-        if self._top and self._bottom:
+        if self._bottom is None and self._top is None:
+            raise MissingDepthError(
+                "'calculate_thickness' requires at least bottom information of layers"
+            )
+
+        if self.is_layered:
             thickness = (self._obj[self._top] - self._obj[self._bottom]).abs()
         else:
             thickness = self._obj[self._bottom].diff()
@@ -1465,11 +1469,130 @@ class GeostFrame(AbstractBase):
         layer_base = grouped[self._bottom].last()
         return layer_base
 
+    @singledispatchmethod
+    def _get_discretization(
+        self,
+        discretization: int | float | list | np.ndarray | pd.DataFrame,
+        relative_to_reference: bool,
+    ) -> pd.DataFrame:
+        """
+        Helper method for `compute_discretized_fractions` to create DataFrame to discretize
+        the data with.
+
+        """
+        raise TypeError("Datatype not supported for discretization.")
+
+    @_get_discretization.register(int | float)
+    def _(self, discretization: int | float, relative_to_reference: bool):
+        if relative_to_reference:
+            max_depth = self._obj[self._surface].max()
+            min_depth = max_depth - self._obj[self._bottom].max()
+
+            depths = np.arange(
+                np.ceil(max_depth / discretization) * discretization,
+                np.floor(min_depth / discretization) * discretization - discretization,
+                -discretization,
+            )
+        else:
+            depths = np.arange(
+                discretization,
+                self._obj[self._bottom].max() + discretization,
+                discretization,
+            )
+        return self._get_discretization(depths, relative_to_reference)
+
+    @_get_discretization.register(list | np.ndarray)
+    def _(self, discretization: list | np.ndarray, relative_to_reference: bool):
+        if relative_to_reference:
+            discretization = np.sort(discretization)[::-1]  # Depth must increase down
+            dz = np.abs(np.diff(discretization))
+            tops = discretization[:-1]
+            bottoms = discretization[1:]
+        else:
+            bottoms = np.sort(discretization)  # Depth must increase down
+            dz = np.diff(bottoms, prepend=0)
+            tops = bottoms - dz
+
+        nr_, surface_, top_, bottom_ = self._nr, self._surface, self._top, self._bottom
+
+        nz = np.arange(len(bottoms))
+        surveys = self._obj[[nr_, surface_]].drop_duplicates()
+
+        discretized = pd.DataFrame(
+            {
+                nr_: np.repeat(surveys[nr_], len(bottoms)),
+                surface_: np.repeat(surveys[surface_], len(bottoms)),
+                bottom_: np.tile(bottoms, len(surveys)),
+                "nz": np.tile(nz, len(surveys)),
+                "dz": np.tile(dz, len(surveys)),
+            }
+        )
+
+        if self.is_layered:
+            discretized.insert(2, top_, np.tile(tops, len(surveys)))
+
+        return discretized
+
+    @_get_discretization.register(pd.DataFrame)
+    def _(self, discretization: pd.DataFrame, relative_to_reference: bool):
+        columns = discretization.gst.positional_columns
+        nr_, surface_, top_, bottom_ = (
+            columns["nr"],
+            columns["surface"],
+            columns["top"],
+            columns["depth"],
+        )
+
+        if bottom_ is None:
+            raise MissingDepthError(
+                "The discretization DataFrame is missing bottom depths of layers."
+            )
+
+        if relative_to_reference and surface_ is None and top_ is None:
+            raise MissingDepthError(
+                "The discretization DataFrame is missing surface information and top "
+                "depth of layers while relative_to_reference is True. Cannot compute "
+                "layer thickness."
+            )
+
+        discretization = discretization.copy()
+        # Rename the columns for easy merge and if needed, calculate a surface difference
+        discretization.rename(
+            columns={nr_: self._nr, surface_: "surface_right"},
+            inplace=True,
+            errors="ignore",
+        )
+
+        depth = self._obj[[self._nr, self._surface]].drop_duplicates()
+        depth = depth.merge(discretization, on=self._nr, how="right")
+
+        # If a surface is present we correct the discretization for the surface difference
+        if not relative_to_reference and surface_ is not None:
+            depth["surface_correction"] = depth[self._surface] - depth["surface_right"]
+            depth[bottom_] += depth["surface_correction"]
+            if top_ is not None:
+                depth.loc[~depth.gst.first_row_survey, top_] += depth[
+                    "surface_correction"
+                ]
+
+        depth.drop(columns="surface_right", inplace=True, errors="ignore")
+
+        if relative_to_reference and top_ is None:
+            # In this case we temporarily need absolute depth for calculating layer thickness
+            depth = depth.gst._get_depth_relative_to_surface()
+            depth["dz"] = depth.gst.calculate_thickness()
+            depth = depth.gst._get_depth_relative_to_surface()
+        else:
+            depth["dz"] = depth.gst.calculate_thickness()
+
+        return depth.reset_index(names="nz")  # Add layer numbers
+
     @_requires_depth
     def compute_discretized_fractions(
         self,
         column: str,
         discretization: np.ndarray,
+        relative_to_reference: bool = False,
         breaks: int | float | list | np.ndarray = None,
     ) -> pd.DataFrame:
         """
@@ -1490,27 +1613,14 @@ class GeostFrame(AbstractBase):
             _description_
 
         """
-        dz = np.diff(discretization, prepend=0)
-        nz = np.arange(len(discretization))
+        discretized = self._get_discretization(discretization, relative_to_reference)
 
-        nr_, surface_, top_, bottom_ = self._nr, self._surface, self._top, self._bottom
-        discretized = pd.DataFrame(
-            {
-                nr_: np.repeat(self._obj[nr_].drop_duplicates(), len(discretization)),
-                surface_: np.repeat(
-                    self._obj[surface_].drop_duplicates(), len(discretization)
-                ),
-                bottom_: np.tile(discretization, self._obj[nr_].nunique()),
-                "nz": np.tile(nz, self._obj[nr_].nunique()),
-                "dz": np.tile(dz, self._obj[nr_].nunique()),
-            }
+        temp = self.merge_sorted(
+            discretized,
+            backfill=True,
+            relative_to_reference=relative_to_reference,
+            keep_surveys="inner",  # We can only compute fractions if we have discretization for a survey
         )
-
-        if layered_data := self.is_layered:
-            tops = discretization - dz
-            discretized.insert(2, top_, np.tile(tops, self._obj[nr_].nunique()))
-
-        temp = self.merge_sorted(discretized, backfill=True)
 
         if breaks is not None:
             if isinstance(breaks, (int, float)):
@@ -1522,21 +1632,29 @@ class GeostFrame(AbstractBase):
                 breaks = [-np.inf, *breaks, np.inf]
             temp[column] = pd.cut(temp[column], bins=breaks, labels=labels)
 
-        if layered_data:
-            temp = depth.reset_tops(temp, nr=nr_, top=top_, bottom=bottom_)
-
         temp["thickness"] = temp.gst.calculate_thickness()
 
-        grouped = temp.groupby([nr_, "nz", column])
+        grouped = temp.groupby([self._nr, "nz", column])
         percentages = (
             (grouped["thickness"].sum() / grouped["dz"].first())
+            .clip(None, 1)
             .unstack(level=column)
             .reset_index()
         )
+        # The clip above is used because when the discretization is given as a DataFrame,
+        # depth is relative to NAP and there is a surface level difference, the thickness
+        # of the first layer of surveys may exceed "dz". Then, fraction also exceeds 1
+        # which is not possible. Debug `test_compute_discretized_fractions_layered_nap`
+        # and check the variable "result" from the line below.
+        #
+        # result = borehole_data.gst.compute_discretized_fractions("lith", nap_df, relative_to_reference=True)
+        #
+        # The surface, top, bottom and dz of the first row in survey "B" may cause the fraction
+        # to exceed 1 if the clip is not used. The clip does not affect other implementations.
 
-        discretized = discretized.merge(percentages, on=[nr_, "nz"], how="left").drop(
-            columns="nz", errors="ignore"
-        )
+        discretized = discretized.merge(
+            percentages, on=[self._nr, "nz"], how="left"
+        ).drop(columns="nz", errors="ignore")
 
         return discretized
 
@@ -2152,8 +2270,6 @@ class GeostFrame(AbstractBase):
 
         """
         if other.gst._bottom is None:
-            from geost.exceptions import MissingDepthError
-
             raise MissingDepthError(
                 "The other DataFrame is missing bottom depths of layers."
             )

@@ -761,6 +761,13 @@ class TestCollection:
         assert_array_almost_equal(collection.header[expected_column], expected_base)
 
     @pytest.mark.unittest
+    def test_compute_discretized_fractions(self, borehole_collection):
+        result = borehole_collection.compute_discretized_fractions(
+            column="lith", discretization=[0.5, 1, 2]
+        )
+        assert isinstance(result, type(borehole_collection))
+
+    @pytest.mark.unittest
     def test_aggregate_consecutive_layers(self, borehole_collection):
         # return variant
         combined = borehole_collection.aggregate_consecutive_layers("lith")
