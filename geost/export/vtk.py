@@ -28,13 +28,15 @@ def _get_pyvista():  # pragma: no cover
 def prepare_as_continuous(
     data: pd.DataFrame,
     depth_column: Literal["depth", "bottom"],
+    x: str,
+    y: str,
     vertical_factor: float,
 ) -> np.ndarray:
     """
     Prepare data for PyVista cylinder objects as continuous depth representation (e.g.
     using 'depth' or 'bottom' as depth column). This is typical for CPTs and well logs.
     """
-    data_xyz = data[["x", "y", depth_column]].to_numpy(copy=True)
+    data_xyz = data[[x, y, depth_column]].to_numpy(copy=True)
     data_xyz[:, -1] *= vertical_factor
     return data_xyz
 
@@ -42,6 +44,8 @@ def prepare_as_continuous(
 def prepare_as_layers(
     data: pd.DataFrame,
     depth_column: list[Literal["top"], Literal["bottom"]],
+    x: str,
+    y: str,
     vertical_factor: float,
 ) -> np.ndarray:
     """
@@ -49,8 +53,8 @@ def prepare_as_layers(
     'top' and 'bottom' as depth columns). This is typical for boreholes with layer
     descriptions and e.g. non-continuous layer intervals of grainsize sample data.
     """
-    data_xyz_top = data[["x", "y", depth_column[0]]].to_numpy()
-    data_xyz_bottom = data[["x", "y", depth_column[-1]]].to_numpy()
+    data_xyz_top = data[[x, y, depth_column[0]]].to_numpy()
+    data_xyz_bottom = data[[x, y, depth_column[-1]]].to_numpy()
     data_xyz = np.column_stack([data_xyz_top, data_xyz_bottom]).reshape(-1, 3)
     data_xyz[:, -1] *= vertical_factor
     return data_xyz
@@ -58,7 +62,7 @@ def prepare_as_layers(
 
 def generate_cylinders(
     data: pd.DataFrame,
-    depth_column: Literal["depth", "bottom"] | list[Literal["top"], Literal["bottom"]],
+    positional_columns: dict[str, str],
     data_columns: list[str],
     radius: float,
     n_sides: int,
@@ -66,13 +70,17 @@ def generate_cylinders(
 ) -> Iterable:
     pv = _get_pyvista()
 
-    boreholes = data.groupby("nr")
+    boreholes = data.groupby(positional_columns["nr"])
     for _, borehole in boreholes:
         # Case I  - depth_column is a single column representing depth from surface
         # (e.g. 'depth' or only 'bottom')
-        if isinstance(depth_column, str):
+        if positional_columns["top"] is None:
             borehole_prepared = prepare_as_continuous(
-                borehole, depth_column, vertical_factor
+                borehole,
+                positional_columns["depth"],
+                positional_columns["x"],
+                positional_columns["y"],
+                vertical_factor,
             )
             poly = pv.PolyData(borehole_prepared)
             line_segments = np.arange(0, len(borehole_prepared), dtype=np.int_)
@@ -90,9 +98,16 @@ def generate_cylinders(
 
         # Case II - depth_column is a list of two column names representing top and
         # bottom depths (e.g. ['top', 'bottom'])
-        elif isinstance(depth_column, list):
+        elif (
+            positional_columns["top"] is not None
+            and positional_columns["depth"] is not None
+        ):
             borehole_prepared = prepare_as_layers(
-                borehole, depth_column, vertical_factor
+                borehole,
+                [positional_columns["top"], positional_columns["depth"]],
+                positional_columns["x"],
+                positional_columns["y"],
+                vertical_factor,
             )
             cylinder = pv.merge(
                 [
@@ -122,7 +137,7 @@ def generate_cylinders(
 
 def borehole_to_multiblock(
     data: pd.DataFrame,
-    depth_column: Literal["depth", "bottom"] | list[Literal["top"], Literal["bottom"]],
+    positional_columns: dict[str, str],
     displayed_variables: list[str],
     radius: float,
     n_sides: int,
@@ -135,8 +150,9 @@ def borehole_to_multiblock(
     ----------
     data : pd.DataFrame
         Table of borehole/CPT objects. This is `Collection.data`.
-    depth_column : Literal['depth', 'bottom'] | list[Literal["top"], Literal["bottom"]]
-        Name of the column or columns representing depth.
+    positional_columns : dict[str, str]
+        Dictionary containing the names of the positional columns. Expected keys are 'x',
+        'y', 'surface', 'top', 'bottom', 'depth', and 'nr'.
     displayed_variables : List[str]
         Column names of data columns to write in the vtk file
     radius : float
@@ -156,7 +172,7 @@ def borehole_to_multiblock(
 
     cylinders = generate_cylinders(
         data,
-        depth_column,
+        positional_columns,
         displayed_variables,
         radius,
         n_sides,
@@ -255,7 +271,7 @@ def _clean_up_unstructured_grid(grid: pv.UnstructuredGrid) -> pv.UnstructuredGri
 
 def layerdata_to_pyvista_unstructured(
     data: pd.DataFrame,
-    depth_column: Literal["depth", "bottom"] | list[Literal["top"], Literal["bottom"]],
+    positional_columns: dict[str, str],
     displayed_variables: list[str],
     radius: float = 1.0,
 ) -> pv.UnstructuredGrid:
@@ -266,8 +282,9 @@ def layerdata_to_pyvista_unstructured(
     ----------
     data : pd.DataFrame
         The input data containing at least columns x, y, surface, top, and bottom.
-    depth_column : Literal['depth', 'bottom'] | list[Literal["top"], Literal["bottom"]]
-        Name of the column or columns representing depth.
+    positional_columns : dict[str, str]
+        Dictionary containing the names of the positional columns. Expected keys are 'x',
+        'y', 'surface', 'top', 'bottom', 'depth', and 'nr'.
     displayed_variables : list of str
         List of variable names in the data to include as cell data in the voxel model.
     radius : float
@@ -281,20 +298,25 @@ def layerdata_to_pyvista_unstructured(
     """
     pv = _get_pyvista()
 
-    x = data["x"].values
-    y = data["y"].values
+    x = data[positional_columns["x"]].values
+    y = data[positional_columns["y"]].values
 
     # Case I  - depth_column is a single column representing depth from surface
     # (e.g. 'depth' or only 'bottom'). In this case we compute the top depth.
-    if isinstance(depth_column, str):
-        top = data[depth_column].shift()
-        top[data["nr"] != data["nr"].shift()] = data["surface"]
-        bottom = data[depth_column].values
+    if positional_columns["top"] is None:
+        top = data[positional_columns["depth"]].shift()
+        top[
+            data[positional_columns["nr"]] != data[positional_columns["nr"]].shift()
+        ] = data[positional_columns["surface"]]
+        bottom = data[positional_columns["depth"]].values
     # Case II - depth_column is a list of two column names representing top and
     # bottom depths (e.g. ['top', 'bottom'])
-    elif isinstance(depth_column, list):
-        top = data[depth_column[0]].values
-        bottom = data[depth_column[-1]].values
+    elif (
+        positional_columns["top"] is not None
+        and positional_columns["depth"] is not None
+    ):
+        top = data[positional_columns["top"]].values
+        bottom = data[positional_columns["depth"]].values
 
     # Define all cell corner coordinates in the required order
     voxels = np.array(

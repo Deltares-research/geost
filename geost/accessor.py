@@ -1808,24 +1808,14 @@ class GeostFrame(AbstractBase):
         data = self._get_depth_relative_to_surface()
         displayed_variables = self._to_iterable(displayed_variables)
 
-        if self._top:
-            vtk_object = export.borehole_to_multiblock(
-                data,
-                [self._top, self._bottom],
-                displayed_variables,
-                radius,
-                n_sides,
-                vertical_factor,
-            )
-        else:
-            vtk_object = export.borehole_to_multiblock(
-                data,
-                self._bottom,
-                displayed_variables,
-                radius,
-                n_sides,
-                vertical_factor,
-            )
+        vtk_object = export.borehole_to_multiblock(
+            data,
+            self.positional_columns,
+            displayed_variables,
+            radius,
+            n_sides,
+            vertical_factor,
+        )
 
         return vtk_object
 
@@ -1860,17 +1850,9 @@ class GeostFrame(AbstractBase):
         data = self._get_depth_relative_to_surface()
         displayed_variables = self._to_iterable(displayed_variables)
 
-        if self._top:
-            vtk_object = export.layerdata_to_pyvista_unstructured(
-                data,
-                [self._top, self._bottom],
-                displayed_variables,
-                radius=radius,
-            )
-        else:
-            vtk_object = export.layerdata_to_pyvista_unstructured(
-                data, self._bottom, displayed_variables, radius=radius
-            )
+        vtk_object = export.layerdata_to_pyvista_unstructured(
+            data, self.positional_columns, displayed_variables, radius=radius
+        )
 
         return vtk_object
 
