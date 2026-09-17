@@ -61,6 +61,7 @@ Generic
 
    GeostFrame.to_collection
    GeostFrame.to_header
+   GeostFrame.standardize_column_names
    GeostFrame.validate
 
 Data manipulation
@@ -68,8 +69,9 @@ Data manipulation
 .. autosummary::
    :toctree: generated/
 
-   GeostFrame.standardize_column_names
+   GeostFrame.add_model_data
    GeostFrame.aggregate_consecutive_layers
+   GeostFrame.merge_sorted
 
 Export
 -----------------------------

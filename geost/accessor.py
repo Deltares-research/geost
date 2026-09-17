@@ -1946,6 +1946,92 @@ class GeostFrame(AbstractBase):
 
     @_requires_depth
     def merge_sorted(self, other: pd.DataFrame, backfill: bool = True) -> pd.DataFrame:
+        """
+        Insert intervals from another DataFrame into the current DataFrame, sorted by
+        survey and depth. Intervals from `other` are inserted at their corresponding
+        depths and can split existing intervals at their top and bottom boundaries.
+        Use ``backfill=True`` to propagate values from inserted intervals to preceding
+        intervals within each survey, as shown in the examples below.
+
+        Parameters
+        ----------
+        other : pd.DataFrame
+            DataFrame containing intervals to insert into the current DataFrame.
+        backfill : bool, optional
+            If True, backfill missing values within each survey from inserted intervals
+            to preceding intervals. The default is True.
+
+        Returns
+        -------
+        pd.DataFrame
+            A new DataFrame containing the combined and depth-sorted survey intervals.
+
+        Returns
+        -------
+        pd.DataFrame
+            A new DataFrame containing the merged and depth-sorted data.
+
+        Examples
+        --------
+
+        >>> import pandas as pd
+        ... import geost # Register the `.gst` accessor
+        ... boreholes = pd.DataFrame(
+        ...     {
+        ...         "nr": ["A", "A", "B", "B"],
+        ...         "surface": [0.2, 0.2, 0.3, 0.3],
+        ...         "top": [0, 0.8, 0, 1.0],
+        ...         "bottom": [0.8, 1.2, 1.0, 1.5],
+        ...         "lith": ["K", "K", "Z", "K"],
+        ...     }
+        ... )
+        ... boreholes
+          nr  surface  top  bottom lith
+        0  A      0.2  0.0     0.8    K
+        1  A      0.2  0.8     1.2    K
+        2  B      0.3  0.0     1.0    Z
+        3  B      0.3  1.0     1.5    K
+
+        >>> to_merge = pd.DataFrame(
+        ...        {
+        ...            "nr": ["A", "B"],
+        ...            "top": [0.0, 0.0],
+        ...            "bottom": [1.1, 2.0],
+        ...            "value": [15, 35],
+        ...        }
+        ...    )
+        ... to_merge
+          nr  top  bottom  value
+        0  A  0.0     1.1     15
+        1  B  0.0     2.0     35
+
+        >>> result = boreholes.gst.merge_sorted(to_merge, backfill=True)
+        ... result
+          nr  surface  top  bottom lith  value
+        0  A      0.2  0.0     0.8    K   15.0
+        1  A      0.2  0.8     1.1    K   15.0
+        2  A      0.2  1.1     1.2    K    NaN
+        3  B      0.3  0.0     1.0    Z   35.0
+        4  B      0.3  1.0     1.5    K   35.0
+        5  B      NaN  1.5     2.0  NaN   35.0
+
+        >>> result = boreholes.gst.merge_sorted(to_merge, backfill=False)
+        ... result
+          nr  surface  top  bottom lith  value
+        0  A      0.2  0.0     0.8    K    NaN
+        1  A      NaN  0.8     1.1  NaN   15.0
+        2  A      0.2  1.1     1.2    K    NaN
+        3  B      0.3  0.0     1.0    Z    NaN
+        4  B      0.3  1.0     1.5    K    NaN
+        5  B      NaN  1.5     2.0  NaN   35.0
+
+        """
+        top_other = other.gst._top
+        if top_other is not None:
+            other = other.drop(
+                columns=top_other
+            )  # We don't need the other top for the merge because we recalculate it from the new data
+
         result = pd.merge_ordered(self._obj, other, on=[self._nr, self._bottom])
         if backfill:
             result = pd.concat(
@@ -1966,17 +2052,94 @@ class GeostFrame(AbstractBase):
         model: xr.Dataset | xr.DataArray,
         *,
         data_vars: str | list[str] = None,
+        aggregate_vars: dict[str, str] = None,
         suffix: str = None,
-        agg_funcs: dict[str, str] = None,
     ) -> pd.DataFrame:
+        """
+        Add information from one or more variables from a voxelmodel or layermodel as columns.
+
+        For each survey, this determines the vertical model stack at the survey's location
+        and identifies the layer boundaries within that stack based on changes in the selected
+        model variables. Survey intervals are split at these model layer boundaries, and the
+        corresponding model information is backfilled to the resulting intervals. The resulting
+        data are sorted by depth. This is illustrated in the example below.
+
+        .. code-block:: text
+
+            Survey data:
+               nr  top  bottom lith
+            0   A  0.0    10.0    Z
+
+            Layer boundaries derived from the model data for "variable" at the location of the
+            survey:
+               top  bottom  variable
+            0  0.0     8.0         1
+            1  8.0    11.0         2
+
+            Result:
+               nr  top  bottom lith  variable
+            0   A  0.0     8.0    Z       1.0
+            1   A  8.0    10.0    Z       2.0
+
+        Parameters
+        ----------
+        model : xr.Dataset | xr.DataArray
+            Xarray Dataset or DataArray containing the model data.
+        data_vars : str | list[str], optional
+            Variable or variables from the model to add. These variables are used to determine
+            the layer boundaries. A layer boundary is defined where the value of a variable
+            changes with depth; consecutive equal values are considered part of the same layer.
+            If multiple variables are given, they are treated jointly when determining the
+            layer boundaries. If None, all model variables are added and jointly considered
+            for determining the layer boundaries.
+        aggregate_vars : dict[str, str], optional
+            Optional dictionary specifying how to aggregate additional model variables, not
+            given in `data_vars`, over the layers derived from `data_vars`. The keys are the
+            model variable names and the values are the aggregation functions (e.g., `"mean"`
+            or `"sum"`).
+        suffix : str, optional
+            Suffix to append to the added model variable columns to avoid name conflicts with
+            existing columns in the survey data. If None, no suffix is added. In case of a name
+            conflict, the existing column is overwritten.
+
+        Returns
+        -------
+        pd.DataFrame
+            New DataFrame containing the added information from the model.
+
+        Examples
+        --------
+        Add all model variables to the DataFrame.
+
+        >>> result = dataframe.gst.add_model_data(model)
+
+        To add specific model variables to the DataFrame, use the `data_vars` parameter.
+
+        >>> result = dataframe.gst.add_model_data(model, data_vars="variable") # This treats consecutive values in "variable" as a layer
+        >>> result = dataframe.gst.add_model_data(
+        ...     model, data_vars=["variable1", "variable2"] # This treats jointly consecutive values in "variable1" and "variable2" as layers
+        ... )
+
+        To add specific model variables and aggregate additional ones over the derived layers,
+        use the `aggregate_vars` parameter.
+
+        >>> result = dataframe.gst.add_model_data(
+        ...     model, data_vars="variable", aggregate_vars={"other_variable": "mean"}
+        ... )
+
+        """
         from geost.analysis.combine import add_model_data
+        from geost.models._core import ModelType
+
+        if model.gst.model_type == ModelType.LAYER and data_vars is None:
+            data_vars = [model.gst.z_dim]
 
         return add_model_data(
             self._obj,
             model,
             data_vars=data_vars,
+            aggregate_vars=aggregate_vars,
             suffix=suffix,
-            agg_funcs=agg_funcs,
             nr_=self._nr,
             surface_=self._surface,
             bottom_=self._bottom,

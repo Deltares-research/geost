@@ -1799,10 +1799,89 @@ class Collection(AbstractBase):
         model: xr.Dataset | xr.DataArray,
         *,
         data_vars: str | list[str] = None,
+        aggregate_vars: dict[str, str] = None,
         suffix: str = None,
-        agg_funcs: dict[str, str] = None,
     ) -> Collection:
+        """
+        Add information from one or more variables from a voxelmodel or layermodel as columns
+        to the data table.
+
+        For each survey, this determines the vertical model stack at the survey's location
+        and identifies the layer boundaries within that stack based on changes in the selected
+        model variables. Survey intervals are split at these model layer boundaries, and the
+        corresponding model information is backfilled to the resulting intervals. The resulting
+        data are sorted by depth. This is illustrated in the example below.
+
+        .. code-block:: text
+
+            Survey data:
+               nr  top  bottom lith
+            0   A  0.0    10.0    Z
+
+            Layer boundaries derived from the model data for "variable" at the location of the
+            survey:
+               top  bottom  variable
+            0  0.0     8.0         1
+            1  8.0    11.0         2
+
+            Result:
+               nr  top  bottom lith  variable
+            0   A  0.0     8.0    Z       1.0
+            1   A  8.0    10.0    Z       2.0
+
+        Parameters
+        ----------
+        model : xr.Dataset | xr.DataArray
+            Xarray Dataset or DataArray containing the model data.
+        data_vars : str | list[str], optional
+            Variable or variables from the model to add. These variables are used to determine
+            the layer boundaries. A layer boundary is defined where the value of a variable
+            changes with depth; consecutive equal values are considered part of the same layer.
+            If multiple variables are given, they are treated jointly when determining the
+            layer boundaries. If None, all model variables are added and jointly considered
+            for determining the layer boundaries.
+        aggregate_vars : dict[str, str], optional
+            Optional dictionary specifying how to aggregate additional model variables, not
+            given in `data_vars`, over the layers derived from `data_vars`. The keys are the
+            model variable names and the values are the aggregation functions (e.g., `"mean"`
+            or `"sum"`).
+        suffix : str, optional
+            Suffix to append to the added model variable columns to avoid name conflicts with
+            existing columns in the survey data. If None, no suffix is added. In case of a name
+            conflict, the existing column is overwritten.
+
+        Returns
+        -------
+        :class:`~geost.base.Collection`
+            New `Collection` containing the added information from the model in the data
+            table.
+
+        Examples
+        --------
+        Add all model variables to the collection.
+
+        >>> result = collection.add_model_data(model)
+
+        To add specific model variables to the collection, use the `data_vars` parameter.
+
+        >>> result = collection.add_model_data(model, data_vars="variable") # This treats consecutive values in "variable" as a layer
+        >>> result = collection.add_model_data(
+        ...     model, data_vars=["variable1", "variable2"]  # This treats jointly consecutive values in "variable1" and "variable2" as layers
+        ... )
+
+        To add specific model variables and aggregate additional ones over the derived layers,
+        use the `aggregate_vars` parameter.
+
+        >>> result = collection.add_model_data(
+        ...     model, data_vars="variable", aggregate_vars={"other_variable": "mean"}
+        ... )
+
+        """
         from geost.analysis.combine import add_model_data
+        from geost.models._core import ModelType
+
+        if model.gst.model_type == ModelType.LAYER and data_vars is None:
+            data_vars = [model.gst.z_dim]
 
         positional_columns = self.data.gst.positional_columns
 
@@ -1810,8 +1889,8 @@ class Collection(AbstractBase):
             self,
             model,
             data_vars=data_vars,
+            aggregate_vars=aggregate_vars,
             suffix=suffix,
-            agg_funcs=agg_funcs,
             nr_=self._nr,
             surface_=positional_columns["surface"],
             bottom_=positional_columns["depth"],
