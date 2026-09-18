@@ -1566,6 +1566,11 @@ class GeostFrame(AbstractBase):
         depth = self._obj[[self._nr, self._surface]].drop_duplicates()
         depth = depth.merge(discretization, on=self._nr, how="right")
 
+        # Avoid `LossySetItemError` Pandas due to unstable dtypes
+        depth = depth.astype({bottom_: "float64"})
+        if top_ is not None:
+            depth = depth.astype({top_: "float64"})
+
         # If a surface is present we correct the discretization for the surface difference
         if not relative_to_reference and surface_ is not None:
             depth["surface_correction"] = depth[self._surface] - depth["surface_right"]
@@ -1652,8 +1657,9 @@ class GeostFrame(AbstractBase):
         # The surface, top, bottom and dz of the first row in survey "B" may cause the fraction
         # to exceed 1 if the clip is not used. The clip does not affect other implementations.
 
+        # Merge with discretization and only keep results with computed fractions
         discretized = discretized.merge(
-            percentages, on=[self._nr, "nz"], how="left"
+            percentages, on=[self._nr, "nz"], how="right"
         ).drop(columns="nz", errors="ignore")
 
         return discretized
