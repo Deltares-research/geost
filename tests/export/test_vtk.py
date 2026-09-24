@@ -5,16 +5,17 @@ import pytest
 import pyvista as pv
 from numpy.testing import assert_array_equal
 
+import geost
 from geost.export import vtk
 
 
 @pytest.mark.unittest
 def test_prepare_as_continous(cpt_data):
     cpt_prepared = vtk.prepare_as_continuous(
-        cpt_data, depth_column="depth", vertical_factor=1
+        cpt_data, "depth", "x", "y", vertical_factor=1
     )
     cpt_prepared_vert_fac = vtk.prepare_as_continuous(
-        cpt_data, depth_column="depth", vertical_factor=2
+        cpt_data, "depth", "x", "y", vertical_factor=2
     )
 
     array_out = np.array(
@@ -49,10 +50,10 @@ def test_prepare_as_continous(cpt_data):
 @pytest.mark.unittest
 def test_prepare_as_layers(borehole_data):
     borehole_prepared = vtk.prepare_as_layers(
-        borehole_data, depth_column=["top", "bottom"], vertical_factor=1
+        borehole_data, ["top", "bottom"], "x", "y", vertical_factor=1
     )
     borehole_prepared_vert_fac = vtk.prepare_as_layers(
-        borehole_data, depth_column=["top", "bottom"], vertical_factor=2
+        borehole_data, ["top", "bottom"], "x", "y", vertical_factor=2
     )
 
     array_out = np.array(
@@ -118,7 +119,7 @@ def test_prepare_as_layers(borehole_data):
 def test_generate_cylinders_layereddata(borehole_data):
     cylinders = vtk.generate_cylinders(
         borehole_data,
-        depth_column=["top", "bottom"],
+        positional_columns=borehole_data.gst.positional_columns,
         data_columns=["lith"],
         radius=0.5,
         n_sides=8,
@@ -139,7 +140,7 @@ def test_generate_cylinders_layereddata(borehole_data):
 def test_generate_cylinders_continuousdata(cpt_data):
     cylinders = vtk.generate_cylinders(
         cpt_data,
-        depth_column="depth",
+        positional_columns=cpt_data.gst.positional_columns,
         data_columns=["qc"],
         radius=0.5,
         n_sides=8,
@@ -160,7 +161,7 @@ def test_generate_cylinders_continuousdata(cpt_data):
 def test_borehole_to_multiblock(borehole_data, cpt_data):
     multiblock_bh = vtk.borehole_to_multiblock(
         borehole_data,
-        depth_column=["top", "bottom"],
+        positional_columns=borehole_data.gst.positional_columns,
         displayed_variables=["lith"],
         radius=0.5,
         n_sides=8,
@@ -172,7 +173,7 @@ def test_borehole_to_multiblock(borehole_data, cpt_data):
 
     multiblock_cpt = vtk.borehole_to_multiblock(
         cpt_data,
-        depth_column="depth",
+        positional_columns=cpt_data.gst.positional_columns,
         displayed_variables=["qc"],
         radius=0.5,
         n_sides=8,
@@ -187,7 +188,7 @@ def test_borehole_to_multiblock(borehole_data, cpt_data):
 def test_layerdata_to_pyvista_unstructured(borehole_data, cpt_data):
     unstructured_grid_boreholes = vtk.layerdata_to_pyvista_unstructured(
         borehole_data,
-        depth_column=["top", "bottom"],
+        positional_columns=borehole_data.gst.positional_columns,
         displayed_variables=["lith"],
     )
 
@@ -197,7 +198,9 @@ def test_layerdata_to_pyvista_unstructured(borehole_data, cpt_data):
     assert unstructured_grid_boreholes.cell_data.keys() == ["lith"]
 
     unstructured_grid_cpt = vtk.layerdata_to_pyvista_unstructured(
-        cpt_data, depth_column="depth", displayed_variables=["qc"]
+        cpt_data,
+        positional_columns=cpt_data.gst.positional_columns,
+        displayed_variables=["qc"],
     )
 
     assert isinstance(unstructured_grid_cpt, pv.UnstructuredGrid)
