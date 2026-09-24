@@ -1596,27 +1596,44 @@ class GeostFrame(AbstractBase):
     def compute_discretized_fractions(
         self,
         column: str,
-        discretization: np.ndarray,
+        discretization: float | int | list | np.ndarray | pd.DataFrame,
+        bins: int | float | list | np.ndarray = None,
+        bin_centers_as_columns: bool = False,
         relative_to_reference: bool = False,
-        breaks: int | float | list | np.ndarray = None,
     ) -> pd.DataFrame:
         """
-        _summary_
+        Calculate the fraction of each categorical value in the specified column within
+        a given depth discretization. For discretizing continuous values, use the `bins`
+        parameter to define the ranges.
 
         Parameters
         ----------
         column : str
-            _description_
-        discretization : np.ndarray
-            _description_
-        breaks : int | float | list | np.ndarray, optional
-            _description_, by default None
+            Name of the column containing the values to fractionate per discretized layer.
+        discretization : float | int | list | np.ndarray | pd.DataFrame
+            Definition of discretization layers. When a scalar is provided, it defines a
+            uniform layer thickness. When a sequence is provided, it defines the specific
+            layer boundaries. When a DataFrame is provided, a custom discretization per
+            survey must be provided.
+        bins : int | float | list | np.ndarray, optional
+            Bin definition. A scalar creates two bins (larger than the scalar and smaller
+            than or equal to the scalar), while a sequence defines internal bin edges and
+            adds open-ended bins at both ends (unless bin_centers_as_columns is True).
+        bin_centers_as_columns : bool, optional
+            If True, use bin centers as output column labels rather than ranges. Will not
+            add open-ended bins at both ends, by default False.
+        relative_to_reference : bool, optional
+            If True, interpret depths relative to the reference surface,
+            by default False.
 
         Returns
         -------
         pd.DataFrame
-            _description_
+            The discretization data with one column per bin containing the
+            fraction of each layer in that bin.
 
+        Examples
+        --------
         """
         discretized = self._get_discretization(discretization, relative_to_reference)
 
@@ -1627,15 +1644,22 @@ class GeostFrame(AbstractBase):
             keep_surveys="inner",  # We can only compute fractions if we have discretization for a survey
         )
 
-        if breaks is not None:
-            if isinstance(breaks, (int, float)):
-                labels = [f"<={breaks}", f">{breaks}"]
-                breaks = [-np.inf, breaks, np.inf]
-            else:
-                labels = [f"{v1}-{v2}" for v1, v2 in itertools.pairwise(breaks)]
-                labels = [f"<={breaks[0]}", *labels, f">{breaks[-1]}"]
-                breaks = [-np.inf, *breaks, np.inf]
-            temp[column] = pd.cut(temp[column], bins=breaks, labels=labels)
+        if bins is not None:
+            if isinstance(bins, (int, float)):
+                labels = [f"<={bins}", f">{bins}"]
+                bins = [-np.inf, bins, np.inf]
+            elif isinstance(bins, (list, np.ndarray)):
+                if bin_centers_as_columns:
+                    labels = [
+                        str((float(v2) + float(v1)) / 2)
+                        for v1, v2 in itertools.pairwise(bins)
+                    ]
+                else:
+                    labels = [f"{v1}-{v2}" for v1, v2 in itertools.pairwise(bins)]
+                    labels = [f"<={bins[0]}", *labels, f">{bins[-1]}"]
+                    bins = [-np.inf, *bins, np.inf]
+
+            temp[column] = pd.cut(temp[column], bins=bins, labels=labels)
 
         temp["thickness"] = temp.gst.calculate_thickness()
 

@@ -1425,13 +1425,15 @@ class Collection(AbstractBase):
         column: str,
         discretization: np.ndarray,
         relative_to_reference: bool = False,
-        breaks: int | float | list | np.ndarray = None,
+        bins: int | float | list | np.ndarray = None,
+        bin_centers_as_columns: bool = False,
     ):
         discretized = self.data.gst.compute_discretized_fractions(
             column=column,
             discretization=discretization,
             relative_to_reference=relative_to_reference,
-            breaks=breaks,
+            bins=bins,
+            bin_centers_as_columns=bin_centers_as_columns,
         )
         header = self.header.gst.select_by_values(
             self._nr, discretized[self._nr].unique()

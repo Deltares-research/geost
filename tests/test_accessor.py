@@ -1503,7 +1503,7 @@ class TestGeostFrame:
         subset["value"] = rand_rng.random(len(subset))
 
         result = subset.gst.compute_discretized_fractions(
-            "value", discretization, breaks=[0.33, 0.67]
+            "value", discretization, bins=[0.33, 0.67]
         )
         assert isinstance(result, pd.DataFrame)
         assert_array_equal(result["nr"], ["A", "A", "A", "A", "B", "B", "B", "B"])
@@ -1528,9 +1528,9 @@ class TestGeostFrame:
             result[">0.67"], [np.nan, 0.4, 0.5, np.nan, np.nan, 0.8, 0.2, 0.7]
         )
 
-        # If we specify breaks that cover the entire range, only the column names should be changed
+        # If we specify bins that cover the entire range, only the column names should be changed
         result_entire_range = subset.gst.compute_discretized_fractions(
-            "value", discretization, breaks=[0, 0.33, 0.67, 1]
+            "value", discretization, bins=[0, 0.33, 0.67, 1]
         )
         assert_array_equal(
             result_entire_range.columns,
@@ -1543,18 +1543,36 @@ class TestGeostFrame:
         assert_array_almost_equal(result["0.33-0.67"], result_entire_range["0.33-0.67"])
         assert_array_almost_equal(result[">0.67"], result_entire_range["0.67-1"])
 
-        # Test using only one value as "break"
-        result_single_break = subset.gst.compute_discretized_fractions(
-            "value", discretization, breaks=0.5
+        # If we specify that we want bin centers as columns
+        result_entire_range = subset.gst.compute_discretized_fractions(
+            "value",
+            discretization,
+            bins=[0, 0.33, 0.67, 1],
+            bin_centers_as_columns=True,
         )
-        assert result[["nr", "top", "bottom", "dz"]].equals(
+        assert_array_equal(
+            result_entire_range.columns,
+            ["nr", "surface", "top", "bottom", "dz", "0.165", "0.5", "0.835"],
+        )
+        assert result[["nr", "surface", "top", "bottom", "dz"]].equals(
+            result_entire_range[["nr", "surface", "top", "bottom", "dz"]]
+        )
+        assert_array_almost_equal(result["<=0.33"], result_entire_range["0.165"])
+        assert_array_almost_equal(result["0.33-0.67"], result_entire_range["0.5"])
+        assert_array_almost_equal(result[">0.67"], result_entire_range["0.835"])
+
+        # Test using only one value as "bins"
+        result_single_bin = subset.gst.compute_discretized_fractions(
+            "value", discretization, bins=0.5
+        )
+        assert result_single_bin[["nr", "top", "bottom", "dz"]].equals(
             result_entire_range[["nr", "top", "bottom", "dz"]]
         )
         assert_array_almost_equal(
-            result_single_break["<=0.5"], [1.0, 0.6, 0.5, 1.0, 1.0, 0.2, 0.8, 0.25]
+            result_single_bin["<=0.5"], [1.0, 0.6, 0.5, 1.0, 1.0, 0.2, 0.8, 0.25]
         )
         assert_array_almost_equal(
-            result_single_break[">0.5"],
+            result_single_bin[">0.5"],
             [np.nan, 0.4, 0.5, np.nan, np.nan, 0.8, 0.2, 0.7],
         )
 
