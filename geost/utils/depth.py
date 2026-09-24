@@ -1,3 +1,4 @@
+import numpy as np
 import pandas as pd
 
 
@@ -25,14 +26,16 @@ def reset_tops(layered: pd.DataFrame, nr: str, top: str, bottom: str) -> pd.Data
         DataFrame with the tops reset.
 
     """
+    layered[top] = layered[top].astype(np.float64)
+    layered[bottom] = layered[bottom].astype(np.float64)
+
     layered.loc[layered.gst.first_row_survey & layered[top].isna(), top] = 0
 
     bottom_shift_down = layered[bottom].shift()
     nr_shift_down = layered[nr].shift()
 
     layered.loc[
-        (layered[top].astype(bottom_shift_down.dtype) < bottom_shift_down)
-        & (layered[nr] == nr_shift_down),
+        (layered[top] < bottom_shift_down) & (layered[nr] == nr_shift_down),
         top,
     ] = bottom_shift_down
 

@@ -22,8 +22,8 @@ def test_reset_tops(inconsistent_layered):
     expected = pd.DataFrame(
         {
             "nr": ["BH1", "BH1", "BH1", "BH1"],
-            "top": [0, 10, 15, 20],
-            "bottom": [10, 15, 20, 30],
+            "top": [0., 10., 15., 20.],
+            "bottom": [10., 15., 20., 30.],
         }
     )
 
