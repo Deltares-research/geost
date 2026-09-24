@@ -31,9 +31,10 @@ def reset_tops(layered: pd.DataFrame, nr: str, top: str, bottom: str) -> pd.Data
     nr_shift_down = layered[nr].shift()
 
     layered.loc[
-        (layered[top] < bottom_shift_down) & (layered[nr] == nr_shift_down),
+        (layered[top].astype(bottom_shift_down.dtype) < bottom_shift_down)
+        & (layered[nr] == nr_shift_down),
         top,
-    ] = bottom_shift_down.astype(layered[top].dtype)
+    ] = bottom_shift_down
 
     layered[top] = layered[top].fillna(layered[bottom].shift())
 
