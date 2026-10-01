@@ -18,10 +18,8 @@ For example:
 
 .. code-block:: python
 
-    import pandas as pd
-
     # create a DataFrame with x and y coordinates for three points identified by 'nr'
-    df = pd.DataFrame({"nr": ["a", "b", "c"], "y": [1.2, 2.3, 3.4], "x": [0.8, 1.9, 2.0]})
+    df = geost.pandas_dataframe({"nr": ["a", "b", "c"], "y": [1.2, 2.3, 3.4], "x": [0.8, 1.9, 2.0]})
     df.gst.has_xy_columns
     # Output:
     # True

@@ -1634,6 +1634,88 @@ class GeostFrame(AbstractBase):
 
         Examples
         --------
+        Calculate lithology fractions in uniform 1-meter layers:
+
+        >>> import geost
+        ... boreholes = geost.pandas_dataframe(
+        ...     {
+        ...         "nr": ["A", "A", "B", "B"],
+        ...         "surface": [0.2, 0.2, 0.3, 0.3],
+        ...         "top": [0.0, 1.0, 0.0, 1.0],
+        ...         "bottom": [1.0, 2.0, 1.0, 2.0],
+        ...         "lith": ["K", "Z", "K", "V"],
+        ...     }
+        ... )
+        >>> boreholes.gst.compute_discretized_fractions("lith", 1)
+          nr  surface  top  bottom   dz    K    V    Z
+        0  A      0.2  0.0     1.0  1.0  1.0  NaN  NaN
+        1  A      0.2  1.0     2.0  1.0  NaN  NaN  1.0
+        2  B      0.3  0.0     1.0  1.0  1.0  NaN  NaN
+        3  B      0.3  1.0     2.0  1.0  NaN  1.0  NaN
+
+        Supply explicit layer boundaries instead of a uniform thickness:
+
+        >>> discretization = [0.5, 1.0, 2.0]
+        >>> boreholes.gst.compute_discretized_fractions("lith", discretization)
+           nr  surface  top  bottom   dz    K    V    Z
+        0   A      0.2  0.0     0.5  0.5  1.0  NaN  NaN
+        1   A      0.2  0.5     1.0  0.5  1.0  NaN  NaN
+        2   A      0.2  1.0     2.0  1.0  NaN  NaN  1.0
+        3   B      0.3  0.0     0.5  0.5  1.0  NaN  NaN
+        4   B      0.3  0.5     1.0  0.5  1.0  NaN  NaN
+        5   B      0.3  1.0     2.0  1.0  NaN  1.0  NaN
+
+        For continuous values, use `bins` to calculate fractions per value range:
+
+        >>> boreholes["value"] = [0.2, 0.8, 0.4, 0.9]
+        >>> boreholes.gst.compute_discretized_fractions(
+        ...     "value", discretization, bins=[0.33, 0.67]
+        ... )
+           nr  surface  top  bottom   dz   <=0.33   0.33-0.67   >0.67
+        0   A      0.2  0.0     0.5  0.5      1.0         NaN     NaN
+        1   A      0.2  0.5     1.0  0.5      NaN         NaN     1.0
+        2   A      0.2  1.0     2.0  1.0      NaN         NaN     1.0
+        3   B      0.3  0.0     0.5  0.5      NaN         NaN     1.0
+        4   B      0.3  0.5     1.0  0.5      NaN         NaN     1.0
+        5   B      0.3  1.0     2.0  1.0      NaN         NaN     1.0
+
+        Interpret discretization boundaries relative to the reference surface with
+        `relative_to_reference=True`:
+
+        >>> boreholes.gst.compute_discretized_fractions(
+        ...     "lith", [1, 0, -1], relative_to_reference=True
+        ... )
+           nr  surface  top  bottom   dz    K    V    Z
+        0   A      0.2    1     0.0  1.0  1.0  NaN  NaN
+        1   A      0.2    0    -1.0  1.0  NaN  NaN  1.0
+        2   B      0.3    1     0.0  1.0  1.0  NaN  NaN
+        3   B      0.3    0    -1.0  1.0  NaN  1.0  NaN
+
+        You can also provide a `pandas.DataFrame` for survey-specific discretization
+        boundaries. If the discretization contains surface information which differs from
+        the surface levels of the surveys, the layer boundaries of the discretization will
+        be adjusted accordingly and the result contains a `surface_correction` column. Without
+        surface information in the discretization, the layer boundaries will be applied as-is.
+
+        >>> discretization_df = pd.DataFrame(
+        ...     {
+        ...         "nr": ["A", "A", "A", "B", "B", "B", "B"],
+        ...         "surface": [0.4, 0.4, 0.4, 0.2, 0.2, 0.2, 0.2],
+        ...         "top": [0, 0.5, 1.0, 0, 0.5, 1.0, 2.0],
+        ...         "bottom": [0.5, 1.0, 2.0, 0.5, 1.0, 2.0, 4.0],
+        ...     }
+        ... )
+        >>> result = boreholes.gst.compute_discretized_fractions(
+        ...     "lith", discretization_df
+        ... )
+        >>> result
+          nr  surface  top  bottom  surface_correction   dz    K    V    Z
+        0  A      0.2  0.0     0.3                -0.2  0.3  1.0  NaN  NaN
+        1  A      0.2  0.3     0.8                -0.2  0.5  1.0  NaN  NaN
+        2  A      0.2  0.8     1.8                -0.2  1.0  0.2  NaN  0.8
+        3  B      0.3  0.0     0.6                 0.1  0.6  1.0  NaN  NaN
+        4  B      0.3  0.6     1.1                 0.1  0.5  0.8  0.2  NaN
+        5  B      0.3  1.1     2.1                 0.1  1.0  NaN  0.9  NaN
         """
         discretized = self._get_discretization(discretization, relative_to_reference)
 
@@ -1730,9 +1812,8 @@ class GeostFrame(AbstractBase):
         Say we have borehole data and we want to combine consecutive layers with the same
         lithology.
 
-        >>> import pandas as pd
-        ... import geost # Register the `.gst` accessor
-        ... boreholes = pd.DataFrame(
+        >>> import geost
+        ... boreholes = geost.pandas_dataframe(
         ...     {
         ...         "nr": ["A", "A", "A", "B", "B", "B"],
         ...         "surface": [0.2, 0.2, 0.2, 0.3, 0.3, 0.3],
@@ -2201,9 +2282,8 @@ class GeostFrame(AbstractBase):
         Examples
         --------
 
-        >>> import pandas as pd
-        ... import geost # Register the `.gst` accessor
-        ... boreholes = pd.DataFrame(
+        >>> import geost
+        ... boreholes = geost.pandas_dataframe(
         ...     {
         ...         "nr": ["A", "A", "B", "B", "C", "C"],
         ...         "surface": [0.2, 0.2, 0.3, 0.3, 0.25, 0.25],

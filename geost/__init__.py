@@ -1,6 +1,7 @@
 from geost import accessor, data
 from geost.base import Collection
 from geost.config import delete_user_positional_column_aliases
+from geost.dataframe import pandas_dataframe
 from geost.io.read import (
     bro_api_read,
     read_bhrg,

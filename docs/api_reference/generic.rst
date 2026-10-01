@@ -3,6 +3,15 @@ Generic functions
 
 .. currentmodule:: geost
 
+
+DataFrame
+---------
+.. autosummary::
+    :toctree: generated/
+
+    geost.pandas_dataframe
+
+
 Positional columns
 --------------------
 .. autosummary::
