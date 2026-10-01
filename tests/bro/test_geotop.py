@@ -1,9 +1,9 @@
 import numpy as np
 import pandas as pd
 import pytest
-from numpy.testing import assert_array_equal
+from matplotlib.colors import BoundaryNorm, ListedColormap
+from numpy.testing import assert_array_almost_equal, assert_array_equal
 
-from geost import read_geotop_netcdf
 from geost.bro.geotop import (
     GeotopUnits,
     UnitType,
@@ -550,4 +550,23 @@ class TestGeotopMetadata:
                 "NUEC2",
                 "NUNI",
             ],
+        )
+
+    @pytest.mark.unittest
+    def test_get_plot_colormap(self, metadata_strat):
+        unit_selection = metadata_strat.select_voxel_nr([1000, 1005, 1010])
+        colors = unit_selection.get_plot_colormap()
+        assert isinstance(colors, dict)
+        assert isinstance(colors["cmap"], ListedColormap)
+        assert isinstance(colors["norm"], BoundaryNorm)
+        assert_array_almost_equal(
+            colors["cmap"].colors,
+            [
+                [0.78431373, 0.78431373, 0.78431373],
+                [0.43137255, 0.43137255, 0.43137255],
+                [0.51764706, 0.34509804, 0.17254902],
+            ],
+        )
+        assert_array_almost_equal(
+            colors["norm"].boundaries, [999.0, 1000.0, 1002.5, 1011.0]
         )
