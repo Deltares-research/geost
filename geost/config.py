@@ -22,9 +22,11 @@ class ValidationSettings:
 
     SKIP = False
     VERBOSE = True
-    DROP_INVALID = True
-    FLAG_INVALID = False
+    _DROP_INVALID = True
+    _FLAG_INVALID = False
     AUTO_ALIGN = True
+
+    user_set_drop_invalid = True
 
     def reset_settings(self):
         """
@@ -33,9 +35,34 @@ class ValidationSettings:
         """
         self.SKIP = False
         self.VERBOSE = True
-        self.DROP_INVALID = True
-        self.FLAG_INVALID = False
+        self._DROP_INVALID = True
+        self._FLAG_INVALID = False
+        self.user_set_drop_invalid = True
         self.AUTO_ALIGN = True
+
+    @property
+    def FLAG_INVALID(self) -> bool:  # noqa: N802
+        return self._FLAG_INVALID
+
+    @FLAG_INVALID.setter
+    def FLAG_INVALID(self, value: bool):  # noqa: N802
+        if value:
+            self._DROP_INVALID = False
+            self._FLAG_INVALID = value
+        if not value:
+            self._FLAG_INVALID = False
+            # Restore the user's preference for DROP_INVALID
+            self._DROP_INVALID = self.user_set_drop_invalid
+
+    @property
+    def DROP_INVALID(self) -> bool:  # noqa: N802
+        return self._DROP_INVALID
+
+    @DROP_INVALID.setter
+    def DROP_INVALID(self, value: bool):  # noqa: N802
+        self._DROP_INVALID = value
+        # Update the user's preference for DROP_INVALID
+        self.user_set_drop_invalid = value
 
 
 def load_user_positional_column_aliases() -> dict[str, list[str]]:
