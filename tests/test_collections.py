@@ -63,6 +63,27 @@ class TestCollection:
             Collection(borehole_data.rename(columns={"nr": "invalid"}))
 
     @pytest.mark.unittest
+    def test_init_from_dicts(self):
+        data = {
+            "nr": ["A", "A", "B", "B"],
+            "surface": [0.2, 0.2, 0.3, 0.3],
+            "top": [0, 0.5, 0, 0.5],
+            "bottom": [0.5, 1, 0.5, 1],
+            "lith": ["sand", "clay", "sand", "clay"],
+        }
+        header = {
+            "nr": ["A", "B"],
+            "surface": [0.2, 0.3],
+            "geometry": [Point(1, 2), Point(3, 4)],
+        }
+
+        collection = Collection(data, header=header)
+
+        assert isinstance(collection.data, pd.DataFrame)
+        assert isinstance(collection.header, gpd.GeoDataFrame)
+        assert collection.header_has_geometry
+
+    @pytest.mark.unittest
     def test_init_from_header_and_data(self, borehole_data):
         header = borehole_data.drop_duplicates("nr").reset_index(drop=True)
         assert isinstance(

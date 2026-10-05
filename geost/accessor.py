@@ -1614,7 +1614,8 @@ class GeostFrame(AbstractBase):
             Definition of discretization layers. When a scalar is provided, it defines a
             uniform layer thickness. When a sequence is provided, it defines the specific
             layer boundaries. When a DataFrame is provided, a custom discretization per
-            survey must be provided.
+            survey must be provided. Note that in the case of a DataFrame, the result only
+            contains surveys which had corresponding discretization defined.
         bins : int | float | list | np.ndarray, optional
             Bin definition. A scalar creates two bins (larger than the scalar and smaller
             than or equal to the scalar), while a sequence defines internal bin edges and
@@ -1637,7 +1638,8 @@ class GeostFrame(AbstractBase):
         Calculate lithology fractions in uniform 1-meter layers:
 
         >>> import geost
-        ... boreholes = geost.pandas_dataframe(
+        >>> import pandas as pd
+        >>> boreholes = pd.DataFrame(
         ...     {
         ...         "nr": ["A", "A", "B", "B"],
         ...         "surface": [0.2, 0.2, 0.3, 0.3],
@@ -1671,13 +1673,13 @@ class GeostFrame(AbstractBase):
         >>> boreholes.gst.compute_discretized_fractions(
         ...     "value", discretization, bins=[0.33, 0.67]
         ... )
-           nr  surface  top  bottom   dz   <=0.33   0.33-0.67   >0.67
-        0   A      0.2  0.0     0.5  0.5      1.0         NaN     NaN
-        1   A      0.2  0.5     1.0  0.5      NaN         NaN     1.0
-        2   A      0.2  1.0     2.0  1.0      NaN         NaN     1.0
-        3   B      0.3  0.0     0.5  0.5      NaN         NaN     1.0
-        4   B      0.3  0.5     1.0  0.5      NaN         NaN     1.0
-        5   B      0.3  1.0     2.0  1.0      NaN         NaN     1.0
+          nr  surface  top  bottom   dz  <=0.33  0.33-0.67  >0.67
+        0  A      0.2  0.0     0.5  0.5     1.0        NaN    NaN
+        1  A      0.2  0.5     1.0  0.5     1.0        NaN    NaN
+        2  A      0.2  1.0     2.0  1.0     NaN        NaN    1.0
+        3  B      0.3  0.0     0.5  0.5     NaN        1.0    NaN
+        4  B      0.3  0.5     1.0  0.5     NaN        1.0    NaN
+        5  B      0.3  1.0     2.0  1.0     NaN        NaN    1.0
 
         Interpret discretization boundaries relative to the reference surface with
         `relative_to_reference=True`:
@@ -1685,11 +1687,11 @@ class GeostFrame(AbstractBase):
         >>> boreholes.gst.compute_discretized_fractions(
         ...     "lith", [1, 0, -1], relative_to_reference=True
         ... )
-           nr  surface  top  bottom   dz    K    V    Z
-        0   A      0.2    1     0.0  1.0  1.0  NaN  NaN
-        1   A      0.2    0    -1.0  1.0  NaN  NaN  1.0
-        2   B      0.3    1     0.0  1.0  1.0  NaN  NaN
-        3   B      0.3    0    -1.0  1.0  NaN  1.0  NaN
+          nr  surface  top  bottom  dz    K    V    Z
+        0  A      0.2    1       0   1  0.2  NaN  NaN
+        1  A      0.2    0      -1   1  0.8  NaN  0.2
+        2  B      0.3    1       0   1  0.3  NaN  NaN
+        3  B      0.3    0      -1   1  0.7  0.3  NaN
 
         You can also provide a `pandas.DataFrame` for survey-specific discretization
         boundaries. If the discretization contains surface information which differs from
@@ -1716,6 +1718,7 @@ class GeostFrame(AbstractBase):
         3  B      0.3  0.0     0.6                 0.1  0.6  1.0  NaN  NaN
         4  B      0.3  0.6     1.1                 0.1  0.5  0.8  0.2  NaN
         5  B      0.3  1.1     2.1                 0.1  1.0  NaN  0.9  NaN
+
         """
         discretized = self._get_discretization(discretization, relative_to_reference)
 
@@ -1813,7 +1816,8 @@ class GeostFrame(AbstractBase):
         lithology.
 
         >>> import geost
-        ... boreholes = geost.pandas_dataframe(
+        >>> import pandas as pd
+        >>> boreholes = pd.DataFrame(
         ...     {
         ...         "nr": ["A", "A", "A", "B", "B", "B"],
         ...         "surface": [0.2, 0.2, 0.2, 0.3, 0.3, 0.3],
@@ -2283,7 +2287,8 @@ class GeostFrame(AbstractBase):
         --------
 
         >>> import geost
-        ... boreholes = geost.pandas_dataframe(
+        >>> import pandas as pd
+        >>> boreholes = pd.DataFrame(
         ...     {
         ...         "nr": ["A", "A", "B", "B", "C", "C"],
         ...         "surface": [0.2, 0.2, 0.3, 0.3, 0.25, 0.25],

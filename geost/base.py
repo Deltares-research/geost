@@ -43,15 +43,15 @@ class Collection(AbstractBase):
 
     Parameters
     ----------
-    data : :class:`pd.DataFrame`, optional
+    data : :class:`pd.DataFrame` or dict, optional
         Data table containing the logged information for all surveys, with one row per
-        logged layer in the survey. If not given, an empty DataFrame is set. The default
-        is None.
-    header : :class:`gpd.GeoDataFrame`, optional
+        logged layer in the survey. A dict is converted to a DataFrame. If not given, an
+        empty DataFrame is set. The default is None.
+    header : :class:`gpd.GeoDataFrame` or dict, optional
         Header containing one row per survey with metadata and spatial information. If not
-        given, the header will automatically be set from the data by dropping duplicates
-        in the column identifying the survey (e.g. "nr") and keeping the first row for each
-        survey. The default is None.
+        given, the header will automatically be set from the data by dropping duplicates in
+        the column identifying the survey (e.g. "nr") and keeping the first row for each
+        survey. A dict is converted to a GeoDataFrame. The default is None.
     has_inclined : bool, optional
         Boolean indicating whether there are inclined objects within the collection. This
         is used to determine whether the collection contains objects with bottom coordinates
@@ -65,12 +65,17 @@ class Collection(AbstractBase):
 
     def __init__(
         self,
-        data: pd.DataFrame = None,
+        data: pd.DataFrame | dict[str, Any] = None,
         *,
-        header: gpd.GeoDataFrame = None,
+        header: gpd.GeoDataFrame | dict[str, Any] = None,
         has_inclined: bool = False,
         vertical_datum: str | int | CRS = None,
     ):
+        if isinstance(data, dict):
+            data = pd.DataFrame(data)
+        if isinstance(header, dict):
+            header = gpd.GeoDataFrame(header)
+
         if data is None or data.empty:
             if header is not None and not header.empty:
                 raise ValueError(
@@ -1424,10 +1429,42 @@ class Collection(AbstractBase):
         self,
         column: str,
         discretization: np.ndarray,
-        relative_to_reference: bool = False,
         bins: int | float | list | np.ndarray = None,
         bin_centers_as_columns: bool = False,
-    ):
+        relative_to_reference: bool = False,
+    ) -> Collection:
+        """
+        Calculate the fraction of each categorical value in the specified column of the
+        data table within a given depth discretization. For discretizing continuous values,
+        use the `bins` parameter to define the ranges.
+
+        Parameters
+        ----------
+        column : str
+            Name of the column containing the values to fractionate per discretized layer.
+        discretization : float | int | list | np.ndarray | pd.DataFrame
+            Definition of discretization layers. When a scalar is provided, it defines a
+            uniform layer thickness. When a sequence is provided, it defines the specific
+            layer boundaries. When a DataFrame is provided, a custom discretization per
+            survey must be provided. Note that in the case of a DataFrame, the result only
+            contains surveys which had corresponding discretization defined.
+        bins : int | float | list | np.ndarray, optional
+            Bin definition. A scalar creates two bins (larger than the scalar and smaller
+            than or equal to the scalar), while a sequence defines internal bin edges and
+            adds open-ended bins at both ends (unless bin_centers_as_columns is True).
+        bin_centers_as_columns : bool, optional
+            If True, use bin centers as output column labels rather than ranges. Will not
+            add open-ended bins at both ends, by default False.
+        relative_to_reference : bool, optional
+            If True, interpret depths relative to the reference surface,
+            by default False.
+
+        Returns
+        -------
+        :class:`~geost.base.Collection`
+            New `Collection` containing the discretized fractions as the data table.
+
+        """
         discretized = self.data.gst.compute_discretized_fractions(
             column=column,
             discretization=discretization,
