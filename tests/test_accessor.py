@@ -280,7 +280,9 @@ class TestGeostFrame:
         header = borehole_data.gst.to_header()
         assert isinstance(header, gpd.GeoDataFrame)
         assert header.gst.has_geometry
-        assert_array_equal(header.columns, ["nr", "x", "y", "surface", "geometry"])
+        assert_array_equal(
+            header.columns, ["nr", "x", "y", "surface", "end", "geometry"]
+        )
 
         header = borehole_data.gst.to_header(
             include_columns=["top", "bottom", "lith"], coordinate_names=("x", "y")
@@ -289,7 +291,7 @@ class TestGeostFrame:
         assert header.gst.has_geometry
         assert_array_equal(
             header.columns,
-            ["nr", "x", "y", "surface", "top", "bottom", "lith", "geometry"],
+            ["nr", "x", "y", "surface", "end", "top", "bottom", "lith", "geometry"],
         )
 
         header = borehole_data.gst.to_header(coordinate_names=["x", "y"], crs=28992)

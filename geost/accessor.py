@@ -442,15 +442,11 @@ class GeostFrame(AbstractBase):
         """
         import shapely
 
-        non_header_cols = [
-            col
-            for col in self._obj
-            if col
-            not in [self._nr, self._surface, self._x, self._y]
-            + (list((self._to_iterable(include_columns) or [])))
-        ]
+        header_columns = [self._nr, self._x, self._y, self._surface, self._end]
+        if include_columns is not None:
+            header_columns += list(self._to_iterable(include_columns))
 
-        header = self._obj.drop(columns=non_header_cols).drop_duplicates(
+        header = self._obj.filter(header_columns).drop_duplicates(
             subset=self._nr, ignore_index=True
         )
 

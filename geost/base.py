@@ -90,7 +90,7 @@ class Collection(AbstractBase):
         elif header is None or header.empty:
             warnings.warn("Header is None, setting the header from the given data.")
             survey_id_col = self._check_survey_id_col(data, "Data")
-            header = data.drop_duplicates(survey_id_col).reset_index(drop=True)
+            header = data.gst.to_header()
         else:
             survey_id_col_header = self._check_survey_id_col(header, "Header")
             survey_id_col = self._check_survey_id_col(data, "Data")
@@ -219,7 +219,16 @@ class Collection(AbstractBase):
                 )
 
         self._header = header
-        self.check_header_to_data_alignment()
+
+        if hasattr(self, "_data"):
+            in_both, only_in_header, only_in_data = self._check_alignment()
+            if only_in_header or only_in_data:
+                if config.validation.AUTO_ALIGN:
+                    self._synchronize_tables(
+                        "header", in_both, only_in_header, only_in_data
+                    )
+                else:
+                    self._warn_misaligned_tables(only_in_header, only_in_data)
 
     @data.setter
     def data(self, data):
@@ -228,7 +237,107 @@ class Collection(AbstractBase):
                 data = data.gst.validate()
 
         self._data = data
-        self.check_header_to_data_alignment()
+
+        if hasattr(self, "_header"):
+            in_both, only_in_header, only_in_data = self._check_alignment()
+            if only_in_header or only_in_data:
+                if config.validation.AUTO_ALIGN:
+                    self._synchronize_tables(
+                        "data", in_both, only_in_header, only_in_data
+                    )
+                else:
+                    self._warn_misaligned_tables(only_in_header, only_in_data)
+
+    def _check_alignment(self) -> tuple[list[str], list[str], list[str]]:
+        """
+        Two-way check to warn of any misalignment between the header and data
+        attributes. Two way, i.e. if header includes more objects than in the data and
+        if the data includes more unique objects that listed in the header.
+
+        This check is performed everytime the object is instantiated AND if any change
+        is made to either the header or data attributes (see their respective setters).
+
+        """
+        if not self.header.empty:
+            nrs_in_header = set(self.header[self._nr])
+        else:
+            nrs_in_header = set()
+
+        if not self.data.empty:
+            nrs_in_data = set(self.data[self._nr].unique())
+        else:
+            nrs_in_data = set()
+
+        in_both = sorted(nrs_in_header & nrs_in_data)
+        only_in_header = sorted(nrs_in_header - nrs_in_data)
+        only_in_data = sorted(nrs_in_data - nrs_in_header)
+
+        return in_both, only_in_header, only_in_data
+
+    def _warn_misaligned_tables(self, only_in_header, only_in_data):
+        warnings.warn(
+            "Misaligned header and data tables but `geost.config.validation.AUTO_ALIGN` "
+            "is False. Consider running the method `synchronize_tables` to make "
+            "sure alignment between the header and data tables.\n"
+            f"{only_in_header=},\n{only_in_data=}",
+            category=AlignmentWarning,
+        )
+
+    def _warn_remove_header_entries(self, only_in_header):
+        warnings.warn(
+            "Header table contains entries not present in the data. "
+            f"Removing entries {only_in_header} from the header.",
+            category=AlignmentWarning,
+        )
+
+    def _synchronize_tables(self, how, in_both, only_in_header, only_in_data):
+        if how == "inner" or how == "header":
+            if how == "header":
+                self._warn_remove_header_entries(only_in_header)
+            self._header = self.header.gst.select_by_values(self._nr, in_both)
+            self._data = self.data.gst.select_by_values(self._nr, in_both)
+        elif how == "data":
+            if only_in_data:
+                warnings.warn(
+                    "Data table contains entries not present in the header. "
+                    "Adding missing entries to the header.",
+                    category=AlignmentWarning,
+                )
+                crs = self.header.crs if self.header_has_geometry else None
+                missing_header = self.data.gst.select_by_values(
+                    self._nr, only_in_data
+                ).gst.to_header(include_columns=self.header.columns, crs=crs)
+            else:
+                missing_header = pd.DataFrame(columns=self.header.columns)
+
+            header = pd.concat([self.header, missing_header], ignore_index=True)
+
+            if only_in_header:
+                self._warn_remove_header_entries(only_in_header)
+                header = header.loc[~header[self._nr].isin(only_in_header)]
+
+            self._header = gpd.GeoDataFrame(
+                header.sort_values(by=self._nr, ignore_index=True)
+            )
+        else:
+            raise ValueError(
+                "Invalid value for 'how'. Choose one of: 'inner', 'data', 'header'."
+            )
+
+    def synchronize_tables(self, how="inner"):
+        """
+        _summary_
+
+        Parameters
+        ----------
+        how : str, optional
+            Method to synchronize the tables. Can be "inner" to keep only matching surveys
+            in both tables, or "outer" to keep all surveys, by default "inner"
+
+        """
+        in_both, only_in_header, only_in_data = self._check_alignment()
+        self._synchronize_tables(how, in_both, only_in_header, only_in_data)
+        # TODO: Maybe not only make this operation inplace
 
     def add_header_column_to_data(self, column_name: str) -> None:  # No change
         """
@@ -481,47 +590,6 @@ class Collection(AbstractBase):
         self.header = self.data.gst.to_header(
             crs=self.crs, include_columns=list(self.header.columns)
         )
-
-    def check_header_to_data_alignment(self):
-        """
-        Two-way check to warn of any misalignment between the header and data
-        attributes. Two way, i.e. if header includes more objects than in the data and
-        if the data includes more unique objects that listed in the header.
-
-        This check is performed everytime the object is instantiated AND if any change
-        is made to either the header or data attributes (see their respective setters).
-
-        """
-        warning_given = False
-        if hasattr(self, "_header") and hasattr(self, "_data"):
-            # In initialization of the object, _header and _data attributes do not exist yet.
-            if self.header.empty and self.data.empty:
-                return
-
-            if any(~self.header[self._nr].isin(self.data[self._nr].unique())):
-                warnings.warn(
-                    "Header covers more/other objects than present in the data table. "
-                    "consider running the method 'reset_header' to update the header.",
-                    category=AlignmentWarning,
-                )
-                warning_given = True
-
-            if not set(self.data[self._nr].unique()).issubset(
-                set(self.header[self._nr])
-            ):
-                warnings.warn(
-                    "Header does not cover all unique objects in data. "
-                    "consider running the method 'reset_header' to update the header.",
-                    category=AlignmentWarning,
-                )
-                warning_given = True
-
-            if config.validation.AUTO_ALIGN and warning_given:
-                self.reset_header()
-                print(
-                    "\nNOTE: Header has been reset to align with data because AUTO_ALIGN"
-                    " is enabled in the GeoST configuration.",
-                )
 
     @_requires_geometry
     def select_within_bbox(
