@@ -213,7 +213,10 @@ def validate_base(
     """
     if column_names["nr"] not in obj.columns:
         raise ValueError(f"GeostFrame missing required column: '{column_names['nr']}'")
-    if column_names["surface"] not in obj.columns:
+    if (
+        column_names["surface"] is not None
+        and column_names["surface"] not in obj.columns
+    ):
         raise ValueError(
             f"GeostFrame missing required column: '{column_names['surface']}'"
         )
