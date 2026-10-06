@@ -66,7 +66,6 @@ class TestCollection:
     def test_init_from_dicts(self):
         data = {
             "nr": ["A", "A", "B", "B"],
-            "surface": [0.2, 0.2, 0.3, 0.3],
             "top": [0, 0.5, 0, 0.5],
             "bottom": [0.5, 1, 0.5, 1],
             "lith": ["sand", "clay", "sand", "clay"],

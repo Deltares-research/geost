@@ -1622,7 +1622,8 @@ class GeostFrame(AbstractBase):
             adds open-ended bins at both ends (unless bin_centers_as_columns is True).
         bin_centers_as_columns : bool, optional
             If True, use bin centers as output column labels rather than ranges. Will not
-            add open-ended bins at both ends, by default False.
+            add open-ended bins at both ends, by default False. Note, if bins is given as
+            a single number or not given, this parameter will be ignored.
         relative_to_reference : bool, optional
             If True, interpret depths relative to the reference surface,
             by default False.
