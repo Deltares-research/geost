@@ -351,6 +351,7 @@ def read_regis_netcdf(
     *,
     data_vars: str | list[str] | None = None,
     bbox: tuple[float, float, float, float] | None = None,
+    mask_nodata: bool = True,
     load: bool = False,
     **xr_kwargs,
 ) -> xr.Dataset:
@@ -369,6 +370,9 @@ def read_regis_netcdf(
         default is None. If bbox is None and the dataset is large, it is recommended to
         use lazy loading (load=False) and specify chunks (see examples below) to avoid
         memory issues.
+    mask_nodata : bool, optional
+        If True, replace the -9999 nodata values in the standard REGIS dataset with NaN.
+        The default is True.
     load : bool, optional
         If True, the netcdf file is loaded into memory immediately. This will improve the
         speed of several analyses but will cause higher memory usage or memory error if
@@ -438,6 +442,13 @@ def read_regis_netcdf(
     ds = _prepare_dataset(ds, data_vars=data_vars, bbox=bbox, load=load)
     ds = ds.sel({layer: ds[layer] != "mv"})
 
+    if mask_nodata:
+        ds = ds.where(ds != -9999, drop=False)
+        ds.gst.write_crs(28992, grid_mapping_name="crs", inplace=True)
+        # Reapply CRS after masking nodata values because Xarray does not store it in the
+        # result of `.where`. We need reapply because we already need the CRS in `_prepare_dataset`
+        # but only replace nodata values as the last step.
+
     return ds
 
 
@@ -446,6 +457,7 @@ def read_regis_from_opendap(  # pragma: no cover
     url: str = r"https://www.dinodata.nl/opendap/REGIS/REGIS.nc",
     data_vars: str | list[str] | None = None,
     bbox: tuple[float, float, float, float] | None = None,
+    mask_nodata: bool = True,
     load: bool = False,
     **xr_kwargs,
 ) -> xr.Dataset | xr.DataArray:
@@ -464,6 +476,9 @@ def read_regis_from_opendap(  # pragma: no cover
         default is None. If bbox is None and the dataset is large, it is recommended to
         use lazy loading (load=False) and specify chunks (see examples below) to avoid
         memory issues.
+    mask_nodata : bool, optional
+        If True, replace the -9999 nodata values in the standard REGIS dataset with NaN.
+        The default is True.
     load : bool, optional
         If True, the netcdf file is loaded into memory immediately. This will improve the
         speed of several analyses but will cause higher memory usage or memory error if
@@ -492,5 +507,10 @@ def read_regis_from_opendap(  # pragma: no cover
 
     """
     return read_regis_netcdf(
-        url, data_vars=data_vars, bbox=bbox, load=load, **xr_kwargs
+        url,
+        data_vars=data_vars,
+        bbox=bbox,
+        mask_nodata=mask_nodata,
+        load=load,
+        **xr_kwargs,
     )
