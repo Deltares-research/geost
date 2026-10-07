@@ -6,6 +6,7 @@ import numpy as np
 import pandas as pd
 import xarray as xr
 
+import geost
 from geost.base import Collection
 
 
@@ -183,6 +184,7 @@ def add_model_data(
     mdf = _get_model_dataframe(
         model, header, variable, aggregate_vars, nr_, bottom_, surface_
     )
+    bottom_ = mdf.gst._bottom
 
     if suffix is not None:
         all_vars = list(itertools.chain(variable, aggregate_vars.keys()))
@@ -293,9 +295,11 @@ def _create_dataframe_and_reduce(
         by=[nr, bottom], ascending=[True, False]
     )
     var_df = var_df.gst.aggregate_consecutive_layers(variable, agg_funcs)
+    # Name of bottom column may have changed if discrete data was aggregated to layered data
+    bottom_col = var_df.gst._bottom
     var_df = var_df[
-        var_df[bottom] < var_df[surface]
+        var_df[bottom_col] < var_df[surface]
     ]  # Only keep layers below surface, strat boundaries are bottoms of layers
-    var_df[bottom] = var_df[surface] - var_df[bottom]
+    var_df[bottom_col] = var_df[surface] - var_df[bottom_col]
 
     return var_df
