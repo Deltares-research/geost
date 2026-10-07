@@ -1665,6 +1665,11 @@ class Collection(AbstractBase):
         KeyError
             If the specified column does not exist in the DataFrame.
 
+        Notes
+        -----
+        When you perform this function on discrete data such as CPT's, the result of the
+        aggregation is layered data defined by top and bottom depths.
+
         Examples
         --------
         Say we have CPT data which and lithology (column 'lith') for each row. We want to

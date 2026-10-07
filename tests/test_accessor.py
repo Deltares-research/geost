@@ -1776,6 +1776,7 @@ class TestGeostFrame:
         result = cpt_data.gst.aggregate_consecutive_layers(
             "categorical_data", agg_funcs={"qc": "mean", "fs": "max"}
         )
+        assert result.gst.is_layered
         assert isinstance(result, pd.DataFrame)
 
     @pytest.mark.unittest
