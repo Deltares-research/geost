@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import warnings
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Iterable
+from typing import TYPE_CHECKING, Any, Iterable, Literal
 
 import geopandas as gpd
 import pandas as pd
@@ -203,7 +203,12 @@ class Collection(AbstractBase):
         return pd.Series(data=ranges, index=self.header.index)
 
     @header.setter
-    def header(self, header):
+    def header(self, header: gpd.GeoDataFrame | pd.DataFrame):
+        """
+        Sets a new header, ensures it will be a ``GeoDataFrame`` and performs an alignment
+        check with the data table.
+
+        """
         self.set_header(header)  # This ensures header will always be a GeoDataFrame
 
     def set_header(self, header: pd.DataFrame | gpd.GeoDataFrame):
@@ -231,7 +236,11 @@ class Collection(AbstractBase):
                     self._warn_misaligned_tables(only_in_header, only_in_data)
 
     @data.setter
-    def data(self, data):
+    def data(self, data: gpd.GeoDataFrame | pd.DataFrame):
+        """
+        Sets a new data table and performs an alignment check with the data table.
+
+        """
         if not data.empty:
             if not config.validation.SKIP:
                 data = data.gst.validate()
@@ -274,7 +283,21 @@ class Collection(AbstractBase):
 
         return in_both, only_in_header, only_in_data
 
-    def _warn_misaligned_tables(self, only_in_header, only_in_data):
+    def _warn_misaligned_tables(
+        self, only_in_header: list[Any], only_in_data: list[Any]
+    ) -> None:
+        """
+        Standard warning which is raised when the header and data are misaligned in present
+        surveys but ``config.validation.AUTO_ALIGN is False``.
+
+        Parameters
+        ----------
+        only_in_header : list[Any]
+            List of survey IDs which occur only in the header.
+        only_in_data : list[Any]
+            List of survey IDs which occur only in the data.
+
+        """
         warnings.warn(
             "Misaligned header and data tables but `geost.config.validation.AUTO_ALIGN` "
             "is False. Consider running the method `synchronize_tables` to make "
@@ -283,14 +306,52 @@ class Collection(AbstractBase):
             category=AlignmentWarning,
         )
 
-    def _warn_remove_header_entries(self, only_in_header):
+    def _warn_remove_header_entries(self, only_in_header: list[Any]) -> None:
+        """
+        Standard warning for entries that will be removed from the header when synchronizing
+        tables in case of misalignment between the header and data.
+
+        Parameters
+        ----------
+        only_in_header : list[Any]
+            Survey IDs which will be removed from the header.
+
+        """
         warnings.warn(
             "Header table contains entries not present in the data. "
             f"Removing entries {only_in_header} from the header.",
             category=AlignmentWarning,
         )
 
-    def _synchronize_tables(self, how, in_both, only_in_header, only_in_data):
+    def _synchronize_tables(
+        self,
+        how: str,
+        in_both: list[Any],
+        only_in_header: list[Any],
+        only_in_data: list[Any],
+    ) -> None:
+        """
+        Helper to synchronize the header and data tables after the two-way alignment check
+        ``_check_alignment``.
+
+        Parameters
+        ----------
+        how : str
+            Method to perform synchronization by, one of "inner", "header" or "data". See
+            documentation ``GeostFrame.synchronize_tables``
+        in_both : list[Any]
+            List of survey IDs which occur in both the header and data table.
+        only_in_header : list[Any]
+            List of survey IDs which occur only in the header.
+        only_in_data : list[Any]
+            List of survey IDs which occur only in the data.
+
+        Raises
+        ------
+        ValueError
+            In case of an invalid value for ``how``.
+
+        """
         if how == "inner" or how == "header":
             if how == "header":
                 self._warn_remove_header_entries(only_in_header)
@@ -324,15 +385,28 @@ class Collection(AbstractBase):
                 "Invalid value for 'how'. Choose one of: 'inner', 'data', 'header'."
             )
 
-    def synchronize_tables(self, how="inner"):
+    def synchronize_tables(
+        self, how: Literal["inner", "header", "data"] = "inner"
+    ) -> None:
         """
-        _summary_
+        Synchronize the header and data tables in case of misalignment in the surveys present
+        in both.
 
         Parameters
         ----------
         how : str, optional
-            Method to synchronize the tables. Can be "inner" to keep only matching surveys
-            in both tables, or "outer" to keep all surveys, by default "inner"
+            Method to synchronize the tables, the default is "inner". Can be one of:
+            - "inner" to keep only matching surveys in both tables
+            - "header" produces the same result as "inner" but raises a warning for surveys
+            which can't be kept in the header because these do not occur in data.
+            - "data" keeps all the surveys which are in the data table and constructs missing
+            surveys in the header from available information in data. Header information
+            which cannot be construcor will be missing (NaN) values.
+
+        Returns
+        -------
+        None
+            Operates on the :class:`~geost.base.Collection` inplace.
 
         """
         in_both, only_in_header, only_in_data = self._check_alignment()
@@ -377,7 +451,7 @@ class Collection(AbstractBase):
 
         Returns
         -------
-        :class:`geost.base.Collection`
+        :class:`~geost.base.Collection`
             New Collection instance containing only the selected surveys.
 
         Examples

@@ -461,6 +461,13 @@ class TestCollection:
         config.validation.reset_settings()  # Ensure default settings
 
     @pytest.mark.unittest
+    def test_synchronize_tables_error(self, borehole_collection):
+        borehole_collection.synchronize_tables()  # Aligned Collection nothing should happen
+
+        with pytest.raises(ValueError, match="Invalid value"):
+            borehole_collection.synchronize_tables(how="invalid")
+
+    @pytest.mark.unittest
     def test_header_to_data_index(self, borehole_collection):
         index_map = borehole_collection.header_to_data_index
         assert isinstance(index_map, pd.Series)
