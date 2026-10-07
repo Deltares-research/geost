@@ -150,7 +150,7 @@ def test_read_regis_netcdf(regis_netcdf):
     assert_array_equal(
         regis.data_vars, ["top", "bottom", "hgv", "kD", "c", "kh", "kv", "sdh", "sdv"]
     )
-    assert_array_equal(regis.coords, ["crs", "x", "y", "layer"])
+    assert_array_equal(regis.coords, ["x", "y", "layer", "crs"])
     assert regis.sizes == {"layer": 131, "y": 5, "x": 5}
     assert regis.gst.crs == 28992
     assert regis.gst.bounds() == (110000.0, 440000.0, 110500.0, 440500.0)
