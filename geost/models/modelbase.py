@@ -400,11 +400,46 @@ class ModelBase:
                 "the CRS before selecting within a bounding box."
             ) from e
 
+    def _points_select_to_collection(self, sel: xr.Dataset | xr.DataArray):
+        df = sel.to_dataframe()
+        if self.model_type == ModelType.VOXEL:
+            variables = sel.data_vars if isinstance(sel, xr.Dataset) else sel.name
+            df = (
+                df.sort_index(ascending=[True, False])
+                .dropna(subset=variables)
+                .reset_index(names=["nr", self._z])
+            )
+            *_, zres = self.resolution()
+            df[self._z] = df[self._z] - (0.5 * zres)
+            df["surface"] = df.groupby("nr")[self._z].transform("max") + zres
+            df = df.gst._get_depth_relative_to_surface()
+            df = df.gst.aggregate_consecutive_layers(variables)
+            df = df.filter(
+                list(df.gst.positional_columns.values()) + list(variables)
+            )  # Order columns
+        else:
+            df = (
+                df.sort_index()
+                .dropna(subset=[self._top, self._bottom])
+                .reset_index(names=["nr", self._z])
+            )
+            df["surface"] = df.groupby("nr")[self._top].transform("max")
+            df = df.gst._get_depth_relative_to_surface()
+            df = df.filter(
+                list(df.gst.positional_columns.values())
+                + [self._z]
+                + list(sel.data_vars)
+            )  # Order columns
+
+        df = df.drop(columns="spatial_ref", errors="ignore")
+        return df.gst.to_collection(crs=self.crs)
+
     def select_points(
         self,
         points: str | Path | gpd.GeoDataFrame | GeometryType,
         crs: str | int | CRS | None = None,
         drop: bool = True,
+        return_collection: bool = False,
     ) -> xr.Dataset | xr.DataArray:
         """
         Select model data at specified point locations. The points can be provided as a
@@ -424,6 +459,9 @@ class ModelBase:
             If True, points outside the model bounds are removed from the result. If
             False, points outside the model bounds result in full NaN columns. The
             default is True.
+        return_collection : bool, optional
+            If True, the result is returned as a Collection object instead of an xarray
+            object. The default is False.
 
         Returns
         -------
@@ -446,6 +484,11 @@ class ModelBase:
         >>> points_wgs = points.to_crs(4326) # Change the CRS of the points to WGS84
         >>> model.gst.select_points(points_wgs, crs=4326) # Specify the CRS of the points
 
+        The result can also be directly be returned as a Collection object by setting the
+        `return_collection` parameter to True.
+
+        >>> collection = model.gst.select_points(points, return_collection=True)
+
         """
         points = conversion.check_geometry_instance(points)
 
@@ -465,6 +508,9 @@ class ModelBase:
 
         if not drop:
             sel = sel.reindex(idx=points.index)
+
+        if return_collection:
+            return self._points_select_to_collection(sel)
 
         return sel
 

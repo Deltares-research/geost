@@ -6,6 +6,7 @@ import pytest
 import xarray as xr
 from numpy.testing import assert_array_almost_equal, assert_array_equal
 
+from geost.base import Collection
 from geost.exceptions import InvalidModelError, MissingCRSError, ModelTypeError
 from geost.models._core import ModelType
 from geost.models.model_dataset import ModelDataset
@@ -429,6 +430,57 @@ class TestModelDataset:
         assert selected.sizes == {"idx": 3, "layer": 4}
         assert_array_equal(selected["x"].values, [0.5, 2.5, 1.5])
         assert_array_equal(selected["y"].values, [0.5, 2.5, 0.5])
+
+    @pytest.mark.unittest
+    def test_select_points_return_collection(self, voxelmodel, layermodel, points):
+        selected = voxelmodel.gst.select_points(points, return_collection=True)
+        assert isinstance(selected, Collection)
+        assert selected.crs == voxelmodel.gst.crs
+        assert_array_equal(
+            selected.header.columns, ["nr", "x", "y", "surface", "geometry"]
+        )
+        assert_array_equal(selected.header["nr"], [0, 1, 2])
+        assert_array_almost_equal(selected.header["surface"], [-0.5, -0.5, 0.0])
+        assert_array_almost_equal(selected.header["x"], [0.5, 2.5, 1.5])
+        assert_array_almost_equal(selected.header["y"], [0.5, 2.5, 0.5])
+        assert_array_equal(
+            selected.data.columns,
+            ["nr", "surface", "x", "y", "top", "bottom", "strat", "lith"],
+        )
+        assert_array_equal(selected.data["nr"], [0, 0, 1, 1, 2, 2])
+        assert_array_almost_equal(
+            selected.data["surface"], [-0.5, -0.5, -0.5, -0.5, 0.0, 0.0]
+        )
+        assert_array_almost_equal(selected.data["top"], [0.0, 0.5, 0.0, 1.5, 0.0, 2.0])
+        assert_array_almost_equal(
+            selected.data["bottom"], [0.5, 2.0, 1.5, 2.0, 2.0, 2.5]
+        )
+
+        # Also test for layermodel, the same points should be selected
+        selected = layermodel.gst.select_points(points, return_collection=True)
+        assert isinstance(selected, Collection)
+        assert selected.crs == layermodel.gst.crs
+        assert_array_equal(
+            selected.header.columns, ["nr", "x", "y", "surface", "geometry"]
+        )
+        assert_array_equal(selected.header["nr"], [0, 1, 2])
+        assert_array_almost_equal(selected.header["surface"], [0.2, 0.25, 0.3])
+        assert_array_almost_equal(selected.header["x"], [0.5, 2.5, 1.5])
+        assert_array_almost_equal(selected.header["y"], [0.5, 2.5, 0.5])
+        assert_array_equal(
+            selected.data.columns,
+            ["nr", "surface", "x", "y", "top", "bottom", "layer", "thickness", "kh"],
+        )
+        assert_array_equal(selected.data["nr"], [0, 0, 1, 1, 1, 1, 2, 2, 2])
+        assert_array_almost_equal(
+            selected.data["surface"], [0.2, 0.2, 0.25, 0.25, 0.25, 0.25, 0.3, 0.3, 0.3]
+        )
+        assert_array_almost_equal(
+            selected.data["top"], [0.0, 0.45, 0.0, 0.45, 1.2, 2.8, 0.0, 0.45, 2.25]
+        )
+        assert_array_almost_equal(
+            selected.data["bottom"], [0.45, 3.35, 0.45, 1.2, 2.8, 3.6, 0.45, 2.25, 3.45]
+        )
 
     @pytest.mark.unittest
     def test_select_along_lines(self, voxelmodel, layermodel, lines):
