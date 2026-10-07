@@ -29,7 +29,7 @@ def reset_tops(layered: pd.DataFrame, nr: str, top: str, bottom: str) -> pd.Data
     layered[top] = layered[top].astype(np.float64)
     layered[bottom] = layered[bottom].astype(np.float64)
 
-    layered.loc[layered.gst.first_row_survey & layered[top].isna(), top] = 0
+    layered.loc[layered.gst.first_row_survey, top] = 0
 
     bottom_shift_down = layered[bottom].shift()
     nr_shift_down = layered[nr].shift()

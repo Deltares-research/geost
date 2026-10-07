@@ -1885,7 +1885,7 @@ class GeostFrame(AbstractBase):
         if not result.gst.is_layered:
             result.rename(columns={self._bottom: "bottom"}, inplace=True)
             result["top"] = result["bottom"].shift()
-            result.loc[result.gst.first_row_survey, "top"] = 0
+            result = depth.reset_tops(result, nr=self._nr, top="top", bottom="bottom")
 
         return result
 
