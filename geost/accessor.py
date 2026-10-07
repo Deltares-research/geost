@@ -1807,6 +1807,11 @@ class GeostFrame(AbstractBase):
         KeyError
             If the specified column does not exist in the DataFrame.
 
+        Notes
+        -----
+        When you perform this function on discrete data such as CPT's, the result of the
+        aggregation is layered data defined by top and bottom depths.
+
         Examples
         --------
         Say we have borehole data and we want to combine consecutive layers with the same
@@ -1876,6 +1881,11 @@ class GeostFrame(AbstractBase):
             result.index.name = df.index.name
         else:
             result = result.drop(columns="original_index").reset_index(drop=True)
+
+        if not result.gst.is_layered:
+            result.rename(columns={self._bottom: "bottom"}, inplace=True)
+            result["top"] = result["bottom"].shift(1)
+            result = depth.reset_tops(result, nr=self._nr, top="top", bottom="bottom")
 
         return result
 
