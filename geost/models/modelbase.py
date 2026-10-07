@@ -402,12 +402,13 @@ class ModelBase:
 
     def _points_select_to_collection(self, sel: xr.Dataset | xr.DataArray):
         df = sel.to_dataframe()
+        variables = list(sel.data_vars) if isinstance(sel, xr.Dataset) else [sel.name]
         if self.model_type == ModelType.VOXEL:
-            variables = sel.data_vars if isinstance(sel, xr.Dataset) else sel.name
             df = (
                 df.sort_index(ascending=[True, False])
                 .dropna(subset=variables)
-                .reset_index(names=["nr", self._z])
+                .reset_index()
+                .rename(columns={"idx": "nr"})
             )
             *_, zres = self.resolution()
             df[self._z] = df[self._z] - (0.5 * zres)
@@ -419,16 +420,17 @@ class ModelBase:
             )  # Order columns
         else:
             df = (
-                df.sort_index()
-                .dropna(subset=[self._top, self._bottom])
-                .reset_index(names=["nr", self._z])
+                df.dropna(subset=[self._top, self._bottom])
+                .reset_index()
+                .rename(columns={"idx": "nr"})
+                .sort_values(
+                    by=["nr", self._bottom], ascending=[True, False], ignore_index=True
+                )
             )
             df["surface"] = df.groupby("nr")[self._top].transform("max")
             df = df.gst._get_depth_relative_to_surface()
             df = df.filter(
-                list(df.gst.positional_columns.values())
-                + [self._z]
-                + list(sel.data_vars)
+                list(df.gst.positional_columns.values()) + [self._z] + variables
             )  # Order columns
 
         df = df.drop(columns="spatial_ref", errors="ignore")
@@ -458,7 +460,7 @@ class ModelBase:
         drop : bool, optional
             If True, points outside the model bounds are removed from the result. If
             False, points outside the model bounds result in full NaN columns. The
-            default is True.
+            default is True. This parameter is ignored when ``return_collection=True``.
         return_collection : bool, optional
             If True, the result is returned as a Collection object instead of an xarray
             object. The default is False.
@@ -506,11 +508,11 @@ class ModelBase:
 
         sel = sel.assign_coords(idx=("idx", points_in_bounds.index))
 
-        if not drop:
-            sel = sel.reindex(idx=points.index)
-
         if return_collection:
             return self._points_select_to_collection(sel)
+
+        if not drop:
+            sel = sel.reindex(idx=points.index)
 
         return sel
 

@@ -8,6 +8,7 @@ import shapely
 import xarray as xr
 from numpy.testing import assert_array_almost_equal, assert_array_equal
 
+from geost.base import Collection
 from geost.exceptions import InvalidModelError, MissingCRSError, ModelTypeError
 from geost.models._core import ModelType
 from geost.models.model_array import ModelDataArray
@@ -573,7 +574,7 @@ class TestModelDataArray:
         assert_array_equal(not_missing[not_missing].index, expected_xy_cells)
 
     @pytest.mark.unittest
-    def test_select_with_points(self, voxelmodel_var, layermodel_var, points):
+    def test_select_points(self, voxelmodel_var, layermodel_var, points):
         selected = voxelmodel_var.gst.select_points(points)
         assert isinstance(selected, xr.DataArray)
         assert selected.sizes == {"idx": 3, "z": 5}
@@ -636,6 +637,67 @@ class TestModelDataArray:
         # with x=0.5 instead of x=1.5 due to rounding errors in coordinate transformation.
         # This is expected behavior.
         assert_array_equal(selected["x"].values, [0.5, 2.5, 0.5])
+
+    @pytest.mark.unittest
+    def test_select_points_return_collection(
+        self, voxelmodel_var, layermodel_var, points
+    ):
+        selected = voxelmodel_var.gst.select_points(points, return_collection=True)
+        assert isinstance(selected, Collection)
+        assert selected.crs == voxelmodel_var.gst.crs
+        assert_array_equal(
+            selected.header.columns, ["nr", "x", "y", "surface", "geometry"]
+        )
+        assert_array_equal(selected.header["nr"], [0, 1, 2])
+        assert_array_almost_equal(selected.header["surface"], [-0.5, -0.5, 0.0])
+        assert_array_almost_equal(selected.header["x"], [0.5, 2.5, 1.5])
+        assert_array_almost_equal(selected.header["y"], [0.5, 2.5, 0.5])
+        assert_array_equal(
+            selected.data.columns,
+            ["nr", "surface", "x", "y", "top", "bottom", "strat"],
+        )
+        assert_array_equal(selected.data["nr"], [0, 0, 1, 1, 2, 2])
+        assert_array_almost_equal(
+            selected.data["surface"], [-0.5, -0.5, -0.5, -0.5, 0.0, 0.0]
+        )
+        assert_array_almost_equal(selected.data["top"], [0.0, 0.5, 0.0, 1.5, 0.0, 2.0])
+        assert_array_almost_equal(
+            selected.data["bottom"], [0.5, 2.0, 1.5, 2.0, 2.0, 2.5]
+        )
+
+        selected = layermodel_var.gst.select_points(points, return_collection=True)
+        assert isinstance(selected, Collection)
+        assert selected.crs == layermodel_var.gst.crs
+        assert_array_equal(
+            selected.header.columns, ["nr", "x", "y", "surface", "geometry"]
+        )
+        assert_array_equal(selected.header["nr"], [0, 1, 2])
+        assert_array_almost_equal(selected.header["surface"], [0.2, 0.25, 0.3])
+        assert_array_almost_equal(selected.header["x"], [0.5, 2.5, 1.5])
+        assert_array_almost_equal(selected.header["y"], [0.5, 2.5, 0.5])
+        assert_array_equal(
+            selected.data.columns,
+            ["nr", "surface", "x", "y", "top", "bottom", "layer", "kh"],
+        )
+        assert_array_equal(selected.data["nr"], [0, 0, 1, 1, 1, 1, 2, 2, 2])
+        assert_array_almost_equal(
+            selected.data["surface"], [0.2, 0.2, 0.25, 0.25, 0.25, 0.25, 0.3, 0.3, 0.3]
+        )
+        assert_array_almost_equal(
+            selected.data["top"], [0.0, 0.45, 0.0, 0.45, 1.2, 2.8, 0.0, 0.45, 2.25]
+        )
+        assert_array_almost_equal(
+            selected.data["bottom"], [0.45, 3.35, 0.45, 1.2, 2.8, 3.6, 0.45, 2.25, 3.45]
+        )
+
+        # Test with drop and wgs selection, selects different xy-coords due to changing CRS
+        # (tested in `test_select_points` above) but `drop` should be ignored, result must
+        # have three surveys
+        sel_wgs = layermodel_var.gst.select_points(
+            points.to_crs(4326), crs=4326, drop=False, return_collection=True
+        )
+        assert sel_wgs.crs == layermodel_var.gst.crs
+        assert sel_wgs.header.shape == selected.header.shape
 
     @pytest.mark.unittest
     def test_select_along_line(self, voxelmodel_var, layermodel_var, lines):
