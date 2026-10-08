@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
 import pytest
+from lxml import etree
 from matplotlib.colors import BoundaryNorm, ListedColormap
 from numpy.testing import assert_array_almost_equal, assert_array_equal
 
@@ -570,3 +571,123 @@ class TestGeotopMetadata:
         assert_array_almost_equal(
             colors["norm"].boundaries, [999.0, 1000.0, 1002.5, 1011.0]
         )
+
+    @pytest.mark.unittest
+    @pytest.mark.parametrize("metadata_fixture", ["metadata_strat", "metadata_lithok"])
+    @pytest.mark.parametrize("field", [None, "voxel_code"])
+    @pytest.mark.parametrize("use_unit_codes", [False, True])
+    def test_to_qml(self, request, tmp_path, metadata_fixture, field, use_unit_codes):
+        metadata = request.getfixturevalue(metadata_fixture)
+        original = metadata.df.copy(deep=True)
+        path = tmp_path / "units.qml"
+        column = metadata._unit if use_unit_codes else None
+
+        assert metadata.to_qml(str(path), field=field, column=column) is None
+        assert path.is_file()
+        pd.testing.assert_frame_equal(metadata.df, original)
+
+        root = etree.parse(str(path)).getroot()
+        assert root.tag == "qgis"
+        assert root.get("styleCategories") == "Symbology"
+        assert root.find("pipe") is None
+        assert root.find(".//rasterrenderer") is None
+
+        renderer = root.find("renderer-v2")
+        assert renderer is not None
+        assert renderer.get("type") == "categorizedSymbol"
+        default_field = metadata._unit if use_unit_codes else metadata._nr
+        assert renderer.get("attr") == (default_field if field is None else field)
+
+        categories = renderer.findall("categories/category")
+        symbols = renderer.findall("symbols/symbol")
+        assert len(categories) == len(symbols) == len(metadata.df)
+
+        for index, (voxel_nr, row) in enumerate(metadata.df.iterrows()):
+            category = categories[index]
+            value = row[metadata._unit] if use_unit_codes else voxel_nr
+            assert category.get("value") == str(value)
+            value_type = (
+                "string"
+                if use_unit_codes
+                else ("double" if isinstance(value, (float, np.floating)) else "long")
+            )
+            assert category.get("type") == value_type
+            assert category.get("symbol") == str(index)
+            assert category.get("render") == "true"
+            label = str(row[metadata._unit])
+            if pd.notna(row[metadata._desc]):
+                label = f"{label} — {row[metadata._desc]}"
+            assert category.get("label") == label
+
+            symbol = symbols[index]
+            assert symbol.get("name") == category.get("symbol")
+            assert symbol.get("type") == "fill"
+            assert symbol.get("alpha") == "1"
+            layer = symbol.find("layer")
+            assert layer is not None
+            assert layer.get("class") == "SimpleFill"
+            options = {
+                option.get("name"): option.get("value")
+                for option in layer.findall("Option/Option")
+            }
+            red, green, blue = (
+                int(row[column]) for column in (metadata._r, metadata._g, metadata._b)
+            )
+            assert options["color"] == f"{red},{green},{blue},255"
+            assert options["style"] == "solid"
+            assert options["outline_style"] == "no"
+
+    @pytest.mark.unittest
+    @pytest.mark.parametrize("metadata_fixture", ["metadata_strat", "metadata_lithok"])
+    @pytest.mark.parametrize("band", [1, 2])
+    def test_to_qml_raster(self, request, tmp_path, metadata_fixture, band):
+        metadata = request.getfixturevalue(metadata_fixture)
+        original = metadata.df.copy(deep=True)
+        path = tmp_path / "raster.qml"
+
+        assert metadata.to_qml(str(path), layer_type="raster", band=band) is None
+        pd.testing.assert_frame_equal(metadata.df, original)
+        root = etree.parse(str(path)).getroot()
+        assert root.tag == "qgis"
+        assert root.get("styleCategories") == "Symbology"
+        assert root.find("renderer-v2") is None
+        renderer = root.find("pipe/rasterrenderer")
+        assert renderer is not None
+        assert renderer.get("type") == "paletted"
+        assert renderer.get("band") == str(band)
+        entries = renderer.findall("colorPalette/paletteEntry")
+        assert len(entries) == len(metadata.df)
+        for entry, (voxel_nr, row) in zip(entries, metadata.df.iterrows()):
+            assert entry.get("value") == str(voxel_nr)
+            assert entry.get("alpha") == "255"
+            red, green, blue = (
+                int(row[column]) for column in (metadata._r, metadata._g, metadata._b)
+            )
+            assert entry.get("color") == f"#{red:02x}{green:02x}{blue:02x}"
+            label = str(row[metadata._unit])
+            if pd.notna(row[metadata._desc]):
+                label = f"{label} — {row[metadata._desc]}"
+            assert entry.get("label") == label
+
+    @pytest.mark.unittest
+    @pytest.mark.parametrize(
+        "options, message",
+        [
+            ({"layer_type": "unknown"}, "layer_type must be"),
+            ({"column": "DESCRIPTION"}, "column must be"),
+            ({"field": " "}, "field must be"),
+            (
+                {"layer_type": "raster", "column": "STR_UNIT_CD"},
+                "Raster styles only support numeric voxel numbers",
+            ),
+            ({"layer_type": "raster", "field": "strat"}, "field is only applicable"),
+            ({"layer_type": "raster", "band": 0}, "band must be"),
+            ({"layer_type": "raster", "band": True}, "band must be"),
+            ({"layer_type": "raster", "band": 1.5}, "band must be"),
+        ],
+    )
+    def test_to_qml_invalid_options(self, metadata_strat, tmp_path, options, message):
+        path = tmp_path / "invalid.qml"
+        with pytest.raises(ValueError, match=message):
+            metadata_strat.to_qml(str(path), **options)
+        assert not path.exists()
