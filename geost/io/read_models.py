@@ -417,6 +417,9 @@ def read_regis_netcdf(
     ... )
 
     """
+    if mask_nodata and not load:
+        xr_kwargs.setdefault("chunks", {"x": 300, "y": 300, "layer": -1})
+
     ds = xr.open_dataset(nc_file, **xr_kwargs)
     ds.gst.write_crs(28992, inplace=True)
 

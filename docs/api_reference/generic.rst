@@ -12,6 +12,16 @@ DataFrame
     geost.pandas_dataframe
 
 
+Metadata BRO models
+--------------------
+.. autosummary::
+    :toctree: generated/
+
+    geost.bro.geotop_lithok_units
+    geost.bro.geotop_strat_units
+    geost.bro.regis_units
+
+
 Positional columns
 --------------------
 .. autosummary::

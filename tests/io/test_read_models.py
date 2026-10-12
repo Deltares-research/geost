@@ -142,10 +142,12 @@ def test_read_geotop_from_opendap(geotop_netcdf):
 def test_read_regis_netcdf(regis_netcdf):
     with warnings.catch_warnings(record=True) as raised_warnings:
         warnings.simplefilter("always")
-        regis = geost.read_regis_netcdf(regis_netcdf)
+        regis = geost.read_regis_netcdf(regis_netcdf, mask_nodata=True, load=False)
 
     assert not any("invalid dimension order" in str(w.message) for w in raised_warnings)
     assert isinstance(regis, xr.Dataset)
+    assert all(isinstance(v.data, dask.array.Array) for v in regis.data_vars.values())
+    assert (regis["top"] != -9999).all()  # Check nodata values are replaced
     assert "mv" not in regis["layer"]
     assert_array_equal(
         regis.data_vars, ["top", "bottom", "hgv", "kD", "c", "kh", "kv", "sdh", "sdv"]
@@ -175,6 +177,10 @@ def test_read_regis_netcdf(regis_netcdf):
         regis_netcdf, data_vars=["top", "bottom", "hgv", "kD"]
     )  # Adding top and bottom to data_vars should off course include them in the result
     assert_array_equal(regis.data_vars, ["top", "bottom", "hgv", "kD"])
+
+    regis = geost.read_regis_netcdf(regis_netcdf, mask_nodata=False, load=False)
+    assert all(isinstance(v.data, np.ndarray) for v in regis.data_vars.values())
+    assert (regis["top"] == -9999).any()  # Check nodata values are not replaced
 
 
 @pytest.mark.unittest

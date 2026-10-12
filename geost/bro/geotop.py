@@ -744,7 +744,6 @@ def geotop_strat_units() -> GeotopUnits:
         GeotopUnits instance containing the stratigraphic metadata of GeoTOP.
 
     """
-
     from geost.data import REGISTRY
 
     meta = pd.read_parquet(REGISTRY.fetch("geotop_v01r6s1_metadata_strat.parquet"))

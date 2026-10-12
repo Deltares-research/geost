@@ -9,8 +9,9 @@ import rioxarray  # noqa: F401, register rioxarray extension for xarray
 import xarray as xr
 from shapely import geometry as gmt
 
-from geost import read_geotop_netcdf, read_nlog_cores
+from geost import read_geotop_netcdf, read_nlog_cores, read_regis_netcdf
 from geost.bro.geotop import GeotopUnits, UnitType
+from geost.bro.regis import RegisUnits
 
 
 def borehole_a():
@@ -521,5 +522,17 @@ def metadata_lithok(testdatadir):
 
 
 @pytest.fixture
+def metadata_regis(testdatadir):
+    meta = pd.read_parquet(testdatadir / "regis_metadata.parquet")
+    return RegisUnits(meta)
+
+
+@pytest.fixture
 def geotop_small(testdatadir):
     return read_geotop_netcdf(testdatadir / "geotop_small_selection.nc")
+
+
+@pytest.fixture
+def regis_small(testdatadir):
+    regis = read_regis_netcdf(testdatadir / "regis_small_selection.nc", load=True)
+    return regis.where(regis["top"].notnull(), drop=True)
