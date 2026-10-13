@@ -1,7 +1,8 @@
+from xml.etree import ElementTree as ET
+
 import numpy as np
 import pandas as pd
 import pytest
-from lxml import etree
 from matplotlib.colors import BoundaryNorm, ListedColormap
 from numpy.testing import assert_array_almost_equal, assert_array_equal
 
@@ -586,7 +587,7 @@ class TestGeotopMetadata:
         assert path.is_file()
         pd.testing.assert_frame_equal(metadata.df, original)
 
-        root = etree.parse(str(path)).getroot()
+        root = ET.parse(str(path)).getroot()
         assert root.tag == "qgis"
         assert root.get("styleCategories") == "Symbology"
         assert root.find("pipe") is None
@@ -616,7 +617,7 @@ class TestGeotopMetadata:
             assert category.get("render") == "true"
             label = str(row[metadata._unit])
             if pd.notna(row[metadata._desc]):
-                label = f"{label} — {row[metadata._desc]}"
+                label = f"{label} - {row[metadata._desc]}"
             assert category.get("label") == label
 
             symbol = symbols[index]
@@ -647,7 +648,7 @@ class TestGeotopMetadata:
 
         assert metadata.to_qml(str(path), layer_type="raster", band=band) is None
         pd.testing.assert_frame_equal(metadata.df, original)
-        root = etree.parse(str(path)).getroot()
+        root = ET.parse(str(path)).getroot()
         assert root.tag == "qgis"
         assert root.get("styleCategories") == "Symbology"
         assert root.find("renderer-v2") is None
@@ -666,7 +667,7 @@ class TestGeotopMetadata:
             assert entry.get("color") == f"#{red:02x}{green:02x}{blue:02x}"
             label = str(row[metadata._unit])
             if pd.notna(row[metadata._desc]):
-                label = f"{label} — {row[metadata._desc]}"
+                label = f"{label} - {row[metadata._desc]}"
             assert entry.get("label") == label
 
     @pytest.mark.unittest

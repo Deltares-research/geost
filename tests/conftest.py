@@ -1,3 +1,5 @@
+import lxml.etree  # noqa
+
 import itertools
 from pathlib import Path
 

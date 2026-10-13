@@ -9,6 +9,7 @@ import pandas as pd
 import xarray as xr
 
 from geost.exceptions import MissingUnitError
+from geost.utils.qgis import write_qml
 
 
 @dataclass(repr=False)
@@ -138,6 +139,42 @@ class RegisUnits:
             )
 
         return version_matches
+
+    def to_qml(self, path: str, field: str | None = None) -> None:
+        """
+        Export the REGIS unit metadata as a QGIS categorized vector style.
+
+        Parameters
+        ----------
+        path : str
+            Path and filename where the generated QGIS style file will be written.
+        field : str, optional
+            Name of the field in the vector file containing REGIS unit codes.
+            QGIS matches each feature's value to the metadata to choose its
+            color. Defaults to ``self._unit``; category values always come
+            from the REGIS metadata.
+
+        Raises
+        ------
+        ValueError
+            If the metadata table is empty or the target field name is invalid.
+
+        """
+        if self.df.empty:
+            raise ValueError("Cannot export empty metadata.")
+        if field is None:
+            field = self._unit
+
+        write_qml(
+            path,
+            self.df,
+            value_column=self._unit,
+            color_columns=(self._r, self._g, self._b),
+            label_column=self._unit,
+            description_column=self._desc,
+            label_separator=" - ",
+            field=field,
+        )
 
     def select_unit(self, units: str | list[str] | xr.DataArray) -> RegisUnits:
         """

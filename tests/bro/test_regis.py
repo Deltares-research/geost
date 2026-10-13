@@ -1,7 +1,8 @@
+from xml.etree import ElementTree as ET
+
 import numpy as np
 import pandas as pd
 import pytest
-from lxml import etree
 from matplotlib.colors import BoundaryNorm, ListedColormap
 from numpy.testing import assert_array_almost_equal, assert_array_equal
 
@@ -47,6 +48,28 @@ class TestRegisUnits:
         assert_array_equal(
             metadata_regis.colors_rgb.columns, ["RED_DEC", "GREEN_DEC", "BLUE_DEC"]
         )
+
+    @pytest.mark.unittest
+    @pytest.mark.parametrize("field", [None, "unit_code"])
+    def test_to_qml(self, metadata_regis, tmp_path, field):
+        metadata = metadata_regis.select_unit(["NUhlc", "NUBXz"])
+        original = metadata.df.copy(deep=True)
+        path = tmp_path / "regis.qml"
+
+        assert metadata.to_qml(str(path), field=field) is None
+        pd.testing.assert_frame_equal(metadata.df, original)
+
+        root = ET.parse(str(path)).getroot()
+        renderer = root.find("renderer-v2")
+        assert renderer is not None
+        assert renderer.get("type") == "categorizedSymbol"
+        assert renderer.get("attr") == (metadata._unit if field is None else field)
+        categories = renderer.findall("categories/category")
+        assert [category.get("value") for category in categories] == list(metadata.unit)
+        assert [category.get("type") for category in categories] == [
+            "string",
+            "string",
+        ]
 
     @pytest.mark.unittest
     def test_check_version(self, metadata_regis, regis_small):

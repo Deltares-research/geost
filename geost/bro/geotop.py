@@ -5,15 +5,14 @@ import re
 import warnings
 from dataclasses import dataclass, replace
 from enum import Enum
-from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
 import numpy as np
 import pandas as pd
 import xarray as xr
-from lxml import etree
 
 from geost.exceptions import MissingUnitError
+from geost.utils.qgis import write_qml
 
 if TYPE_CHECKING:
     from matplotlib.colors import BoundaryNorm, ListedColormap
@@ -565,26 +564,29 @@ class GeotopUnits:
         Parameters
         ----------
         path : str
-            Destination path for the QML file.
+            Path and filename where the generated QGIS style file will be written.
         column : str, optional
-            Metadata column used for category values: the voxel number column
-            (``self._nr``) or unit code column (``self._unit``). Defaults to
-            ``self._nr``. Raster styles only support voxel numbers.
+            Metadata column whose values QGIS uses to choose a color for each
+            feature or raster cell. Choose ``self._nr`` for voxel numbers or
+            ``self._unit`` for unit codes. Defaults to ``self._nr``; raster
+            styles only support voxel numbers.
         field : str, optional
-            Attribute field in the vector layer containing the category values.
-            Defaults to ``column``. Not applicable to raster styles.
+            Name of the field in the vector file containing the values from
+            ``column``. QGIS matches each feature's value to the metadata to
+            choose its color. Defaults to the name of ``column`` and is not
+            used for raster styles.
         layer_type : str, optional
-            Layer type, either "vector" (default) or "raster". Vector styles
-            use categorized polygon fills; raster styles use a color palette.
+            Choose ``"vector"`` (default) to color features based on ``field``,
+            or ``"raster"`` to color raster cells using voxel numbers.
         band : int, optional
-            Raster band containing the voxel numbers, by default 1.
-            Only applicable to raster styles.
+            Raster band containing the voxel numbers that should receive the
+            style colors. Defaults to 1 and is only used for raster styles.
 
         Raises
         ------
         ValueError
-            If an option is invalid, unit codes are selected for a raster,
-            metadata is empty, or RGB values are invalid.
+            If an option is invalid, unit codes are used for a raster, the
+            metadata table is empty, or an RGB value is outside the valid range.
 
         """
         if layer_type not in ("vector", "raster"):
@@ -610,125 +612,18 @@ class GeotopUnits:
         if self.df.empty:
             raise ValueError("Cannot export empty metadata.")
 
-        rgb = self.colors_rgb.to_numpy(dtype=float)
-        if (
-            not np.isfinite(rgb).all()
-            or ((rgb < 0) | (rgb > 255)).any()
-            or (rgb != np.floor(rgb)).any()
-        ):
-            raise ValueError("RGB values must be integers between 0 and 255.")
-
-        qgis = etree.Element(
-            "qgis",
-            version="3.34.0",
-            styleCategories="Symbology",
+        write_qml(
+            path,
+            self.df,
+            value_column=column,
+            color_columns=(self._r, self._g, self._b),
+            label_column=self._unit,
+            description_column=self._desc,
+            label_separator=" - ",
+            layer_type=layer_type,
+            field=field,
+            band=band,
         )
-        if layer_type == "raster":
-            self._add_qml_raster(qgis, rgb.astype(int), band)
-        else:
-            self._add_qml_vector(qgis, rgb.astype(int), field, use_unit_codes)
-
-        etree.ElementTree(qgis).write(
-            str(Path(path)),
-            encoding="utf-8",
-            xml_declaration=True,
-            pretty_print=True,
-        )
-
-    def _add_qml_vector(
-        self,
-        qgis: etree._Element,
-        rgb: np.ndarray,
-        field: str,
-        use_unit_codes: bool,
-    ) -> None:
-        """Add categorized polygon symbols to the QML document."""
-
-        renderer = etree.SubElement(
-            qgis,
-            "renderer-v2",
-            type="categorizedSymbol",
-            attr=field,
-            symbollevels="0",
-            enableorderby="0",
-        )
-        categories = etree.SubElement(renderer, "categories")
-        symbols = etree.SubElement(renderer, "symbols")
-
-        for index, (voxel_nr, unit, description, color) in enumerate(
-            zip(self.voxel_nr, self.unit, self.description, rgb)
-        ):
-            label = str(unit)
-            if pd.notna(description):
-                label = f"{label} — {description}"
-
-            red, green, blue = color
-            value = unit if use_unit_codes else voxel_nr
-            if use_unit_codes:
-                value_type = "string"
-            else:
-                value_type = (
-                    "double" if isinstance(value, (float, np.floating)) else "long"
-                )
-            etree.SubElement(
-                categories,
-                "category",
-                value=str(value),
-                type=value_type,
-                symbol=str(index),
-                render="true",
-                label=label,
-            )
-            symbol = etree.SubElement(
-                symbols, "symbol", name=str(index), type="fill", alpha="1"
-            )
-            layer = etree.SubElement(
-                symbol,
-                "layer",
-                {"class": "SimpleFill", "enabled": "1", "locked": "0"},
-            )
-            options = etree.SubElement(layer, "Option", type="Map")
-            for name, value in (
-                ("color", f"{red},{green},{blue},255"),
-                ("style", "solid"),
-                ("outline_style", "no"),
-            ):
-                etree.SubElement(
-                    options, "Option", name=name, value=value, type="QString"
-                )
-
-    def _add_qml_raster(self, qgis: etree._Element, rgb: np.ndarray, band: int) -> None:
-        """Add a paletted raster renderer to the QML document."""
-
-        pipe = etree.SubElement(qgis, "pipe")
-        renderer = etree.SubElement(
-            pipe,
-            "rasterrenderer",
-            type="paletted",
-            band=str(band),
-            opacity="1",
-            alphaBand="-1",
-            nodataColor="",
-        )
-        etree.SubElement(renderer, "rasterTransparency")
-        palette = etree.SubElement(renderer, "colorPalette")
-
-        for voxel_nr, unit, description, color in zip(
-            self.voxel_nr, self.unit, self.description, rgb
-        ):
-            label = str(unit)
-            if pd.notna(description):
-                label = f"{label} — {description}"
-
-            red, green, blue = color
-            etree.SubElement(
-                palette,
-                "paletteEntry",
-                value=str(voxel_nr),
-                color=f"#{red:02x}{green:02x}{blue:02x}",
-                alpha="255",
-                label=label,
-            )
 
 
 def geotop_strat_units() -> GeotopUnits:

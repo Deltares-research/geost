@@ -9,6 +9,12 @@ Constructor
 
    RegisUnits
 
+Export
+------
+.. autosummary::
+   :toctree: generated/
+
+   RegisUnits.to_qml
 
 Generic
 -------
