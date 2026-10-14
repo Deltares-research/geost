@@ -229,7 +229,7 @@ def test_to_pyvista_structured(voxelmodel):
 
 
 @pytest.mark.unittest
-def test_to_pyvista_unstructured(voxelmodel):
+def test_to_pyvista_unstructured_voxelmodel(voxelmodel):
     vmu_single_var = vtk.voxelmodel_to_pyvista_unstructured(
         voxelmodel, resolution=(1, 1, 0.5), displayed_variables=["strat"]
     )
@@ -245,6 +245,25 @@ def test_to_pyvista_unstructured(voxelmodel):
     assert vmu_multi_var.n_points == 142
     assert vmu_multi_var.n_cells == 70
     assert vmu_multi_var.n_arrays == 2
+
+
+@pytest.mark.unittest
+def test_to_pyvista_unstructured_layermodel(layermodel):
+    vmu_single_var = vtk.layermodel_to_pyvista_unstructured(
+        layermodel, resolution=(1, 1, 0.5), displayed_variables=["kh"]
+    )
+    assert isinstance(vmu_single_var, pv.UnstructuredGrid)
+    assert vmu_single_var.n_points == 236
+    assert vmu_single_var.n_cells == 48
+    assert vmu_single_var.n_arrays == 1
+
+    vmu_multi_var = vtk.layermodel_to_pyvista_unstructured(
+        layermodel, resolution=(1, 1, 0.5)
+    )
+    assert isinstance(vmu_multi_var, pv.UnstructuredGrid)
+    assert vmu_multi_var.n_points == 236
+    assert vmu_multi_var.n_cells == 48
+    assert vmu_multi_var.n_arrays == 4
 
 
 # @pytest.mark.unittest
