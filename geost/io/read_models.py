@@ -341,6 +341,8 @@ def read_geotop_from_opendap(  # pragma: no cover
     ... )
 
     """
+    # Make sure areas of maximum 10x10 km are streamed unless otherwise specified
+    xr_kwargs.setdefault("chunks", {"x": 100, "y": 100, "layer": -1})
     return read_geotop_netcdf(
         url, data_vars=data_vars, bbox=bbox, load=load, **xr_kwargs
     )
@@ -509,6 +511,8 @@ def read_regis_from_opendap(  # pragma: no cover
     ... )
 
     """
+    # Make sure areas of maximum 10x10 km are streamed unless otherwise specified
+    xr_kwargs.setdefault("chunks", {"x": 100, "y": 100, "layer": -1})
     return read_regis_netcdf(
         url,
         data_vars=data_vars,
