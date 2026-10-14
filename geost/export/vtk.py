@@ -245,7 +245,9 @@ def check_model_dims(
     return dataset
 
 
-def _clean_up_unstructured_grid(grid: pv.UnstructuredGrid) -> pv.UnstructuredGrid:
+def _clean_up_unstructured_grid(
+    grid: pv.UnstructuredGrid, simplify: bool = True
+) -> pv.UnstructuredGrid:
     """
     Clean up an unstructured grid by removing unused points and ensuring proper connectivity.
 
@@ -264,6 +266,7 @@ def _clean_up_unstructured_grid(grid: pv.UnstructuredGrid) -> pv.UnstructuredGri
     nan_mask = np.isnan(grid.cell_data[grid.cell_data.keys()[0]])
     if np.any(nan_mask):
         grid = grid.extract_cells(~nan_mask, pass_point_ids=False, pass_cell_ids=False)
+    if simplify:
         grid = grid.clean(produce_merge_map=False)
 
     return grid
@@ -565,20 +568,23 @@ def layermodel_to_pyvista_unstructured(
     corners = np.stack(
         (ll_bot, lr_bot, ur_bot, ul_bot, ll_top, lr_top, ur_top, ul_top), axis=1
     )
-    points = corners.reshape(-1, 3)
+    points_unique, point_mapping = np.unique(
+        corners.reshape(-1, 3), axis=0, return_inverse=True
+    )
 
     # Create cell connectivity array for the unstructured grid
-    cell_indices = np.arange(len(points)).reshape(len(df), ncell_coords)
+    cell_indices = point_mapping.reshape(len(df), ncell_coords)
     cell_indices = np.c_[np.full((len(df)), ncell_coords), cell_indices]
 
     # Define the cell types for the unstructured grid and then create the unstructured grid object
     cell_types = np.full((len(cell_indices)), pv.CellType.HEXAHEDRON)
-    grid = pv.UnstructuredGrid(cell_indices, cell_types, points)
+    grid = pv.UnstructuredGrid(cell_indices, cell_types, points_unique)
 
     # Add the desired cell data to the unstructured grid
     for var in displayed_variables:
         grid.cell_data[var] = df[var].values
 
-    grid = _clean_up_unstructured_grid(grid)
+    # Clean up, simplify=False because we did that manually when creating the points
+    grid = _clean_up_unstructured_grid(grid, simplify=False)
 
     return grid
