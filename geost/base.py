@@ -1165,7 +1165,7 @@ class Collection(AbstractBase):
         lower_boundary: float | int | xr.DataArray | str | Path = None,
         relative_to_vertical_reference: bool = False,
         update_layer_boundaries: bool = True,
-        drop_outside_grid_extent: bool = True,
+        drop_missing: bool = True,
     ):
         """
         Slice data based on given upper and lower boundaries. This returns a new object
@@ -1199,10 +1199,11 @@ class Collection(AbstractBase):
             individual layers. If True, the layer boundaries in the sliced data are updated
             according to the upper and lower boundaries used with the slice. If False, the
             original layer boundaries are kept in the sliced object. The default is False.
-        drop_outside_grid_extent : bool, optional
-            If True, any data outside the horizontal bounds of the grid are removed.
-            This only applies when either or both of the upper and lower boundaries are
-            given as xarray DataArrays. The default is True.
+        drop_missing : bool, optional
+            If True, any data outside the horizontal bounds of the grid or any surveys that
+            fall in cells with missing data are removed as well. This only applies when
+            either or both of the upper and lower boundaries are given as xarray DataArrays.
+            The default is True.
 
         Returns
         -------
@@ -1249,7 +1250,7 @@ class Collection(AbstractBase):
             lower_boundary=lower_boundary,
             relative_to_vertical_reference=relative_to_vertical_reference,
             update_layer_boundaries=update_layer_boundaries,
-            drop_outside_grid_extent=drop_outside_grid_extent,
+            drop_missing=drop_missing,
         )
         selected_header = self.header.gst.select_by_values(
             self._nr, selected_data[self._nr].unique()
