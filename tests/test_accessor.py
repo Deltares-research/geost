@@ -1013,6 +1013,82 @@ class TestGeostFrame:
         )
 
     @pytest.mark.unittest
+    def test_slice_depth_interval_with_grid_drop_missing(
+        self, borehole_data, depth_grid
+    ):
+        # Setting 2, 1 to NaN in both grids should remove E if drop_missing=True. D is removed
+        # because it's outside the grid extent. With drop_missing=False, keep all surveys.
+        depth_grid[2, 1] = np.nan
+
+        sliced = borehole_data.gst.slice_depth_interval(lower_boundary=depth_grid)
+        assert_array_equal(sliced["nr"], ["A", "B", "C"])
+        assert_array_almost_equal(sliced["bottom"], [0.8, 0.5, 0.8])
+        sliced = borehole_data.gst.slice_depth_interval(
+            lower_boundary=depth_grid, drop_missing=False
+        )
+        assert_array_equal(
+            sliced["nr"],
+            ["A", "B", "C", "D", "D", "D", "D", "D", "E", "E", "E", "E", "E"],
+        )
+        assert_array_almost_equal(
+            sliced["bottom"],
+            [0.8, 0.5, 0.8, 0.5, 1.2, 1.8, 2.5, 3.0, 0.5, 1.2, 1.8, 2.5, 3.0],
+        )
+
+    @pytest.mark.unittest
+    def test_slice_depth_interval_with_grid_drop_missing_nap(
+        self, borehole_data, nap_grid
+    ):
+        # Setting 2, 1 to NaN in both grids should remove E if drop_missing=True. D is removed
+        # because it's outside the grid extent. With drop_missing=False, keep all surveys.
+        nap_grid[2, 1] = np.nan
+        sliced = borehole_data.gst.slice_depth_interval(
+            upper_boundary=10,
+            lower_boundary=nap_grid,
+            relative_to_vertical_reference=True,
+        )
+        assert_array_equal(sliced["nr"], ["A", "A", "B", "B", "C"])
+        assert_array_almost_equal(sliced["bottom"], [0.8, 1.0, 0.6, 0.8, 1.05])
+
+        sliced = borehole_data.gst.slice_depth_interval(
+            upper_boundary=nap_grid,
+            lower_boundary=-1.5,
+            relative_to_vertical_reference=True,
+        )
+        assert_array_equal(sliced["nr"], ["A", "A", "B", "B", "C", "C"])
+        assert_array_almost_equal(sliced["bottom"], [1.5, 1.7, 1.2, 1.8, 1.4, 1.75])
+
+        sliced = borehole_data.gst.slice_depth_interval(
+            lower_boundary=nap_grid,
+            relative_to_vertical_reference=True,
+            drop_missing=False,
+        )
+        assert_array_equal(
+            sliced["nr"],
+            ["A", "A", "B", "B", "C", "D", "D", "D", "D", "D", "E", "E", "E", "E", "E"],
+        )
+        assert_array_almost_equal(
+            sliced["bottom"],
+            [
+                0.8,
+                1.0,
+                0.6,
+                0.8,
+                1.05,
+                0.5,
+                1.2,
+                1.8,
+                2.5,
+                3.0,
+                0.5,
+                1.2,
+                1.8,
+                2.5,
+                3.0,
+            ],
+        )
+
+    @pytest.mark.unittest
     def test_calculate_thickness_layered(self, borehole_data):
         result = borehole_data.gst.calculate_thickness()
         assert isinstance(result, pd.Series)

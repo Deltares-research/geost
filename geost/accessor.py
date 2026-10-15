@@ -1182,7 +1182,10 @@ class GeostFrame(AbstractBase):
             sliced, lower_boundary = boundaries_from_grid(
                 sliced, lower_boundary, lower_fill_value
             )
-            upper_boundary = upper_boundary.loc[sliced.index]
+            if isinstance(upper_boundary, pd.Series):
+                # `boundaries_from_grid` may have dropped some rows, so we need to align
+                # the upper boundary with the sliced DataFrame.
+                upper_boundary = upper_boundary.loc[sliced.index]
 
         if relative_to_vertical_reference:
             upper_boundary = self._obj.loc[sliced.index, self._surface] - upper_boundary
