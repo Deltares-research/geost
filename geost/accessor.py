@@ -1060,7 +1060,7 @@ class GeostFrame(AbstractBase):
         lower_boundary: float | int | xr.DataArray | str | Path = None,
         relative_to_vertical_reference: bool = False,
         update_layer_boundaries: bool = True,
-        drop_outside_grid_extent: bool = True,
+        drop_missing: bool = True,
     ) -> pd.DataFrame:
         """
         Slice data based on given upper and lower boundaries. This returns a new object
@@ -1094,10 +1094,11 @@ class GeostFrame(AbstractBase):
             individual layers. If True, the layer boundaries in the sliced data are updated
             according to the upper and lower boundaries used with the slice. If False, the
             original layer boundaries are kept in the sliced object. The default is False.
-        drop_outside_grid_extent : bool, optional
-            If True, any data outside the horizontal bounds of the grid are removed.
-            This only applies when either or both of the upper and lower boundaries are
-            given as xarray DataArrays. The default is True.
+        drop_missing : bool, optional
+            If True, any data outside the horizontal bounds of the grid or any surveys that
+            fall in cells with missing data are removed as well. This only applies when
+            either or both of the upper and lower boundaries are given as xarray DataArrays.
+            The default is True.
 
         Returns
         -------
@@ -1141,36 +1142,47 @@ class GeostFrame(AbstractBase):
         """
 
         def boundaries_from_grid(
-            obj_to_slice: pd.DataFrame, boundary: xr.DataArray
+            obj_to_slice: pd.DataFrame,
+            boundary: xr.DataArray,
+            fill_value: float,
         ) -> np.ndarray:
             """
             Get the boundary values from the grid at the locations of the data to slice.
             """
-            boundary = spatial.get_raster_values(
-                obj_to_slice[self._x], obj_to_slice[self._y], boundary
+            boundary = pd.Series(
+                spatial.get_raster_values(
+                    obj_to_slice[self._x], obj_to_slice[self._y], boundary
+                ),
+                index=obj_to_slice.index,
             )
-            if drop_outside_grid_extent:
-                obj_to_slice = obj_to_slice.iloc[np.where(np.isfinite(boundary))[0]]
-                boundary = pd.Series(
-                    boundary[np.where(np.isfinite(boundary))[0]],
-                    index=obj_to_slice.index,
-                )
+            if drop_missing:
+                obj_to_slice = obj_to_slice[boundary.notna()]
+                boundary = boundary[boundary.notna()]
+            else:
+                boundary = boundary.fillna(fill_value)
 
             return obj_to_slice, boundary
 
         sliced = self._obj
 
+        upper_fill_value = 1e34 if relative_to_vertical_reference else -1e34
         if upper_boundary is None:
-            upper_boundary = 1e34 if relative_to_vertical_reference else -1e34
+            upper_boundary = upper_fill_value
 
+        lower_fill_value = -1e34 if relative_to_vertical_reference else 1e34
         if lower_boundary is None:
-            lower_boundary = -1e34 if relative_to_vertical_reference else 1e34
+            lower_boundary = lower_fill_value
 
         if isinstance(upper_boundary, xr.DataArray | str | Path):
-            sliced, upper_boundary = boundaries_from_grid(sliced, upper_boundary)
+            sliced, upper_boundary = boundaries_from_grid(
+                sliced, upper_boundary, upper_fill_value
+            )
 
         if isinstance(lower_boundary, xr.DataArray | str | Path):
-            sliced, lower_boundary = boundaries_from_grid(sliced, lower_boundary)
+            sliced, lower_boundary = boundaries_from_grid(
+                sliced, lower_boundary, lower_fill_value
+            )
+            upper_boundary = upper_boundary.loc[sliced.index]
 
         if relative_to_vertical_reference:
             upper_boundary = self._obj.loc[sliced.index, self._surface] - upper_boundary
