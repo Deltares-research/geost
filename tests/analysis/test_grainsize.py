@@ -77,7 +77,7 @@ def test_calculate_bhrgt_grainsize_percentiles(
     assert_array_almost_equal(result_df["d50"], [215.0, 90.0, 76.5], decimal=2)
     assert_array_almost_equal(result_df["d90"], [855.0, 250.0, 180.0], decimal=2)
 
-    # Test run implementation for BoreholeCollection and percentile as integer.
+    # Test run implementation for Collection and percentile as integer.
     result_collection = calculate_bhrgt_grainsize_percentiles(
         bhrgt_samples_collection, percentiles=50, only_sand=True
     )
@@ -93,6 +93,6 @@ def test_calculate_bhrgt_grainsize_fractions(
     assert_array_almost_equal(result_df["perc_sand"], [87.0, 80.0, 70.0], decimal=2)
     assert_array_almost_equal(result_df["perc_gravel"], [3.0, 0.0, 0.0], decimal=2)
 
-    # Test run implementation for BoreholeCollection without assertions
+    # Test run implementation for Collection without assertions
     result_collection = calculate_bhrgt_grainsize_fractions(bhrgt_samples_collection)
     assert isinstance(result_collection, Collection)

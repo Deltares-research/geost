@@ -33,9 +33,9 @@ def test_concat(borehole_collection):
     )
 
     # Check that the number of rows in the header and data is correct
-    assert concatenated_outer.header.shape == (10, 5)
+    assert concatenated_outer.header.shape == (10, 6)
     assert concatenated_outer.data.shape == (50, 9)
-    assert concatenated_inner.header.shape == (10, 5)
+    assert concatenated_inner.header.shape == (10, 6)
     assert concatenated_inner.data.shape == (50, 8)
 
     # Check that the positional columns were correctly aligned and renamed

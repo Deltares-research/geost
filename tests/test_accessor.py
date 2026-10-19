@@ -1,6 +1,6 @@
-import itertools
 import warnings
 from pathlib import Path
+from typing import Literal
 
 import geopandas as gpd
 import numpy as np
@@ -12,7 +12,15 @@ from shapely.geometry import LineString, Polygon
 
 from geost.accessor import GeostFrame
 from geost.base import Collection
+from geost.exceptions import (
+    MissingDepthError,
+    MissingGeometryError,
+    MissingSurfaceError,
+    MissingSurveyIDError,
+    MissingXYError,
+)
 from geost.validation import column_names
+from tests.conftest import cpt_data
 
 
 @pytest.fixture
@@ -100,7 +108,8 @@ class TestGeostFrame:
         assert df.gst._y == "Latitude"
 
         with pytest.raises(
-            KeyError, match="DataFrame must contain a column identifying survey ID"
+            MissingSurveyIDError,
+            match="DataFrame must contain a column identifying survey ID",
         ):
             df_invalid = pd.DataFrame({"a": [1, 2], "b": [3, 4]})
             df_invalid.gst
@@ -271,7 +280,9 @@ class TestGeostFrame:
         header = borehole_data.gst.to_header()
         assert isinstance(header, gpd.GeoDataFrame)
         assert header.gst.has_geometry
-        assert_array_equal(header.columns, ["nr", "x", "y", "surface", "geometry"])
+        assert_array_equal(
+            header.columns, ["nr", "x", "y", "surface", "end", "geometry"]
+        )
 
         header = borehole_data.gst.to_header(
             include_columns=["top", "bottom", "lith"], coordinate_names=("x", "y")
@@ -280,7 +291,7 @@ class TestGeostFrame:
         assert header.gst.has_geometry
         assert_array_equal(
             header.columns,
-            ["nr", "x", "y", "surface", "top", "bottom", "lith", "geometry"],
+            ["nr", "x", "y", "surface", "end", "top", "bottom", "lith", "geometry"],
         )
 
         header = borehole_data.gst.to_header(coordinate_names=["x", "y"], crs=28992)
@@ -371,14 +382,14 @@ class TestGeostFrame:
             "Cannot use 'end_min' and 'end_max' in select_by_elevation data"
             "has no column 'end' and no depth information is found in the data."
         )
-        with pytest.raises(KeyError, match=expected_error):
+        with pytest.raises(MissingDepthError, match=expected_error):
             borehole_data.drop(
                 columns=["end", "top", "bottom"]
             ).gst.select_by_elevation(end_max=-3, end_min=-4)
 
         with pytest.raises(
-            KeyError,
-            match="Cannot use select_by_elevation if no surface column is found",
+            MissingSurfaceError,
+            match="Method 'select_by_elevation' requires a surface column",
         ):
             borehole_data.rename(
                 columns={"surface": "invalid_surface"}
@@ -404,7 +415,7 @@ class TestGeostFrame:
             "Cannot use select_by_length if data has no column 'end' and no depth "
             "information is found in the data."
         )
-        with pytest.raises(KeyError, match=expected_error):
+        with pytest.raises(MissingDepthError, match=expected_error):
             borehole_data.drop(columns=["end", "top", "bottom"]).gst.select_by_length(
                 min_length=4.0, max_length=5.0
             )
@@ -447,7 +458,7 @@ class TestGeostFrame:
         assert_array_almost_equal(result["y_bot"], [55.68101195, 55.68101242])
 
         with pytest.raises(
-            KeyError,
+            MissingXYError,
             match="Method 'transform_coordinates' requires x, y information in the DataFrame.",
         ):
             data.drop(columns=["x", "y"]).gst.transform_coordinates(28992, 4326)
@@ -462,7 +473,7 @@ class TestGeostFrame:
         assert len(selected) == 16
 
         with pytest.raises(
-            TypeError,
+            MissingGeometryError,
             match="Method 'select_within_bbox' requires a GeoDataFrame with a valid geometry column.",
         ):
             point_header = point_header.drop(columns="geometry")
@@ -483,6 +494,17 @@ class TestGeostFrame:
         )
         assert len(inverted_selection) == 9
 
+        # Select only the two nearest points
+        selected = point_header.gst.select_with_points(
+            selection_points, max_distance, n_points=2
+        )
+        assert len(selected) == 8
+
+        inverted_selection = point_header.gst.select_with_points(
+            selection_points, max_distance, invert=True, n_points=2
+        )
+        assert len(inverted_selection) == 17
+
         # Select with Shapely object
         selected = point_header.gst.select_with_points(
             selection_points["geometry"].iloc[0], max_distance
@@ -495,7 +517,7 @@ class TestGeostFrame:
         )
         assert len(selected) == 16
 
-        with pytest.raises(TypeError):
+        with pytest.raises(MissingGeometryError):
             point_header = point_header.drop(columns="geometry")
             # Remove geometry column to make it invalid for spatial selection
             point_header.gst.select_with_points(selection_points, max_distance)
@@ -522,7 +544,7 @@ class TestGeostFrame:
         selected = point_header.gst.select_with_lines(selection_lines, max_distance)
         assert len(selected) == 21
 
-        with pytest.raises(TypeError):
+        with pytest.raises(MissingGeometryError):
             point_header = point_header.drop(columns="geometry")
             # Remove geometry column to make it invalid for spatial selection
             point_header.gst.select_with_lines(selection_gdf, max_distance)
@@ -560,10 +582,85 @@ class TestGeostFrame:
         selected = point_header.gst.select_within_polygons([selection_polygon])
         assert len(selected) == 3
 
-        with pytest.raises(TypeError):
+        with pytest.raises(MissingGeometryError):
             point_header = point_header.drop(columns="geometry")
             # Remove geometry column to make it invalid for spatial selection
             point_header.gst.select_within_polygons(selection_gdf)
+
+    @pytest.mark.unittest
+    def test_find_point_pairs(self, point_header):
+        selection_points = gpd.GeoDataFrame(
+            geometry=gpd.points_from_xy([1, 4, 1, 4], [1, 4, 4, 1]), crs=28992
+        )
+        max_distance = 1.1
+
+        # Normal test, so it lists the indices of points in the selection_points that are
+        # within the max_distance of each point in the header.
+        result = point_header.gst.find_point_pairs(
+            selection_points, max_distance, return_distance=True
+        )
+        assert_array_equal(
+            result,
+            np.array(
+                [
+                    [0.0, 0.0, 0.0],
+                    [1.0, 0.0, 1.0],
+                    [2.0, 2.0, 1.0],
+                    [3.0, 2.0, 0.0],
+                    [4.0, 2.0, 1.0],
+                    [5.0, 0.0, 1.0],
+                    [8.0, 2.0, 1.0],
+                    [10.0, 3.0, 1.0],
+                    [13.0, 1.0, 1.0],
+                    [15.0, 3.0, 0.0],
+                    [16.0, 3.0, 1.0],
+                    [17.0, 1.0, 1.0],
+                    [18.0, 1.0, 0.0],
+                    [19.0, 1.0, 1.0],
+                    [20.0, 3.0, 1.0],
+                    [23.0, 1.0, 1.0],
+                ]
+            ),
+        )
+
+        # Reversed test, so it lists the indices of points in the header that are
+        # within the max_distance of each point in the selection_points.
+        selection_points["nr"] = ["A", "B", "C", "D"]
+        result = selection_points.gst.find_point_pairs(
+            point_header, max_distance + 1, return_distance=True, n_points=1
+        )
+        assert_array_almost_equal(
+            result,
+            np.array(
+                [
+                    [0.0, 0.0, 0.0],
+                    [0.0, 1.0, 1.0],
+                    [2.0, 2.0, 1.0],
+                    [2.0, 3.0, 0.0],
+                    [2.0, 4.0, 1.0],
+                    [0.0, 5.0, 1.0],
+                    [0.0, 6.0, 1.41421356],
+                    [2.0, 7.0, 1.41421356],
+                    [2.0, 8.0, 1.0],
+                    [2.0, 9.0, 1.41421356],
+                    [3.0, 10.0, 1.0],
+                    [3.0, 11.0, 1.41421356],
+                    [1.0, 12.0, 1.41421356],
+                    [1.0, 13.0, 1.0],
+                    [1.0, 14.0, 1.41421356],
+                    [3.0, 15.0, 0.0],
+                    [3.0, 16.0, 1.0],
+                    [1.0, 17.0, 1.0],
+                    [1.0, 18.0, 0.0],
+                    [1.0, 19.0, 1.0],
+                    [3.0, 20.0, 1.0],
+                    [3.0, 21.0, 1.41421356],
+                    [1.0, 22.0, 1.41421356],
+                    [1.0, 23.0, 1.0],
+                    [1.0, 24.0, 1.41421356],
+                ]
+            ),
+        )
 
     @pytest.mark.unittest
     def test_spatial_join(self, point_header, test_polygon, tmp_path):
@@ -653,7 +750,7 @@ class TestGeostFrame:
         assert (result["id"] == 1).all()
 
         with pytest.raises(
-            TypeError,
+            MissingGeometryError,
             match="Method 'spatial_join' requires a GeoDataFrame with a valid geometry column.",
         ):
             point_header = point_header.drop(columns="geometry")
@@ -848,7 +945,7 @@ class TestGeostFrame:
         assert_array_equal(bottoms_of_slice, expected_bottoms_of_slice)
 
         with pytest.raises(
-            KeyError,
+            MissingDepthError,
             match="Method 'slice_depth_interval' requires depth information in the DataFrame.",
         ):
             borehole_data_no_depth = borehole_data.drop(columns=["top", "bottom"])
@@ -886,6 +983,112 @@ class TestGeostFrame:
         assert_array_equal(sliced.index, [0, 1, 10])
 
     @pytest.mark.unittest
+    @pytest.mark.parametrize(
+        "grid, reference, update, expected_bottoms",
+        [
+            ("nap_grid", True, True, [0.8, 1.0, 0.6, 0.8, 1.05, 0.5, 0.6]),
+            ("depth_grid", False, True, [0.8, 0.5, 0.8, 0.5, 0.7]),
+            ("nap_grid", True, False, [0.8, 1.5, 0.6, 1.2, 1.4, 0.5, 1.2]),
+            ("depth_grid", False, False, [0.8, 0.6, 1.4, 0.5, 1.2]),
+        ],
+    )
+    def test_slice_depth_interval_with_grid(
+        self,
+        borehole_data,
+        grid: Literal["nap_grid"] | Literal["depth_grid"],
+        reference: bool,
+        update: bool,
+        expected_bottoms: list | None,
+        request: pytest.FixtureRequest,
+    ):
+        lower_boundary = request.getfixturevalue(grid)
+        sliced = borehole_data.gst.slice_depth_interval(
+            lower_boundary=lower_boundary,
+            relative_to_vertical_reference=reference,
+            update_layer_boundaries=update,
+        )
+        assert_array_almost_equal(
+            sliced["bottom"].tolist(),
+            expected_bottoms,
+        )
+
+    @pytest.mark.unittest
+    def test_slice_depth_interval_with_grid_drop_missing(
+        self, borehole_data, depth_grid
+    ):
+        # Setting 2, 1 to NaN in both grids should remove E if drop_missing=True. D is removed
+        # because it's outside the grid extent. With drop_missing=False, keep all surveys.
+        depth_grid[2, 1] = np.nan
+
+        sliced = borehole_data.gst.slice_depth_interval(lower_boundary=depth_grid)
+        assert_array_equal(sliced["nr"], ["A", "B", "C"])
+        assert_array_almost_equal(sliced["bottom"], [0.8, 0.5, 0.8])
+        sliced = borehole_data.gst.slice_depth_interval(
+            lower_boundary=depth_grid, drop_missing=False
+        )
+        assert_array_equal(
+            sliced["nr"],
+            ["A", "B", "C", "D", "D", "D", "D", "D", "E", "E", "E", "E", "E"],
+        )
+        assert_array_almost_equal(
+            sliced["bottom"],
+            [0.8, 0.5, 0.8, 0.5, 1.2, 1.8, 2.5, 3.0, 0.5, 1.2, 1.8, 2.5, 3.0],
+        )
+
+    @pytest.mark.unittest
+    def test_slice_depth_interval_with_grid_drop_missing_nap(
+        self, borehole_data, nap_grid
+    ):
+        # Setting 2, 1 to NaN in both grids should remove E if drop_missing=True. D is removed
+        # because it's outside the grid extent. With drop_missing=False, keep all surveys.
+        nap_grid[2, 1] = np.nan
+        sliced = borehole_data.gst.slice_depth_interval(
+            upper_boundary=10,
+            lower_boundary=nap_grid,
+            relative_to_vertical_reference=True,
+        )
+        assert_array_equal(sliced["nr"], ["A", "A", "B", "B", "C"])
+        assert_array_almost_equal(sliced["bottom"], [0.8, 1.0, 0.6, 0.8, 1.05])
+
+        sliced = borehole_data.gst.slice_depth_interval(
+            upper_boundary=nap_grid,
+            lower_boundary=-1.5,
+            relative_to_vertical_reference=True,
+        )
+        assert_array_equal(sliced["nr"], ["A", "A", "B", "B", "C", "C"])
+        assert_array_almost_equal(sliced["bottom"], [1.5, 1.7, 1.2, 1.8, 1.4, 1.75])
+
+        sliced = borehole_data.gst.slice_depth_interval(
+            lower_boundary=nap_grid,
+            relative_to_vertical_reference=True,
+            drop_missing=False,
+        )
+        assert_array_equal(
+            sliced["nr"],
+            ["A", "A", "B", "B", "C", "D", "D", "D", "D", "D", "E", "E", "E", "E", "E"],
+        )
+        assert_array_almost_equal(
+            sliced["bottom"],
+            [
+                0.8,
+                1.0,
+                0.6,
+                0.8,
+                1.05,
+                0.5,
+                1.2,
+                1.8,
+                2.5,
+                3.0,
+                0.5,
+                1.2,
+                1.8,
+                2.5,
+                3.0,
+            ],
+        )
+
+    @pytest.mark.unittest
     def test_calculate_thickness_layered(self, borehole_data):
         result = borehole_data.gst.calculate_thickness()
         assert isinstance(result, pd.Series)
@@ -919,6 +1122,11 @@ class TestGeostFrame:
                 0.5,
             ],
         )
+        with pytest.raises(
+            MissingDepthError,
+            match="'calculate_thickness' requires at least bottom information of layers",
+        ):
+            borehole_data.drop(columns=["top", "bottom"]).gst.calculate_thickness()
 
     @pytest.mark.unittest
     def test_calculate_thickness_discrete(self, cpt_data):
@@ -949,6 +1157,12 @@ class TestGeostFrame:
                 0.5,
             ],
         )
+
+        with pytest.raises(
+            MissingDepthError,
+            match="'calculate_thickness' requires at least bottom information of layers",
+        ):
+            cpt_data.drop(columns=["depth"]).gst.calculate_thickness()
 
     @pytest.mark.unittest
     def test_cumulative_thickness_layered(self, borehole_data):
@@ -1018,6 +1232,630 @@ class TestGeostFrame:
         assert_array_equal(result, [0.0])
 
     @pytest.mark.unittest
+    def test_get_discretization_value_layered(self, borehole_data):
+        """
+        Test for the `_get_discretization` helper method for `compute_discretized_fractions`
+        when the input is a value.
+
+        """
+        discretization = borehole_data.gst._get_discretization(
+            2.0, relative_to_reference=False
+        )
+        assert isinstance(discretization, pd.DataFrame)
+        assert_array_equal(
+            discretization["nr"], np.repeat(borehole_data["nr"].unique(), 3)
+        )
+        assert_array_equal(
+            discretization["surface"], np.repeat(borehole_data["surface"].unique(), 3)
+        )
+        assert_array_equal(
+            discretization["top"], np.tile([0, 2, 4], len(borehole_data["nr"].unique()))
+        )
+        assert_array_equal(
+            discretization["bottom"],
+            np.tile([2, 4, 6], len(borehole_data["nr"].unique())),
+        )
+        assert_array_equal(
+            discretization["nz"], np.tile([0, 1, 2], len(borehole_data["nr"].unique()))
+        )
+        assert (discretization["dz"] == 2.0).all()
+
+        discretization = borehole_data.gst._get_discretization(
+            2.0, relative_to_reference=True
+        )
+        assert isinstance(discretization, pd.DataFrame)
+        assert_array_equal(
+            discretization["nr"], np.repeat(borehole_data["nr"].unique(), 4)
+        )
+        assert_array_equal(
+            discretization["surface"], np.repeat(borehole_data["surface"].unique(), 4)
+        )
+        assert_array_equal(
+            discretization["top"],
+            np.tile([2, 0, -2, -4], len(borehole_data["nr"].unique())),
+        )
+        assert_array_equal(
+            discretization["bottom"],
+            np.tile([0, -2, -4, -6], len(borehole_data["nr"].unique())),
+        )
+        assert_array_equal(
+            discretization["nz"],
+            np.tile([0, 1, 2, 3], len(borehole_data["nr"].unique())),
+        )
+        assert (discretization["dz"] == 2.0).all()
+
+    @pytest.mark.unittest
+    def test_get_discretization_value_discrete(self, cpt_data):
+        discretization = cpt_data.gst._get_discretization(
+            2.0, relative_to_reference=False
+        )
+        assert isinstance(discretization, pd.DataFrame)
+        assert "top" not in discretization.columns
+        assert_array_equal(discretization["nr"], np.repeat(cpt_data["nr"].unique(), 5))
+        assert_array_equal(
+            discretization["surface"], np.repeat(cpt_data["surface"].unique(), 5)
+        )
+        assert_array_equal(
+            discretization["depth"],
+            np.tile([2, 4, 6, 8, 10], len(cpt_data["nr"].unique())),
+        )
+        assert_array_equal(
+            discretization["nz"], np.tile([0, 1, 2, 3, 4], len(cpt_data["nr"].unique()))
+        )
+        assert (discretization["dz"] == 2.0).all()
+
+        discretization = cpt_data.gst._get_discretization(
+            2.0, relative_to_reference=True
+        )
+        assert "top" not in discretization.columns
+        assert isinstance(discretization, pd.DataFrame)
+        assert_array_equal(discretization["nr"], np.repeat(cpt_data["nr"].unique(), 6))
+        assert_array_equal(
+            discretization["surface"], np.repeat(cpt_data["surface"].unique(), 6)
+        )
+        assert_array_equal(
+            discretization["depth"],
+            np.tile([2, 0, -2, -4, -6, -8], len(cpt_data["nr"].unique())),
+        )
+        assert_array_equal(
+            discretization["nz"],
+            np.tile([0, 1, 2, 3, 4, 5], len(cpt_data["nr"].unique())),
+        )
+        assert (discretization["dz"] == 2.0).all()
+
+    @pytest.mark.unittest
+    def test_get_discretization_array_layered(self, borehole_data):
+        """
+        Test for the `_get_discretization` helper method for `compute_discretized_fractions`
+        when the input is an array or list.
+
+        """
+        absolute_depth = [0.5, 1.0, 2.0]
+        nap_depth = [1, 0, -1]
+
+        # Using layered data, absolute depth
+        discretization = borehole_data.gst._get_discretization(
+            absolute_depth, relative_to_reference=False
+        )
+        assert isinstance(discretization, pd.DataFrame)
+        assert_array_equal(
+            discretization["nr"],
+            np.repeat(borehole_data["nr"].unique(), len(absolute_depth)),
+        )
+        assert_array_equal(
+            discretization["surface"],
+            np.repeat(borehole_data["surface"].unique(), len(absolute_depth)),
+        )
+        assert_array_almost_equal(
+            discretization["top"],
+            np.tile([0.0, 0.5, 1.0], len(borehole_data["nr"].unique())),
+        )
+        assert_array_almost_equal(
+            discretization["bottom"],
+            np.tile(absolute_depth, len(borehole_data["nr"].unique())),
+        )
+        assert_array_almost_equal(
+            discretization["dz"],
+            np.tile([0.5, 0.5, 1.0], len(borehole_data["nr"].unique())),
+        )
+        assert_array_almost_equal(
+            discretization["nz"],
+            np.tile([0, 1, 2], len(borehole_data["nr"].unique())),
+        )
+
+        # Using layered data, NAP depth
+        discretization = borehole_data.gst._get_discretization(
+            nap_depth, relative_to_reference=True
+        )
+        assert_array_equal(
+            discretization["nr"],
+            np.repeat(borehole_data["nr"].unique(), len(nap_depth) - 1),
+        )
+        assert_array_equal(
+            discretization["surface"],
+            np.repeat(borehole_data["surface"].unique(), len(nap_depth) - 1),
+        )
+        assert_array_almost_equal(
+            discretization["top"],
+            np.tile([1, 0], len(borehole_data["nr"].unique())),
+        )
+        assert_array_almost_equal(
+            discretization["bottom"],
+            np.tile([0, -1], len(borehole_data["nr"].unique())),
+        )
+        assert (discretization["dz"] == 1).all()
+        assert_array_almost_equal(
+            discretization["nz"],
+            np.tile([0, 1], len(borehole_data["nr"].unique())),
+        )
+
+    @pytest.mark.unittest
+    def test_get_discretization_array_discrete(self, cpt_data):
+        absolute_depth = [0.5, 1.0, 2.0]
+        nap_depth = [1, 0, -1]
+
+        # Using discrete data, absolute depth
+        discretization = cpt_data.gst._get_discretization(
+            absolute_depth, relative_to_reference=False
+        )
+        assert "top" not in discretization.columns
+        assert_array_equal(
+            discretization["nr"],
+            np.repeat(cpt_data["nr"].unique(), len(absolute_depth)),
+        )
+        assert_array_equal(
+            discretization["surface"],
+            np.repeat(cpt_data["surface"].unique(), len(absolute_depth)),
+        )
+        assert_array_almost_equal(
+            discretization["depth"],  # Name of bottom follows that of the name in CPTs
+            np.tile(absolute_depth, len(cpt_data["nr"].unique())),
+        )
+        assert_array_almost_equal(
+            discretization["dz"],
+            np.tile([0.5, 0.5, 1.0], len(cpt_data["nr"].unique())),
+        )
+        assert_array_almost_equal(
+            discretization["nz"],
+            np.tile([0, 1, 2], len(cpt_data["nr"].unique())),
+        )
+
+        # Using discrete data, NAP depth
+        discretization = cpt_data.gst._get_discretization(
+            nap_depth, relative_to_reference=True
+        )
+        assert "top" not in discretization.columns
+        assert_array_equal(
+            discretization["nr"],
+            np.repeat(cpt_data["nr"].unique(), len(nap_depth) - 1),
+        )
+        assert_array_equal(
+            discretization["surface"],
+            np.repeat(cpt_data["surface"].unique(), len(nap_depth) - 1),
+        )
+        assert_array_almost_equal(
+            discretization["depth"],  # Name of bottom follows that of the name in CPTs
+            np.tile(nap_depth[1:], len(cpt_data["nr"].unique())),
+        )
+        assert (discretization["dz"] == 1).all()
+        assert_array_almost_equal(
+            discretization["nz"],
+            np.tile([0, 1], len(cpt_data["nr"].unique())),
+        )
+
+    @pytest.fixture
+    def discretization_df(self):
+        return pd.DataFrame(
+            {
+                "nr": np.repeat(["A", "B"], [3, 4]),
+                "surface": np.repeat([0.4, 0.2], [3, 4]),
+                "top": [0, 0.5, 1.0, 0, 0.5, 1.0, 2.0],
+                "bottom": [0.5, 1.0, 2.0, 0.5, 1.0, 2.0, 4.0],
+            }
+        )
+
+    @pytest.mark.unittest
+    def test_get_discretization_from_dataframe(self, borehole_data, discretization_df):
+        """
+        Test for the `_get_discretization` helper method for `compute_discretized_fractions`
+        when the input is a DataFrame.
+
+        """
+        expected_thickness = [0.5, 0.5, 1.0, 0.5, 0.5, 1.0, 2.0]
+        expected_nz = [0, 1, 2, 3, 4, 5, 6]
+
+        # Discretization contains "surface", "top" and "bottom" with absolute depth. This
+        # corrects the absolute depths based on the surface difference, adds the applied
+        # correction as a "surface_correction" column.
+        dc = borehole_data.gst._get_discretization(
+            discretization_df, relative_to_reference=False
+        )
+        assert isinstance(dc, pd.DataFrame)
+        assert_array_equal(dc["nr"], np.repeat(["A", "B"], [3, 4]))
+        assert_array_almost_equal(dc["surface"], np.repeat([0.2, 0.3], [3, 4]))
+        assert_array_almost_equal(dc["top"], [0.0, 0.3, 0.8, 0.0, 0.6, 1.1, 2.1])
+        assert_array_almost_equal(dc["bottom"], [0.3, 0.8, 1.8, 0.6, 1.1, 2.1, 4.1])
+        assert_array_almost_equal(
+            dc["surface_correction"], np.repeat([-0.2, 0.1], [3, 4])
+        )
+        assert_array_almost_equal(dc["dz"], [0.3, 0.5, 1.0, 0.6, 0.5, 1.0, 2.0])
+        assert_array_equal(dc["nz"], expected_nz)
+
+        # Discretization only contains "bottom" with absolute depth
+        dc = borehole_data.gst._get_discretization(
+            discretization_df.drop(columns=["surface", "top"]),
+            relative_to_reference=False,
+        )
+        assert isinstance(dc, pd.DataFrame)
+        assert_array_equal(dc["nr"], np.repeat(["A", "B"], [3, 4]))
+        assert_array_equal(dc["bottom"], discretization_df["bottom"])
+        assert_array_almost_equal(dc["surface"], np.repeat([0.2, 0.3], [3, 4]))
+        assert_array_almost_equal(dc["dz"], expected_thickness)
+        assert_array_equal(dc["nz"], expected_nz)
+
+        # Discretization only contains "top" and "bottom" with absolute depth
+        dc = borehole_data.gst._get_discretization(
+            discretization_df.drop(columns="surface"),
+            relative_to_reference=False,
+        )
+        assert isinstance(dc, pd.DataFrame)
+        assert_array_almost_equal(dc["dz"], expected_thickness)
+        assert_array_equal(dc["nr"], np.repeat(["A", "B"], [3, 4]))
+        assert_array_equal(dc["top"], discretization_df["top"])
+        assert_array_equal(dc["bottom"], discretization_df["bottom"])
+        assert_array_almost_equal(dc["surface"], np.repeat([0.2, 0.3], [3, 4]))
+        assert_array_almost_equal(dc["dz"], expected_thickness)
+        assert_array_equal(dc["nz"], expected_nz)
+
+        with pytest.raises(
+            MissingDepthError,
+            match="The discretization DataFrame is missing bottom depths of layers.",
+        ):
+            borehole_data.gst._get_discretization(
+                discretization_df.drop(columns="bottom"), False
+            )
+
+    @pytest.mark.unittest
+    def test_get_discretization_from_dataframe_nap(
+        self, borehole_data, discretization_df
+    ):
+        nap_df = discretization_df.gst._get_depth_relative_to_surface()
+
+        expected_thickness = [0.5, 0.5, 1.0, 0.5, 0.5, 1.0, 2.0]
+        expected_nz = [0, 1, 2, 3, 4, 5, 6]
+
+        # Discretization contains "surface", "top" and "bottom" with depth to NAP
+        dc = borehole_data.gst._get_discretization(nap_df, relative_to_reference=True)
+        assert_array_equal(dc["nr"], np.repeat(["A", "B"], [3, 4]))
+        assert_array_almost_equal(dc["surface"], np.repeat([0.2, 0.3], [3, 4]))
+        assert_array_almost_equal(dc["top"], nap_df["top"])
+        assert_array_almost_equal(dc["bottom"], nap_df["bottom"])
+        assert_array_almost_equal(dc["dz"], expected_thickness)
+        assert_array_equal(dc["nz"], expected_nz)
+
+        # Discretization contains "top" and "bottom" with depth to NAP
+        dc = borehole_data.gst._get_discretization(
+            nap_df.drop(columns="surface"), relative_to_reference=True
+        )
+        assert_array_equal(dc["nr"], np.repeat(["A", "B"], [3, 4]))
+        assert_array_almost_equal(dc["surface"], np.repeat([0.2, 0.3], [3, 4]))
+        assert_array_almost_equal(dc["top"], nap_df["top"])
+        assert_array_almost_equal(dc["bottom"], nap_df["bottom"])
+        assert_array_almost_equal(dc["dz"], expected_thickness)
+        assert_array_equal(dc["nz"], expected_nz)
+
+        # Discretization contains "surface", "bottom" with depth to NAP, this results in
+        # a different layer thickness of the first layers of both surveys because of the
+        # surface level difference between borehole_data and discretization_df
+        dc = borehole_data.gst._get_discretization(
+            nap_df.drop(columns="top"), relative_to_reference=True
+        )
+        assert_array_equal(dc["nr"], np.repeat(["A", "B"], [3, 4]))
+        assert_array_almost_equal(dc["surface"], np.repeat([0.2, 0.3], [3, 4]))
+        assert_array_almost_equal(dc["bottom"], nap_df["bottom"])
+        assert_array_almost_equal(dc["dz"], [0.3, 0.5, 1.0, 0.6, 0.5, 1.0, 2.0])
+        assert_array_equal(dc["nz"], expected_nz)
+
+        with pytest.raises(
+            MissingDepthError,
+            match="The discretization DataFrame is missing bottom depths of layers.",
+        ):
+            borehole_data.gst._get_discretization(
+                nap_df.drop(columns="bottom"), relative_to_reference=True
+            )
+
+        with pytest.raises(
+            MissingDepthError,
+            match="The discretization DataFrame is missing surface information and top depth",
+        ):
+            borehole_data.gst._get_discretization(
+                nap_df.drop(columns=["surface", "top"]), relative_to_reference=True
+            )
+
+    @pytest.mark.unittest
+    def test_compute_discretized_fractions_with_bins(self, borehole_data):
+        rand_rng = np.random.default_rng(seed=12)
+
+        discretization = np.array([0.5, 1.0, 2.0, 4.0])
+        subset = borehole_data.gst.select_by_values("nr", ["A", "B"])
+        subset["value"] = rand_rng.random(len(subset))
+
+        result = subset.gst.compute_discretized_fractions(
+            "value", discretization, bins=[0.33, 0.67]
+        )
+        assert isinstance(result, pd.DataFrame)
+        assert_array_equal(result["nr"], ["A", "A", "A", "A", "B", "B", "B", "B"])
+        assert_array_equal(result["surface"], [0.2, 0.2, 0.2, 0.2, 0.3, 0.3, 0.3, 0.3])
+        assert_array_almost_equal(
+            result["top"], [0.0, 0.5, 1.0, 2.0, 0.0, 0.5, 1.0, 2.0]
+        )
+        assert_array_almost_equal(
+            result["bottom"], [0.5, 1.0, 2.0, 4.0, 0.5, 1.0, 2.0, 4.0]
+        )
+        assert_array_almost_equal(
+            result["dz"], [0.5, 0.5, 1.0, 2.0, 0.5, 0.5, 1.0, 2.0]
+        )
+        assert_array_almost_equal(
+            result["<=0.33"], [1.0, 0.6, 0.5, 0.85, 1.0, 0.2, 0.8, 0.25]
+        )
+        assert_array_almost_equal(
+            result["0.33-0.67"],
+            [np.nan, np.nan, np.nan, 0.15, np.nan, np.nan, np.nan, np.nan],
+        )
+        assert_array_almost_equal(
+            result[">0.67"], [np.nan, 0.4, 0.5, np.nan, np.nan, 0.8, 0.2, 0.7]
+        )
+
+        # If we specify bins that cover the entire range, only the column names should be changed
+        result_entire_range = subset.gst.compute_discretized_fractions(
+            "value", discretization, bins=[0, 0.33, 0.67, 1]
+        )
+        assert_array_equal(
+            result_entire_range.columns,
+            ["nr", "surface", "top", "bottom", "dz", "0-0.33", "0.33-0.67", "0.67-1"],
+        )
+        assert result[["nr", "surface", "top", "bottom", "dz"]].equals(
+            result_entire_range[["nr", "surface", "top", "bottom", "dz"]]
+        )
+        assert_array_almost_equal(result["<=0.33"], result_entire_range["0-0.33"])
+        assert_array_almost_equal(result["0.33-0.67"], result_entire_range["0.33-0.67"])
+        assert_array_almost_equal(result[">0.67"], result_entire_range["0.67-1"])
+
+        # If we specify that we want bin centers as columns
+        result_entire_range = subset.gst.compute_discretized_fractions(
+            "value",
+            discretization,
+            bins=[0, 0.33, 0.67, 1],
+            bin_centers_as_columns=True,
+        )
+        assert_array_equal(
+            result_entire_range.columns,
+            ["nr", "surface", "top", "bottom", "dz", "0.165", "0.5", "0.835"],
+        )
+        assert result[["nr", "surface", "top", "bottom", "dz"]].equals(
+            result_entire_range[["nr", "surface", "top", "bottom", "dz"]]
+        )
+        assert_array_almost_equal(result["<=0.33"], result_entire_range["0.165"])
+        assert_array_almost_equal(result["0.33-0.67"], result_entire_range["0.5"])
+        assert_array_almost_equal(result[">0.67"], result_entire_range["0.835"])
+
+        # Test using only one value as "bins"
+        result_single_bin = subset.gst.compute_discretized_fractions(
+            "value", discretization, bins=0.5
+        )
+        assert result_single_bin[["nr", "top", "bottom", "dz"]].equals(
+            result_entire_range[["nr", "top", "bottom", "dz"]]
+        )
+        assert_array_almost_equal(
+            result_single_bin["<=0.5"], [1.0, 0.6, 0.5, 1.0, 1.0, 0.2, 0.8, 0.25]
+        )
+        assert_array_almost_equal(
+            result_single_bin[">0.5"],
+            [np.nan, 0.4, 0.5, np.nan, np.nan, 0.8, 0.2, 0.7],
+        )
+
+    @pytest.mark.unittest
+    def test_compute_discretized_fractions_layered(
+        self, borehole_data, discretization_df
+    ):
+        subset = borehole_data.gst.select_by_values("nr", ["A", "B"])
+
+        # Discretize every 3 meters
+        result = subset.gst.compute_discretized_fractions("lith", 3)
+        assert isinstance(result, pd.DataFrame)
+        assert_array_equal(result["nr"], ["A", "A", "B", "B"])
+        assert_array_equal(result["surface"], [0.2, 0.2, 0.3, 0.3])
+        assert_array_equal(result["top"], [0, 3, 0, 3])
+        assert_array_equal(result["bottom"], [3, 6, 3, 6])
+        assert_array_equal(result["dz"], [3, 3, 3, 3])
+        assert_array_almost_equal(result["K"], [0.5, 0.16666667, 0.4, 0.26666667])
+        assert_array_almost_equal(result["V"], [np.nan, np.nan, 0.6, 0.03333333])
+        assert_array_almost_equal(result["Z"], [0.5, 0.23333333, np.nan, np.nan])
+
+        # Given a standard discretization
+        result = subset.gst.compute_discretized_fractions("lith", [0.5, 1.0, 2.0, 4.0])
+        assert isinstance(result, pd.DataFrame)
+        assert_array_equal(result["nr"], ["A", "A", "A", "A", "B", "B", "B", "B"])
+        assert_array_equal(result["surface"], [0.2, 0.2, 0.2, 0.2, 0.3, 0.3, 0.3, 0.3])
+        assert_array_almost_equal(
+            result["top"], [0.0, 0.5, 1.0, 2.0, 0.0, 0.5, 1.0, 2.0]
+        )
+        assert_array_almost_equal(
+            result["bottom"], [0.5, 1.0, 2.0, 4.0, 0.5, 1.0, 2.0, 4.0]
+        )
+        assert_array_almost_equal(
+            result["dz"], [0.5, 0.5, 1.0, 2.0, 0.5, 0.5, 1.0, 2.0]
+        )
+        assert_array_almost_equal(
+            result["K"], [1.0, 1.0, 0.5, 0.15, 1.0, 1.0, 0.2, 0.4]
+        )
+        assert_array_almost_equal(
+            result["V"], [np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, 0.8, 0.55]
+        )
+        assert_array_almost_equal(
+            result["Z"], [np.nan, np.nan, 0.5, 0.85, np.nan, np.nan, np.nan, np.nan]
+        )
+
+        # Now use all the borehole data, also ones not in the discretization DataFrame, the result should
+        # only contain boreholes "A" and "B" because we use `merge_sorted(keep_surveys="inner")`
+        result = borehole_data.gst.compute_discretized_fractions(
+            "lith", discretization_df[["nr", "bottom"]]
+        )
+        assert_array_equal(result["nr"], discretization_df["nr"])
+        assert_array_equal(result["surface"], np.repeat([0.2, 0.3], [3, 4]))
+        assert_array_almost_equal(result["bottom"], discretization_df["bottom"])
+        assert_array_almost_equal(result["dz"], [0.5, 0.5, 1.0, 0.5, 0.5, 1.0, 2.0])
+        assert_array_almost_equal(result["K"], [1.0, 1.0, 0.5, 1.0, 1.0, 0.2, 0.4])
+        assert_array_almost_equal(
+            result["V"], [np.nan, np.nan, np.nan, np.nan, np.nan, 0.8, 0.55]
+        )
+        assert_array_almost_equal(
+            result["Z"], [np.nan, np.nan, 0.5, np.nan, np.nan, np.nan, np.nan]
+        )
+
+        # Discretization df with a surface, should apply a surface correction of the layers
+        result = borehole_data.gst.compute_discretized_fractions(
+            "lith", discretization_df
+        )
+        assert_array_equal(result["nr"], discretization_df["nr"])
+        assert_array_equal(result["surface"], np.repeat([0.2, 0.3], [3, 4]))
+        assert_array_almost_equal(result["top"], [0.0, 0.3, 0.8, 0.0, 0.6, 1.1, 2.1])
+        assert_array_almost_equal(result["bottom"], [0.3, 0.8, 1.8, 0.6, 1.1, 2.1, 4.1])
+        assert_array_almost_equal(
+            result["surface_correction"], np.repeat([-0.2, 0.1], [3, 4])
+        )
+        assert_array_almost_equal(result["dz"], [0.3, 0.5, 1.0, 0.6, 0.5, 1.0, 2.0])
+        assert_array_almost_equal(result["K"], [1.0, 1.0, 0.7, 1.0, 1.0, 0.1, 0.4])
+        assert_array_almost_equal(
+            result["V"], [np.nan, np.nan, np.nan, np.nan, np.nan, 0.9, 0.5]
+        )
+        assert_array_almost_equal(
+            result["Z"], [np.nan, np.nan, 0.3, np.nan, np.nan, np.nan, np.nan]
+        )
+
+    @pytest.mark.unittest
+    def test_compute_discretized_fractions_layered_nap(
+        self, borehole_data, discretization_df
+    ):
+        nap_df = discretization_df.gst._get_depth_relative_to_surface()
+        subset = borehole_data.gst.select_by_values("nr", ["A", "B"])
+
+        # Discretize every 5 meters NAP
+        result = subset.gst.compute_discretized_fractions(
+            "lith", 5, relative_to_reference=True
+        )
+        assert isinstance(result, pd.DataFrame)
+        assert_array_equal(result["nr"], ["A", "A", "B", "B"])
+        assert_array_equal(result["surface"], [0.2, 0.2, 0.3, 0.3])
+        assert_array_equal(result["top"], [5, 0, 5, 0])
+        assert_array_equal(result["bottom"], [0, -5, 0, -5])
+        assert_array_equal(result["dz"], [5, 5, 5, 5])
+        assert_array_almost_equal(result["K"], [0.04, 0.36, 0.06, 0.34])
+        assert_array_almost_equal(result["V"], [np.nan, np.nan, np.nan, 0.38])
+        assert_array_almost_equal(result["Z"], [np.nan, 0.44, np.nan, np.nan])
+
+        # Using given NAP boundaries: 1-0, 0--1
+        result = subset.gst.compute_discretized_fractions(
+            "lith", [1, 0, -1], relative_to_reference=True
+        )
+        assert_array_equal(result["nr"], ["A", "A", "B", "B"])
+        assert_array_equal(result["surface"], [0.2, 0.2, 0.3, 0.3])
+        assert_array_almost_equal(result["top"], [1, 0, 1, 0])
+        assert_array_almost_equal(result["bottom"], [0, -1, 0, -1])
+        assert (result["dz"] == 1).all()
+        assert_array_almost_equal(result["K"], [0.2, 1.0, 0.3, 0.9])
+        assert_array_almost_equal(result["V"], [np.nan, np.nan, np.nan, 0.1])
+
+        # Now use all the borehole data, also ones not in the discretization DataFrame, the result should
+        # only contain boreholes "A" and "B" because we use `merge_sorted(keep_surveys="inner")`
+        result = borehole_data.gst.compute_discretized_fractions(
+            "lith", nap_df, relative_to_reference=True
+        )
+        assert_array_equal(result["nr"], nap_df["nr"])
+        assert_array_equal(result["surface"], np.repeat([0.2, 0.3], [3, 4]))
+        assert_array_almost_equal(result["top"], nap_df["top"])
+        assert_array_almost_equal(result["bottom"], nap_df["bottom"])
+        assert_array_almost_equal(result["dz"], [0.5, 0.5, 1.0, 0.5, 0.5, 1.0, 2.0])
+        assert_array_almost_equal(result["K"], [0.6, 1.0, 0.7, 1.0, 1.0, 0.1, 0.4])
+        assert_array_almost_equal(
+            result["V"], [np.nan, np.nan, np.nan, np.nan, np.nan, 0.9, 0.5]
+        )
+        assert_array_almost_equal(
+            result["Z"], [np.nan, np.nan, 0.3, np.nan, np.nan, np.nan, np.nan]
+        )
+
+        result = borehole_data.gst.compute_discretized_fractions(
+            "lith", nap_df[["nr", "surface", "bottom"]], relative_to_reference=True
+        )
+        assert_array_equal(result["nr"], nap_df["nr"])
+        assert_array_equal(result["surface"], np.repeat([0.2, 0.3], [3, 4]))
+        assert_array_almost_equal(result["bottom"], nap_df["bottom"])
+        assert_array_almost_equal(result["dz"], [0.3, 0.5, 1.0, 0.6, 0.5, 1.0, 2.0])
+        assert_array_almost_equal(result["K"], [1.0, 1.0, 0.7, 1.0, 1.0, 0.1, 0.4])
+        assert_array_almost_equal(
+            result["V"], [np.nan, np.nan, np.nan, np.nan, np.nan, 0.9, 0.5]
+        )
+        assert_array_almost_equal(
+            result["Z"], [np.nan, np.nan, 0.3, np.nan, np.nan, np.nan, np.nan]
+        )
+
+    @pytest.fixture
+    def discrete_data(self, cpt_data):
+        rng = np.random.default_rng(seed=12)
+        cpt_data["nr"] = cpt_data["nr"].str.lower()  # Ensure nr is lowercase
+        cpt_data["lith"] = rng.choice(["K", "Z"], size=len(cpt_data))
+        return cpt_data
+
+    @pytest.mark.unittest
+    def test_compute_discretized_fractions_discrete(
+        self, discrete_data, discretization_df
+    ):
+        discrete_data.gst.compute_discretized_fractions("lith", 5)
+
+    @pytest.mark.unittest
+    def test_aggregate_consecutive_layers(self, borehole_data, cpt_data):
+        # Combine borehole layers
+        result = borehole_data.gst.aggregate_consecutive_layers(
+            "lith", keep_original_index=True
+        )
+        assert isinstance(result, pd.DataFrame)
+        assert result.index.equals(
+            pd.Index([0, 2, 4, 5, 7, 9, 10, 13, 15, 16, 17, 18, 19, 20])
+        )
+        assert_array_equal(
+            result["lith"],
+            ["K", "Z", "K", "K", "V", "K", "K", "Z", "K", "V", "K", "V", "Z", "Z"],
+        )
+        assert_array_almost_equal(
+            result["top"],
+            [0.0, 1.5, 3.7, 0.0, 1.2, 3.1, 0.0, 2.9, 0.0, 0.5, 1.2, 1.8, 2.5, 0.0],
+        )
+        assert_array_almost_equal(
+            result["bottom"],
+            [1.5, 3.7, 4.2, 1.2, 3.1, 3.9, 2.9, 5.5, 0.5, 1.2, 1.8, 2.5, 3.0, 3.0],
+        )
+
+        # Combine borehole layers, aggregate over more than one column.
+        borehole_data["categorical_data"] = ["A", "B", "A", "B"] + 21 * ["A"]
+        result = borehole_data.gst.aggregate_consecutive_layers(
+            ["lith", "categorical_data"], keep_original_index=True
+        )
+        assert isinstance(result, pd.DataFrame)
+        assert result.index.equals(
+            pd.Index([0, 1, 2, 3, 4, 5, 7, 9, 10, 13, 15, 16, 17, 18, 19, 20])
+        )
+
+        # Combine CPT layers
+        cpt_data["categorical_data"] = (
+            ["A"] * 4 + ["B"] * 4 + ["A"] * 4 + ["C"] * 4 + ["B"] * 4
+        )
+        result = cpt_data.gst.aggregate_consecutive_layers(
+            "categorical_data", agg_funcs={"qc": "mean", "fs": "max"}
+        )
+        assert result.gst.is_layered
+        assert isinstance(result, pd.DataFrame)
+
+    @pytest.mark.unittest
     def test_to_pyvista_cylinders(self, borehole_data, cpt_data):
         vtk_object = borehole_data.gst.to_pyvista_cylinders("lith")
         assert isinstance(vtk_object, pv.MultiBlock)
@@ -1041,6 +1879,42 @@ class TestGeostFrame:
         outfile.unlink()
 
     @pytest.mark.unittest
+    def test_create_linestrings_3d(self, borehole_data):
+        result = borehole_data.gst.create_linestrings_3d()
+
+        assert isinstance(result, gpd.GeoSeries)
+
+        from shapely.geometry import LineString
+
+        assert all(isinstance(geom, LineString) for geom in result)
+        assert len(result) == len(borehole_data)
+
+        for geom in result:
+            assert len(geom.coords[0]) == 3
+            assert len(geom.coords[-1]) == 3
+
+    @pytest.mark.unittest
+    def test_to_geopackage_3d(self, borehole_data, tmp_path):
+        from shapely import LineString
+
+        outfile = tmp_path / "test_3d.gpkg"
+        borehole_data.gst.to_geopackage_3d(outfile)
+        assert outfile.is_file()
+
+        test_layers = gpd.list_layers(outfile)
+        assert_array_equal(test_layers["name"], ["locations", "3dlines"])
+        assert_array_equal(test_layers["geometry_type"], ["Point", "LineString Z"])
+
+        # Check if linestring coordinates are OK
+        test_lines = gpd.read_file(outfile, layer="3dlines")
+        assert test_lines.geometry.iloc[0].equals(
+            LineString([(2, 3, 0.21), (2, 3, -0.6)])
+        )
+        assert test_lines.geometry.iloc[1].equals(
+            LineString([(2, 3, -0.59), (2, 3, -1.3)])
+        )
+
+    @pytest.mark.unittest
     def test_to_kingdom(self, borehole_data):
         outfile = Path("temp_kingdom.csv")
         tdfile = Path(outfile.parent, f"{outfile.stem}_TDCHART{outfile.suffix}")
@@ -1049,3 +1923,321 @@ class TestGeostFrame:
         assert tdfile.is_file()
         outfile.unlink()
         tdfile.unlink()
+
+    @pytest.mark.unittest
+    def test_add_model_data_layered(self, borehole_data, voxelmodel, layermodel):
+        """
+        Method uses `geost.analysis.combine.add_model_data` which is tested in detail
+        in `tests/analysis/test_combine.py`.
+
+        """
+        result = borehole_data.gst.add_model_data(
+            voxelmodel,
+            data_vars="strat",
+            aggregate_vars={"lith": "mean"},
+            suffix="_model",
+        )
+        assert isinstance(result, pd.DataFrame)
+        assert result.shape == (35, 10)
+        assert "strat_model" in result.columns
+        assert "lith_model" in result.columns
+
+        # Not specifying any data_vars with a layermodel should only add the layermodel's z-dimension
+        result = borehole_data.gst.add_model_data(layermodel)
+        assert isinstance(result, pd.DataFrame)
+        assert result.shape == (38, 9)
+        assert layermodel.gst.z_dim in result.columns
+
+        result = borehole_data.gst.add_model_data(
+            layermodel,
+            data_vars="layer",
+            aggregate_vars={"kh": "mean"},
+            suffix="_model",
+        )
+        assert isinstance(result, pd.DataFrame)
+        assert result.shape == (38, 10)
+        assert "layer_model" in result.columns
+        assert "kh_model" in result.columns
+
+    @pytest.mark.unittest
+    def test_add_model_data_discrete(self, cpt_data, voxelmodel, layermodel):
+        """
+        Method uses `geost.analysis.combine.add_model_data` which is tested in detail
+        in `tests/analysis/test_combine.py`.
+
+        """
+        result = cpt_data.gst.add_model_data(
+            voxelmodel,
+            data_vars="strat",
+            aggregate_vars={"lith": "mean"},
+            suffix="_model",
+        )
+        assert isinstance(result, pd.DataFrame)
+        assert result.shape == (24, 11)
+        assert "strat_model" in result.columns
+        assert "lith_model" in result.columns
+
+        # Not specifying any data_vars with a layermodel should only add the layermodel's z-dimension
+        result = cpt_data.gst.add_model_data(layermodel)
+        assert isinstance(result, pd.DataFrame)
+        assert result.shape == (27, 10)
+        assert layermodel.gst.z_dim in result.columns
+
+        result = cpt_data.gst.add_model_data(
+            layermodel,
+            data_vars="layer",
+            aggregate_vars={"kh": "mean"},
+            suffix="_model",
+        )
+        assert isinstance(result, pd.DataFrame)
+        assert result.shape == (27, 11)
+        assert "layer_model" in result.columns
+        assert "kh_model" in result.columns
+
+    @pytest.fixture
+    def data_merge_sorted(self):
+        return pd.DataFrame(
+            {
+                "nr": ["A", "A", "B", "B", "C", "C"],
+                "surface": [0.2, 0.2, 0.3, 0.3, 0.25, 0.25],
+                "top": [0, 0.8, 0, 1.0, 0, 0.4],
+                "bottom": [0.8, 1.2, 1.0, 1.5, 0.4, 0.8],
+                "lith": ["K", "K", "Z", "K", "K", "L"],
+            }
+        )
+
+    @pytest.fixture
+    def to_insert_merge_sorted(self):
+        return pd.DataFrame(
+            {
+                "nr": ["A", "B", "D"],
+                "surface": [0.3, 0.4, 0.15],
+                "top": [0.0, 0.0, 0.0],
+                "bottom": [1.1, 2.0, 0.4],
+                "value": [15, 35, 45],
+            }
+        )
+
+    @pytest.mark.unittest
+    def test_merge_sorted_outer(self, data_merge_sorted, to_insert_merge_sorted):
+        expected_result = pd.DataFrame(
+            {
+                "nr": ["A", "A", "A", "B", "B", "B", "C", "C", "D"],
+                "surface": [0.2, 0.2, 0.2, 0.3, 0.3, 0.3, 0.25, 0.25, 0.15],
+                "top": [0.0, 0.8, 1.0, 0.0, 1.0, 1.5, 0.0, 0.4, 0.0],
+                "bottom": [0.8, 1.0, 1.2, 1.0, 1.5, 1.9, 0.4, 0.8, 0.4],
+                "lith": ["K", "K", "K", "Z", "K", np.nan, "K", "L", np.nan],
+                "surface_right": [
+                    0.3,
+                    0.3,
+                    np.nan,
+                    0.4,
+                    0.4,
+                    0.4,
+                    np.nan,
+                    np.nan,
+                    0.15,
+                ],
+                "value": [
+                    15.0,
+                    15.0,
+                    np.nan,
+                    35.0,
+                    35.0,
+                    35.0,
+                    np.nan,
+                    np.nan,
+                    45.0,
+                ],
+            }
+        )
+
+        result = data_merge_sorted.gst.merge_sorted(
+            to_insert_merge_sorted, keep_surveys="outer"
+        )
+        assert isinstance(result, pd.DataFrame)
+        pd.testing.assert_frame_equal(result, expected_result)
+
+        # Drop overlapping columns from the right
+        result = data_merge_sorted.gst.merge_sorted(
+            to_insert_merge_sorted, keep_surveys="outer", drop_overlapping_columns=True
+        )
+        pd.testing.assert_frame_equal(
+            result, expected_result.drop(columns="surface_right")
+        )
+
+        # Without backfilling the result
+        result = data_merge_sorted.gst.merge_sorted(
+            to_insert_merge_sorted, keep_surveys="outer", backfill=False
+        )
+        assert_array_equal(result["nr"], expected_result["nr"])
+        assert_array_equal(result["surface"], expected_result["surface"])
+        assert_array_almost_equal(result["top"], expected_result["top"])
+        assert_array_almost_equal(result["bottom"], expected_result["bottom"])
+        # Test the last columns with `assert_frame_equal` because this automatically deals with Arrow types
+        pd.testing.assert_frame_equal(
+            result[["lith", "surface_right", "value"]],
+            pd.DataFrame(
+                {
+                    "lith": ["K", np.nan, "K", "Z", "K", np.nan, "K", "L", np.nan],
+                    "surface_right": [
+                        np.nan,
+                        0.3,
+                        np.nan,
+                        np.nan,
+                        np.nan,
+                        0.4,
+                        np.nan,
+                        np.nan,
+                        0.15,
+                    ],
+                    "value": [
+                        np.nan,
+                        15.0,
+                        np.nan,
+                        np.nan,
+                        np.nan,
+                        35.0,
+                        np.nan,
+                        np.nan,
+                        45.0,
+                    ],
+                }
+            ),
+        )
+
+        # Test when "other" is relative to a reference such as "NAP"
+        nap_insert = to_insert_merge_sorted.gst._get_depth_relative_to_surface()
+        result = data_merge_sorted.gst.merge_sorted(
+            nap_insert, keep_surveys="outer", relative_to_reference=True
+        )
+        pd.testing.assert_frame_equal(result, expected_result)
+
+        # Other names of depth columns and surface should work too, if they are accepter positional columns
+        result = data_merge_sorted.gst.merge_sorted(
+            to_insert_merge_sorted.rename(
+                columns={
+                    "nr": "nitg",
+                    "bottom": "depth",
+                    "surface": "mv",
+                }
+            ),
+            keep_surveys="outer",
+        )
+        assert_array_equal(result["mv"], expected_result["surface_right"])
+        pd.testing.assert_frame_equal(
+            result.drop(columns="mv"), expected_result.drop(columns="surface_right")
+        )
+
+        with pytest.raises(ValueError, match="Invalid value for keep_surveys"):
+            data_merge_sorted.gst.merge_sorted(
+                to_insert_merge_sorted, keep_surveys="invalid"
+            )
+
+    @pytest.mark.unittest
+    def test_merge_sorted_inner(self, data_merge_sorted, to_insert_merge_sorted):
+        expected_result = pd.DataFrame(
+            {
+                "nr": ["A", "A", "A", "B", "B", "B"],
+                "surface": [0.2, 0.2, 0.2, 0.3, 0.3, 0.3],
+                "top": [0.0, 0.8, 1.0, 0.0, 1.0, 1.5],
+                "bottom": [0.8, 1.0, 1.2, 1.0, 1.5, 1.9],
+                "lith": ["K", "K", "K", "Z", "K", np.nan],
+                "surface_right": [
+                    0.3,
+                    0.3,
+                    np.nan,
+                    0.4,
+                    0.4,
+                    0.4,
+                ],
+                "value": [
+                    15.0,
+                    15.0,
+                    np.nan,
+                    35.0,
+                    35.0,
+                    35.0,
+                ],
+            }
+        )
+
+        result = data_merge_sorted.gst.merge_sorted(
+            to_insert_merge_sorted, keep_surveys="inner"
+        )
+        assert isinstance(result, pd.DataFrame)
+        pd.testing.assert_frame_equal(result, expected_result)
+
+    @pytest.mark.unittest
+    def test_merge_sorted_left(self, data_merge_sorted, to_insert_merge_sorted):
+        expected_result = pd.DataFrame(
+            {
+                "nr": ["A", "A", "A", "B", "B", "B", "C", "C"],
+                "surface": [0.2, 0.2, 0.2, 0.3, 0.3, 0.3, 0.25, 0.25],
+                "top": [0.0, 0.8, 1.0, 0.0, 1.0, 1.5, 0.0, 0.4],
+                "bottom": [0.8, 1.0, 1.2, 1.0, 1.5, 1.9, 0.4, 0.8],
+                "lith": ["K", "K", "K", "Z", "K", np.nan, "K", "L"],
+                "surface_right": [
+                    0.3,
+                    0.3,
+                    np.nan,
+                    0.4,
+                    0.4,
+                    0.4,
+                    np.nan,
+                    np.nan,
+                ],
+                "value": [
+                    15.0,
+                    15.0,
+                    np.nan,
+                    35.0,
+                    35.0,
+                    35.0,
+                    np.nan,
+                    np.nan,
+                ],
+            }
+        )
+
+        result = data_merge_sorted.gst.merge_sorted(
+            to_insert_merge_sorted, keep_surveys="left"
+        )
+        assert isinstance(result, pd.DataFrame)
+        pd.testing.assert_frame_equal(result, expected_result)
+
+    @pytest.mark.unittest
+    def test_merge_sorted_right(self, data_merge_sorted, to_insert_merge_sorted):
+        expected_result = pd.DataFrame(
+            {
+                "nr": ["A", "A", "A", "B", "B", "B", "D"],
+                "surface": [0.2, 0.2, 0.2, 0.3, 0.3, 0.3, 0.15],
+                "top": [0.0, 0.8, 1.0, 0.0, 1.0, 1.5, 0.0],
+                "bottom": [0.8, 1.0, 1.2, 1.0, 1.5, 1.9, 0.4],
+                "lith": ["K", "K", "K", "Z", "K", np.nan, np.nan],
+                "surface_right": [
+                    0.3,
+                    0.3,
+                    np.nan,
+                    0.4,
+                    0.4,
+                    0.4,
+                    0.15,
+                ],
+                "value": [
+                    15.0,
+                    15.0,
+                    np.nan,
+                    35.0,
+                    35.0,
+                    35.0,
+                    45.0,
+                ],
+            }
+        )
+
+        result = data_merge_sorted.gst.merge_sorted(
+            to_insert_merge_sorted, keep_surveys="right"
+        )
+        assert isinstance(result, pd.DataFrame)
+        pd.testing.assert_frame_equal(result, expected_result)

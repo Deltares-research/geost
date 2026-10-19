@@ -196,6 +196,7 @@ def coerce_numeric(
 
 
 def validate_base(
+    obj: pd.DataFrame | gpd.GeoDataFrame,
     column_names: dict,
 ) -> pd.DataFrame | gpd.GeoDataFrame:
     """
@@ -213,11 +214,12 @@ def validate_base(
         If required columns are missing.
 
     """
-    if column_names["nr"] is None:
-        raise ValueError(
-            "GeostFrame missing required positional column: 'nr' or any of its aliases."
-        )
-    if column_names["surface"] is None:
+    if column_names["nr"] not in obj.columns:
+        raise ValueError(f"GeostFrame missing required column: '{column_names['nr']}'")
+    if (
+        column_names["surface"] is not None
+        and column_names["surface"] not in obj.columns
+    ):
         raise ValueError(
             "GeostFrame missing required column: 'surface' or any of its aliases."
         )

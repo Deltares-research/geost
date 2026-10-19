@@ -57,6 +57,15 @@ Generic
    Collection.reset_header
 
 
+Data manipulation
+-----------------------------
+.. autosummary::
+   :toctree: generated/
+
+   Collection.add_model_data
+   Collection.aggregate_consecutive_layers
+
+
 Selection
 ----------
 .. autosummary::
@@ -80,6 +89,7 @@ Spatial
    Collection.select_with_points
    Collection.select_within_bbox
    Collection.select_within_polygons
+   Collection.find_point_pairs
    Collection.spatial_join
 
 

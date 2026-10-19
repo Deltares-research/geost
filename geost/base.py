@@ -2,19 +2,17 @@ from __future__ import annotations
 
 import warnings
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Iterable
+from typing import TYPE_CHECKING, Any, Iterable, Literal
 
 import geopandas as gpd
 import pandas as pd
 from pyproj import CRS
 
-from geost import config, utils
+from geost import config, data, utils
 from geost._warnings import AlignmentWarning
 from geost.abstract_classes import AbstractBase
-from geost.utils.projections import (
-    horizontal_reference_transformer,
-    vertical_reference_transformer,
-)
+from geost.exceptions import MissingSurveyIDError
+from geost.utils.projections import vertical_reference_transformer
 from geost.validation.method_checks import (
     _requires_depth,
     _requires_geometry,
@@ -23,6 +21,8 @@ from geost.validation.method_checks import (
 )
 
 if TYPE_CHECKING:
+    import numpy as np
+    import xarray as xr
     from shapely.geometry.base import BaseGeometry
 
 
@@ -43,15 +43,15 @@ class Collection(AbstractBase):
 
     Parameters
     ----------
-    data : :class:`pd.DataFrame`, optional
+    data : :class:`pd.DataFrame` or dict, optional
         Data table containing the logged information for all surveys, with one row per
-        logged layer in the survey. If not given, an empty DataFrame is set. The default
-        is None.
-    header : :class:`gpd.GeoDataFrame`, optional
+        logged layer in the survey. A dict is converted to a DataFrame. If not given, an
+        empty DataFrame is set. The default is None.
+    header : :class:`gpd.GeoDataFrame` or dict, optional
         Header containing one row per survey with metadata and spatial information. If not
-        given, the header will automatically be set from the data by dropping duplicates
-        in the column identifying the survey (e.g. "nr") and keeping the first row for each
-        survey. The default is None.
+        given, the header will automatically be set from the data by dropping duplicates in
+        the column identifying the survey (e.g. "nr") and keeping the first row for each
+        survey. A dict is converted to a GeoDataFrame. The default is None.
     has_inclined : bool, optional
         Boolean indicating whether there are inclined objects within the collection. This
         is used to determine whether the collection contains objects with bottom coordinates
@@ -65,12 +65,17 @@ class Collection(AbstractBase):
 
     def __init__(
         self,
-        data: pd.DataFrame = None,
+        data: pd.DataFrame | dict[str, Any] = None,
         *,
-        header: gpd.GeoDataFrame = None,
+        header: gpd.GeoDataFrame | dict[str, Any] = None,
         has_inclined: bool = False,
         vertical_datum: str | int | CRS = None,
     ):
+        if isinstance(data, dict):
+            data = pd.DataFrame(data)
+        if isinstance(header, dict):
+            header = gpd.GeoDataFrame(header)
+
         if data is None or data.empty:
             if header is not None and not header.empty:
                 raise ValueError(
@@ -85,7 +90,7 @@ class Collection(AbstractBase):
         elif header is None or header.empty:
             warnings.warn("Header is None, setting the header from the given data.")
             survey_id_col = self._check_survey_id_col(data, "Data")
-            header = data.drop_duplicates(survey_id_col).reset_index(drop=True)
+            header = data.gst.to_header()
         else:
             survey_id_col_header = self._check_survey_id_col(header, "Header")
             survey_id_col = self._check_survey_id_col(data, "Data")
@@ -122,8 +127,8 @@ class Collection(AbstractBase):
     def _check_survey_id_col(df, df_name):
         try:
             return df.gst._nr
-        except KeyError as e:
-            raise KeyError(
+        except MissingSurveyIDError as e:
+            raise MissingSurveyIDError(
                 f"{df_name} table must contain a column identifying the survey IDs."
             ) from e
 
@@ -173,8 +178,37 @@ class Collection(AbstractBase):
     def header_has_geometry(self):
         return self.header._geometry_column_name is not None
 
+    @property
+    def header_to_data_index(self):
+        """
+        Returns a pandas Series that maps the range index of surveys in the data table
+        to the index of the header table.
+
+        Returns
+        -------
+        pd.Series
+            A pandas Series where the index corresponds to the header table's index and
+            the values are pandas RangeIndex objects that map to the corresponding rows
+            in the data table for each survey.
+        """
+        first_row_survey = self.data.gst.first_row_survey
+        last_row_survey = self.data.gst.last_row_survey
+        first_idx = first_row_survey.index[first_row_survey]
+        last_idx = last_row_survey.index[last_row_survey]
+
+        # Note directly creating pd.RangeIndex objects would be better, but makes it slow
+        # for large datasets...
+        ranges = [(s, e + 1) for s, e in zip(first_idx, last_idx)]
+
+        return pd.Series(data=ranges, index=self.header.index)
+
     @header.setter
-    def header(self, header):
+    def header(self, header: gpd.GeoDataFrame | pd.DataFrame):
+        """
+        Sets a new header, ensures it will be a ``GeoDataFrame`` and performs an alignment
+        check with the data table.
+
+        """
         self.set_header(header)  # This ensures header will always be a GeoDataFrame
 
     def set_header(self, header: pd.DataFrame | gpd.GeoDataFrame):
@@ -190,16 +224,194 @@ class Collection(AbstractBase):
                 )
 
         self._header = header
-        self.check_header_to_data_alignment()
+
+        if hasattr(self, "_data"):
+            in_both, only_in_header, only_in_data = self._check_alignment()
+            if only_in_header or only_in_data:
+                if config.validation.AUTO_ALIGN:
+                    self._synchronize_tables(
+                        "header", in_both, only_in_header, only_in_data
+                    )
+                else:
+                    self._warn_misaligned_tables(only_in_header, only_in_data)
 
     @data.setter
-    def data(self, data):
+    def data(self, data: gpd.GeoDataFrame | pd.DataFrame):
+        """
+        Sets a new data table and performs an alignment check with the data table.
+
+        """
         if not data.empty:
             if not config.validation.SKIP:
                 data = data.gst.validate()
 
         self._data = data
-        self.check_header_to_data_alignment()
+
+        if hasattr(self, "_header"):
+            in_both, only_in_header, only_in_data = self._check_alignment()
+            if only_in_header or only_in_data:
+                if config.validation.AUTO_ALIGN:
+                    self._synchronize_tables(
+                        "data", in_both, only_in_header, only_in_data
+                    )
+                else:
+                    self._warn_misaligned_tables(only_in_header, only_in_data)
+
+    def _check_alignment(self) -> tuple[list[str], list[str], list[str]]:
+        """
+        Two-way check to warn of any misalignment between the header and data
+        attributes. Two way, i.e. if header includes more objects than in the data and
+        if the data includes more unique objects that listed in the header.
+
+        This check is performed everytime the object is instantiated AND if any change
+        is made to either the header or data attributes (see their respective setters).
+
+        """
+        if not self.header.empty:
+            nrs_in_header = set(self.header[self._nr])
+        else:
+            nrs_in_header = set()
+
+        if not self.data.empty:
+            nrs_in_data = set(self.data[self._nr].unique())
+        else:
+            nrs_in_data = set()
+
+        in_both = sorted(nrs_in_header & nrs_in_data)
+        only_in_header = sorted(nrs_in_header - nrs_in_data)
+        only_in_data = sorted(nrs_in_data - nrs_in_header)
+
+        return in_both, only_in_header, only_in_data
+
+    def _warn_misaligned_tables(
+        self, only_in_header: list[Any], only_in_data: list[Any]
+    ) -> None:
+        """
+        Standard warning which is raised when the header and data are misaligned in present
+        surveys but ``config.validation.AUTO_ALIGN is False``.
+
+        Parameters
+        ----------
+        only_in_header : list[Any]
+            List of survey IDs which occur only in the header.
+        only_in_data : list[Any]
+            List of survey IDs which occur only in the data.
+
+        """
+        warnings.warn(
+            "Misaligned header and data tables but `geost.config.validation.AUTO_ALIGN` "
+            "is False. Consider running the method `synchronize_tables` to make "
+            "sure alignment between the header and data tables.\n"
+            f"{only_in_header=},\n{only_in_data=}",
+            category=AlignmentWarning,
+        )
+
+    def _warn_remove_header_entries(self, only_in_header: list[Any]) -> None:
+        """
+        Standard warning for entries that will be removed from the header when synchronizing
+        tables in case of misalignment between the header and data.
+
+        Parameters
+        ----------
+        only_in_header : list[Any]
+            Survey IDs which will be removed from the header.
+
+        """
+        warnings.warn(
+            "Header table contains entries not present in the data. "
+            f"Removing entries {only_in_header} from the header.",
+            category=AlignmentWarning,
+        )
+
+    def _synchronize_tables(
+        self,
+        how: str,
+        in_both: list[Any],
+        only_in_header: list[Any],
+        only_in_data: list[Any],
+    ) -> None:
+        """
+        Helper to synchronize the header and data tables after the two-way alignment check
+        ``_check_alignment``.
+
+        Parameters
+        ----------
+        how : str
+            Method to perform synchronization by, one of "inner", "header" or "data". See
+            documentation ``GeostFrame.synchronize_tables``
+        in_both : list[Any]
+            List of survey IDs which occur in both the header and data table.
+        only_in_header : list[Any]
+            List of survey IDs which occur only in the header.
+        only_in_data : list[Any]
+            List of survey IDs which occur only in the data.
+
+        Raises
+        ------
+        ValueError
+            In case of an invalid value for ``how``.
+
+        """
+        if how == "inner" or how == "header":
+            if how == "header":
+                self._warn_remove_header_entries(only_in_header)
+            self._header = self.header.gst.select_by_values(self._nr, in_both)
+            self._data = self.data.gst.select_by_values(self._nr, in_both)
+        elif how == "data":
+            if only_in_data:
+                warnings.warn(
+                    "Data table contains entries not present in the header. "
+                    "Adding missing entries to the header.",
+                    category=AlignmentWarning,
+                )
+                crs = self.header.crs if self.header_has_geometry else None
+                missing_header = self.data.gst.select_by_values(
+                    self._nr, only_in_data
+                ).gst.to_header(include_columns=self.header.columns, crs=crs)
+            else:
+                missing_header = pd.DataFrame(columns=self.header.columns)
+
+            header = pd.concat([self.header, missing_header], ignore_index=True)
+
+            if only_in_header:
+                self._warn_remove_header_entries(only_in_header)
+                header = header.loc[~header[self._nr].isin(only_in_header)]
+
+            self._header = gpd.GeoDataFrame(
+                header.sort_values(by=self._nr, ignore_index=True)
+            )
+        else:
+            raise ValueError(
+                "Invalid value for 'how'. Choose one of: 'inner', 'data', 'header'."
+            )
+
+    def synchronize_tables(
+        self, how: Literal["inner", "header", "data"] = "inner"
+    ) -> None:
+        """
+        Synchronize the header and data tables in case of misalignment in the surveys present
+        in both.
+
+        Parameters
+        ----------
+        how : str, optional
+            Method to synchronize the tables, the default is "inner". Can be one of:
+            - "inner" to keep only matching surveys in both tables
+            - "header" produces the same result as "inner" but raises a warning for surveys
+            which can't be kept in the header because these do not occur in data.
+            - "data" keeps all the surveys which are in the data table and constructs missing
+            surveys in the header from available information in data. Header information
+            which cannot be construcor will be missing (NaN) values.
+
+        Returns
+        -------
+        None
+            Operates on the :class:`~geost.base.Collection` inplace.
+
+        """
+        in_both, only_in_header, only_in_data = self._check_alignment()
+        self._synchronize_tables(how, in_both, only_in_header, only_in_data)
+        # TODO: Maybe not only make this operation inplace
 
     def add_header_column_to_data(self, column_name: str) -> None:  # No change
         """
@@ -239,7 +451,7 @@ class Collection(AbstractBase):
 
         Returns
         -------
-        :class:`geost.base.Collection`
+        :class:`~geost.base.Collection`
             New Collection instance containing only the selected surveys.
 
         Examples
@@ -466,47 +678,6 @@ class Collection(AbstractBase):
                 self.header[self._nr].isin(self.data[self._nr].drop_duplicates().values)
             ]
 
-    def check_header_to_data_alignment(self):
-        """
-        Two-way check to warn of any misalignment between the header and data
-        attributes. Two way, i.e. if header includes more objects than in the data and
-        if the data includes more unique objects that listed in the header.
-
-        This check is performed everytime the object is instantiated AND if any change
-        is made to either the header or data attributes (see their respective setters).
-
-        """
-        warning_given = False
-        if hasattr(self, "_header") and hasattr(self, "_data"):
-            # In initialization of the object, _header and _data attributes do not exist yet.
-            if self.header.empty and self.data.empty:
-                return
-
-            if any(~self.header[self._nr].isin(self.data[self._nr].unique())):
-                warnings.warn(
-                    "Header covers more/other objects than present in the data table. "
-                    "consider running the method 'reset_header' to update the header.",
-                    category=AlignmentWarning,
-                )
-                warning_given = True
-
-            if not set(self.data[self._nr].unique()).issubset(
-                set(self.header[self._nr])
-            ):
-                warnings.warn(
-                    "Header does not cover all unique objects in data. "
-                    "consider running the method 'reset_header' to update the header.",
-                    category=AlignmentWarning,
-                )
-                warning_given = True
-
-            if config.validation.AUTO_ALIGN and warning_given:
-                self.reset_header()
-                print(
-                    "\nNOTE: Header has been reset to align with data because AUTO_ALIGN"
-                    " is enabled in the GeoST configuration.",
-                )
-
     @_requires_geometry
     def select_within_bbox(
         self,
@@ -558,6 +729,7 @@ class Collection(AbstractBase):
         self,
         points: str | Path | gpd.GeoDataFrame | GeometryType,
         max_distance: float | int,
+        n_points: int = None,
         invert: bool = False,
     ):
         """
@@ -571,6 +743,9 @@ class Collection(AbstractBase):
             MultiPoint or list containing Point objects.
         max_distance : float | int
             Maximum distance from the selection points.
+        n_points : int, optional
+            Number of nearest points to select, by default None, which means that all points
+            within the buffer are selected.
         invert : bool, optional
             Invert the selection, selects all data that lie outside the specified maximum
             distance from the given point geometries. The default is False.
@@ -580,10 +755,12 @@ class Collection(AbstractBase):
         :class:`~geost.base.Collection`
             New Collection instance containing only the surveys that are located within
             the specified maximum distance from the given point geometries.
-
         """
         selected_header = self.header.gst.select_with_points(
-            points, max_distance, invert=invert
+            points,
+            max_distance,
+            n_points=n_points,
+            invert=invert,
         )
         selected_data = self.data.gst.select_by_values(
             self._nr, selected_header[self._nr].unique()
@@ -678,6 +855,63 @@ class Collection(AbstractBase):
             has_inclined=self.has_inclined,
             vertical_datum=self.vertical_datum,
         )
+
+    @_requires_geometry
+    def find_point_pairs(
+        self,
+        points: str | Path | gpd.GeoDataFrame | GeometryType,
+        max_distance: float | int,
+        n_points: int | None = None,
+        return_distance: bool = False,
+        include_in_header: bool = False,
+    ) -> np.ndarray | None:
+        """
+        Find pairs of points between the data and the given query points that are within
+        a specified maximum distance.
+
+        Parameters
+        ----------
+        points : str | Path | gpd.GeoDataFrame | GeometryType
+            Any type of point geometries that can be used for the selection: GeoDataFrame
+            containing points or filepath to a shapefile like file, or Shapely Point,
+            MultiPoint or list containing Point objects.
+        max_distance : float | int
+            Maximum distance between points to be considered a pair.
+        n_points : int | None, optional
+            Number of nearest points to consider for each point. If None, all points within
+            the maximum distance will be considered. The default is None.
+        return_distance : bool, optional
+            If True, the distances between the paired points will be returned as well. The
+            default is False.
+        include_in_header : bool, optional
+            If True, the found pairs will be included in the header of the Collection instance.
+            Only applicable if direction is "data_to_query". The default is False.
+
+        Returns
+        -------
+        np.ndarray
+            Array of shape (n_pairs, 2) containing the dataframe indices of the paired
+            points in the data (column 0) and the query points (column 1) within range. If
+            ``return_distance`` is True, the array will have shape (n_pairs, 3) with the
+            third column containing the distances between the paired points.
+
+        """
+        pairs = self.header.gst.find_point_pairs(
+            points, max_distance, n_points=n_points, return_distance=return_distance
+        )
+        if include_in_header:
+            df = pd.DataFrame(
+                pairs,
+                columns=(
+                    ["index", "points_in_range"]
+                    if not return_distance
+                    else ["index", "points_in_range", "distances"]
+                ),
+            )
+            df = df.groupby("index")["points_in_range"].apply(list).to_frame()
+            self.header = self.header.join(df)
+        else:
+            return pairs
 
     @_requires_geometry
     def spatial_join(
@@ -940,29 +1174,49 @@ class Collection(AbstractBase):
     @_requires_depth
     def slice_depth_interval(
         self,
-        upper_boundary: float | int = None,
-        lower_boundary: float | int = None,
+        upper_boundary: float | int | xr.DataArray | str | Path = None,
+        lower_boundary: float | int | xr.DataArray | str | Path = None,
         relative_to_vertical_reference: bool = False,
         update_layer_boundaries: bool = True,
+        drop_missing: bool = True,
     ):
         """
         Slice data based on given upper and lower boundaries. This returns a new object
-        containing only the sliced data.
+        containing only the sliced data. You may use fixed boundaries or grids for spatially
+        varying boundaries.
+
+        Note on using grids as upper and/or lower boundaries: if you notice unexpected
+        results do check the following:
+        -   Your data and your boundary grid(s) are in the same coordinate reference system
+        -   You have set `relative_to_vertical_reference` correctly according to the nature
+            of your grid. If your grid is relative to a vertical reference plane (e.g. "NAP"),
+            set this parameter to True. If your grid is relative to depth below the surface,
+            set this parameter to False.
 
         Parameters
         ----------
-        upper_boundary : float | int, optional
-            Every layer that starts above this is removed. The default is None.
-        lower_boundary : float | int, optional
-            Every layer that starts below this is removed. The default is None.
+        upper_boundary : float | int | xr.DataArray | str | Path, optional
+            Every layer that starts above this is removed. If you are using an xarray
+            DataArray (directly or through a file path), please set `relative_to_vertical_reference`
+            according to the nature of your grid. The default is None.
+        lower_boundary : float | int | xr.DataArray | str | Path, optional
+            Every layer that starts below this is removed. If you are using an xarray
+            DataArray (directly or through a file path), please set `relative_to_vertical_reference`
+            according to the nature of your grid. The default is None.
         relative_to_vertical_reference : bool, optional
             If True, the slicing is done with respect to any kind of vertical reference
             plane (e.g. "NAP", "TAW"). If False, the slice is done with respect to depth
             below the surface. The default is False.
         update_layer_boundaries : bool, optional
-            If True, the layer boundaries in the sliced data are updated according to the
-            upper and lower boundaries used with the slice. If False, the original layer
-            boundaries are kept in the sliced object. The default is False.
+            Only used when the data is layered, i.e. the data contains tops and bottoms for
+            individual layers. If True, the layer boundaries in the sliced data are updated
+            according to the upper and lower boundaries used with the slice. If False, the
+            original layer boundaries are kept in the sliced object. The default is False.
+        drop_missing : bool, optional
+            If True, any data outside the horizontal bounds of the grid or any surveys that
+            fall in cells with missing data are removed as well. This only applies when
+            either or both of the upper and lower boundaries are given as xarray DataArrays.
+            The default is True.
 
         Returns
         -------
@@ -990,12 +1244,26 @@ class Collection(AbstractBase):
 
         >>> data.slice_depth_interval(-3, -5, relative_to_vertical_reference=True)
 
+        You can also slice data based on spatially varying upper and lower boundaries by
+        giving an xarray DataArray or file path to a raster file that serves as the upper
+        and/or lower boundary. For example, if you have a grid representing the Holocene-
+        Pleistocene boundary height in NAP and you want to select only data in the
+        Holocene depth interval but below -2 m NAP you would use:
+
+        >>> data.slice_depth_interval(
+        ...     upper_boundary=-2,
+        ...     lower_boundary="holocene_pleistocene_boundary.geotiff",
+        ...     relative_to_vertical_reference=True,
+        ...     update_layer_boundaries=True,
+        ... )
+
         """
         selected_data = self.data.gst.slice_depth_interval(
             upper_boundary=upper_boundary,
             lower_boundary=lower_boundary,
             relative_to_vertical_reference=relative_to_vertical_reference,
             update_layer_boundaries=update_layer_boundaries,
+            drop_missing=drop_missing,
         )
         selected_header = self.header.gst.select_by_values(
             self._nr, selected_data[self._nr].unique()
@@ -1124,6 +1392,7 @@ class Collection(AbstractBase):
             vertical_datum=self.vertical_datum,
         )
 
+    @_requires_depth
     def get_cumulative_thickness(
         self, column: str, values: str | list[str], include_in_header: bool = False
     ) -> pd.Series | None:
@@ -1182,6 +1451,7 @@ class Collection(AbstractBase):
         else:
             return thickness
 
+    @_requires_depth
     def get_layer_top(
         self,
         column: str,
@@ -1252,6 +1522,7 @@ class Collection(AbstractBase):
         else:
             return top
 
+    @_requires_depth
     def get_layer_base(
         self,
         column: str,
@@ -1308,6 +1579,134 @@ class Collection(AbstractBase):
             self.header = self.header.merge(base, on=self._nr, how="left")
         else:
             return base
+
+    @_requires_depth
+    def compute_discretized_fractions(
+        self,
+        column: str,
+        discretization: np.ndarray,
+        bins: int | float | list | np.ndarray = None,
+        bin_centers_as_columns: bool = False,
+        relative_to_reference: bool = False,
+    ) -> Collection:
+        """
+        Calculate the fraction of each categorical value in the specified column of the
+        data table within a given depth discretization. For discretizing continuous values,
+        use the `bins` parameter to define the ranges.
+
+        Parameters
+        ----------
+        column : str
+            Name of the column containing the values to fractionate per discretized layer.
+        discretization : float | int | list | np.ndarray | pd.DataFrame
+            Definition of discretization layers. When a scalar is provided, it defines a
+            uniform layer thickness. When a sequence is provided, it defines the specific
+            layer boundaries. When a DataFrame is provided, a custom discretization per
+            survey must be provided. Note that in the case of a DataFrame, the result only
+            contains surveys which had corresponding discretization defined.
+        bins : int | float | list | np.ndarray, optional
+            Bin definition. A scalar creates two bins (larger than the scalar and smaller
+            than or equal to the scalar), while a sequence defines internal bin edges and
+            adds open-ended bins at both ends (unless bin_centers_as_columns is True).
+        bin_centers_as_columns : bool, optional
+            If True, use bin centers as output column labels rather than ranges. Will not
+            add open-ended bins at both ends, by default False.
+        relative_to_reference : bool, optional
+            If True, interpret depths relative to the reference surface,
+            by default False.
+
+        Returns
+        -------
+        :class:`~geost.base.Collection`
+            New `Collection` containing the discretized fractions as the data table.
+
+        """
+        discretized = self.data.gst.compute_discretized_fractions(
+            column=column,
+            discretization=discretization,
+            relative_to_reference=relative_to_reference,
+            bins=bins,
+            bin_centers_as_columns=bin_centers_as_columns,
+        )
+        header = self.header.gst.select_by_values(
+            self._nr, discretized[self._nr].unique()
+        )
+        return self.__class__(
+            discretized,
+            header=header,
+            has_inclined=self.has_inclined,
+            vertical_datum=self.vertical_datum,
+        )
+
+    @_requires_depth
+    def aggregate_consecutive_layers(
+        self,
+        over: str | list[str],
+        agg_funcs: dict = None,
+        keep_original_index: bool = False,
+        inplace: bool = False,
+    ) -> pd.DataFrame:
+        """
+        Aggregate consecutive layers in the data table of a ``Collection`` that have the
+        same value in a specified column. The column to use for aggregating layers is
+        typically categorical data, such as lithology or soil type. Any other columns can
+        be aggregated using the provided aggregation functions.
+
+        Parameters
+        ----------
+        over : str | list[str]
+            Name or names of the column or columns to check for consecutive identical values.
+            Typically columns holding categorical data.
+        agg_funcs : dict, optional
+            Dictionary specifying the aggregation functions to apply to other columns when
+            combining layers. Keys are column names, and values are aggregation functions.
+            These can be e.g. names such as'first', 'last', 'mean', etc. or actual functions
+            such as np.sum, np.mean, etc.
+        keep_original_index : bool, optional
+            If True, the original index of the ``data`` DataFrame is preserved in the resulting
+            DataFrame. If False, the index is reset (recommended). The default is False.
+        inplace : bool, optional
+            If True, the combination is applied in place and the original Collection is modified.
+            If False, a new DataFrame with combined layers is returned. The default is False.
+
+        Returns
+        -------
+        pd.DataFrame
+            New DataFrame with consecutive layers combined based on the specified column.
+
+        Raises
+        ------
+        KeyError
+            If the specified column does not exist in the DataFrame.
+
+        Notes
+        -----
+        When you perform this function on discrete data such as CPT's, the result of the
+        aggregation is layered data defined by top and bottom depths.
+
+        Examples
+        --------
+        Say we have CPT data which and lithology (column 'lith') for each row. We want to
+        aggregate consecutive layers with identical lithology and aggregate the 'qc' and 'fs'
+        columns by taking the mean:
+
+        >>> result = collection.aggregate_consecutive_layers(
+        ...     'lith', {'qc': 'mean', 'fs': 'mean'}
+        ... )
+
+        """
+        combined_data = self.data.gst.aggregate_consecutive_layers(
+            over, agg_funcs, keep_original_index=keep_original_index
+        )
+        if inplace:
+            self.data = combined_data
+        else:
+            return self.__class__(
+                combined_data,
+                header=self.header,
+                has_inclined=self.has_inclined,
+                vertical_datum=self.vertical_datum,
+            )
 
     def to_geoparquet(self, outfile: str | Path, **kwargs):
         """
@@ -1540,6 +1939,45 @@ class Collection(AbstractBase):
         crs = CRS(crs) if crs is not None else self.crs
         self.data.gst.to_qgis3d(outfile, crs=crs, **kwargs)
 
+    def to_geopackage_3d(
+        self,
+        outfile: str | Path,
+        crs: str | CRS = None,
+        x_end: str | None = None,
+        y_end: str | None = None,
+        **kwargs,
+    ):
+        """
+        Write data to geopackage file that can be directly loaded in the Qgis2threejs
+        plugin. Works only for layered (borehole) data.
+
+        Parameters
+        ----------
+        outfile : str | Path
+            Path to geopackage file to be written.
+        crs : str | CRS, optional
+            Coordinate reference system to use for the geometries in the output file. If
+            None, the horizontal reference of the Collection is used. The default is None.
+        x_end : str | None, optional
+            Column name for x-coordinates of bottom endpoints in inclined boreholes.
+            The default is None.
+        y_end : str | None, optional
+            Column name for y-coordinates of bottom endpoints in inclined boreholes.
+            The default is None.
+        **kwargs
+            geopandas.GeoDataFrame.to_file kwargs. See relevant Geopandas documentation.
+
+        """
+        locations = self.header
+        data = self.data
+
+        crs = CRS(crs) if crs is not None else self.crs
+        lines_3d = self.data.gst.create_linestrings_3d(crs, x_end=x_end, y_end=y_end)
+        data = gpd.GeoDataFrame(data, geometry=lines_3d, crs=crs)
+
+        locations.to_file(outfile, layer="locations", driver="GPKG", **kwargs)
+        data.to_file(outfile, layer="3dlines", driver="GPKG", **kwargs)
+
     def to_kingdom(
         self,
         outfile: str | Path,
@@ -1567,3 +2005,107 @@ class Collection(AbstractBase):
 
         """
         self.data.gst.to_kingdom(outfile, tdstart, vw, vs)
+
+    @_requires_depth
+    @_requires_xy
+    def add_model_data(
+        self,
+        model: xr.Dataset | xr.DataArray,
+        *,
+        data_vars: str | list[str] = None,
+        aggregate_vars: dict[str, str] = None,
+        suffix: str = None,
+    ) -> Collection:
+        """
+        Add information from one or more variables from a voxelmodel or layermodel as columns
+        to the data table.
+
+        For each survey, this determines the vertical model stack at the survey's location
+        and identifies the layer boundaries within that stack based on changes in the selected
+        model variables. Survey intervals are split at these model layer boundaries, and the
+        corresponding model information is backfilled to the resulting intervals. The resulting
+        data are sorted by depth. This is illustrated in the example below.
+
+        .. code-block:: text
+
+            Survey data:
+               nr  top  bottom lith
+            0   A  0.0    10.0    Z
+
+            Layer boundaries derived from the model data for "variable" at the location of the
+            survey:
+               top  bottom  variable
+            0  0.0     8.0         1
+            1  8.0    11.0         2
+
+            Result:
+               nr  top  bottom lith  variable
+            0   A  0.0     8.0    Z       1.0
+            1   A  8.0    10.0    Z       2.0
+
+        Parameters
+        ----------
+        model : xr.Dataset | xr.DataArray
+            Xarray Dataset or DataArray containing the model data.
+        data_vars : str | list[str], optional
+            Variable or variables from the model to add. These variables are used to determine
+            the layer boundaries. A layer boundary is defined where the value of a variable
+            changes with depth; consecutive equal values are considered part of the same layer.
+            If multiple variables are given, they are treated jointly when determining the
+            layer boundaries. If None, all model variables are added and jointly considered
+            for determining the layer boundaries.
+        aggregate_vars : dict[str, str], optional
+            Optional dictionary specifying how to aggregate additional model variables, not
+            given in `data_vars`, over the layers derived from `data_vars`. The keys are the
+            model variable names and the values are the aggregation functions (e.g., `"mean"`
+            or `"sum"`).
+        suffix : str, optional
+            Suffix to append to the added model variable columns to avoid name conflicts with
+            existing columns in the survey data. If None, no suffix is added. In case of a name
+            conflict, the existing column is overwritten.
+
+        Returns
+        -------
+        :class:`~geost.base.Collection`
+            New `Collection` containing the added information from the model in the data
+            table.
+
+        Examples
+        --------
+        Add all model variables to the collection.
+
+        >>> result = collection.add_model_data(model)
+
+        To add specific model variables to the collection, use the `data_vars` parameter.
+
+        >>> result = collection.add_model_data(model, data_vars="variable") # This treats consecutive values in "variable" as a layer
+        >>> result = collection.add_model_data(
+        ...     model, data_vars=["variable1", "variable2"]  # This treats jointly consecutive values in "variable1" and "variable2" as layers
+        ... )
+
+        To add specific model variables and aggregate additional ones over the derived layers,
+        use the `aggregate_vars` parameter.
+
+        >>> result = collection.add_model_data(
+        ...     model, data_vars="variable", aggregate_vars={"other_variable": "mean"}
+        ... )
+
+        """
+        from geost.analysis.combine import add_model_data
+        from geost.models._core import ModelType
+
+        if model.gst.model_type == ModelType.LAYER and data_vars is None:
+            data_vars = [model.gst.z_dim]
+
+        positional_columns = self.data.gst.positional_columns
+
+        return add_model_data(
+            self,
+            model,
+            data_vars=data_vars,
+            aggregate_vars=aggregate_vars,
+            suffix=suffix,
+            nr_=self._nr,
+            surface_=positional_columns["surface"],
+            bottom_=positional_columns["depth"],
+        )

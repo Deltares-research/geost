@@ -36,6 +36,7 @@ classifiers = [
 requires-python = ">=3.12,<3.15"
 dependencies = [
     "numpy",
+    "scipy",
     "pandas",
     "pyarrow",
     "lxml",
@@ -46,7 +47,6 @@ dependencies = [
     "openpyxl",
 	"rioxarray",
     "shapely",
-    "pyvista",
     "pydap",
 	"platformdirs",
 ]
@@ -72,6 +72,7 @@ platforms = ["win-64", "linux-64", "osx-64", "osx-arm64"]
 [tool.pixi.dependencies]
 python = ">=3.13"
 numpy = "*"
+scipy = "*"
 pandas = "*"
 pyarrow = "*"
 lxml = "*"
@@ -95,12 +96,13 @@ pydap = "*"
 myst-parser = "*"
 pydata-sphinx-theme = "*"
 sphinx-design = "*"
+sphinx-autobuild = "*"
 myst-nb = "*"
 pooch = "*"
 pre-commit = "*"
 platformdirs = "*"
-lasio = ">=0.32,<0.33"
-pyinstrument = ">=5.1.2,<6"
+pyinstrument = "*"
+lasio = "*"
 
 [tool.pixi.pypi-dependencies]
 geost = { path = ".", editable = true }
@@ -108,6 +110,7 @@ geost = { path = ".", editable = true }
 [tool.pixi.tasks]
 test = "python -m pytest --verbose --cov=geost --cov-report xml --cov-report term"
 docs = "sphinx-build -b html docs ./docs/build"
+serve-docs = "sphinx-autobuild docs ./docs/build --open-browser"
 format = "black ."
 lint = "ruff check --fix ./geost"
 rm-jupyter = "rm -rf ./docs/jupyter_execute"

@@ -1,0 +1,664 @@
+from __future__ import annotations
+
+import operator
+import re
+import warnings
+from dataclasses import dataclass, replace
+from enum import Enum
+from typing import TYPE_CHECKING, Any
+
+import numpy as np
+import pandas as pd
+import xarray as xr
+
+from geost.exceptions import MissingUnitError
+from geost.utils.qgis import write_qml
+
+if TYPE_CHECKING:
+    from matplotlib.colors import BoundaryNorm, ListedColormap
+
+
+class UnitType(Enum):
+    STRAT = "strat"
+    LITHOK = "lithok"
+
+
+class _GeotopCondition:
+    """
+    Helper class so `GeotopUnits` class can be used with boolean operators `&` `|` in
+    methods of the `geost.models` extension of Xarray.
+
+    For example, use in `get_thickness` method:
+
+    ```python
+    import geost
+
+    geotop = geost.read_geotop_from_opendap()
+    strat = geost.bro.geotop_strat_units()
+    lithok = geost.bro.geotop_lithok_units()
+
+    thickness = geotop.gst.get_thickness(
+        strat.get_holocene_units()
+        & lithok.select_unit("k")
+        | (geotop["kans_1"] > 0.5) # Also possible to combine with boolean arrays
+    )
+    ```
+    """
+
+    def __init__(self, left, right, op):
+        self.left = left
+        self.right = right
+        self.op = op
+
+    def evaluate(self, geotop: xr.Dataset) -> xr.DataArray:
+        left = _evaluate_geotop_condition(self.left, geotop)
+        right = _evaluate_geotop_condition(self.right, geotop)
+        return self.op(left, right)
+
+    def __and__(self, other):
+        return self.__class__(self, other, operator.and_)
+
+    def __or__(self, other):
+        return self.__class__(self, other, operator.or_)
+
+
+def _evaluate_geotop_condition(
+    condition: GeotopUnits | _GeotopCondition | Any,
+    geotop: xr.Dataset,
+) -> xr.DataArray:
+    """
+    Helper function to evaluate a geotop condition with `GeotopUnits` or `_GeotopCondition`
+    objects.
+
+    """
+    if isinstance(condition, _GeotopCondition):
+        return condition.evaluate(geotop)
+
+    if isinstance(condition, GeotopUnits):
+        condition.check_version_matches(geotop)
+        return geotop[condition.data_var].isin(condition.voxel_nr)
+
+    return condition
+
+
+@dataclass(repr=False)
+class GeotopUnits:
+    """
+    Container for stratigraphic and lithologic metadata information for the GeoTOP model.
+
+    Parameters
+    ----------
+    df : pd.DataFrame
+        DataFrame containing the metadata information.
+    metadata_type : UnitType
+        Type of the metadata (stratigraphic or lithologic).
+    data_var : str
+        Name of the GeoTOP variable that corresponds to the metadata (e.g. "strat" for
+        stratigraphic units, "lithok" for lithologic units).
+    _nr : str, optional
+        Column name for the voxel number in the metadata DataFrame. Default is "VOXEL_NR".
+    _unit : str, optional
+        Column name for the unit code in the metadata DataFrame. Default is "STR_UNIT_CD".
+    _desc : str, optional
+        Column name for the description in the metadata DataFrame. Default is "DESCRIPTION".
+    _seq : str, optional
+        Column name for the sequence number in the metadata DataFrame. Default is "SEQ_NR".
+    _r : str, optional
+        Column name for the red color value in the metadata DataFrame. Default is "RED_DEC".
+    _g : str, optional
+        Column name for the green color value in the metadata DataFrame. Default is "GREEN_DEC".
+    _b : str, optional
+        Column name for the blue color value in the metadata DataFrame. Default is "BLUE_DEC".
+    """
+
+    df: pd.DataFrame
+    unit_type: UnitType
+    data_var: str
+    _nr: str = "VOXEL_NR"
+    _unit: str = "STR_UNIT_CD"
+    _desc: str = "DESCRIPTION"
+    _seq: str = "SEQ_NR"
+    _r: str = "RED_DEC"
+    _g: str = "GREEN_DEC"
+    _b: str = "BLUE_DEC"
+
+    def __post_init__(self):
+        if self.df.index.name != self._nr:
+            self.df.set_index(self._nr, inplace=True)
+
+    def __repr__(self) -> str:
+        return f"{self.unit_type}\n{self.df.__repr__()}"
+
+    def _repr_html_(self) -> str:
+        """
+        HTML representation for Jupyter notebook.
+
+        """
+        return f"{self.unit_type}<br>{self.df._repr_html_()}"
+
+    def __and__(self, other):
+        return _GeotopCondition(self, other, operator.and_)
+
+    def __or__(self, other):
+        return _GeotopCondition(self, other, operator.or_)
+
+    @property
+    def voxel_nr(self) -> pd.Index:
+        """
+        `pandas.Index` containing the unique voxel numbers in the metadata.
+
+        """
+        return self.df.index
+
+    @property
+    def unit(self) -> pd.Series:
+        """
+        `pandas.Series` containing the unique unit names in the metadata.
+
+        """
+        return self.df[self._unit]
+
+    @property
+    def description(self) -> pd.Series:
+        """
+        `pandas.Series` containing the unique descriptions in the metadata.
+
+        """
+        return self.df[self._desc]
+
+    @property
+    def colors_rgb(self) -> pd.DataFrame:
+        """
+        `pandas.DataFrame` containing the RGB color values for the units in the metadata.
+
+        """
+        return self.df[[self._r, self._g, self._b]]
+
+    @property
+    def geotop_version(self) -> str:
+        """
+        GeoTOP version number (e.g. v01r6) of the metadata.
+
+        """
+        return self.df.attrs.get("geotop version", "unknown")
+
+    def check_version_matches(self, geotop: xr.Dataset) -> bool:
+        """
+        Check if the GeoTOP modeldata version matches the metadata version.
+
+        Parameters
+        ----------
+        geotop : xr.Dataset
+            The GeoTOP modeldata to check against.
+
+        Returns
+        -------
+        bool
+            True if the versions match, False otherwise.
+
+        """
+        if isinstance(geotop, xr.DataArray):
+            raise TypeError(
+                "The model version cannot be found in a DataArray of a GeoTOP variable, "
+                "cannot check if the metadata version matches the model version. Please "
+                "check the model version against the `xarray.Dataset` of GeoTOP.",
+            )
+
+        title = geotop.attrs.get("title", "unknown")
+        version_pattern = re.compile(  # General pattern: v01r1..
+            r"""
+            v\d+  # Fixed letter 'v' followed by one or more digits
+            r\d+  # Fixed letter 'r' followed by one or more digits
+            (?:[a-zA-Z]\d+)* # Optional group for extra letter-digit combinations
+            """,
+            re.VERBOSE,
+        )
+        match = re.search(version_pattern, title)
+
+        if match:
+            model_version = match.group(0)
+            version_matches = self.geotop_version == model_version
+        else:
+            version_matches = False
+            model_version = title
+
+        if not version_matches:
+            warnings.warn(
+                f"GeoTOP version mismatch: metadata version is {self.geotop_version}, "
+                f"model version is '{model_version}'",
+                UserWarning,
+            )
+
+        return version_matches
+
+    def select_voxel_nr(
+        self, values: int | float | list[int | float] | xr.DataArray
+    ) -> GeotopUnits:
+        """
+        Select metadata by voxel numbers (e.g. 1090, 2010).
+
+        Parameters
+        ----------
+        values : int | float | list[int  |  float] | xr.DataArray
+            Voxel number(s) to select. Can be a single value, a list of values, or an
+            `xarray.DataArray` of a GeoTOP variable with voxelnumbers (see examples
+            below).
+
+        Returns
+        -------
+        :class:`~geost.bro.geotop.GeotopUnits`
+            GeotopUnits instance containing the metadata subset for the selected voxel
+            numbers.
+
+        Raises
+        ------
+        MissingUnitError
+            Raised if one or more of the specified voxel numbers are not present in the
+            metadata.
+
+        Examples
+        --------
+        Select specific voxel numbers from the stratigraphic metadata of GeoTOP:
+
+        >>> gtp_meta = geost.bro.get_geotop_metadata_strat()
+        >>> selected_meta = gtp_meta.select_voxel_nr(1130) # Select a single voxel number
+        >>> selected_meta = gtp_meta.select_voxel_nr([1130, 2010]) # Select multiple voxel numbers
+
+        Or use the the GeoTOP model to select the corresponding metadata or the stratigraphic
+        variable from GeoTOP directly:
+
+        >>> selected_meta = gtp_meta.select_voxel_nr(geotop)
+        >>> selected_meta = gtp_meta.select_voxel_nr(geotop["strat"])
+
+        """
+        if isinstance(values, (xr.DataArray, xr.Dataset)):
+            values = (
+                values.gst.unique()
+                if isinstance(values, xr.DataArray)
+                else values[self.data_var].gst.unique()
+            )
+
+        values = np.array(values)
+        values = values[~np.isnan(values)]
+
+        try:
+            sel = self.df.loc[values]
+            return replace(self, df=sel)
+        except KeyError:
+            raise MissingUnitError(
+                f"One or more voxel numbers from {values} are not present in the metadata."
+            )
+
+    def select_unit(self, units: str | list[str]) -> GeotopUnits:
+        """
+        Select metadata by unit codes (e.g. "NUNIBA", "zm").
+
+        Parameters
+        ----------
+        units : str | list[str]
+            Unit code(s) to select. Can be a single value or a list of values (see examples
+            below).
+
+        Returns
+        -------
+        :class:`~geost.bro.geotop.GeotopUnits`
+            GeotopUnits instance containing the metadata subset for the selected units.
+
+        Raises
+        ------
+        MissingUnitError
+            Raised if one or more of the specified units are not present in the metadata.
+
+        Examples
+        --------
+        Select specific units from the stratigraphic metadata of GeoTOP:
+
+        >>> gtp_meta_strat = geost.bro.get_geotop_metadata_strat()
+        >>> selected_meta = gtp_meta_strat.select_units("NUNIBA") # Select a single unit
+        >>> selected_meta = gtp_meta_strat.select_units(["NUNIBA", "NUNIHO"]) # Select multiple units
+
+        Or select lithologies from the lithologic metadata of GeoTOP:
+
+        >>> gtp_meta_lithok = geost.bro.get_geotop_metadata_lithok()
+        >>> selected_meta = gtp_meta_lithok.select_units("kz") # Select a single lithology
+        >>> selected_meta = gtp_meta_lithok.select_units(["zf", "zm", "zg"]) # Select multiple lithologies
+
+        """
+        if isinstance(units, str):
+            sel = self.df[self.df[self._unit] == units]
+        else:
+            sel = self.df[self.df[self._unit].isin(units)]
+
+        if sel.empty:
+            raise MissingUnitError(
+                f"None of the selection units in {units} are present in the metadata."
+            )
+        return replace(self, df=sel)
+
+    def _select_contains(
+        self, substring: str | list[str], column: str, case_sensitive: bool
+    ) -> pd.DataFrame:
+        """
+        Helper method for `select_unit_contains` and `select_description_contains`.
+
+        """
+        if not isinstance(substring, str):
+            substring = list(substring)
+            substring = "|".join(substring)
+
+        sel = self.df[self.df[column].str.contains(substring, case=case_sensitive)]
+
+        if sel.empty:
+            raise MissingUnitError(
+                f"None of the selection substrings in {substring} are present in the metadata."
+            )
+        return sel
+
+    def select_unit_contains(
+        self, substring: str | list[str], case_sensitive: bool = False
+    ) -> GeotopUnits:
+        """
+        Select metadata by a substring for a partial unit code or codes.
+
+        Parameters
+        ----------
+        substring : str | list[str]
+            Substring or list of substrings to match within the unit codes.
+        case_sensitive : bool, optional
+            Whether the match should be case-sensitive, by default False.
+
+        Returns
+        -------
+        class:`~geost.bro.geotop.GeotopUnits`
+            GeotopUnits instance containing the metadata subset for the selected units.
+
+        Raises
+        ------
+        MissingUnitError
+            Raised if none of the specified substrings are present in the metadata.
+
+        Examples
+        --------
+        Select units from the stratigraphic metadata of GeoTOP that contain a specific substring:
+
+        >>> gtp_meta_strat = geost.bro.get_geotop_metadata_strat()
+        >>> selected_meta = gtp_meta_strat.select_unit_contains("NIHO") # Select a single substring
+        >>> selected_meta = gtp_meta_strat.select_unit_contains(["NIHO", "NIBA"]) # Select multiple substrings
+
+        """
+        return replace(
+            self, df=self._select_contains(substring, self._unit, case_sensitive)
+        )
+
+    def select_description_contains(
+        self, substring: str | list[str], case_sensitive: bool = False
+    ) -> GeotopUnits:
+        """
+        Select metadata by a substring for a partial description or descriptions.
+
+        Parameters
+        ----------
+        substring : str | list[str]
+            Substring or list of substrings to match within the descriptions.
+        case_sensitive : bool, optional
+            Whether the match should be case-sensitive, by default False.
+
+        Returns
+        -------
+        class:`~geost.bro.geotop.GeotopUnits`
+            GeotopUnits instance containing the metadata subset for the selected units.
+
+        Raises
+        ------
+        MissingUnitError
+            Raised if none of the specified substrings are present in the metadata.
+
+        Examples
+        --------
+        Select units from the stratigraphic metadata of GeoTOP that contain a specific substring:
+
+        >>> gtp_meta_strat = geost.bro.get_geotop_metadata_strat()
+        >>> selected_meta = gtp_meta_strat.select_description_contains("Formatie van Naaldwijk") # Select a single substring
+        >>> selected_meta = gtp_meta_strat.select_description_contains(
+        ...     ["Formatie van Naaldwijk", "Formatie van Nieuwkoop"]
+        ... ) # Select multiple substrings
+
+        """
+        return replace(
+            self, df=self._select_contains(substring, self._desc, case_sensitive)
+        )
+
+    def get_antropogenic_units(self) -> GeotopUnits:
+        """
+        Select metadata for all anthropogenic units.
+
+        Returns
+        -------
+        class:`~geost.bro.geotop.GeotopUnits`
+            GeotopUnits instance containing the metadata subset for the anthropogenic
+            units.
+
+        """
+        if self.unit_type == UnitType.LITHOK:
+            raise ValueError(
+                "Stratigraphic units are not present in the lithologic metadata of GeoTOP."
+            )
+        return replace(
+            self,
+            df=self._select_contains("antropoge", self._desc, case_sensitive=False),
+        )
+
+    def get_holocene_channel_units(self) -> GeotopUnits:
+        """
+        Select metadata for all Holocene channel units.
+
+        Returns
+        -------
+        class:`~geost.bro.geotop.GeotopUnits`
+            GeotopUnits instance containing the metadata subset for the Holocene
+            channel units.
+
+        """
+        if self.unit_type == UnitType.LITHOK:
+            raise ValueError(
+                "Stratigraphic units are not present in the lithologic metadata of GeoTOP."
+            )
+        return replace(
+            self,
+            df=self._select_contains(
+                "geulafzettingen", self._desc, case_sensitive=False
+            ),
+        )
+
+    def get_holocene_units(self, include_channel_units: bool = True) -> GeotopUnits:
+        """
+        Select metadata for all Holocene units.
+
+        Parameters
+        ----------
+        include_channel_units : bool, optional
+            Whether to include Holocene channel units in the selection. The default is
+            True.
+
+        Returns
+        -------
+        class:`~geost.bro.geotop.GeotopUnits`
+            GeotopUnits instance containing the metadata subset for the Holocene units.
+
+        """
+        if self.unit_type == UnitType.LITHOK:
+            raise ValueError(
+                "Stratigraphic units are not present in the lithologic metadata of GeoTOP."
+            )
+        undefined = 0
+        antropogenic = [1000, 1005]
+        older_units_begin = 3000
+
+        holocene_mask = (self.voxel_nr < older_units_begin) & (
+            ~self.voxel_nr.isin(antropogenic) & (self.voxel_nr != undefined)
+        )
+        holocene = self.df.loc[holocene_mask]
+
+        if include_channel_units:
+            channel_units = self.get_holocene_channel_units()
+            holocene = pd.concat([holocene, channel_units.df])
+
+        return replace(self, df=holocene)
+
+    def get_plot_colormap(self) -> dict[ListedColormap, BoundaryNorm]:
+        """
+        Get a dictionary with a plot colormap and value boundaries for use in matplotlib
+        figures. The resulting dictionary contains a `ListedColormap` object, derived
+        from the RGB codes and a `BoundaryNorm` object which determines the value boundaries
+        for which color to use.
+
+        Returns
+        -------
+        dict[ListedColormap, BoundaryNorm]
+            Dictionary containing the colormap (`cmap`) and the normalization (`norm`)
+            for plotting.
+
+        Example
+        -------
+        For example when a 2D section of the GeoTOP stratigraphy, first load the model
+        data and stratigraphic metadata:
+
+        >>> import geost
+        ... geotop = geost.data.geotop_usp() # Load the GeoTOP model data
+        ... strat = geost.bro.geotop_strat_units() # Load the stratigraphic metadata of GeoTOP
+
+        Then select the stratigraphic units that are present in the model from the metadata:
+
+        >>> strat = strat.select_voxel_nr(geotop)
+
+        Finally, select a 2D section and pass the resulting dictionary to the plotting function:
+
+        >>> section = geotop["strat"].sel(x=139850, z=slice(-10, None))
+        >>> section.plot.imshow(x="y", **strat.get_plot_colormap())
+
+        .. figure:: /_static/example_section_geotop.svg
+            :align: left
+
+        """
+        from matplotlib.colors import BoundaryNorm, ListedColormap
+
+        cmap = ListedColormap(self.colors_rgb.values / 255)
+
+        boundaries = (self.voxel_nr[:1] + self.voxel_nr[:-1]) / 2
+        boundaries = np.r_[self.voxel_nr[0] - 1, boundaries, self.voxel_nr[-1] + 1]
+        norm = BoundaryNorm(boundaries, cmap.N)
+        return {"cmap": cmap, "norm": norm}
+
+    def to_qml(
+        self,
+        path: str,
+        *,
+        column: str | None = None,
+        field: str | None = None,
+        layer_type: str = "vector",
+        band: int = 1,
+    ) -> None:
+        """
+        Export metadata as a QGIS polygon vector or paletted raster style.
+
+        Parameters
+        ----------
+        path : str
+            Path and filename where the generated QGIS style file will be written.
+        column : str, optional
+            Metadata column whose values QGIS uses to choose a color for each
+            feature or raster cell. Choose ``self._nr`` for voxel numbers or
+            ``self._unit`` for unit codes. Defaults to ``self._nr``; raster
+            styles only support voxel numbers.
+        field : str, optional
+            Name of the field in the vector file containing the values from
+            ``column``. QGIS matches each feature's value to the metadata to
+            choose its color. Defaults to the name of ``column`` and is not
+            used for raster styles.
+        layer_type : str, optional
+            Choose ``"vector"`` (default) to color features based on ``field``,
+            or ``"raster"`` to color raster cells using voxel numbers.
+        band : int, optional
+            Raster band containing the voxel numbers that should receive the
+            style colors. Defaults to 1 and is only used for raster styles.
+
+        Raises
+        ------
+        ValueError
+            If an option is invalid, unit codes are used for a raster, the
+            metadata table is empty, or an RGB value is outside the valid range.
+
+        """
+        if layer_type not in ("vector", "raster"):
+            raise ValueError("layer_type must be 'vector' or 'raster'.")
+        if column is None:
+            column = self._nr
+        if column not in (self._nr, self._unit):
+            raise ValueError(f"column must be '{self._nr}' or '{self._unit}'.")
+
+        use_unit_codes = column == self._unit
+        if layer_type == "raster":
+            if use_unit_codes:
+                raise ValueError("Raster styles only support numeric voxel numbers.")
+            if field is not None:
+                raise ValueError("field is only applicable to vector styles.")
+            if not isinstance(band, int) or isinstance(band, bool) or band < 1:
+                raise ValueError("band must be a positive integer.")
+        else:
+            if field is None:
+                field = column
+            if not isinstance(field, str) or not field.strip():
+                raise ValueError("field must be a non-empty attribute field name.")
+        if self.df.empty:
+            raise ValueError("Cannot export empty metadata.")
+
+        write_qml(
+            path,
+            self.df,
+            value_column=column,
+            color_columns=(self._r, self._g, self._b),
+            label_column=self._unit,
+            description_column=self._desc,
+            label_separator=" - ",
+            layer_type=layer_type,
+            field=field,
+            band=band,
+        )
+
+
+def geotop_strat_units() -> GeotopUnits:
+    """
+    Read the stratigraphic metadata of GeoTOP for easy selection and translation of
+    stratigraphic units in GeoTOP model data. The metadata is loaded from an internally
+    stored parquet file which is a copy of the metadata that is delivered with the GeoTOP
+    model when it is downloaded from the BRO (see: https://www.dinoloket.nl/modelbestanden-aanvragen).
+
+    Returns
+    -------
+    :class:`~geost.bro.geotop.GeotopUnits`
+        GeotopUnits instance containing the stratigraphic metadata of GeoTOP.
+
+    """
+    from geost.data import REGISTRY
+
+    meta = pd.read_parquet(REGISTRY.fetch("geotop_v01r6s1_metadata_strat.parquet"))
+    return GeotopUnits(meta, UnitType.STRAT, "strat")
+
+
+def geotop_lithok_units() -> GeotopUnits:
+    """
+    Read the lithologic metadata of GeoTOP for easy selection and translation of
+    lithologic units in GeoTOP model data. The metadata is loaded from an internally
+    stored parquet file which is a copy of the metadata that is delivered with the GeoTOP
+    model when it is downloaded from the BRO (see: https://www.dinoloket.nl/modelbestanden-aanvragen).
+
+    Returns
+    -------
+    :class:`~geost.bro.geotop.GeotopUnits`
+        GeotopUnits instance containing the lithologic metadata of GeoTOP.
+
+    """
+    from geost.data import REGISTRY
+
+    meta = pd.read_parquet(REGISTRY.fetch("geotop_v01r6s1_metadata_lithok.parquet"))
+    return GeotopUnits(meta, UnitType.LITHOK, "lithok", _unit="LITHO_CLASS_CD")

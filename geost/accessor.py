@@ -1,21 +1,21 @@
 from __future__ import annotations
 
+import itertools
 from collections.abc import Iterable
 from functools import partial, singledispatchmethod
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Iterable
+from typing import TYPE_CHECKING, Any, Iterable, Literal
 
 import geopandas as gpd
 import numpy as np
 import pandas as pd
+import xarray as xr
 from pyproj import CRS
 
-from geost import (
-    export,
-    validation,
-)  # FIXME: spatial triggers import of xarray, rioxarray. We don't want this automatically.
+from geost import export, validation
 from geost.abstract_classes import AbstractBase
-from geost.utils import conversion, spatial
+from geost.exceptions import MissingDepthError, MissingSurfaceError
+from geost.utils import conversion, depth, spatial
 from geost.validation.method_checks import (
     _requires_depth,
     _requires_geometry,
@@ -51,10 +51,11 @@ class GeostFrame(AbstractBase):
         check = partial(validation.check_column_name, self._obj.columns)
 
         if not (nr := check("nr")):
+            from geost.exceptions import MissingSurveyIDError
             from geost.validation import column_names
 
             known_names = column_names.POSITIONAL_COLUMN_NAMES["nr"]
-            raise KeyError(
+            raise MissingSurveyIDError(
                 "DataFrame must contain a column identifying survey ID. Make sure one of "
                 f"{known_names} is present."
             )
@@ -441,15 +442,11 @@ class GeostFrame(AbstractBase):
         """
         import shapely
 
-        non_header_cols = [
-            col
-            for col in self._obj
-            if col
-            not in [self._nr, self._surface, self._x, self._y]
-            + (list((self._to_iterable(include_columns) or [])))
-        ]
+        header_columns = [self._nr, self._x, self._y, self._surface, self._end]
+        if include_columns is not None:
+            header_columns += list(self._to_iterable(include_columns))
 
-        header = self._obj.drop(columns=non_header_cols).drop_duplicates(
+        header = self._obj.filter(header_columns).drop_duplicates(
             subset=self._nr, ignore_index=True
         )
 
@@ -595,6 +592,7 @@ class GeostFrame(AbstractBase):
         self,
         points: str | Path | gpd.GeoDataFrame | GeometryType,
         max_distance: float | int,
+        n_points: int = None,
         invert: bool = False,
     ) -> gpd.GeoDataFrame:
         """
@@ -608,6 +606,9 @@ class GeostFrame(AbstractBase):
             MultiPoint or list containing Point objects.
         max_distance : float | int
             Maximum distance from the selection points.
+        n_points : int, optional
+            Number of nearest points to select, by default None, which means that all points
+            within the buffer are selected.
         invert : bool, optional
             Invert the selection, by default False.
 
@@ -618,7 +619,11 @@ class GeostFrame(AbstractBase):
 
         """
         selection = spatial.select_points_near_points(
-            self._obj, points, max_distance, invert=invert
+            self._obj,
+            points,
+            max_distance,
+            n_points=n_points,
+            invert=invert,
         )
         return selection
 
@@ -688,6 +693,85 @@ class GeostFrame(AbstractBase):
         )
         return selection
 
+    @_requires_geometry
+    def find_point_pairs(
+        self,
+        points: str | Path | gpd.GeoDataFrame | GeometryType,
+        max_distance: float | int,
+        n_points: int = None,
+        return_distance: bool = False,
+    ) -> np.ndarray:
+        """
+        Find pairs of points between the data and the given query points that are within
+        a specified maximum distance.
+
+        Parameters
+        ----------
+        points : str | Path | gpd.GeoDataFrame | GeometryType
+            Any type of point geometries that can be used for the selection: GeoDataFrame
+            containing points or filepath to a shapefile like file, or Shapely Point,
+            MultiPoint or list containing Point objects.
+        max_distance : float | int
+            Maximum distance between points to be considered a pair.
+        n_points : int, optional
+            The maximum number of nearest points to return for each point. If None,
+            all points within the max_distance are returned. The default is None.
+        return_distance : bool, optional
+            If True, the distances between the paired points will be returned as well. The
+            default is False.
+
+        Returns
+        -------
+        np.ndarray
+            Array of shape (n_pairs, 2) containing the dataframe indices of the paired
+            points in the data (column 0) and the query points (column 1) within range. If
+            ``return_distance`` is True, the array will have shape (n_pairs, 3) with the
+            third column containing the distances between the paired points.
+
+        """
+        from scipy.spatial import KDTree
+
+        points = conversion.check_geometry_instance(points)
+
+        data_tree = KDTree(self._obj.get_coordinates())
+        query_tree = KDTree(points.get_coordinates())
+
+        pairs = data_tree.query_ball_tree(query_tree, max_distance)
+        pairs = np.array(
+            [[i, p] for pair, i in zip(pairs, self._obj.index) for p in pair if pair]
+        )
+        # Map the query point indices back to the original indices of the points
+        # GeoDataFrame. Important if the points index is not a simple range index.
+        pairs[:, 1] = points.iloc[pairs[:, 1]].index
+
+        # Get distances for point pairs
+        distances = np.linalg.norm(
+            self._obj.get_coordinates().loc[pairs[:, 0]].values
+            - points.get_coordinates().loc[pairs[:, 1]].values,
+            axis=1,
+        )
+        pairs_distance = np.c_[(pairs, distances)]
+
+        # Get the nearest n points only from each query point
+        if n_points is not None:
+            ordering = np.lexsort((distances, pairs[:, 1]))
+            pairs_distance_ordered = pairs_distance[ordering]
+            to_keep = (
+                np.roll(pairs_distance_ordered[:, 1], 1) != pairs_distance_ordered[:, 1]
+            )
+            to_keep = (
+                np.convolve(
+                    to_keep.astype(int), np.ones(n_points, dtype=int), mode="full"
+                )[: len(to_keep)]
+                > 0
+            )
+            pairs_distance = pairs_distance_ordered[to_keep]
+
+        if return_distance:
+            return pairs_distance
+
+        return pairs_distance[:, :-1]
+
     @_requires_depth
     def determine_end_depth(self) -> pd.Series:
         """
@@ -706,6 +790,7 @@ class GeostFrame(AbstractBase):
         ends = self._obj[self._surface] - ends
         return ends
 
+    @_requires_surface
     def select_by_elevation(
         self,
         top_min: float | int = None,
@@ -733,11 +818,6 @@ class GeostFrame(AbstractBase):
             GeoDataFrame instance containing only the selected surveys.
 
         """
-        if self._surface is None:
-            raise KeyError(
-                "Cannot use select_by_elevation if no surface column is found in the data."
-            )
-
         selected = self._obj
 
         if top_min is not None or top_max is not None:
@@ -752,8 +832,8 @@ class GeostFrame(AbstractBase):
             if self._end is None:
                 try:
                     end = self.determine_end_depth()
-                except KeyError as e:
-                    raise KeyError(
+                except MissingDepthError as e:
+                    raise MissingDepthError(
                         "Cannot use 'end_min' and 'end_max' in select_by_elevation data"
                         "has no column 'end' and no depth information is found in the data."
                     ) from e
@@ -794,8 +874,8 @@ class GeostFrame(AbstractBase):
             if self._end is None:
                 try:
                     end = self.determine_end_depth()
-                except KeyError as e:
-                    raise KeyError(
+                except MissingDepthError as e:
+                    raise MissingDepthError(
                         "Cannot use select_by_length if data has no column 'end' and no depth "
                         "information is found in the data."
                     ) from e
@@ -976,21 +1056,35 @@ class GeostFrame(AbstractBase):
     @_requires_depth
     def slice_depth_interval(
         self,
-        upper_boundary: float | int = None,
-        lower_boundary: float | int = None,
+        upper_boundary: float | int | xr.DataArray | str | Path = None,
+        lower_boundary: float | int | xr.DataArray | str | Path = None,
         relative_to_vertical_reference: bool = False,
         update_layer_boundaries: bool = True,
+        drop_missing: bool = True,
     ) -> pd.DataFrame:
         """
         Slice data based on given upper and lower boundaries. This returns a new object
-        containing only the sliced data.
+        containing only the sliced data. You may use fixed boundaries or grids for spatially
+        varying boundaries.
+
+        Note on using grids as upper and/or lower boundaries: if you notice unexpected
+        results do check the following:
+        -   Your data and your boundary grid(s) are in the same coordinate reference system
+        -   You have set `relative_to_vertical_reference` correctly according to the nature
+            of your grid. If your grid is relative to a vertical reference plane (e.g. "NAP"),
+            set this parameter to True. If your grid is relative to depth below the surface,
+            set this parameter to False.
 
         Parameters
         ----------
-        upper_boundary : float | int, optional
-            Every layer that starts above this is removed. The default is None.
-        lower_boundary : float | int, optional
-            Every layer that starts below this is removed. The default is None.
+        upper_boundary : float | int | xr.DataArray | str | Path, optional
+            Every layer that starts above this is removed. If you are using an xarray
+            DataArray (directly or through a file path), please set `relative_to_vertical_reference`
+            according to the nature of your grid. The default is None.
+        lower_boundary : float | int | xr.DataArray | str | Path, optional
+            Every layer that starts below this is removed. If you are using an xarray
+            DataArray (directly or through a file path), please set `relative_to_vertical_reference`
+            according to the nature of your grid. The default is None.
         relative_to_vertical_reference : bool, optional
             If True, the slicing is done with respect to any kind of vertical reference
             plane (e.g. "NAP", "TAW"). If False, the slice is done with respect to depth
@@ -1000,6 +1094,11 @@ class GeostFrame(AbstractBase):
             individual layers. If True, the layer boundaries in the sliced data are updated
             according to the upper and lower boundaries used with the slice. If False, the
             original layer boundaries are kept in the sliced object. The default is False.
+        drop_missing : bool, optional
+            If True, any data outside the horizontal bounds of the grid or any surveys that
+            fall in cells with missing data are removed as well. This only applies when
+            either or both of the upper and lower boundaries are given as xarray DataArrays.
+            The default is True.
 
         Returns
         -------
@@ -1027,18 +1126,70 @@ class GeostFrame(AbstractBase):
 
         >>> sliced = data.gst.slice_depth_interval(-3, -5, relative_to_vertical_reference=True)
 
+        You can also slice data based on spatially varying upper and lower boundaries by
+        giving an xarray DataArray or file path to a raster file that serves as the upper
+        and/or lower boundary. For example, if you have a grid representing the Holocene-
+        Pleistocene boundary height in NAP and you want to select only data in the
+        Holocene depth interval but below -2 m NAP you would use:
+
+        >>> sliced = data.gst.slice_depth_interval(
+        ...     upper_boundary=-2,
+        ...     lower_boundary="holocene_pleistocene_boundary.geotiff",
+        ...     relative_to_vertical_reference=True,
+        ...     update_layer_boundaries=True,
+        ... )
+
         """
+
+        def boundaries_from_grid(
+            obj_to_slice: pd.DataFrame,
+            boundary: xr.DataArray,
+            fill_value: float,
+        ) -> np.ndarray:
+            """
+            Get the boundary values from the grid at the locations of the data to slice.
+            """
+            boundary = pd.Series(
+                spatial.get_raster_values(
+                    obj_to_slice[self._x], obj_to_slice[self._y], boundary
+                ),
+                index=obj_to_slice.index,
+            )
+            if drop_missing:
+                obj_to_slice = obj_to_slice[boundary.notna()]
+                boundary = boundary[boundary.notna()]
+            else:
+                boundary = boundary.fillna(fill_value)
+
+            return obj_to_slice, boundary
+
         sliced = self._obj
 
-        if not upper_boundary:
-            upper_boundary = 1e34 if relative_to_vertical_reference else -1e34
+        upper_fill_value = 1e34 if relative_to_vertical_reference else -1e34
+        if upper_boundary is None:
+            upper_boundary = upper_fill_value
 
-        if not lower_boundary:
-            lower_boundary = -1e34 if relative_to_vertical_reference else 1e34
+        lower_fill_value = -1e34 if relative_to_vertical_reference else 1e34
+        if lower_boundary is None:
+            lower_boundary = lower_fill_value
+
+        if isinstance(upper_boundary, xr.DataArray | str | Path):
+            sliced, upper_boundary = boundaries_from_grid(
+                sliced, upper_boundary, upper_fill_value
+            )
+
+        if isinstance(lower_boundary, xr.DataArray | str | Path):
+            sliced, lower_boundary = boundaries_from_grid(
+                sliced, lower_boundary, lower_fill_value
+            )
+            if isinstance(upper_boundary, pd.Series):
+                # `boundaries_from_grid` may have dropped some rows, so we need to align
+                # the upper boundary with the sliced DataFrame.
+                upper_boundary = upper_boundary.loc[sliced.index]
 
         if relative_to_vertical_reference:
-            upper_boundary = self._obj[self._surface] - upper_boundary
-            lower_boundary = self._obj[self._surface] - lower_boundary
+            upper_boundary = self._obj.loc[sliced.index, self._surface] - upper_boundary
+            lower_boundary = self._obj.loc[sliced.index, self._surface] - lower_boundary
 
         if layered_selection := self._top and self._bottom:
             sliced = sliced[
@@ -1052,9 +1203,9 @@ class GeostFrame(AbstractBase):
 
         # We do not update layer boundaries when slicing discrete data
         if update_layer_boundaries and layered_selection:
-            bounds_are_series = True if relative_to_vertical_reference else False
-            if bounds_are_series:
+            if isinstance(upper_boundary, Iterable):
                 upper_boundary = upper_boundary.loc[sliced.index]
+            if isinstance(lower_boundary, Iterable):
                 lower_boundary = lower_boundary.loc[sliced.index]
 
             sliced.loc[sliced[self._top] <= upper_boundary, self._top] = upper_boundary
@@ -1185,7 +1336,6 @@ class GeostFrame(AbstractBase):
 
         return selected
 
-    @_requires_depth
     def calculate_thickness(self) -> pd.Series:
         """
         Calculate the thickness of layers in the data. This method requires the presence
@@ -1198,7 +1348,12 @@ class GeostFrame(AbstractBase):
             Series containing the thickness for each layer in the data.
 
         """
-        if self._top and self._bottom:
+        if self._bottom is None and self._top is None:
+            raise MissingDepthError(
+                "'calculate_thickness' requires at least bottom information of layers"
+            )
+
+        if self.is_layered:
             thickness = (self._obj[self._top] - self._obj[self._bottom]).abs()
         else:
             thickness = self._obj[self._bottom].diff()
@@ -1325,6 +1480,430 @@ class GeostFrame(AbstractBase):
         layer_base = grouped[self._bottom].last()
         return layer_base
 
+    @singledispatchmethod
+    def _get_discretization(
+        self,
+        discretization: int | float | list | np.ndarray | pd.DataFrame,
+        relative_to_reference: bool,
+    ) -> pd.DataFrame:
+        """
+        Helper method for `compute_discretized_fractions` to create DataFrame to discretize
+        the data with.
+
+        """
+        raise TypeError("Datatype not supported for discretization.")
+
+    @_get_discretization.register(int | float)
+    def _(self, discretization: int | float, relative_to_reference: bool):
+        if relative_to_reference:
+            max_depth = self._obj[self._surface].max()
+            min_depth = max_depth - self._obj[self._bottom].max()
+
+            depths = np.arange(
+                np.ceil(max_depth / discretization) * discretization,
+                np.floor(min_depth / discretization) * discretization - discretization,
+                -discretization,
+            )
+        else:
+            depths = np.arange(
+                discretization,
+                self._obj[self._bottom].max() + discretization,
+                discretization,
+            )
+        return self._get_discretization(depths, relative_to_reference)
+
+    @_get_discretization.register(list | np.ndarray)
+    def _(self, discretization: list | np.ndarray, relative_to_reference: bool):
+        if relative_to_reference:
+            discretization = np.sort(discretization)[::-1]  # Depth must increase down
+            dz = np.abs(np.diff(discretization))
+            tops = discretization[:-1]
+            bottoms = discretization[1:]
+        else:
+            bottoms = np.sort(discretization)  # Depth must increase down
+            dz = np.diff(bottoms, prepend=0)
+            tops = bottoms - dz
+
+        nr_, surface_, top_, bottom_ = self._nr, self._surface, self._top, self._bottom
+
+        nz = np.arange(len(bottoms))
+        surveys = self._obj[[nr_, surface_]].drop_duplicates()
+
+        discretized = pd.DataFrame(
+            {
+                nr_: np.repeat(surveys[nr_], len(bottoms)),
+                surface_: np.repeat(surveys[surface_], len(bottoms)),
+                bottom_: np.tile(bottoms, len(surveys)),
+                "nz": np.tile(nz, len(surveys)),
+                "dz": np.tile(dz, len(surveys)),
+            }
+        )
+
+        if self.is_layered:
+            discretized.insert(2, top_, np.tile(tops, len(surveys)))
+
+        return discretized
+
+    @_get_discretization.register(pd.DataFrame)
+    def _(self, discretization: pd.DataFrame, relative_to_reference: bool):
+        columns = discretization.gst.positional_columns
+        nr_, surface_, top_, bottom_ = (
+            columns["nr"],
+            columns["surface"],
+            columns["top"],
+            columns["depth"],
+        )
+
+        if bottom_ is None:
+            raise MissingDepthError(
+                "The discretization DataFrame is missing bottom depths of layers."
+            )
+
+        if relative_to_reference and surface_ is None and top_ is None:
+            raise MissingDepthError(
+                "The discretization DataFrame is missing surface information and top "
+                "depth of layers while relative_to_reference is True. Cannot compute "
+                "layer thickness."
+            )
+
+        discretization = discretization.copy()
+        # Rename the columns for easy merge and if needed, calculate a surface difference
+        discretization.rename(
+            columns={nr_: self._nr, surface_: "surface_right"},
+            inplace=True,
+            errors="ignore",
+        )
+
+        depth = self._obj[[self._nr, self._surface]].drop_duplicates()
+        depth = depth.merge(discretization, on=self._nr, how="right")
+
+        # Avoid `LossySetItemError` Pandas due to unstable dtypes
+        depth = depth.astype({bottom_: "float64"})
+        if top_ is not None:
+            depth = depth.astype({top_: "float64"})
+
+        # If a surface is present we correct the discretization for the surface difference
+        if not relative_to_reference and surface_ is not None:
+            depth["surface_correction"] = depth[self._surface] - depth["surface_right"]
+            depth[bottom_] += depth["surface_correction"]
+            if top_ is not None:
+                depth.loc[~depth.gst.first_row_survey, top_] += depth[
+                    "surface_correction"
+                ]
+
+        depth.drop(columns="surface_right", inplace=True, errors="ignore")
+
+        if relative_to_reference and top_ is None:
+            # In this case we temporarily need absolute depth for calculating layer thickness
+            depth = depth.gst._get_depth_relative_to_surface()
+            depth["dz"] = depth.gst.calculate_thickness()
+            depth = depth.gst._get_depth_relative_to_surface()
+        else:
+            depth["dz"] = depth.gst.calculate_thickness()
+
+        return depth.reset_index(names="nz")  # Add layer numbers
+
+    @_requires_depth
+    def compute_discretized_fractions(
+        self,
+        column: str,
+        discretization: float | int | list | np.ndarray | pd.DataFrame,
+        bins: int | float | list | np.ndarray = None,
+        bin_centers_as_columns: bool = False,
+        relative_to_reference: bool = False,
+    ) -> pd.DataFrame:
+        """
+        Calculate the fraction of each categorical value in the specified column within
+        a given depth discretization. For discretizing continuous values, use the `bins`
+        parameter to define the ranges.
+
+        Parameters
+        ----------
+        column : str
+            Name of the column containing the values to fractionate per discretized layer.
+        discretization : float | int | list | np.ndarray | pd.DataFrame
+            Definition of discretization layers. When a scalar is provided, it defines a
+            uniform layer thickness. When a sequence is provided, it defines the specific
+            layer boundaries. When a DataFrame is provided, a custom discretization per
+            survey must be provided. Note that in the case of a DataFrame, the result only
+            contains surveys which had corresponding discretization defined.
+        bins : int | float | list | np.ndarray, optional
+            Bin definition. A scalar creates two bins (larger than the scalar and smaller
+            than or equal to the scalar), while a sequence defines internal bin edges and
+            adds open-ended bins at both ends (unless bin_centers_as_columns is True).
+        bin_centers_as_columns : bool, optional
+            If True, use bin centers as output column labels rather than ranges. Will not
+            add open-ended bins at both ends, by default False. Note, if bins is given as
+            a single number or not given, this parameter will be ignored.
+        relative_to_reference : bool, optional
+            If True, interpret depths relative to the reference surface,
+            by default False.
+
+        Returns
+        -------
+        pd.DataFrame
+            The discretization data with one column per bin containing the
+            fraction of each layer in that bin.
+
+        Examples
+        --------
+        Calculate lithology fractions in uniform 1-meter layers:
+
+        >>> import geost
+        >>> import pandas as pd
+        >>> boreholes = pd.DataFrame(
+        ...     {
+        ...         "nr": ["A", "A", "B", "B"],
+        ...         "surface": [0.2, 0.2, 0.3, 0.3],
+        ...         "top": [0.0, 1.0, 0.0, 1.0],
+        ...         "bottom": [1.0, 2.0, 1.0, 2.0],
+        ...         "lith": ["K", "Z", "K", "V"],
+        ...     }
+        ... )
+        >>> boreholes.gst.compute_discretized_fractions("lith", 1)
+          nr  surface  top  bottom   dz    K    V    Z
+        0  A      0.2  0.0     1.0  1.0  1.0  NaN  NaN
+        1  A      0.2  1.0     2.0  1.0  NaN  NaN  1.0
+        2  B      0.3  0.0     1.0  1.0  1.0  NaN  NaN
+        3  B      0.3  1.0     2.0  1.0  NaN  1.0  NaN
+
+        Supply explicit layer boundaries instead of a uniform thickness:
+
+        >>> discretization = [0.5, 1.0, 2.0]
+        >>> boreholes.gst.compute_discretized_fractions("lith", discretization)
+           nr  surface  top  bottom   dz    K    V    Z
+        0   A      0.2  0.0     0.5  0.5  1.0  NaN  NaN
+        1   A      0.2  0.5     1.0  0.5  1.0  NaN  NaN
+        2   A      0.2  1.0     2.0  1.0  NaN  NaN  1.0
+        3   B      0.3  0.0     0.5  0.5  1.0  NaN  NaN
+        4   B      0.3  0.5     1.0  0.5  1.0  NaN  NaN
+        5   B      0.3  1.0     2.0  1.0  NaN  1.0  NaN
+
+        For continuous values, use `bins` to calculate fractions per value range:
+
+        >>> boreholes["value"] = [0.2, 0.8, 0.4, 0.9]
+        >>> boreholes.gst.compute_discretized_fractions(
+        ...     "value", discretization, bins=[0.33, 0.67]
+        ... )
+          nr  surface  top  bottom   dz  <=0.33  0.33-0.67  >0.67
+        0  A      0.2  0.0     0.5  0.5     1.0        NaN    NaN
+        1  A      0.2  0.5     1.0  0.5     1.0        NaN    NaN
+        2  A      0.2  1.0     2.0  1.0     NaN        NaN    1.0
+        3  B      0.3  0.0     0.5  0.5     NaN        1.0    NaN
+        4  B      0.3  0.5     1.0  0.5     NaN        1.0    NaN
+        5  B      0.3  1.0     2.0  1.0     NaN        NaN    1.0
+
+        Interpret discretization boundaries relative to the reference surface with
+        `relative_to_reference=True`:
+
+        >>> boreholes.gst.compute_discretized_fractions(
+        ...     "lith", [1, 0, -1], relative_to_reference=True
+        ... )
+          nr  surface  top  bottom  dz    K    V    Z
+        0  A      0.2    1       0   1  0.2  NaN  NaN
+        1  A      0.2    0      -1   1  0.8  NaN  0.2
+        2  B      0.3    1       0   1  0.3  NaN  NaN
+        3  B      0.3    0      -1   1  0.7  0.3  NaN
+
+        You can also provide a `pandas.DataFrame` for survey-specific discretization
+        boundaries. If the discretization contains surface information which differs from
+        the surface levels of the surveys, the layer boundaries of the discretization will
+        be adjusted accordingly and the result contains a `surface_correction` column. Without
+        surface information in the discretization, the layer boundaries will be applied as-is.
+
+        >>> discretization_df = pd.DataFrame(
+        ...     {
+        ...         "nr": ["A", "A", "A", "B", "B", "B", "B"],
+        ...         "surface": [0.4, 0.4, 0.4, 0.2, 0.2, 0.2, 0.2],
+        ...         "top": [0, 0.5, 1.0, 0, 0.5, 1.0, 2.0],
+        ...         "bottom": [0.5, 1.0, 2.0, 0.5, 1.0, 2.0, 4.0],
+        ...     }
+        ... )
+        >>> result = boreholes.gst.compute_discretized_fractions(
+        ...     "lith", discretization_df
+        ... )
+        >>> result
+          nr  surface  top  bottom  surface_correction   dz    K    V    Z
+        0  A      0.2  0.0     0.3                -0.2  0.3  1.0  NaN  NaN
+        1  A      0.2  0.3     0.8                -0.2  0.5  1.0  NaN  NaN
+        2  A      0.2  0.8     1.8                -0.2  1.0  0.2  NaN  0.8
+        3  B      0.3  0.0     0.6                 0.1  0.6  1.0  NaN  NaN
+        4  B      0.3  0.6     1.1                 0.1  0.5  0.8  0.2  NaN
+        5  B      0.3  1.1     2.1                 0.1  1.0  NaN  0.9  NaN
+
+        """
+        discretized = self._get_discretization(discretization, relative_to_reference)
+
+        temp = self.merge_sorted(
+            discretized,
+            backfill=True,
+            relative_to_reference=relative_to_reference,
+            keep_surveys="inner",  # We can only compute fractions if we have discretization for a survey
+        )
+
+        if bins is not None:
+            if isinstance(bins, (int, float)):
+                labels = [f"<={bins}", f">{bins}"]
+                bins = [-np.inf, bins, np.inf]
+            elif isinstance(bins, (list, np.ndarray)):
+                if bin_centers_as_columns:
+                    labels = [
+                        str((float(v2) + float(v1)) / 2)
+                        for v1, v2 in itertools.pairwise(bins)
+                    ]
+                else:
+                    labels = [f"{v1}-{v2}" for v1, v2 in itertools.pairwise(bins)]
+                    labels = [f"<={bins[0]}", *labels, f">{bins[-1]}"]
+                    bins = [-np.inf, *bins, np.inf]
+
+            temp[column] = pd.cut(temp[column], bins=bins, labels=labels)
+
+        temp["thickness"] = temp.gst.calculate_thickness()
+
+        grouped = temp.groupby([self._nr, "nz", column])
+        percentages = (
+            (grouped["thickness"].sum() / grouped["dz"].first())
+            .clip(None, 1)
+            .unstack(level=column)
+            .reset_index()
+        )
+        # The clip above is used because when the discretization is given as a DataFrame,
+        # depth is relative to NAP and there is a surface level difference, the thickness
+        # of the first layer of surveys may exceed "dz". Then, fraction also exceeds 1
+        # which is not possible. Debug `test_compute_discretized_fractions_layered_nap`
+        # and check the variable "result" from the line below.
+        #
+        # result = borehole_data.gst.compute_discretized_fractions("lith", nap_df, relative_to_reference=True)
+        #
+        # The surface, top, bottom and dz of the first row in survey "B" may cause the fraction
+        # to exceed 1 if the clip is not used. The clip does not affect other implementations.
+
+        # Merge with discretization and only keep results with computed fractions
+        discretized = discretized.merge(
+            percentages, on=[self._nr, "nz"], how="right"
+        ).drop(columns="nz", errors="ignore")
+
+        return discretized
+
+    @_requires_depth
+    def aggregate_consecutive_layers(
+        self,
+        over: str | list[str],
+        agg_funcs: dict = None,
+        keep_original_index: bool = False,
+    ) -> pd.DataFrame:
+        """
+        Aggregate consecutive layers in a DataFrame over columns that have the same value or
+        values for consecutive rows. The column to use for aggregating layers is typically
+        categorical data, such as lithology or soil type. Any other columns can be aggregated
+        using the provided aggregation functions provided by `agg_funcs`.
+
+        Parameters
+        ----------
+        over : str | list[str]
+            Name or names of the column or columns to aggregate over (i.e., to check for
+            consecutive identical values). Typically columns holding categorical data.
+        agg_funcs : dict, optional
+            Dictionary specifying the aggregation functions to apply to other columns when
+            combining layers. Keys are column names, and values are aggregation functions.
+            These can be e.g. names such as'first', 'last', 'mean', etc. or actual functions
+            such as np.sum, np.mean, etc.
+        keep_original_index : bool, optional
+            If True, the original index of the DataFrame is preserved in the resulting DataFrame.
+            If False, the index is reset (recommended). The default is False.
+
+        Returns
+        -------
+        pd.DataFrame
+            New DataFrame with consecutive layers combined based on the specified column.
+
+        Raises
+        ------
+        KeyError
+            If the specified column does not exist in the DataFrame.
+
+        Notes
+        -----
+        When you perform this function on discrete data such as CPT's, the result of the
+        aggregation is layered data defined by top and bottom depths.
+
+        Examples
+        --------
+        Say we have borehole data and we want to combine consecutive layers with the same
+        lithology.
+
+        >>> import geost
+        >>> import pandas as pd
+        >>> boreholes = pd.DataFrame(
+        ...     {
+        ...         "nr": ["A", "A", "A", "B", "B", "B"],
+        ...         "surface": [0.2, 0.2, 0.2, 0.3, 0.3, 0.3],
+        ...         "top": [0, 0.8, 1.2, 0, 1.0, 1.5],
+        ...         "bottom": [0.8, 1.2, 2.0, 1.0, 1.5, 2.0],
+        ...         "lith": ["K", "K", "Z", "K", "K", "K"],
+        ...         "value": [10, 20, 30, 40, 50, 60],
+        ...     }
+        ... )
+        >>> boreholes
+          nr  surface  top  bottom lith  value
+        0  A      0.2  0.0     0.8    K     10
+        1  A      0.2  0.8     1.2    K     20
+        2  A      0.2  1.2     2.0    Z     30
+        3  B      0.3  0.0     1.0    K     40
+        4  B      0.3  1.0     1.5    K     50
+        5  B      0.3  1.5     2.0    K     60
+
+        >>> result = boreholes.gst.aggregate_consecutive_layers('lith')
+        >>> result
+          nr  surface  top  bottom lith  value
+        0  A      0.2  0.0     1.2    K     10
+        1  A      0.2  1.2     2.0    Z     30
+        2  B      0.3  0.0     2.0    K     40
+
+        We can also use a custom aggregation function by providing the `agg_funcs` parameter.
+        For example, to take the mean of the 'value' column for consecutive layers with the same lithology:
+
+        >>> result = boreholes.gst.aggregate_consecutive_layers('lith', agg_funcs={'value': 'mean'})
+        >>> result
+          nr  surface  top  bottom lith  value
+        0  A      0.2  0.0     1.2    K     15
+        1  A      0.2  1.2     2.0    Z     30
+        2  B      0.3  0.0     2.0    K     50
+
+        """
+        df = self._obj.copy()
+        df["original_index"] = df.index
+
+        if isinstance(over, str):
+            over = [over]
+
+        # Create unique group id for consecutive identical layers according to values
+        # in the specified column and within the same survey.
+        groups = (df[over] != df[over].shift()).any(axis=1).cumsum() + (
+            df[self._nr] != df[self._nr].shift()
+        ).cumsum()
+
+        # Create aggregation dict, default is 'first' for every column except depth
+        agg_dict = (
+            {col: "first" if col != self._bottom else "last" for col in df.columns}
+            | (agg_funcs or {}) # This overrides defaults if `agg_funcs` is given
+        )  # fmt: skip
+
+        result = df.groupby(groups).agg(agg_dict)
+
+        if keep_original_index:
+            result.set_index("original_index", inplace=True)
+            result.index.name = df.index.name
+        else:
+            result = result.drop(columns="original_index").reset_index(drop=True)
+
+        if not result.gst.is_layered:
+            result.rename(columns={self._bottom: "bottom"}, inplace=True)
+            result["top"] = result["bottom"].shift()
+            result = depth.reset_tops(result, nr=self._nr, top="top", bottom="bottom")
+
+        return result
+
     @_requires_depth
     @_requires_xy
     def to_pyvista_cylinders(
@@ -1366,24 +1945,14 @@ class GeostFrame(AbstractBase):
         data = self._get_depth_relative_to_surface()
         displayed_variables = self._to_iterable(displayed_variables)
 
-        if self._top:
-            vtk_object = export.borehole_to_multiblock(
-                data,
-                [self._top, self._bottom],
-                displayed_variables,
-                radius,
-                n_sides,
-                vertical_factor,
-            )
-        else:
-            vtk_object = export.borehole_to_multiblock(
-                data,
-                self._bottom,
-                displayed_variables,
-                radius,
-                n_sides,
-                vertical_factor,
-            )
+        vtk_object = export.borehole_to_multiblock(
+            data,
+            self.positional_columns,
+            displayed_variables,
+            radius,
+            n_sides,
+            vertical_factor,
+        )
 
         return vtk_object
 
@@ -1418,25 +1987,19 @@ class GeostFrame(AbstractBase):
         data = self._get_depth_relative_to_surface()
         displayed_variables = self._to_iterable(displayed_variables)
 
-        if self._top:
-            vtk_object = export.layerdata_to_pyvista_unstructured(
-                data,
-                [self._top, self._bottom],
-                displayed_variables,
-                radius=radius,
-            )
-        else:
-            vtk_object = export.layerdata_to_pyvista_unstructured(
-                data, self._bottom, displayed_variables, radius=radius
-            )
+        vtk_object = export.layerdata_to_pyvista_unstructured(
+            data, self.positional_columns, displayed_variables, radius=radius
+        )
 
         return vtk_object
 
     @_requires_depth
     @_requires_xy
-    def _create_geodataframe_3d(
+    def create_linestrings_3d(
         self,
         crs: str | int | CRS = None,
+        x_end: str | None = None,
+        y_end: str | None = None,
     ):
         """
         Helper method for export method "to_qgis3d" to create the necessary GeoDataFrame
@@ -1461,12 +2024,6 @@ class GeostFrame(AbstractBase):
 
         data = self._get_depth_relative_to_surface()
 
-        data_columns = [
-            col
-            for col in data.columns
-            if col not in {"nr", "x", "y", "surface", "depth", "top", "bottom"}
-        ]
-
         # Prepare top, bottom and corresponding x and y values for geometry creation.
         # Infer the top of layers from the bottom of layers if the top column is not present.
         if self._top is None:
@@ -1475,46 +2032,24 @@ class GeostFrame(AbstractBase):
                 .shift()
                 .mask(self.first_row_survey, data[self._surface])
             )
-            x_bot, y_bot = data["x"], data["y"]
-            x_top = data["x"].shift().mask(self.first_row_survey, data["x"])
-            y_top = data["y"].shift().mask(self.first_row_survey, data["y"])
+            x_bot, y_bot = data[self._x], data[self._y]
+            x_top = x_bot.shift().mask(self.first_row_survey, x_bot)
+            y_top = y_bot.shift().mask(self.first_row_survey, y_bot)
         else:
             top = data[self._top]
-            x_top, y_top = data["x"], data["y"]
-            x_bot = data["x"].shift(-1).mask(self.last_row_survey, data["x"])
-            y_bot = data["y"].shift(-1).mask(self.last_row_survey, data["y"])
+            x_top, y_top = data[self._x], data[self._y]
+            if x_end is not None and y_end is not None:
+                x_bot, y_bot = data[x_end], data[y_end]
+            else:
+                x_bot = x_top.shift(-1).mask(self.last_row_survey, x_top)
+                y_bot = y_top.shift(-1).mask(self.last_row_survey, y_top)
 
-        # TODO: slight problem persists here for inclined boreholes. The last layer will
-        # always be non-inclined because we miss information on the bottom x/y coords.
-        # This cannot be correctly inferred from the data.
+        begin = np.c_[x_top, y_top, top + 0.01]
+        end = np.c_[x_bot, y_bot, data[self._bottom]]
+        geometries = linestrings(np.stack((begin, end), axis=1))
 
-        data_to_write = dict(
-            nr=data[self._nr].values,
-            top=top.values.astype(float),
-            bottom=data[self._bottom].values.astype(float),
-        )
-
-        data_to_write.update(data[data_columns].to_dict(orient="list"))
-
-        geometries = linestrings(
-            [
-                [[x, y, top + 0.01], [x_bot, y_bot, bottom + 0.01]]
-                for x, y, x_bot, y_bot, top, bottom in zip(
-                    x_top.values.astype(float),
-                    y_top.values.astype(float),
-                    x_bot.values.astype(float),
-                    y_bot.values.astype(float),
-                    top.values.astype(float),
-                    data[self._bottom].values.astype(float),
-                )
-            ]
-        )
-
-        return gpd.GeoDataFrame(
-            data=data_to_write,
-            geometry=geometries,
-            crs=crs,
-        )
+        # Only return series of geometries
+        return gpd.GeoSeries(geometries, index=self._obj.index, crs=crs)
 
     @_requires_depth
     @_requires_xy
@@ -1540,8 +2075,72 @@ class GeostFrame(AbstractBase):
             geopandas.GeodataFrame.to_file kwargs. See relevant Geopandas documentation.
 
         """
-        qgis3d = self._create_geodataframe_3d(crs=crs)
+        qgis3d = self.create_linestrings_3d(crs=crs)
         qgis3d.to_file(outfile, driver="GPKG", **kwargs)
+
+    @_requires_depth
+    @_requires_xy
+    def to_geopackage_3d(
+        self,
+        outfile: str | Path,
+        crs: str | int | CRS = None,
+        x_end: str | None = None,
+        y_end: str | None = None,
+        **kwargs,
+    ):
+        """
+        Write data to geopackage file that can be directly loaded in the Qgis2threejs
+        plugin. Works only for layered (borehole) data.
+
+        Parameters
+        ----------
+        outfile : str | Path
+            Path to geopackage file to be written.
+        crs : str | int | CRS
+            EPSG of the target crs. Takes anything that can be interpreted by
+            pyproj.crs.CRS.from_user_input().
+        x_end : str | None, optional
+            Column name for x-coordinates of bottom endpoints in inclined boreholes.
+            The default is None.
+        y_end : str | None, optional
+            Column name for y-coordinates of bottom endpoints in inclined boreholes.
+            The default is None.
+        **kwargs
+            geopandas.GeodataFrame.to_file kwargs. See relevant Geopandas documentation.
+
+        """
+
+        data = self._obj
+        lines_3d = self.create_linestrings_3d(crs=crs, x_end=x_end, y_end=y_end)
+
+        locations = data.drop_duplicates(subset=self._nr)
+        locations = gpd.GeoDataFrame(
+            locations,
+            geometry=gpd.points_from_xy(locations[self._x], locations[self._y]),
+            crs=crs,
+        )
+
+        data = gpd.GeoDataFrame(
+            data=data,
+            geometry=lines_3d,
+            crs=crs,
+        )
+
+        # write point locations layer
+        locations.to_file(
+            outfile,
+            layer="locations",
+            driver="GPKG",
+            **kwargs,
+        )
+
+        # append 3D line layer
+        data.to_file(
+            outfile,
+            layer="3dlines",
+            driver="GPKG",
+            **kwargs,
+        )
 
     @_requires_depth
     @_requires_xy
@@ -1618,4 +2217,318 @@ class GeostFrame(AbstractBase):
         tdchart.to_csv(
             outfile.parent.joinpath(f"{outfile.stem}_TDCHART{outfile.suffix}"),
             index=False,
+        )
+
+    def _merge_sorted(
+        self, data: pd.DataFrame, other: pd.DataFrame, backfill: bool
+    ) -> pd.DataFrame:
+        """
+        Merge logic for :meth:`~geost.accessor.GeostFrame.merge_sorted` for two DataFrames
+        of survey data.
+
+        """
+        data = data.gst._get_depth_relative_to_surface()
+        # Temporarily invert depth because merge_ordered merges in descending order
+        # which inverts order of the original DataFrame
+        data[self._bottom] *= -1
+        other[self._bottom] *= -1
+
+        result = pd.merge_ordered(
+            data, other, on=[self._nr, self._bottom], suffixes=("", "_right")
+        )
+
+        # Reset depth to original
+        result[self._bottom] *= -1
+
+        grouped = result.groupby(self._nr)
+        if backfill:
+            result = pd.concat([result[self._nr], grouped.bfill()], axis=1)
+
+        result[self._surface] = grouped[self._surface].transform("first")
+
+        # If an ID is in "other" but not original data, we keep the original surface of the other
+        if self._surface == (other_surface := other.gst._surface):
+            result = result.fillna({self._surface: result[f"{self._surface}_right"]})
+        else:
+            result = result.fillna({self._surface: result[other_surface]})
+
+        result = result.gst._get_depth_relative_to_surface()
+
+        if self.is_layered:
+            result = depth.reset_tops(
+                result, nr=self._nr, top=self._top, bottom=self._bottom
+            )
+
+        return result
+
+    @_requires_depth
+    def merge_sorted(
+        self,
+        other: pd.DataFrame,
+        keep_surveys: Literal["left", "right", "outer", "inner"] = "outer",
+        backfill: bool = True,
+        relative_to_reference: bool = False,
+        drop_overlapping_columns: bool = False,
+    ) -> pd.DataFrame:
+        """
+        Insert intervals from another DataFrame into the current DataFrame, sorted by
+        survey and depth. Intervals from `other` are inserted at their corresponding
+        depths and can split existing intervals at their top and bottom boundaries.
+        Use ``backfill=True`` to propagate values from inserted intervals to preceding
+        intervals within each survey, as shown in the examples below.
+
+        Parameters
+        ----------
+        other : pd.DataFrame
+            DataFrame containing intervals to insert into the current DataFrame.
+        keep_surveys : Literal["left", "right", "outer", "inner"], optional
+            Determines which surveys to keep when merging intervals. Can be "left", "right",
+            "outer", or "inner". The default is "outer".
+            - "left": Keep only surveys present in the current DataFrame.
+            - "right": Keep only surveys present in the `other` DataFrame.
+            - "outer": Keep all surveys from both DataFrames.
+            - "inner": Keep only surveys present in both DataFrames.
+        backfill : bool, optional
+            If True, backfill missing values within each survey from inserted intervals
+            to preceding intervals. The default is True.
+        relative_to_reference : bool, optional
+            If True, interpret the depths of the `other` DataFrame relative to a reference
+            level such as "NAP". The default is False, in this case depths are interpreted
+            as absolute depth.
+        drop_overlapping_columns : bool, optional
+            If True, drop columns from the `other` DataFrame that overlap with columns in the
+            current DataFrame. The default is False, then overlapping columns are kept with
+            the suffix "_right" in the result.
+
+        Returns
+        -------
+        pd.DataFrame
+            A new DataFrame containing the merged and depth-sorted data.
+
+        Examples
+        --------
+
+        >>> import geost
+        >>> import pandas as pd
+        >>> boreholes = pd.DataFrame(
+        ...     {
+        ...         "nr": ["A", "A", "B", "B", "C", "C"],
+        ...         "surface": [0.2, 0.2, 0.3, 0.3, 0.25, 0.25],
+        ...         "top": [0, 0.8, 0, 1.0, 0, 0.4],
+        ...         "bottom": [0.8, 1.2, 1.0, 1.5, 0.4, 0.8],
+        ...         "lith": ["K", "K", "Z", "K", "K", "L"],
+        ...     }
+        ... )
+        >>> boreholes
+          nr  surface  top  bottom lith
+        0  A     0.20  0.0     0.8    K
+        1  A     0.20  0.8     1.2    K
+        2  B     0.30  0.0     1.0    Z
+        3  B     0.30  1.0     1.5    K
+        4  C     0.25  0.0     0.4    K
+        5  C     0.25  0.4     0.8    L
+
+        >>> to_merge = pd.DataFrame(
+        ...        {
+        ...            "nr": ["A", "B", "D"],
+        ...            "surface": [0.3, 0.4, 0.15],
+        ...            "top": [0.0, 0.0, 0.0],
+        ...            "bottom": [1.1, 2.0, 0.4],
+        ...            "value": [15, 35, 45],
+        ...        }
+        ...    )
+        >>> to_merge
+          nr  surface  top  bottom  value
+        0  A     0.30  0.0     1.1     15
+        1  B     0.40  0.0     2.0     35
+        2  D     0.15  0.0     0.4     45
+
+        By default, all survey IDs are preserved from the left and right DataFrames (i.e.
+        ``keep_surveys='outer'``).
+
+        >>> result = boreholes.gst.merge_sorted(to_merge, backfill=True)
+        >>> result
+          nr  surface  top  bottom lith  surface_right  value
+        0  A     0.20  0.0     0.8    K           0.30   15.0
+        1  A     0.20  0.8     1.0    K           0.30   15.0
+        2  A     0.20  1.0     1.2    K            NaN    NaN
+        3  B     0.30  0.0     1.0    Z           0.40   35.0
+        4  B     0.30  1.0     1.5    K           0.40   35.0
+        5  B     0.30  1.5     1.9  NaN           0.40   35.0
+        6  C     0.25  0.0     0.4    K            NaN    NaN
+        7  C     0.25  0.4     0.8    L            NaN    NaN
+        8  D     0.15  0.0     0.4  NaN           0.15   45.0
+
+        >>> result = boreholes.gst.merge_sorted(to_merge, backfill=False)
+        >>> result
+          nr  surface  top  bottom lith  surface_right  value
+        0  A     0.20  0.0     0.8    K            NaN    NaN
+        1  A     0.20  0.8     1.0  NaN           0.30   15.0
+        2  A     0.20  1.0     1.2    K            NaN    NaN
+        3  B     0.30  0.0     1.0    Z            NaN    NaN
+        4  B     0.30  1.0     1.5    K            NaN    NaN
+        5  B     0.30  1.5     1.9  NaN           0.40   35.0
+        6  C     0.25  0.0     0.4    K            NaN    NaN
+        7  C     0.25  0.4     0.8    L            NaN    NaN
+        8  D     0.15  0.0     0.4  NaN           0.15   45.0
+
+        If you only want to keep surveys that are present in both DataFrames and drop the
+        overlapping columns, use ``keep_surveys='inner'`` and ``drop_overlapping_columns=True``.
+
+        >>> result = boreholes.gst.merge_sorted(
+        ...     to_merge, keep_surveys="inner", drop_overlapping_columns=True
+        ... )
+        >>> result
+          nr  surface  top  bottom lith  value
+        0  A      0.2  0.0     0.8    K   15.0
+        1  A      0.2  0.8     1.0    K   15.0
+        2  A      0.2  1.0     1.2    K    NaN
+        3  B      0.3  0.0     1.0    Z   35.0
+        4  B      0.3  1.0     1.5    K   35.0
+        5  B      0.3  1.5     1.9  NaN   35.0
+
+        """
+        if other.gst._bottom is None:
+            raise MissingDepthError(
+                "The other DataFrame is missing bottom depths of layers."
+            )
+
+        if relative_to_reference:
+            other = other.copy()
+        else:
+            other = other.gst._get_depth_relative_to_surface()
+
+        other.rename(
+            columns={other.gst._nr: self._nr, other.gst._bottom: self._bottom},
+            inplace=True,
+        )  # Make sure the 'nr' and 'bottom' match so we can merge correctly
+
+        if (top_other := other.gst._top) is not None:
+            other = other.drop(
+                columns=top_other
+            )  # We don't need the other top for the merge because we recalculate it from the new data
+
+        if keep_surveys == "outer":
+            data = self._obj
+        elif keep_surveys == "inner":
+            data = self.select_by_values(self._nr, other[self._nr].unique())
+            other = other.gst.select_by_values(self._nr, data[self._nr].unique())
+        elif keep_surveys == "left":
+            data = self._obj
+            other = other.gst.select_by_values(self._nr, data[self._nr].unique())
+        elif keep_surveys == "right":
+            data = self.select_by_values(self._nr, other[self._nr].unique())
+        else:
+            raise ValueError(
+                f"Invalid value for keep_surveys: {keep_surveys}, use 'outer', 'inner', "
+                "'left', or 'right'"
+            )
+
+        result = self._merge_sorted(data, other, backfill)
+
+        if drop_overlapping_columns:
+            result = result.drop(
+                columns=result.columns[result.columns.str.endswith("_right")]
+            )
+
+        return result
+
+    @_requires_depth
+    @_requires_xy
+    def add_model_data(
+        self,
+        model: xr.Dataset | xr.DataArray,
+        *,
+        data_vars: str | list[str] = None,
+        aggregate_vars: dict[str, str] = None,
+        suffix: str = None,
+    ) -> pd.DataFrame:
+        """
+        Add information from one or more variables from a voxelmodel or layermodel as columns.
+
+        For each survey, this determines the vertical model stack at the survey's location
+        and identifies the layer boundaries within that stack based on changes in the selected
+        model variables. Survey intervals are split at these model layer boundaries, and the
+        corresponding model information is backfilled to the resulting intervals. The resulting
+        data are sorted by depth. This is illustrated in the example below.
+
+        .. code-block:: text
+
+            Survey data:
+               nr  top  bottom lith
+            0   A  0.0    10.0    Z
+
+            Layer boundaries derived from the model data for "variable" at the location of the
+            survey:
+               top  bottom  variable
+            0  0.0     8.0         1
+            1  8.0    11.0         2
+
+            Result:
+               nr  top  bottom lith  variable
+            0   A  0.0     8.0    Z       1.0
+            1   A  8.0    10.0    Z       2.0
+
+        Parameters
+        ----------
+        model : xr.Dataset | xr.DataArray
+            Xarray Dataset or DataArray containing the model data.
+        data_vars : str | list[str], optional
+            Variable or variables from the model to add. These variables are used to determine
+            the layer boundaries. A layer boundary is defined where the value of a variable
+            changes with depth; consecutive equal values are considered part of the same layer.
+            If multiple variables are given, they are treated jointly when determining the
+            layer boundaries. If None, all model variables are added and jointly considered
+            for determining the layer boundaries.
+        aggregate_vars : dict[str, str], optional
+            Optional dictionary specifying how to aggregate additional model variables, not
+            given in `data_vars`, over the layers derived from `data_vars`. The keys are the
+            model variable names and the values are the aggregation functions (e.g., `"mean"`
+            or `"sum"`).
+        suffix : str, optional
+            Suffix to append to the added model variable columns to avoid name conflicts with
+            existing columns in the survey data. If None, no suffix is added. In case of a name
+            conflict, the existing column is overwritten.
+
+        Returns
+        -------
+        pd.DataFrame
+            New DataFrame containing the added information from the model.
+
+        Examples
+        --------
+        Add all model variables to the DataFrame.
+
+        >>> result = dataframe.gst.add_model_data(model)
+
+        To add specific model variables to the DataFrame, use the `data_vars` parameter.
+
+        >>> result = dataframe.gst.add_model_data(model, data_vars="variable") # This treats consecutive values in "variable" as a layer
+        >>> result = dataframe.gst.add_model_data(
+        ...     model, data_vars=["variable1", "variable2"] # This treats jointly consecutive values in "variable1" and "variable2" as layers
+        ... )
+
+        To add specific model variables and aggregate additional ones over the derived layers,
+        use the `aggregate_vars` parameter.
+
+        >>> result = dataframe.gst.add_model_data(
+        ...     model, data_vars="variable", aggregate_vars={"other_variable": "mean"}
+        ... )
+
+        """
+        from geost.analysis.combine import add_model_data
+        from geost.models._core import ModelType
+
+        if model.gst.model_type == ModelType.LAYER and data_vars is None:
+            data_vars = [model.gst.z_dim]
+
+        return add_model_data(
+            self._obj,
+            model,
+            data_vars=data_vars,
+            aggregate_vars=aggregate_vars,
+            suffix=suffix,
+            nr_=self._nr,
+            surface_=self._surface,
+            bottom_=self._bottom,
         )

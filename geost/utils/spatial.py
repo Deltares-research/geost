@@ -1,14 +1,52 @@
 import warnings
 from pathlib import Path
-from typing import Iterable
 
 import geopandas as gpd
 import numpy as np
 import pandas as pd
-import rioxarray
 import xarray as xr
 
 from geost.utils import conversion
+
+
+def get_points_along_lines(
+    lines: gpd.GeoDataFrame, dist: np.ndarray
+) -> gpd.GeoDataFrame:
+    """
+    Sample points along lines at a given distance.
+
+    Parameters
+    ----------
+    lines : gpd.GeoDataFrame
+        Geodataframe containing line geometries to sample points from.
+    dist : np.ndarray or array-like
+        1D array of distances at which to sample points along the lines.
+
+    Returns
+    -------
+    gpd.GeoDataFrame
+        Geodataframe containing sampled points along the lines.
+
+    """
+    index = []
+    distance = []
+    points = []
+    for idx, line in zip(lines.index, lines.geometry):
+        for d in dist:
+            if d > line.length:
+                break
+
+            index.append(idx)
+            distance.append(d)
+            points.append(line.interpolate(d))
+
+    return gpd.GeoDataFrame(
+        distance,
+        columns=["distance"],
+        geometry=points,
+        index=pd.Index(index, name="line"),
+        crs=lines.crs,
+    )
 
 
 def check_and_coerce_crs(gdf: gpd.GeoDataFrame, to_crs: int):
@@ -99,6 +137,8 @@ def select_points_near_points(
     gdf: str | Path | gpd.GeoDataFrame,
     point_gdf: str | Path | gpd.GeoDataFrame,
     buffer: float | int,
+    n_points: int = None,
+    return_pairs: bool = False,
     invert: bool = False,
 ) -> gpd.GeoDataFrame:
     """
@@ -112,6 +152,9 @@ def select_points_near_points(
         Geodataframe (or file that can be parsed to a geodataframe) to select with.
     buffer : float | int
         Buffer distance for selection geometries.
+    n_points : int, optional
+        Number of nearest points to select, by default None, which means that all points
+        within the buffer are selected.
     invert : bool, optional
         Invert the selection, by default False.
 
@@ -120,6 +163,8 @@ def select_points_near_points(
     gpd.GeoDataFrame
         Geodataframe containing only selected geometries.
     """
+    from scipy.spatial import KDTree
+
     # Instance checks and coerce to geodataframe if required
     gdf = conversion.check_geometry_instance(gdf)
     point_gdf = conversion.check_geometry_instance(point_gdf)
@@ -130,16 +175,24 @@ def select_points_near_points(
         [point_gdf["geometry"].x, point_gdf["geometry"].y]
     ).transpose()
 
-    bool_array = np.full(len(data_points), False)
-    for query_point in query_points:
-        distance = np.sqrt(
-            (query_point[0] - data_points[:, 0]) ** 2
-            + (query_point[1] - data_points[:, 1]) ** 2
+    data_tree = KDTree(data_points)
+
+    if n_points is None:
+        index = data_tree.query_ball_point(query_points, buffer, workers=-1)
+        selection_index = np.array([i for sublist in index for i in sublist])
+
+    elif isinstance(n_points, int):
+        distances, index = data_tree.query(
+            query_points, k=n_points, distance_upper_bound=buffer, workers=-1
         )
-        bool_array += distance < buffer
+        selection_index = index[np.isfinite(distances)]
+
     if invert:
-        bool_array = np.invert(bool_array)
-    gdf_selected = gdf[bool_array]
+        gdf_reindexed = gdf.copy().reset_index(drop=True)
+        gdf_selected = gdf.iloc[~gdf_reindexed.index.isin(selection_index)]
+    else:
+        gdf_selected = gdf.iloc[selection_index]
+
     return gdf_selected
 
 
@@ -248,6 +301,8 @@ def get_raster_values(
     np.ndarray
         1D array of sampled values
     """
+    import rioxarray
+
     if isinstance(raster_to_read, (str, Path)):
         raster_to_read = rioxarray.open_rasterio(raster_to_read).squeeze()
 

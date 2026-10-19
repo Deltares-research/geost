@@ -3,6 +3,7 @@ import warnings
 import pandas as pd
 import pytest
 
+from geost.exceptions import MissingSurveyIDError
 from geost.validation import column_names as cn
 
 
@@ -64,7 +65,7 @@ def test_check_positional_columns():
 
     # Test that a KeyError is raised when the survey ID column is missing
     df = pd.DataFrame(columns=["invalid_nr", "surface", "x", "y", "top", "bottom"])
-    with pytest.raises(KeyError) as excinfo:
+    with pytest.raises(MissingSurveyIDError) as excinfo:
         cn.check_positional_column_presence(df)
 
     assert "missing a mandatory column that identifies survey IDs" in str(excinfo.value)

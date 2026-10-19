@@ -1,6 +1,7 @@
 from geost import accessor, data
 from geost.base import Collection
 from geost.config import delete_user_positional_column_aliases
+from geost.dataframe import pandas_dataframe
 from geost.io.read import (
     bro_api_read,
     read_bhrg,
@@ -20,6 +21,15 @@ from geost.io.read import (
     read_uullg_tables,
     read_xml_boris,
 )
+from geost.io.read_models import (
+    read_geotop_from_opendap,
+    read_geotop_netcdf,
+    read_model_from_opendap,
+    read_model_netcdf,
+    read_regis_from_opendap,
+    read_regis_netcdf,
+)
+from geost.models import model_array, model_dataset
 from geost.utils.collection import concat
 from geost.utils.columns import add_positional_columns
 

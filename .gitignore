@@ -111,6 +111,10 @@ ENV/
 
 !data/*.nc
 
+# Include all data files in the tests/data directory
+!tests/data/
+!tests/data/**
+
 # data
 #*.xml
 #*.pdf
