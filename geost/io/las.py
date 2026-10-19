@@ -1,12 +1,12 @@
+import re
 from functools import cache
-from typing import Iterable, Literal
+from typing import Literal
 
 import lasio
 import numpy as np
 import pandas as pd
 
 import geost
-from geost.utils.unit_conversion import calculate_factor
 
 WELL_LOG_STANDARD_NAMES = {
     "Curves": {
@@ -16,8 +16,7 @@ WELL_LOG_STANDARD_NAMES = {
             "CALIPER",
             "CALI",
         ],
-        "resistivity": ["RESISTIVITY", "RES", "RT"],
-        "speed": ["SPEED", "SP"],
+        "resistivity": ["RESISTIVITY", "RT"],
     },
     "Well": {
         "nr": ["WELL", "WELL:1", "WELL:2", "SITE_WELL_NAME", "HOLE_NAME"],
@@ -48,7 +47,6 @@ WELL_LOG_STANDARD_UNITS = {
         "gamma_raw": "cps",
         "caliper": "mm",
         "resistivity": "ohm.m",
-        "speed": "m/min",
     },
 }
 
@@ -73,7 +71,7 @@ def _standardize_las_section(
     errors: Literal["raise", "warn", "ignore"] = "raise",
 ) -> None:
     """
-    Standardize the mnemonics and units in a given section of a LAS file.
+    Standardize the mnemonics in a given section of a LAS file.
 
     Parameters
     ----------
@@ -104,23 +102,11 @@ def _standardize_las_section(
                 ) not in checked_mnemonics:
                     item.mnemonic = standard_name
                     checked_mnemonics.add(standard_name)
-                    # Convert units to standard units if applicable
-                    if (
-                        item.unit != ""
-                        and standard_name in WELL_LOG_STANDARD_UNITS[section]
-                    ):
-                        standard_unit = WELL_LOG_STANDARD_UNITS[section][standard_name]
-                        if section == "Well" or section == "Parameter":
-                            # Convert single header value
-                            item.value = float(item.value) * calculate_factor(
-                                item.unit.lower(), standard_unit
-                            )
-                        elif section == "Curves":
-                            # Convert the array of data values
-                            item.data = item.data * calculate_factor(
-                                item.unit.lower(), standard_unit
-                            )
-                        item.unit = standard_unit
+                standard_unit = WELL_LOG_STANDARD_UNITS.get(section, {}).get(
+                    standard_name
+                )
+                if standard_unit and not getattr(item, "unit", None):
+                    item.unit = standard_unit
             except Exception as e:
                 if errors == "raise":
                     raise e
@@ -134,17 +120,103 @@ def _standardize_las_section(
                     continue
 
 
+def _normalize_header_value(value):
+    if value is None or pd.isna(value) or value == "":
+        return np.nan
+    return value
+
+
+def _normalize_curve_description(description):
+    description = _normalize_header_value(description)
+    if pd.isna(description):
+        return description
+    return re.sub(r"^\s*\d+\s+", "", str(description))
+
+
+def _well_section_to_header(
+    las: lasio.LASFile,
+    header_columns: list[str],
+    header_values: list[object],
+) -> None:
+    for header_item in las.well:
+        mnemonic = header_item.mnemonic
+        if not mnemonic:
+            continue
+
+        header_value = _normalize_header_value(header_item.value)
+        header_unit = header_item.unit or np.nan
+        if pd.isna(header_value) and pd.isna(header_unit):
+            continue
+
+        header_columns.append(mnemonic)
+        header_values.append(header_value)
+        if not pd.isna(header_unit):
+            header_columns.append(f"{mnemonic}_unit")
+            header_values.append(header_unit)
+
+
+def _parameter_section_to_header(
+    las: lasio.LASFile,
+    header_columns: list[str],
+    header_values: list[object],
+) -> None:
+    for header_item in las.params:
+        mnemonic = header_item.mnemonic
+        if not mnemonic:
+            continue
+
+        header_value = _normalize_header_value(header_item.value)
+        if pd.isna(header_value):
+            continue
+
+        header_columns.append(mnemonic)
+        header_values.append(header_value)
+        header_unit = header_item.unit or np.nan
+        if not pd.isna(header_unit):
+            header_columns.append(f"{mnemonic}_unit")
+            header_values.append(header_unit)
+
+
+def _curve_section_to_header(
+    las: lasio.LASFile,
+    header_columns: list[str],
+    header_values: list[object],
+) -> None:
+    for curve_item in las.curves:
+        mnemonic = curve_item.mnemonic
+        if not mnemonic:
+            continue
+
+        header_columns.append(mnemonic)
+        header_values.append(
+            _normalize_curve_description(getattr(curve_item, "descr", np.nan))
+        )
+        header_columns.append(f"{mnemonic}_unit")
+        header_values.append(getattr(curve_item, "unit", np.nan) or np.nan)
+
+
+def _las_to_header(las: lasio.LASFile) -> pd.DataFrame:
+    header_columns: list[str] = []
+    header_values: list[object] = []
+
+    _well_section_to_header(las, header_columns, header_values)
+    _parameter_section_to_header(las, header_columns, header_values)
+    _curve_section_to_header(las, header_columns, header_values)
+
+    return pd.DataFrame([header_values], columns=header_columns)
+
+
 def standardize_well_log_las(
-    las_objects: lasio.LASFile | Iterable[lasio.LASFile],
+    las: lasio.LASFile,
     errors: Literal["raise", "warn", "ignore"] = "raise",
-) -> lasio.LASFile | list[lasio.LASFile]:
+) -> lasio.LASFile:
     """
     Standardize the curve names in a LAS file to their standard names.
 
     Parameters
     ----------
-    las_objects : lasio.LASFile | Iterable[lasio.LASFile]
-        A LAS file object or an iterable of LAS file objects.
+    las : lasio.LASFile
+        The LAS file object to standardize.
     errors : {'raise', 'warn', 'ignore'}, optional
         How to handle errors during standardization. 'raise' will raise an exception,
         'warn' will print a warning, and 'ignore' will silently ignore errors. Default
@@ -152,40 +224,25 @@ def standardize_well_log_las(
 
     Returns
     -------
-    lasio.LASFile | list[lasio.LASFile]
-        The LAS file(s) with standardized curve names.
+    lasio.LASFile
+        The LAS file with standardized curve names.
     """
-    if isinstance(las_objects, lasio.LASFile):
-        las_objects = [las_objects]
+    for section in ["Well", "Curves", "Parameter"]:
+        _standardize_las_section(las, section, errors=errors)
 
-    for las in las_objects:
-        _standardize_las_section(las, "Well", errors=errors)
-        _standardize_las_section(las, "Curves", errors=errors)
-        _standardize_las_section(las, "Parameter", errors=errors)
-
-    return las_objects[0] if len(las_objects) == 1 else las_objects
+    return las
 
 
 def well_logs_to_collection(
-    las_objects: Iterable[lasio.LASFile],
-    *,
-    only_positional_columns: bool = True,
-    join: Literal["inner", "outer"] = "outer",
+    las: lasio.LASFile,
 ) -> geost.Collection:
     """
-    Convert an iterable of LAS objects representing well logs to a geost Collection.
+    Convert one LAS object representing a well log to a geost Collection.
 
     Parameters
     ----------
-    las_objects : Iterable[lasio.LASFile]
-        An iterable of LAS file objects.
-    only_positional_columns : bool, optional
-        If True, only include positional columns in the header of the Collection.
-    join : {'inner', 'outer'}, optional
-        How to join the header and data from the LAS files. 'inner' will keep only the
-        columns that are present in all LAS files, while 'outer' will keep all columns,
-        using NaN for missing values. Default is 'outer'.
-
+    las : lasio.LASFile
+        The LAS file object to convert.
     Returns
     -------
     geost.Collection
@@ -193,45 +250,35 @@ def well_logs_to_collection(
     """
     las_headers = []
     las_dataframes = []
-    for las in las_objects:
-        las_header = pd.DataFrame(
-            {
-                header_item.mnemonic: [str(header_item.value)]
-                for header_item in las.well + las.params
-            }
-        )
-        las_dataframe = las.df().reset_index()
+    las_header = _las_to_header(las)
+    las_dataframe = las.df().reset_index()
 
-        try:
-            pos_cols_header = las_header.gst.positional_columns
-            if pos_cols_header["surface"] is None:
-                las_header["surface"] = np.nan
-                pos_cols_header["surface"] = "surface"
-        except KeyError:
-            las_header["nr"] = "unknown"
-            pos_cols_header["nr"] = "nr"
+    try:
+        pos_cols_header = las_header.gst.positional_columns
+        if pos_cols_header["surface"] is None:
+            las_header["surface"] = np.nan
+            pos_cols_header["surface"] = "surface"
+    except KeyError:
+        las_header["nr"] = "unknown"
+        pos_cols_header["nr"] = "nr"
 
-        # Insert the positional columns from the header into the dataframe.
-        for i, (col, value) in enumerate(pos_cols_header.items()):
-            if value is not None:
-                las_dataframe.insert(
-                    i, pos_cols_header[col], las_header[pos_cols_header[col]].values[0]
-                )
+    # Insert the positional columns from the header into the dataframe.
+    for i, (col, value) in enumerate(pos_cols_header.items()):
+        if value is not None and pos_cols_header[col] not in las_dataframe.columns:
+            las_dataframe.insert(
+                i, pos_cols_header[col], las_header[pos_cols_header[col]].values[0]
+            )
 
-        # Clean up header
-        if only_positional_columns:
-            las_header = las_header.loc[
-                :, [p for p in pos_cols_header.values() if p is not None]
-            ]
-        las_header = las_header.loc[:, ~las_header.columns.duplicated(keep="first")]
+    # Clean up header
+    las_header = las_header.loc[:, ~las_header.columns.duplicated(keep="first")]
 
-        # Add the header and dataframe to the lists for concatenation.
-        las_headers.append(las_header)
-        las_dataframes.append(las_dataframe)
+    # Add the header and dataframe to the lists for concatenation.
+    las_headers.append(las_header)
+    las_dataframes.append(las_dataframe)
 
     # Concatenate all LAS dataframes and headers into a single dataframe and header.
-    data = pd.concat(las_dataframes, ignore_index=True, join=join)
-    header = pd.concat(las_headers, ignore_index=True, join=join)
+    data = pd.concat(las_dataframes, ignore_index=True, join="outer")
+    header = pd.concat(las_headers, ignore_index=True, join="outer")
     collection = geost.Collection(data=data, header=header)
 
     return collection

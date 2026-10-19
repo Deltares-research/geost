@@ -12,6 +12,7 @@ from geost.io.read import (
     read_cpt,
     read_cpt_table,
     read_gef_cpts,
+    read_las_files,
     read_nlog_cores,
     read_pickle,
     read_sfr,

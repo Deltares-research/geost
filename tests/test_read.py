@@ -2,6 +2,7 @@ import warnings
 from pathlib import Path
 
 import geopandas as gpd
+import lasio
 import pandas as pd
 import pytest
 from numpy.testing import assert_array_equal
@@ -9,6 +10,31 @@ from shapely import geometry as gmt
 
 import geost
 from geost.base import Collection
+
+
+@pytest.mark.unittest
+def test_read_las_files(tmp_path, monkeypatch):
+    monkeypatch.setattr("geost.config.validation.DROP_INVALID", False)
+    monkeypatch.setattr("geost.config.validation.FLAG_INVALID", False)
+    las = lasio.LASFile()
+    las.well["WELL"] = lasio.HeaderItem(mnemonic="WELL", value="BH-001")
+    las.well["EGL"] = lasio.HeaderItem(mnemonic="EGL", value=10.0, unit="m")
+    las.curves.append(lasio.CurveItem(mnemonic="DEPTH", unit="m"))
+    las.set_data([[1.0], [2.0]])
+    first_file = tmp_path / "first.las"
+    second_file = tmp_path / "second.las"
+    with first_file.open("w") as file:
+        las.write(file)
+    with second_file.open("w") as file:
+        las.write(file)
+
+    for input_value in (first_file, [first_file, second_file], tmp_path):
+        result = geost.read_las_files(input_value)
+        assert isinstance(result, Collection)
+        assert len(result.header) == (1 if input_value == first_file else 2)
+
+    result = geost.read_las_files(tmp_path, file_pattern="first.las")
+    assert len(result.header) == 1
 
 
 @pytest.fixture

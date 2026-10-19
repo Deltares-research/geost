@@ -28,6 +28,62 @@ LLG_COLUMN_MAPPING = {
 }
 
 
+def read_las_files(
+    file_or_files: str | Path | Iterable[str | Path],
+    *,
+    file_pattern: str = "*.las",
+    errors: Literal["raise", "warn", "ignore"] = "raise",
+) -> Collection:
+    """Read one or more LAS files into a GeoST Collection.
+
+    Parameters
+    ----------
+    file_or_files : str | Path | Iterable[str | Path]
+        A LAS file, an iterable of LAS file paths, or a folder containing LAS files.
+    file_pattern : str, optional
+        Pattern used to select files when `file_or_files` is a folder. Defaults to
+        ``"*.las"``.
+    errors : {'raise', 'warn', 'ignore'}, optional
+        How standardization errors are handled. Defaults to ``"raise"``.
+
+    Returns
+    -------
+    Collection
+        A Collection containing the data and headers from the LAS files.
+    """
+    import lasio
+
+    from geost.io.las import standardize_well_log_las, well_logs_to_collection
+
+    if isinstance(file_or_files, (str, Path)):
+        path = Path(file_or_files)
+        paths = path.glob(file_pattern) if path.is_dir() else [path]
+    else:
+        paths = file_or_files
+
+    collections = []
+    for path in paths:
+        path = Path(path)
+        las = lasio.read(path, ignore_header_errors=True)
+        las.well.NITG = lasio.HeaderItem(
+            mnemonic="NITG", value=path.stem, descr="NITG code"
+        )
+        las = standardize_well_log_las(las, errors=errors)
+        collections.append(well_logs_to_collection(las))
+
+    if not collections:
+        raise ValueError("No LAS files found.")
+
+    return Collection(
+        data=pd.concat(
+            [collection.data for collection in collections], ignore_index=True
+        ),
+        header=pd.concat(
+            [collection.header for collection in collections], ignore_index=True
+        ),
+    )
+
+
 def read_table(
     file: str | Path,
     as_collection: bool = True,
