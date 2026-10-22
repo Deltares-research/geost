@@ -117,7 +117,7 @@ class TestGeostFrame:
     @pytest.mark.unittest
     def test_nr_property(self, borehole_data):
         assert isinstance(borehole_data.gst.nr, pd.Series)
-        assert isinstance(borehole_data.gst.nr, borehole_data["nr"])
+        assert_array_equal(borehole_data.gst.nr, borehole_data["nr"])
 
     @pytest.mark.parametrize(
         "df, top, bottom",
