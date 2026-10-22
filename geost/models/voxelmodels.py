@@ -4,6 +4,8 @@ from typing import Literal
 import numpy as np
 import xarray as xr
 
+from geost.models.model_utils import _where
+
 
 def slice_depth_interval(
     model: xr.Dataset | xr.DataArray,
@@ -38,11 +40,11 @@ def slice_depth_interval(
 
     if upper is not None:
         upper, upper_bound = _check_to_broadcast(upper, upper_bound, model)
-        sliced = sliced.where(check_upper(upper_bound, upper), drop=drop)
+        sliced = _where(sliced, check_upper(upper_bound, upper), drop=drop)
 
     if lower is not None:
         lower, lower_bound = _check_to_broadcast(lower, lower_bound, model)
-        sliced = sliced.where(check_lower(lower_bound, lower), drop=drop)
+        sliced = _where(sliced, check_lower(lower_bound, lower), drop=drop)
 
     return sliced
 

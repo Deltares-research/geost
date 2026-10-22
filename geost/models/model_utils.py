@@ -12,6 +12,21 @@ def check_dims(*dims):  # pragma: no cover
     return inner_check_dims
 
 
+def _where(
+    obj: xr.Dataset | xr.DataArray,
+    condition: xr.DataArray,
+    drop: bool,
+):
+    """
+    Helper function for `slice_depth_interval`. xarray cannot drop coordinates based on
+    a lazy (dask) boolean indexer, so compute the condition first if drop is True.
+
+    """
+    if drop:
+        condition = condition.compute()
+    return obj.where(condition, drop=drop)
+
+
 def sample_with_coords(ds: xr.Dataset | xr.DataArray, coords: np.ndarray):
     """
     Sample x and y dims of an Xarray Dataset or DataArray using an array of x and y

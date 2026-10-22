@@ -1,6 +1,8 @@
 import numpy as np
 import xarray as xr
 
+from geost.models.model_utils import _where
+
 
 def slice_depth_interval(
     model: xr.Dataset | xr.DataArray,
@@ -28,11 +30,11 @@ def slice_depth_interval(
 
     if upper is not None:
         upper_bound = _check_to_broadcast(upper, sliced)
-        sliced = sliced.where(sliced[_bottom] < upper_bound, drop=drop)
+        sliced = _where(sliced, sliced[_bottom] < upper_bound, drop=drop)
 
     if lower is not None:
         lower_bound = _check_to_broadcast(lower, sliced)
-        sliced = sliced.where(sliced[_top] > lower_bound, drop=drop)
+        sliced = _where(sliced, sliced[_top] > lower_bound, drop=drop)
 
     if update_top_bottom:
         if upper is not None:
