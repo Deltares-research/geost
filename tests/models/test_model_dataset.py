@@ -418,36 +418,43 @@ class TestModelDataset:
         `TestModelDataArray.test_select_points`.
 
         """
-        selected = voxelmodel.gst.select_points(points)
+        selected = voxelmodel.gst.select_points(points, add_point_survey_ids=True)
         assert isinstance(selected, xr.Dataset)
         assert selected.sizes == {"idx": 3, "z": 5}
+        assert_array_equal(selected["survey_id"], ["a", "b", "c"])
         assert_array_equal(selected["x"].values, [0.5, 2.5, 1.5])
         assert_array_equal(selected["y"].values, [0.5, 2.5, 0.5])
 
         # Also test for layermodel, the same points should be selected
-        selected = layermodel.gst.select_points(points)
+        selected = layermodel.gst.select_points(points, add_point_survey_ids=True)
         assert isinstance(selected, xr.Dataset)
         assert selected.sizes == {"idx": 3, "layer": 4}
+        assert_array_equal(selected["survey_id"], ["a", "b", "c"])
         assert_array_equal(selected["x"].values, [0.5, 2.5, 1.5])
         assert_array_equal(selected["y"].values, [0.5, 2.5, 0.5])
 
     @pytest.mark.unittest
     def test_select_points_return_collection(self, voxelmodel, layermodel, points):
-        selected = voxelmodel.gst.select_points(points, return_collection=True)
+        selected = voxelmodel.gst.select_points(
+            points, return_collection=True, add_point_survey_ids=True
+        )
         assert isinstance(selected, Collection)
         assert selected.crs == voxelmodel.gst.crs
         assert_array_equal(
-            selected.header.columns, ["nr", "x", "y", "surface", "geometry"]
+            selected.header.columns,
+            ["nr", "x", "y", "surface", "survey_id", "geometry"],
         )
         assert_array_equal(selected.header["nr"], [0, 1, 2])
+        assert_array_equal(selected.header["survey_id"], ["a", "b", "c"])
         assert_array_almost_equal(selected.header["surface"], [-0.5, -0.5, 0.0])
         assert_array_almost_equal(selected.header["x"], [0.5, 2.5, 1.5])
         assert_array_almost_equal(selected.header["y"], [0.5, 2.5, 0.5])
         assert_array_equal(
             selected.data.columns,
-            ["nr", "surface", "x", "y", "top", "bottom", "strat", "lith"],
+            ["nr", "surface", "x", "y", "top", "bottom", "survey_id", "strat", "lith"],
         )
         assert_array_equal(selected.data["nr"], [0, 0, 1, 1, 2, 2])
+        assert_array_equal(selected.data["survey_id"], ["a", "a", "b", "b", "c", "c"])
         assert_array_almost_equal(
             selected.data["surface"], [-0.5, -0.5, -0.5, -0.5, 0.0, 0.0]
         )

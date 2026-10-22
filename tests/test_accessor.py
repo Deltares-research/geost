@@ -114,6 +114,11 @@ class TestGeostFrame:
             df_invalid = pd.DataFrame({"a": [1, 2], "b": [3, 4]})
             df_invalid.gst
 
+    @pytest.mark.unittest
+    def test_nr_property(self, borehole_data):
+        assert isinstance(borehole_data.gst.nr, pd.Series)
+        assert isinstance(borehole_data.gst.nr, borehole_data["nr"])
+
     @pytest.mark.parametrize(
         "df, top, bottom",
         [

@@ -117,5 +117,6 @@ Attributes
    GeostFrame.has_depth_columns
    GeostFrame.has_geometry
    GeostFrame.has_xy_columns
-   GeostFrame.last_row_survey
    GeostFrame.is_layered
+   GeostFrame.last_row_survey
+   GeostFrame.nr

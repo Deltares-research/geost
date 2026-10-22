@@ -402,7 +402,9 @@ class ModelBase:
 
     def _points_select_to_collection(self, sel: xr.Dataset | xr.DataArray):
         df = sel.to_dataframe()
+        include_in_header = ["survey_id"] if "survey_id" in df.columns else []
         variables = list(sel.data_vars) if isinstance(sel, xr.Dataset) else [sel.name]
+
         if self.model_type == ModelType.VOXEL:
             df = (
                 df.sort_index(ascending=[True, False])
@@ -416,7 +418,9 @@ class ModelBase:
             df = df.gst._get_depth_relative_to_surface()
             df = df.gst.aggregate_consecutive_layers(variables)
             df = df.filter(
-                list(df.gst.positional_columns.values()) + list(variables)
+                list(df.gst.positional_columns.values())
+                + include_in_header
+                + list(variables)
             )  # Order columns
         else:
             df = (
@@ -430,17 +434,21 @@ class ModelBase:
             df["surface"] = df.groupby("nr")[self._top].transform("max")
             df = df.gst._get_depth_relative_to_surface()
             df = df.filter(
-                list(df.gst.positional_columns.values()) + [self._z] + variables
+                list(df.gst.positional_columns.values())
+                + [self._z]
+                + include_in_header
+                + variables
             )  # Order columns
 
         df = df.drop(columns="spatial_ref", errors="ignore")
-        return df.gst.to_collection(crs=self.crs)
+        return df.gst.to_collection(crs=self.crs, include_in_header=include_in_header)
 
     def select_points(
         self,
         points: str | Path | gpd.GeoDataFrame | GeometryType,
         crs: str | int | CRS | None = None,
         drop: bool = True,
+        add_point_survey_ids: bool = False,
         return_collection: bool = False,
     ) -> xr.Dataset | xr.DataArray:
         """
@@ -461,6 +469,11 @@ class ModelBase:
             If True, points outside the model bounds are removed from the result. If
             False, points outside the model bounds result in full NaN columns. The
             default is True. This parameter is ignored when ``return_collection=True``.
+        add_point_survey_ids : bool, optional
+            If True, add the survey ID of the points to the result. Note, that this requires
+            the points to have a valid survey ID column which can be accessed through the
+            ``points.gst.nr`` property. Otherwise, a ``MissingSurveyIDError`` will be raised.
+            The default is False.
         return_collection : bool, optional
             If True, the result is returned as a Collection object instead of an xarray
             object. The default is False.
@@ -507,6 +520,10 @@ class ModelBase:
         )
 
         sel = sel.assign_coords(idx=("idx", points_in_bounds.index))
+        if add_point_survey_ids:
+            sel = sel.assign_coords(
+                survey_id=("idx", points_in_bounds.gst.nr.to_numpy())
+            )
 
         if return_collection:
             return self._points_select_to_collection(sel)

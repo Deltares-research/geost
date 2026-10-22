@@ -100,6 +100,14 @@ class GeostFrame(AbstractBase):
         }
 
     @property
+    def nr(self) -> pd.Series:
+        """
+        Return the survey ID column as a pandas Series.
+
+        """
+        return self._obj[self._nr]
+
+    @property
     def has_geometry(self):
         """
         Returns True if the object is a GeoDataFrame with a valid geometry column, False
