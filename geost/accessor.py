@@ -2120,8 +2120,9 @@ class GeostFrame(AbstractBase):
         **kwargs,
     ):
         """
-        Write data to geopackage file that can be directly loaded in the Qgis2threejs
-        plugin. Works only for layered (borehole) data.
+        Write data to geopackage file containing a layer "locations" with point geometries
+        and a layer "3dlines" with 3D line geometries. For example, this can be used for
+        visualization and data inspection using QGIS's elevation profile tool.
 
         Parameters
         ----------

@@ -1073,9 +1073,7 @@ class TestCollection:
         combined = borehole_collection.aggregate_consecutive_layers("lith")
 
     @pytest.mark.unittest
-    def test_to_geopackage3d(self, borehole_collection, tmp_path):
-        from shapely import LineString
-
+    def test_to_geopackage_3d(self, borehole_collection, tmp_path):
         outfile = tmp_path / "test_3d.gpkg"
         borehole_collection.to_geopackage_3d(outfile)
         assert outfile.is_file()

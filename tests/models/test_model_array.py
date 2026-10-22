@@ -1343,6 +1343,17 @@ class TestModelDataArray:
         )
 
     @pytest.mark.unittest
+    def test_to_collection(self, voxelmodel_var, layermodel_var):
+        # Behaviour is tested in detail in test_model_dataset.py
+        result = voxelmodel_var.gst.to_collection()
+        assert isinstance(result, Collection)
+        assert result.crs == voxelmodel_var.gst.crs == 28992
+
+        result = layermodel_var.gst.to_collection()
+        assert isinstance(result, Collection)
+        assert result.crs == layermodel_var.gst.crs == 28992
+
+    @pytest.mark.unittest
     @pytest.mark.parametrize(
         (
             "model_fixture",
@@ -1374,3 +1385,33 @@ class TestModelDataArray:
         assert result is not None
         assert result.n_cells == expected_n_cells
         assert result.n_points == expected_n_points
+
+    @pytest.mark.unittest
+    def test_to_geopackage_3d_voxelmodel(self, voxelmodel_var, tmp_path):
+        outfile = tmp_path / "test_voxelmodel_3d.gpkg"
+        voxelmodel_var.gst.to_geopackage_3d(outfile)
+        assert outfile.is_file()
+
+        test_layers = gpd.list_layers(outfile)
+        assert_array_equal(test_layers["name"], ["locations", "3dlines"])
+        assert_array_equal(test_layers["geometry_type"], ["Point", "LineString Z"])
+
+        locations = gpd.read_file(outfile, layer="locations")
+        lines = gpd.read_file(outfile, layer="3dlines")
+        assert locations.crs == voxelmodel_var.gst.crs == 28992
+        assert lines.crs == voxelmodel_var.gst.crs == 28992
+
+    @pytest.mark.unittest
+    def test_to_geopackage_3d_layermodel(self, layermodel_var, tmp_path):
+        outfile = tmp_path / "test_layermodel_3d.gpkg"
+        layermodel_var.gst.to_geopackage_3d(outfile)
+        assert outfile.is_file()
+
+        test_layers = gpd.list_layers(outfile)
+        assert_array_equal(test_layers["name"], ["locations", "3dlines"])
+        assert_array_equal(test_layers["geometry_type"], ["Point", "LineString Z"])
+
+        locations = gpd.read_file(outfile, layer="locations")
+        lines = gpd.read_file(outfile, layer="3dlines")
+        assert locations.crs == layermodel_var.gst.crs == 28992
+        assert lines.crs == layermodel_var.gst.crs == 28992

@@ -43,6 +43,16 @@ Coordinate Reference System
    ModelDataArray.write_crs
 
 
+Export
+----------
+.. autosummary::
+   :toctree: generated/
+
+   ModelDataArray.to_collection
+   ModelDataArray.to_geopackage_3d
+   ModelDataArray.to_pyvista_grid
+
+
 General
 ----------
 .. autosummary::
