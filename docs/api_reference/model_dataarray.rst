@@ -82,6 +82,12 @@ Spatial
    ModelDataArray.select_along_lines
    ModelDataArray.select_within_bbox
 
+Export
+--------
+.. autosummary::
+   :toctree: generated/
+
+   ModelDataArray.to_pyvista_grid
 
 Attributes
 ----------
