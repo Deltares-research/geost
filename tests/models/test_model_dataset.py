@@ -1,5 +1,6 @@
 import re
 
+import geopandas as gpd
 import numpy as np
 import pandas as pd
 import pytest
@@ -418,36 +419,43 @@ class TestModelDataset:
         `TestModelDataArray.test_select_points`.
 
         """
-        selected = voxelmodel.gst.select_points(points)
+        selected = voxelmodel.gst.select_points(points, add_point_survey_ids=True)
         assert isinstance(selected, xr.Dataset)
         assert selected.sizes == {"idx": 3, "z": 5}
+        assert_array_equal(selected["survey_id"], ["a", "b", "c"])
         assert_array_equal(selected["x"].values, [0.5, 2.5, 1.5])
         assert_array_equal(selected["y"].values, [0.5, 2.5, 0.5])
 
         # Also test for layermodel, the same points should be selected
-        selected = layermodel.gst.select_points(points)
+        selected = layermodel.gst.select_points(points, add_point_survey_ids=True)
         assert isinstance(selected, xr.Dataset)
         assert selected.sizes == {"idx": 3, "layer": 4}
+        assert_array_equal(selected["survey_id"], ["a", "b", "c"])
         assert_array_equal(selected["x"].values, [0.5, 2.5, 1.5])
         assert_array_equal(selected["y"].values, [0.5, 2.5, 0.5])
 
     @pytest.mark.unittest
     def test_select_points_return_collection(self, voxelmodel, layermodel, points):
-        selected = voxelmodel.gst.select_points(points, return_collection=True)
+        selected = voxelmodel.gst.select_points(
+            points, return_collection=True, add_point_survey_ids=True
+        )
         assert isinstance(selected, Collection)
         assert selected.crs == voxelmodel.gst.crs
         assert_array_equal(
-            selected.header.columns, ["nr", "x", "y", "surface", "geometry"]
+            selected.header.columns,
+            ["nr", "x", "y", "surface", "survey_id", "geometry"],
         )
         assert_array_equal(selected.header["nr"], [0, 1, 2])
+        assert_array_equal(selected.header["survey_id"], ["a", "b", "c"])
         assert_array_almost_equal(selected.header["surface"], [-0.5, -0.5, 0.0])
         assert_array_almost_equal(selected.header["x"], [0.5, 2.5, 1.5])
         assert_array_almost_equal(selected.header["y"], [0.5, 2.5, 0.5])
         assert_array_equal(
             selected.data.columns,
-            ["nr", "surface", "x", "y", "top", "bottom", "strat", "lith"],
+            ["nr", "surface", "x", "y", "top", "bottom", "survey_id", "strat", "lith"],
         )
         assert_array_equal(selected.data["nr"], [0, 0, 1, 1, 2, 2])
+        assert_array_equal(selected.data["survey_id"], ["a", "a", "b", "b", "c", "c"])
         assert_array_almost_equal(
             selected.data["surface"], [-0.5, -0.5, -0.5, -0.5, 0.0, 0.0]
         )
@@ -869,3 +877,285 @@ class TestModelDataset:
                 [np.nan, -12.0, np.nan, np.nan, -12.0],
             ],
         )
+
+    @pytest.mark.unittest
+    def test_to_collection_voxelmodel(self, voxelmodel):
+        result = voxelmodel.gst.to_collection()
+        assert isinstance(result, Collection)
+        assert result.crs == voxelmodel.gst.crs == 28992
+        assert result.header.shape == (16, 5)
+        assert_array_equal(result.header["nr"], np.arange(16))
+        assert_array_almost_equal(
+            result.header["surface"],
+            [
+                0.0,
+                -0.5,
+                -0.5,
+                -0.5,
+                0.0,
+                0.0,
+                -0.5,
+                -0.5,
+                -0.5,
+                0.0,
+                0.0,
+                -0.5,
+                -0.5,
+                0.0,
+                -0.5,
+                0.0,
+            ],
+        )
+        assert_array_equal(
+            result.header.columns, ["nr", "x", "y", "surface", "geometry"]
+        )
+        assert_array_equal(
+            result.data.columns,
+            ["nr", "surface", "x", "y", "top", "bottom", "strat", "lith"],
+        )
+        nr_repeats = [4, 3, 2, 3, 2, 2, 2, 4, 4, 3, 2, 2, 2, 2, 3, 3]
+        assert_array_equal(
+            result.data["nr"], np.repeat(result.header["nr"], nr_repeats)
+        )
+        assert_array_almost_equal(
+            result.data["surface"], np.repeat(result.header["surface"], nr_repeats)
+        )
+        assert_array_almost_equal(
+            result.data["x"], np.repeat(result.header["x"], nr_repeats)
+        )
+        assert_array_almost_equal(
+            result.data["y"], np.repeat(result.header["y"], nr_repeats)
+        )
+        assert_array_almost_equal(
+            result.data[["top", "bottom"]],
+            [
+                [0.0, 1.0],
+                [1.0, 1.5],
+                [1.5, 2.0],
+                [2.0, 2.5],
+                [0.0, 1.0],
+                [1.0, 1.5],
+                [1.5, 2.0],
+                [0.0, 1.5],
+                [1.5, 2.0],
+                [0.0, 1.0],
+                [1.0, 1.5],
+                [1.5, 2.0],
+                [0.0, 1.5],
+                [1.5, 2.5],
+                [0.0, 1.5],
+                [1.5, 2.5],
+                [0.0, 1.5],
+                [1.5, 2.0],
+                [0.0, 0.5],
+                [0.5, 1.0],
+                [1.0, 1.5],
+                [1.5, 2.0],
+                [0.0, 0.5],
+                [0.5, 1.0],
+                [1.0, 1.5],
+                [1.5, 2.0],
+                [0.0, 1.0],
+                [1.0, 2.0],
+                [2.0, 2.5],
+                [0.0, 1.5],
+                [1.5, 2.5],
+                [0.0, 0.5],
+                [0.5, 1.5],
+                [0.0, 0.5],
+                [0.5, 2.0],
+                [0.0, 2.0],
+                [2.0, 2.5],
+                [0.0, 0.5],
+                [0.5, 1.0],
+                [1.0, 2.0],
+                [0.0, 1.0],
+                [1.0, 2.0],
+                [2.0, 2.5],
+            ],
+        )
+
+    @pytest.mark.unittest
+    def test_to_collection_layermodel(self, layermodel):
+        result = layermodel.gst.to_collection()
+        assert isinstance(result, Collection)
+        assert result.crs == layermodel.gst.crs == 28992
+        assert result.header.shape == (16, 5)
+        assert_array_almost_equal(result.header["nr"], np.arange(16))
+        assert_array_almost_equal(
+            result.header["surface"],
+            [
+                0.2,
+                0.3,
+                0.25,
+                0.1,
+                0.2,
+                0.3,
+                0.25,
+                0.1,
+                0.2,
+                0.3,
+                0.25,
+                0.1,
+                0.2,
+                0.3,
+                0.25,
+                0.1,
+            ],
+        )
+        assert_array_equal(
+            result.header.columns, ["nr", "x", "y", "surface", "geometry"]
+        )
+        assert_array_equal(
+            result.data.columns,
+            ["nr", "surface", "x", "y", "top", "bottom", "layer", "thickness", "kh"],
+        )
+        nr_repeats = [3, 3, 4, 3, 3, 3, 4, 3, 3, 4, 3, 2, 2, 3, 3, 2]
+        assert_array_equal(
+            result.data["nr"], np.repeat(result.header["nr"], nr_repeats)
+        )
+        assert_array_almost_equal(
+            result.data["surface"], np.repeat(result.header["surface"], nr_repeats)
+        )
+        assert_array_almost_equal(
+            result.data["x"], np.repeat(result.header["x"], nr_repeats)
+        )
+        assert_array_almost_equal(
+            result.data["y"], np.repeat(result.header["y"], nr_repeats)
+        )
+        assert_array_almost_equal(
+            result.data[["top", "bottom"]],
+            [
+                [0.0, 0.45],
+                [0.45, 1.25],
+                [1.25, 3.45],
+                [0.0, 0.45],
+                [0.45, 1.15],
+                [1.15, 3.55],
+                [0.0, 0.45],
+                [0.45, 1.2],
+                [1.2, 2.8],
+                [2.8, 3.6],
+                [0.0, 0.45],
+                [0.45, 2.25],
+                [2.25, 3.45],
+                [0.0, 0.45],
+                [0.45, 1.25],
+                [1.25, 3.45],
+                [0.0, 0.45],
+                [0.45, 1.15],
+                [1.15, 3.55],
+                [0.0, 0.45],
+                [0.45, 1.2],
+                [1.2, 2.8],
+                [2.8, 3.6],
+                [0.0, 0.45],
+                [0.45, 2.25],
+                [2.25, 3.45],
+                [0.0, 0.45],
+                [0.45, 1.25],
+                [1.25, 3.45],
+                [0.0, 0.45],
+                [0.45, 1.15],
+                [1.15, 2.75],
+                [2.75, 3.55],
+                [0.0, 0.45],
+                [0.45, 2.25],
+                [2.25, 3.45],
+                [0.0, 0.45],
+                [0.45, 3.05],
+                [0.0, 0.45],
+                [0.45, 3.35],
+                [0.0, 0.45],
+                [0.45, 2.25],
+                [2.25, 3.45],
+                [0.0, 0.45],
+                [0.45, 2.25],
+                [2.25, 3.45],
+                [0.0, 0.45],
+                [0.45, 3.05],
+            ],
+        )
+        assert_array_equal(
+            result.data["layer"],
+            [
+                "A",
+                "B",
+                "D",
+                "A",
+                "B",
+                "D",
+                "A",
+                "B",
+                "C",
+                "D",
+                "A",
+                "C",
+                "D",
+                "A",
+                "B",
+                "D",
+                "A",
+                "B",
+                "D",
+                "A",
+                "B",
+                "C",
+                "D",
+                "A",
+                "C",
+                "D",
+                "A",
+                "B",
+                "D",
+                "A",
+                "B",
+                "C",
+                "D",
+                "A",
+                "C",
+                "D",
+                "A",
+                "D",
+                "A",
+                "D",
+                "A",
+                "C",
+                "D",
+                "A",
+                "C",
+                "D",
+                "A",
+                "D",
+            ],
+        )
+
+    @pytest.mark.unittest
+    def test_to_geopackage_3d_voxelmodel(self, voxelmodel, tmp_path):
+        outfile = tmp_path / "test_voxelmodel_3d.gpkg"
+        voxelmodel.gst.to_geopackage_3d(outfile)
+        assert outfile.is_file()
+
+        test_layers = gpd.list_layers(outfile)
+        assert_array_equal(test_layers["name"], ["locations", "3dlines"])
+        assert_array_equal(test_layers["geometry_type"], ["Point", "LineString Z"])
+
+        locations = gpd.read_file(outfile, layer="locations")
+        lines = gpd.read_file(outfile, layer="3dlines")
+        assert locations.crs == voxelmodel.gst.crs == 28992
+        assert lines.crs == voxelmodel.gst.crs == 28992
+
+    @pytest.mark.unittest
+    def test_to_geopackage_3d_layermodel(self, layermodel, tmp_path):
+        outfile = tmp_path / "test_layermodel_3d.gpkg"
+        layermodel.gst.to_geopackage_3d(outfile)
+        assert outfile.is_file()
+
+        test_layers = gpd.list_layers(outfile)
+        assert_array_equal(test_layers["name"], ["locations", "3dlines"])
+        assert_array_equal(test_layers["geometry_type"], ["Point", "LineString Z"])
+
+        locations = gpd.read_file(outfile, layer="locations")
+        lines = gpd.read_file(outfile, layer="3dlines")
+        assert locations.crs == layermodel.gst.crs == 28992
+        assert lines.crs == layermodel.gst.crs == 28992

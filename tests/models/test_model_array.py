@@ -9,7 +9,12 @@ import xarray as xr
 from numpy.testing import assert_array_almost_equal, assert_array_equal
 
 from geost.base import Collection
-from geost.exceptions import InvalidModelError, MissingCRSError, ModelTypeError
+from geost.exceptions import (
+    InvalidModelError,
+    MissingCRSError,
+    MissingSurveyIDError,
+    ModelTypeError,
+)
 from geost.models._core import ModelType
 from geost.models.model_array import ModelDataArray
 from tests.conftest import voxelmodel
@@ -575,10 +580,11 @@ class TestModelDataArray:
 
     @pytest.mark.unittest
     def test_select_points(self, voxelmodel_var, layermodel_var, points):
-        selected = voxelmodel_var.gst.select_points(points)
+        selected = voxelmodel_var.gst.select_points(points, add_point_survey_ids=True)
         assert isinstance(selected, xr.DataArray)
         assert selected.sizes == {"idx": 3, "z": 5}
         assert_array_equal(selected["idx"].values, [0, 1, 2])
+        assert_array_equal(selected["survey_id"], ["a", "b", "c"])
         assert_array_equal(selected["x"].values, [0.5, 2.5, 1.5])
         assert_array_equal(selected["y"].values, [0.5, 2.5, 0.5])
         assert_array_equal(selected["z"].values, [-2.25, -1.75, -1.25, -0.75, -0.25])
@@ -591,9 +597,15 @@ class TestModelDataArray:
             ],
         )
 
+        with pytest.raises(MissingSurveyIDError):
+            voxelmodel_var.gst.select_points(
+                points.drop(columns="nr"), add_point_survey_ids=True
+            )
+
         selected = layermodel_var.gst.select_points(points)
         assert isinstance(selected, xr.DataArray)
         assert selected.sizes == {"idx": 3, "layer": 4}
+        assert "survey_id" not in selected.coords
         assert_array_equal(selected["idx"].values, [0, 1, 2])
         assert_array_equal(selected["x"].values, [0.5, 2.5, 1.5])
         assert_array_equal(selected["y"].values, [0.5, 2.5, 0.5])
@@ -642,21 +654,26 @@ class TestModelDataArray:
     def test_select_points_return_collection(
         self, voxelmodel_var, layermodel_var, points
     ):
-        selected = voxelmodel_var.gst.select_points(points, return_collection=True)
+        selected = voxelmodel_var.gst.select_points(
+            points, return_collection=True, add_point_survey_ids=True
+        )
         assert isinstance(selected, Collection)
         assert selected.crs == voxelmodel_var.gst.crs
         assert_array_equal(
-            selected.header.columns, ["nr", "x", "y", "surface", "geometry"]
+            selected.header.columns,
+            ["nr", "x", "y", "surface", "survey_id", "geometry"],
         )
         assert_array_equal(selected.header["nr"], [0, 1, 2])
+        assert_array_equal(selected.header["survey_id"], ["a", "b", "c"])
         assert_array_almost_equal(selected.header["surface"], [-0.5, -0.5, 0.0])
         assert_array_almost_equal(selected.header["x"], [0.5, 2.5, 1.5])
         assert_array_almost_equal(selected.header["y"], [0.5, 2.5, 0.5])
         assert_array_equal(
             selected.data.columns,
-            ["nr", "surface", "x", "y", "top", "bottom", "strat"],
+            ["nr", "surface", "x", "y", "top", "bottom", "survey_id", "strat"],
         )
         assert_array_equal(selected.data["nr"], [0, 0, 1, 1, 2, 2])
+        assert_array_equal(selected.data["survey_id"], ["a", "a", "b", "b", "c", "c"])
         assert_array_almost_equal(
             selected.data["surface"], [-0.5, -0.5, -0.5, -0.5, 0.0, 0.0]
         )
@@ -1326,6 +1343,17 @@ class TestModelDataArray:
         )
 
     @pytest.mark.unittest
+    def test_to_collection(self, voxelmodel_var, layermodel_var):
+        # Behaviour is tested in detail in test_model_dataset.py
+        result = voxelmodel_var.gst.to_collection()
+        assert isinstance(result, Collection)
+        assert result.crs == voxelmodel_var.gst.crs == 28992
+
+        result = layermodel_var.gst.to_collection()
+        assert isinstance(result, Collection)
+        assert result.crs == layermodel_var.gst.crs == 28992
+
+    @pytest.mark.unittest
     @pytest.mark.parametrize(
         (
             "model_fixture",
@@ -1357,3 +1385,33 @@ class TestModelDataArray:
         assert result is not None
         assert result.n_cells == expected_n_cells
         assert result.n_points == expected_n_points
+
+    @pytest.mark.unittest
+    def test_to_geopackage_3d_voxelmodel(self, voxelmodel_var, tmp_path):
+        outfile = tmp_path / "test_voxelmodel_3d.gpkg"
+        voxelmodel_var.gst.to_geopackage_3d(outfile)
+        assert outfile.is_file()
+
+        test_layers = gpd.list_layers(outfile)
+        assert_array_equal(test_layers["name"], ["locations", "3dlines"])
+        assert_array_equal(test_layers["geometry_type"], ["Point", "LineString Z"])
+
+        locations = gpd.read_file(outfile, layer="locations")
+        lines = gpd.read_file(outfile, layer="3dlines")
+        assert locations.crs == voxelmodel_var.gst.crs == 28992
+        assert lines.crs == voxelmodel_var.gst.crs == 28992
+
+    @pytest.mark.unittest
+    def test_to_geopackage_3d_layermodel(self, layermodel_var, tmp_path):
+        outfile = tmp_path / "test_layermodel_3d.gpkg"
+        layermodel_var.gst.to_geopackage_3d(outfile)
+        assert outfile.is_file()
+
+        test_layers = gpd.list_layers(outfile)
+        assert_array_equal(test_layers["name"], ["locations", "3dlines"])
+        assert_array_equal(test_layers["geometry_type"], ["Point", "LineString Z"])
+
+        locations = gpd.read_file(outfile, layer="locations")
+        lines = gpd.read_file(outfile, layer="3dlines")
+        assert locations.crs == layermodel_var.gst.crs == 28992
+        assert lines.crs == layermodel_var.gst.crs == 28992

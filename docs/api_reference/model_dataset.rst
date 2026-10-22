@@ -40,6 +40,16 @@ Coordinate Reference System
    ModelDataset.write_crs
 
 
+Export
+----------
+.. autosummary::
+   :toctree: generated/
+
+   ModelDataset.to_collection
+   ModelDataset.to_geopackage_3d
+   ModelDataset.to_pyvista_grid
+
+
 General
 ----------
 .. autosummary::
@@ -69,12 +79,6 @@ Spatial
    ModelDataset.select_along_lines
    ModelDataset.select_within_bbox
 
-Export
---------
-.. autosummary::
-   :toctree: generated/
-
-   ModelDataset.to_pyvista_grid
 
 Attributes
 ----------

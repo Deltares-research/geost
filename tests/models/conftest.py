@@ -8,6 +8,7 @@ import xarray as xr
 @pytest.fixture
 def points():
     return gpd.GeoDataFrame(
+        {"nr": ["a", "b", "c", "d"]},
         geometry=gpd.points_from_xy([0.8, 2.4, 1.0, 4.5], [0.8, 2.4, 0.5, 4.5]),
         crs="EPSG:28992",
     )  # The third point is exactly on the edge of bordering cells, the fourth point is outside the model extent
