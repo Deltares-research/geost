@@ -1336,7 +1336,7 @@ class TestModelDataArray:
         [
             ("voxelmodel_var", True, 80, 150),
             ("voxelmodel_var", False, 70, 142),
-            ("layermodel_var", None, 48, 384),
+            ("layermodel_var", None, 48, 236),
         ],
     )
     def test_to_pyvista_grid(
