@@ -587,47 +587,121 @@ class TestGeostFrame:
             # Remove geometry column to make it invalid for spatial selection
             point_header.gst.select_within_polygons(selection_gdf)
 
-    @pytest.mark.unittest
-    def test_find_point_pairs(self, point_header):
-        selection_points = gpd.GeoDataFrame(
+    @pytest.fixture
+    def selection_points(self):
+        return gpd.GeoDataFrame(
             geometry=gpd.points_from_xy([1, 4, 1, 4], [1, 4, 4, 1]), crs=28992
         )
-        max_distance = 1.1
 
+    @pytest.mark.unittest
+    def test_find_point_pairs(self, point_header, selection_points):
+        max_distance = 1.1
+        expected_result = np.array(  # Index order: left_idx, right_idx, distance
+            [
+                [0.0, 0.0, 0.0],
+                [1.0, 0.0, 1.0],
+                [2.0, 2.0, 1.0],
+                [3.0, 2.0, 0.0],
+                [4.0, 2.0, 1.0],
+                [5.0, 0.0, 1.0],
+                [8.0, 2.0, 1.0],
+                [10.0, 3.0, 1.0],
+                [13.0, 1.0, 1.0],
+                [15.0, 3.0, 0.0],
+                [16.0, 3.0, 1.0],
+                [17.0, 1.0, 1.0],
+                [18.0, 1.0, 0.0],
+                [19.0, 1.0, 1.0],
+                [20.0, 3.0, 1.0],
+                [23.0, 1.0, 1.0],
+            ]
+        )
         # Normal test, so it lists the indices of points in the selection_points that are
         # within the max_distance of each point in the header.
         result = point_header.gst.find_point_pairs(
             selection_points, max_distance, return_distance=True
         )
-        assert_array_equal(
-            result,
-            np.array(
-                [
-                    [0.0, 0.0, 0.0],
-                    [1.0, 0.0, 1.0],
-                    [2.0, 2.0, 1.0],
-                    [3.0, 2.0, 0.0],
-                    [4.0, 2.0, 1.0],
-                    [5.0, 0.0, 1.0],
-                    [8.0, 2.0, 1.0],
-                    [10.0, 3.0, 1.0],
-                    [13.0, 1.0, 1.0],
-                    [15.0, 3.0, 0.0],
-                    [16.0, 3.0, 1.0],
-                    [17.0, 1.0, 1.0],
-                    [18.0, 1.0, 0.0],
-                    [19.0, 1.0, 1.0],
-                    [20.0, 3.0, 1.0],
-                    [23.0, 1.0, 1.0],
-                ]
-            ),
-        )
+        assert_array_equal(result, expected_result)
 
+        result = point_header.gst.find_point_pairs(
+            selection_points, max_distance, return_distance=False
+        )
+        assert_array_equal(result, expected_result[:, :2])
+
+        # Test return_dataframe=True
+        expected_left_nrs = [
+            "nr1",
+            "nr2",
+            "nr3",
+            "nr4",
+            "nr5",
+            "nr6",
+            "nr9",
+            "nr11",
+            "nr14",
+            "nr16",
+            "nr17",
+            "nr18",
+            "nr19",
+            "nr20",
+            "nr21",
+            "nr24",
+        ]
+        result = point_header.gst.find_point_pairs(
+            selection_points, max_distance, return_distance=True, return_dataframe=True
+        )
+        assert isinstance(result, pd.DataFrame)
+        assert_array_equal(result.columns, ["left_nr", "right_nr", "distance"])
+        assert_array_equal(result["left_nr"], expected_left_nrs)
+        assert_array_equal(result["right_nr"], expected_result[:, 1])
+        assert_array_equal(result["distance"], expected_result[:, 2])
+
+        # Test return_distance=False is ignored when return_dataframe=True
+        result = point_header.gst.find_point_pairs(
+            selection_points, max_distance, return_distance=False, return_dataframe=True
+        )
+        assert_array_equal(result.columns, ["left_nr", "right_nr", "distance"])
+        assert_array_equal(result["left_nr"], expected_left_nrs)
+        assert_array_equal(result["right_nr"], expected_result[:, 1])
+        assert_array_equal(result["distance"], expected_result[:, 2])
+
+        # If selection points have a valid survey ID column, this should be in the DataFrame result
+        selection_points["nr"] = ["A", "B", "C", "D"]
+        result = point_header.gst.find_point_pairs(
+            selection_points, max_distance, return_distance=True, return_dataframe=True
+        )
+        assert_array_equal(result.columns, ["left_nr", "right_nr", "distance"])
+        assert_array_equal(result["left_nr"], expected_left_nrs)
+        assert_array_equal(
+            result["right_nr"],
+            [
+                "A",
+                "A",
+                "C",
+                "C",
+                "C",
+                "A",
+                "C",
+                "D",
+                "B",
+                "D",
+                "D",
+                "B",
+                "B",
+                "B",
+                "D",
+                "B",
+            ],
+        )
+        assert_array_equal(result["distance"], expected_result[:, 2])
+
+    @pytest.mark.unittest
+    def test_find_point_pairs_reversed(self, point_header, selection_points):
         # Reversed test, so it lists the indices of points in the header that are
         # within the max_distance of each point in the selection_points.
         selection_points["nr"] = ["A", "B", "C", "D"]
         result = selection_points.gst.find_point_pairs(
-            point_header, max_distance + 1, return_distance=True, n_points=1
+            point_header, 2.1, return_distance=True, n_points=1
         )
         assert_array_almost_equal(
             result,

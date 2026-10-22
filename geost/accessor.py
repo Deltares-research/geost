@@ -14,7 +14,7 @@ from pyproj import CRS
 
 from geost import export, validation
 from geost.abstract_classes import AbstractBase
-from geost.exceptions import MissingDepthError, MissingSurfaceError
+from geost.exceptions import MissingDepthError, MissingSurveyIDError
 from geost.utils import conversion, depth, spatial
 from geost.validation.method_checks import (
     _requires_depth,
@@ -700,7 +700,8 @@ class GeostFrame(AbstractBase):
         max_distance: float | int,
         n_points: int = None,
         return_distance: bool = False,
-    ) -> np.ndarray:
+        return_dataframe: bool = False,
+    ) -> np.ndarray | pd.DataFrame:
         """
         Find pairs of points between the data and the given query points that are within
         a specified maximum distance.
@@ -719,14 +720,22 @@ class GeostFrame(AbstractBase):
         return_distance : bool, optional
             If True, the distances between the paired points will be returned as well. The
             default is False.
+        return_dataframe : bool, optional
+            If True, the result will be returned as a pandas DataFrame with columns
+            ["left_nr", "right_nr", "distance"]. Note that this ignores the ``return_distance``
+            parameter, as the distance column will always be included in the DataFrame.
+            The default is False, which returns a numpy array.
 
         Returns
         -------
-        np.ndarray
+        np.ndarray | pd.DataFrame
             Array of shape (n_pairs, 2) containing the dataframe indices of the paired
             points in the data (column 0) and the query points (column 1) within range. If
             ``return_distance`` is True, the array will have shape (n_pairs, 3) with the
             third column containing the distances between the paired points.
+
+            If ``return_dataframe`` is True, a pandas DataFrame will be returned instead
+            with columns ["left_nr", "right_nr", "distance"].
 
         """
         from scipy.spatial import KDTree
@@ -738,39 +747,53 @@ class GeostFrame(AbstractBase):
 
         pairs = data_tree.query_ball_tree(query_tree, max_distance)
         pairs = np.array(
-            [[i, p] for pair, i in zip(pairs, self._obj.index) for p in pair if pair]
+            [[ix, p] for ix, pair in zip(self._obj.index, pairs) for p in pair if pair]
         )
         # Map the query point indices back to the original indices of the points
         # GeoDataFrame. Important if the points index is not a simple range index.
-        pairs[:, 1] = points.iloc[pairs[:, 1]].index
+        pairs[:, 1] = points.index[pairs[:, 1]]
 
         # Get distances for point pairs
         distances = np.linalg.norm(
-            self._obj.get_coordinates().loc[pairs[:, 0]].values
-            - points.get_coordinates().loc[pairs[:, 1]].values,
+            self._obj.loc[pairs[:, 0]].get_coordinates().values
+            - points.loc[pairs[:, 1]].get_coordinates().values,
             axis=1,
         )
-        pairs_distance = np.c_[(pairs, distances)]
 
         # Get the nearest n points only from each query point
         if n_points is not None:
             ordering = np.lexsort((distances, pairs[:, 1]))
-            pairs_distance_ordered = pairs_distance[ordering]
-            to_keep = (
-                np.roll(pairs_distance_ordered[:, 1], 1) != pairs_distance_ordered[:, 1]
-            )
+            pairs = pairs[ordering]
+            distances = distances[ordering]
+
+            to_keep = np.roll(pairs[:, 1], 1) != pairs[:, 1]
             to_keep = (
                 np.convolve(
                     to_keep.astype(int), np.ones(n_points, dtype=int), mode="full"
                 )[: len(to_keep)]
                 > 0
             )
-            pairs_distance = pairs_distance_ordered[to_keep]
+            pairs = pairs[to_keep]
+            distances = distances[to_keep]
 
         if return_distance:
-            return pairs_distance
+            pairs = np.c_[pairs, distances]
 
-        return pairs_distance[:, :-1]
+        if return_dataframe:
+            try:
+                right_nr = points.loc[pairs[:, 1], points.gst._nr].values
+            except MissingSurveyIDError:
+                right_nr = pairs[:, 1]  # If survey ID not available, add the index
+
+            pairs = pd.DataFrame(
+                {
+                    "left_nr": self._obj.loc[pairs[:, 0], self._obj.gst._nr].values,
+                    "right_nr": right_nr,
+                    "distance": distances,
+                }
+            )
+
+        return pairs
 
     @_requires_depth
     def determine_end_depth(self) -> pd.Series:

@@ -4,6 +4,14 @@ Generic functions
 .. currentmodule:: geost
 
 
+Collection
+---------
+.. autosummary::
+    :toctree: generated/
+
+    geost.concat
+
+
 DataFrame
 ---------
 .. autosummary::
