@@ -1,10 +1,10 @@
 import importlib
+import warnings
 from pathlib import Path
 
 import geopandas as gpd
 import pandas as pd
 import pooch
-import xarray as xr
 
 from geost.io.read import read_table
 from geost.io.read_models import read_geotop_netcdf
@@ -73,7 +73,9 @@ def cpts_usp(pandas=False, return_filepath=False):
     if pandas:
         return pd.read_parquet(filename)
     else:
-        return read_table(filename, crs=28992, vertical_datum=5709)
+        with warnings.catch_warnings():  # TODO: Fix supposed mixed depths in CPT data
+            warnings.simplefilter("ignore")
+            return read_table(filename, crs=28992, vertical_datum=5709)
 
 
 def geotop_usp(return_filepath=False):
