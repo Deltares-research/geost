@@ -4,7 +4,7 @@ html_theme.sidebar_secondary.remove:
 
 # Examples
 
-On this page you will find links to examples and projects that ultilize GeoST for
+On this page you will find links to examples and projects that utilize GeoST for
 managing subsurface data.
 
 ````{grid} 1 2 2 4
