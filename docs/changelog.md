@@ -10,21 +10,25 @@ model data and easier integration with Xarray. This re-write now adds full suppo
 geological voxelmodels and layermodels.
 
 **Before**:
-```{python}
-from geost.models import VoxelModel # We had to import the class before reading data
+
+```python
+from geost.models import VoxelModel  # We had to import the class before reading data
 
 model = VoxelModel.from_netcdf("my-model.nc")
 print(type(model))
 # Output: `geost.models.VoxelModel`
 
-thickness = model.get_thickness(model["some_variable"] == 2) # Analysis example
+thickness = model.get_thickness(model["some_variable"] == 2)  # Analysis example
 ```
 
 **After**:
-```{python}
+
+```python
 import geost
 
-model = geost.read_model_netcdf("my-model.nc") # Now read data with generic read function
+model = geost.read_model_netcdf(
+    "my-model.nc"
+)  # Now read data with generic read function
 print(type(model))
 # Output: `xarray.Dataset`
 
@@ -33,12 +37,23 @@ thickness = model.gst.get_thickness(model["some_variable"] == 2)
 ```
 
 **Added**
-- Full support for geological voxelmodels and layermodels
-- `geotop_strat_units` and `geotop_lithok_units` for analyses with BRO GeoTOP (see the [User guide](./user_guide/bro_geotop.ipynb))
-- [`add_model_data`](./api_reference/generated/geost.base.Collection.add_model_data.rst) method to add information from a voxelmodel or layermodel to survey data (see [Examples](./examples/combine_geotop_with_cpts.ipynb))
-- [`aggregate_consecutive_layers`](./api_reference/generated/geost.base.Collection.aggregate_consecutive_layers.rst) method
-- [`find_point_pairs`](./api_reference/generated/geost.base.Collection.find_point_pairs.rst) method
 
+- Full support for geological voxelmodels and layermodels
+- [`geost.read_model_netcdf`](./api_reference/generated/geost.read_model_netcdf.rst)
+- [`geost.read_model_from_opendap`](./api_reference/generated/geost.read_model_from_opendap.rst)
+- [`geost.read_geotop_netcdf`](./api_reference/generated/geost.read_geotop_netcdf.rst)
+- [`geost.read_geotop_from_opendap`](./api_reference/generated/geost.read_geotop_from_opendap.rst)
+- [`geost.read_regis_netcdf`](./api_reference/generated/geost.read_regis_netcdf.rst)
+- [`geost.read_regis_from_opendap`](./api_reference/generated/geost.read_regis_from_opendap.rst)
+- [`geotop_strat_units`](./api_reference/generated/geost.bro.geotop_strat_units.rst) and [`geotop_lithok_units`](./api_reference/generated/geost.bro.geotop_lithok_units.rst) for analyses and metadata selections with BRO GeoTOP (see the [User guide](./user_guide/bro_geotop.ipynb))
+- [`regis_units`](./api_reference/generated/geost.bro.regis_units.rst) for generic metadata selections from REGIS II
+- [`add_model_data`](./api_reference/generated/geost.base.Collection.add_model_data.rst) method to add information from a voxelmodel or layermodel to survey data (see [Examples](./examples/combine_geotop_with_cpts.ipynb))
+- [`aggregate_consecutive_layers`](./api_reference/generated/geost.base.Collection.aggregate_consecutive_layers.rst) method in `Collection` and `.gst` accessor
+- [`compute_discretized_fractions`](./api_reference/generated/geost.base.Collection.compute_discretized_fractions.rst) method in `Collection` and `.gst` accessor
+- [`find_point_pairs`](./api_reference/generated/geost.base.Collection.find_point_pairs.rst) method in `Collection` and `.gst` accessor
+- [`merge_sorted`](./api_reference/generated/geost.accessor.GeostFrame.merge_sorted.rst) method in `.gst` accessor
+- [`to_geopackage_3d`](./api_reference/generated/geost.base.Collection.to_geopackage_3d.rst) method in `Collection` and `.gst` accessor for easy visualization and data inspection capability, for instance in QGIS's elevation profile tool
+- Added option to use grids as upper and lower bounds in [`slice_depth_interval`](./api_reference/generated/geost.base.Collection.slice_depth_interval.rst)
 
 **Removed**
 - `VoxelModel` and `GeoTop` objects, have been replaced by the Xarray extension and dedicated read functions (see the [User guide](./user_guide/model_data.ipynb))

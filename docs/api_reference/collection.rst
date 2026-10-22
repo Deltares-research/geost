@@ -15,6 +15,7 @@ Analysis
 .. autosummary::
    :toctree: generated/
 
+   Collection.compute_discretized_fractions
    Collection.get_cumulative_thickness
    Collection.get_layer_base
    Collection.get_layer_top
@@ -38,8 +39,10 @@ Export
 
    Collection.to_csv
    Collection.to_geopackage
+   Collection.to_geopackage_3d
    Collection.to_geoparquet
    Collection.to_kingdom
+   Collection.to_pickle
    Collection.to_pyvista_cylinders
    Collection.to_pyvista_grid
    Collection.to_parquet
@@ -53,8 +56,8 @@ Generic
    :toctree: generated/
 
    Collection.add_header_column_to_data
-   Collection.check_header_to_data_alignment
    Collection.reset_header
+   Collection.synchronize_tables
 
 
 Data manipulation

@@ -2152,27 +2152,10 @@ class GeostFrame(AbstractBase):
             crs=crs,
         )
 
-        data = gpd.GeoDataFrame(
-            data=data,
-            geometry=lines_3d,
-            crs=crs,
-        )
+        data = gpd.GeoDataFrame(data=data, geometry=lines_3d, crs=crs)
 
-        # write point locations layer
-        locations.to_file(
-            outfile,
-            layer="locations",
-            driver="GPKG",
-            **kwargs,
-        )
-
-        # append 3D line layer
-        data.to_file(
-            outfile,
-            layer="3dlines",
-            driver="GPKG",
-            **kwargs,
-        )
+        locations.to_file(outfile, layer="locations", driver="GPKG", **kwargs)
+        data.to_file(outfile, layer="3dlines", driver="GPKG", **kwargs)
 
     @_requires_depth
     @_requires_xy
