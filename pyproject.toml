@@ -102,6 +102,7 @@ pooch = "*"
 pre-commit = "*"
 platformdirs = "*"
 pyinstrument = "*"
+xyzservices = "*"
 
 [tool.pixi.pypi-dependencies]
 geost = { path = ".", editable = true }
