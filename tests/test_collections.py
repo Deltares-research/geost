@@ -300,6 +300,8 @@ class TestCollection:
         config.validation.reset_settings()  # Ensure default settings
         config.validation.AUTO_ALIGN = True
 
+        og_crs = borehole_collection.crs
+        og_vertical_datum = borehole_collection.vertical_datum
         header = borehole_collection.header.copy()
         header["nr"] = ["A", "B", "C", "D", "F"]  # F is not in data, E is missing
 
@@ -314,6 +316,8 @@ class TestCollection:
         assert_array_equal(
             borehole_collection.data["nr"].unique(), ["A", "B", "C", "D"]
         )
+        assert borehole_collection.crs == og_crs
+        assert borehole_collection.vertical_datum == og_vertical_datum
         config.validation.reset_settings()  # Reset settings after test
 
     @pytest.mark.unittest
@@ -343,6 +347,8 @@ class TestCollection:
         config.validation.reset_settings()  # Ensure default settings
         config.validation.AUTO_ALIGN = True
 
+        og_crs = borehole_collection.crs
+        og_vertical_datum = borehole_collection.vertical_datum
         borehole_collection.header["nr"] = [
             "A",
             "B",
@@ -366,6 +372,9 @@ class TestCollection:
         assert_array_equal(
             borehole_collection.data["nr"].unique(), ["A", "B", "C", "D", "E"]
         )
+        assert borehole_collection.crs is not None
+        assert borehole_collection.crs == og_crs
+        assert borehole_collection.vertical_datum == og_vertical_datum
         config.validation.reset_settings()  # Reset settings after test
 
     @pytest.mark.unittest

@@ -358,18 +358,18 @@ class Collection(AbstractBase):
             self._header = self.header.gst.select_by_values(self._nr, in_both)
             self._data = self.data.gst.select_by_values(self._nr, in_both)
         elif how == "data":
+            crs = self.header.crs if self.header_has_geometry else None
             if only_in_data:
                 warnings.warn(
                     "Data table contains entries not present in the header. "
                     "Adding missing entries to the header.",
                     category=AlignmentWarning,
                 )
-                crs = self.header.crs if self.header_has_geometry else None
                 missing_header = self.data.gst.select_by_values(
                     self._nr, only_in_data
                 ).gst.to_header(include_columns=self.header.columns, crs=crs)
             else:
-                missing_header = pd.DataFrame(columns=self.header.columns)
+                missing_header = gpd.GeoDataFrame(columns=self.header.columns, crs=crs)
 
             header = pd.concat([self.header, missing_header], ignore_index=True)
 
