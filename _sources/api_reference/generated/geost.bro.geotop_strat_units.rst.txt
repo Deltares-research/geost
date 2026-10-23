@@ -1,0 +1,6 @@
+﻿geost.bro.geotop\_strat\_units
+==============================
+
+.. currentmodule:: geost.bro
+
+.. autofunction:: geotop_strat_units

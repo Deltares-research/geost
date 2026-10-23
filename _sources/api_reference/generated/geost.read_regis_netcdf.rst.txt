@@ -1,0 +1,6 @@
+﻿geost.read\_regis\_netcdf
+=========================
+
+.. currentmodule:: geost
+
+.. autofunction:: read_regis_netcdf

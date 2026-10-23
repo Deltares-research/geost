@@ -1,0 +1,6 @@
+﻿geost.bro.geotop.GeotopUnits.colors\_rgb
+========================================
+
+.. currentmodule:: geost.bro.geotop
+
+.. autoproperty:: GeotopUnits.colors_rgb

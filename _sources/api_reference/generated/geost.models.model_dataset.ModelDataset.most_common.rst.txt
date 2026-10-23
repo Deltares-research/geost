@@ -1,0 +1,6 @@
+﻿geost.models.model\_dataset.ModelDataset.most\_common
+=====================================================
+
+.. currentmodule:: geost.models.model_dataset
+
+.. automethod:: ModelDataset.most_common

@@ -15,8 +15,11 @@
    
       ~Collection.__init__
       ~Collection.add_header_column_to_data
-      ~Collection.check_header_to_data_alignment
+      ~Collection.add_model_data
+      ~Collection.aggregate_consecutive_layers
+      ~Collection.compute_discretized_fractions
       ~Collection.determine_end_depth
+      ~Collection.find_point_pairs
       ~Collection.get
       ~Collection.get_cumulative_thickness
       ~Collection.get_layer_base
@@ -36,9 +39,11 @@
       ~Collection.slice_by_values
       ~Collection.slice_depth_interval
       ~Collection.spatial_join
+      ~Collection.synchronize_tables
       ~Collection.to_crs
       ~Collection.to_csv
       ~Collection.to_geopackage
+      ~Collection.to_geopackage_3d
       ~Collection.to_geoparquet
       ~Collection.to_kingdom
       ~Collection.to_parquet
@@ -62,6 +67,7 @@
       ~Collection.has_inclined
       ~Collection.header
       ~Collection.header_has_geometry
+      ~Collection.header_to_data_index
       ~Collection.n_points
       ~Collection.vertical_datum
    

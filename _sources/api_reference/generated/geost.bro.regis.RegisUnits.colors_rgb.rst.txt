@@ -1,0 +1,6 @@
+﻿geost.bro.regis.RegisUnits.colors\_rgb
+======================================
+
+.. currentmodule:: geost.bro.regis
+
+.. autoproperty:: RegisUnits.colors_rgb

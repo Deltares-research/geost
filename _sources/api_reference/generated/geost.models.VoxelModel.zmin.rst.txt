@@ -1,6 +1,0 @@
-﻿geost.models.VoxelModel.zmin
-============================
-
-.. currentmodule:: geost.models
-
-.. autoproperty:: VoxelModel.zmin

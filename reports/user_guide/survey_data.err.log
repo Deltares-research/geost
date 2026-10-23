@@ -1,0 +1,62 @@
+Traceback (most recent call last):
+  File "/home/runner/work/geost/geost/.pixi/envs/default/lib/python3.14/site-packages/jupyter_cache/executors/utils.py", line 58, in single_nb_execution
+    executenb(
+    ~~~~~~~~~^
+        nb,
+        ^^^
+    ...<4 lines>...
+        **kwargs,
+        ^^^^^^^^^
+    )
+    ^
+  File "/home/runner/work/geost/geost/.pixi/envs/default/lib/python3.14/site-packages/nbclient/client.py", line 1323, in execute
+    return NotebookClient(nb=nb, resources=resources, km=km, **kwargs).execute()
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/runner/work/geost/geost/.pixi/envs/default/lib/python3.14/site-packages/jupyter_core/utils/__init__.py", line 165, in wrapped
+    return loop.run_until_complete(inner)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "/home/runner/work/geost/geost/.pixi/envs/default/lib/python3.14/asyncio/base_events.py", line 720, in run_until_complete
+    return future.result()
+           ~~~~~~~~~~~~~^^
+  File "/home/runner/work/geost/geost/.pixi/envs/default/lib/python3.14/site-packages/nbclient/client.py", line 709, in async_execute
+    await self.async_execute_cell(
+        cell, index, execution_count=self.code_cells_executed + 1
+    )
+  File "/home/runner/work/geost/geost/.pixi/envs/default/lib/python3.14/site-packages/nbclient/client.py", line 1062, in async_execute_cell
+    await self._check_raise_for_error(cell, cell_index, exec_reply)
+  File "/home/runner/work/geost/geost/.pixi/envs/default/lib/python3.14/site-packages/nbclient/client.py", line 918, in _check_raise_for_error
+    raise CellExecutionError.from_cell_and_msg(cell, exec_reply_content)
+nbclient.exceptions.CellExecutionError: An error occurred while executing the following cell:
+------------------
+try:
+    borehole_df.gst.slice_depth_interval(0, 10)
+    print("Slicing successful")  # Only prints if no error is raised
+except KeyError as e:
+    print(e)  # Print the error message instead of actually raising the error
+------------------
+
+
+[31m---------------------------------------------------------------------------[39m
+[31mMissingDepthError[39m                         Traceback (most recent call last)
+[36mCell[39m[36m [39m[32mIn[10][39m[32m, line 4[39m
+[32m      1[39m [38;5;28;01mtry[39;00m:
+[32m      2[39m     borehole_df.gst.slice_depth_interval([32m0[39m, [32m10[39m)
+[32m      3[39m     print([33m"Slicing successful"[39m)  [38;5;66;03m# Only prints if no error is raised[39;00m
+[32m----> [39m[32m4[39m [38;5;28;01mexcept[39;00m KeyError [38;5;28;01mas[39;00m e:
+[32m      5[39m     print(e)  [38;5;66;03m# Print the error message instead of actually raising the error[39;00m
+
+[36mFile [39m[32m~/work/geost/geost/geost/validation/method_checks.py:64[39m, in [36m_requires_depth.<locals>.wrapper[39m[34m(self, *args, **kwargs)[39m
+[32m     61[39m     has_depth = [38;5;28mself[39m.has_depth_columns
+[32m     63[39m [38;5;28;01mif[39;00m [38;5;129;01mnot[39;00m has_depth:
+[32m---> [39m[32m64[39m     [38;5;28;01mraise[39;00m MissingDepthError(  [38;5;66;03m# TODO: Check formatting of this error message[39;00m
+[32m     65[39m         [33mf[39m[33m"[39m[33mMethod [39m[33m'[39m[38;5;132;01m{[39;00mfunc.[34m__name__[39m[38;5;132;01m}[39;00m[33m'[39m[33m requires depth information in the DataFrame. [39m[33m"[39m
+[32m     66[39m         [33m"[39m[33mPlease ensure that the DataFrame contains one of the following the [39m[33m"[39m
+[32m     67[39m         [33m"[39m[33mrequired combinations of depth columns:[39m[33m"[39m
+[32m     68[39m         [33m"[39m[33m - [39m[33m'[39m[33msurface[39m[33m'[39m[33m, [39m[33m'[39m[33mtop[39m[33m'[39m[33m and [39m[33m'[39m[33mbottom[39m[33m'[39m[33m"[39m
+[32m     69[39m         [33m"[39m[33m - [39m[33m'[39m[33msurface[39m[33m'[39m[33m and [39m[33m'[39m[33mbottom[39m[33m'[39m[33m"[39m
+[32m     70[39m         [33m"[39m[33m - [39m[33m'[39m[33msurface[39m[33m'[39m[33m and [39m[33m'[39m[33mdepth[39m[33m'[39m[33m"[39m
+[32m     71[39m     )
+[32m     72[39m [38;5;28;01mreturn[39;00m func([38;5;28mself[39m, *args, **kwargs)
+
+[31mMissingDepthError[39m: Method 'slice_depth_interval' requires depth information in the DataFrame. Please ensure that the DataFrame contains one of the following the required combinations of depth columns: - 'surface', 'top' and 'bottom' - 'surface' and 'bottom' - 'surface' and 'depth'
+

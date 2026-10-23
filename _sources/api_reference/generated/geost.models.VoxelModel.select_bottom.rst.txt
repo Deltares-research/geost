@@ -1,6 +1,0 @@
-﻿geost.models.VoxelModel.select\_bottom
-======================================
-
-.. currentmodule:: geost.models
-
-.. automethod:: VoxelModel.select_bottom

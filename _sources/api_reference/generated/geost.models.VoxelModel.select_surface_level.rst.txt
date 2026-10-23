@@ -1,6 +1,0 @@
-﻿geost.models.VoxelModel.select\_surface\_level
-==============================================
-
-.. currentmodule:: geost.models
-
-.. automethod:: VoxelModel.select_surface_level

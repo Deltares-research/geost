@@ -1,6 +1,0 @@
-﻿geost.models.VoxelModel.select\_within\_bbox
-============================================
-
-.. currentmodule:: geost.models
-
-.. automethod:: VoxelModel.select_within_bbox

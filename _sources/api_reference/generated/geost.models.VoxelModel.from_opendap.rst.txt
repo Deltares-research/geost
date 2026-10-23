@@ -1,6 +1,0 @@
-﻿geost.models.VoxelModel.from\_opendap
-=====================================
-
-.. currentmodule:: geost.models
-
-.. automethod:: VoxelModel.from_opendap

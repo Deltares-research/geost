@@ -1,0 +1,6 @@
+﻿geost.bro.geotop.GeotopUnits.voxel\_nr
+======================================
+
+.. currentmodule:: geost.bro.geotop
+
+.. autoproperty:: GeotopUnits.voxel_nr

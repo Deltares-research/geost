@@ -1,6 +1,0 @@
-﻿geost.models.VoxelModel.zmax
-============================
-
-.. currentmodule:: geost.models
-
-.. autoproperty:: VoxelModel.zmax

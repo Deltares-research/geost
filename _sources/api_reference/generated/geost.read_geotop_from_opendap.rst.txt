@@ -1,0 +1,6 @@
+﻿geost.read\_geotop\_from\_opendap
+=================================
+
+.. currentmodule:: geost
+
+.. autofunction:: read_geotop_from_opendap

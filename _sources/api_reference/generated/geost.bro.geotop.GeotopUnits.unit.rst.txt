@@ -1,0 +1,6 @@
+﻿geost.bro.geotop.GeotopUnits.unit
+=================================
+
+.. currentmodule:: geost.bro.geotop
+
+.. autoproperty:: GeotopUnits.unit

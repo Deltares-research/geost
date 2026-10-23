@@ -1,6 +1,0 @@
-﻿geost.models.VoxelModel.ymin
-============================
-
-.. currentmodule:: geost.models
-
-.. autoproperty:: VoxelModel.ymin

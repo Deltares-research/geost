@@ -1,0 +1,6 @@
+﻿geost.base.Collection.aggregate\_consecutive\_layers
+====================================================
+
+.. currentmodule:: geost.base
+
+.. automethod:: Collection.aggregate_consecutive_layers

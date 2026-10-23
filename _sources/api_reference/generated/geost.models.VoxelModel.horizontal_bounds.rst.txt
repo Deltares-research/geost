@@ -1,6 +1,0 @@
-﻿geost.models.VoxelModel.horizontal\_bounds
-==========================================
-
-.. currentmodule:: geost.models
-
-.. autoproperty:: VoxelModel.horizontal_bounds

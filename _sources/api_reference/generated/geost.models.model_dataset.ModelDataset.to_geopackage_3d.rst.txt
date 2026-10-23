@@ -1,0 +1,6 @@
+﻿geost.models.model\_dataset.ModelDataset.to\_geopackage\_3d
+===========================================================
+
+.. currentmodule:: geost.models.model_dataset
+
+.. automethod:: ModelDataset.to_geopackage_3d

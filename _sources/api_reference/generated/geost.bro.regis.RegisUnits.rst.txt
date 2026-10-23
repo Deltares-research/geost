@@ -1,0 +1,37 @@
+﻿geost.bro.regis.RegisUnits
+==========================
+
+.. currentmodule:: geost.bro.regis
+
+.. autoclass:: RegisUnits
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~RegisUnits.__init__
+      ~RegisUnits.check_version_matches
+      ~RegisUnits.select_description_contains
+      ~RegisUnits.select_unit
+      ~RegisUnits.select_unit_contains
+      ~RegisUnits.to_qml
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~RegisUnits.colors_rgb
+      ~RegisUnits.description
+      ~RegisUnits.regis_version
+      ~RegisUnits.unit
+      ~RegisUnits.df
+   
+   

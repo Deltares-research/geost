@@ -1,0 +1,6 @@
+﻿geost.models.model\_dataset.ModelDataset.y\_dim
+===============================================
+
+.. currentmodule:: geost.models.model_dataset
+
+.. autoproperty:: ModelDataset.y_dim

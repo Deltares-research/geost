@@ -1,0 +1,6 @@
+﻿geost.bro.regis.RegisUnits.select\_unit
+=======================================
+
+.. currentmodule:: geost.bro.regis
+
+.. automethod:: RegisUnits.select_unit

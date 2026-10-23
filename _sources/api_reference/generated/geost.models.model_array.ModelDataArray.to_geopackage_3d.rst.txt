@@ -1,0 +1,6 @@
+﻿geost.models.model\_array.ModelDataArray.to\_geopackage\_3d
+===========================================================
+
+.. currentmodule:: geost.models.model_array
+
+.. automethod:: ModelDataArray.to_geopackage_3d

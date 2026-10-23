@@ -1,6 +1,0 @@
-﻿geost.models.VoxelModel.select\_top
-===================================
-
-.. currentmodule:: geost.models
-
-.. automethod:: VoxelModel.select_top

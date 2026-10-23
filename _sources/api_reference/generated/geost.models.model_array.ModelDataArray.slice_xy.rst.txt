@@ -1,0 +1,6 @@
+﻿geost.models.model\_array.ModelDataArray.slice\_xy
+==================================================
+
+.. currentmodule:: geost.models.model_array
+
+.. automethod:: ModelDataArray.slice_xy

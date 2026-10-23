@@ -1,0 +1,6 @@
+﻿geost.bro.regis.RegisUnits.select\_description\_contains
+========================================================
+
+.. currentmodule:: geost.bro.regis
+
+.. automethod:: RegisUnits.select_description_contains

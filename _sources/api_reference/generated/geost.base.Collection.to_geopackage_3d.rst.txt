@@ -1,0 +1,6 @@
+﻿geost.base.Collection.to\_geopackage\_3d
+========================================
+
+.. currentmodule:: geost.base
+
+.. automethod:: Collection.to_geopackage_3d

@@ -1,6 +1,0 @@
-﻿geost.models.VoxelModel.value\_counts
-=====================================
-
-.. currentmodule:: geost.models
-
-.. automethod:: VoxelModel.value_counts

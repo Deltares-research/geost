@@ -1,6 +1,0 @@
-﻿geost.models.VoxelModel.ymax
-============================
-
-.. currentmodule:: geost.models
-
-.. autoproperty:: VoxelModel.ymax

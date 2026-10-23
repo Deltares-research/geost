@@ -1,0 +1,6 @@
+﻿geost.accessor.GeostFrame.aggregate\_consecutive\_layers
+========================================================
+
+.. currentmodule:: geost.accessor
+
+.. automethod:: GeostFrame.aggregate_consecutive_layers

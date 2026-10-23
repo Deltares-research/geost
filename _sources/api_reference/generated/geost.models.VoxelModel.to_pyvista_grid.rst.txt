@@ -1,6 +1,0 @@
-﻿geost.models.VoxelModel.to\_pyvista\_grid
-=========================================
-
-.. currentmodule:: geost.models
-
-.. automethod:: VoxelModel.to_pyvista_grid

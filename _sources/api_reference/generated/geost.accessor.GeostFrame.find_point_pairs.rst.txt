@@ -1,0 +1,6 @@
+﻿geost.accessor.GeostFrame.find\_point\_pairs
+============================================
+
+.. currentmodule:: geost.accessor
+
+.. automethod:: GeostFrame.find_point_pairs

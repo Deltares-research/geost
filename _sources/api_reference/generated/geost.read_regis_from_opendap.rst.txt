@@ -1,0 +1,6 @@
+﻿geost.read\_regis\_from\_opendap
+================================
+
+.. currentmodule:: geost
+
+.. autofunction:: read_regis_from_opendap

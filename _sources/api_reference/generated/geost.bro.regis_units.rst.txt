@@ -1,0 +1,6 @@
+﻿geost.bro.regis\_units
+======================
+
+.. currentmodule:: geost.bro
+
+.. autofunction:: regis_units

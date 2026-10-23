@@ -1,0 +1,6 @@
+﻿geost.bro.geotop.GeotopUnits.get\_holocene\_channel\_units
+==========================================================
+
+.. currentmodule:: geost.bro.geotop
+
+.. automethod:: GeotopUnits.get_holocene_channel_units

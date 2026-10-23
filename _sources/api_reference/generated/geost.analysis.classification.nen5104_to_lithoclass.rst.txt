@@ -1,0 +1,6 @@
+﻿geost.analysis.classification.nen5104\_to\_lithoclass
+=====================================================
+
+.. currentmodule:: geost.analysis.classification
+
+.. autofunction:: nen5104_to_lithoclass

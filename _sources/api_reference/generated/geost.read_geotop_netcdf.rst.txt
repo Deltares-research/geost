@@ -1,0 +1,6 @@
+﻿geost.read\_geotop\_netcdf
+==========================
+
+.. currentmodule:: geost
+
+.. autofunction:: read_geotop_netcdf

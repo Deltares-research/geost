@@ -1,0 +1,6 @@
+﻿geost.models.model\_dataset.ModelDataset.ndims
+==============================================
+
+.. currentmodule:: geost.models.model_dataset
+
+.. autoproperty:: ModelDataset.ndims

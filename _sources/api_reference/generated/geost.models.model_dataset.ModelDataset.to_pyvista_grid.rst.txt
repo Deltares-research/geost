@@ -1,0 +1,6 @@
+﻿geost.models.model\_dataset.ModelDataset.to\_pyvista\_grid
+==========================================================
+
+.. currentmodule:: geost.models.model_dataset
+
+.. automethod:: ModelDataset.to_pyvista_grid

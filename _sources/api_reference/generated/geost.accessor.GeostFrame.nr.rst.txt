@@ -1,0 +1,6 @@
+﻿geost.accessor.GeostFrame.nr
+============================
+
+.. currentmodule:: geost.accessor
+
+.. autoproperty:: GeostFrame.nr

@@ -1,0 +1,6 @@
+﻿geost.bro.regis.RegisUnits.regis\_version
+=========================================
+
+.. currentmodule:: geost.bro.regis
+
+.. autoproperty:: RegisUnits.regis_version

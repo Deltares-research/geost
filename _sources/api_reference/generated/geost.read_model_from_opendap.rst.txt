@@ -1,0 +1,6 @@
+﻿geost.read\_model\_from\_opendap
+================================
+
+.. currentmodule:: geost
+
+.. autofunction:: read_model_from_opendap

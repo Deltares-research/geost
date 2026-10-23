@@ -1,0 +1,6 @@
+﻿geost.bro.geotop.GeotopUnits.select\_unit\_contains
+===================================================
+
+.. currentmodule:: geost.bro.geotop
+
+.. automethod:: GeotopUnits.select_unit_contains

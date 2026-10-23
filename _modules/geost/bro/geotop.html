@@ -1,0 +1,1254 @@
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>geost.bro.geotop &#8212; Geological Subsurface Toolbox  documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../_static/styles/theme.css?digest=18bd87630a240e9c25be" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=18bd87630a240e9c25be" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/mystnb.11b39860a7a0cbfd473a3ad8a317855267ff0bd372690045ca344a6b62be495e.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=6e1425e8" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=6e1425e8" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../../../_static/scripts/fontawesome.js?digest=18bd87630a240e9c25be"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
+
+    <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
+    <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/geost/bro/geotop';</script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="icon" href="../../../_static/geost_logo.png"/>
+    <link rel="author" title="About these documents" href="../../../about.html" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="color-scheme" content="light dark"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="0.5.1" />
+  
+    
+    <script src="../../../_static/searchtools.js"></script>
+    <script src="../../../_static/language_data.js"></script>
+    <script src="../../../searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button type="button" class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class=" navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../../_static/geost_logo.png" class="logo__image only-light" alt="Geological Subsurface Toolbox  documentation - Home"/>
+    <img src="../../../_static/geost_logo.png" class="logo__image only-dark pst-js-only" alt="Geological Subsurface Toolbox  documentation - Home"/>
+  
+  
+</a></div>
+    
+  </div>
+  
+  <div class=" navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../index.html">
+    Home
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../about.html">
+    About
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../getting_started.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../documentation.html">
+    Documentation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../examples.html">
+    Examples
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../community.html">
+    Community
+  </a>
+</li>
+
+            <li class="nav-item dropdown">
+                <button class="btn dropdown-toggle nav-item" type="button"
+                data-bs-toggle="dropdown" aria-expanded="false"
+                aria-controls="pst-nav-more-links">
+                    More
+                </button>
+                <ul id="pst-nav-more-links" class="dropdown-menu">
+                    
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../../changelog.html">
+    Changelog
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-external" href="https://www.deltares.nl/en">
+    Deltares website
+  </a>
+</li>
+
+                </ul>
+            </li>
+            
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button type="button" class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button type="button" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/Deltares-research/geost" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/geost" title="PyPI" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-solid fa-cubes fa-lg" aria-hidden="true"></i><span class="visually-hidden">PyPI</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button type="button" class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar hide-on-wide">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../index.html">
+    Home
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../about.html">
+    About
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../getting_started.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../documentation.html">
+    Documentation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../examples.html">
+    Examples
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../community.html">
+    Community
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../changelog.html">
+    Changelog
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-external" href="https://www.deltares.nl/en">
+    Deltares website
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button type="button" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/Deltares-research/geost" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/geost" title="PyPI" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-solid fa-cubes fa-lg" aria-hidden="true"></i><span class="visually-hidden">PyPI</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../../index.html" class="nav-link">Module code</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">geost.bro.geotop</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <h1>Source code for geost.bro.geotop</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">operator</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">warnings</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span><span class="p">,</span> <span class="n">replace</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">enum</span><span class="w"> </span><span class="kn">import</span> <span class="n">Enum</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Any</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">geost.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">MissingUnitError</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">geost.utils.qgis</span><span class="w"> </span><span class="kn">import</span> <span class="n">write_qml</span>
+
+<span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">matplotlib.colors</span><span class="w"> </span><span class="kn">import</span> <span class="n">BoundaryNorm</span><span class="p">,</span> <span class="n">ListedColormap</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">UnitType</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+    <span class="n">STRAT</span> <span class="o">=</span> <span class="s2">"strat"</span>
+    <span class="n">LITHOK</span> <span class="o">=</span> <span class="s2">"lithok"</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">_GeotopCondition</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Helper class so `GeotopUnits` class can be used with boolean operators `&amp;` `|` in</span>
+<span class="sd">    methods of the `geost.models` extension of Xarray.</span>
+
+<span class="sd">    For example, use in `get_thickness` method:</span>
+
+<span class="sd">    ```python</span>
+<span class="sd">    import geost</span>
+
+<span class="sd">    geotop = geost.read_geotop_from_opendap()</span>
+<span class="sd">    strat = geost.bro.geotop_strat_units()</span>
+<span class="sd">    lithok = geost.bro.geotop_lithok_units()</span>
+
+<span class="sd">    thickness = geotop.gst.get_thickness(</span>
+<span class="sd">        strat.get_holocene_units()</span>
+<span class="sd">        &amp; lithok.select_unit("k")</span>
+<span class="sd">        | (geotop["kans_1"] &gt; 0.5) # Also possible to combine with boolean arrays</span>
+<span class="sd">    )</span>
+<span class="sd">    ```</span>
+<span class="sd">    """</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">left</span><span class="p">,</span> <span class="n">right</span><span class="p">,</span> <span class="n">op</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">left</span> <span class="o">=</span> <span class="n">left</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">right</span> <span class="o">=</span> <span class="n">right</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">op</span> <span class="o">=</span> <span class="n">op</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">evaluate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">geotop</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">:</span>
+        <span class="n">left</span> <span class="o">=</span> <span class="n">_evaluate_geotop_condition</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">left</span><span class="p">,</span> <span class="n">geotop</span><span class="p">)</span>
+        <span class="n">right</span> <span class="o">=</span> <span class="n">_evaluate_geotop_condition</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">right</span><span class="p">,</span> <span class="n">geotop</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">op</span><span class="p">(</span><span class="n">left</span><span class="p">,</span> <span class="n">right</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__and__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">,</span> <span class="n">operator</span><span class="o">.</span><span class="n">and_</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__or__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">,</span> <span class="n">operator</span><span class="o">.</span><span class="n">or_</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_evaluate_geotop_condition</span><span class="p">(</span>
+    <span class="n">condition</span><span class="p">:</span> <span class="n">GeotopUnits</span> <span class="o">|</span> <span class="n">_GeotopCondition</span> <span class="o">|</span> <span class="n">Any</span><span class="p">,</span>
+    <span class="n">geotop</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Helper function to evaluate a geotop condition with `GeotopUnits` or `_GeotopCondition`</span>
+<span class="sd">    objects.</span>
+
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">condition</span><span class="p">,</span> <span class="n">_GeotopCondition</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">condition</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span><span class="n">geotop</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">condition</span><span class="p">,</span> <span class="n">GeotopUnits</span><span class="p">):</span>
+        <span class="n">condition</span><span class="o">.</span><span class="n">check_version_matches</span><span class="p">(</span><span class="n">geotop</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">geotop</span><span class="p">[</span><span class="n">condition</span><span class="o">.</span><span class="n">data_var</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">condition</span><span class="o">.</span><span class="n">voxel_nr</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">condition</span>
+
+
+<div class="viewcode-block" id="GeotopUnits">
+<a class="viewcode-back" href="../../../api_reference/generated/geost.bro.geotop.GeotopUnits.html#geost.bro.geotop.GeotopUnits">[docs]</a>
+<span class="nd">@dataclass</span><span class="p">(</span><span class="nb">repr</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">GeotopUnits</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Container for stratigraphic and lithologic metadata information for the GeoTOP model.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    df : pd.DataFrame</span>
+<span class="sd">        DataFrame containing the metadata information.</span>
+<span class="sd">    metadata_type : UnitType</span>
+<span class="sd">        Type of the metadata (stratigraphic or lithologic).</span>
+<span class="sd">    data_var : str</span>
+<span class="sd">        Name of the GeoTOP variable that corresponds to the metadata (e.g. "strat" for</span>
+<span class="sd">        stratigraphic units, "lithok" for lithologic units).</span>
+<span class="sd">    _nr : str, optional</span>
+<span class="sd">        Column name for the voxel number in the metadata DataFrame. Default is "VOXEL_NR".</span>
+<span class="sd">    _unit : str, optional</span>
+<span class="sd">        Column name for the unit code in the metadata DataFrame. Default is "STR_UNIT_CD".</span>
+<span class="sd">    _desc : str, optional</span>
+<span class="sd">        Column name for the description in the metadata DataFrame. Default is "DESCRIPTION".</span>
+<span class="sd">    _seq : str, optional</span>
+<span class="sd">        Column name for the sequence number in the metadata DataFrame. Default is "SEQ_NR".</span>
+<span class="sd">    _r : str, optional</span>
+<span class="sd">        Column name for the red color value in the metadata DataFrame. Default is "RED_DEC".</span>
+<span class="sd">    _g : str, optional</span>
+<span class="sd">        Column name for the green color value in the metadata DataFrame. Default is "GREEN_DEC".</span>
+<span class="sd">    _b : str, optional</span>
+<span class="sd">        Column name for the blue color value in the metadata DataFrame. Default is "BLUE_DEC".</span>
+<span class="sd">    """</span>
+
+    <span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span>
+    <span class="n">unit_type</span><span class="p">:</span> <span class="n">UnitType</span>
+    <span class="n">data_var</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">_nr</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"VOXEL_NR"</span>
+    <span class="n">_unit</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"STR_UNIT_CD"</span>
+    <span class="n">_desc</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"DESCRIPTION"</span>
+    <span class="n">_seq</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"SEQ_NR"</span>
+    <span class="n">_r</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"RED_DEC"</span>
+    <span class="n">_g</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"GREEN_DEC"</span>
+    <span class="n">_b</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"BLUE_DEC"</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">__post_init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">name</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_nr</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_nr</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">unit_type</span><span class="si">}</span><span class="se">\n</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="fm">__repr__</span><span class="p">()</span><span class="si">}</span><span class="s2">"</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_repr_html_</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        HTML representation for Jupyter notebook.</span>
+
+<span class="sd">        """</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">unit_type</span><span class="si">}</span><span class="s2">&lt;br&gt;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">_repr_html_</span><span class="p">()</span><span class="si">}</span><span class="s2">"</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__and__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">_GeotopCondition</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">,</span> <span class="n">operator</span><span class="o">.</span><span class="n">and_</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__or__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">_GeotopCondition</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">,</span> <span class="n">operator</span><span class="o">.</span><span class="n">or_</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">voxel_nr</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">Index</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        `pandas.Index` containing the unique voxel numbers in the metadata.</span>
+
+<span class="sd">        """</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">index</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">unit</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        `pandas.Series` containing the unique unit names in the metadata.</span>
+
+<span class="sd">        """</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_unit</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">description</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        `pandas.Series` containing the unique descriptions in the metadata.</span>
+
+<span class="sd">        """</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_desc</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">colors_rgb</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        `pandas.DataFrame` containing the RGB color values for the units in the metadata.</span>
+
+<span class="sd">        """</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="p">[[</span><span class="bp">self</span><span class="o">.</span><span class="n">_r</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_g</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_b</span><span class="p">]]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">geotop_version</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        GeoTOP version number (e.g. v01r6) of the metadata.</span>
+
+<span class="sd">        """</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"geotop version"</span><span class="p">,</span> <span class="s2">"unknown"</span><span class="p">)</span>
+
+<div class="viewcode-block" id="GeotopUnits.check_version_matches">
+<a class="viewcode-back" href="../../../api_reference/generated/geost.bro.geotop.GeotopUnits.check_version_matches.html#geost.bro.geotop.GeotopUnits.check_version_matches">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">check_version_matches</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">geotop</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Check if the GeoTOP modeldata version matches the metadata version.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        geotop : xr.Dataset</span>
+<span class="sd">            The GeoTOP modeldata to check against.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        bool</span>
+<span class="sd">            True if the versions match, False otherwise.</span>
+
+<span class="sd">        """</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">geotop</span><span class="p">,</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
+                <span class="s2">"The model version cannot be found in a DataArray of a GeoTOP variable, "</span>
+                <span class="s2">"cannot check if the metadata version matches the model version. Please "</span>
+                <span class="s2">"check the model version against the `xarray.Dataset` of GeoTOP."</span><span class="p">,</span>
+            <span class="p">)</span>
+
+        <span class="n">title</span> <span class="o">=</span> <span class="n">geotop</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"title"</span><span class="p">,</span> <span class="s2">"unknown"</span><span class="p">)</span>
+        <span class="n">version_pattern</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span>  <span class="c1"># General pattern: v01r1..</span>
+<span class="w">            </span><span class="sa">r</span><span class="sd">"""</span>
+<span class="sd">            v\d+  # Fixed letter 'v' followed by one or more digits</span>
+<span class="sd">            r\d+  # Fixed letter 'r' followed by one or more digits</span>
+<span class="sd">            (?:[a-zA-Z]\d+)* # Optional group for extra letter-digit combinations</span>
+<span class="sd">            """</span><span class="p">,</span>
+            <span class="n">re</span><span class="o">.</span><span class="n">VERBOSE</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">version_pattern</span><span class="p">,</span> <span class="n">title</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">match</span><span class="p">:</span>
+            <span class="n">model_version</span> <span class="o">=</span> <span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+            <span class="n">version_matches</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">geotop_version</span> <span class="o">==</span> <span class="n">model_version</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">version_matches</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="n">model_version</span> <span class="o">=</span> <span class="n">title</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">version_matches</span><span class="p">:</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">"GeoTOP version mismatch: metadata version is </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">geotop_version</span><span class="si">}</span><span class="s2">, "</span>
+                <span class="sa">f</span><span class="s2">"model version is '</span><span class="si">{</span><span class="n">model_version</span><span class="si">}</span><span class="s2">'"</span><span class="p">,</span>
+                <span class="ne">UserWarning</span><span class="p">,</span>
+            <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">version_matches</span></div>
+
+
+<div class="viewcode-block" id="GeotopUnits.select_voxel_nr">
+<a class="viewcode-back" href="../../../api_reference/generated/geost.bro.geotop.GeotopUnits.select_voxel_nr.html#geost.bro.geotop.GeotopUnits.select_voxel_nr">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">select_voxel_nr</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">values</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="nb">float</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span> <span class="o">|</span> <span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">GeotopUnits</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Select metadata by voxel numbers (e.g. 1090, 2010).</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        values : int | float | list[int  |  float] | xr.DataArray</span>
+<span class="sd">            Voxel number(s) to select. Can be a single value, a list of values, or an</span>
+<span class="sd">            `xarray.DataArray` of a GeoTOP variable with voxelnumbers (see examples</span>
+<span class="sd">            below).</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        :class:`~geost.bro.geotop.GeotopUnits`</span>
+<span class="sd">            GeotopUnits instance containing the metadata subset for the selected voxel</span>
+<span class="sd">            numbers.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        MissingUnitError</span>
+<span class="sd">            Raised if one or more of the specified voxel numbers are not present in the</span>
+<span class="sd">            metadata.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        Select specific voxel numbers from the stratigraphic metadata of GeoTOP:</span>
+
+<span class="sd">        &gt;&gt;&gt; gtp_meta = geost.bro.get_geotop_metadata_strat()</span>
+<span class="sd">        &gt;&gt;&gt; selected_meta = gtp_meta.select_voxel_nr(1130) # Select a single voxel number</span>
+<span class="sd">        &gt;&gt;&gt; selected_meta = gtp_meta.select_voxel_nr([1130, 2010]) # Select multiple voxel numbers</span>
+
+<span class="sd">        Or use the the GeoTOP model to select the corresponding metadata or the stratigraphic</span>
+<span class="sd">        variable from GeoTOP directly:</span>
+
+<span class="sd">        &gt;&gt;&gt; selected_meta = gtp_meta.select_voxel_nr(geotop)</span>
+<span class="sd">        &gt;&gt;&gt; selected_meta = gtp_meta.select_voxel_nr(geotop["strat"])</span>
+
+<span class="sd">        """</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="p">(</span><span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">)):</span>
+            <span class="n">values</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">values</span><span class="o">.</span><span class="n">gst</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">)</span>
+                <span class="k">else</span> <span class="n">values</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">data_var</span><span class="p">]</span><span class="o">.</span><span class="n">gst</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span>
+            <span class="p">)</span>
+
+        <span class="n">values</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">values</span><span class="p">)</span>
+        <span class="n">values</span> <span class="o">=</span> <span class="n">values</span><span class="p">[</span><span class="o">~</span><span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">values</span><span class="p">)]</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">sel</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">values</span><span class="p">]</span>
+            <span class="k">return</span> <span class="n">replace</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">df</span><span class="o">=</span><span class="n">sel</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">MissingUnitError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">"One or more voxel numbers from </span><span class="si">{</span><span class="n">values</span><span class="si">}</span><span class="s2"> are not present in the metadata."</span>
+            <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="GeotopUnits.select_unit">
+<a class="viewcode-back" href="../../../api_reference/generated/geost.bro.geotop.GeotopUnits.select_unit.html#geost.bro.geotop.GeotopUnits.select_unit">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">select_unit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">units</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">GeotopUnits</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Select metadata by unit codes (e.g. "NUNIBA", "zm").</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        units : str | list[str]</span>
+<span class="sd">            Unit code(s) to select. Can be a single value or a list of values (see examples</span>
+<span class="sd">            below).</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        :class:`~geost.bro.geotop.GeotopUnits`</span>
+<span class="sd">            GeotopUnits instance containing the metadata subset for the selected units.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        MissingUnitError</span>
+<span class="sd">            Raised if one or more of the specified units are not present in the metadata.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        Select specific units from the stratigraphic metadata of GeoTOP:</span>
+
+<span class="sd">        &gt;&gt;&gt; gtp_meta_strat = geost.bro.get_geotop_metadata_strat()</span>
+<span class="sd">        &gt;&gt;&gt; selected_meta = gtp_meta_strat.select_units("NUNIBA") # Select a single unit</span>
+<span class="sd">        &gt;&gt;&gt; selected_meta = gtp_meta_strat.select_units(["NUNIBA", "NUNIHO"]) # Select multiple units</span>
+
+<span class="sd">        Or select lithologies from the lithologic metadata of GeoTOP:</span>
+
+<span class="sd">        &gt;&gt;&gt; gtp_meta_lithok = geost.bro.get_geotop_metadata_lithok()</span>
+<span class="sd">        &gt;&gt;&gt; selected_meta = gtp_meta_lithok.select_units("kz") # Select a single lithology</span>
+<span class="sd">        &gt;&gt;&gt; selected_meta = gtp_meta_lithok.select_units(["zf", "zm", "zg"]) # Select multiple lithologies</span>
+
+<span class="sd">        """</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">units</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="n">sel</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_unit</span><span class="p">]</span> <span class="o">==</span> <span class="n">units</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">sel</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_unit</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">units</span><span class="p">)]</span>
+
+        <span class="k">if</span> <span class="n">sel</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">MissingUnitError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">"None of the selection units in </span><span class="si">{</span><span class="n">units</span><span class="si">}</span><span class="s2"> are present in the metadata."</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="n">replace</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">df</span><span class="o">=</span><span class="n">sel</span><span class="p">)</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_select_contains</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">substring</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">column</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">case_sensitive</span><span class="p">:</span> <span class="nb">bool</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Helper method for `select_unit_contains` and `select_description_contains`.</span>
+
+<span class="sd">        """</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">substring</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="n">substring</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">substring</span><span class="p">)</span>
+            <span class="n">substring</span> <span class="o">=</span> <span class="s2">"|"</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">substring</span><span class="p">)</span>
+
+        <span class="n">sel</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="p">[</span><span class="n">column</span><span class="p">]</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">contains</span><span class="p">(</span><span class="n">substring</span><span class="p">,</span> <span class="n">case</span><span class="o">=</span><span class="n">case_sensitive</span><span class="p">)]</span>
+
+        <span class="k">if</span> <span class="n">sel</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">MissingUnitError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">"None of the selection substrings in </span><span class="si">{</span><span class="n">substring</span><span class="si">}</span><span class="s2"> are present in the metadata."</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="n">sel</span>
+
+<div class="viewcode-block" id="GeotopUnits.select_unit_contains">
+<a class="viewcode-back" href="../../../api_reference/generated/geost.bro.geotop.GeotopUnits.select_unit_contains.html#geost.bro.geotop.GeotopUnits.select_unit_contains">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">select_unit_contains</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">substring</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">case_sensitive</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">GeotopUnits</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Select metadata by a substring for a partial unit code or codes.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        substring : str | list[str]</span>
+<span class="sd">            Substring or list of substrings to match within the unit codes.</span>
+<span class="sd">        case_sensitive : bool, optional</span>
+<span class="sd">            Whether the match should be case-sensitive, by default False.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        class:`~geost.bro.geotop.GeotopUnits`</span>
+<span class="sd">            GeotopUnits instance containing the metadata subset for the selected units.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        MissingUnitError</span>
+<span class="sd">            Raised if none of the specified substrings are present in the metadata.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        Select units from the stratigraphic metadata of GeoTOP that contain a specific substring:</span>
+
+<span class="sd">        &gt;&gt;&gt; gtp_meta_strat = geost.bro.get_geotop_metadata_strat()</span>
+<span class="sd">        &gt;&gt;&gt; selected_meta = gtp_meta_strat.select_unit_contains("NIHO") # Select a single substring</span>
+<span class="sd">        &gt;&gt;&gt; selected_meta = gtp_meta_strat.select_unit_contains(["NIHO", "NIBA"]) # Select multiple substrings</span>
+
+<span class="sd">        """</span>
+        <span class="k">return</span> <span class="n">replace</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span> <span class="n">df</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_select_contains</span><span class="p">(</span><span class="n">substring</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_unit</span><span class="p">,</span> <span class="n">case_sensitive</span><span class="p">)</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="GeotopUnits.select_description_contains">
+<a class="viewcode-back" href="../../../api_reference/generated/geost.bro.geotop.GeotopUnits.select_description_contains.html#geost.bro.geotop.GeotopUnits.select_description_contains">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">select_description_contains</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">substring</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">case_sensitive</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">GeotopUnits</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Select metadata by a substring for a partial description or descriptions.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        substring : str | list[str]</span>
+<span class="sd">            Substring or list of substrings to match within the descriptions.</span>
+<span class="sd">        case_sensitive : bool, optional</span>
+<span class="sd">            Whether the match should be case-sensitive, by default False.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        class:`~geost.bro.geotop.GeotopUnits`</span>
+<span class="sd">            GeotopUnits instance containing the metadata subset for the selected units.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        MissingUnitError</span>
+<span class="sd">            Raised if none of the specified substrings are present in the metadata.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        Select units from the stratigraphic metadata of GeoTOP that contain a specific substring:</span>
+
+<span class="sd">        &gt;&gt;&gt; gtp_meta_strat = geost.bro.get_geotop_metadata_strat()</span>
+<span class="sd">        &gt;&gt;&gt; selected_meta = gtp_meta_strat.select_description_contains("Formatie van Naaldwijk") # Select a single substring</span>
+<span class="sd">        &gt;&gt;&gt; selected_meta = gtp_meta_strat.select_description_contains(</span>
+<span class="sd">        ...     ["Formatie van Naaldwijk", "Formatie van Nieuwkoop"]</span>
+<span class="sd">        ... ) # Select multiple substrings</span>
+
+<span class="sd">        """</span>
+        <span class="k">return</span> <span class="n">replace</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span> <span class="n">df</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_select_contains</span><span class="p">(</span><span class="n">substring</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_desc</span><span class="p">,</span> <span class="n">case_sensitive</span><span class="p">)</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="GeotopUnits.get_antropogenic_units">
+<a class="viewcode-back" href="../../../api_reference/generated/geost.bro.geotop.GeotopUnits.get_antropogenic_units.html#geost.bro.geotop.GeotopUnits.get_antropogenic_units">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_antropogenic_units</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">GeotopUnits</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Select metadata for all anthropogenic units.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        class:`~geost.bro.geotop.GeotopUnits`</span>
+<span class="sd">            GeotopUnits instance containing the metadata subset for the anthropogenic</span>
+<span class="sd">            units.</span>
+
+<span class="sd">        """</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">unit_type</span> <span class="o">==</span> <span class="n">UnitType</span><span class="o">.</span><span class="n">LITHOK</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">"Stratigraphic units are not present in the lithologic metadata of GeoTOP."</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="n">replace</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">df</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_select_contains</span><span class="p">(</span><span class="s2">"antropoge"</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_desc</span><span class="p">,</span> <span class="n">case_sensitive</span><span class="o">=</span><span class="kc">False</span><span class="p">),</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="GeotopUnits.get_holocene_channel_units">
+<a class="viewcode-back" href="../../../api_reference/generated/geost.bro.geotop.GeotopUnits.get_holocene_channel_units.html#geost.bro.geotop.GeotopUnits.get_holocene_channel_units">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_holocene_channel_units</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">GeotopUnits</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Select metadata for all Holocene channel units.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        class:`~geost.bro.geotop.GeotopUnits`</span>
+<span class="sd">            GeotopUnits instance containing the metadata subset for the Holocene</span>
+<span class="sd">            channel units.</span>
+
+<span class="sd">        """</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">unit_type</span> <span class="o">==</span> <span class="n">UnitType</span><span class="o">.</span><span class="n">LITHOK</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">"Stratigraphic units are not present in the lithologic metadata of GeoTOP."</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="n">replace</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">df</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_select_contains</span><span class="p">(</span>
+                <span class="s2">"geulafzettingen"</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_desc</span><span class="p">,</span> <span class="n">case_sensitive</span><span class="o">=</span><span class="kc">False</span>
+            <span class="p">),</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="GeotopUnits.get_holocene_units">
+<a class="viewcode-back" href="../../../api_reference/generated/geost.bro.geotop.GeotopUnits.get_holocene_units.html#geost.bro.geotop.GeotopUnits.get_holocene_units">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_holocene_units</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">include_channel_units</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">GeotopUnits</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Select metadata for all Holocene units.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        include_channel_units : bool, optional</span>
+<span class="sd">            Whether to include Holocene channel units in the selection. The default is</span>
+<span class="sd">            True.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        class:`~geost.bro.geotop.GeotopUnits`</span>
+<span class="sd">            GeotopUnits instance containing the metadata subset for the Holocene units.</span>
+
+<span class="sd">        """</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">unit_type</span> <span class="o">==</span> <span class="n">UnitType</span><span class="o">.</span><span class="n">LITHOK</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">"Stratigraphic units are not present in the lithologic metadata of GeoTOP."</span>
+            <span class="p">)</span>
+        <span class="n">undefined</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">antropogenic</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1000</span><span class="p">,</span> <span class="mi">1005</span><span class="p">]</span>
+        <span class="n">older_units_begin</span> <span class="o">=</span> <span class="mi">3000</span>
+
+        <span class="n">holocene_mask</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">voxel_nr</span> <span class="o">&lt;</span> <span class="n">older_units_begin</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span>
+            <span class="o">~</span><span class="bp">self</span><span class="o">.</span><span class="n">voxel_nr</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">antropogenic</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">voxel_nr</span> <span class="o">!=</span> <span class="n">undefined</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">holocene</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">holocene_mask</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="n">include_channel_units</span><span class="p">:</span>
+            <span class="n">channel_units</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_holocene_channel_units</span><span class="p">()</span>
+            <span class="n">holocene</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">holocene</span><span class="p">,</span> <span class="n">channel_units</span><span class="o">.</span><span class="n">df</span><span class="p">])</span>
+
+        <span class="k">return</span> <span class="n">replace</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">df</span><span class="o">=</span><span class="n">holocene</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="GeotopUnits.get_plot_colormap">
+<a class="viewcode-back" href="../../../api_reference/generated/geost.bro.geotop.GeotopUnits.get_plot_colormap.html#geost.bro.geotop.GeotopUnits.get_plot_colormap">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_plot_colormap</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="n">ListedColormap</span><span class="p">,</span> <span class="n">BoundaryNorm</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Get a dictionary with a plot colormap and value boundaries for use in matplotlib</span>
+<span class="sd">        figures. The resulting dictionary contains a `ListedColormap` object, derived</span>
+<span class="sd">        from the RGB codes and a `BoundaryNorm` object which determines the value boundaries</span>
+<span class="sd">        for which color to use.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        dict[ListedColormap, BoundaryNorm]</span>
+<span class="sd">            Dictionary containing the colormap (`cmap`) and the normalization (`norm`)</span>
+<span class="sd">            for plotting.</span>
+
+<span class="sd">        Example</span>
+<span class="sd">        -------</span>
+<span class="sd">        For example when a 2D section of the GeoTOP stratigraphy, first load the model</span>
+<span class="sd">        data and stratigraphic metadata:</span>
+
+<span class="sd">        &gt;&gt;&gt; import geost</span>
+<span class="sd">        ... geotop = geost.data.geotop_usp() # Load the GeoTOP model data</span>
+<span class="sd">        ... strat = geost.bro.geotop_strat_units() # Load the stratigraphic metadata of GeoTOP</span>
+
+<span class="sd">        Then select the stratigraphic units that are present in the model from the metadata:</span>
+
+<span class="sd">        &gt;&gt;&gt; strat = strat.select_voxel_nr(geotop)</span>
+
+<span class="sd">        Finally, select a 2D section and pass the resulting dictionary to the plotting function:</span>
+
+<span class="sd">        &gt;&gt;&gt; section = geotop["strat"].sel(x=139850, z=slice(-10, None))</span>
+<span class="sd">        &gt;&gt;&gt; section.plot.imshow(x="y", **strat.get_plot_colormap())</span>
+
+<span class="sd">        .. figure:: /_static/example_section_geotop.svg</span>
+<span class="sd">            :align: left</span>
+
+<span class="sd">        """</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">matplotlib.colors</span><span class="w"> </span><span class="kn">import</span> <span class="n">BoundaryNorm</span><span class="p">,</span> <span class="n">ListedColormap</span>
+
+        <span class="n">cmap</span> <span class="o">=</span> <span class="n">ListedColormap</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">colors_rgb</span><span class="o">.</span><span class="n">values</span> <span class="o">/</span> <span class="mi">255</span><span class="p">)</span>
+
+        <span class="n">boundaries</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">voxel_nr</span><span class="p">[:</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">voxel_nr</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span> <span class="o">/</span> <span class="mi">2</span>
+        <span class="n">boundaries</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">r_</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">voxel_nr</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="n">boundaries</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">voxel_nr</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
+        <span class="n">norm</span> <span class="o">=</span> <span class="n">BoundaryNorm</span><span class="p">(</span><span class="n">boundaries</span><span class="p">,</span> <span class="n">cmap</span><span class="o">.</span><span class="n">N</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s2">"cmap"</span><span class="p">:</span> <span class="n">cmap</span><span class="p">,</span> <span class="s2">"norm"</span><span class="p">:</span> <span class="n">norm</span><span class="p">}</span></div>
+
+
+<div class="viewcode-block" id="GeotopUnits.to_qml">
+<a class="viewcode-back" href="../../../api_reference/generated/geost.bro.geotop.GeotopUnits.to_qml.html#geost.bro.geotop.GeotopUnits.to_qml">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">to_qml</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">column</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">field</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">layer_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"vector"</span><span class="p">,</span>
+        <span class="n">band</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Export metadata as a QGIS polygon vector or paletted raster style.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        path : str</span>
+<span class="sd">            Path and filename where the generated QGIS style file will be written.</span>
+<span class="sd">        column : str, optional</span>
+<span class="sd">            Metadata column whose values QGIS uses to choose a color for each</span>
+<span class="sd">            feature or raster cell. Choose ``self._nr`` for voxel numbers or</span>
+<span class="sd">            ``self._unit`` for unit codes. Defaults to ``self._nr``; raster</span>
+<span class="sd">            styles only support voxel numbers.</span>
+<span class="sd">        field : str, optional</span>
+<span class="sd">            Name of the field in the vector file containing the values from</span>
+<span class="sd">            ``column``. QGIS matches each feature's value to the metadata to</span>
+<span class="sd">            choose its color. Defaults to the name of ``column`` and is not</span>
+<span class="sd">            used for raster styles.</span>
+<span class="sd">        layer_type : str, optional</span>
+<span class="sd">            Choose ``"vector"`` (default) to color features based on ``field``,</span>
+<span class="sd">            or ``"raster"`` to color raster cells using voxel numbers.</span>
+<span class="sd">        band : int, optional</span>
+<span class="sd">            Raster band containing the voxel numbers that should receive the</span>
+<span class="sd">            style colors. Defaults to 1 and is only used for raster styles.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        ValueError</span>
+<span class="sd">            If an option is invalid, unit codes are used for a raster, the</span>
+<span class="sd">            metadata table is empty, or an RGB value is outside the valid range.</span>
+
+<span class="sd">        """</span>
+        <span class="k">if</span> <span class="n">layer_type</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"vector"</span><span class="p">,</span> <span class="s2">"raster"</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"layer_type must be 'vector' or 'raster'."</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">column</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">column</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_nr</span>
+        <span class="k">if</span> <span class="n">column</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_nr</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_unit</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"column must be '</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_nr</span><span class="si">}</span><span class="s2">' or '</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_unit</span><span class="si">}</span><span class="s2">'."</span><span class="p">)</span>
+
+        <span class="n">use_unit_codes</span> <span class="o">=</span> <span class="n">column</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">_unit</span>
+        <span class="k">if</span> <span class="n">layer_type</span> <span class="o">==</span> <span class="s2">"raster"</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">use_unit_codes</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"Raster styles only support numeric voxel numbers."</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">field</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"field is only applicable to vector styles."</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">band</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">band</span><span class="p">,</span> <span class="nb">bool</span><span class="p">)</span> <span class="ow">or</span> <span class="n">band</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"band must be a positive integer."</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">field</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">field</span> <span class="o">=</span> <span class="n">column</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">field</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">field</span><span class="o">.</span><span class="n">strip</span><span class="p">():</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"field must be a non-empty attribute field name."</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"Cannot export empty metadata."</span><span class="p">)</span>
+
+        <span class="n">write_qml</span><span class="p">(</span>
+            <span class="n">path</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="p">,</span>
+            <span class="n">value_column</span><span class="o">=</span><span class="n">column</span><span class="p">,</span>
+            <span class="n">color_columns</span><span class="o">=</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_r</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_g</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_b</span><span class="p">),</span>
+            <span class="n">label_column</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_unit</span><span class="p">,</span>
+            <span class="n">description_column</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_desc</span><span class="p">,</span>
+            <span class="n">label_separator</span><span class="o">=</span><span class="s2">" - "</span><span class="p">,</span>
+            <span class="n">layer_type</span><span class="o">=</span><span class="n">layer_type</span><span class="p">,</span>
+            <span class="n">field</span><span class="o">=</span><span class="n">field</span><span class="p">,</span>
+            <span class="n">band</span><span class="o">=</span><span class="n">band</span><span class="p">,</span>
+        <span class="p">)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="geotop_strat_units">
+<a class="viewcode-back" href="../../../api_reference/generated/geost.bro.geotop_strat_units.html#geost.bro.geotop.geotop_strat_units">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">geotop_strat_units</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">GeotopUnits</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Read the stratigraphic metadata of GeoTOP for easy selection and translation of</span>
+<span class="sd">    stratigraphic units in GeoTOP model data. The metadata is loaded from an internally</span>
+<span class="sd">    stored parquet file which is a copy of the metadata that is delivered with the GeoTOP</span>
+<span class="sd">    model when it is downloaded from the BRO (see: https://www.dinoloket.nl/modelbestanden-aanvragen).</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    :class:`~geost.bro.geotop.GeotopUnits`</span>
+<span class="sd">        GeotopUnits instance containing the stratigraphic metadata of GeoTOP.</span>
+
+<span class="sd">    """</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">geost.data</span><span class="w"> </span><span class="kn">import</span> <span class="n">REGISTRY</span>
+
+    <span class="n">meta</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_parquet</span><span class="p">(</span><span class="n">REGISTRY</span><span class="o">.</span><span class="n">fetch</span><span class="p">(</span><span class="s2">"geotop_v01r6s1_metadata_strat.parquet"</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">GeotopUnits</span><span class="p">(</span><span class="n">meta</span><span class="p">,</span> <span class="n">UnitType</span><span class="o">.</span><span class="n">STRAT</span><span class="p">,</span> <span class="s2">"strat"</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="geotop_lithok_units">
+<a class="viewcode-back" href="../../../api_reference/generated/geost.bro.geotop_lithok_units.html#geost.bro.geotop.geotop_lithok_units">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">geotop_lithok_units</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">GeotopUnits</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Read the lithologic metadata of GeoTOP for easy selection and translation of</span>
+<span class="sd">    lithologic units in GeoTOP model data. The metadata is loaded from an internally</span>
+<span class="sd">    stored parquet file which is a copy of the metadata that is delivered with the GeoTOP</span>
+<span class="sd">    model when it is downloaded from the BRO (see: https://www.dinoloket.nl/modelbestanden-aanvragen).</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    :class:`~geost.bro.geotop.GeotopUnits`</span>
+<span class="sd">        GeotopUnits instance containing the lithologic metadata of GeoTOP.</span>
+
+<span class="sd">    """</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">geost.data</span><span class="w"> </span><span class="kn">import</span> <span class="n">REGISTRY</span>
+
+    <span class="n">meta</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_parquet</span><span class="p">(</span><span class="n">REGISTRY</span><span class="o">.</span><span class="n">fetch</span><span class="p">(</span><span class="s2">"geotop_v01r6s1_metadata_lithok.parquet"</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">GeotopUnits</span><span class="p">(</span><span class="n">meta</span><span class="p">,</span> <span class="n">UnitType</span><span class="o">.</span><span class="n">LITHOK</span><span class="p">,</span> <span class="s2">"lithok"</span><span class="p">,</span> <span class="n">_unit</span><span class="o">=</span><span class="s2">"LITHO_CLASS_CD"</span><span class="p">)</span></div>
+
+</pre></div>
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be"></script>
+<script defer src="../../../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2026, Deltares.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.2.0.
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.23.0.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

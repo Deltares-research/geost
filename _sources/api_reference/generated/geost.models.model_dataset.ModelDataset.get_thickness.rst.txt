@@ -1,0 +1,6 @@
+﻿geost.models.model\_dataset.ModelDataset.get\_thickness
+=======================================================
+
+.. currentmodule:: geost.models.model_dataset
+
+.. automethod:: ModelDataset.get_thickness

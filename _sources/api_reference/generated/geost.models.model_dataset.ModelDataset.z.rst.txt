@@ -1,0 +1,6 @@
+﻿geost.models.model\_dataset.ModelDataset.z
+==========================================
+
+.. currentmodule:: geost.models.model_dataset
+
+.. autoproperty:: ModelDataset.z

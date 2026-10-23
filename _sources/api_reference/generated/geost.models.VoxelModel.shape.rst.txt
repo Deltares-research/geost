@@ -1,6 +1,0 @@
-﻿geost.models.VoxelModel.shape
-=============================
-
-.. currentmodule:: geost.models
-
-.. autoproperty:: VoxelModel.shape

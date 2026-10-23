@@ -1,6 +1,0 @@
-﻿geost.models.VoxelModel.get\_thickness
-======================================
-
-.. currentmodule:: geost.models
-
-.. automethod:: VoxelModel.get_thickness

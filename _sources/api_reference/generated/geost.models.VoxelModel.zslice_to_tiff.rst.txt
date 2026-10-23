@@ -1,6 +1,0 @@
-﻿geost.models.VoxelModel.zslice\_to\_tiff
-========================================
-
-.. currentmodule:: geost.models
-
-.. automethod:: VoxelModel.zslice_to_tiff

@@ -1,6 +1,0 @@
-﻿geost.analysis.combine.add\_voxelmodel\_variable
-================================================
-
-.. currentmodule:: geost.analysis.combine
-
-.. autofunction:: add_voxelmodel_variable

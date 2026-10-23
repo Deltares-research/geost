@@ -1,0 +1,6 @@
+﻿geost.pandas\_dataframe
+=======================
+
+.. currentmodule:: geost
+
+.. autofunction:: pandas_dataframe

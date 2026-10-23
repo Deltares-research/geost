@@ -1,6 +1,0 @@
-﻿geost.bro.bro\_geotop.GeoTop.resolution
-=======================================
-
-.. currentmodule:: geost.bro.bro_geotop
-
-.. autoproperty:: GeoTop.resolution

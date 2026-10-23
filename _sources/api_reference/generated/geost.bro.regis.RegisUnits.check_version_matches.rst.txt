@@ -1,0 +1,6 @@
+﻿geost.bro.regis.RegisUnits.check\_version\_matches
+==================================================
+
+.. currentmodule:: geost.bro.regis
+
+.. automethod:: RegisUnits.check_version_matches

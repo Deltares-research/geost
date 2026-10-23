@@ -1,0 +1,6 @@
+﻿geost.models.model\_dataset.ModelDataset.mask\_geometries
+=========================================================
+
+.. currentmodule:: geost.models.model_dataset
+
+.. automethod:: ModelDataset.mask_geometries

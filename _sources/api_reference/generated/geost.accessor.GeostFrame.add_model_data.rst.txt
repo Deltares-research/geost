@@ -1,0 +1,6 @@
+﻿geost.accessor.GeostFrame.add\_model\_data
+==========================================
+
+.. currentmodule:: geost.accessor
+
+.. automethod:: GeostFrame.add_model_data

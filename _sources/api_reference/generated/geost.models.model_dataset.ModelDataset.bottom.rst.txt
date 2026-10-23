@@ -1,0 +1,6 @@
+﻿geost.models.model\_dataset.ModelDataset.bottom
+===============================================
+
+.. currentmodule:: geost.models.model_dataset
+
+.. autoproperty:: ModelDataset.bottom

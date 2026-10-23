@@ -14,11 +14,17 @@
    .. autosummary::
    
       ~GeostFrame.__init__
+      ~GeostFrame.add_model_data
+      ~GeostFrame.aggregate_consecutive_layers
       ~GeostFrame.calculate_thickness
+      ~GeostFrame.compute_discretized_fractions
+      ~GeostFrame.create_linestrings_3d
       ~GeostFrame.determine_end_depth
+      ~GeostFrame.find_point_pairs
       ~GeostFrame.get_cumulative_thickness
       ~GeostFrame.get_layer_base
       ~GeostFrame.get_layer_top
+      ~GeostFrame.merge_sorted
       ~GeostFrame.select_by_condition
       ~GeostFrame.select_by_elevation
       ~GeostFrame.select_by_length
@@ -33,6 +39,7 @@
       ~GeostFrame.standardize_column_names
       ~GeostFrame.to_collection
       ~GeostFrame.to_crs
+      ~GeostFrame.to_geopackage_3d
       ~GeostFrame.to_header
       ~GeostFrame.to_kingdom
       ~GeostFrame.to_pyvista_cylinders
@@ -57,6 +64,7 @@
       ~GeostFrame.has_xy_columns
       ~GeostFrame.is_layered
       ~GeostFrame.last_row_survey
+      ~GeostFrame.nr
       ~GeostFrame.positional_columns
    
    

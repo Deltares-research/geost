@@ -1,0 +1,6 @@
+﻿geost.accessor.GeostFrame.merge\_sorted
+=======================================
+
+.. currentmodule:: geost.accessor
+
+.. automethod:: GeostFrame.merge_sorted

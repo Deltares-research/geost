@@ -1,6 +1,0 @@
-﻿geost.models.VoxelModel.sel
-===========================
-
-.. currentmodule:: geost.models
-
-.. automethod:: VoxelModel.sel

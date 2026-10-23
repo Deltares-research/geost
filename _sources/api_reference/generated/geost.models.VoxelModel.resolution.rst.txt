@@ -1,6 +1,0 @@
-﻿geost.models.VoxelModel.resolution
-==================================
-
-.. currentmodule:: geost.models
-
-.. autoproperty:: VoxelModel.resolution

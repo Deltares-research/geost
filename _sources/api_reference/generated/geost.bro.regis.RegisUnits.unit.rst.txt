@@ -1,0 +1,6 @@
+﻿geost.bro.regis.RegisUnits.unit
+===============================
+
+.. currentmodule:: geost.bro.regis
+
+.. autoproperty:: RegisUnits.unit
