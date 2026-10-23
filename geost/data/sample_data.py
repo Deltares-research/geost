@@ -1,13 +1,13 @@
 import importlib
+import warnings
 from pathlib import Path
 
 import geopandas as gpd
 import pandas as pd
 import pooch
-import xarray as xr
 
-from geost.bro import GeoTop
 from geost.io.read import read_table
+from geost.io.read_models import read_geotop_netcdf
 
 REGISTRY = pooch.create(
     path=pooch.os_cache("geost"),
@@ -73,36 +73,31 @@ def cpts_usp(pandas=False, return_filepath=False):
     if pandas:
         return pd.read_parquet(filename)
     else:
-        return read_table(filename, crs=28992, vertical_datum=5709)
+        with warnings.catch_warnings():  # TODO: Fix supposed mixed depths in CPT data
+            warnings.simplefilter("ignore")
+            return read_table(filename, crs=28992, vertical_datum=5709)
 
 
-def geotop_usp(xarray=False, return_filepath=False):
+def geotop_usp(return_filepath=False):
     """
-    Return a :class:`~geost.bro.GeoTop` instance in the area of the Utrecht Science Park
+    Return an `xarray.Dataset` instance of GeoTOP in the area of the Utrecht Science Park
     to use in GeoST tutorials.
 
     Parameters
     ----------
-    xarray : bool, optional
-        If True, read the GeoTOP data as an `xarray.Dataset`. The default is False, this
-        returns a :class:`~geost.bro.GeoTop`.
     return_filepath : bool, optional
         If True, return the file path to the GeoTOP data instead of reading it. The
         default is False.
 
     Returns
     -------
-    :class:`~geost.bro.GeoTop`
+    `xarray.Dataset`
 
     """
     filename = REGISTRY.fetch("geotop_usp.nc")
     if return_filepath:
         return Path(filename)
-
-    if xarray:
-        return xr.open_dataset(filename)
-    else:
-        return GeoTop.from_netcdf(filename)
+    return read_geotop_netcdf(filename)
 
 
 def bhrg_bro():

@@ -36,6 +36,7 @@ classifiers = [
 requires-python = ">=3.12,<3.15"
 dependencies = [
     "numpy",
+    "scipy",
     "pandas",
     "pyarrow",
     "lxml",
@@ -46,7 +47,6 @@ dependencies = [
     "openpyxl",
 	"rioxarray",
     "shapely",
-    "pyvista",
     "pydap",
 	"platformdirs",
 ]
@@ -72,6 +72,7 @@ platforms = ["win-64", "linux-64", "osx-64", "osx-arm64"]
 [tool.pixi.dependencies]
 python = ">=3.13"
 numpy = "*"
+scipy = "*"
 pandas = "*"
 pyarrow = "*"
 lxml = "*"
@@ -81,7 +82,6 @@ xlrd = "*"
 openpyxl = "*"
 shapely = "*"
 pyvista = "*"
-black = "*"
 pytest = "*"
 pytest-cov = "*"
 ruff = "*"
@@ -95,10 +95,13 @@ pydap = "*"
 myst-parser = "*"
 pydata-sphinx-theme = "*"
 sphinx-design = "*"
+sphinx-autobuild = "*"
 myst-nb = "*"
 pooch = "*"
 pre-commit = "*"
 platformdirs = "*"
+pyinstrument = "*"
+xyzservices = "*"
 
 [tool.pixi.pypi-dependencies]
 geost = { path = ".", editable = true }
@@ -106,7 +109,8 @@ geost = { path = ".", editable = true }
 [tool.pixi.tasks]
 test = "python -m pytest --verbose --cov=geost --cov-report xml --cov-report term"
 docs = "sphinx-build -b html docs ./docs/build"
-format = "black ."
+serve-docs = "sphinx-autobuild docs ./docs/build --open-browser"
+format = "ruff format ."
 lint = "ruff check --fix ./geost"
 rm-jupyter = "rm -rf ./docs/jupyter_execute"
 rm-build = "rm -rf ./docs/build"
@@ -140,9 +144,6 @@ filterwarnings = [
 exclude_lines = [
   "pragma: no cover",
 ]
-
-[tool.black]
-line-length = 88
 
 [tool.ruff]
 line-length = 88

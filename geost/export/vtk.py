@@ -6,6 +6,7 @@ from typing import TYPE_CHECKING, Iterable, Literal
 import numpy as np
 import pandas as pd
 import xarray as xr
+from numpy.lib.stride_tricks import sliding_window_view
 
 if TYPE_CHECKING:
     import pyvista as pv
@@ -27,13 +28,15 @@ def _get_pyvista():  # pragma: no cover
 def prepare_as_continuous(
     data: pd.DataFrame,
     depth_column: Literal["depth", "bottom"],
+    x: str,
+    y: str,
     vertical_factor: float,
 ) -> np.ndarray:
     """
     Prepare data for PyVista cylinder objects as continuous depth representation (e.g.
     using 'depth' or 'bottom' as depth column). This is typical for CPTs and well logs.
     """
-    data_xyz = data[["x", "y", depth_column]].to_numpy(copy=True)
+    data_xyz = data[[x, y, depth_column]].to_numpy(copy=True)
     data_xyz[:, -1] *= vertical_factor
     return data_xyz
 
@@ -41,6 +44,8 @@ def prepare_as_continuous(
 def prepare_as_layers(
     data: pd.DataFrame,
     depth_column: list[Literal["top"], Literal["bottom"]],
+    x: str,
+    y: str,
     vertical_factor: float,
 ) -> np.ndarray:
     """
@@ -48,8 +53,8 @@ def prepare_as_layers(
     'top' and 'bottom' as depth columns). This is typical for boreholes with layer
     descriptions and e.g. non-continuous layer intervals of grainsize sample data.
     """
-    data_xyz_top = data[["x", "y", depth_column[0]]].to_numpy()
-    data_xyz_bottom = data[["x", "y", depth_column[-1]]].to_numpy()
+    data_xyz_top = data[[x, y, depth_column[0]]].to_numpy()
+    data_xyz_bottom = data[[x, y, depth_column[-1]]].to_numpy()
     data_xyz = np.column_stack([data_xyz_top, data_xyz_bottom]).reshape(-1, 3)
     data_xyz[:, -1] *= vertical_factor
     return data_xyz
@@ -57,7 +62,7 @@ def prepare_as_layers(
 
 def generate_cylinders(
     data: pd.DataFrame,
-    depth_column: Literal["depth", "bottom"] | list[Literal["top"], Literal["bottom"]],
+    positional_columns: dict[str, str],
     data_columns: list[str],
     radius: float,
     n_sides: int,
@@ -65,13 +70,17 @@ def generate_cylinders(
 ) -> Iterable:
     pv = _get_pyvista()
 
-    boreholes = data.groupby("nr")
+    boreholes = data.groupby(positional_columns["nr"])
     for _, borehole in boreholes:
         # Case I  - depth_column is a single column representing depth from surface
         # (e.g. 'depth' or only 'bottom')
-        if isinstance(depth_column, str):
+        if positional_columns["top"] is None:
             borehole_prepared = prepare_as_continuous(
-                borehole, depth_column, vertical_factor
+                borehole,
+                positional_columns["depth"],
+                positional_columns["x"],
+                positional_columns["y"],
+                vertical_factor,
             )
             poly = pv.PolyData(borehole_prepared)
             line_segments = np.arange(0, len(borehole_prepared), dtype=np.int_)
@@ -89,9 +98,16 @@ def generate_cylinders(
 
         # Case II - depth_column is a list of two column names representing top and
         # bottom depths (e.g. ['top', 'bottom'])
-        elif isinstance(depth_column, list):
+        elif (
+            positional_columns["top"] is not None
+            and positional_columns["depth"] is not None
+        ):
             borehole_prepared = prepare_as_layers(
-                borehole, depth_column, vertical_factor
+                borehole,
+                [positional_columns["top"], positional_columns["depth"]],
+                positional_columns["x"],
+                positional_columns["y"],
+                vertical_factor,
             )
             cylinder = pv.merge(
                 [
@@ -121,7 +137,7 @@ def generate_cylinders(
 
 def borehole_to_multiblock(
     data: pd.DataFrame,
-    depth_column: Literal["depth", "bottom"] | list[Literal["top"], Literal["bottom"]],
+    positional_columns: dict[str, str],
     displayed_variables: list[str],
     radius: float,
     n_sides: int,
@@ -133,10 +149,10 @@ def borehole_to_multiblock(
     Parameters
     ----------
     data : pd.DataFrame
-        Table of borehole/CPT objects. This is CptCollection.data or
-        BoreholeCollection.data.
-    depth_column : Literal['depth', 'bottom'] | list[Literal["top"], Literal["bottom"]]
-        Name of the column or columns representing depth.
+        Table of borehole/CPT objects. This is `Collection.data`.
+    positional_columns : dict[str, str]
+        Dictionary containing the names of the positional columns. Expected keys are 'x',
+        'y', 'surface', 'top', 'bottom', 'depth', and 'nr'.
     displayed_variables : List[str]
         Column names of data columns to write in the vtk file
     radius : float
@@ -156,7 +172,7 @@ def borehole_to_multiblock(
 
     cylinders = generate_cylinders(
         data,
-        depth_column,
+        positional_columns,
         displayed_variables,
         radius,
         n_sides,
@@ -166,228 +182,11 @@ def borehole_to_multiblock(
     return cylinders_multiblock
 
 
-def layerdata_to_pyvista_unstructured(
-    data: pd.DataFrame,
-    depth_column: Literal["depth", "bottom"] | list[Literal["top"], Literal["bottom"]],
-    displayed_variables: list[str],
-    radius: float = 1.0,
-) -> pv.UnstructuredGrid:
-    """
-    Convert a layerdata object to a PyVista UnstructuredGrid.
-
-    Parameters
-    ----------
-    data : pd.DataFrame
-        The input data containing at least columns x, y, surface, top, and bottom.
-    depth_column : Literal['depth', 'bottom'] | list[Literal["top"], Literal["bottom"]]
-        Name of the column or columns representing depth.
-    displayed_variables : list of str
-        List of variable names in the data to include as cell data in the voxel model.
-    radius : float
-        The 'radius' of the voxels. This will determine the
-        horizontal size of the voxels in the resulting unstructured grid.
-
-    Returns
-    -------
-    grid : pyvista.UnstructuredGrid
-        The resulting voxel model as a PyVista UnstructuredGrid.
-    """
-    pv = _get_pyvista()
-
-    x = data["x"].values
-    y = data["y"].values
-
-    # Case I  - depth_column is a single column representing depth from surface
-    # (e.g. 'depth' or only 'bottom'). In this case we compute the top depth.
-    if isinstance(depth_column, str):
-        top = data[depth_column].shift()
-        top[data["nr"] != data["nr"].shift()] = data["surface"]
-        bottom = data[depth_column].values
-    # Case II - depth_column is a list of two column names representing top and
-    # bottom depths (e.g. ['top', 'bottom'])
-    elif isinstance(depth_column, list):
-        top = data[depth_column[0]].values
-        bottom = data[depth_column[-1]].values
-
-    # Define all cell corner coordinates in the required order
-    voxels = np.array(
-        [
-            [x - radius, y - radius, bottom],
-            [x + radius, y - radius, bottom],
-            [x - radius, y + radius, bottom],
-            [x + radius, y + radius, bottom],
-            [x - radius, y - radius, top],
-            [x + radius, y - radius, top],
-            [x - radius, y + radius, top],
-            [x + radius, y + radius, top],
-        ]
-    )
-    voxels = np.rollaxis(voxels, -1, 0)
-    points = voxels.reshape(-1, 3)
-
-    # Create the cells array
-    n_voxels = len(x)
-    cells_voxel = np.arange(n_voxels * 8).reshape((n_voxels, 8))
-
-    # Create unstructured grid and assign data variables
-    grid = pv.UnstructuredGrid({pv.CellType.VOXEL: cells_voxel}, points)
-    for var in displayed_variables:
-        if var not in data.columns:
-            print(
-                f"Variable '{var}' is unavailable in the data. Skipping this variable."
-            )
-            continue
-        grid.cell_data[var] = data[var].values
-    return grid
-
-
-def voxelmodel_to_pyvista_structured(
-    dataset: xr.Dataset,
-    resolution: tuple[float, float, float],
-    displayed_variables: list[str] = None,
-) -> pv.StructuredGrid:
-    """
-    Convert an xarray dataset to a PyVista voxel model (StructuredGrid).
-
-    Parameters
-    ----------
-    dataset : xarray.Dataset
-        The input dataset containing 3D grid data with coordinates 'x', 'y', and 'z'.
-    displayed_variables : list of str
-        List of variable names in the dataset to include as cell data in the voxel model.
-    resolution : tuple of float
-        The resolution (dy, dx, dz) representing the size of each voxel along the y, x,
-        and z axes.
-
-    Returns
-    -------
-    grid : pyvista.StructuredGrid
-        The resulting voxel model as a PyVista StructuredGrid, with cell data assigned
-        for each variable in `displayed_variables`.
-    """
-    pv = _get_pyvista()
-
-    if displayed_variables is None:
-        displayed_variables = dataset.data_vars
-
-    # Check if the dataset has the required dimensions and order. Because we treat the
-    # voxelmodel as image data, we need dimensions in the order (x, y, z) with
-    # coordinates in increasing order with respect to the origin.
-    dataset = check_voxelmodel_dims(dataset, dim_order=("x", "y", "z"))
-
-    # Define PyVista structured grid using ImageData
-    grid = pv.ImageData()
-    grid.spacing = resolution[1], resolution[0], resolution[2]
-    grid.origin = dataset.x.values[0], dataset.y.values[0], dataset.z.values[0]
-    grid.dimensions = (
-        np.array(
-            [dataset.sizes["x"], dataset.sizes["y"], dataset.sizes["z"]], dtype=int
-        )
-        + 1
-    )
-
-    # Add the variables to the grid
-    for var in displayed_variables:
-        if not all(dim in dataset[var].sizes for dim in {"x", "y", "z"}):
-            print(
-                f"Variable '{var}' does not have the required dimensions 'x', 'y', and "
-                "'z'. Skipping this variable."
-            )
-            continue
-        data = dataset[var].values
-        grid.cell_data[var] = data.flatten(order="F")
-
-    return grid
-
-
-def voxelmodel_to_pyvista_unstructured(
-    dataset: xr.Dataset,
-    resolution: tuple[float, float, float],
-    displayed_variables: list[str] = None,
-) -> pv.UnstructuredGrid:
-    """
-    Convert an xarray dataset to a PyVista voxel model (UnstructuredGrid).
-
-    Parameters
-    ----------
-    dataset : xarray.Dataset
-        The input dataset containing 3D grid data with coordinates 'x', 'y', and 'z'.
-    displayed_variables : list of str
-        List of variable names in the dataset to include as cell data in the voxel model.
-    resolution : tuple of float
-        The resolution (dx, dy, dz) representing the size of each voxel along the x, y,
-        and z axes.
-
-    Returns
-    -------
-    grid : pyvista.UnstructuredGrid
-        The resulting voxel model as a PyVista UnstructuredGrid, with cell data assigned
-        for each variable in `displayed_variables`.
-    """
-    pv = _get_pyvista()
-
-    if displayed_variables is None:
-        displayed_variables = dataset.data_vars
-
-    # Check if the dataset has the required dimensions and order
-    dataset = check_voxelmodel_dims(dataset, dim_order=("y", "x", "z"))
-
-    # Get half resolution (used to compute voxel corners with respect to cell centers)
-    xres, yres, zres = resolution[0] / 2, resolution[1] / 2, resolution[2] / 2
-
-    # Compute cell centers (Making use of the fact that xarray coordinates represent
-    # those cell centers, so we can use them directly with meshgrid)
-    xx, yy, zz = np.meshgrid(dataset.x.values, dataset.y.values, dataset.z.values)
-    cell_centers = np.stack([xx, yy, zz], axis=-1).reshape(-1, 3)
-
-    # Compute voxel corners by offsetting cell centers with half resolution in all
-    # directions.
-    offsets = np.array(
-        [
-            [-xres, -yres, -zres],
-            [xres, -yres, -zres],
-            [-xres, yres, -zres],
-            [xres, yres, -zres],
-            [-xres, -yres, zres],
-            [xres, -yres, zres],
-            [-xres, yres, zres],
-            [xres, yres, zres],
-        ]
-    )
-    voxels = cell_centers[:, None, :] + offsets[None, :, :]
-    points = voxels.reshape(-1, 3)
-
-    # Build cell connectivity
-    n_voxels = cell_centers.shape[0]
-    cells_voxel = np.arange(n_voxels * 8).reshape((n_voxels, 8))
-
-    # Create unstructured grid and assign data variables
-    grid = pv.UnstructuredGrid({pv.CellType.VOXEL: cells_voxel}, points)
-    for var in displayed_variables:
-        if not all(dim in dataset[var].dims for dim in {"x", "y", "z"}):
-            print(
-                f"Variable '{var}' does not have the required dimensions 'x', 'y', and "
-                "'z'. Skipping this variable."
-            )
-            continue
-        data = dataset[var].values
-        grid.cell_data[var] = data.flatten(order="C")
-
-    # Take the first data var to check for NaN values and extract only cells in grid
-    # that are not NaN. (perhaps this should be done for all data vars?)
-    nan_mask = np.isnan(grid.cell_data[grid.cell_data.keys()[0]])
-    if np.any(nan_mask):
-        grid = grid.extract_cells(~nan_mask, pass_point_ids=False, pass_cell_ids=False)
-        grid = grid.clean(produce_merge_map=False)
-
-    return grid
-
-
-def check_voxelmodel_dims(
+def check_model_dims(
     dataset: xr.Dataset, dim_order: tuple = ("x", "y", "z")
 ) -> xr.Dataset:
     """
-    Check if the voxelmodel dataset dimensions are in the required order and contain
+    Check if the model dataset dimensions are in the required order and contain
     the required dimensions 'x', 'y', and 'z'.
 
     - If dimensions are missing or wrongly named, raise a ValueError.
@@ -444,3 +243,348 @@ def check_voxelmodel_dims(
             dataset = dataset.sortby(dim)
 
     return dataset
+
+
+def _clean_up_unstructured_grid(
+    grid: pv.UnstructuredGrid, simplify: bool = True
+) -> pv.UnstructuredGrid:
+    """
+    Clean up an unstructured grid by removing unused points and ensuring proper connectivity.
+
+    Parameters
+    ----------
+    grid : pv.UnstructuredGrid
+        The input unstructured grid to clean up.
+
+    Returns
+    -------
+    pv.UnstructuredGrid
+        The cleaned-up unstructured grid.
+    """
+    # Take the first data var to check for NaN values and extract only cells in grid
+    # that are not NaN. (perhaps this should be done for all data vars?)
+    nan_mask = np.isnan(grid.cell_data[grid.cell_data.keys()[0]])
+    if np.any(nan_mask):
+        grid = grid.extract_cells(~nan_mask, pass_point_ids=False, pass_cell_ids=False)
+    if simplify:
+        grid = grid.clean(produce_merge_map=False)
+
+    return grid
+
+
+def layerdata_to_pyvista_unstructured(
+    data: pd.DataFrame,
+    positional_columns: dict[str, str],
+    displayed_variables: list[str],
+    radius: float = 1.0,
+) -> pv.UnstructuredGrid:
+    """
+    Convert a layerdata object to a PyVista UnstructuredGrid.
+
+    Parameters
+    ----------
+    data : pd.DataFrame
+        The input data containing at least columns x, y, surface, top, and bottom.
+    positional_columns : dict[str, str]
+        Dictionary containing the names of the positional columns. Expected keys are 'x',
+        'y', 'surface', 'top', 'bottom', 'depth', and 'nr'.
+    displayed_variables : list of str
+        List of variable names in the data to include as cell data in the voxel model.
+    radius : float
+        The 'radius' of the voxels. This will determine the
+        horizontal size of the voxels in the resulting unstructured grid.
+
+    Returns
+    -------
+    grid : pyvista.UnstructuredGrid
+        The resulting voxel model as a PyVista UnstructuredGrid.
+    """
+    pv = _get_pyvista()
+
+    x = data[positional_columns["x"]].values
+    y = data[positional_columns["y"]].values
+
+    # Case I  - depth_column is a single column representing depth from surface
+    # (e.g. 'depth' or only 'bottom'). In this case we compute the top depth.
+    if positional_columns["top"] is None:
+        top = data[positional_columns["depth"]].shift()
+        top[
+            data[positional_columns["nr"]] != data[positional_columns["nr"]].shift()
+        ] = data[positional_columns["surface"]]
+        bottom = data[positional_columns["depth"]].values
+    # Case II - depth_column is a list of two column names representing top and
+    # bottom depths (e.g. ['top', 'bottom'])
+    elif (
+        positional_columns["top"] is not None
+        and positional_columns["depth"] is not None
+    ):
+        top = data[positional_columns["top"]].values
+        bottom = data[positional_columns["depth"]].values
+
+    # Define all cell corner coordinates in the required order
+    voxels = np.array(
+        [
+            [x - radius, y - radius, bottom],
+            [x + radius, y - radius, bottom],
+            [x - radius, y + radius, bottom],
+            [x + radius, y + radius, bottom],
+            [x - radius, y - radius, top],
+            [x + radius, y - radius, top],
+            [x - radius, y + radius, top],
+            [x + radius, y + radius, top],
+        ]
+    )
+    voxels = np.rollaxis(voxels, -1, 0)
+    points = voxels.reshape(-1, 3)
+
+    # Create the cells array
+    n_voxels = len(x)
+    cells_voxel = np.arange(n_voxels * 8).reshape((n_voxels, 8))
+
+    # Create unstructured grid and assign data variables
+    grid = pv.UnstructuredGrid({pv.CellType.VOXEL: cells_voxel}, points)
+    for var in displayed_variables:
+        if var not in data.columns:
+            print(
+                f"Variable '{var}' is unavailable in the data. Skipping this variable."
+            )
+            continue
+        grid.cell_data[var] = data[var].values
+    return grid
+
+
+def voxelmodel_to_pyvista_structured(
+    dataset: xr.Dataset,
+    resolution: tuple[float, float, float],
+    displayed_variables: list[str] = None,
+    x: str = "x",
+    y: str = "y",
+    z: str = "z",
+) -> pv.StructuredGrid:
+    """
+    Convert an xarray dataset to a PyVista voxel model (StructuredGrid).
+
+    Parameters
+    ----------
+    dataset : xarray.Dataset
+        The input dataset containing 3D grid data with coordinates 'x', 'y', and 'z'.
+    displayed_variables : list of str
+        List of variable names in the dataset to include as cell data in the voxel model.
+    resolution : tuple of float
+        The resolution (dy, dx, dz) representing the size of each voxel along the y, x,
+        and z axes.
+
+    Returns
+    -------
+    grid : pyvista.StructuredGrid
+        The resulting voxel model as a PyVista StructuredGrid, with cell data assigned
+        for each variable in `displayed_variables`.
+    """
+    pv = _get_pyvista()
+
+    if displayed_variables is None:
+        displayed_variables = dataset.data_vars
+
+    # Check if the dataset has the required dimensions and order. Because we treat the
+    # voxelmodel as image data, we need dimensions in the order (x, y, z) with
+    # coordinates in increasing order with respect to the origin.
+    dataset = check_model_dims(dataset, dim_order=(x, y, z))
+
+    # Define PyVista structured grid using ImageData
+    grid = pv.ImageData()
+    grid.spacing = resolution[1], resolution[0], resolution[2]
+    grid.origin = dataset[x].values[0], dataset[y].values[0], dataset[z].values[0]
+    grid.dimensions = (
+        np.array([dataset.sizes[x], dataset.sizes[y], dataset.sizes[z]], dtype=int) + 1
+    )
+
+    # Add the variables to the grid
+    for var in displayed_variables:
+        if not all(dim in dataset[var].sizes for dim in {x, y, z}):
+            print(
+                f"Variable '{var}' does not have the required dimensions '{x}', '{y}', and "
+                f"'{z}'. Skipping this variable."
+            )
+            continue
+        data = dataset[var].values
+        grid.cell_data[var] = data.flatten(order="F")
+
+    return grid
+
+
+def voxelmodel_to_pyvista_unstructured(
+    dataset: xr.Dataset,
+    resolution: tuple[float, float, float],
+    displayed_variables: list[str] = None,
+    x: str = "x",
+    y: str = "y",
+    z: str = "z",
+) -> pv.UnstructuredGrid:
+    """
+    Convert an xarray dataset to a PyVista voxel model (UnstructuredGrid).
+
+    Parameters
+    ----------
+    dataset : xarray.Dataset
+        The input dataset containing 3D grid data with coordinates 'x', 'y', and 'z'.
+    displayed_variables : list of str
+        List of variable names in the dataset to include as cell data in the voxel model.
+    resolution : tuple of float
+        The resolution (dx, dy, dz) representing the size of each voxel along the x, y,
+        and z axes.
+
+    Returns
+    -------
+    grid : pyvista.UnstructuredGrid
+        The resulting voxel model as a PyVista UnstructuredGrid, with cell data assigned
+        for each variable in `displayed_variables`.
+    """
+    pv = _get_pyvista()
+
+    if displayed_variables is None:
+        displayed_variables = dataset.data_vars
+
+    # Check if the dataset has the required dimensions and order
+    dataset = check_model_dims(dataset, dim_order=(y, x, z))
+
+    # Get half resolution (used to compute voxel corners with respect to cell centers)
+    xres, yres, zres = resolution[0] / 2, resolution[1] / 2, resolution[2] / 2
+
+    # Compute cell centers (Making use of the fact that xarray coordinates represent
+    # those cell centers, so we can use them directly with meshgrid)
+    xx, yy, zz = np.meshgrid(dataset[x].values, dataset[y].values, dataset[z].values)
+    cell_centers = np.stack([xx, yy, zz], axis=-1).reshape(-1, 3)
+
+    # Compute voxel corners by offsetting cell centers with half resolution in all
+    # directions.
+    offsets = np.array(
+        [
+            [-xres, -yres, -zres],
+            [xres, -yres, -zres],
+            [-xres, yres, -zres],
+            [xres, yres, -zres],
+            [-xres, -yres, zres],
+            [xres, -yres, zres],
+            [-xres, yres, zres],
+            [xres, yres, zres],
+        ]
+    )
+    voxels = cell_centers[:, None, :] + offsets[None, :, :]
+    points = voxels.reshape(-1, 3)
+
+    # Build cell connectivity
+    n_voxels = cell_centers.shape[0]
+    cells_voxel = np.arange(n_voxels * 8).reshape((n_voxels, 8))
+
+    # Create unstructured grid and assign data variables
+    grid = pv.UnstructuredGrid({pv.CellType.VOXEL: cells_voxel}, points)
+    for var in displayed_variables:
+        if not all(dim in dataset[var].dims for dim in {x, y, z}):
+            print(
+                f"Variable '{var}' does not have the required dimensions '{x}', '{y}', and "
+                f"'{z}'. Skipping this variable."
+            )
+            continue
+        data = dataset[var].values
+        grid.cell_data[var] = data.flatten(order="C")
+
+    grid = _clean_up_unstructured_grid(grid)
+
+    return grid
+
+
+def layermodel_to_pyvista_unstructured(
+    dataset: xr.Dataset,
+    resolution: tuple[float, float],
+    displayed_variables: list[str] = None,
+    x: str = "x",
+    y: str = "y",
+    z: str = "layer",
+    top: str = "top",
+    bottom: str = "bottom",
+) -> pv.UnstructuredGrid:
+    """
+    Convert a layermodel dataset to an unstructured PyVista grid.
+
+    Parameters
+    ----------
+    dataset : xarray.Dataset
+        The input layermodel dataset.
+    resolution : tuple of float
+        The resolution of the layermodel grid in the (y, x) directions.
+    displayed_variables : list of str, optional
+        List of data variables to include in the PyVista grid. If None, all data variables are included.
+    x : str, optional
+        Name of the x coordinate in the dataset. Default is "x".
+    y : str, optional
+        Name of the y coordinate in the dataset. Default is "y".
+    z : str, optional
+        Name of the layer coordinate in the dataset. Default is "layer".
+    top : str, optional
+        Name of the top coordinate in the dataset. Default is "top".
+    bottom : str, optional
+        Name of the bottom coordinate in the dataset. Default is "bottom".
+
+    Returns
+    -------
+    pyvista.UnstructuredGrid
+        The unstructured PyVista grid representation of the layermodel dataset.
+
+    """
+    pv = _get_pyvista()
+
+    if displayed_variables is None:
+        displayed_variables = list(dataset.data_vars)
+
+    # Check if the dataset has the required dimensions and order
+    dataset = check_model_dims(dataset, dim_order=(z, y, x))
+
+    # Extract the resolution and grid dimensions from the dataset
+    yres, xres = dataset.gst.resolution()
+    nx, ny = dataset.sizes[x], dataset.sizes[y]
+
+    # Create a unique cell ID for each cell based on its y and x indices, then use it to
+    # sort the dataframe that was created from the dataset based on cell ID and vertical coordinates
+    dataset["cell_id"] = ((y, x), np.arange(ny * nx).reshape(ny, nx))
+    df = dataset.to_dataframe().reset_index()
+    df = df.dropna(subset=[top, bottom]).sort_values(
+        by=["cell_id", top, bottom],
+        ascending=[True, False, False],
+        ignore_index=True,
+    )
+
+    # Define corner coordinates for each cell
+    ncell_coords = 8  # number of corner coordinates per cell (4 bottom + 4 top)
+    ll_bot = np.c_[df[x] - abs(xres / 2), df[y] - abs(yres / 2), df[bottom]]
+    lr_bot = np.c_[df[x] + abs(xres / 2), df[y] - abs(yres / 2), df[bottom]]
+    ur_bot = np.c_[df[x] + abs(xres / 2), df[y] + abs(yres / 2), df[bottom]]
+    ul_bot = np.c_[df[x] - abs(xres / 2), df[y] + abs(yres / 2), df[bottom]]
+    ll_top = np.c_[df[x] - abs(xres / 2), df[y] - abs(yres / 2), df[top]]
+    lr_top = np.c_[df[x] + abs(xres / 2), df[y] - abs(yres / 2), df[top]]
+    ur_top = np.c_[df[x] + abs(xres / 2), df[y] + abs(yres / 2), df[top]]
+    ul_top = np.c_[df[x] - abs(xres / 2), df[y] + abs(yres / 2), df[top]]
+
+    # Stack the corner coordinates into a single array
+    corners = np.stack(
+        (ll_bot, lr_bot, ur_bot, ul_bot, ll_top, lr_top, ur_top, ul_top), axis=1
+    )
+    points_unique, point_mapping = np.unique(
+        corners.reshape(-1, 3), axis=0, return_inverse=True
+    )
+
+    # Create cell connectivity array for the unstructured grid
+    cell_indices = point_mapping.reshape(len(df), ncell_coords)
+    cell_indices = np.c_[np.full((len(df)), ncell_coords), cell_indices]
+
+    # Define the cell types for the unstructured grid and then create the unstructured grid object
+    cell_types = np.full((len(cell_indices)), pv.CellType.HEXAHEDRON)
+    grid = pv.UnstructuredGrid(cell_indices, cell_types, points_unique)
+
+    # Add the desired cell data to the unstructured grid
+    for var in displayed_variables:
+        grid.cell_data[var] = df[var].values
+
+    # Clean up, simplify=False because we did that manually when creating the points
+    grid = _clean_up_unstructured_grid(grid, simplify=False)
+
+    return grid

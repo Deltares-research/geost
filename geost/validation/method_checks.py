@@ -6,17 +6,18 @@ def _requires_geometry(func):
     def wrapper(self, *args, **kwargs):
         from geost.accessor import GeostFrame  # Avoid circular imports
         from geost.base import Collection
+        from geost.exceptions import MissingGeometryError
 
         if isinstance(self, Collection):
             if not self.header_has_geometry:
-                raise TypeError(
+                raise MissingGeometryError(
                     f"Method '{func.__name__}' requires a header with a valid geometry column. "
                     "Use `set_header_from_data` to set the header from the data and ensure "
                     "that the geometry column is properly set."
                 )
         elif isinstance(self, GeostFrame):
             if not self.has_geometry:
-                raise TypeError(
+                raise MissingGeometryError(
                     f"Method '{func.__name__}' requires a GeoDataFrame with a valid geometry column."
                 )
 
@@ -30,6 +31,7 @@ def _requires_surface(func):
     def wrapper(self, *args, **kwargs):
         from geost.accessor import GeostFrame  # Avoid circular imports
         from geost.base import Collection
+        from geost.exceptions import MissingSurfaceError
 
         if isinstance(self, Collection):
             has_surface = self.data.gst.has_surface_column
@@ -37,7 +39,7 @@ def _requires_surface(func):
             has_surface = self.has_surface_column
 
         if not has_surface:
-            raise KeyError(
+            raise MissingSurfaceError(
                 f"Method '{func.__name__}' requires a surface column in the DataFrame. "
                 "Please ensure that the DataFrame contains a 'surface' column."
             )
@@ -51,6 +53,7 @@ def _requires_depth(func):
     def wrapper(self, *args, **kwargs):
         from geost.accessor import GeostFrame  # Avoid circular imports
         from geost.base import Collection
+        from geost.exceptions import MissingDepthError
 
         if isinstance(self, Collection):
             has_depth = self.data.gst.has_depth_columns
@@ -58,7 +61,7 @@ def _requires_depth(func):
             has_depth = self.has_depth_columns
 
         if not has_depth:
-            raise KeyError(  # TODO: Check formatting of this error message
+            raise MissingDepthError(  # TODO: Check formatting of this error message
                 f"Method '{func.__name__}' requires depth information in the DataFrame. "
                 "Please ensure that the DataFrame contains one of the following the "
                 "required combinations of depth columns:"
@@ -76,6 +79,7 @@ def _requires_xy(func):
     def wrapper(self, *args, **kwargs):
         from geost.accessor import GeostFrame  # Avoid circular imports
         from geost.base import Collection
+        from geost.exceptions import MissingXYError
 
         if isinstance(self, Collection):
             has_xy = self.data.gst.has_xy_columns
@@ -83,7 +87,7 @@ def _requires_xy(func):
             has_xy = self.has_xy_columns
 
         if not has_xy:
-            raise KeyError(  # TODO: Check formatting of this error message
+            raise MissingXYError(  # TODO: Check formatting of this error message
                 f"Method '{func.__name__}' requires x, y information in the DataFrame. "
                 "Please ensure that the DataFrame contains 'x' and 'y' columns."
             )

@@ -12,6 +12,21 @@ def check_dims(*dims):  # pragma: no cover
     return inner_check_dims
 
 
+def _where(
+    obj: xr.Dataset | xr.DataArray,
+    condition: xr.DataArray,
+    drop: bool,
+):
+    """
+    Helper function for `slice_depth_interval`. xarray cannot drop coordinates based on
+    a lazy (dask) boolean indexer, so compute the condition first if drop is True.
+
+    """
+    if drop:
+        condition = condition.compute()
+    return obj.where(condition, drop=drop)
+
+
 def sample_with_coords(ds: xr.Dataset | xr.DataArray, coords: np.ndarray):
     """
     Sample x and y dims of an Xarray Dataset or DataArray using an array of x and y
@@ -151,44 +166,6 @@ def label_consecutive_2d(array: np.ndarray, axis: int = 0) -> np.ndarray:
         labels = np.c_[start_labels, labels]
 
     return labels
-
-
-def value_counts(
-    da: xr.DataArray, dim: str = None, normalize: bool = False
-) -> xr.DataArray:
-    """
-    Get the value counts of unique values in a DataArray.
-
-    Parameters
-    ----------
-    da : xr.DataArray
-        DataArray to count unique values in.
-    dim : str, optional
-        Dimension along which to count unique values. The default is None.
-    normalize : bool, optional
-        If True, return the relative frequencies of the unique values instead of the
-        absolute counts. The default is False.
-
-    Returns
-    -------
-    xr.DataArray
-        DataArray containing the counts of unique values.
-
-    """
-    var_ = da.values
-    values, counts = np.unique(var_[~np.isnan(var_)], return_counts=True)
-
-    if dim is None:
-        counts = xr.DataArray(counts, coords={da.name: values})
-    else:
-        counts = [(da == v).sum(dim=dim) for v in values]
-        counts = xr.concat(counts, dim=xr.DataArray(values, dims=da.name))
-
-    if normalize:
-        total = counts.sum(dim=da.name)
-        counts = counts / total
-
-    return counts
 
 
 def is_ascending(coordinates: xr.DataArray | np.ndarray) -> bool:

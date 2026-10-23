@@ -8,7 +8,6 @@ import pytest
 import pyvista as pv
 import xarray as xr
 from numpy.testing import (
-    assert_almost_equal,
     assert_array_almost_equal,
     assert_array_equal,
     assert_equal,
@@ -18,6 +17,11 @@ from shapely.geometry import LineString, Point, Polygon
 from geost import config
 from geost._warnings import AlignmentWarning
 from geost.base import Collection
+from geost.exceptions import (
+    MissingDepthError,
+    MissingGeometryError,
+    MissingSurveyIDError,
+)
 
 
 @pytest.fixture
@@ -29,17 +33,120 @@ def update_raster():
     return array
 
 
+@pytest.fixture
+def misaligned_header():
+    return pd.DataFrame({"nr": ["A", "B", "C"], "surface": [0.1, 0.2, 0.3]})
+
+
+@pytest.fixture
+def misaligned_data():
+    return pd.DataFrame(
+        {
+            "nr": ["B", "B", "C", "C", "D", "D"],
+            "bottom": [0.5, 1, 0.5, 1, 0.5, 1],
+            "lith": ["sand", "clay", "sand", "clay", "sand", "clay"],
+        }
+    )
+
+
 class TestCollection:
     @pytest.mark.unittest
-    def test_init_from_data(self, borehole_data):
+    def test_init_misaligned_without_auto_align(
+        self, misaligned_header, misaligned_data
+    ):
+        config.validation.reset_settings()  # Ensure default settings
+        config.validation.AUTO_ALIGN = False
+
+        with pytest.warns(AlignmentWarning) as record:
+            collection = Collection(misaligned_data, header=misaligned_header)
+
+        assert len(record) == 2
+        assert ("Setting the header without an active geometry column.") in str(
+            record[0].message
+        )
+        assert (
+            "Misaligned header and data tables but `geost.config.validation.AUTO_ALIGN` is False."
+        ) in str(record[1].message)
+
+        assert isinstance(collection, Collection)
+        assert isinstance(collection.header, gpd.GeoDataFrame)
+        assert isinstance(collection.data, pd.DataFrame)
+        assert_array_equal(collection.header["nr"], ["A", "B", "C"])
+        assert_array_equal(collection.data["nr"], ["B", "B", "C", "C", "D", "D"])
+
+        config.validation.reset_settings()  # Reset settings after the test
+
+    @pytest.mark.unittest
+    def test_init_from_misaligned_header_and_data(
+        self, misaligned_header, misaligned_data
+    ):
+        with pytest.warns(AlignmentWarning) as record:
+            collection = Collection(misaligned_data, header=misaligned_header)
+
+        assert len(record) == 3
+        assert ("Setting the header without an active geometry column.") in str(
+            record[0].message
+        )
+        assert ("Data table contains entries not present in the header.") in str(
+            record[1].message
+        )
+        assert ("Header table contains entries not present in the data.") in str(
+            record[2].message
+        )
+
+        assert isinstance(collection, Collection)
+        assert isinstance(collection.header, gpd.GeoDataFrame)
+        assert isinstance(collection.data, pd.DataFrame)
+        assert_array_equal(collection.header["nr"], ["B", "C", "D"])
+        assert_array_equal(collection.data["nr"], ["B", "B", "C", "C", "D", "D"])
+
+    @pytest.mark.unittest
+    def test_init_from_misaligned_header(self, misaligned_header, misaligned_data):
+        misaligned_data = misaligned_data[misaligned_data["nr"] != "D"]
+        with pytest.warns(AlignmentWarning) as record:
+            collection = Collection(misaligned_data, header=misaligned_header)
+
+        assert len(record) == 2
+        assert ("Setting the header without an active geometry column.") in str(
+            record[0].message
+        )
+        assert ("Header table contains entries not present in the data.") in str(
+            record[1].message
+        )
+        assert isinstance(collection, Collection)
+        assert isinstance(collection.header, gpd.GeoDataFrame)
+        assert isinstance(collection.data, pd.DataFrame)
+        assert_array_equal(collection.header["nr"], ["B", "C"])
+        assert_array_equal(collection.data["nr"], ["B", "B", "C", "C"])
+
+    @pytest.mark.unittest
+    def test_init_from_misaligned_data(self, misaligned_header, misaligned_data):
+        misaligned_header = misaligned_header[misaligned_header["nr"] != "A"]
+        with pytest.warns(AlignmentWarning) as record:
+            collection = Collection(misaligned_data, header=misaligned_header)
+
+        assert len(record) == 2
+        assert ("Setting the header without an active geometry column.") in str(
+            record[0].message
+        )
+        assert ("Data table contains entries not present in the header.") in str(
+            record[1].message
+        )
+        assert isinstance(collection, Collection)
+        assert isinstance(collection.header, gpd.GeoDataFrame)
+        assert isinstance(collection.data, pd.DataFrame)
+        assert_array_equal(collection.header["nr"], ["B", "C", "D"])
+        assert_array_equal(collection.data["nr"], ["B", "B", "C", "C", "D", "D"])
+
+    @pytest.mark.unittest
+    def test_init_from_data_without_geometry(self, borehole_data):
         with pytest.warns() as record:
-            collection = Collection(borehole_data)
+            collection = Collection(borehole_data.drop(columns=["x", "y"]))
 
         assert (
             str(record[0].message)
             == "Header is None, setting the header from the given data."
         )
-        # TODO: `record[1]` has unexpected validation warning is thrown, check
         assert ("Setting the header without an active geometry column.") in str(
             record[1].message
         )
@@ -51,12 +158,63 @@ class TestCollection:
         assert not collection.has_inclined
         assert collection.vertical_datum is None
         assert collection._nr == "nr"
+        assert_array_equal(collection.header.columns, ["nr", "surface", "end"])
+        assert_array_equal(
+            collection.data.columns, ["nr", "surface", "end", "top", "bottom", "lith"]
+        )
 
+    @pytest.mark.unittest
+    def test_init_from_data_with_geometry(self, borehole_data):
+        with pytest.warns() as record:
+            collection = Collection(borehole_data)
+
+        assert (
+            str(record[0].message)
+            == "Header is None, setting the header from the given data."
+        )
+
+        assert isinstance(collection, Collection)
+        assert isinstance(collection.header, gpd.GeoDataFrame)
+        assert isinstance(collection.data, pd.DataFrame)
+        assert collection.header_has_geometry
+        assert not collection.has_inclined
+        assert collection.vertical_datum is None
+        assert collection._nr == "nr"
+        assert_array_equal(
+            collection.header.columns, ["nr", "x", "y", "surface", "end", "geometry"]
+        )
+        assert_array_equal(
+            collection.data.columns,
+            ["nr", "x", "y", "surface", "end", "top", "bottom", "lith"],
+        )
+
+    @pytest.mark.unittest
+    def test_init_from_data_missing_survey_id_error(self, borehole_data):
         with pytest.raises(
-            KeyError,
+            MissingSurveyIDError,
             match="Data table must contain a column identifying the survey IDs.",
         ):
             Collection(borehole_data.rename(columns={"nr": "invalid"}))
+
+    @pytest.mark.unittest
+    def test_init_from_dicts(self):
+        data = {
+            "nr": ["A", "A", "B", "B"],
+            "top": [0, 0.5, 0, 0.5],
+            "bottom": [0.5, 1, 0.5, 1],
+            "lith": ["sand", "clay", "sand", "clay"],
+        }
+        header = {
+            "nr": ["A", "B"],
+            "surface": [0.2, 0.3],
+            "geometry": [Point(1, 2), Point(3, 4)],
+        }
+
+        collection = Collection(data, header=header)
+
+        assert isinstance(collection.data, pd.DataFrame)
+        assert isinstance(collection.header, gpd.GeoDataFrame)
+        assert collection.header_has_geometry
 
     @pytest.mark.unittest
     def test_init_from_header_and_data(self, borehole_data):
@@ -89,7 +247,7 @@ class TestCollection:
         )  # Make sure the attribute is not shared between instances
 
         with pytest.raises(
-            KeyError,
+            MissingSurveyIDError,
             match="Header table must contain a column identifying the survey IDs",
         ):
             Collection(borehole_data, header=header.rename(columns={"nr": "invalid"}))
@@ -138,42 +296,205 @@ class TestCollection:
             Collection(header=header)
 
     @pytest.mark.unittest
-    def test_header_mismatch_auto_align(self, borehole_data):
+    def test_header_setter_with_align(self, borehole_collection):
         config.validation.reset_settings()  # Ensure default settings
         config.validation.AUTO_ALIGN = True
 
-        header = borehole_data.gst.to_header()
+        og_crs = borehole_collection.crs
+        og_vertical_datum = borehole_collection.vertical_datum
+        header = borehole_collection.header.copy()
         header["nr"] = ["A", "B", "C", "D", "F"]  # F is not in data, E is missing
 
         with pytest.warns(AlignmentWarning) as record:
-            Collection(borehole_data, header=header)
+            borehole_collection.header = header
 
-        assert len(record) == 2
-        assert "Header covers more/other objects than present in the data table" in str(
+        assert len(record) == 1
+        assert ("Header table contains entries not present in the data.") in str(
             record[0].message
         )
-        assert "Header does not cover all unique objects in data" in str(
-            record[1].message
+        assert_array_equal(borehole_collection.header["nr"], ["A", "B", "C", "D"])
+        assert_array_equal(
+            borehole_collection.data["nr"].unique(), ["A", "B", "C", "D"]
         )
+        assert borehole_collection.crs == og_crs
+        assert borehole_collection.vertical_datum == og_vertical_datum
+        config.validation.reset_settings()  # Reset settings after test
 
     @pytest.mark.unittest
-    def test_header_mismatch_no_auto_align(self, borehole_data):
+    def test_header_setter_without_align(self, borehole_collection):
         config.validation.reset_settings()  # Ensure default settings
         config.validation.AUTO_ALIGN = False
 
-        header = borehole_data.gst.to_header()
+        header = borehole_collection.header.copy()
         header["nr"] = ["A", "B", "C", "D", "F"]  # F is not in data, E is missing
 
         with pytest.warns(AlignmentWarning) as record:
-            Collection(borehole_data, header=header)
+            borehole_collection.header = header
+
+        assert len(record) == 1
+        assert (
+            "Misaligned header and data tables but `geost.config.validation.AUTO_ALIGN` is False."
+        ) in str(record[0].message)
+
+        assert_array_equal(borehole_collection.header["nr"], ["A", "B", "C", "D", "F"])
+        assert_array_equal(
+            borehole_collection.data["nr"].unique(), ["A", "B", "C", "D", "E"]
+        )
+        config.validation.reset_settings()  # Reset settings after test
+
+    @pytest.mark.unittest
+    def test_data_setter_with_align(self, borehole_collection):
+        config.validation.reset_settings()  # Ensure default settings
+        config.validation.AUTO_ALIGN = True
+
+        og_crs = borehole_collection.crs
+        og_vertical_datum = borehole_collection.vertical_datum
+        borehole_collection.header["nr"] = [
+            "A",
+            "B",
+            "C",
+            "D",
+            "F",
+        ]  # F is not in data, E is missing
+        data = borehole_collection.data.copy()
+
+        with pytest.warns(AlignmentWarning) as record:
+            borehole_collection.data = data
 
         assert len(record) == 2
-        assert "Header covers more/other objects than present in the data table" in str(
+        assert ("Data table contains entries not present in the header.") in str(
             record[0].message
         )
-        assert "Header does not cover all unique objects in data" in str(
+        assert ("Header table contains entries not present in the data.") in str(
             record[1].message
         )
+        assert_array_equal(borehole_collection.header["nr"], ["A", "B", "C", "D", "E"])
+        assert_array_equal(
+            borehole_collection.data["nr"].unique(), ["A", "B", "C", "D", "E"]
+        )
+        assert borehole_collection.crs is not None
+        assert borehole_collection.crs == og_crs
+        assert borehole_collection.vertical_datum == og_vertical_datum
+        config.validation.reset_settings()  # Reset settings after test
+
+    @pytest.mark.unittest
+    def test_data_setter_without_align(self, borehole_collection):
+        config.validation.reset_settings()  # Ensure default settings
+        config.validation.AUTO_ALIGN = False
+
+        borehole_collection.header["nr"] = [
+            "A",
+            "B",
+            "C",
+            "D",
+            "F",
+        ]  # F is not in data, E is missing
+        data = borehole_collection.data.copy()
+
+        with pytest.warns(AlignmentWarning) as record:
+            borehole_collection.data = data
+
+        assert len(record) == 1
+        assert (
+            "Misaligned header and data tables but `geost.config.validation.AUTO_ALIGN` is False."
+        ) in str(record[0].message)
+
+        assert_array_equal(borehole_collection.header["nr"], ["A", "B", "C", "D", "F"])
+        assert_array_equal(
+            borehole_collection.data["nr"].unique(), ["A", "B", "C", "D", "E"]
+        )
+        config.validation.reset_settings()  # Reset settings after test
+
+    @pytest.mark.unittest
+    def test_synchronize_tables_inner(self, misaligned_header, misaligned_data):
+        config.validation.reset_settings()  # Ensure default settings
+        config.validation.AUTO_ALIGN = False
+
+        col = Collection(misaligned_data, header=misaligned_header)
+        # Before: misaligned Collection
+        assert_array_equal(col.header["nr"], ["A", "B", "C"])
+        assert_array_equal(col.data["nr"].unique(), ["B", "C", "D"])
+
+        with warnings.catch_warnings():
+            warnings.simplefilter("error")
+            col.synchronize_tables(how="inner")
+
+        # After: synchronized Collection
+        assert_array_equal(col.header["nr"], ["B", "C"])
+        assert_array_equal(col.data["nr"].unique(), ["B", "C"])
+
+    @pytest.mark.unittest
+    def test_synchronize_tables_header(self, misaligned_header, misaligned_data):
+        config.validation.reset_settings()  # Ensure default settings
+        config.validation.AUTO_ALIGN = False
+
+        col = Collection(misaligned_data, header=misaligned_header)
+        # Before: misaligned Collection
+        assert_array_equal(col.header["nr"], ["A", "B", "C"])
+        assert_array_equal(col.data["nr"].unique(), ["B", "C", "D"])
+
+        with pytest.warns(AlignmentWarning) as record:
+            col.synchronize_tables(how="header")
+
+        assert len(record) == 1
+        assert ("Header table contains entries not present in the data.") in str(
+            record[0].message
+        )
+        # After: synchronized Collection
+        assert_array_equal(col.header["nr"], ["B", "C"])
+        assert_array_equal(col.data["nr"].unique(), ["B", "C"])
+
+    @pytest.mark.unittest
+    def test_synchronize_tables_data(self, misaligned_header, misaligned_data):
+        config.validation.reset_settings()  # Ensure default settings
+        config.validation.AUTO_ALIGN = False
+
+        col = Collection(misaligned_data, header=misaligned_header)
+        # Before: misaligned Collection
+        assert_array_equal(col.header["nr"], ["A", "B", "C"])
+        assert_array_equal(col.data["nr"].unique(), ["B", "C", "D"])
+
+        with pytest.warns(AlignmentWarning) as record:
+            col.synchronize_tables(how="data")
+
+        assert len(record) == 2
+        assert ("Data table contains entries not present in the header.") in str(
+            record[0].message
+        )
+        assert ("Header table contains entries not present in the data.") in str(
+            record[1].message
+        )
+        # After: synchronized Collection
+        assert_array_equal(col.header["nr"], ["B", "C", "D"])
+        assert_array_equal(col.data["nr"].unique(), ["B", "C", "D"])
+        config.validation.reset_settings()  # Ensure default settings
+
+    @pytest.mark.unittest
+    def test_synchronize_tables_error(self, borehole_collection):
+        borehole_collection.synchronize_tables()  # Aligned Collection nothing should happen
+
+        with pytest.raises(ValueError, match="Invalid value"):
+            borehole_collection.synchronize_tables(how="invalid")
+
+    @pytest.mark.unittest
+    def test_header_to_data_index(self, borehole_collection):
+        index_map = borehole_collection.header_to_data_index
+        assert isinstance(index_map, pd.Series)
+        assert index_map.index.equals(borehole_collection.header.index)
+        assert all(
+            isinstance(idx, tuple) for idx in index_map.values
+        )  # Check that all values are tuples (May become pd.RangeIndex in future versions)
+
+        # Check that the ranges correspond to the correct rows in the data table
+        range_check = []
+        for header_idx, data_range in index_map.items():
+            header_id = borehole_collection.header.loc[header_idx, "nr"]
+            data = borehole_collection.data.loc[
+                pd.RangeIndex(start=data_range[0], stop=data_range[1]), "nr"
+            ]
+            range_check.append(len(data))
+            assert all(data == header_id)
+        assert range_check == [5, 5, 5, 5, 5]  # Each borehole has 5 data points
 
     @pytest.mark.unittest
     def test_get(self, borehole_collection):
@@ -285,7 +606,7 @@ class TestCollection:
         assert all(selected.data["nr"].unique() == ["A", "D"])
 
         with pytest.raises(
-            TypeError,
+            MissingGeometryError,
             match="Method 'select_within_bbox' requires a header with a valid geometry column.",
         ):
             borehole_collection.header = borehole_collection.header.drop(
@@ -308,7 +629,7 @@ class TestCollection:
         assert selection_inverted.n_points == 2
 
         with pytest.raises(
-            TypeError,
+            MissingGeometryError,
             match="Method 'select_with_points' requires a header with a valid geometry column.",
         ):
             borehole_collection.header = borehole_collection.header.drop(
@@ -328,7 +649,7 @@ class TestCollection:
         assert selection_inverted.n_points == 3
 
         with pytest.raises(
-            TypeError,
+            MissingGeometryError,
             match="Method 'select_with_lines' requires a header with a valid geometry column.",
         ):
             borehole_collection.header = borehole_collection.header.drop(
@@ -360,13 +681,32 @@ class TestCollection:
         assert selection_inverted_buffer.n_points == 3
 
         with pytest.raises(
-            TypeError,
+            MissingGeometryError,
             match="Method 'select_within_polygons' requires a header with a valid geometry column.",
         ):
             borehole_collection.header = borehole_collection.header.drop(
                 columns="geometry"
             )
             borehole_collection.select_within_polygons(selection_gdf, 0.6)
+
+    @pytest.mark.unittest
+    def test_find_point_pairs(self, borehole_collection):
+        selection_points = [Point(1, 1), Point(4, 4), Point(1, 4), Point(4, 1)]
+        selection_gdf = gpd.GeoDataFrame(
+            {"id": [0, 1, 2, 3]}, geometry=selection_points
+        )
+
+        # Return variant
+        pairs = borehole_collection.find_point_pairs(
+            selection_gdf, 1.1, return_distance=True
+        )
+        assert len(pairs) == 3
+
+        # In-Place variant
+        borehole_collection.find_point_pairs(
+            selection_gdf, 1.1, return_distance=True, include_in_header=True
+        )
+        assert "points_in_range" in borehole_collection.header.columns
 
     @pytest.mark.unittest
     def test_spatial_join(self, borehole_collection):
@@ -377,12 +717,12 @@ class TestCollection:
         output = borehole_collection.spatial_join(label_gdf, "id")
         assert isinstance(output, gpd.GeoDataFrame)
         assert "id" in output.columns
-        assert output.shape == (2, 6)
+        assert output.shape == (2, 7)
 
         # In-place variant
         borehole_collection.spatial_join(label_gdf, "id", include_in_header=True)
         assert "id" in borehole_collection.header.columns
-        assert borehole_collection.header.shape == (5, 6)
+        assert borehole_collection.header.shape == (5, 7)
 
         with pytest.raises(
             ValueError,
@@ -393,7 +733,7 @@ class TestCollection:
             )
 
         with pytest.raises(
-            TypeError,
+            MissingGeometryError,
             match="Method 'spatial_join' requires a header with a valid geometry column.",
         ):
             borehole_collection.header = borehole_collection.header.drop(
@@ -460,7 +800,7 @@ class TestCollection:
         upper, lower = 0.6, 2.4
         sliced = borehole_collection.slice_depth_interval(upper, lower)
         assert isinstance(sliced, Collection)
-        assert sliced.header.shape == (5, 5)
+        assert sliced.header.shape == (5, 6)
         assert sliced.data.shape == (14, 8)
 
         # Test slicing with respect to a vertical reference plane.
@@ -468,7 +808,7 @@ class TestCollection:
         sliced = borehole_collection.slice_depth_interval(
             nap_upper, nap_lower, relative_to_vertical_reference=True
         )
-        assert sliced.header.shape == (5, 5)
+        assert sliced.header.shape == (5, 6)
         assert sliced.data.shape == (11, 8)
 
         # Test slices that return empty objects.
@@ -477,7 +817,7 @@ class TestCollection:
         assert empty_slice.data.empty
 
         with pytest.raises(
-            KeyError,
+            MissingDepthError,
             match="Method 'slice_depth_interval' requires depth information in the DataFrame.",
         ):
             borehole_collection.data.drop(columns=["bottom"], inplace=True)
@@ -485,11 +825,11 @@ class TestCollection:
 
         sliced = cpt_collection.slice_depth_interval(0.6, 4.4)
         assert isinstance(sliced, Collection)
-        assert sliced.header.shape == (2, 5)
+        assert sliced.header.shape == (2, 6)
         assert sliced.data.shape == (11, 9)
 
         with pytest.raises(
-            KeyError,
+            MissingDepthError,
             match="Method 'slice_depth_interval' requires depth information in the DataFrame.",
         ):
             cpt_collection.data.drop(columns=["depth"], inplace=True)
@@ -718,6 +1058,40 @@ class TestCollection:
         assert_array_almost_equal(collection.header[expected_column], expected_base)
 
     @pytest.mark.unittest
+    def test_compute_discretized_fractions(self, borehole_collection):
+        result = borehole_collection.compute_discretized_fractions(
+            column="lith", discretization=[0.5, 1, 2]
+        )
+        assert isinstance(result, type(borehole_collection))
+
+    @pytest.mark.unittest
+    def test_aggregate_consecutive_layers(self, borehole_collection):
+        # return variant
+        combined = borehole_collection.aggregate_consecutive_layers("lith")
+
+        # inplace variant
+        borehole_collection.aggregate_consecutive_layers("lith", inplace=True)
+        assert_array_equal(
+            borehole_collection.data["lith"],
+            ["K", "Z", "K", "K", "V", "K", "K", "Z", "K", "V", "K", "V", "Z", "Z"],
+        )
+        assert_array_equal(combined.data["lith"], borehole_collection.data["lith"])
+
+        # return variant
+        borehole_collection = borehole_collection.get(["A", "B", "C", "D", "E"])
+        combined = borehole_collection.aggregate_consecutive_layers("lith")
+
+    @pytest.mark.unittest
+    def test_to_geopackage_3d(self, borehole_collection, tmp_path):
+        outfile = tmp_path / "test_3d.gpkg"
+        borehole_collection.to_geopackage_3d(outfile)
+        assert outfile.is_file()
+
+        test_layers = gpd.list_layers(outfile)
+        assert_array_equal(test_layers["name"], ["locations", "3dlines"])
+        assert_array_equal(test_layers["geometry_type"], ["Point", "LineString Z"])
+
+    @pytest.mark.unittest
     def test_to_kingdom(self, borehole_collection):
         outfile = Path("temp_kingdom.csv")
         tdfile = Path(outfile.parent, f"{outfile.stem}_TDCHART{outfile.suffix}")
@@ -726,3 +1100,79 @@ class TestCollection:
         assert tdfile.is_file()
         outfile.unlink()
         tdfile.unlink()
+
+    @pytest.mark.unittest
+    def test_add_model_data_layered(self, borehole_collection, voxelmodel, layermodel):
+        """
+        Method uses `geost.analysis.combine.add_model_data` which is tested in detail
+        in `tests/analysis/test_combine.py`.
+
+        """
+        result = borehole_collection.add_model_data(
+            voxelmodel,
+            data_vars="strat",
+            aggregate_vars={"lith": "mean"},
+            suffix="_model",
+        )
+        assert isinstance(result, Collection)
+        assert result.header.shape == borehole_collection.header.shape
+        assert result.data.shape == (35, 10)
+        assert "strat_model" in result.data.columns
+        assert "lith_model" in result.data.columns
+
+        # Not specifying any data_vars with a layermodel should only add the layermodel's z-dimension
+        result = borehole_collection.add_model_data(layermodel)
+        assert isinstance(result, Collection)
+        assert result.header.shape == borehole_collection.header.shape
+        assert result.data.shape == (38, 9)
+        assert layermodel.gst.z_dim in result.data.columns
+
+        result = borehole_collection.add_model_data(
+            layermodel,
+            data_vars="layer",
+            aggregate_vars={"kh": "mean"},
+            suffix="_model",
+        )
+        assert isinstance(result, Collection)
+        assert result.header.shape == borehole_collection.header.shape
+        assert result.data.shape == (38, 10)
+        assert "layer_model" in result.data.columns
+        assert "kh_model" in result.data.columns
+
+    @pytest.mark.unittest
+    def test_add_model_data_discrete(self, cpt_collection, voxelmodel, layermodel):
+        """
+        Method uses `geost.analysis.combine.add_model_data` which is tested in detail
+        in `tests/analysis/test_combine.py`.
+
+        """
+        result = cpt_collection.add_model_data(
+            voxelmodel,
+            data_vars="strat",
+            aggregate_vars={"lith": "mean"},
+            suffix="_model",
+        )
+        assert isinstance(result, Collection)
+        assert result.header.shape == cpt_collection.header.shape
+        assert result.data.shape == (24, 11)
+        assert "strat_model" in result.data.columns
+        assert "lith_model" in result.data.columns
+
+        # Not specifying any data_vars with a layermodel should only add the layermodel's z-dimension
+        result = cpt_collection.add_model_data(layermodel)
+        assert isinstance(result, Collection)
+        assert result.header.shape == cpt_collection.header.shape
+        assert result.data.shape == (27, 10)
+        assert layermodel.gst.z_dim in result.data.columns
+
+        result = cpt_collection.add_model_data(
+            layermodel,
+            data_vars="layer",
+            aggregate_vars={"kh": "mean"},
+            suffix="_model",
+        )
+        assert isinstance(result, Collection)
+        assert result.header.shape == cpt_collection.header.shape
+        assert result.data.shape == (27, 11)
+        assert "layer_model" in result.data.columns
+        assert "kh_model" in result.data.columns

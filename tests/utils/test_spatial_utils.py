@@ -1,14 +1,24 @@
-from pathlib import Path
-
 import geopandas as gpd
 import numpy as np
 import pandas as pd
 import pytest
+import shapely
 import xarray as xr
-from numpy.testing import assert_allclose
+from numpy.testing import assert_allclose, assert_array_almost_equal
 
 from geost.utils import spatial
 from geost.utils.conversion import dataframe_to_geodataframe
+
+
+@pytest.fixture
+def two_lines():
+    return gpd.GeoDataFrame(
+        geometry=[
+            shapely.LineString([(0.8, 0.9), (2.4, 2.5)]),
+            shapely.LineString([(2.9, 0.1), (3.5, 1.6)]),
+        ],
+        crs="EPSG:28992",
+    )
 
 
 class TestSpatialUtils:
@@ -89,3 +99,54 @@ class TestSpatialUtils:
             "The xr.DataArray to sample from does not have the "
             + "required 'x' and 'y' dimensions"
         )
+
+
+@pytest.mark.unittest
+def test_get_points_along_lines(two_lines):
+    dist = 0.4
+    distances = np.arange(0, two_lines.length.max(), dist)
+    points = spatial.get_points_along_lines(two_lines, distances)
+    assert isinstance(points, gpd.GeoDataFrame)
+    assert len(points) == 11
+    assert points.index.name == "line"
+    assert_array_almost_equal(
+        points["distance"], [0.0, 0.4, 0.8, 1.2, 1.6, 2.0, 0.0, 0.4, 0.8, 1.2, 1.6]
+    )
+    assert_array_almost_equal(
+        points["geometry"].x,
+        [
+            0.8,
+            1.08284271,
+            1.36568542,
+            1.64852814,
+            1.93137085,
+            2.21421356,
+            2.9,
+            3.04855627,
+            3.19711254,
+            3.34566881,
+            3.49422508,
+        ],
+    )
+    assert_array_almost_equal(
+        points["geometry"].y,
+        [
+            0.9,
+            1.18284271,
+            1.46568542,
+            1.74852814,
+            2.03137085,
+            2.31421356,
+            0.1,
+            0.47139068,
+            0.84278135,
+            1.21417203,
+            1.58556271,
+        ],
+    )
+
+    points = spatial.get_points_along_lines(two_lines, distances + 0.2)
+    assert len(points) == 10
+    assert_array_almost_equal(
+        points["distance"], [0.2, 0.6, 1.0, 1.4, 1.8, 2.2, 0.2, 0.6, 1.0, 1.4]
+    )

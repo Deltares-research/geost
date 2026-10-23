@@ -18,9 +18,9 @@ For example:
 
 .. code-block:: python
 
+    # create a DataFrame with x and y coordinates for three points identified by 'nr'
     import pandas as pd
 
-    # create a DataFrame with x and y coordinates for three points identified by 'nr'
     df = pd.DataFrame({"nr": ["a", "b", "c"], "y": [1.2, 2.3, 3.4], "x": [0.8, 1.9, 2.0]})
     df.gst.has_xy_columns
     # Output:
@@ -40,6 +40,7 @@ Analysis
 .. autosummary::
    :toctree: generated/
 
+   GeostFrame.calculate_thickness
    GeostFrame.get_cumulative_thickness
    GeostFrame.get_layer_base
    GeostFrame.get_layer_top
@@ -58,11 +59,19 @@ Generic
 .. autosummary::
    :toctree: generated/
 
-   GeostFrame.calculate_thickness
-   GeostFrame.standardize_column_names
    GeostFrame.to_collection
    GeostFrame.to_header
+   GeostFrame.standardize_column_names
    GeostFrame.validate
+
+Data manipulation
+-----------------------------
+.. autosummary::
+   :toctree: generated/
+
+   GeostFrame.add_model_data
+   GeostFrame.aggregate_consecutive_layers
+   GeostFrame.merge_sorted
 
 Export
 -----------------------------
@@ -95,6 +104,7 @@ Spatial
    GeostFrame.select_with_points
    GeostFrame.select_within_bbox
    GeostFrame.select_within_polygons
+   GeostFrame.find_point_pairs
    GeostFrame.spatial_join
 
 
@@ -107,5 +117,6 @@ Attributes
    GeostFrame.has_depth_columns
    GeostFrame.has_geometry
    GeostFrame.has_xy_columns
-   GeostFrame.last_row_survey
    GeostFrame.is_layered
+   GeostFrame.last_row_survey
+   GeostFrame.nr

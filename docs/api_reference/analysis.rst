@@ -21,6 +21,14 @@ Cpts
     cpt.calc_lithology
 
 
+Classification
+--------------
+.. autosummary::
+    :toctree: generated/
+
+    classification.nen5104_to_lithoclass
+
+
 Grainsize samples
 -----------------
 .. autosummary::
@@ -35,5 +43,5 @@ Combine
 .. autosummary::
     :toctree: generated/
 
+    combine.add_model_data
     combine.add_nearest_voxelmodel_variable
-    combine.add_voxelmodel_variable
