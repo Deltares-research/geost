@@ -58,7 +58,7 @@ exclude_patterns = ["_build", "Thumbs.db", ".DS_Store", "*bro"]
 
 # Longer notebook execution timeout when building docs to prevent cell timeouts
 nb_execution_mode = "force"
-nb_execution_timeout = 120
+nb_execution_timeout = 300
 nb_execution_allow_errors = False
 
 # -- Options for HTML output -------------------------------------------------
