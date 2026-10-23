@@ -82,7 +82,6 @@ xlrd = "*"
 openpyxl = "*"
 shapely = "*"
 pyvista = "*"
-black = "*"
 pytest = "*"
 pytest-cov = "*"
 ruff = "*"
@@ -111,7 +110,7 @@ geost = { path = ".", editable = true }
 test = "python -m pytest --verbose --cov=geost --cov-report xml --cov-report term"
 docs = "sphinx-build -b html docs ./docs/build"
 serve-docs = "sphinx-autobuild docs ./docs/build --open-browser"
-format = "black ."
+format = "ruff format ."
 lint = "ruff check --fix ./geost"
 rm-jupyter = "rm -rf ./docs/jupyter_execute"
 rm-build = "rm -rf ./docs/build"
@@ -145,9 +144,6 @@ filterwarnings = [
 exclude_lines = [
   "pragma: no cover",
 ]
-
-[tool.black]
-line-length = 88
 
 [tool.ruff]
 line-length = 88

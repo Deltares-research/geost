@@ -18,6 +18,7 @@ def test_config_validation_reset():
     assert config.validation.FLAG_INVALID is False
     assert config.validation.AUTO_ALIGN is True
 
+
 @pytest.mark.unittest
 def test_config_validation_flag_invalid():
     # Modify settings to non-default values
