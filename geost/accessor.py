@@ -1396,6 +1396,88 @@ class GeostFrame(AbstractBase):
         return thickness
 
     @_requires_depth
+    def calculate_mid_depth(self, relative_to_reference: bool = False) -> pd.Series:
+        """
+        Calculate the mid depths of layers. In case of layered data this is the middle
+        between the layer's top and bottom depth. In case of discrete data the method
+        assumes that the depths of layers are bottom depths and the result is middle
+        between consecutive layers.
+
+        Parameters
+        ----------
+        relative_to_reference : bool, optional
+            If True, mid depths are calculated relative to a reference depth (e.g. NAP).
+            The default is False.
+
+        Returns
+        -------
+        pd.Series
+            Mid depth of each layer.
+
+        Examples
+        --------
+        >>> result = df.survey.calculate_mid_depth()
+        >>> result = df.survey.calculate_mid_depth(relative_to_reference=True)
+
+        """
+        thickness = self.calculate_thickness() / 2
+
+        if relative_to_reference:
+            df = self._get_depth_relative_to_surface()
+            return df[self._bottom] + thickness
+
+        return self._obj[self._bottom] - thickness
+
+    @_requires_depth
+    def calculate_gradient(self, column: str, use_mid_depth: bool = True) -> pd.Series:
+        """
+        Calculate the rate of change (i.e. "gradient") over depth of a value column per
+        survey.
+
+        The gradient is computed as the difference between consecutive rows of `column`,
+        divided by the difference between the corresponding depths. The first row of each
+        survey has no preceding row and is therefore set to 0.0.
+
+        Parameters
+        ----------
+        column : str
+            Name of the numeric column for which to calculate the gradient.
+        use_mid_depth : bool, optional
+            If True, the gradient is calculated over the mid depth of each interval. If
+            False, the bottom depth of each interval is used. By default True.
+
+        Returns
+        -------
+        pd.Series
+            The gradient (change in `column` per unit of depth), with the same index as
+            the original object.
+
+        Raises
+        ------
+        TypeError
+            If `column` is not of a numeric dtype.
+
+        Notes
+        -----
+        This method assumes that the rows are sorted by survey and ascending depth.
+
+        Examples
+        --------
+        >>> result = df.survey.calculate_gradient("value")
+        >>> result = df.survey.calculate_gradient("value", use_mid_depth=False)
+
+        """
+        from pandas.api.types import is_numeric_dtype
+
+        if not is_numeric_dtype(self._obj[column]):
+            raise TypeError("Column must be numeric")
+
+        depth = self.calculate_mid_depth() if use_mid_depth else self._obj[self._bottom]
+        gradient = self._obj[column].diff() / depth.diff()
+        gradient[self.first_row_survey] = 0.0
+        return gradient
+
+    @_requires_depth
     def get_cumulative_thickness(
         self, column: str, values: str | list[str] | slice
     ) -> pd.Series:

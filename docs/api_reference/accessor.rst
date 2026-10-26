@@ -40,6 +40,8 @@ Analysis
 .. autosummary::
    :toctree: generated/
 
+   GeostFrame.calculate_gradient
+   GeostFrame.calculate_mid_depth
    GeostFrame.calculate_thickness
    GeostFrame.get_cumulative_thickness
    GeostFrame.get_layer_base
@@ -120,3 +122,4 @@ Attributes
    GeostFrame.is_layered
    GeostFrame.last_row_survey
    GeostFrame.nr
+   GeostFrame.positional_columns

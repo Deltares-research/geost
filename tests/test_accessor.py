@@ -1244,6 +1244,255 @@ class TestGeostFrame:
             cpt_data.drop(columns=["depth"]).gst.calculate_thickness()
 
     @pytest.mark.unittest
+    def test_calculate_mid_depth_layered(self, borehole_data):
+        result = borehole_data.gst.calculate_mid_depth()
+        assert isinstance(result, pd.Series)
+        assert_array_almost_equal(
+            result,
+            [
+                0.4,
+                1.15,
+                2.0,
+                3.1,
+                3.95,
+                0.3,
+                0.9,
+                1.85,
+                2.8,
+                3.5,
+                0.7,
+                1.6,
+                2.35,
+                3.35,
+                4.65,
+                0.25,
+                0.85,
+                1.5,
+                2.15,
+                2.75,
+                0.25,
+                0.85,
+                1.5,
+                2.15,
+                2.75,
+            ],
+        )
+        assert_array_almost_equal(
+            borehole_data.gst.calculate_mid_depth(relative_to_reference=True),
+            [
+                -0.2,
+                -0.95,
+                -1.8,
+                -2.9,
+                -3.75,
+                0.0,
+                -0.6,
+                -1.55,
+                -2.5,
+                -3.2,
+                -0.45,
+                -1.35,
+                -2.1,
+                -3.1,
+                -4.4,
+                -0.15,
+                -0.75,
+                -1.4,
+                -2.05,
+                -2.65,
+                -0.35,
+                -0.95,
+                -1.6,
+                -2.25,
+                -2.85,
+            ],
+        )
+
+        with pytest.raises(
+            MissingDepthError,
+            match="'calculate_mid_depth' requires depth information in the DataFrame",
+        ):
+            borehole_data.drop(columns=["top", "bottom"]).gst.calculate_mid_depth()
+
+    @pytest.mark.unittest
+    def test_calculate_mid_depth_discrete(self, cpt_data):
+        result = cpt_data.gst.calculate_mid_depth()
+        assert isinstance(result, pd.Series)
+        assert_array_almost_equal(
+            result,
+            [
+                0.5,
+                1.5,
+                2.5,
+                3.5,
+                4.5,
+                5.5,
+                6.5,
+                7.5,
+                8.5,
+                9.5,
+                0.25,
+                0.75,
+                1.25,
+                1.75,
+                2.25,
+                2.75,
+                3.25,
+                3.75,
+                4.25,
+                4.75,
+            ],
+        )
+        assert_array_almost_equal(
+            cpt_data.gst.calculate_mid_depth(relative_to_reference=True),
+            [
+                1.6,
+                0.6,
+                -0.4,
+                -1.4,
+                -2.4,
+                -3.4,
+                -4.4,
+                -5.4,
+                -6.4,
+                -7.4,
+                0.55,
+                0.05,
+                -0.45,
+                -0.95,
+                -1.45,
+                -1.95,
+                -2.45,
+                -2.95,
+                -3.45,
+                -3.95,
+            ],
+        )
+        with pytest.raises(
+            MissingDepthError,
+            match="'calculate_mid_depth' requires depth information in the DataFrame",
+        ):
+            cpt_data.drop(columns=["depth"]).gst.calculate_mid_depth()
+
+    @pytest.mark.unittest
+    def test_calculate_gradient_layered(self, borehole_data):
+        rng = np.random.default_rng(12)
+        borehole_data["value"] = rng.random(len(borehole_data))
+
+        result = borehole_data.gst.calculate_gradient("value")
+        assert isinstance(result, pd.Series)
+        assert_array_almost_equal(
+            result,
+            [
+                0.0,
+                0.92790465,
+                -0.89109713,
+                -0.00911725,
+                0.20070333,
+                0.0,
+                0.73317416,
+                -0.58459617,
+                0.82234736,
+                -0.05454126,
+                0.0,
+                0.59848792,
+                -0.57948652,
+                0.15110368,
+                0.12226237,
+                0.0,
+                0.02421745,
+                0.70672325,
+                -1.0288394,
+                -0.1181348,
+                0.0,
+                0.46018038,
+                -0.03662743,
+                -0.06547827,
+                -1.35982384,
+            ],
+        )
+
+        result = borehole_data.gst.calculate_gradient("value", use_mid_depth=False)
+        assert_array_almost_equal(
+            result,
+            [
+                0.0,
+                0.99418355,
+                -0.75743256,
+                -0.00835748,
+                0.34119566,
+                0.0,
+                0.73317416,
+                -0.42720489,
+                1.30204999,
+                -0.04772361,
+                0.0,
+                1.34659782,
+                -0.39510444,
+                0.16789298,
+                0.09349475,
+                0.0,
+                0.02075781,
+                0.76561685,
+                -0.95535087,
+                -0.14176176,
+                0.0,
+                0.39444033,
+                -0.03967971,
+                -0.06080125,
+                -1.63178861,
+            ],
+        )
+
+        with pytest.raises(TypeError, match="Column must be numeric"):
+            borehole_data.gst.calculate_gradient("lith")
+
+        with pytest.raises(
+            MissingDepthError,
+            match="'calculate_gradient' requires depth information in the DataFrame",
+        ):
+            borehole_data.drop(columns=["top", "bottom"]).gst.calculate_gradient(
+                "value"
+            )
+
+    @pytest.mark.unittest
+    def test_calculate_gradient_discrete(self, cpt_data):
+        expected_result = [
+            0.0,
+            0.052,
+            0.048,
+            0.027,
+            0.003,
+            -0.003,
+            0.009,
+            0.084,
+            0.314,
+            0.72,
+            0.0,
+            8.024,
+            9.182,
+            -0.576,
+            -1.368,
+            -1.142,
+            -0.832,
+            0.288,
+            0.75,
+            0.196,
+        ]
+        result = cpt_data.gst.calculate_gradient("qc")
+        assert isinstance(result, pd.Series)
+        assert_array_almost_equal(result, expected_result)
+        assert_array_almost_equal(
+            cpt_data.gst.calculate_gradient("qc", use_mid_depth=False), expected_result
+        )
+
+        with pytest.raises(
+            MissingDepthError,
+            match="'calculate_gradient' requires depth information in the DataFrame",
+        ):
+            cpt_data.drop(columns=["depth"]).gst.calculate_gradient("qc")
+
+    @pytest.mark.unittest
     def test_cumulative_thickness_layered(self, borehole_data):
         result = borehole_data.gst.get_cumulative_thickness("lith", "V")
         assert (

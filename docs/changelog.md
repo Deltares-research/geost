@@ -1,5 +1,12 @@
 # Release notes
 
+## v0.6.1
+
+**Added**
+- [`calculate_gradient`](./api_reference/generated/geost.accessor.GeostFrame.calculate_gradient.rst) method in `.gst` accessor
+- [`calculate_mid_depth`](./api_reference/generated/geost.accessor.GeostFrame.calculate_mid_depth.rst) method in `.gst` accessor
+
+
 ## v0.6.0
 
 All model functionality is re-written as an **Xarray extension**. Importing GeoST now
