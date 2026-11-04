@@ -806,7 +806,7 @@ class TestCollection:
         # Test slicing with respect to a vertical reference plane.
         nap_upper, nap_lower = -2, -3
         sliced = borehole_collection.slice_depth_interval(
-            nap_upper, nap_lower, relative_to_vertical_reference=True
+            nap_upper, nap_lower, relative_to_reference=True
         )
         assert sliced.header.shape == (5, 6)
         assert sliced.data.shape == (11, 8)

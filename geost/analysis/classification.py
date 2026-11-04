@@ -191,9 +191,9 @@ def nen5104_to_lithoclass(
         raise ValueError(
             f"Missing required columns in DataFrame: {', '.join(missing_required_cols)}"
         )
-    elif missing_optional_cols:
-        for col in missing_optional_cols:
-            df[col] = np.nan
+
+    if missing_optional_cols:
+        df[missing_optional_cols] = np.nan
 
     # Classify lithology, initially default to -999 (NBE) for not classified
     df["lithoklasse"] = (

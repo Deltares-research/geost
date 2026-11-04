@@ -35,7 +35,8 @@ def calc_ic(qc, rf) -> np.ndarray:
 
 
 # TODO numpy searchsort
-def calc_lithology(ic, qc, rf) -> np.ndarray:
+def calc_lithology(qc, rf) -> np.ndarray:
+    ic = calc_ic(qc, rf)
     boundaries = [1.6, 2.0, 2.2, 2.6, 2.95, 3.6]
     lith = np.full_like(ic, "NBE", dtype="<U3")
     lith[ic < boundaries[0]] = "Z"

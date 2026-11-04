@@ -90,9 +90,7 @@ class TestAnalysis:
 
     @pytest.mark.unittest
     def test_calc_lithology(self, test_ic_array, test_fr_array):
-        lith = calc_lithology(
-            calc_ic(test_ic_array, test_fr_array), test_ic_array, test_fr_array
-        )
+        lith = calc_lithology(test_ic_array, test_fr_array)
         assert_array_equal(
             lith, np.array(["V", "Kh", "Kh", "K", "K", "K", "K", "Kz", "Z", "Z", "Z"])
         )

@@ -1089,7 +1089,7 @@ class GeostFrame(AbstractBase):
         self,
         upper_boundary: float | int | xr.DataArray | str | Path = None,
         lower_boundary: float | int | xr.DataArray | str | Path = None,
-        relative_to_vertical_reference: bool = False,
+        relative_to_reference: bool = False,
         update_layer_boundaries: bool = True,
         drop_missing: bool = True,
     ) -> pd.DataFrame:
@@ -1101,7 +1101,7 @@ class GeostFrame(AbstractBase):
         Note on using grids as upper and/or lower boundaries: if you notice unexpected
         results do check the following:
         -   Your data and your boundary grid(s) are in the same coordinate reference system
-        -   You have set `relative_to_vertical_reference` correctly according to the nature
+        -   You have set `relative_to_reference` correctly according to the nature
             of your grid. If your grid is relative to a vertical reference plane (e.g. "NAP"),
             set this parameter to True. If your grid is relative to depth below the surface,
             set this parameter to False.
@@ -1110,13 +1110,13 @@ class GeostFrame(AbstractBase):
         ----------
         upper_boundary : float | int | xr.DataArray | str | Path, optional
             Every layer that starts above this is removed. If you are using an xarray
-            DataArray (directly or through a file path), please set `relative_to_vertical_reference`
+            DataArray (directly or through a file path), please set `relative_to_reference`
             according to the nature of your grid. The default is None.
         lower_boundary : float | int | xr.DataArray | str | Path, optional
             Every layer that starts below this is removed. If you are using an xarray
-            DataArray (directly or through a file path), please set `relative_to_vertical_reference`
+            DataArray (directly or through a file path), please set `relative_to_reference`
             according to the nature of your grid. The default is None.
-        relative_to_vertical_reference : bool, optional
+        relative_to_reference : bool, optional
             If True, the slicing is done with respect to any kind of vertical reference
             plane (e.g. "NAP", "TAW"). If False, the slice is done with respect to depth
             below the surface. The default is False.
@@ -1155,7 +1155,7 @@ class GeostFrame(AbstractBase):
         Slicing can also be done with respect to a vertical reference plane like "NAP".
         For example, to select layers in boreholes that are between -3 and -5 m NAP, use:
 
-        >>> sliced = data.gst.slice_depth_interval(-3, -5, relative_to_vertical_reference=True)
+        >>> sliced = data.gst.slice_depth_interval(-3, -5, relative_to_reference=True)
 
         You can also slice data based on spatially varying upper and lower boundaries by
         giving an xarray DataArray or file path to a raster file that serves as the upper
@@ -1166,7 +1166,7 @@ class GeostFrame(AbstractBase):
         >>> sliced = data.gst.slice_depth_interval(
         ...     upper_boundary=-2,
         ...     lower_boundary="holocene_pleistocene_boundary.geotiff",
-        ...     relative_to_vertical_reference=True,
+        ...     relative_to_reference=True,
         ...     update_layer_boundaries=True,
         ... )
 
@@ -1196,11 +1196,11 @@ class GeostFrame(AbstractBase):
 
         sliced = self._obj
 
-        upper_fill_value = 1e34 if relative_to_vertical_reference else -1e34
+        upper_fill_value = 1e34 if relative_to_reference else -1e34
         if upper_boundary is None:
             upper_boundary = upper_fill_value
 
-        lower_fill_value = -1e34 if relative_to_vertical_reference else 1e34
+        lower_fill_value = -1e34 if relative_to_reference else 1e34
         if lower_boundary is None:
             lower_boundary = lower_fill_value
 
@@ -1218,7 +1218,7 @@ class GeostFrame(AbstractBase):
                 # the upper boundary with the sliced DataFrame.
                 upper_boundary = upper_boundary.loc[sliced.index]
 
-        if relative_to_vertical_reference:
+        if relative_to_reference:
             upper_boundary = self._obj.loc[sliced.index, self._surface] - upper_boundary
             lower_boundary = self._obj.loc[sliced.index, self._surface] - lower_boundary
 

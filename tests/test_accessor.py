@@ -981,7 +981,7 @@ class TestGeostFrame:
         # Test slicing with respect to a vertical reference plane.
         nap_upper, nap_lower = -2, -3
         sliced = borehole_data.gst.slice_depth_interval(
-            nap_upper, nap_lower, relative_to_vertical_reference=True
+            nap_upper, nap_lower, relative_to_reference=True
         )
 
         expected_tops_of_slice = [2.2, 2.3, 2.25, 2.1, 1.9]
@@ -997,7 +997,7 @@ class TestGeostFrame:
         # Test slices that return empty objects.
         empty_slice = borehole_data.gst.slice_depth_interval(-2, -1)
         empty_slice_nap = borehole_data.gst.slice_depth_interval(
-            3, 2, relative_to_vertical_reference=True
+            3, 2, relative_to_reference=True
         )
 
         assert len(empty_slice) == 0
@@ -1014,7 +1014,7 @@ class TestGeostFrame:
 
         nap_lower = -0.5
         sliced = borehole_data.gst.slice_depth_interval(
-            lower_boundary=nap_lower, relative_to_vertical_reference=True
+            lower_boundary=nap_lower, relative_to_reference=True
         )
 
         bottoms_of_slice = sliced.groupby("nr")["bottom"].max()
@@ -1042,7 +1042,7 @@ class TestGeostFrame:
 
         upper, lower = 0.1, -3.2
         sliced = cpt_data.gst.slice_depth_interval(
-            upper, lower, relative_to_vertical_reference=True
+            upper, lower, relative_to_reference=True
         )
         assert_array_equal(
             sliced["depth"], [2.0, 3.0, 4.0, 5.0, 1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0]
@@ -1056,7 +1056,7 @@ class TestGeostFrame:
 
         # Selection with respect to vertical reference plane using one limit
         sliced = cpt_data.gst.slice_depth_interval(
-            lower_boundary=-0.1, relative_to_vertical_reference=True
+            lower_boundary=-0.1, relative_to_reference=True
         )
         assert_array_equal(sliced["depth"], [1.0, 2.0, 0.5])
         assert_array_equal(sliced.index, [0, 1, 10])
@@ -1083,7 +1083,7 @@ class TestGeostFrame:
         lower_boundary = request.getfixturevalue(grid)
         sliced = borehole_data.gst.slice_depth_interval(
             lower_boundary=lower_boundary,
-            relative_to_vertical_reference=reference,
+            relative_to_reference=reference,
             update_layer_boundaries=update,
         )
         assert_array_almost_equal(
@@ -1124,7 +1124,7 @@ class TestGeostFrame:
         sliced = borehole_data.gst.slice_depth_interval(
             upper_boundary=10,
             lower_boundary=nap_grid,
-            relative_to_vertical_reference=True,
+            relative_to_reference=True,
         )
         assert_array_equal(sliced["nr"], ["A", "A", "B", "B", "C"])
         assert_array_almost_equal(sliced["bottom"], [0.8, 1.0, 0.6, 0.8, 1.05])
@@ -1132,14 +1132,14 @@ class TestGeostFrame:
         sliced = borehole_data.gst.slice_depth_interval(
             upper_boundary=nap_grid,
             lower_boundary=-1.5,
-            relative_to_vertical_reference=True,
+            relative_to_reference=True,
         )
         assert_array_equal(sliced["nr"], ["A", "A", "B", "B", "C", "C"])
         assert_array_almost_equal(sliced["bottom"], [1.5, 1.7, 1.2, 1.8, 1.4, 1.75])
 
         sliced = borehole_data.gst.slice_depth_interval(
             lower_boundary=nap_grid,
-            relative_to_vertical_reference=True,
+            relative_to_reference=True,
             drop_missing=False,
         )
         assert_array_equal(
