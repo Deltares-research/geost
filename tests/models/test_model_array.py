@@ -580,7 +580,7 @@ class TestModelDataArray:
 
     @pytest.mark.unittest
     def test_select_points(self, voxelmodel_var, layermodel_var, points):
-        selected = voxelmodel_var.gst.select_points(points, add_point_survey_ids=True)
+        selected = voxelmodel_var.gst.select_points(points)
         assert isinstance(selected, xr.DataArray)
         assert selected.sizes == {"idx": 3, "z": 5}
         assert_array_equal(selected["idx"].values, [0, 1, 2])
@@ -602,7 +602,7 @@ class TestModelDataArray:
                 points.drop(columns="nr"), add_point_survey_ids=True
             )
 
-        selected = layermodel_var.gst.select_points(points)
+        selected = layermodel_var.gst.select_points(points, add_point_survey_ids=False)
         assert isinstance(selected, xr.DataArray)
         assert selected.sizes == {"idx": 3, "layer": 4}
         assert "survey_id" not in selected.coords
@@ -655,7 +655,7 @@ class TestModelDataArray:
         self, voxelmodel_var, layermodel_var, points
     ):
         selected = voxelmodel_var.gst.select_points(
-            points, return_collection=True, add_point_survey_ids=True
+            points, return_collection=True, create_layers_from=["strat"]
         )
         assert isinstance(selected, Collection)
         assert selected.crs == voxelmodel_var.gst.crs
@@ -682,7 +682,9 @@ class TestModelDataArray:
             selected.data["bottom"], [0.5, 2.0, 1.5, 2.0, 2.0, 2.5]
         )
 
-        selected = layermodel_var.gst.select_points(points, return_collection=True)
+        selected = layermodel_var.gst.select_points(
+            points, return_collection=True, add_point_survey_ids=False
+        )
         assert isinstance(selected, Collection)
         assert selected.crs == layermodel_var.gst.crs
         assert_array_equal(
@@ -711,7 +713,11 @@ class TestModelDataArray:
         # (tested in `test_select_points` above) but `drop` should be ignored, result must
         # have three surveys
         sel_wgs = layermodel_var.gst.select_points(
-            points.to_crs(4326), crs=4326, drop=False, return_collection=True
+            points.to_crs(4326),
+            crs=4326,
+            drop=False,
+            return_collection=True,
+            add_point_survey_ids=False,
         )
         assert sel_wgs.crs == layermodel_var.gst.crs
         assert sel_wgs.header.shape == selected.header.shape

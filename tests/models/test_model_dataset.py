@@ -437,7 +437,7 @@ class TestModelDataset:
     @pytest.mark.unittest
     def test_select_points_return_collection(self, voxelmodel, layermodel, points):
         selected = voxelmodel.gst.select_points(
-            points, return_collection=True, add_point_survey_ids=True
+            points, return_collection=True, create_layers_from=["strat"]
         )
         assert isinstance(selected, Collection)
         assert selected.crs == voxelmodel.gst.crs
@@ -465,7 +465,9 @@ class TestModelDataset:
         )
 
         # Also test for layermodel, the same points should be selected
-        selected = layermodel.gst.select_points(points, return_collection=True)
+        selected = layermodel.gst.select_points(
+            points, return_collection=True, add_point_survey_ids=False
+        )
         assert isinstance(selected, Collection)
         assert selected.crs == layermodel.gst.crs
         assert_array_equal(
@@ -880,7 +882,53 @@ class TestModelDataset:
 
     @pytest.mark.unittest
     def test_to_collection_voxelmodel(self, voxelmodel):
+        def make_depths(n):
+            return (np.arange(n) * 0.5) + 0.5
+
         result = voxelmodel.gst.to_collection()
+        assert isinstance(result, Collection)
+        assert result.crs == voxelmodel.gst.crs == 28992
+        assert result.header.shape == (16, 5)
+        assert_array_equal(result.header["nr"], np.arange(16))
+        assert_array_almost_equal(
+            result.header["surface"],
+            [
+                0.0,
+                -0.5,
+                -0.5,
+                -0.5,
+                0.0,
+                0.0,
+                -0.5,
+                -0.5,
+                -0.5,
+                0.0,
+                0.0,
+                -0.5,
+                -0.5,
+                0.0,
+                -0.5,
+                0.0,
+            ],
+        )
+        assert_array_equal(
+            result.header.columns, ["nr", "x", "y", "surface", "geometry"]
+        )
+        assert_array_equal(
+            result.data.columns, ["nr", "surface", "x", "y", "z", "strat", "lith"]
+        )
+        expected_rows_per_nr = [5, 4, 4, 4, 5, 5, 4, 4, 4, 5, 5, 3, 4, 5, 4, 5]
+        assert_array_equal(
+            result.data["nr"], np.repeat(result.header["nr"], expected_rows_per_nr)
+        )
+        assert_array_almost_equal(
+            result.data["z"],
+            np.concatenate([make_depths(n) for n in expected_rows_per_nr]),
+        )
+
+    @pytest.mark.unittest
+    def test_to_collection_voxelmodel_with_create_layers(self, voxelmodel):
+        result = voxelmodel.gst.to_collection(create_layers_from=["strat", "lith"])
         assert isinstance(result, Collection)
         assert result.crs == voxelmodel.gst.crs == 28992
         assert result.header.shape == (16, 5)
@@ -972,6 +1020,89 @@ class TestModelDataset:
                 [0.0, 1.0],
                 [1.0, 2.0],
                 [2.0, 2.5],
+            ],
+        )
+
+        other_result = voxelmodel.gst.to_collection(
+            create_layers_from="strat", agg_funcs={"lith": "min"}
+        )
+        assert result.header.equals(other_result.header)
+        assert_array_almost_equal(
+            other_result.data[["top", "bottom"]],
+            [
+                [0.0, 1.0],
+                [1.0, 2.5],
+                [0.0, 1.0],
+                [1.0, 2.0],
+                [0.0, 1.5],
+                [1.5, 2.0],
+                [0.0, 1.0],
+                [1.0, 2.0],
+                [0.0, 1.5],
+                [1.5, 2.5],
+                [0.0, 1.5],
+                [1.5, 2.5],
+                [0.0, 1.5],
+                [1.5, 2.0],
+                [0.0, 0.5],
+                [0.5, 1.0],
+                [1.0, 1.5],
+                [1.5, 2.0],
+                [0.0, 0.5],
+                [0.5, 2.0],
+                [0.0, 2.0],
+                [2.0, 2.5],
+                [0.0, 1.5],
+                [1.5, 2.5],
+                [0.0, 0.5],
+                [0.5, 1.5],
+                [0.0, 0.5],
+                [0.5, 2.0],
+                [0.0, 2.0],
+                [2.0, 2.5],
+                [0.0, 1.0],
+                [1.0, 2.0],
+                [0.0, 1.0],
+                [1.0, 2.5],
+            ],
+        )
+        assert_array_equal(
+            other_result.data[["lith"]],
+            [
+                1.0,
+                2.0,
+                1.0,
+                2.0,
+                1.0,
+                2.0,
+                1.0,
+                2.0,
+                1.0,
+                2.0,
+                1.0,
+                2.0,
+                1.0,
+                2.0,
+                1.0,
+                2.0,
+                3.0,
+                2.0,
+                1.0,
+                2.0,
+                1.0,
+                2.0,
+                1.0,
+                2.0,
+                1.0,
+                2.0,
+                1.0,
+                2.0,
+                1.0,
+                2.0,
+                1.0,
+                2.0,
+                1.0,
+                2.0,
             ],
         )
 

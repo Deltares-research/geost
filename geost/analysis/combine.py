@@ -233,73 +233,18 @@ def _get_model_dataframe(
     and reduce the result to a pandas.DataFrame that can be merged with the survey data.
 
     """
-    from geost.models._core import ModelType
-
-    sel = model.gst.select_points(header)
-    if model.gst.model_type == ModelType.VOXEL:
-        sel = sel.rename({model.gst.z_dim: bottom_})
-
-        *_, dz = model.gst.resolution()
-        sel = sel.assign_coords(
-            {bottom_: sel[bottom_] - (0.5 * dz)}
-        )  # Translate voxel mid depths to bottom depths
-    else:
-        sel = sel.rename({model.gst._bottom: bottom_})
-
-    sel[nr_] = (("idx"), header[nr_].loc[sel["idx"]])
-    sel[surface_] = (("idx"), header[surface_].loc[sel["idx"]])
-
-    return _create_dataframe_and_reduce(
-        sel,
-        variable=variable,
-        agg_funcs=agg_funcs,
-        nr=nr_,
-        bottom=bottom_,
-        surface=surface_,
+    sel = model.gst.select_points(
+        header, return_collection=True, add_point_survey_ids=True
     )
+    sel = sel.aggregate_consecutive_layers(variable, agg_funcs)
+    bottom_col = sel.data.gst._bottom
 
-
-def _create_dataframe_and_reduce(
-    ds: xr.Dataset | xr.DataArray,
-    variable: str | list,
-    agg_funcs: dict[str, str],
-    nr: str,
-    bottom: str,
-    surface: str,
-) -> pd.DataFrame:
-    """
-    Helper for `add_voxelmodel_variable` to reduce the selection DataArray from
-    `model.gst.select_points` to a DataFrame containing relevant layer boundaries.
-
-    Parameters
-    ----------
-    ds : xr.Dataset | xr.DataArray
-        Selection result of `model.gst.select_points`.
-    nr : str
-        Name of the survey ID column.
-    bottom : str
-        Name of the bottom depth column.
-    surface : str
-        Name of the surface depth column.
-    variable : str | list
-        Name or names of the variable(s) to add from the voxelmodel, these are treated
-        as consecutive layers to add.
-
-    Returns
-    -------
-    pd.DataFrame
-
-    """
-    var_df = ds.to_dataframe().reset_index()
-    var_df = var_df.dropna(subset=variable).sort_values(
-        by=[nr, bottom], ascending=[True, False]
+    df = (
+        sel.data.assign(nr=pd.col("survey_id"))
+        .rename(columns={"nr": nr_, bottom_col: bottom_})
+        .gst._get_depth_relative_to_surface()  # Temporary change depth reference for correct filtering
+        .drop(columns=["surface", "survey_id"])
+        .merge(header[[nr_, surface_]], on=nr_, how="left")
     )
-    var_df = var_df.gst.aggregate_consecutive_layers(variable, agg_funcs)
-    # Name of bottom column may have changed if discrete data was aggregated to layered data
-    bottom_col = var_df.gst._bottom
-    var_df = var_df[
-        var_df[bottom_col] < var_df[surface]
-    ]  # Only keep layers below surface, strat boundaries are bottoms of layers
-    var_df[bottom_col] = var_df[surface] - var_df[bottom_col]
-
-    return var_df
+    df = df[df[bottom_] < df[surface_]]  # Filter
+    return df.gst._get_depth_relative_to_surface()  # Reset depth reference

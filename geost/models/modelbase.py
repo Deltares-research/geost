@@ -402,7 +402,12 @@ class ModelBase:
                 "the CRS before selecting within a bounding box."
             ) from e
 
-    def _idx_ds_to_collection(self, sel: xr.Dataset | xr.DataArray):
+    def _idx_ds_to_collection(
+        self,
+        sel: xr.Dataset | xr.DataArray,
+        create_layers_from: str | list | None = None,
+        agg_funcs: dict | None = None,
+    ) -> Collection:
         df = sel.to_dataframe(dim_order=["idx", self._z])
         include_in_header = ["survey_id"] if "survey_id" in df.columns else []
         variables = list(sel.data_vars) if isinstance(sel, xr.Dataset) else [sel.name]
@@ -418,7 +423,10 @@ class ModelBase:
             df[self._z] = df[self._z] - (0.5 * zres)
             df["surface"] = df.groupby("nr")[self._z].transform("max") + zres
             df = df.gst._get_depth_relative_to_surface()
-            df = df.gst.aggregate_consecutive_layers(variables)
+
+            if create_layers_from is not None:
+                df = df.gst.aggregate_consecutive_layers(create_layers_from, agg_funcs)
+
             df = df.filter(
                 list(df.gst.positional_columns.values())
                 + include_in_header
@@ -450,8 +458,10 @@ class ModelBase:
         points: str | Path | gpd.GeoDataFrame | GeometryType,
         crs: str | int | CRS | None = None,
         drop: bool = True,
-        add_point_survey_ids: bool = False,
+        add_point_survey_ids: bool = True,
         return_collection: bool = False,
+        create_layers_from: str | list | None = None,
+        agg_funcs: dict | None = None,
     ) -> xr.Dataset | xr.DataArray | Collection:
         """
         Select model data at specified point locations. The points can be provided as a
@@ -475,10 +485,24 @@ class ModelBase:
             If True, add the survey ID of the points to the result. Note, that this requires
             the points to have a valid survey ID column which can be accessed through the
             ``points.gst.nr`` property. Otherwise, a ``MissingSurveyIDError`` will be raised.
-            The default is False.
+            The default is True.
         return_collection : bool, optional
             If True, the result is returned as a Collection object instead of an xarray
             object. The default is False.
+        create_layers_from : str | list, optional
+            In case of a Voxelmodel, variable or variables to create layers from, only used when
+            ``return_collection=True``. If given, this aggregates consecutive values of these
+            variables into layers. For example, consecutive "strat" values are grouped into
+            the same layer or consecutive combinations of "strat" and "lithoclass" are grouped.
+            Other variables can be aggregated with a custom aggregation function over these
+            layers. If not given, no layers are created and the returned Collection contains
+            discrete data. Note that this parameter is ignored when ``return_collection=False``
+            or the model is not a Layermodel.
+        agg_funcs : dict, optional
+            Dictionary specifying the aggregation functions to apply to other model variables
+            when creating layers. Keys are column names, and values are aggregation functions.
+            These can be e.g. names such as'first', 'last', 'mean', etc. or actual functions
+            such as ``np.sum``, ``np.mean``, etc.
 
         Returns
         -------
@@ -529,7 +553,9 @@ class ModelBase:
             )
 
         if return_collection:
-            return self._idx_ds_to_collection(sel)
+            return self._idx_ds_to_collection(
+                sel, create_layers_from=create_layers_from, agg_funcs=agg_funcs
+            )
 
         if not drop:
             sel = sel.reindex(idx=points.index)
@@ -851,9 +877,28 @@ class ModelBase:
                 drop=drop,
             )
 
-    def to_collection(self) -> Collection:
+    def to_collection(
+        self,
+        create_layers_from: str | list | None = None,
+        agg_funcs: dict | None = None,
+    ) -> Collection:
         """
         Create a :class:`~geost.base.Collection` from the model data.
+
+        Parameters
+        ----------
+        create_layers_from : str | list, optional
+            In case of a Voxelmodel, variable or variables to create layers from, only used when
+            ``return_collection=True``. If given, this aggregates consecutive values of these
+            variables into layers. For example, consecutive "strat" values are grouped into
+            the same layer or consecutive combinations of "strat" and "lithoclass" are grouped.
+            Other variables can be aggregated with a custom aggregation function over these
+            layers.
+        agg_funcs : dict, optional
+            Dictionary specifying the aggregation functions to apply to other model variables
+            when creating layers. Keys are column names, and values are aggregation functions.
+            These can be e.g. names such as'first', 'last', 'mean', etc. or actual functions
+            such as ``np.sum``, ``np.mean``, etc.
 
         Returns
         -------
@@ -863,7 +908,9 @@ class ModelBase:
         """
         ds = self._obj.stack(idx=(self._y, self._x))
         ds = ds.reset_index("idx").assign_coords({"idx": np.arange(ds.sizes["idx"])})
-        return self._idx_ds_to_collection(ds)
+        return self._idx_ds_to_collection(
+            ds, create_layers_from=create_layers_from, agg_funcs=agg_funcs
+        )
 
     def to_geopackage_3d(self, filepath: str | Path) -> None:
         """
@@ -941,3 +988,8 @@ class ModelBase:
                 top=self._top,
                 bottom=self._bottom,
             )
+
+    def to_modflow_schematization(
+        self, filepath: str | Path = None, unstructured: bool = True
+    ):
+        pass
