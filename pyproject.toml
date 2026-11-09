@@ -102,6 +102,7 @@ pre-commit = "*"
 platformdirs = "*"
 pyinstrument = "*"
 xyzservices = "*"
+loguru = "*"
 
 [tool.pixi.pypi-dependencies]
 geost = { path = ".", editable = true }

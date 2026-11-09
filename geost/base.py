@@ -1607,6 +1607,15 @@ class Collection(AbstractBase):
         :class:`~geost.base.Collection`
             New `Collection` containing the discretized fractions as the data table.
 
+        Examples
+        --------
+        Calculate lithology fractions in uniform 1-meter layers below the surface:
+
+        >>> result = collection.compute_discretized_fractions("lith", 1)
+
+        See :meth:`~geost.accessor.GeostFrame.compute_discretized_fractions` for more
+        detailed examples.
+
         """
         discretized = self.data.gst.compute_discretized_fractions(
             column=column,
@@ -1680,6 +1689,9 @@ class Collection(AbstractBase):
         >>> result = collection.aggregate_consecutive_layers(
         ...     'lith', {'qc': 'mean', 'fs': 'mean'}
         ... )
+
+        See :meth:`~geost.accessor.GeostFrame.aggregate_consecutive_layers` for more detailed
+        examples.
 
         """
         combined_data = self.data.gst.aggregate_consecutive_layers(
@@ -2097,4 +2109,45 @@ class Collection(AbstractBase):
             nr_=self._nr,
             surface_=positional_columns["surface"],
             bottom_=positional_columns["depth"],
+        )
+
+    def append_model_data(
+        self, model: xr.Dataset | xr.DataArray, append_to: dict | None = None
+    ) -> Collection:
+        """
+        Append model data from an ``xarray.Dataset`` or ``xarray.DataArray`` as layers to
+        the survey data. This locates the closest model column the survey is in by x,y-location
+        and adds the model data as layers below the end depths of the surveys.
+
+        Parameters
+        ----------
+        model : xr.Dataset | xr.DataArray
+            Model data to append.
+        append_to : dict | None, optional
+            Mapping which model variable must be appended to which column. The default is
+            None, then all model variables are appended to columns with the same name or
+            added as separate columns if no matching columns exist.
+
+        Returns
+        -------
+        :class:`~geost.base.Collection`
+            New ``Collection`` instance with the appended model data.
+
+        Examples
+        --------
+        >>> result = collection.append_model_data(model)
+
+        Or append to specific columns of the data table with `append_to`:
+
+        >>> result = collection.append_model_data(model, append_to={"lith": "lithology"})
+
+        See :meth:`~geost.accessor.GeostFrame.add_model_data` for more detailed examples.
+
+        """
+        data = self.data.gst.append_model_data(model, append_to)
+        return self.__class__(
+            data,
+            header=self.header.copy(),
+            vertical_datum=self.vertical_datum,
+            has_inclined=self.has_inclined,
         )

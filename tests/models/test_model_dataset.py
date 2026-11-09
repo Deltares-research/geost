@@ -1067,7 +1067,7 @@ class TestModelDataset:
             ],
         )
         assert_array_equal(
-            other_result.data[["lith"]],
+            other_result.data["lith"],
             [
                 1.0,
                 2.0,

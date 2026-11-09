@@ -2320,3 +2320,270 @@ class TestGeostFrame:
         )
         assert isinstance(result, pd.DataFrame)
         pd.testing.assert_frame_equal(result, expected_result)
+
+    @pytest.fixture
+    def borehole_subset(self, borehole_data):
+        """
+        Small subset from `borehole_data` fixture to test `append_model_data` below
+        """
+        subset = (
+            borehole_data.query("nr in ['A', 'B']")
+            .gst.slice_depth_interval(lower_boundary=1)
+            .rename(columns={"lith": "lithology"})  # Rename for test
+        )
+        return subset
+
+    @pytest.mark.unittest
+    def test_append_model_data_layered_voxelmodel(self, borehole_subset, voxelmodel):
+        result = borehole_subset.gst.append_model_data(voxelmodel)
+        assert isinstance(result, pd.DataFrame)
+        assert_array_equal(
+            result.columns,
+            [
+                "nr",
+                "x",
+                "y",
+                "surface",
+                "end",
+                "top",
+                "bottom",
+                "lithology",
+                "strat",
+                "lith",
+            ],
+        )
+        assert_array_equal(result["nr"], np.repeat(["A", "B"], [4, 5]))
+        assert_array_equal(result["surface"], np.repeat([0.2, 0.3], [4, 5]))
+        assert_array_equal(result["end"], np.repeat([-2.5], len(result)))
+        assert_array_almost_equal(
+            result[["top", "bottom"]],
+            [
+                [0.0, 0.8],
+                [0.8, 1.0],
+                [1.0, 2.2],
+                [2.2, 2.7],
+                [0.0, 0.6],
+                [0.6, 1.0],
+                [1.0, 1.8],
+                [1.8, 2.3],
+                [2.3, 2.8],
+            ],
+        )
+        assert_array_equal(
+            result["lithology"].to_numpy(dtype="<U15"),
+            ["K", "K", "nan", "nan", "K", "K", "nan", "nan", "nan"],
+        )
+        assert_array_equal(
+            result["lith"], [np.nan, np.nan, 1, 2, np.nan, np.nan, 1, 3, 2]
+        )
+        assert_array_equal(
+            result["strat"], [np.nan, np.nan, 1, 2, np.nan, np.nan, 1, 2, 2]
+        )
+
+        other_result = borehole_subset.gst.append_model_data(
+            voxelmodel, append_to={"lith": "lithology"}
+        )
+        pd.testing.assert_frame_equal(
+            result.drop(columns=["lithology", "lith"]),
+            other_result.drop(columns="lithology"),
+        )
+        assert_array_equal(
+            other_result["lithology"].to_numpy(dtype="<U1"),
+            ["K", "K", "1", "2", "K", "K", "1", "3", "2"],
+        )
+
+    @pytest.mark.unittest
+    def test_append_model_data_layered_layermodel(self, borehole_subset, layermodel):
+        result = borehole_subset.gst.append_model_data(layermodel)
+        assert isinstance(result, pd.DataFrame)
+        assert_array_equal(
+            result.columns,
+            [
+                "nr",
+                "x",
+                "y",
+                "surface",
+                "end",
+                "top",
+                "bottom",
+                "lithology",
+                "layer",
+                "thickness",
+                "kh",
+            ],
+        )
+        assert_array_equal(result["nr"], np.repeat(["A", "B"], [5, 4]))
+        assert_array_equal(result["surface"], np.repeat([0.2, 0.3], [5, 4]))
+        assert_array_almost_equal(result["end"], np.repeat([-3.35, -3.25], [5, 4]))
+        assert_array_almost_equal(
+            result[["top", "bottom"]],
+            [
+                [0.0, 0.8],
+                [0.8, 1.0],
+                [1.0, 1.15],
+                [1.15, 2.75],
+                [2.75, 3.55],
+                [0.0, 0.6],
+                [0.6, 1.0],
+                [1.0, 1.15],
+                [1.15, 3.55],
+            ],
+        )
+        assert_array_equal(
+            result["lithology"].to_numpy(dtype="<U15"),
+            ["K", "K", "nan", "nan", "nan", "K", "K", "nan", "nan"],
+        )
+        assert_array_equal(
+            result["layer"].to_numpy(dtype="<U15"),
+            ["nan", "nan", "B", "C", "D", "nan", "nan", "B", "D"],
+        )
+        assert_array_equal(
+            result["thickness"],
+            [np.nan, np.nan, 0.75, 1.6, 0.8, np.nan, np.nan, 0.7, 2.4],
+        )
+        assert_array_equal(
+            result["kh"], [np.nan, np.nan, 0.2, 20.1, 85.0, np.nan, np.nan, 0.2, 85.0]
+        )
+
+        other_result = borehole_subset.gst.append_model_data(
+            layermodel, append_to={"layer": "lithology"}
+        )
+        assert_array_equal(
+            other_result["lithology"], ["K", "K", "B", "C", "D", "K", "K", "B", "D"]
+        )
+        pd.testing.assert_frame_equal(
+            result.drop(columns=["lithology", "layer"]),
+            other_result.drop(columns="lithology"),
+        )
+
+    @pytest.fixture
+    def cpt_subset(self, cpt_data):
+        subset = cpt_data.gst.slice_depth_interval(lower_boundary=1)
+        subset["lithology"] = [2.0, 5.0, 3.0]
+        subset["unit"] = ["X", "Y", "X"]
+        return subset
+
+    @pytest.mark.unittest
+    def test_append_model_data_discrete_voxelmodel(self, cpt_subset, voxelmodel):
+        result = cpt_subset.gst.append_model_data(voxelmodel)
+        assert isinstance(result, pd.DataFrame)
+        assert_array_equal(
+            result.columns,
+            [
+                "nr",
+                "x",
+                "y",
+                "surface",
+                "end",
+                "depth",
+                "qc",
+                "fs",
+                "u2",
+                "lithology",
+                "unit",
+                "top",
+                "strat",
+                "lith",
+            ],
+        )
+        assert_array_equal(result["nr"], np.repeat(["a", "b"], 4))
+        assert_array_equal(result["surface"], np.repeat([2.1, 0.8], 4))
+        assert_array_almost_equal(result["end"], np.repeat(-2.5, len(result)))
+        assert_array_almost_equal(
+            result["depth"], [1.0, 3.1, 4.1, 4.6, 0.5, 1.0, 2.8, 3.3]
+        )
+        assert_array_almost_equal(
+            result["top"], [np.nan, 2.1, 3.1, 4.1, np.nan, np.nan, 1.3, 2.8]
+        )
+        assert_array_equal(
+            result[["lithology", "strat", "lith"]],
+            [
+                [2.0, np.nan, np.nan],
+                [np.nan, 1.0, 3.0],
+                [np.nan, 1.0, 1.0],
+                [np.nan, 2.0, 2.0],
+                [5.0, np.nan, np.nan],
+                [3.0, np.nan, np.nan],
+                [np.nan, 1.0, 1.0],
+                [np.nan, 2.0, 2.0],
+            ],
+        )
+
+        other_result = cpt_subset.gst.append_model_data(
+            voxelmodel, append_to={"lith": "lithology"}
+        )
+        assert_array_equal(
+            other_result.columns,
+            [
+                "nr",
+                "x",
+                "y",
+                "surface",
+                "end",
+                "depth",
+                "qc",
+                "fs",
+                "u2",
+                "lithology",
+                "unit",
+                "top",
+                "strat",
+            ],
+        )
+        assert_array_equal(
+            other_result["lithology"],
+            [2.0, 3.0, 1.0, 2.0, 5.0, 3.0, 1.0, 2.0],
+        )
+        pd.testing.assert_frame_equal(
+            result.drop(columns=["lithology", "lith"]),
+            other_result.drop(columns="lithology"),
+        )
+
+    @pytest.mark.unittest
+    def test_append_model_data_discrete_layermodel(self, cpt_subset, layermodel):
+        result = cpt_subset.gst.append_model_data(layermodel)
+        assert isinstance(result, pd.DataFrame)
+        assert_array_equal(
+            result.columns,
+            [
+                "nr",
+                "x",
+                "y",
+                "surface",
+                "end",
+                "depth",
+                "qc",
+                "fs",
+                "u2",
+                "lithology",
+                "unit",
+                "top",
+                "layer",
+                "thickness",
+                "kh",
+            ],
+        )
+        assert_array_equal(result["nr"], np.repeat(["a", "b"], 5))
+        assert_array_equal(result["surface"], np.repeat([2.1, 0.8], 5))
+        assert_array_almost_equal(result["end"], np.repeat([-3.25, -3.35], 5))
+        assert_array_almost_equal(
+            result["depth"], [1.0, 2.25, 2.95, 4.55, 5.35, 0.5, 1.0, 1.75, 3.35, 4.15]
+        )
+        assert_array_almost_equal(
+            result["top"],
+            [np.nan, 1.8, 2.25, 2.95, 4.55, np.nan, np.nan, 1.0, 1.75, 3.35],
+        )
+        assert_array_equal(
+            result["layer"].to_numpy(dtype="<U15"),
+            ["nan", "A", "B", "C", "D", "nan", "nan", "B", "C", "D"],
+        )
+
+        other_result = cpt_subset.gst.append_model_data(
+            layermodel, append_to={"layer": "unit"}
+        )
+        assert_array_equal(
+            other_result["unit"], ["X", "A", "B", "C", "D", "Y", "X", "B", "C", "D"]
+        )
+        pd.testing.assert_frame_equal(
+            result.drop(columns=["unit", "layer"]), other_result.drop(columns="unit")
+        )

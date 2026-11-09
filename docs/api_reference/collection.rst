@@ -67,6 +67,7 @@ Data manipulation
 
    Collection.add_model_data
    Collection.aggregate_consecutive_layers
+   Collection.append_model_data
 
 
 Selection

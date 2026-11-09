@@ -55,11 +55,11 @@ def concat(
     # Get list of headers and data with renamed positional columns to match those of the
     # first collection in the iterable
     headers = [
-        collection.header.gst._rename_positional_columns_like(collections[0].header)
+        collection.header.gst.rename_positional_columns_like(collections[0].header)
         for collection in collections
     ]
     datas = [
-        collection.data.gst._rename_positional_columns_like(collections[0].data)
+        collection.data.gst.rename_positional_columns_like(collections[0].data)
         for collection in collections
     ]
 

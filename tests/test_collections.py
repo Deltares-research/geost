@@ -1176,3 +1176,38 @@ class TestCollection:
         assert result.data.shape == (27, 11)
         assert "layer_model" in result.data.columns
         assert "kh_model" in result.data.columns
+
+    @pytest.mark.unittest
+    def test_append_model_data(self, borehole_collection, voxelmodel, layermodel):
+        # Method `append_model_data` is tested in detail in `TestGeostFrame`
+        coll = borehole_collection.slice_depth_interval(lower_boundary=1).get(
+            ["A", "B"]
+        )
+        coll.data = coll.data.rename(columns={"lith": "lithology"})
+
+        result = coll.append_model_data(voxelmodel, append_to={"lith": "lithology"})
+        assert coll.header.equals(result.header)
+        assert result.data.shape == (9, 9)
+        assert_array_equal(
+            result.data.columns,
+            ["nr", "x", "y", "surface", "end", "top", "bottom", "lithology", "strat"],
+        )
+
+        result = coll.append_model_data(layermodel, append_to={"layer": "lithology"})
+        assert coll.header.equals(result.header)
+        assert result.data.shape == (9, 10)
+        assert_array_equal(
+            result.data.columns,
+            [
+                "nr",
+                "x",
+                "y",
+                "surface",
+                "end",
+                "top",
+                "bottom",
+                "lithology",
+                "thickness",
+                "kh",
+            ],
+        )

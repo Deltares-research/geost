@@ -61,6 +61,7 @@ Generic
 
    GeostFrame.to_collection
    GeostFrame.to_header
+   GeostFrame.rename_positional_columns_like
    GeostFrame.standardize_column_names
    GeostFrame.validate
 
@@ -71,6 +72,7 @@ Data manipulation
 
    GeostFrame.add_model_data
    GeostFrame.aggregate_consecutive_layers
+   GeostFrame.append_model_data
    GeostFrame.merge_sorted
 
 Export

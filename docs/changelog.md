@@ -1,5 +1,11 @@
 # Release notes
 
+## v0.6.1
+
+**Added**
+- [`append_model_data`](./api_reference/generated/geost.base.Collection.append_model_data.rst) method in `Collection` and `.gst` accessor
+- Make [`rename_positional_columns_like`](./api_reference/generated/geost.accessor.GeostFrame.rename_positional_columns_like.rst) public method in `.gst` accessor
+
 ## v0.6.0
 
 All model functionality is re-written as an **Xarray extension**. Importing GeoST now

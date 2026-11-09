@@ -68,7 +68,7 @@ class GeostFrame(AbstractBase):
         self._top = check("top")
         self._bottom = check("depth")
 
-    def _rename_positional_columns_like(self, other):
+    def rename_positional_columns_like(self, other):
         """
         Rename the positional columns of this DataFrame to match those of another
         DataFrame.
@@ -81,7 +81,7 @@ class GeostFrame(AbstractBase):
                     self.positional_columns.values(),
                     other.gst.positional_columns.values(),
                 )
-                if v is not None
+                if v is not None and cn is not None
             },
             errors="ignore",
         )
@@ -1678,7 +1678,7 @@ class GeostFrame(AbstractBase):
 
         Examples
         --------
-        Calculate lithology fractions in uniform 1-meter layers:
+        Calculate lithology fractions in uniform 1-meter layers below the surface:
 
         >>> import geost
         >>> import pandas as pd
@@ -2547,3 +2547,129 @@ class GeostFrame(AbstractBase):
             surface_=self._surface,
             bottom_=self._bottom,
         )
+
+    def append_model_data(
+        self, model: xr.Dataset | xr.DataArray, append_to: dict | None = None
+    ) -> pd.DataFrame:
+        """
+        Append model data from an ``xarray.Dataset`` or ``xarray.DataArray`` as layers to
+        the survey data. This locates the closest model column the survey is in by x,y-location
+        and adds the model data as layers below the end depths of the surveys.
+
+        Parameters
+        ----------
+        model : xr.Dataset | xr.DataArray
+            Model data to append.
+        append_to : dict | None, optional
+            Mapping which model variable must be appended to which column. The default is
+            None, then all model variables are appended to columns with the same name or
+            added as separate columns if no matching columns exist.
+
+        Returns
+        -------
+        pd.DataFrame
+            The resulting DataFrame with appended model data.
+
+        Examples
+        --------
+        Given a DataFrame of borehole data up to 1 meter depth with a "lithology" column
+        and a voxelmodel with a "strat" and "lith" variable (both numeric dtype) up to
+        -2.5 meter NAP depth:
+
+        >>> import geost
+        >>> data = geost.pandas_dataframe(
+        ...     {
+        ...         'nr': ['A', 'A', 'B', 'B'],
+        ...         'x': [2, 2, 1, 1],
+        ...         'y': [3, 3, 4, 4],
+        ...         'surface': [0.2, 0.2, 0.3, 0.3],
+        ...         'end': [-4.0, -4.0, -3.6, -3.6],
+        ...         'top': [0.0, 0.8, 0.0, 0.6],
+        ...         'bottom': [0.8, 1.0, 0.6, 1.0],
+        ...         'lithology': ['K', 'K', 'K', 'K']
+        ...     }
+        ... )
+        >>> data
+          nr  x  y  surface  end  top  bottom lithology
+        0  A  2  3      0.2 -4.0  0.0     0.8         K
+        1  A  2  3      0.2 -4.0  0.8     1.0         K
+        2  B  1  4      0.3 -3.6  0.0     0.6         K
+        3  B  1  4      0.3 -3.6  0.6     1.0         K
+
+        The model data can be appended like below:
+
+        >>> data = data.gst.append_model_data(model)
+        >>> data
+          nr  x  y  surface  end  top  bottom lithology  strat  lith
+        0  A  2  3      0.2 -2.5  0.0     0.8         K    NaN   NaN
+        1  A  2  3      0.2 -2.5  0.8     1.0         K    NaN   NaN
+        2  A  2  3      0.2 -2.5  1.0     2.2       NaN    1.0   1.0
+        3  A  2  3      0.2 -2.5  2.2     2.7       NaN    2.0   2.0
+        4  B  1  4      0.3 -2.5  0.0     0.6         K    NaN   NaN
+        5  B  1  4      0.3 -2.5  0.6     1.0         K    NaN   NaN
+        6  B  1  4      0.3 -2.5  1.0     1.8       NaN    1.0   1.0
+        7  B  1  4      0.3 -2.5  1.8     2.3       NaN    2.0   3.0
+        8  B  1  4      0.3 -2.5  2.3     2.8       NaN    2.0   2.0
+
+        We can also append the "lith" variable to the "lithology" column. The "strat"
+        variable is still added as a separate column. Note that this does not cast the
+        datatype of the lithology column:
+        >>> data = data.gst.append_model_data(model, append_to={"lith": "lithology"})
+        >>> data
+          nr  x  y  surface  end  top  bottom lithology  strat
+        0  A  2  3      0.2 -2.5  0.0     0.8         K    NaN
+        1  A  2  3      0.2 -2.5  0.8     1.0         K    NaN
+        2  A  2  3      0.2 -2.5  1.0     2.2       1.0    1.0
+        3  A  2  3      0.2 -2.5  2.2     2.7       2.0    2.0
+        4  B  1  4      0.3 -2.5  0.0     0.6         K    NaN
+        5  B  1  4      0.3 -2.5  0.6     1.0         K    NaN
+        6  B  1  4      0.3 -2.5  1.0     1.8       1.0    1.0
+        7  B  1  4      0.3 -2.5  1.8     2.3       3.0    2.0
+        8  B  1  4      0.3 -2.5  2.3     2.8       2.0    2.0
+
+        """
+        from geost.models._core import ModelType
+
+        if model.gst.model_type == ModelType.VOXEL:
+            create_layers_from = (
+                list(model.data_vars) if isinstance(model, xr.Dataset) else [model.name]
+            )
+        else:
+            create_layers_from = None
+
+        survey_locations = self.to_header()
+        collection = model.gst.select_points(
+            survey_locations,
+            return_collection=True,
+            add_point_survey_ids=True,
+            create_layers_from=create_layers_from,
+        )
+
+        df = (
+            collection.data.assign(nr=pd.col("survey_id"))
+            .gst.rename_positional_columns_like(self._obj)
+            .gst._get_depth_relative_to_surface()  # Temporary adjustment for correct merge based on depth
+            .drop(columns=["survey_id", "surface", "x", "y"])
+        )
+
+        ends = self._obj.groupby("nr")[self._bottom].max().rename("end")
+
+        df = (
+            survey_locations.drop(columns=[self._end, "geometry"])
+            .merge(ends, on=self._nr, how="left")
+            .merge(df, on=self._nr, how="right")
+        ).gst._get_depth_relative_to_surface()  # Change back now correct surface level is present
+
+        df = df[df[self._bottom] > df["end"]]
+        df.loc[df[df.gst._top] < df["end"], df.gst._top] = df["end"]
+
+        if append_to is not None:
+            df = df.rename(columns=append_to)
+
+        result = pd.concat([self._obj, df]).sort_values(
+            by=[self._nr, self._bottom], ignore_index=True
+        )
+        result[self._end] = result["surface"] - result.groupby(self._nr)[
+            self._bottom
+        ].transform("max")
+        return result
