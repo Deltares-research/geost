@@ -941,6 +941,80 @@ class TestCollection:
         grid = borehole_collection.to_pyvista_grid("lith")
         assert isinstance(grid, pv.UnstructuredGrid)
 
+    @pytest.mark.unittest
+    def test_calculate_gradient(self, borehole_collection):
+        rng = np.random.default_rng(12)
+        borehole_collection.data["value"] = rng.random(len(borehole_collection.data))
+
+        result = borehole_collection.calculate_gradient("value")
+        assert "value_gradient" not in borehole_collection.data.columns
+        assert_array_almost_equal(
+            result.data["value_gradient"],
+            [
+                0.0,
+                0.92790465,
+                -0.89109713,
+                -0.00911725,
+                0.20070333,
+                0.0,
+                0.73317416,
+                -0.58459617,
+                0.82234736,
+                -0.05454126,
+                0.0,
+                0.59848792,
+                -0.57948652,
+                0.15110368,
+                0.12226237,
+                0.0,
+                0.02421745,
+                0.70672325,
+                -1.0288394,
+                -0.1181348,
+                0.0,
+                0.46018038,
+                -0.03662743,
+                -0.06547827,
+                -1.35982384,
+            ],
+        )
+
+        borehole_collection.calculate_gradient(
+            "value", use_mid_depth=False, inplace=True, output_column="gradient"
+        )
+        assert_array_almost_equal(
+            borehole_collection.data["gradient"],
+            [
+                0.0,
+                0.99418355,
+                -0.75743256,
+                -0.00835748,
+                0.34119566,
+                0.0,
+                0.73317416,
+                -0.42720489,
+                1.30204999,
+                -0.04772361,
+                0.0,
+                1.34659782,
+                -0.39510444,
+                0.16789298,
+                0.09349475,
+                0.0,
+                0.02075781,
+                0.76561685,
+                -0.95535087,
+                -0.14176176,
+                0.0,
+                0.39444033,
+                -0.03967971,
+                -0.06080125,
+                -1.63178861,
+            ],
+        )
+        with pytest.raises(KeyError):
+            borehole_collection.calculate_gradient("missing_column")
+
     @pytest.mark.parametrize(
         "collection, column, value, expected_column, expected_thickness",
         [
@@ -1176,3 +1250,20 @@ class TestCollection:
         assert result.data.shape == (27, 11)
         assert "layer_model" in result.data.columns
         assert "kh_model" in result.data.columns
+
+    @pytest.mark.unittest
+    def test_segmentize_by_gradient(self, borehole_collection):
+        subset = borehole_collection.get(["A", "B"])
+
+        rng = np.random.default_rng(12)
+        subset.data["value"] = rng.random(len(subset.data))
+
+        result = subset.segmentize_by_gradient("value", 0.5)
+        assert isinstance(result, Collection)
+        assert_array_equal(result.data["value_segment"], [1, 2, 3, 3, 3, 4, 5, 6, 7, 7])
+
+        result = subset.segmentize_by_gradient(
+            "value", 0.5, use_mid_depth=False, output_column="segment", inplace=True
+        )
+        assert result is None
+        assert_array_equal(subset.data["segment"], [1, 2, 3, 3, 3, 4, 5, 5, 6, 6])

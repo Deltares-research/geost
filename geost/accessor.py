@@ -1699,10 +1699,10 @@ class GeostFrame(AbstractBase):
         if not relative_to_reference and surface_ is not None:
             depth["surface_correction"] = depth[self._surface] - depth["surface_right"]
             depth[bottom_] += depth["surface_correction"]
+            depth = depth[depth[bottom_] > 0]
             if top_ is not None:
-                depth.loc[~depth.gst.first_row_survey, top_] += depth[
-                    "surface_correction"
-                ]
+                depth[top_] += depth["surface_correction"]
+                depth.loc[depth.gst.first_row_survey, top_] = 0
 
         depth.drop(columns="surface_right", inplace=True, errors="ignore")
 
@@ -1774,23 +1774,23 @@ class GeostFrame(AbstractBase):
         ...     }
         ... )
         >>> boreholes.gst.compute_discretized_fractions("lith", 1)
-          nr  surface  top  bottom   dz    K    V    Z
-        0  A      0.2  0.0     1.0  1.0  1.0  NaN  NaN
-        1  A      0.2  1.0     2.0  1.0  NaN  NaN  1.0
-        2  B      0.3  0.0     1.0  1.0  1.0  NaN  NaN
-        3  B      0.3  1.0     2.0  1.0  NaN  1.0  NaN
+          nr  surface  top  bottom   dz    K    V    Z  total
+        0  A      0.2  0.0     1.0  1.0  1.0  NaN  NaN    1.0
+        1  A      0.2  1.0     2.0  1.0  NaN  NaN  1.0    1.0
+        2  B      0.3  0.0     1.0  1.0  1.0  NaN  NaN    1.0
+        3  B      0.3  1.0     2.0  1.0  NaN  1.0  NaN    1.0
 
         Supply explicit layer boundaries instead of a uniform thickness:
 
         >>> discretization = [0.5, 1.0, 2.0]
         >>> boreholes.gst.compute_discretized_fractions("lith", discretization)
-           nr  surface  top  bottom   dz    K    V    Z
-        0   A      0.2  0.0     0.5  0.5  1.0  NaN  NaN
-        1   A      0.2  0.5     1.0  0.5  1.0  NaN  NaN
-        2   A      0.2  1.0     2.0  1.0  NaN  NaN  1.0
-        3   B      0.3  0.0     0.5  0.5  1.0  NaN  NaN
-        4   B      0.3  0.5     1.0  0.5  1.0  NaN  NaN
-        5   B      0.3  1.0     2.0  1.0  NaN  1.0  NaN
+           nr  surface  top  bottom   dz    K    V    Z  total
+        0   A      0.2  0.0     0.5  0.5  1.0  NaN  NaN    1.0
+        1   A      0.2  0.5     1.0  0.5  1.0  NaN  NaN    1.0
+        2   A      0.2  1.0     2.0  1.0  NaN  NaN  1.0    1.0
+        3   B      0.3  0.0     0.5  0.5  1.0  NaN  NaN    1.0
+        4   B      0.3  0.5     1.0  0.5  1.0  NaN  NaN    1.0
+        5   B      0.3  1.0     2.0  1.0  NaN  1.0  NaN    1.0
 
         For continuous values, use `bins` to calculate fractions per value range:
 
@@ -1798,13 +1798,13 @@ class GeostFrame(AbstractBase):
         >>> boreholes.gst.compute_discretized_fractions(
         ...     "value", discretization, bins=[0.33, 0.67]
         ... )
-          nr  surface  top  bottom   dz  <=0.33  0.33-0.67  >0.67
-        0  A      0.2  0.0     0.5  0.5     1.0        NaN    NaN
-        1  A      0.2  0.5     1.0  0.5     1.0        NaN    NaN
-        2  A      0.2  1.0     2.0  1.0     NaN        NaN    1.0
-        3  B      0.3  0.0     0.5  0.5     NaN        1.0    NaN
-        4  B      0.3  0.5     1.0  0.5     NaN        1.0    NaN
-        5  B      0.3  1.0     2.0  1.0     NaN        NaN    1.0
+          nr  surface  top  bottom   dz  <=0.33  0.33-0.67  >0.67  total
+        0  A      0.2  0.0     0.5  0.5     1.0        NaN    NaN    1.0
+        1  A      0.2  0.5     1.0  0.5     1.0        NaN    NaN    1.0
+        2  A      0.2  1.0     2.0  1.0     NaN        NaN    1.0    1.0
+        3  B      0.3  0.0     0.5  0.5     NaN        1.0    NaN    1.0
+        4  B      0.3  0.5     1.0  0.5     NaN        1.0    NaN    1.0
+        5  B      0.3  1.0     2.0  1.0     NaN        NaN    1.0    1.0
 
         Interpret discretization boundaries relative to the reference surface with
         `relative_to_reference=True`:
@@ -1812,11 +1812,11 @@ class GeostFrame(AbstractBase):
         >>> boreholes.gst.compute_discretized_fractions(
         ...     "lith", [1, 0, -1], relative_to_reference=True
         ... )
-          nr  surface  top  bottom  dz    K    V    Z
-        0  A      0.2    1       0   1  0.2  NaN  NaN
-        1  A      0.2    0      -1   1  0.8  NaN  0.2
-        2  B      0.3    1       0   1  0.3  NaN  NaN
-        3  B      0.3    0      -1   1  0.7  0.3  NaN
+          nr  surface  top  bottom  dz    K    V    Z  total
+        0  A      0.2    1       0   1  0.2  NaN  NaN    0.2
+        1  A      0.2    0      -1   1  0.8  NaN  0.2    1.0
+        2  B      0.3    1       0   1  0.3  NaN  NaN    0.3
+        3  B      0.3    0      -1   1  0.7  0.3  NaN    1.0
 
         You can also provide a `pandas.DataFrame` for survey-specific discretization
         boundaries. If the discretization contains surface information which differs from
@@ -1836,13 +1836,13 @@ class GeostFrame(AbstractBase):
         ...     "lith", discretization_df
         ... )
         >>> result
-          nr  surface  top  bottom  surface_correction   dz    K    V    Z
-        0  A      0.2  0.0     0.3                -0.2  0.3  1.0  NaN  NaN
-        1  A      0.2  0.3     0.8                -0.2  0.5  1.0  NaN  NaN
-        2  A      0.2  0.8     1.8                -0.2  1.0  0.2  NaN  0.8
-        3  B      0.3  0.0     0.6                 0.1  0.6  1.0  NaN  NaN
-        4  B      0.3  0.6     1.1                 0.1  0.5  0.8  0.2  NaN
-        5  B      0.3  1.1     2.1                 0.1  1.0  NaN  0.9  NaN
+          nr  surface  top  bottom  surface_correction   dz    K    V    Z  total
+        0  A      0.2  0.0     0.3                -0.2  0.3  1.0  NaN  NaN    1.0
+        1  A      0.2  0.3     0.8                -0.2  0.5  1.0  NaN  NaN    1.0
+        2  A      0.2  0.8     1.8                -0.2  1.0  0.2  NaN  0.8    1.0
+        3  B      0.3  0.0     0.6                 0.1  0.6  1.0  NaN  NaN    1.0
+        4  B      0.3  0.6     1.1                 0.1  0.5  0.8  0.2  NaN    1.0
+        5  B      0.3  1.1     2.1                 0.1  1.0  NaN  0.9  NaN    0.9
 
         """
         discretized = self._get_discretization(discretization, relative_to_reference)
@@ -1878,6 +1878,7 @@ class GeostFrame(AbstractBase):
             (grouped["thickness"].sum() / grouped["dz"].first())
             .clip(None, 1)
             .unstack(level=column)
+            .assign(total=lambda df: df.sum(axis=1))
             .reset_index()
         )
         # The clip above is used because when the discretization is given as a DataFrame,
@@ -1902,7 +1903,7 @@ class GeostFrame(AbstractBase):
     def aggregate_consecutive_layers(
         self,
         over: str | list[str],
-        agg_funcs: dict = None,
+        agg_funcs: dict | None = None,
         keep_original_index: bool = False,
     ) -> pd.DataFrame:
         """
@@ -1919,7 +1920,7 @@ class GeostFrame(AbstractBase):
         agg_funcs : dict, optional
             Dictionary specifying the aggregation functions to apply to other columns when
             combining layers. Keys are column names, and values are aggregation functions.
-            These can be e.g. names such as'first', 'last', 'mean', etc. or actual functions
+            These can be e.g. names such as 'first', 'last', 'mean', etc. or actual functions
             such as np.sum, np.mean, etc.
         keep_original_index : bool, optional
             If True, the original index of the DataFrame is preserved in the resulting DataFrame.
@@ -1983,9 +1984,25 @@ class GeostFrame(AbstractBase):
         1  A      0.2  1.2     2.0    Z     30
         2  B      0.3  0.0     2.0    K     50
 
+        We also offer the option to take a layer-thickness-weighted mean of 'value':
+
+        >>> result = boreholes.gst.aggregate_consecutive_layers(
+        ...     'lith', agg_funcs={'value': 'weighted_mean'}
+        ... )
+        >>> result
+          nr  surface  top  bottom lith      value
+        0  A      0.2  0.0     1.2    K  13.333333
+        1  A      0.2  1.2     2.0    Z  30.000000
+        2  B      0.3  0.0     2.0    K  47.500000
+
         """
+        from geost.utils import grouped_dataframe
+
+        _agg_funcs = {"weighted_mean": grouped_dataframe.weighted_mean}
+
         df = self._obj.copy()
         df["original_index"] = df.index
+        df = df.reset_index(drop=True)
 
         if isinstance(over, str):
             over = [over]
@@ -2001,6 +2018,13 @@ class GeostFrame(AbstractBase):
             {col: "first" if col != self._bottom else "last" for col in df.columns}
             | (agg_funcs or {}) # This overrides defaults if `agg_funcs` is given
         )  # fmt: skip
+
+        if any(filter(lambda v: "weighted" in v, agg_dict.values())):
+            weights = df.gst.calculate_thickness()
+            for key, func in agg_dict.items():
+                if isinstance(func, str) and "weighted" in func:
+                    func = _agg_funcs[func]
+                    agg_dict[key] = func(weights.to_numpy())
 
         result = df.groupby(groups).agg(agg_dict)
 
@@ -2629,3 +2653,79 @@ class GeostFrame(AbstractBase):
             surface_=self._surface,
             bottom_=self._bottom,
         )
+
+    @_requires_depth
+    def segmentize_by_gradient(
+        self, column: str, threshold: float, use_mid_depth: bool = True
+    ) -> pd.Series:
+        """
+        Segmentize the data based on gradient changes in a column. A segment is made up of
+        consecutive rows where the gradient of ``column`` is below a specified ``threshold``
+        and a new segment begins when the threshold is exceeded. Each segment gets a unique
+        number.
+
+        Parameters
+        ----------
+        column : str
+            Column to determine the segments from.
+        threshold : float
+            Minimum gradient change to create a new segment.
+        use_mid_depth : bool, optional
+            Use mid depth for gradient calculation. The default is True.
+
+        Returns
+        -------
+        pd.Series
+            Series with segment numbers which can be added as a column to the DataFrame.
+
+        Examples
+        --------
+        Suppose we have a DataFrame with a "resistance" in MPa for each layer. We want to
+        create segments of consecutive rows where the resistance does not change more than
+        0.5 MPa per meters. First, we calculate the gradient of the "resistance" column so
+        we can use this to inspect the result of ``segmentize_by_gradient``:
+
+        >>> import geost
+        >>> df = geost.pandas_dataframe(
+        ...     {
+        ...         "nr": ["A", "A", "A", "A", "A", "B", "B", "B", "B", "B"],
+        ...         "surface": [0.2, 0.2, 0.2, 0.2, 0.2, 0.3, 0.3, 0.3, 0.3, 0.3],
+        ...         "top": [0.0, 0.8, 1.5, 2.5, 3.7, 0.0, 0.6, 1.2, 2.5, 3.1],
+        ...         "bottom": [0.8, 1.5, 2.5, 3.7, 4.2, 0.6, 1.2, 2.5, 3.1, 3.9],
+        ...         "resistance": [0.25, 0.95, 0.19, 0.18, 0.35, 0.23, 0.67, 0.12, 0.9, 0.86],
+        ...     }
+        ... )
+        >>> df["gradient"] = df.gst.calculate_gradient("resistance")
+        >>> df
+          nr  surface  top  bottom  resistance  gradient
+        0  A      0.2  0.0     0.8        0.25  0.000000
+        1  A      0.2  0.8     1.5        0.95  0.933333
+        2  A      0.2  1.5     2.5        0.19 -0.894118
+        3  A      0.2  2.5     3.7        0.18 -0.009091
+        4  A      0.2  3.7     4.2        0.35  0.200000
+        5  B      0.3  0.0     0.6        0.23  0.000000
+        6  B      0.3  0.6     1.2        0.67  0.733333
+        7  B      0.3  1.2     2.5        0.12 -0.578947
+        8  B      0.3  2.5     3.1        0.90  0.821053
+        9  B      0.3  3.1     3.9        0.86 -0.057143
+
+        We can create the segment column with the threshold 0.5 and add it as a column to
+        the DataFrame:
+
+        >>> df["segment"] = df.gst.segmentize_by_gradient("resistance", 0.5)
+        >>> df
+          nr  surface  top  bottom  resistance  gradient  segment
+        0  A      0.2  0.0     0.8        0.25  0.000000        1
+        1  A      0.2  0.8     1.5        0.95  0.933333        2
+        2  A      0.2  1.5     2.5        0.19 -0.894118        3
+        3  A      0.2  2.5     3.7        0.18 -0.009091        3
+        4  A      0.2  3.7     4.2        0.35  0.200000        3
+        5  B      0.3  0.0     0.6        0.23  0.000000        4
+        6  B      0.3  0.6     1.2        0.67  0.733333        5
+        7  B      0.3  1.2     2.5        0.12 -0.578947        6
+        8  B      0.3  2.5     3.1        0.90  0.821053        7
+        9  B      0.3  3.1     3.9        0.86 -0.057143        7
+
+        """
+        gradient = self.calculate_gradient(column, use_mid_depth)
+        return ((gradient.abs() > threshold) | self.first_row_survey).cumsum()

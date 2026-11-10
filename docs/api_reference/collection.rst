@@ -15,10 +15,12 @@ Analysis
 .. autosummary::
    :toctree: generated/
 
+   Collection.calculate_gradient
    Collection.compute_discretized_fractions
    Collection.get_cumulative_thickness
    Collection.get_layer_base
    Collection.get_layer_top
+   Collection.segmentize_by_gradient
 
 
 Coordinate Reference System

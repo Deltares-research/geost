@@ -1933,6 +1933,7 @@ class TestGeostFrame:
         assert_array_almost_equal(
             result[">0.67"], [np.nan, 0.4, 0.5, np.nan, np.nan, 0.8, 0.2, 0.7]
         )
+        assert_array_almost_equal(result["total"], [1, 1, 1, 1, 1, 1, 1, 0.95])
 
         # If we specify bins that cover the entire range, only the column names should be changed
         result_entire_range = subset.gst.compute_discretized_fractions(
@@ -1940,7 +1941,17 @@ class TestGeostFrame:
         )
         assert_array_equal(
             result_entire_range.columns,
-            ["nr", "surface", "top", "bottom", "dz", "0-0.33", "0.33-0.67", "0.67-1"],
+            [
+                "nr",
+                "surface",
+                "top",
+                "bottom",
+                "dz",
+                "0-0.33",
+                "0.33-0.67",
+                "0.67-1",
+                "total",
+            ],
         )
         assert result[["nr", "surface", "top", "bottom", "dz"]].equals(
             result_entire_range[["nr", "surface", "top", "bottom", "dz"]]
@@ -1958,7 +1969,7 @@ class TestGeostFrame:
         )
         assert_array_equal(
             result_entire_range.columns,
-            ["nr", "surface", "top", "bottom", "dz", "0.165", "0.5", "0.835"],
+            ["nr", "surface", "top", "bottom", "dz", "0.165", "0.5", "0.835", "total"],
         )
         assert result[["nr", "surface", "top", "bottom", "dz"]].equals(
             result_entire_range[["nr", "surface", "top", "bottom", "dz"]]
@@ -2174,14 +2185,42 @@ class TestGeostFrame:
         )
 
         # Combine CPT layers
-        cpt_data["categorical_data"] = (
-            ["A"] * 4 + ["B"] * 4 + ["A"] * 4 + ["C"] * 4 + ["B"] * 4
-        )
+        cpt_data["categorical_data"] = np.repeat(["A", "B", "A", "C", "B"], 4)
         result = cpt_data.gst.aggregate_consecutive_layers(
             "categorical_data", agg_funcs={"qc": "mean", "fs": "max"}
         )
         assert result.gst.is_layered
         assert isinstance(result, pd.DataFrame)
+
+    @pytest.mark.unittest
+    def test_aggregate_consecutive_layers_weighted(self, borehole_data):
+        rng = np.random.default_rng(12)
+        borehole_data["value"] = rng.random(len(borehole_data))
+
+        # Test the use of custom GeoST "weighted_mean" function, other result of aggregation
+        # are tested in `test_aggregate_consecutive_layers` above
+        result = borehole_data.gst.aggregate_consecutive_layers(
+            "lith", agg_funcs={"value": "weighted_mean"}
+        )
+        assert_array_almost_equal(
+            result["value"],
+            [
+                0.57559108,
+                0.18385004,
+                0.34988924,
+                0.45049349,
+                0.36178359,
+                0.85813049,
+                0.11657956,
+                0.36187797,
+                0.45361612,
+                0.46814659,
+                0.9275167,
+                0.25877109,
+                0.18789021,
+                0.73330923,
+            ],
+        )
 
     @pytest.mark.unittest
     def test_to_pyvista_cylinders(self, borehole_data, cpt_data):
@@ -2569,3 +2608,17 @@ class TestGeostFrame:
         )
         assert isinstance(result, pd.DataFrame)
         pd.testing.assert_frame_equal(result, expected_result)
+
+    @pytest.mark.unittest
+    def test_segmentize_by_gradient(self, borehole_data):
+        subset = borehole_data.gst.select_by_values("nr", ["A", "B"])
+
+        rng = np.random.default_rng(12)
+        subset["value"] = rng.random(len(subset))
+
+        result = subset.gst.segmentize_by_gradient("value", 0.5)
+        assert isinstance(result, pd.Series)
+        assert_array_equal(result, [1, 2, 3, 3, 3, 4, 5, 6, 7, 7])
+
+        result = subset.gst.segmentize_by_gradient("value", 0.5, use_mid_depth=False)
+        assert_array_equal(result, [1, 2, 3, 3, 3, 4, 5, 5, 6, 6])
