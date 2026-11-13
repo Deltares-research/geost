@@ -2019,12 +2019,13 @@ class GeostFrame(AbstractBase):
             | (agg_funcs or {}) # This overrides defaults if `agg_funcs` is given
         )  # fmt: skip
 
-        if any(filter(lambda v: "weighted" in v, agg_dict.values())):
+        # If one of the agg funcs needs weights, calculate them and update the func in
+        # agg_dict with weighted funcs
+        if add_weights := {k: v for k, v in agg_dict.items() if v in _agg_funcs}:
             weights = df.gst.calculate_thickness()
-            for key, func in agg_dict.items():
-                if isinstance(func, str) and "weighted" in func:
-                    func = _agg_funcs[func]
-                    agg_dict[key] = func(weights.to_numpy())
+            for key, func in add_weights.items():
+                func = _agg_funcs[func]
+                agg_dict[key] = func(weights.to_numpy())
 
         result = df.groupby(groups).agg(agg_dict)
 

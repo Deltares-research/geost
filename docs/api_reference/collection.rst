@@ -57,6 +57,7 @@ Generic
 .. autosummary::
    :toctree: generated/
 
+   Collection.add_columns
    Collection.add_header_column_to_data
    Collection.reset_header
    Collection.synchronize_tables
@@ -108,4 +109,5 @@ Attributes
    Collection.has_inclined
    Collection.header
    Collection.n_points
+   Collection.positional_columns
    Collection.vertical_datum

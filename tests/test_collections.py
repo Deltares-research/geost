@@ -192,7 +192,7 @@ class TestCollection:
     def test_init_from_data_missing_survey_id_error(self, borehole_data):
         with pytest.raises(
             MissingSurveyIDError,
-            match="Data table must contain a column identifying the survey IDs.",
+            match="DataFrame must contain a column identifying survey ID.",
         ):
             Collection(borehole_data.rename(columns={"nr": "invalid"}))
 
@@ -252,13 +252,17 @@ class TestCollection:
         ):
             Collection(borehole_data, header=header.rename(columns={"nr": "invalid"}))
 
-        with pytest.raises(
-            ValueError,
-            match="Column identifying survey IDs in data and header must have the same name",
+        with pytest.warns(
+            UserWarning,
+            match="Header and data positional columns did not match. Renamed columns in header",
         ):
-            Collection(
+            col = Collection(
                 borehole_data, header=header.rename(columns={"nr": "bro_id"})
-            )  # bro_id is a valid survey ID name, but different names in header and data raise an error
+            )
+            # bro_id is a valid survey ID name, but different names in header and data
+            # cause a rename in the header
+        assert col.positional_columns["nr"] == "nr"
+        assert col.header.columns[0] == "nr"
 
     @pytest.mark.unittest
     def test_init_empty(self):
@@ -1267,3 +1271,99 @@ class TestCollection:
         )
         assert result is None
         assert_array_equal(subset.data["segment"], [1, 2, 3, 3, 3, 4, 5, 5, 6, 6])
+
+    @pytest.mark.unittest
+    def test_add_columns_to_data_with_dict(self, borehole_collection):
+        new_column = np.random.rand(len(borehole_collection.data))
+        new_column2 = np.random.choice(["a", "b"], len(borehole_collection.data))
+
+        result = borehole_collection.add_columns(
+            columns={"new_col": new_column, "new_col2": new_column2}
+        )
+
+        assert isinstance(result, Collection)
+        assert_array_equal(result.data["new_col"], new_column)
+        assert_array_equal(result.data["new_col2"], new_column2)
+        assert "new_col" not in borehole_collection.data.columns
+        assert "new_col2" not in borehole_collection.data.columns
+
+    @pytest.mark.unittest
+    def test_add_columns_to_data_with_kwargs(self, borehole_collection):
+        new_column = np.arange(len(borehole_collection.data))
+
+        result = borehole_collection.add_columns(new_col=new_column, to="data")
+
+        assert isinstance(result, Collection)
+        assert_array_equal(result.data["new_col"], new_column)
+        assert "new_col" not in borehole_collection.data.columns
+
+    @pytest.mark.unittest
+    def test_add_columns_to_data_with_dict_and_kwargs(self, borehole_collection):
+        new_column = np.random.rand(len(borehole_collection.data))
+        new_column2 = np.random.choice(["a", "b"], len(borehole_collection.data))
+
+        result = borehole_collection.add_columns(
+            columns={"col1": new_column}, col2=new_column2, to="data"
+        )
+
+        assert isinstance(result, Collection)
+        assert_array_equal(result.data["col1"], new_column)
+        assert_array_equal(result.data["col2"], new_column2)
+        assert "col1" not in borehole_collection.data.columns
+        assert "col2" not in borehole_collection.data.columns
+
+    @pytest.mark.unittest
+    def test_add_columns_to_data_inplace(self, borehole_collection):
+        new_column = np.arange(len(borehole_collection.data))
+
+        result = borehole_collection.add_columns(
+            new_col=new_column, to="data", inplace=True
+        )
+
+        assert result is None
+        assert_array_equal(borehole_collection.data["new_col"], new_column)
+
+    @pytest.mark.unittest
+    def test_add_columns_to_header_with_dict(self, borehole_collection):
+        new_column = np.random.choice(["X", "Y"], len(borehole_collection))
+
+        result = borehole_collection.add_columns(
+            columns={"new_header_col": new_column}, to="header"
+        )
+
+        assert isinstance(result, Collection)
+        assert_array_equal(result.header["new_header_col"], new_column)
+        assert "new_header_col" not in borehole_collection.header.columns
+
+    @pytest.mark.unittest
+    def test_add_columns_to_header_with_kwargs(self, borehole_collection):
+        new_column = np.random.choice(["X", "Y"], len(borehole_collection))
+
+        result = borehole_collection.add_columns(to="header", new_header_col=new_column)
+
+        assert isinstance(result, Collection)
+        assert_array_equal(result.header["new_header_col"], new_column)
+        assert "new_header_col" not in borehole_collection.header.columns
+
+    @pytest.mark.unittest
+    def test_add_columns_to_header_inplace(self, borehole_collection):
+        new_column = np.random.choice(["X", "Y"], len(borehole_collection))
+
+        result = borehole_collection.add_columns(
+            columns={"new_header_col": new_column}, to="header", inplace=True
+        )
+
+        assert result is None
+        assert_array_equal(borehole_collection.header["new_header_col"], new_column)
+
+    @pytest.mark.unittest
+    def test_add_columns_invalid_to_parameter(self, borehole_collection):
+        with pytest.raises(ValueError, match="Invalid table for add_columns"):
+            borehole_collection.add_columns(new_col=[1, 2, 3], to="invalid")
+
+    @pytest.mark.unittest
+    def test_add_columns_empty_columns(self, borehole_collection):
+        result = borehole_collection.add_columns(to="data")
+        assert isinstance(result, Collection)
+        pd.testing.assert_frame_equal(result.header, borehole_collection.header)
+        pd.testing.assert_frame_equal(result.data, borehole_collection.data)

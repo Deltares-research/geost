@@ -3,8 +3,10 @@
 ## v0.6.1
 
 **Added**
-- [`calculate_gradient`](./api_reference/generated/geost.accessor.GeostFrame.calculate_gradient.rst) method in `.gst` accessor
+- [`add_columns`](./api_reference/generated/geost.base.Collection.add_column.rst) method in `Collection`
+- [`calculate_gradient`](./api_reference/generated/geost.base.Collection.calculate_gradient.rst) method in `Collection` and `.gst` accessor
 - [`calculate_mid_depth`](./api_reference/generated/geost.accessor.GeostFrame.calculate_mid_depth.rst) method in `.gst` accessor
+- [`segmentize_by_gradient`](./api_reference/generated/geost.base.Collection.segmentize_by_gradient.rst) method in `Collection` and `.gst` accessor
 
 
 ## v0.6.0

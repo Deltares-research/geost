@@ -31,6 +31,7 @@ DEFAULT_POSITIONAL_COLUMNS = {
     },
     "x_coordinate": {
         "x",
+        "xco",
         "x-coord",
         "longitude",
         "lon",
@@ -41,6 +42,7 @@ DEFAULT_POSITIONAL_COLUMNS = {
     },
     "y_coordinate": {
         "y",
+        "yco",
         "y-coord",
         "latitude",
         "lat",

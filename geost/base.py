@@ -89,17 +89,11 @@ class Collection(AbstractBase):
         # data is not None in both conditions below, otherwise header and data are always empty
         elif header is None or header.empty:
             warnings.warn("Header is None, setting the header from the given data.")
-            survey_id_col = self._check_survey_id_col(data, "Data")
             header = data.gst.to_header()
+            survey_id_col = data.gst._nr
         else:
-            survey_id_col_header = self._check_survey_id_col(header, "Header")
-            survey_id_col = self._check_survey_id_col(data, "Data")
-
-            if survey_id_col != survey_id_col_header:
-                raise ValueError(
-                    "Column identifying survey IDs in data and header must have the same name. "
-                    f"Found '{survey_id_col}' in data and '{survey_id_col_header}' in header."
-                )
+            header, data = self._check_positional_columns_alignment(header, data)
+            survey_id_col = data.gst._nr
 
         self._nr = survey_id_col
         self.header = header
@@ -110,41 +104,152 @@ class Collection(AbstractBase):
         )
         self._has_inclined = has_inclined
 
+    @staticmethod
+    def _check_positional_columns_alignment(
+        header: gpd.GeoDataFrame, data: pd.DataFrame
+    ) -> tuple[gpd.GeoDataFrame, pd.DataFrame]:
+        """
+        Helper method for the ``Collection`` constructor to perform a two-way check for
+        alignment between positional column names of a given ``header`` and ``data`` table.
+        Column names that don't match are renamed in the header.
+
+        """
+        columns_need_alignment = ["nr", "surface", "end", "x", "y"]
+        try:
+            header_cols: dict = header.gst.positional_columns
+        except MissingSurveyIDError as e:
+            raise MissingSurveyIDError(
+                "Header table must contain a column identifying the survey IDs."
+            ) from e
+
+        try:
+            data_cols: dict = data.gst.positional_columns
+        except MissingSurveyIDError as e:
+            raise MissingSurveyIDError(
+                "Data table must contain a column identifying the survey IDs."
+            ) from e
+
+        to_rename = {}
+        for col in columns_need_alignment:
+            header_name = header_cols[col]
+            data_name = data_cols[col]
+            if header_name is None or data_name is None:
+                continue
+            if header_name != data_name:
+                to_rename[header_name] = data_name
+
+        if to_rename:
+            warnings.warn(
+                f"Header and data positional columns did not match. Renamed columns in header: {to_rename}"
+            )
+            header = header.rename(columns=to_rename)
+
+        return header, data
+
     def __repr__(self):
+        positional_columns = self._format_positional_columns()
+        data_columns = self._format_data_columns()
         repr_ = (
-            f"{self.__class__.__name__}\n"
+            f"<geost.{self.__class__.__name__}>\n"
             f"  header (rows, columns) : {self.header.shape}\n"
             f"  data (rows, columns)   : {self.data.shape}\n"
+            "Positional columns:\n"
+            f"{'\n'.join(positional_columns)}\n"
+            "Data columns:\n"
+            f"{'\n'.join(data_columns)}\n"
             f"crs: {self.crs.name if self.crs else None}\n"
             f"vertical datum: {self.vertical_datum.name if self.vertical_datum else None}\n"
         )
         return repr_
 
+    def _format_positional_columns(self) -> list:  # pragma: no cover
+        """
+        Helper to create formatted positional columns for the Collection repr, showing
+        the column name, if they appear in header and/or data and the data type.
+
+        """
+        rows = []
+        for col in self.positional_columns.values():
+            if col is None:
+                continue
+            in_header = col in self.header.columns
+            in_data = col in self.data.columns
+            if in_header and in_data:
+                loc = "(header, data)"
+            elif in_header:
+                loc = "(header)"
+            elif in_data:
+                loc = "(data)"
+            dtype = self.data[col].dtype if in_data else self.header[col].dtype
+            rows.append((col, loc, str(dtype)))
+
+        if not rows:
+            return []
+
+        name_width = max(len(r[0]) for r in rows)
+        lines = [f"  {n:<{name_width}} {lo} {d}" for n, lo, d in rows]
+        return lines
+
+    def _format_data_columns(self) -> list:  # pragma: no cover
+        """
+        Helper to create formatted data columns for the Collection repr, showing the column
+        name, if they appear in header or data and the data type.
+
+        """
+        positional_columns = {
+            v for v in self.positional_columns.values() if v is not None
+        }
+        rows = []
+        for col in self.header.columns:
+            if col in positional_columns:
+                continue
+            rows.append((col, "(header)", str(self.header[col].dtype)))
+
+        for col in self.data.columns:
+            if col in positional_columns:
+                continue
+            rows.append((col, "(data)", str(self.data[col].dtype)))
+
+        name_width = max(len(r[0]) for r in rows)
+        lines = [f"  {n:<{name_width}} {lo} {d}" for n, lo, d in rows]
+
+        if len(lines) > 9:
+            lines = lines[:4] + ["  ..."] + lines[-4:]
+
+        return lines
+
     def __len__(self):
         return len(self.header)
 
-    @staticmethod
-    def _check_survey_id_col(df, df_name):
-        try:
-            return df.gst._nr
-        except MissingSurveyIDError as e:
-            raise MissingSurveyIDError(
-                f"{df_name} table must contain a column identifying the survey IDs."
-            ) from e
-
     @property
-    def header(self):
+    def header(self) -> gpd.GeoDataFrame:
         """
         The collection's header.
         """
         return self._header
 
     @property
-    def data(self):
+    def data(self) -> pd.DataFrame:
         """
         The collection's data.
         """
         return self._data
+
+    @property
+    def positional_columns(self) -> dict:
+        """
+        Return a dictionary which columns are used in the header and data tables.
+
+        """
+        try:
+            header_cols = self.header.gst.positional_columns
+            data_cols = self.data.gst.positional_columns
+        except MissingSurveyIDError:
+            return {}
+        return {
+            k: data_cols[k] if data_cols[k] is not None else header_cols[k]
+            for k in data_cols
+        }
 
     @property
     def n_points(self):
@@ -152,6 +257,10 @@ class Collection(AbstractBase):
         Number of objects in the collection.
         """
         return len(self)
+
+    @property
+    def empty(self):
+        return self.header.empty and self.data.empty
 
     @property
     def crs(self):
@@ -215,13 +324,12 @@ class Collection(AbstractBase):
         if not isinstance(header, gpd.GeoDataFrame):
             header = gpd.GeoDataFrame(header)
 
-        if not header.empty:
-            if header._geometry_column_name is None:
-                warnings.warn(
-                    "Setting the header without an active geometry column. Spatial methods "
-                    "will not work. Use collection.set_geometry to set an active geometry "
-                    "column."
-                )
+        if not header.empty and header._geometry_column_name is None:
+            warnings.warn(
+                "Setting the header without an active geometry column. Spatial methods "
+                "will not work. Use collection.set_geometry to set an active geometry "
+                "column."
+            )
 
         self._header = header
 
@@ -241,9 +349,8 @@ class Collection(AbstractBase):
         Sets a new data table and performs an alignment check with the data table.
 
         """
-        if not data.empty:
-            if not config.validation.SKIP:
-                data = data.gst.validate()
+        if not data.empty and not config.validation.SKIP:
+            data = data.gst.validate()
 
         self._data = data
 
@@ -412,6 +519,90 @@ class Collection(AbstractBase):
         in_both, only_in_header, only_in_data = self._check_alignment()
         self._synchronize_tables(how, in_both, only_in_header, only_in_data)
         # TODO: Maybe not only make this operation inplace
+
+    def add_columns(
+        self, columns: dict = None, to: str = "data", inplace: bool = False, **kwargs
+    ) -> Collection | None:
+        """
+        Add columns to the header or data table of the ``Collection``.
+
+        Adds new columns to either the header or data table using
+        :meth:`pandas.DataFrame.assign`. The columns can be provided either as a
+        dictionary or as keyword arguments.
+
+        Parameters
+        ----------
+        columns : dict, optional
+            Dictionary of column names and values to add, can also be provided as keyword
+            arguments (see **kwargs). The default is None.
+        to : str, optional
+            Table to add columns to, either "data" or "header". The default is "data".
+        inplace : bool, optional
+            If True, modify the current Collection and return None. If False, return a
+            new Collection with the added columns. The default is False.
+        **kwargs
+            Columns to add, provided as keyword arguments. These are merged
+            with the ``columns`` dictionary.
+
+        Returns
+        -------
+        :class:`~geost.base.Collection` or None
+            If inplace=False, returns a new Collection instance with the added columns.
+            If inplace=True, returns None and modifies the current Collection.
+
+        Raises
+        ------
+        ValueError
+            If ``to`` is not "data" or "header".
+
+        Examples
+        --------
+        Add a single column to the data table using keyword arguments:
+
+        >>> collection_new = collection.add_columns(column_name=new_values)
+
+        Add multiple columns to the header table in place:
+
+        >>> collection.add_columns(
+        ...     columns={"column1": values1, "column2": values2},
+        ...     to="header",
+        ...     inplace=True
+        ... )
+
+        Get the same result with providing them as kwargs:
+
+        >>> collection.add_columns(column1=values1, column2=values2, to="header", inplace=True)
+
+        """
+        if to not in ["data", "header"]:
+            raise ValueError("Invalid table for add_columns, use 'data' or 'header'.")
+
+        merged_columns = {**(columns or {}), **kwargs}
+
+        if to == "data":
+            new_data = self.data.assign(**merged_columns)
+            if inplace:
+                self.data = new_data
+                return None
+            else:
+                return self.__class__(
+                    new_data,
+                    header=self.header.copy(),
+                    has_inclined=self.has_inclined,
+                    vertical_datum=self.vertical_datum,
+                )
+        else:
+            new_header = self.header.assign(**merged_columns)
+            if inplace:
+                self.header = new_header
+                return None
+            else:
+                return self.__class__(
+                    self.data.copy(),
+                    header=new_header,
+                    has_inclined=self.has_inclined,
+                    vertical_datum=self.vertical_datum,
+                )
 
     def add_header_column_to_data(self, column_name: str) -> None:  # No change
         """
