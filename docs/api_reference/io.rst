@@ -38,6 +38,7 @@ Data from specific file formats
    read_gef_cpts
    read_sfr
    read_xml_boris
+   io.xyz.ags_xyz_to_collection
 
 
 Model data (NetCDF / OPeNDAP)

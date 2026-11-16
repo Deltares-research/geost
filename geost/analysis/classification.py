@@ -206,6 +206,6 @@ def nen5104_to_lithoclass(
     df = _classify_sand(df, col_names)
 
     if names:
-        df.replace({"lithoklasse": LITHOCLASS_TO_NAME}, inplace=True)
+        df = df.replace({"lithoklasse": LITHOCLASS_TO_NAME})
 
     return df["lithoklasse"]

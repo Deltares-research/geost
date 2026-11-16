@@ -629,7 +629,7 @@ class ModelBase:
         sample_points = get_points_along_lines(
             lines_utm.loc[lines_in_bounds.index], distance
         )
-        sample_points.set_index("distance", append=True, inplace=True)
+        sample_points = sample_points.set_index("distance", append=True)
 
         if sample_points.crs != self.crs:
             sample_points.to_crs(self.crs, inplace=True)

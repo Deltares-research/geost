@@ -124,7 +124,7 @@ class GeotopUnits:
 
     def __post_init__(self):
         if self.df.index.name != self._nr:
-            self.df.set_index(self._nr, inplace=True)
+            self.df = self.df.set_index(self._nr)
 
     def __repr__(self) -> str:
         return f"{self.unit_type}\n{self.df.__repr__()}"

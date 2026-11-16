@@ -107,7 +107,7 @@ def read_table(
     data = io_helpers._pandas_read(file, **kwargs)
 
     if column_mapper:
-        data.rename(columns=column_mapper, inplace=True)
+        data = data.rename(columns=column_mapper)
 
     check_positional_column_presence(data)
     data = conversion.adjust_z_coordinates(data)
@@ -208,7 +208,7 @@ def read_borehole_table(
     boreholes = io_helpers._pandas_read(file, **kwargs)
 
     if column_mapper:
-        boreholes.rename(columns=column_mapper, inplace=True)
+        boreholes = boreholes.rename(columns=column_mapper)
 
     check_positional_column_presence(boreholes)
     boreholes = conversion.adjust_z_coordinates(boreholes)
@@ -291,7 +291,7 @@ def read_cpt_table(
     cpts = io_helpers._pandas_read(file, **kwargs)
 
     if column_mapper:
-        cpts.rename(columns=column_mapper, inplace=True)
+        cpts = cpts.rename(columns=column_mapper)
 
     check_positional_column_presence(cpts)
     cpts = conversion.adjust_z_coordinates(cpts)
@@ -333,7 +333,7 @@ def read_nlog_cores(file: str | Path, **kwargs) -> Collection:
     """
     data = io_helpers._pandas_read(file, **kwargs)
 
-    data.rename(
+    data = data.rename(
         columns={
             "NITG_NR": "nr",
             "X_TOP_RD": "x",
@@ -343,14 +343,13 @@ def read_nlog_cores(file: str | Path, **kwargs) -> Collection:
             "TV_TOP_NAP": "top",
             "TV_BOTTOM_NAP": "bottom",
         },
-        inplace=True,
     )
 
     data[["top", "bottom"]] *= -1
     header = data.groupby("nr", as_index=False).agg(
         {"x": "first", "y": "first", "top": "max", "bottom": "min"}
     )
-    header.rename(columns={"top": "surface", "bottom": "end"}, inplace=True)
+    header = header.rename(columns={"top": "surface", "bottom": "end"})
     header = gpd.GeoDataFrame(
         header, geometry=gpd.points_from_xy(header["x"], header["y"]), crs=28992
     )
@@ -526,7 +525,7 @@ def read_bhrgt_samples(
     )
 
     if "beginDepth" in data.columns or "endDepth" in data.columns:
-        data.rename(columns={"beginDepth": "top", "endDepth": "bottom"}, inplace=True)
+        data = data.rename(columns={"beginDepth": "top", "endDepth": "bottom"})
         data[["top", "bottom"]] = data[["top", "bottom"]].astype(float)
 
     # If no sample data was found, the data table will be empty. In that case, we can
@@ -829,8 +828,8 @@ def read_cpt(
         crs=crs,
     )
 
-    data.fillna({"depth": data["penetrationlength"]}, inplace=True)
-    data.sort_values(["nr", "depth"], inplace=True)
+    data = data.fillna({"depth": data["penetrationlength"]})
+    data = data.sort_values(["nr", "depth"])
 
     return Collection(data, header=header, vertical_datum=vertical_datum)
 
@@ -873,11 +872,8 @@ def read_uullg_tables(
     header = io_helpers._pandas_read(header_table, **kwargs)
     data = io_helpers._pandas_read(data_table, **kwargs)
 
-    header.rename(columns=LLG_COLUMN_MAPPING, inplace=True)
-    data.rename(columns=LLG_COLUMN_MAPPING, inplace=True)
-
-    header = header.astype({"nr": str})
-    data = data.astype({"nr": str})
+    header = header.rename(columns=LLG_COLUMN_MAPPING).astype({"nr": str})
+    data = data.rename(columns=LLG_COLUMN_MAPPING).astype({"nr": str})
 
     header = conversion.dataframe_to_geodataframe(header).set_crs(crs)
 

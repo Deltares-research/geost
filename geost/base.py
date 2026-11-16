@@ -89,17 +89,11 @@ class Collection(AbstractBase):
         # data is not None in both conditions below, otherwise header and data are always empty
         elif header is None or header.empty:
             warnings.warn("Header is None, setting the header from the given data.")
-            survey_id_col = self._check_survey_id_col(data, "Data")
             header = data.gst.to_header()
+            survey_id_col = data.gst._nr
         else:
-            survey_id_col_header = self._check_survey_id_col(header, "Header")
-            survey_id_col = self._check_survey_id_col(data, "Data")
-
-            if survey_id_col != survey_id_col_header:
-                raise ValueError(
-                    "Column identifying survey IDs in data and header must have the same name. "
-                    f"Found '{survey_id_col}' in data and '{survey_id_col_header}' in header."
-                )
+            header, data = self._check_positional_columns_alignment(header, data)
+            survey_id_col = data.gst._nr
 
         self._nr = survey_id_col
         self.header = header
@@ -110,41 +104,164 @@ class Collection(AbstractBase):
         )
         self._has_inclined = has_inclined
 
+    @staticmethod
+    def _check_positional_columns_alignment(
+        header: gpd.GeoDataFrame, data: pd.DataFrame
+    ) -> tuple[gpd.GeoDataFrame, pd.DataFrame]:
+        """
+        Helper method for the ``Collection`` constructor to perform a two-way check for
+        alignment between positional column names of a given ``header`` and ``data`` table.
+        Column names that don't match are renamed in the header.
+
+        """
+        columns_need_alignment = ["nr", "surface", "end", "x", "y"]
+        try:
+            header_cols: dict = header.gst.positional_columns
+        except MissingSurveyIDError as e:
+            raise MissingSurveyIDError(
+                "Header table must contain a column identifying the survey IDs."
+            ) from e
+
+        try:
+            data_cols: dict = data.gst.positional_columns
+        except MissingSurveyIDError as e:
+            raise MissingSurveyIDError(
+                "Data table must contain a column identifying the survey IDs."
+            ) from e
+
+        to_rename = {}
+        for col in columns_need_alignment:
+            header_name = header_cols[col]
+            data_name = data_cols[col]
+            if header_name is None or data_name is None:
+                continue
+            if header_name != data_name:
+                to_rename[header_name] = data_name
+
+        if to_rename:
+            warnings.warn(
+                f"Header and data positional columns did not match. Renamed columns in header: {to_rename}"
+            )
+            header = header.rename(columns=to_rename)
+
+        return header, data
+
     def __repr__(self):
-        repr_ = (
-            f"{self.__class__.__name__}\n"
+        positional_columns = self._format_positional_columns()
+        data_columns = self._format_data_columns()
+        structure_str = (
+            f"<geost.{self.__class__.__name__}>\n"
             f"  header (rows, columns) : {self.header.shape}\n"
             f"  data (rows, columns)   : {self.data.shape}\n"
+        )
+        columns_str = (
+            (
+                "Positional columns:\n"
+                f"{'\n'.join(positional_columns)}\n"
+                "Data columns:\n"
+                f"{'\n'.join(data_columns)}\n"
+            )
+            if positional_columns and data_columns
+            else ("Positional columns:\n  <empty>\nData columns:\n  <empty>\n")
+        )
+        metadata_str = (
             f"crs: {self.crs.name if self.crs else None}\n"
             f"vertical datum: {self.vertical_datum.name if self.vertical_datum else None}\n"
         )
+        repr_ = structure_str + columns_str + metadata_str
         return repr_
+
+    def _format_positional_columns(self) -> list:  # pragma: no cover
+        """
+        Helper to create formatted positional columns for the Collection repr, showing
+        the column name, if they appear in header and/or data and the data type.
+
+        """
+        rows = []
+        for col in self.positional_columns.values():
+            if col is None:
+                continue
+            in_header = col in self.header.columns
+            in_data = col in self.data.columns
+            if in_header and in_data:
+                loc = "(header, data)"
+            elif in_header:
+                loc = "(header)"
+            elif in_data:
+                loc = "(data)"
+            dtype = self.data[col].dtype if in_data else self.header[col].dtype
+            rows.append((col, loc, str(dtype)))
+
+        if not rows:
+            return []
+
+        name_width = max(len(r[0]) for r in rows)
+        lines = [f"  {n:<{name_width}} {lo} {d}" for n, lo, d in rows]
+        return lines
+
+    def _format_data_columns(self) -> list:  # pragma: no cover
+        """
+        Helper to create formatted data columns for the Collection repr, showing the column
+        name, if they appear in header or data and the data type.
+
+        """
+        positional_columns = {
+            v for v in self.positional_columns.values() if v is not None
+        }
+        rows = []
+        for col in self.header.columns:
+            if col in positional_columns:
+                continue
+            rows.append((col, "(header)", str(self.header[col].dtype)))
+
+        for col in self.data.columns:
+            if col in positional_columns:
+                continue
+            rows.append((col, "(data)", str(self.data[col].dtype)))
+
+        if not rows:
+            return []
+
+        name_width = max(len(r[0]) for r in rows)
+        lines = [f"  {n:<{name_width}} {lo} {d}" for n, lo, d in rows]
+
+        if len(lines) > 9:
+            lines = lines[:4] + ["  ..."] + lines[-4:]
+
+        return lines
 
     def __len__(self):
         return len(self.header)
 
-    @staticmethod
-    def _check_survey_id_col(df, df_name):
-        try:
-            return df.gst._nr
-        except MissingSurveyIDError as e:
-            raise MissingSurveyIDError(
-                f"{df_name} table must contain a column identifying the survey IDs."
-            ) from e
-
     @property
-    def header(self):
+    def header(self) -> gpd.GeoDataFrame:
         """
         The collection's header.
         """
         return self._header
 
     @property
-    def data(self):
+    def data(self) -> pd.DataFrame:
         """
         The collection's data.
         """
         return self._data
+
+    @property
+    def positional_columns(self) -> dict:
+        """
+        Return a dictionary which columns are used in the header and data tables.
+
+        """
+        try:
+            header_cols = self.header.gst.positional_columns
+            data_cols = self.data.gst.positional_columns
+        except MissingSurveyIDError:
+            return {}
+        return {
+            k: data_cols[k] if data_cols[k] is not None else header_cols[k]
+            for k in data_cols
+        }
 
     @property
     def n_points(self):
@@ -152,6 +269,10 @@ class Collection(AbstractBase):
         Number of objects in the collection.
         """
         return len(self)
+
+    @property
+    def empty(self):
+        return self.header.empty and self.data.empty
 
     @property
     def crs(self):
@@ -215,13 +336,12 @@ class Collection(AbstractBase):
         if not isinstance(header, gpd.GeoDataFrame):
             header = gpd.GeoDataFrame(header)
 
-        if not header.empty:
-            if header._geometry_column_name is None:
-                warnings.warn(
-                    "Setting the header without an active geometry column. Spatial methods "
-                    "will not work. Use collection.set_geometry to set an active geometry "
-                    "column."
-                )
+        if not header.empty and header._geometry_column_name is None:
+            warnings.warn(
+                "Setting the header without an active geometry column. Spatial methods "
+                "will not work. Use collection.set_geometry to set an active geometry "
+                "column."
+            )
 
         self._header = header
 
@@ -241,9 +361,8 @@ class Collection(AbstractBase):
         Sets a new data table and performs an alignment check with the data table.
 
         """
-        if not data.empty:
-            if not config.validation.SKIP:
-                data = data.gst.validate()
+        if not data.empty and not config.validation.SKIP:
+            data = data.gst.validate()
 
         self._data = data
 
@@ -412,6 +531,90 @@ class Collection(AbstractBase):
         in_both, only_in_header, only_in_data = self._check_alignment()
         self._synchronize_tables(how, in_both, only_in_header, only_in_data)
         # TODO: Maybe not only make this operation inplace
+
+    def add_columns(
+        self, columns: dict = None, to: str = "data", inplace: bool = False, **kwargs
+    ) -> Collection | None:
+        """
+        Add columns to the header or data table of the ``Collection``.
+
+        Adds new columns to either the header or data table using
+        :meth:`pandas.DataFrame.assign`. The columns can be provided either as a
+        dictionary or as keyword arguments.
+
+        Parameters
+        ----------
+        columns : dict, optional
+            Dictionary of column names and values to add, can also be provided as keyword
+            arguments (see **kwargs). The default is None.
+        to : str, optional
+            Table to add columns to, either "data" or "header". The default is "data".
+        inplace : bool, optional
+            If True, modify the current Collection and return None. If False, return a
+            new Collection with the added columns. The default is False.
+        **kwargs
+            Columns to add, provided as keyword arguments. These are merged
+            with the ``columns`` dictionary.
+
+        Returns
+        -------
+        :class:`~geost.base.Collection` or None
+            If inplace=False, returns a new Collection instance with the added columns.
+            If inplace=True, returns None and modifies the current Collection.
+
+        Raises
+        ------
+        ValueError
+            If ``to`` is not "data" or "header".
+
+        Examples
+        --------
+        Add a single column to the data table using keyword arguments:
+
+        >>> collection_new = collection.add_columns(column_name=new_values)
+
+        Add multiple columns to the header table in place:
+
+        >>> collection.add_columns(
+        ...     columns={"column1": values1, "column2": values2},
+        ...     to="header",
+        ...     inplace=True
+        ... )
+
+        Get the same result with providing them as kwargs:
+
+        >>> collection.add_columns(column1=values1, column2=values2, to="header", inplace=True)
+
+        """
+        if to not in ["data", "header"]:
+            raise ValueError("Invalid table for add_columns, use 'data' or 'header'.")
+
+        merged_columns = {**(columns or {}), **kwargs}
+
+        if to == "data":
+            new_data = self.data.assign(**merged_columns)
+            if inplace:
+                self.data = new_data
+                return None
+            else:
+                return self.__class__(
+                    new_data,
+                    header=self.header.copy(),
+                    has_inclined=self.has_inclined,
+                    vertical_datum=self.vertical_datum,
+                )
+        else:
+            new_header = self.header.assign(**merged_columns)
+            if inplace:
+                self.header = new_header
+                return None
+            else:
+                return self.__class__(
+                    self.data.copy(),
+                    header=new_header,
+                    has_inclined=self.has_inclined,
+                    vertical_datum=self.vertical_datum,
+                )
 
     def add_header_column_to_data(self, column_name: str) -> None:  # No change
         """
@@ -1380,6 +1583,219 @@ class Collection(AbstractBase):
         )
 
     @_requires_depth
+    def calculate_gradient(
+        self,
+        column: str,
+        output_column: str | None = None,
+        use_mid_depth: bool = True,
+        inplace: bool = False,
+    ) -> Collection | None:
+        """
+        Calculate the rate of change (i.e. "gradient") over depth of a value column per
+        survey in the `Collection`'s data table.
+
+        The gradient is computed as the difference between consecutive rows of `column`,
+        divided by the difference between the corresponding depths. The first row of each
+        survey has no preceding row and is therefore set to 0.0.
+
+        Parameters
+        ----------
+        column : str
+            Name of the numeric column for which to calculate the gradient.
+        output_column : str, optional
+            Name of the column to store the gradient.
+        use_mid_depth : bool, optional
+            If True, the gradient is calculated over the mid depth of each interval. If
+            False, the bottom depth of each interval is used. The default is True.
+        inplace : bool, optional
+            If True, add the gradient to the data table of the current ``Collection``. In
+            this case, the method returns ``None``. Otherwise, return a new ``Collection``
+            instance with the gradient added in the data table. The default is False.
+
+        Returns
+        -------
+        :class:`~geost.base.Collection` or ``None``
+            New ``Collection`` with the gradient added to the data table, or None if
+            ``inplace=True``.
+
+        Raises
+        ------
+        TypeError
+            If `column` is not of a numeric dtype.
+
+        Notes
+        -----
+        This method operates on the data table of the ``Collection`` and assumes that the
+        rows are sorted by survey and ascending depth.
+
+        Examples
+        --------
+        >>> result = collection.calculate_gradient("value") # Creates new Collection
+        >>> collection.calculate_gradient("value", use_mid_depth=False, inplace=True) # Modifies the current Collection
+
+        """
+        if column not in self.data.columns:
+            raise KeyError(f"{column} is not found in `Collection.data`.")
+
+        if output_column is None:
+            output_column = f"{column}_gradient"
+
+        gradient = self.data.gst.calculate_gradient(column, use_mid_depth)
+
+        if inplace:
+            self._data[output_column] = gradient
+            return None
+
+        new_data = self.data.copy()
+        new_data[output_column] = gradient
+        return self.__class__(
+            new_data,
+            header=self.header.copy(),
+            has_inclined=self.has_inclined,
+            vertical_datum=self.vertical_datum,
+        )
+
+    @_requires_depth
+    def segmentize_by_gradient(
+        self,
+        column: str,
+        threshold: float,
+        output_column: str | None = None,
+        use_mid_depth: bool = True,
+        inplace: bool = False,
+    ) -> Collection | None:
+        """
+        Segmentize the data based on gradient changes in a column of the data table. A
+        segment is made up of consecutive rows where the gradient of ``column`` is below
+        a specified ``threshold`` and a new segment begins when the threshold is exceeded.
+        Each segment gets a unique number.
+
+        Parameters
+        ----------
+        column : str
+            Column to determine the segments from.
+        threshold : float
+            Minimum gradient change to create a new segment.
+        output_column : str | None, optional
+            Name of the column to store segment numbers. The default is None, then the
+            name will that of the column with a "_segment" suffix.
+        use_mid_depth : bool, optional
+            Whether to use mid-depth for gradient. The default is True.
+        inplace : bool, optional
+            If True, add the result to the data table of the current ``Collection``. In
+            this case, the method returns ``None``. Otherwise, return a new ``Collection``
+            instance with the result added in the data table. The default is False.
+
+        Returns
+        -------
+        :class:`~geost.base.Collection` or ``None``
+            New ``Collection`` with the gradient added to the data table, or None if
+            ``inplace=True``.
+
+        Raises
+        ------
+        KeyError
+            If the column is not found in the data.
+        TypeError
+            If `column` is not of a numeric dtype.
+
+        Notes
+        -----
+        This method operates on the data table of the ``Collection`` and assumes that the
+        rows are sorted by survey and ascending depth.
+
+        Examples
+        --------
+        Suppose we have a ``Collection`` with a "resistance" in MPa for each layer in the
+        data table. We want to create segments of consecutive rows where the resistance
+        does not change more than 0.5 MPa per meters. First, we calculate the gradient of
+        the "resistance" column so we can use this to inspect the result of
+        ``segmentize_by_gradient``:
+
+        >>> import geost
+        >>> collection = geost.Collection(
+        ...     {
+        ...         "nr": ["A", "A", "A", "A", "A", "B", "B", "B", "B", "B"],
+        ...         "surface": [0.2, 0.2, 0.2, 0.2, 0.2, 0.3, 0.3, 0.3, 0.3, 0.3],
+        ...         "top": [0.0, 0.8, 1.5, 2.5, 3.7, 0.0, 0.6, 1.2, 2.5, 3.1],
+        ...         "bottom": [0.8, 1.5, 2.5, 3.7, 4.2, 0.6, 1.2, 2.5, 3.1, 3.9],
+        ...         "resistance": [0.25, 0.95, 0.19, 0.18, 0.35, 0.23, 0.67, 0.12, 0.9, 0.86],
+        ...     }
+        ... )
+        >>> collection = collection.calculate_gradient("resistance")
+        >>> collection.data
+          nr  surface  top  bottom  resistance  gradient
+        0  A      0.2  0.0     0.8        0.25  0.000000
+        1  A      0.2  0.8     1.5        0.95  0.933333
+        2  A      0.2  1.5     2.5        0.19 -0.894118
+        3  A      0.2  2.5     3.7        0.18 -0.009091
+        4  A      0.2  3.7     4.2        0.35  0.200000
+        5  B      0.3  0.0     0.6        0.23  0.000000
+        6  B      0.3  0.6     1.2        0.67  0.733333
+        7  B      0.3  1.2     2.5        0.12 -0.578947
+        8  B      0.3  2.5     3.1        0.90  0.821053
+        9  B      0.3  3.1     3.9        0.86 -0.057143
+
+        We can create the segment column with the desired threshold of 0.5:
+
+        >>> collection = collection.segmentize_by_gradient("resistance", 0.5)
+        >>> collection.data
+          nr  surface  top  bottom  resistance  gradient  resistance_segment
+        0  A      0.2  0.0     0.8        0.25  0.000000                   1
+        1  A      0.2  0.8     1.5        0.95  0.933333                   2
+        2  A      0.2  1.5     2.5        0.19 -0.894118                   3
+        3  A      0.2  2.5     3.7        0.18 -0.009091                   3
+        4  A      0.2  3.7     4.2        0.35  0.200000                   3
+        5  B      0.3  0.0     0.6        0.23  0.000000                   4
+        6  B      0.3  0.6     1.2        0.67  0.733333                   5
+        7  B      0.3  1.2     2.5        0.12 -0.578947                   6
+        8  B      0.3  2.5     3.1        0.90  0.821053                   7
+        9  B      0.3  3.1     3.9        0.86 -0.057143                   7
+
+        Using ``use_mid_depth=False`` changes the result. Also, we can modify the output
+        column name and modify the existing ``Collection`` without creating a new one:
+
+        >>> collection.segmentize_by_gradient(
+        ...     "resistance", 0.5, use_mid_depth=False, output_column="segment", inplace=True
+        ... )
+        >>> collection.data
+          nr  surface  top  bottom  resistance  gradient  segment
+        0  A      0.2  0.0     0.8        0.25  0.000000        1
+        1  A      0.2  0.8     1.5        0.95  0.933333        2
+        2  A      0.2  1.5     2.5        0.19 -0.894118        3
+        3  A      0.2  2.5     3.7        0.18 -0.009091        3
+        4  A      0.2  3.7     4.2        0.35  0.200000        3
+        5  B      0.3  0.0     0.6        0.23  0.000000        4
+        6  B      0.3  0.6     1.2        0.67  0.733333        5
+        7  B      0.3  1.2     2.5        0.12 -0.578947        5
+        8  B      0.3  2.5     3.1        0.90  0.821053        6
+        9  B      0.3  3.1     3.9        0.86 -0.057143        6
+
+        """
+        if column not in self.data.columns:
+            raise KeyError(f"{column} is not found in `Collection.data`.")
+
+        if output_column is None:
+            output_column = f"{column}_segment"
+
+        segments = self.data.gst.segmentize_by_gradient(
+            column, threshold, use_mid_depth
+        )
+
+        if inplace:
+            self._data[output_column] = segments
+            return None
+
+        new_data = self.data.copy()
+        new_data[output_column] = segments
+        return self.__class__(
+            new_data,
+            header=self.header.copy(),
+            has_inclined=self.has_inclined,
+            vertical_datum=self.vertical_datum,
+        )
+
+    @_requires_depth
     def get_cumulative_thickness(
         self, column: str, values: str | list[str], include_in_header: bool = False
     ) -> pd.Series | None:
@@ -1394,7 +1810,7 @@ class Collection(AbstractBase):
         values : str | list[str]
             Search value or values in the column to find the cumulative thickness for.
         include_in_header : bool, optional
-            If True, include the result in the header table of the `Collection`. In this
+            If True, include the result in the header table of the ``Collection``. In this
             case, the method does not return anything (i.e. `None`). If False, a `pandas.Series`
             is returned. The default is False.
 
@@ -1433,8 +1849,9 @@ class Collection(AbstractBase):
             )
 
             thickness.name = column_name
-            self.header.drop(columns=column_name, errors="ignore", inplace=True)
-            self.header = self.header.merge(thickness, on=self._nr, how="left")
+            self.header = self.header.drop(columns=column_name, errors="ignore").merge(
+                thickness, on=self._nr, how="left"
+            )
         else:
             return thickness
 
@@ -1504,7 +1921,7 @@ class Collection(AbstractBase):
             )
 
             top.name = column_name
-            self.header.drop(columns=column_name, errors="ignore", inplace=True)
+            self.header = self.header.drop(columns=column_name, errors="ignore")
             self.header = self.header.merge(top, on=self._nr, how="left")
         else:
             return top
@@ -1562,7 +1979,7 @@ class Collection(AbstractBase):
                 values, prefix=prefix, suffix=suffix
             )
             base.name = column_name
-            self.header.drop(columns=column_name, errors="ignore", inplace=True)
+            self.header = self.header.drop(columns=column_name, errors="ignore")
             self.header = self.header.merge(base, on=self._nr, how="left")
         else:
             return base
@@ -1572,7 +1989,7 @@ class Collection(AbstractBase):
         self,
         column: str,
         discretization: np.ndarray,
-        bins: int | float | list | np.ndarray = None,
+        bins: int | list | np.ndarray = None,
         bin_centers_as_columns: bool = False,
         relative_to_reference: bool = False,
     ) -> Collection:
@@ -1591,7 +2008,7 @@ class Collection(AbstractBase):
             layer boundaries. When a DataFrame is provided, a custom discretization per
             survey must be provided. Note that in the case of a DataFrame, the result only
             contains surveys which had corresponding discretization defined.
-        bins : int | float | list | np.ndarray, optional
+        bins : int | list | np.ndarray, optional
             Bin definition. A scalar creates two bins (larger than the scalar and smaller
             than or equal to the scalar), while a sequence defines internal bin edges and
             adds open-ended bins at both ends (unless bin_centers_as_columns is True).
@@ -1680,6 +2097,9 @@ class Collection(AbstractBase):
         >>> result = collection.aggregate_consecutive_layers(
         ...     'lith', {'qc': 'mean', 'fs': 'mean'}
         ... )
+
+        See :meth:`~geost.accessor.GeostFrame.aggregate_consecutive_layers` for more
+        detailed examples.
 
         """
         combined_data = self.data.gst.aggregate_consecutive_layers(

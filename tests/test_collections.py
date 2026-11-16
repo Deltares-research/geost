@@ -192,7 +192,7 @@ class TestCollection:
     def test_init_from_data_missing_survey_id_error(self, borehole_data):
         with pytest.raises(
             MissingSurveyIDError,
-            match="Data table must contain a column identifying the survey IDs.",
+            match="DataFrame must contain a column identifying survey ID.",
         ):
             Collection(borehole_data.rename(columns={"nr": "invalid"}))
 
@@ -252,13 +252,17 @@ class TestCollection:
         ):
             Collection(borehole_data, header=header.rename(columns={"nr": "invalid"}))
 
-        with pytest.raises(
-            ValueError,
-            match="Column identifying survey IDs in data and header must have the same name",
+        with pytest.warns(
+            UserWarning,
+            match="Header and data positional columns did not match. Renamed columns in header",
         ):
-            Collection(
+            col = Collection(
                 borehole_data, header=header.rename(columns={"nr": "bro_id"})
-            )  # bro_id is a valid survey ID name, but different names in header and data raise an error
+            )
+            # bro_id is a valid survey ID name, but different names in header and data
+            # cause a rename in the header
+        assert col.positional_columns["nr"] == "nr"
+        assert col.header.columns[0] == "nr"
 
     @pytest.mark.unittest
     def test_init_empty(self):
@@ -294,6 +298,38 @@ class TestCollection:
             match="Header was provided but data is None. A header cannot exist without a corresponding data table",
         ):
             Collection(header=header)
+
+    @pytest.mark.unittest
+    def test_repr(self, borehole_collection):
+        repr_str = repr(borehole_collection)
+        expected = [
+            "<geost.Collection>",
+            "header (rows, columns)",
+            "data (rows, columns)",
+            "Positional columns:",
+            "nr",
+            "surface",
+            "end",
+            "x",
+            "y",
+            "top",
+            "bottom",
+            "geometry",
+            "lith",
+            "crs:",
+            "vertical datum: NAP height",
+        ]
+
+        assert isinstance(repr_str, str)
+        for line in expected:
+            assert line in repr_str
+
+    @pytest.mark.unittest
+    def test_empty_collection_repr(self):
+        collection = Collection()
+        repr_str = repr(collection)
+        assert isinstance(repr_str, str)
+        assert "Positional columns:\n  <empty>\nData columns:\n  <empty>\n" in repr_str
 
     @pytest.mark.unittest
     def test_header_setter_with_align(self, borehole_collection):
@@ -497,6 +533,16 @@ class TestCollection:
         assert range_check == [5, 5, 5, 5, 5]  # Each borehole has 5 data points
 
     @pytest.mark.unittest
+    def test_positional_columns(self, borehole_collection):
+        positional_columns = borehole_collection.positional_columns
+        assert isinstance(positional_columns, dict)
+        for key, value in positional_columns.items():
+            assert (
+                value in borehole_collection.header.columns
+                or value in borehole_collection.data.columns
+            )
+
+    @pytest.mark.unittest
     def test_get(self, borehole_collection):
         selection = borehole_collection.get("A")
         assert selection.header.iloc[0, 0] == "A"
@@ -547,7 +593,7 @@ class TestCollection:
             KeyError,
             match="Cannot perform vertical reference transformation without x and y coordinate columns in the data table",
         ):
-            borehole_collection.data.drop(columns=["x", "y"], inplace=True)
+            borehole_collection.data = borehole_collection.data.drop(columns=["x", "y"])
             borehole_collection.to_vertical_datum(5710, 5709)
 
     @pytest.mark.unittest
@@ -820,7 +866,7 @@ class TestCollection:
             MissingDepthError,
             match="Method 'slice_depth_interval' requires depth information in the DataFrame.",
         ):
-            borehole_collection.data.drop(columns=["bottom"], inplace=True)
+            borehole_collection.data = borehole_collection.data.drop(columns=["bottom"])
             borehole_collection.slice_depth_interval(0.6, 2.4)
 
         sliced = cpt_collection.slice_depth_interval(0.6, 4.4)
@@ -832,7 +878,7 @@ class TestCollection:
             MissingDepthError,
             match="Method 'slice_depth_interval' requires depth information in the DataFrame.",
         ):
-            cpt_collection.data.drop(columns=["depth"], inplace=True)
+            cpt_collection.data = cpt_collection.data.drop(columns=["depth"])
             cpt_collection.slice_depth_interval(0.6, 4.4)
 
     @pytest.mark.unittest
@@ -940,6 +986,80 @@ class TestCollection:
         # More detailed tests are in TestLayeredData in test_data_objects.py
         grid = borehole_collection.to_pyvista_grid("lith")
         assert isinstance(grid, pv.UnstructuredGrid)
+
+    @pytest.mark.unittest
+    def test_calculate_gradient(self, borehole_collection):
+        rng = np.random.default_rng(12)
+        borehole_collection.data["value"] = rng.random(len(borehole_collection.data))
+
+        result = borehole_collection.calculate_gradient("value")
+        assert "value_gradient" not in borehole_collection.data.columns
+        assert_array_almost_equal(
+            result.data["value_gradient"],
+            [
+                0.0,
+                0.92790465,
+                -0.89109713,
+                -0.00911725,
+                0.20070333,
+                0.0,
+                0.73317416,
+                -0.58459617,
+                0.82234736,
+                -0.05454126,
+                0.0,
+                0.59848792,
+                -0.57948652,
+                0.15110368,
+                0.12226237,
+                0.0,
+                0.02421745,
+                0.70672325,
+                -1.0288394,
+                -0.1181348,
+                0.0,
+                0.46018038,
+                -0.03662743,
+                -0.06547827,
+                -1.35982384,
+            ],
+        )
+
+        borehole_collection.calculate_gradient(
+            "value", use_mid_depth=False, inplace=True, output_column="gradient"
+        )
+        assert_array_almost_equal(
+            borehole_collection.data["gradient"],
+            [
+                0.0,
+                0.99418355,
+                -0.75743256,
+                -0.00835748,
+                0.34119566,
+                0.0,
+                0.73317416,
+                -0.42720489,
+                1.30204999,
+                -0.04772361,
+                0.0,
+                1.34659782,
+                -0.39510444,
+                0.16789298,
+                0.09349475,
+                0.0,
+                0.02075781,
+                0.76561685,
+                -0.95535087,
+                -0.14176176,
+                0.0,
+                0.39444033,
+                -0.03967971,
+                -0.06080125,
+                -1.63178861,
+            ],
+        )
+        with pytest.raises(KeyError):
+            borehole_collection.calculate_gradient("missing_column")
 
     @pytest.mark.parametrize(
         "collection, column, value, expected_column, expected_thickness",
@@ -1176,3 +1296,116 @@ class TestCollection:
         assert result.data.shape == (27, 11)
         assert "layer_model" in result.data.columns
         assert "kh_model" in result.data.columns
+
+    @pytest.mark.unittest
+    def test_segmentize_by_gradient(self, borehole_collection):
+        subset = borehole_collection.get(["A", "B"])
+
+        rng = np.random.default_rng(12)
+        subset.data["value"] = rng.random(len(subset.data))
+
+        result = subset.segmentize_by_gradient("value", 0.5)
+        assert isinstance(result, Collection)
+        assert_array_equal(result.data["value_segment"], [1, 2, 3, 3, 3, 4, 5, 6, 7, 7])
+
+        result = subset.segmentize_by_gradient(
+            "value", 0.5, use_mid_depth=False, output_column="segment", inplace=True
+        )
+        assert result is None
+        assert_array_equal(subset.data["segment"], [1, 2, 3, 3, 3, 4, 5, 5, 6, 6])
+
+    @pytest.mark.unittest
+    def test_add_columns_to_data_with_dict(self, borehole_collection):
+        new_column = np.random.rand(len(borehole_collection.data))
+        new_column2 = np.random.choice(["a", "b"], len(borehole_collection.data))
+
+        result = borehole_collection.add_columns(
+            columns={"new_col": new_column, "new_col2": new_column2}
+        )
+
+        assert isinstance(result, Collection)
+        assert_array_equal(result.data["new_col"], new_column)
+        assert_array_equal(result.data["new_col2"], new_column2)
+        assert "new_col" not in borehole_collection.data.columns
+        assert "new_col2" not in borehole_collection.data.columns
+
+    @pytest.mark.unittest
+    def test_add_columns_to_data_with_kwargs(self, borehole_collection):
+        new_column = np.arange(len(borehole_collection.data))
+
+        result = borehole_collection.add_columns(new_col=new_column, to="data")
+
+        assert isinstance(result, Collection)
+        assert_array_equal(result.data["new_col"], new_column)
+        assert "new_col" not in borehole_collection.data.columns
+
+    @pytest.mark.unittest
+    def test_add_columns_to_data_with_dict_and_kwargs(self, borehole_collection):
+        new_column = np.random.rand(len(borehole_collection.data))
+        new_column2 = np.random.choice(["a", "b"], len(borehole_collection.data))
+
+        result = borehole_collection.add_columns(
+            columns={"col1": new_column}, col2=new_column2, to="data"
+        )
+
+        assert isinstance(result, Collection)
+        assert_array_equal(result.data["col1"], new_column)
+        assert_array_equal(result.data["col2"], new_column2)
+        assert "col1" not in borehole_collection.data.columns
+        assert "col2" not in borehole_collection.data.columns
+
+    @pytest.mark.unittest
+    def test_add_columns_to_data_inplace(self, borehole_collection):
+        new_column = np.arange(len(borehole_collection.data))
+
+        result = borehole_collection.add_columns(
+            new_col=new_column, to="data", inplace=True
+        )
+
+        assert result is None
+        assert_array_equal(borehole_collection.data["new_col"], new_column)
+
+    @pytest.mark.unittest
+    def test_add_columns_to_header_with_dict(self, borehole_collection):
+        new_column = np.random.choice(["X", "Y"], len(borehole_collection))
+
+        result = borehole_collection.add_columns(
+            columns={"new_header_col": new_column}, to="header"
+        )
+
+        assert isinstance(result, Collection)
+        assert_array_equal(result.header["new_header_col"], new_column)
+        assert "new_header_col" not in borehole_collection.header.columns
+
+    @pytest.mark.unittest
+    def test_add_columns_to_header_with_kwargs(self, borehole_collection):
+        new_column = np.random.choice(["X", "Y"], len(borehole_collection))
+
+        result = borehole_collection.add_columns(to="header", new_header_col=new_column)
+
+        assert isinstance(result, Collection)
+        assert_array_equal(result.header["new_header_col"], new_column)
+        assert "new_header_col" not in borehole_collection.header.columns
+
+    @pytest.mark.unittest
+    def test_add_columns_to_header_inplace(self, borehole_collection):
+        new_column = np.random.choice(["X", "Y"], len(borehole_collection))
+
+        result = borehole_collection.add_columns(
+            columns={"new_header_col": new_column}, to="header", inplace=True
+        )
+
+        assert result is None
+        assert_array_equal(borehole_collection.header["new_header_col"], new_column)
+
+    @pytest.mark.unittest
+    def test_add_columns_invalid_to_parameter(self, borehole_collection):
+        with pytest.raises(ValueError, match="Invalid table for add_columns"):
+            borehole_collection.add_columns(new_col=[1, 2, 3], to="invalid")
+
+    @pytest.mark.unittest
+    def test_add_columns_empty_columns(self, borehole_collection):
+        result = borehole_collection.add_columns(to="data")
+        assert isinstance(result, Collection)
+        pd.testing.assert_frame_equal(result.header, borehole_collection.header)
+        pd.testing.assert_frame_equal(result.data, borehole_collection.data)

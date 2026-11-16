@@ -169,20 +169,15 @@ def select_points_near_points(
     gdf = conversion.check_geometry_instance(gdf)
     point_gdf = conversion.check_geometry_instance(point_gdf)
 
-    # Selection logic
-    data_points = np.array([gdf["geometry"].x, gdf["geometry"].y]).transpose()
-    query_points = np.array(
-        [point_gdf["geometry"].x, point_gdf["geometry"].y]
-    ).transpose()
-
-    data_tree = KDTree(data_points)
+    tree = KDTree(gdf.get_coordinates())
+    query_points = point_gdf.get_coordinates()
 
     if n_points is None:
-        index = data_tree.query_ball_point(query_points, buffer, workers=-1)
+        index = tree.query_ball_point(query_points, buffer, workers=-1)
         selection_index = np.array([i for sublist in index for i in sublist])
 
     elif isinstance(n_points, int):
-        distances, index = data_tree.query(
+        distances, index = tree.query(
             query_points, k=n_points, distance_upper_bound=buffer, workers=-1
         )
         selection_index = index[np.isfinite(distances)]
