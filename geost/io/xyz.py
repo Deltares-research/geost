@@ -68,7 +68,7 @@ def ags_xyz_to_collection(
             cols = [f"{col}{i}" for i in range(1, nlayers + 1)]
         df[col] = df[cols].to_numpy()[np.arange(len(df)), df["layer_nr"] - 1]
 
-    df.drop(columns=data_columns_original, inplace=True)
+    df = df.drop(columns=data_columns_original)
 
     if trim_to_doi:
         if doi_type == "standard":

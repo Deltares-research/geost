@@ -280,9 +280,8 @@ class CptGefFile:  # TODO: Break parser down in HeaderParser and DataParser and 
 
         """
         df = pd.DataFrame(self._data)
-        df.dropna(inplace=True)
-        df = df.astype(float)
-        df.replace(self.columnvoid, np.nan, inplace=True)
+        df = df.dropna().astype(float)
+        df = df.replace(self.columnvoid, np.nan)
         df.columns = self.columns
 
         if "rf" not in df.columns:

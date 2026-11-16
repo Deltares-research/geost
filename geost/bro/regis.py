@@ -28,7 +28,7 @@ class RegisUnits:
             self.df = self.df.assign(**strat_lith)
 
         if self.df.index.name != self._unit:
-            self.df.set_index(self._unit, inplace=True)
+            self.df = self.df.set_index(self._unit)
 
     def __repr__(self) -> str:  # pragma: no cover
         return self.df.__repr__()

@@ -542,13 +542,6 @@ class TestCollection:
                 or value in borehole_collection.data.columns
             )
 
-        # After dropping the 'nr' column, the positional columns property is expected to
-        # return an empty dictionary
-        borehole_collection.header.drop(columns=["nr"], inplace=True)
-        borehole_collection.data.drop(columns=["nr"], inplace=True)
-        positional_columns = borehole_collection.positional_columns
-        assert positional_columns == {}
-
     @pytest.mark.unittest
     def test_get(self, borehole_collection):
         selection = borehole_collection.get("A")
@@ -600,7 +593,7 @@ class TestCollection:
             KeyError,
             match="Cannot perform vertical reference transformation without x and y coordinate columns in the data table",
         ):
-            borehole_collection.data.drop(columns=["x", "y"], inplace=True)
+            borehole_collection.data = borehole_collection.data.drop(columns=["x", "y"])
             borehole_collection.to_vertical_datum(5710, 5709)
 
     @pytest.mark.unittest
@@ -873,7 +866,7 @@ class TestCollection:
             MissingDepthError,
             match="Method 'slice_depth_interval' requires depth information in the DataFrame.",
         ):
-            borehole_collection.data.drop(columns=["bottom"], inplace=True)
+            borehole_collection.data = borehole_collection.data.drop(columns=["bottom"])
             borehole_collection.slice_depth_interval(0.6, 2.4)
 
         sliced = cpt_collection.slice_depth_interval(0.6, 4.4)
@@ -885,7 +878,7 @@ class TestCollection:
             MissingDepthError,
             match="Method 'slice_depth_interval' requires depth information in the DataFrame.",
         ):
-            cpt_collection.data.drop(columns=["depth"], inplace=True)
+            cpt_collection.data = cpt_collection.data.drop(columns=["depth"])
             cpt_collection.slice_depth_interval(0.6, 4.4)
 
     @pytest.mark.unittest

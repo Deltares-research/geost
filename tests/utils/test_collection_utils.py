@@ -11,11 +11,11 @@ def test_concat(borehole_collection):
     # column names
     header2 = borehole_collection.header.copy()
     header2["nr"] = ["F", "G", "H", "I", "J"]
-    header2.rename(columns={"nr": "id", "x": "x-coord", "y": "y-coord"}, inplace=True)
+    header2 = header2.rename(columns={"nr": "id", "x": "x-coord", "y": "y-coord"})
     data2 = borehole_collection.data.copy()
     data2["nr"] = np.repeat(["F", "G", "H", "I", "J"], 5)
     data2["extra_col"] = np.random.rand(data2.shape[0])
-    data2.rename(columns={"nr": "id", "x": "x-coord", "y": "y-coord"}, inplace=True)
+    data2 = data2.rename(columns={"nr": "id", "x": "x-coord", "y": "y-coord"})
     collection2 = Collection(
         data2, header=header2, vertical_datum=borehole_collection.vertical_datum
     )

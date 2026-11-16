@@ -522,7 +522,7 @@ class GeostFrame(AbstractBase):
             vertical_datum=vertical_datum,
         )
 
-    def standardize_column_names(self) -> None:
+    def standardize_column_names(self) -> pd.DataFrame | gpd.GeoDataFrame:
         """
         Standardize column names to a consistent format used in GeoST. This is useful if
         you want to combine data from different sources that may have different naming
@@ -531,8 +531,8 @@ class GeostFrame(AbstractBase):
 
         Returns
         -------
-        None
-            The method updates the column names of the DataFrame in place.
+        pd.DataFrame | gpd.GeoDataFrame
+            The DataFrame or GeoDataFrame with standardized column names.
 
         """
         if self._top:
@@ -556,7 +556,7 @@ class GeostFrame(AbstractBase):
         if self._end is not None:
             mapping[self._end] = "end"
 
-        self._obj.rename(columns=mapping, errors="ignore", inplace=True)
+        return self._obj.rename(columns=mapping, errors="ignore")
 
     @_requires_geometry
     def select_within_bbox(
@@ -961,7 +961,7 @@ class GeostFrame(AbstractBase):
         result = self._obj.copy()
 
         if drop_label_if_exists:
-            result.drop(columns=label_id, errors="ignore", inplace=True)
+            result = result.drop(columns=label_id, errors="ignore")
 
         label_id = [label_id] if isinstance(label_id, str) else list(label_id)
         geometry_name = geometries._geometry_column_name
@@ -1681,9 +1681,8 @@ class GeostFrame(AbstractBase):
 
         discretization = discretization.copy()
         # Rename the columns for easy merge and if needed, calculate a surface difference
-        discretization.rename(
+        discretization = discretization.rename(
             columns={nr_: self._nr, surface_: "surface_right"},
-            inplace=True,
             errors="ignore",
         )
 
@@ -1704,7 +1703,7 @@ class GeostFrame(AbstractBase):
                 depth[top_] += depth["surface_correction"]
                 depth.loc[depth.gst.first_row_survey, top_] = 0
 
-        depth.drop(columns="surface_right", inplace=True, errors="ignore")
+        depth = depth.drop(columns="surface_right", errors="ignore")
 
         if relative_to_reference and top_ is None:
             # In this case we temporarily need absolute depth for calculating layer thickness
@@ -2030,13 +2029,13 @@ class GeostFrame(AbstractBase):
         result = df.groupby(groups).agg(agg_dict)
 
         if keep_original_index:
-            result.set_index("original_index", inplace=True)
+            result = result.set_index("original_index")
             result.index.name = df.index.name
         else:
             result = result.drop(columns="original_index").reset_index(drop=True)
 
         if not result.gst.is_layered:
-            result.rename(columns={self._bottom: "bottom"}, inplace=True)
+            result = result.rename(columns={self._bottom: "bottom"})
             result["top"] = result["bottom"].shift()
             result = depth.reset_tops(result, nr=self._nr, top="top", bottom="bottom")
 
@@ -2310,14 +2309,14 @@ class GeostFrame(AbstractBase):
         kingdom_df["Total depth"] = kingdom_df["Total depth"].bfill()
 
         # Rename bottom and top columns to Kingdom requirements
-        kingdom_df.rename(
-            columns={"top": "Start depth", self._bottom: "End depth"}, inplace=True
+        kingdom_df = kingdom_df.rename(
+            columns={"top": "Start depth", self._bottom: "End depth"}
         )
         kingdom_df.to_csv(outfile, index=False)
 
         # 2. create and write time-depth chart
         tdchart = self._obj[[self._nr, self._surface]]
-        tdchart.drop_duplicates(inplace=True)
+        tdchart = tdchart.drop_duplicates()
         tdchart.insert(0, "id", range(tdstart, tdstart + len(tdchart)))
 
         # Add measured depth (predefined depths of 0 and 1 m below surface)
@@ -2332,8 +2331,7 @@ class GeostFrame(AbstractBase):
             tdchart["MD"] * 1 / (vs / 2 / 1000)
         )
 
-        tdchart.drop(self._surface, axis=1, inplace=True)
-        tdchart.sort_values(by=["id", "MD"], inplace=True)
+        tdchart = tdchart.drop(self._surface, axis=1).sort_values(by=["id", "MD"])
         if not isinstance(outfile, Path):
             outfile = Path(outfile)
         tdchart.to_csv(
@@ -2520,9 +2518,8 @@ class GeostFrame(AbstractBase):
         else:
             other = other.gst._get_depth_relative_to_surface()
 
-        other.rename(
+        other = other.rename(
             columns={other.gst._nr: self._nr, other.gst._bottom: self._bottom},
-            inplace=True,
         )  # Make sure the 'nr' and 'bottom' match so we can merge correctly
 
         if (top_other := other.gst._top) is not None:

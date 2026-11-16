@@ -354,7 +354,7 @@ class TestGeostFrame:
                 "basis_diepte",
             ]
         )
-        df.gst.standardize_column_names()
+        df = df.gst.standardize_column_names()
         assert_array_equal(
             df.columns,
             ["nr", "surface", "end", "x", "y", "top", "depth"],

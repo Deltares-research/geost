@@ -1849,8 +1849,9 @@ class Collection(AbstractBase):
             )
 
             thickness.name = column_name
-            self.header.drop(columns=column_name, errors="ignore", inplace=True)
-            self.header = self.header.merge(thickness, on=self._nr, how="left")
+            self.header = self.header.drop(columns=column_name, errors="ignore").merge(
+                thickness, on=self._nr, how="left"
+            )
         else:
             return thickness
 
@@ -1920,7 +1921,7 @@ class Collection(AbstractBase):
             )
 
             top.name = column_name
-            self.header.drop(columns=column_name, errors="ignore", inplace=True)
+            self.header = self.header.drop(columns=column_name, errors="ignore")
             self.header = self.header.merge(top, on=self._nr, how="left")
         else:
             return top
@@ -1978,7 +1979,7 @@ class Collection(AbstractBase):
                 values, prefix=prefix, suffix=suffix
             )
             base.name = column_name
-            self.header.drop(columns=column_name, errors="ignore", inplace=True)
+            self.header = self.header.drop(columns=column_name, errors="ignore")
             self.header = self.header.merge(base, on=self._nr, how="left")
         else:
             return base

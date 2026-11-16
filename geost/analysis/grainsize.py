@@ -89,8 +89,8 @@ def _(
     )
 
     if only_sand:
-        converted_sample_data.drop(
-            [63, 4000, 8000, 16000, 31500, 63000], axis=1, inplace=True
+        converted_sample_data = converted_sample_data.drop(
+            [63, 4000, 8000, 16000, 31500, 63000], axis=1
         )
         converted_sample_data.insert(0, 63, 0)
     else:

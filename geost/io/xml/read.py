@@ -104,9 +104,7 @@ def read(
     data = pd.concat([header_data.reset_index(drop=True), data], axis=1)
 
     if "upperBoundary" in data.columns or "lowerBoundary" in data.columns:
-        data.rename(
-            columns={"upperBoundary": "top", "lowerBoundary": "bottom"}, inplace=True
-        )
+        data = data.rename(columns={"upperBoundary": "top", "lowerBoundary": "bottom"})
         data[["top", "bottom"]] = data[["top", "bottom"]].astype(float)
 
     return header, data, vertical_datum

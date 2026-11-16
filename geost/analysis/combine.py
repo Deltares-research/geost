@@ -189,12 +189,12 @@ def add_model_data(
     if suffix is not None:
         all_vars = list(itertools.chain(variable, aggregate_vars.keys()))
         result_vars = [f"{var}{suffix}" for var in all_vars]
-        mdf.rename(columns=dict(zip(all_vars, result_vars)), inplace=True)
+        mdf = mdf.rename(columns=dict(zip(all_vars, result_vars)))
     else:
         result_vars = variable.copy() + list(aggregate_vars.keys())
 
-    data.drop(
-        columns=result_vars, inplace=True, errors="ignore"
+    data = data.drop(
+        columns=result_vars, errors="ignore"
     )  # Drop existing columns to avoid conflicts with new model data
 
     temp_nodata = -999999
@@ -203,8 +203,8 @@ def add_model_data(
         backfill=True,
         drop_overlapping_columns=True,
     )  # fmt: skip
-    result.dropna(
-        subset=result.gst._x, inplace=True
+    result = result.dropna(
+        subset=result.gst._x
     )  # Rows with NaN in a coordinate column are rows where the model is deeper than the survey
     result[result_vars] = result[result_vars].where(result[result_vars] != temp_nodata)
 
