@@ -1,0 +1,6 @@
+﻿geost.accessor.GeostFrame.segmentize\_by\_gradient
+==================================================
+
+.. currentmodule:: geost.accessor
+
+.. automethod:: GeostFrame.segmentize_by_gradient

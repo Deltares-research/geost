@@ -25,25 +25,25 @@
   </noscript>
   
   <!-- Loaded before other Sphinx assets -->
-  <link href="../../_static/styles/theme.css?digest=18bd87630a240e9c25be" rel="stylesheet" />
-<link href="../../_static/styles/pydata-sphinx-theme.css?digest=18bd87630a240e9c25be" rel="stylesheet" />
+  <link href="../../_static/styles/theme.css?digest=75c7c72ae941e8b558d8" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=75c7c72ae941e8b558d8" rel="stylesheet" />
 
     <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="../../_static/mystnb.11b39860a7a0cbfd473a3ad8a317855267ff0bd372690045ca344a6b62be495e.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=6e1425e8" />
-    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=6a604523" />
     <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=6e1425e8" />
   
   <!-- So that users can add custom icons -->
-  <script defer src="../../_static/scripts/fontawesome.js?digest=18bd87630a240e9c25be"></script>
+  <script defer src="../../_static/scripts/fontawesome.js?digest=75c7c72ae941e8b558d8"></script>
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
-<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8" />
 
     <script src="../../_static/documentation_options.js?v=5929fcd5"></script>
     <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
-    <script src="../../_static/design-tabs.js?v=f930bc37"></script>
+    <script data-sd-tabs-storage-prefix="sphinx-design-tab-id-" src="../../_static/design-tabs.js?v=fcb327ea"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = '_modules/geost/accessor';</script>
     <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
     <link rel="icon" href="../../_static/geost_logo.png"/>
@@ -53,7 +53,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="color-scheme" content="light dark"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="0.5.1" />
+  <meta name="docsearch:version" content="0.6.0" />
   
     
     <script src="../../_static/searchtools.js"></script>
@@ -101,7 +101,7 @@
   
     <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
 <div class="bd-header__inner bd-page-width">
-  <button type="button" class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+  <button type="button" class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation" aria-expanded="false" aria-controls="pst-primary-sidebar-modal">
     <span class="fa-solid fa-bars"></span>
   </button>
   
@@ -229,14 +229,14 @@
 
 <div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
   <button type="button" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
-    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
-    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
-    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto" title="System Settings"></i>
   </button>
   <ul class="dropdown-menu dropdown-menu-end">
-    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
-    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
-    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg me-1"></i>System Settings</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg me-1"></i>Light</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg me-1"></i>Dark</button></li>
   </ul>
 </div></div>
       
@@ -294,7 +294,7 @@
       
         
       
-      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <dialog id="pst-primary-sidebar-modal" tabindex="-1"></dialog>
       <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar hide-on-wide">
         
 
@@ -379,14 +379,14 @@
 
 <div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
   <button type="button" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
-    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
-    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
-    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto" title="System Settings"></i>
   </button>
   <ul class="dropdown-menu dropdown-menu-end">
-    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
-    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
-    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg me-1"></i>System Settings</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg me-1"></i>Light</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg me-1"></i>Dark</button></li>
   </ul>
 </div></div>
         
@@ -452,7 +452,7 @@
     
     <li class="breadcrumb-item breadcrumb-home">
       <a href="../../index.html" class="nav-link" aria-label="Home">
-        <i class="fa-solid fa-home"></i>
+        <i class="fa-solid fa-house"></i>
       </a>
     </li>
     
@@ -1025,7 +1025,7 @@
 
 <div class="viewcode-block" id="GeostFrame.standardize_column_names">
 <a class="viewcode-back" href="../../api_reference/generated/geost.accessor.GeostFrame.standardize_column_names.html#geost.accessor.GeostFrame.standardize_column_names">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">standardize_column_names</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">standardize_column_names</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span> <span class="o">|</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Standardize column names to a consistent format used in GeoST. This is useful if</span>
 <span class="sd">        you want to combine data from different sources that may have different naming</span>
@@ -1034,8 +1034,8 @@
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        None</span>
-<span class="sd">            The method updates the column names of the DataFrame in place.</span>
+<span class="sd">        pd.DataFrame | gpd.GeoDataFrame</span>
+<span class="sd">            The DataFrame or GeoDataFrame with standardized column names.</span>
 
 <span class="sd">        """</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_top</span><span class="p">:</span>
@@ -1059,7 +1059,7 @@
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_end</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">mapping</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_end</span><span class="p">]</span> <span class="o">=</span> <span class="s2">"end"</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">_obj</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="n">mapping</span><span class="p">,</span> <span class="n">errors</span><span class="o">=</span><span class="s2">"ignore"</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_obj</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="n">mapping</span><span class="p">,</span> <span class="n">errors</span><span class="o">=</span><span class="s2">"ignore"</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="GeostFrame.select_within_bbox">
@@ -1488,7 +1488,7 @@
         <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_obj</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
 
         <span class="k">if</span> <span class="n">drop_label_if_exists</span><span class="p">:</span>
-            <span class="n">result</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="n">label_id</span><span class="p">,</span> <span class="n">errors</span><span class="o">=</span><span class="s2">"ignore"</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="n">label_id</span><span class="p">,</span> <span class="n">errors</span><span class="o">=</span><span class="s2">"ignore"</span><span class="p">)</span>
 
         <span class="n">label_id</span> <span class="o">=</span> <span class="p">[</span><span class="n">label_id</span><span class="p">]</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">label_id</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="k">else</span> <span class="nb">list</span><span class="p">(</span><span class="n">label_id</span><span class="p">)</span>
         <span class="n">geometry_name</span> <span class="o">=</span> <span class="n">geometries</span><span class="o">.</span><span class="n">_geometry_column_name</span>
@@ -1938,6 +1938,94 @@
         <span class="k">return</span> <span class="n">thickness</span></div>
 
 
+<div class="viewcode-block" id="GeostFrame.calculate_mid_depth">
+<a class="viewcode-back" href="../../api_reference/generated/geost.accessor.GeostFrame.calculate_mid_depth.html#geost.accessor.GeostFrame.calculate_mid_depth">[docs]</a>
+    <span class="nd">@_requires_depth</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">calculate_mid_depth</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">relative_to_reference</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Calculate the mid depths of layers. In case of layered data this is the middle</span>
+<span class="sd">        between the layer's top and bottom depth. In case of discrete data the method</span>
+<span class="sd">        assumes that the depths of layers are bottom depths and the result is middle</span>
+<span class="sd">        between consecutive layers.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        relative_to_reference : bool, optional</span>
+<span class="sd">            If True, mid depths are calculated relative to a reference depth (e.g. NAP).</span>
+<span class="sd">            The default is False.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        pd.Series</span>
+<span class="sd">            Mid depth of each layer.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; result = df.survey.calculate_mid_depth()</span>
+<span class="sd">        &gt;&gt;&gt; result = df.survey.calculate_mid_depth(relative_to_reference=True)</span>
+
+<span class="sd">        """</span>
+        <span class="n">thickness</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">calculate_thickness</span><span class="p">()</span> <span class="o">/</span> <span class="mi">2</span>
+
+        <span class="k">if</span> <span class="n">relative_to_reference</span><span class="p">:</span>
+            <span class="n">df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_depth_relative_to_surface</span><span class="p">()</span>
+            <span class="k">return</span> <span class="n">df</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_bottom</span><span class="p">]</span> <span class="o">+</span> <span class="n">thickness</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_obj</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_bottom</span><span class="p">]</span> <span class="o">-</span> <span class="n">thickness</span></div>
+
+
+<div class="viewcode-block" id="GeostFrame.calculate_gradient">
+<a class="viewcode-back" href="../../api_reference/generated/geost.accessor.GeostFrame.calculate_gradient.html#geost.accessor.GeostFrame.calculate_gradient">[docs]</a>
+    <span class="nd">@_requires_depth</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">calculate_gradient</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">column</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">use_mid_depth</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Calculate the rate of change (i.e. "gradient") over depth of a value column per</span>
+<span class="sd">        survey.</span>
+
+<span class="sd">        The gradient is computed as the difference between consecutive rows of `column`,</span>
+<span class="sd">        divided by the difference between the corresponding depths. The first row of each</span>
+<span class="sd">        survey has no preceding row and is therefore set to 0.0.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        column : str</span>
+<span class="sd">            Name of the numeric column for which to calculate the gradient.</span>
+<span class="sd">        use_mid_depth : bool, optional</span>
+<span class="sd">            If True, the gradient is calculated over the mid depth of each interval. If</span>
+<span class="sd">            False, the bottom depth of each interval is used. By default True.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        pd.Series</span>
+<span class="sd">            The gradient (change in `column` per unit of depth), with the same index as</span>
+<span class="sd">            the original object.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        TypeError</span>
+<span class="sd">            If `column` is not of a numeric dtype.</span>
+
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        This method assumes that the rows are sorted by survey and ascending depth.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; result = df.survey.calculate_gradient("value")</span>
+<span class="sd">        &gt;&gt;&gt; result = df.survey.calculate_gradient("value", use_mid_depth=False)</span>
+
+<span class="sd">        """</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">pandas.api.types</span><span class="w"> </span><span class="kn">import</span> <span class="n">is_numeric_dtype</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">is_numeric_dtype</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_obj</span><span class="p">[</span><span class="n">column</span><span class="p">]):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">"Column must be numeric"</span><span class="p">)</span>
+
+        <span class="n">depth</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">calculate_mid_depth</span><span class="p">()</span> <span class="k">if</span> <span class="n">use_mid_depth</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">_obj</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_bottom</span><span class="p">]</span>
+        <span class="n">gradient</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_obj</span><span class="p">[</span><span class="n">column</span><span class="p">]</span><span class="o">.</span><span class="n">diff</span><span class="p">()</span> <span class="o">/</span> <span class="n">depth</span><span class="o">.</span><span class="n">diff</span><span class="p">()</span>
+        <span class="n">gradient</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">first_row_survey</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="k">return</span> <span class="n">gradient</span></div>
+
+
 <div class="viewcode-block" id="GeostFrame.get_cumulative_thickness">
 <a class="viewcode-back" href="../../api_reference/generated/geost.accessor.GeostFrame.get_cumulative_thickness.html#geost.accessor.GeostFrame.get_cumulative_thickness">[docs]</a>
     <span class="nd">@_requires_depth</span>
@@ -2151,9 +2239,8 @@
 
         <span class="n">discretization</span> <span class="o">=</span> <span class="n">discretization</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
         <span class="c1"># Rename the columns for easy merge and if needed, calculate a surface difference</span>
-        <span class="n">discretization</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span>
+        <span class="n">discretization</span> <span class="o">=</span> <span class="n">discretization</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span>
             <span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="n">nr_</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_nr</span><span class="p">,</span> <span class="n">surface_</span><span class="p">:</span> <span class="s2">"surface_right"</span><span class="p">},</span>
-            <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
             <span class="n">errors</span><span class="o">=</span><span class="s2">"ignore"</span><span class="p">,</span>
         <span class="p">)</span>
 
@@ -2169,12 +2256,12 @@
         <span class="k">if</span> <span class="ow">not</span> <span class="n">relative_to_reference</span> <span class="ow">and</span> <span class="n">surface_</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">depth</span><span class="p">[</span><span class="s2">"surface_correction"</span><span class="p">]</span> <span class="o">=</span> <span class="n">depth</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_surface</span><span class="p">]</span> <span class="o">-</span> <span class="n">depth</span><span class="p">[</span><span class="s2">"surface_right"</span><span class="p">]</span>
             <span class="n">depth</span><span class="p">[</span><span class="n">bottom_</span><span class="p">]</span> <span class="o">+=</span> <span class="n">depth</span><span class="p">[</span><span class="s2">"surface_correction"</span><span class="p">]</span>
+            <span class="n">depth</span> <span class="o">=</span> <span class="n">depth</span><span class="p">[</span><span class="n">depth</span><span class="p">[</span><span class="n">bottom_</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">]</span>
             <span class="k">if</span> <span class="n">top_</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="n">depth</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="o">~</span><span class="n">depth</span><span class="o">.</span><span class="n">gst</span><span class="o">.</span><span class="n">first_row_survey</span><span class="p">,</span> <span class="n">top_</span><span class="p">]</span> <span class="o">+=</span> <span class="n">depth</span><span class="p">[</span>
-                    <span class="s2">"surface_correction"</span>
-                <span class="p">]</span>
+                <span class="n">depth</span><span class="p">[</span><span class="n">top_</span><span class="p">]</span> <span class="o">+=</span> <span class="n">depth</span><span class="p">[</span><span class="s2">"surface_correction"</span><span class="p">]</span>
+                <span class="n">depth</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">depth</span><span class="o">.</span><span class="n">gst</span><span class="o">.</span><span class="n">first_row_survey</span><span class="p">,</span> <span class="n">top_</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
 
-        <span class="n">depth</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="s2">"surface_right"</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">errors</span><span class="o">=</span><span class="s2">"ignore"</span><span class="p">)</span>
+        <span class="n">depth</span> <span class="o">=</span> <span class="n">depth</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="s2">"surface_right"</span><span class="p">,</span> <span class="n">errors</span><span class="o">=</span><span class="s2">"ignore"</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">relative_to_reference</span> <span class="ow">and</span> <span class="n">top_</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="c1"># In this case we temporarily need absolute depth for calculating layer thickness</span>
@@ -2186,6 +2273,8 @@
 
         <span class="k">return</span> <span class="n">depth</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">names</span><span class="o">=</span><span class="s2">"nz"</span><span class="p">)</span>  <span class="c1"># Add layer numbers</span>
 
+<div class="viewcode-block" id="GeostFrame.compute_discretized_fractions">
+<a class="viewcode-back" href="../../api_reference/generated/geost.accessor.GeostFrame.compute_discretized_fractions.html#geost.accessor.GeostFrame.compute_discretized_fractions">[docs]</a>
     <span class="nd">@_requires_depth</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">compute_discretized_fractions</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -2244,23 +2333,23 @@
 <span class="sd">        ...     }</span>
 <span class="sd">        ... )</span>
 <span class="sd">        &gt;&gt;&gt; boreholes.gst.compute_discretized_fractions("lith", 1)</span>
-<span class="sd">          nr  surface  top  bottom   dz    K    V    Z</span>
-<span class="sd">        0  A      0.2  0.0     1.0  1.0  1.0  NaN  NaN</span>
-<span class="sd">        1  A      0.2  1.0     2.0  1.0  NaN  NaN  1.0</span>
-<span class="sd">        2  B      0.3  0.0     1.0  1.0  1.0  NaN  NaN</span>
-<span class="sd">        3  B      0.3  1.0     2.0  1.0  NaN  1.0  NaN</span>
+<span class="sd">          nr  surface  top  bottom   dz    K    V    Z  total</span>
+<span class="sd">        0  A      0.2  0.0     1.0  1.0  1.0  NaN  NaN    1.0</span>
+<span class="sd">        1  A      0.2  1.0     2.0  1.0  NaN  NaN  1.0    1.0</span>
+<span class="sd">        2  B      0.3  0.0     1.0  1.0  1.0  NaN  NaN    1.0</span>
+<span class="sd">        3  B      0.3  1.0     2.0  1.0  NaN  1.0  NaN    1.0</span>
 
 <span class="sd">        Supply explicit layer boundaries instead of a uniform thickness:</span>
 
 <span class="sd">        &gt;&gt;&gt; discretization = [0.5, 1.0, 2.0]</span>
 <span class="sd">        &gt;&gt;&gt; boreholes.gst.compute_discretized_fractions("lith", discretization)</span>
-<span class="sd">           nr  surface  top  bottom   dz    K    V    Z</span>
-<span class="sd">        0   A      0.2  0.0     0.5  0.5  1.0  NaN  NaN</span>
-<span class="sd">        1   A      0.2  0.5     1.0  0.5  1.0  NaN  NaN</span>
-<span class="sd">        2   A      0.2  1.0     2.0  1.0  NaN  NaN  1.0</span>
-<span class="sd">        3   B      0.3  0.0     0.5  0.5  1.0  NaN  NaN</span>
-<span class="sd">        4   B      0.3  0.5     1.0  0.5  1.0  NaN  NaN</span>
-<span class="sd">        5   B      0.3  1.0     2.0  1.0  NaN  1.0  NaN</span>
+<span class="sd">           nr  surface  top  bottom   dz    K    V    Z  total</span>
+<span class="sd">        0   A      0.2  0.0     0.5  0.5  1.0  NaN  NaN    1.0</span>
+<span class="sd">        1   A      0.2  0.5     1.0  0.5  1.0  NaN  NaN    1.0</span>
+<span class="sd">        2   A      0.2  1.0     2.0  1.0  NaN  NaN  1.0    1.0</span>
+<span class="sd">        3   B      0.3  0.0     0.5  0.5  1.0  NaN  NaN    1.0</span>
+<span class="sd">        4   B      0.3  0.5     1.0  0.5  1.0  NaN  NaN    1.0</span>
+<span class="sd">        5   B      0.3  1.0     2.0  1.0  NaN  1.0  NaN    1.0</span>
 
 <span class="sd">        For continuous values, use `bins` to calculate fractions per value range:</span>
 
@@ -2268,13 +2357,13 @@
 <span class="sd">        &gt;&gt;&gt; boreholes.gst.compute_discretized_fractions(</span>
 <span class="sd">        ...     "value", discretization, bins=[0.33, 0.67]</span>
 <span class="sd">        ... )</span>
-<span class="sd">          nr  surface  top  bottom   dz  &lt;=0.33  0.33-0.67  &gt;0.67</span>
-<span class="sd">        0  A      0.2  0.0     0.5  0.5     1.0        NaN    NaN</span>
-<span class="sd">        1  A      0.2  0.5     1.0  0.5     1.0        NaN    NaN</span>
-<span class="sd">        2  A      0.2  1.0     2.0  1.0     NaN        NaN    1.0</span>
-<span class="sd">        3  B      0.3  0.0     0.5  0.5     NaN        1.0    NaN</span>
-<span class="sd">        4  B      0.3  0.5     1.0  0.5     NaN        1.0    NaN</span>
-<span class="sd">        5  B      0.3  1.0     2.0  1.0     NaN        NaN    1.0</span>
+<span class="sd">          nr  surface  top  bottom   dz  &lt;=0.33  0.33-0.67  &gt;0.67  total</span>
+<span class="sd">        0  A      0.2  0.0     0.5  0.5     1.0        NaN    NaN    1.0</span>
+<span class="sd">        1  A      0.2  0.5     1.0  0.5     1.0        NaN    NaN    1.0</span>
+<span class="sd">        2  A      0.2  1.0     2.0  1.0     NaN        NaN    1.0    1.0</span>
+<span class="sd">        3  B      0.3  0.0     0.5  0.5     NaN        1.0    NaN    1.0</span>
+<span class="sd">        4  B      0.3  0.5     1.0  0.5     NaN        1.0    NaN    1.0</span>
+<span class="sd">        5  B      0.3  1.0     2.0  1.0     NaN        NaN    1.0    1.0</span>
 
 <span class="sd">        Interpret discretization boundaries relative to the reference surface with</span>
 <span class="sd">        `relative_to_reference=True`:</span>
@@ -2282,11 +2371,11 @@
 <span class="sd">        &gt;&gt;&gt; boreholes.gst.compute_discretized_fractions(</span>
 <span class="sd">        ...     "lith", [1, 0, -1], relative_to_reference=True</span>
 <span class="sd">        ... )</span>
-<span class="sd">          nr  surface  top  bottom  dz    K    V    Z</span>
-<span class="sd">        0  A      0.2    1       0   1  0.2  NaN  NaN</span>
-<span class="sd">        1  A      0.2    0      -1   1  0.8  NaN  0.2</span>
-<span class="sd">        2  B      0.3    1       0   1  0.3  NaN  NaN</span>
-<span class="sd">        3  B      0.3    0      -1   1  0.7  0.3  NaN</span>
+<span class="sd">          nr  surface  top  bottom  dz    K    V    Z  total</span>
+<span class="sd">        0  A      0.2    1       0   1  0.2  NaN  NaN    0.2</span>
+<span class="sd">        1  A      0.2    0      -1   1  0.8  NaN  0.2    1.0</span>
+<span class="sd">        2  B      0.3    1       0   1  0.3  NaN  NaN    0.3</span>
+<span class="sd">        3  B      0.3    0      -1   1  0.7  0.3  NaN    1.0</span>
 
 <span class="sd">        You can also provide a `pandas.DataFrame` for survey-specific discretization</span>
 <span class="sd">        boundaries. If the discretization contains surface information which differs from</span>
@@ -2306,13 +2395,13 @@
 <span class="sd">        ...     "lith", discretization_df</span>
 <span class="sd">        ... )</span>
 <span class="sd">        &gt;&gt;&gt; result</span>
-<span class="sd">          nr  surface  top  bottom  surface_correction   dz    K    V    Z</span>
-<span class="sd">        0  A      0.2  0.0     0.3                -0.2  0.3  1.0  NaN  NaN</span>
-<span class="sd">        1  A      0.2  0.3     0.8                -0.2  0.5  1.0  NaN  NaN</span>
-<span class="sd">        2  A      0.2  0.8     1.8                -0.2  1.0  0.2  NaN  0.8</span>
-<span class="sd">        3  B      0.3  0.0     0.6                 0.1  0.6  1.0  NaN  NaN</span>
-<span class="sd">        4  B      0.3  0.6     1.1                 0.1  0.5  0.8  0.2  NaN</span>
-<span class="sd">        5  B      0.3  1.1     2.1                 0.1  1.0  NaN  0.9  NaN</span>
+<span class="sd">          nr  surface  top  bottom  surface_correction   dz    K    V    Z  total</span>
+<span class="sd">        0  A      0.2  0.0     0.3                -0.2  0.3  1.0  NaN  NaN    1.0</span>
+<span class="sd">        1  A      0.2  0.3     0.8                -0.2  0.5  1.0  NaN  NaN    1.0</span>
+<span class="sd">        2  A      0.2  0.8     1.8                -0.2  1.0  0.2  NaN  0.8    1.0</span>
+<span class="sd">        3  B      0.3  0.0     0.6                 0.1  0.6  1.0  NaN  NaN    1.0</span>
+<span class="sd">        4  B      0.3  0.6     1.1                 0.1  0.5  0.8  0.2  NaN    1.0</span>
+<span class="sd">        5  B      0.3  1.1     2.1                 0.1  1.0  NaN  0.9  NaN    0.9</span>
 
 <span class="sd">        """</span>
         <span class="n">discretized</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_discretization</span><span class="p">(</span><span class="n">discretization</span><span class="p">,</span> <span class="n">relative_to_reference</span><span class="p">)</span>
@@ -2348,6 +2437,7 @@
             <span class="p">(</span><span class="n">grouped</span><span class="p">[</span><span class="s2">"thickness"</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="o">/</span> <span class="n">grouped</span><span class="p">[</span><span class="s2">"dz"</span><span class="p">]</span><span class="o">.</span><span class="n">first</span><span class="p">())</span>
             <span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
             <span class="o">.</span><span class="n">unstack</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="n">column</span><span class="p">)</span>
+            <span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">total</span><span class="o">=</span><span class="k">lambda</span> <span class="n">df</span><span class="p">:</span> <span class="n">df</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span>
             <span class="o">.</span><span class="n">reset_index</span><span class="p">()</span>
         <span class="p">)</span>
         <span class="c1"># The clip above is used because when the discretization is given as a DataFrame,</span>
@@ -2366,7 +2456,8 @@
             <span class="n">percentages</span><span class="p">,</span> <span class="n">on</span><span class="o">=</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_nr</span><span class="p">,</span> <span class="s2">"nz"</span><span class="p">],</span> <span class="n">how</span><span class="o">=</span><span class="s2">"right"</span>
         <span class="p">)</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="s2">"nz"</span><span class="p">,</span> <span class="n">errors</span><span class="o">=</span><span class="s2">"ignore"</span><span class="p">)</span>
 
-        <span class="k">return</span> <span class="n">discretized</span>
+        <span class="k">return</span> <span class="n">discretized</span></div>
+
 
 <div class="viewcode-block" id="GeostFrame.aggregate_consecutive_layers">
 <a class="viewcode-back" href="../../api_reference/generated/geost.accessor.GeostFrame.aggregate_consecutive_layers.html#geost.accessor.GeostFrame.aggregate_consecutive_layers">[docs]</a>
@@ -2374,7 +2465,7 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">aggregate_consecutive_layers</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">over</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
-        <span class="n">agg_funcs</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">agg_funcs</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">keep_original_index</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""</span>
@@ -2391,7 +2482,7 @@
 <span class="sd">        agg_funcs : dict, optional</span>
 <span class="sd">            Dictionary specifying the aggregation functions to apply to other columns when</span>
 <span class="sd">            combining layers. Keys are column names, and values are aggregation functions.</span>
-<span class="sd">            These can be e.g. names such as'first', 'last', 'mean', etc. or actual functions</span>
+<span class="sd">            These can be e.g. names such as 'first', 'last', 'mean', etc. or actual functions</span>
 <span class="sd">            such as np.sum, np.mean, etc.</span>
 <span class="sd">        keep_original_index : bool, optional</span>
 <span class="sd">            If True, the original index of the DataFrame is preserved in the resulting DataFrame.</span>
@@ -2455,9 +2546,25 @@
 <span class="sd">        1  A      0.2  1.2     2.0    Z     30</span>
 <span class="sd">        2  B      0.3  0.0     2.0    K     50</span>
 
+<span class="sd">        We also offer the option to take a layer-thickness-weighted mean of 'value':</span>
+
+<span class="sd">        &gt;&gt;&gt; result = boreholes.gst.aggregate_consecutive_layers(</span>
+<span class="sd">        ...     'lith', agg_funcs={'value': 'weighted_mean'}</span>
+<span class="sd">        ... )</span>
+<span class="sd">        &gt;&gt;&gt; result</span>
+<span class="sd">          nr  surface  top  bottom lith      value</span>
+<span class="sd">        0  A      0.2  0.0     1.2    K  13.333333</span>
+<span class="sd">        1  A      0.2  1.2     2.0    Z  30.000000</span>
+<span class="sd">        2  B      0.3  0.0     2.0    K  47.500000</span>
+
 <span class="sd">        """</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">geost.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">grouped_dataframe</span>
+
+        <span class="n">_agg_funcs</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"weighted_mean"</span><span class="p">:</span> <span class="n">grouped_dataframe</span><span class="o">.</span><span class="n">weighted_mean</span><span class="p">}</span>
+
         <span class="n">df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_obj</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
         <span class="n">df</span><span class="p">[</span><span class="s2">"original_index"</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">index</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">over</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
             <span class="n">over</span> <span class="o">=</span> <span class="p">[</span><span class="n">over</span><span class="p">]</span>
@@ -2474,16 +2581,24 @@
             <span class="o">|</span> <span class="p">(</span><span class="n">agg_funcs</span> <span class="ow">or</span> <span class="p">{})</span> <span class="c1"># This overrides defaults if `agg_funcs` is given</span>
         <span class="p">)</span>  <span class="c1"># fmt: skip</span>
 
+        <span class="c1"># If one of the agg funcs needs weights, calculate them and update the func in</span>
+        <span class="c1"># agg_dict with weighted funcs</span>
+        <span class="k">if</span> <span class="n">add_weights</span> <span class="o">:=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">agg_dict</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">_agg_funcs</span><span class="p">}:</span>
+            <span class="n">weights</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">gst</span><span class="o">.</span><span class="n">calculate_thickness</span><span class="p">()</span>
+            <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">func</span> <span class="ow">in</span> <span class="n">add_weights</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="n">func</span> <span class="o">=</span> <span class="n">_agg_funcs</span><span class="p">[</span><span class="n">func</span><span class="p">]</span>
+                <span class="n">agg_dict</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">func</span><span class="p">(</span><span class="n">weights</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">())</span>
+
         <span class="n">result</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">groups</span><span class="p">)</span><span class="o">.</span><span class="n">agg</span><span class="p">(</span><span class="n">agg_dict</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">keep_original_index</span><span class="p">:</span>
-            <span class="n">result</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s2">"original_index"</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s2">"original_index"</span><span class="p">)</span>
             <span class="n">result</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">name</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">result</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="s2">"original_index"</span><span class="p">)</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="n">result</span><span class="o">.</span><span class="n">gst</span><span class="o">.</span><span class="n">is_layered</span><span class="p">:</span>
-            <span class="n">result</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_bottom</span><span class="p">:</span> <span class="s2">"bottom"</span><span class="p">},</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_bottom</span><span class="p">:</span> <span class="s2">"bottom"</span><span class="p">})</span>
             <span class="n">result</span><span class="p">[</span><span class="s2">"top"</span><span class="p">]</span> <span class="o">=</span> <span class="n">result</span><span class="p">[</span><span class="s2">"bottom"</span><span class="p">]</span><span class="o">.</span><span class="n">shift</span><span class="p">()</span>
             <span class="n">result</span> <span class="o">=</span> <span class="n">depth</span><span class="o">.</span><span class="n">reset_tops</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">nr</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_nr</span><span class="p">,</span> <span class="n">top</span><span class="o">=</span><span class="s2">"top"</span><span class="p">,</span> <span class="n">bottom</span><span class="o">=</span><span class="s2">"bottom"</span><span class="p">)</span>
 
@@ -2769,14 +2884,14 @@
         <span class="n">kingdom_df</span><span class="p">[</span><span class="s2">"Total depth"</span><span class="p">]</span> <span class="o">=</span> <span class="n">kingdom_df</span><span class="p">[</span><span class="s2">"Total depth"</span><span class="p">]</span><span class="o">.</span><span class="n">bfill</span><span class="p">()</span>
 
         <span class="c1"># Rename bottom and top columns to Kingdom requirements</span>
-        <span class="n">kingdom_df</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span>
-            <span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s2">"top"</span><span class="p">:</span> <span class="s2">"Start depth"</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_bottom</span><span class="p">:</span> <span class="s2">"End depth"</span><span class="p">},</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span>
+        <span class="n">kingdom_df</span> <span class="o">=</span> <span class="n">kingdom_df</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span>
+            <span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s2">"top"</span><span class="p">:</span> <span class="s2">"Start depth"</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_bottom</span><span class="p">:</span> <span class="s2">"End depth"</span><span class="p">}</span>
         <span class="p">)</span>
         <span class="n">kingdom_df</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">outfile</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 
         <span class="c1"># 2. create and write time-depth chart</span>
         <span class="n">tdchart</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_obj</span><span class="p">[[</span><span class="bp">self</span><span class="o">.</span><span class="n">_nr</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_surface</span><span class="p">]]</span>
-        <span class="n">tdchart</span><span class="o">.</span><span class="n">drop_duplicates</span><span class="p">(</span><span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">tdchart</span> <span class="o">=</span> <span class="n">tdchart</span><span class="o">.</span><span class="n">drop_duplicates</span><span class="p">()</span>
         <span class="n">tdchart</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="s2">"id"</span><span class="p">,</span> <span class="nb">range</span><span class="p">(</span><span class="n">tdstart</span><span class="p">,</span> <span class="n">tdstart</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="n">tdchart</span><span class="p">)))</span>
 
         <span class="c1"># Add measured depth (predefined depths of 0 and 1 m below surface)</span>
@@ -2791,8 +2906,7 @@
             <span class="n">tdchart</span><span class="p">[</span><span class="s2">"MD"</span><span class="p">]</span> <span class="o">*</span> <span class="mi">1</span> <span class="o">/</span> <span class="p">(</span><span class="n">vs</span> <span class="o">/</span> <span class="mi">2</span> <span class="o">/</span> <span class="mi">1000</span><span class="p">)</span>
         <span class="p">)</span>
 
-        <span class="n">tdchart</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_surface</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-        <span class="n">tdchart</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="p">[</span><span class="s2">"id"</span><span class="p">,</span> <span class="s2">"MD"</span><span class="p">],</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">tdchart</span> <span class="o">=</span> <span class="n">tdchart</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_surface</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="p">[</span><span class="s2">"id"</span><span class="p">,</span> <span class="s2">"MD"</span><span class="p">])</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">outfile</span><span class="p">,</span> <span class="n">Path</span><span class="p">):</span>
             <span class="n">outfile</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">outfile</span><span class="p">)</span>
         <span class="n">tdchart</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span>
@@ -2982,9 +3096,8 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="n">other</span> <span class="o">=</span> <span class="n">other</span><span class="o">.</span><span class="n">gst</span><span class="o">.</span><span class="n">_get_depth_relative_to_surface</span><span class="p">()</span>
 
-        <span class="n">other</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span>
+        <span class="n">other</span> <span class="o">=</span> <span class="n">other</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span>
             <span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="n">other</span><span class="o">.</span><span class="n">gst</span><span class="o">.</span><span class="n">_nr</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_nr</span><span class="p">,</span> <span class="n">other</span><span class="o">.</span><span class="n">gst</span><span class="o">.</span><span class="n">_bottom</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_bottom</span><span class="p">},</span>
-            <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
         <span class="p">)</span>  <span class="c1"># Make sure the 'nr' and 'bottom' match so we can merge correctly</span>
 
         <span class="k">if</span> <span class="p">(</span><span class="n">top_other</span> <span class="o">:=</span> <span class="n">other</span><span class="o">.</span><span class="n">gst</span><span class="o">.</span><span class="n">_top</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -3119,6 +3232,85 @@
             <span class="n">surface_</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_surface</span><span class="p">,</span>
             <span class="n">bottom_</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_bottom</span><span class="p">,</span>
         <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="GeostFrame.segmentize_by_gradient">
+<a class="viewcode-back" href="../../api_reference/generated/geost.accessor.GeostFrame.segmentize_by_gradient.html#geost.accessor.GeostFrame.segmentize_by_gradient">[docs]</a>
+    <span class="nd">@_requires_depth</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">segmentize_by_gradient</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">column</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">threshold</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">use_mid_depth</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Segmentize the data based on gradient changes in a column. A segment is made up of</span>
+<span class="sd">        consecutive rows where the gradient of ``column`` is below a specified ``threshold``</span>
+<span class="sd">        and a new segment begins when the threshold is exceeded. Each segment gets a unique</span>
+<span class="sd">        number.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        column : str</span>
+<span class="sd">            Column to determine the segments from.</span>
+<span class="sd">        threshold : float</span>
+<span class="sd">            Minimum gradient change to create a new segment.</span>
+<span class="sd">        use_mid_depth : bool, optional</span>
+<span class="sd">            Use mid depth for gradient calculation. The default is True.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        pd.Series</span>
+<span class="sd">            Series with segment numbers which can be added as a column to the DataFrame.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        Suppose we have a DataFrame with a "resistance" in MPa for each layer. We want to</span>
+<span class="sd">        create segments of consecutive rows where the resistance does not change more than</span>
+<span class="sd">        0.5 MPa per meters. First, we calculate the gradient of the "resistance" column so</span>
+<span class="sd">        we can use this to inspect the result of ``segmentize_by_gradient``:</span>
+
+<span class="sd">        &gt;&gt;&gt; import geost</span>
+<span class="sd">        &gt;&gt;&gt; df = geost.pandas_dataframe(</span>
+<span class="sd">        ...     {</span>
+<span class="sd">        ...         "nr": ["A", "A", "A", "A", "A", "B", "B", "B", "B", "B"],</span>
+<span class="sd">        ...         "surface": [0.2, 0.2, 0.2, 0.2, 0.2, 0.3, 0.3, 0.3, 0.3, 0.3],</span>
+<span class="sd">        ...         "top": [0.0, 0.8, 1.5, 2.5, 3.7, 0.0, 0.6, 1.2, 2.5, 3.1],</span>
+<span class="sd">        ...         "bottom": [0.8, 1.5, 2.5, 3.7, 4.2, 0.6, 1.2, 2.5, 3.1, 3.9],</span>
+<span class="sd">        ...         "resistance": [0.25, 0.95, 0.19, 0.18, 0.35, 0.23, 0.67, 0.12, 0.9, 0.86],</span>
+<span class="sd">        ...     }</span>
+<span class="sd">        ... )</span>
+<span class="sd">        &gt;&gt;&gt; df["gradient"] = df.gst.calculate_gradient("resistance")</span>
+<span class="sd">        &gt;&gt;&gt; df</span>
+<span class="sd">          nr  surface  top  bottom  resistance  gradient</span>
+<span class="sd">        0  A      0.2  0.0     0.8        0.25  0.000000</span>
+<span class="sd">        1  A      0.2  0.8     1.5        0.95  0.933333</span>
+<span class="sd">        2  A      0.2  1.5     2.5        0.19 -0.894118</span>
+<span class="sd">        3  A      0.2  2.5     3.7        0.18 -0.009091</span>
+<span class="sd">        4  A      0.2  3.7     4.2        0.35  0.200000</span>
+<span class="sd">        5  B      0.3  0.0     0.6        0.23  0.000000</span>
+<span class="sd">        6  B      0.3  0.6     1.2        0.67  0.733333</span>
+<span class="sd">        7  B      0.3  1.2     2.5        0.12 -0.578947</span>
+<span class="sd">        8  B      0.3  2.5     3.1        0.90  0.821053</span>
+<span class="sd">        9  B      0.3  3.1     3.9        0.86 -0.057143</span>
+
+<span class="sd">        We can create the segment column with the threshold 0.5 and add it as a column to</span>
+<span class="sd">        the DataFrame:</span>
+
+<span class="sd">        &gt;&gt;&gt; df["segment"] = df.gst.segmentize_by_gradient("resistance", 0.5)</span>
+<span class="sd">        &gt;&gt;&gt; df</span>
+<span class="sd">          nr  surface  top  bottom  resistance  gradient  segment</span>
+<span class="sd">        0  A      0.2  0.0     0.8        0.25  0.000000        1</span>
+<span class="sd">        1  A      0.2  0.8     1.5        0.95  0.933333        2</span>
+<span class="sd">        2  A      0.2  1.5     2.5        0.19 -0.894118        3</span>
+<span class="sd">        3  A      0.2  2.5     3.7        0.18 -0.009091        3</span>
+<span class="sd">        4  A      0.2  3.7     4.2        0.35  0.200000        3</span>
+<span class="sd">        5  B      0.3  0.0     0.6        0.23  0.000000        4</span>
+<span class="sd">        6  B      0.3  0.6     1.2        0.67  0.733333        5</span>
+<span class="sd">        7  B      0.3  1.2     2.5        0.12 -0.578947        6</span>
+<span class="sd">        8  B      0.3  2.5     3.1        0.90  0.821053        7</span>
+<span class="sd">        9  B      0.3  3.1     3.9        0.86 -0.057143        7</span>
+
+<span class="sd">        """</span>
+        <span class="n">gradient</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">calculate_gradient</span><span class="p">(</span><span class="n">column</span><span class="p">,</span> <span class="n">use_mid_depth</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">((</span><span class="n">gradient</span><span class="o">.</span><span class="n">abs</span><span class="p">()</span> <span class="o">&gt;</span> <span class="n">threshold</span><span class="p">)</span> <span class="o">|</span> <span class="bp">self</span><span class="o">.</span><span class="n">first_row_survey</span><span class="p">)</span><span class="o">.</span><span class="n">cumsum</span><span class="p">()</span></div>
 </div>
 
 </pre></div>
@@ -3150,8 +3342,8 @@
   </div>
   
   <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script defer src="../../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be"></script>
-<script defer src="../../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be"></script>
+  <script defer src="../../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8"></script>
+<script defer src="../../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8"></script>
 
   <footer class="bd-footer">
 <div class="bd-footer__inner bd-page-width">
@@ -3184,7 +3376,7 @@
         <div class="footer-item">
 <p class="theme-version">
   <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
-  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.23.0.
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.24.0.
 </p></div>
       
     </div>

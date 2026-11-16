@@ -40,10 +40,14 @@ Analysis
 .. autosummary::
    :toctree: generated/
 
+   GeostFrame.calculate_gradient
+   GeostFrame.calculate_mid_depth
    GeostFrame.calculate_thickness
+   GeostFrame.compute_discretized_fractions
    GeostFrame.get_cumulative_thickness
    GeostFrame.get_layer_base
    GeostFrame.get_layer_top
+   GeostFrame.segmentize_by_gradient
 
 Coordinate Reference System
 -----------------------------
@@ -120,3 +124,4 @@ Attributes
    GeostFrame.is_layered
    GeostFrame.last_row_survey
    GeostFrame.nr
+   GeostFrame.positional_columns

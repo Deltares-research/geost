@@ -1,0 +1,6 @@
+﻿geost.base.Collection.segmentize\_by\_gradient
+==============================================
+
+.. currentmodule:: geost.base
+
+.. automethod:: Collection.segmentize_by_gradient

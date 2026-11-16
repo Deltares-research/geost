@@ -15,10 +15,12 @@ Analysis
 .. autosummary::
    :toctree: generated/
 
+   Collection.calculate_gradient
    Collection.compute_discretized_fractions
    Collection.get_cumulative_thickness
    Collection.get_layer_base
    Collection.get_layer_top
+   Collection.segmentize_by_gradient
 
 
 Coordinate Reference System
@@ -55,6 +57,7 @@ Generic
 .. autosummary::
    :toctree: generated/
 
+   Collection.add_columns
    Collection.add_header_column_to_data
    Collection.reset_header
    Collection.synchronize_tables
@@ -106,4 +109,5 @@ Attributes
    Collection.has_inclined
    Collection.header
    Collection.n_points
+   Collection.positional_columns
    Collection.vertical_datum

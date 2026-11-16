@@ -16,6 +16,8 @@
       ~GeostFrame.__init__
       ~GeostFrame.add_model_data
       ~GeostFrame.aggregate_consecutive_layers
+      ~GeostFrame.calculate_gradient
+      ~GeostFrame.calculate_mid_depth
       ~GeostFrame.calculate_thickness
       ~GeostFrame.compute_discretized_fractions
       ~GeostFrame.create_linestrings_3d
@@ -25,6 +27,7 @@
       ~GeostFrame.get_layer_base
       ~GeostFrame.get_layer_top
       ~GeostFrame.merge_sorted
+      ~GeostFrame.segmentize_by_gradient
       ~GeostFrame.select_by_condition
       ~GeostFrame.select_by_elevation
       ~GeostFrame.select_by_length

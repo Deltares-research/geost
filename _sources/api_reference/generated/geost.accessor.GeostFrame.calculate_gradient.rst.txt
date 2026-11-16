@@ -1,0 +1,6 @@
+﻿geost.accessor.GeostFrame.calculate\_gradient
+=============================================
+
+.. currentmodule:: geost.accessor
+
+.. automethod:: GeostFrame.calculate_gradient

@@ -1,0 +1,6 @@
+﻿geost.accessor.GeostFrame.compute\_discretized\_fractions
+=========================================================
+
+.. currentmodule:: geost.accessor
+
+.. automethod:: GeostFrame.compute_discretized_fractions

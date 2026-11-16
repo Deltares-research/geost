@@ -14,9 +14,11 @@
    .. autosummary::
    
       ~Collection.__init__
+      ~Collection.add_columns
       ~Collection.add_header_column_to_data
       ~Collection.add_model_data
       ~Collection.aggregate_consecutive_layers
+      ~Collection.calculate_gradient
       ~Collection.compute_discretized_fractions
       ~Collection.determine_end_depth
       ~Collection.find_point_pairs
@@ -25,6 +27,7 @@
       ~Collection.get_layer_base
       ~Collection.get_layer_top
       ~Collection.reset_header
+      ~Collection.segmentize_by_gradient
       ~Collection.select_by_condition
       ~Collection.select_by_elevation
       ~Collection.select_by_length
@@ -64,11 +67,13 @@
    
       ~Collection.crs
       ~Collection.data
+      ~Collection.empty
       ~Collection.has_inclined
       ~Collection.header
       ~Collection.header_has_geometry
       ~Collection.header_to_data_index
       ~Collection.n_points
+      ~Collection.positional_columns
       ~Collection.vertical_datum
    
    

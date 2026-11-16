@@ -25,25 +25,25 @@
   </noscript>
   
   <!-- Loaded before other Sphinx assets -->
-  <link href="../../_static/styles/theme.css?digest=18bd87630a240e9c25be" rel="stylesheet" />
-<link href="../../_static/styles/pydata-sphinx-theme.css?digest=18bd87630a240e9c25be" rel="stylesheet" />
+  <link href="../../_static/styles/theme.css?digest=75c7c72ae941e8b558d8" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=75c7c72ae941e8b558d8" rel="stylesheet" />
 
     <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="../../_static/mystnb.11b39860a7a0cbfd473a3ad8a317855267ff0bd372690045ca344a6b62be495e.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=6e1425e8" />
-    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=6a604523" />
     <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=6e1425e8" />
   
   <!-- So that users can add custom icons -->
-  <script defer src="../../_static/scripts/fontawesome.js?digest=18bd87630a240e9c25be"></script>
+  <script defer src="../../_static/scripts/fontawesome.js?digest=75c7c72ae941e8b558d8"></script>
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
-<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8" />
 
     <script src="../../_static/documentation_options.js?v=5929fcd5"></script>
     <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
-    <script src="../../_static/design-tabs.js?v=f930bc37"></script>
+    <script data-sd-tabs-storage-prefix="sphinx-design-tab-id-" src="../../_static/design-tabs.js?v=fcb327ea"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = '_modules/geost/base';</script>
     <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
     <link rel="icon" href="../../_static/geost_logo.png"/>
@@ -53,7 +53,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="color-scheme" content="light dark"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="0.5.1" />
+  <meta name="docsearch:version" content="0.6.0" />
   
     
     <script src="../../_static/searchtools.js"></script>
@@ -101,7 +101,7 @@
   
     <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
 <div class="bd-header__inner bd-page-width">
-  <button type="button" class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+  <button type="button" class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation" aria-expanded="false" aria-controls="pst-primary-sidebar-modal">
     <span class="fa-solid fa-bars"></span>
   </button>
   
@@ -229,14 +229,14 @@
 
 <div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
   <button type="button" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
-    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
-    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
-    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto" title="System Settings"></i>
   </button>
   <ul class="dropdown-menu dropdown-menu-end">
-    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
-    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
-    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg me-1"></i>System Settings</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg me-1"></i>Light</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg me-1"></i>Dark</button></li>
   </ul>
 </div></div>
       
@@ -294,7 +294,7 @@
       
         
       
-      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <dialog id="pst-primary-sidebar-modal" tabindex="-1"></dialog>
       <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar hide-on-wide">
         
 
@@ -379,14 +379,14 @@
 
 <div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
   <button type="button" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
-    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
-    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
-    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto" title="System Settings"></i>
   </button>
   <ul class="dropdown-menu dropdown-menu-end">
-    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
-    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
-    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg me-1"></i>System Settings</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg me-1"></i>Light</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg me-1"></i>Dark</button></li>
   </ul>
 </div></div>
         
@@ -452,7 +452,7 @@
     
     <li class="breadcrumb-item breadcrumb-home">
       <a href="../../index.html" class="nav-link" aria-label="Home">
-        <i class="fa-solid fa-home"></i>
+        <i class="fa-solid fa-house"></i>
       </a>
     </li>
     
@@ -571,17 +571,11 @@
         <span class="c1"># data is not None in both conditions below, otherwise header and data are always empty</span>
         <span class="k">elif</span> <span class="n">header</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">header</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
             <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">"Header is None, setting the header from the given data."</span><span class="p">)</span>
-            <span class="n">survey_id_col</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_survey_id_col</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="s2">"Data"</span><span class="p">)</span>
             <span class="n">header</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">gst</span><span class="o">.</span><span class="n">to_header</span><span class="p">()</span>
+            <span class="n">survey_id_col</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">gst</span><span class="o">.</span><span class="n">_nr</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">survey_id_col_header</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_survey_id_col</span><span class="p">(</span><span class="n">header</span><span class="p">,</span> <span class="s2">"Header"</span><span class="p">)</span>
-            <span class="n">survey_id_col</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_survey_id_col</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="s2">"Data"</span><span class="p">)</span>
-
-            <span class="k">if</span> <span class="n">survey_id_col</span> <span class="o">!=</span> <span class="n">survey_id_col_header</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                    <span class="s2">"Column identifying survey IDs in data and header must have the same name. "</span>
-                    <span class="sa">f</span><span class="s2">"Found '</span><span class="si">{</span><span class="n">survey_id_col</span><span class="si">}</span><span class="s2">' in data and '</span><span class="si">{</span><span class="n">survey_id_col_header</span><span class="si">}</span><span class="s2">' in header."</span>
-                <span class="p">)</span>
+            <span class="n">header</span><span class="p">,</span> <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_positional_columns_alignment</span><span class="p">(</span><span class="n">header</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
+            <span class="n">survey_id_col</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">gst</span><span class="o">.</span><span class="n">_nr</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_nr</span> <span class="o">=</span> <span class="n">survey_id_col</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">header</span> <span class="o">=</span> <span class="n">header</span>
@@ -593,41 +587,164 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_has_inclined</span> <span class="o">=</span> <span class="n">has_inclined</span></div>
 
 
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_check_positional_columns_alignment</span><span class="p">(</span>
+        <span class="n">header</span><span class="p">:</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Helper method for the ``Collection`` constructor to perform a two-way check for</span>
+<span class="sd">        alignment between positional column names of a given ``header`` and ``data`` table.</span>
+<span class="sd">        Column names that don't match are renamed in the header.</span>
+
+<span class="sd">        """</span>
+        <span class="n">columns_need_alignment</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"nr"</span><span class="p">,</span> <span class="s2">"surface"</span><span class="p">,</span> <span class="s2">"end"</span><span class="p">,</span> <span class="s2">"x"</span><span class="p">,</span> <span class="s2">"y"</span><span class="p">]</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">header_cols</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="n">header</span><span class="o">.</span><span class="n">gst</span><span class="o">.</span><span class="n">positional_columns</span>
+        <span class="k">except</span> <span class="n">MissingSurveyIDError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">MissingSurveyIDError</span><span class="p">(</span>
+                <span class="s2">"Header table must contain a column identifying the survey IDs."</span>
+            <span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">e</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">data_cols</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">gst</span><span class="o">.</span><span class="n">positional_columns</span>
+        <span class="k">except</span> <span class="n">MissingSurveyIDError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">MissingSurveyIDError</span><span class="p">(</span>
+                <span class="s2">"Data table must contain a column identifying the survey IDs."</span>
+            <span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">e</span>
+
+        <span class="n">to_rename</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">columns_need_alignment</span><span class="p">:</span>
+            <span class="n">header_name</span> <span class="o">=</span> <span class="n">header_cols</span><span class="p">[</span><span class="n">col</span><span class="p">]</span>
+            <span class="n">data_name</span> <span class="o">=</span> <span class="n">data_cols</span><span class="p">[</span><span class="n">col</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">header_name</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">data_name</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="k">if</span> <span class="n">header_name</span> <span class="o">!=</span> <span class="n">data_name</span><span class="p">:</span>
+                <span class="n">to_rename</span><span class="p">[</span><span class="n">header_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">data_name</span>
+
+        <span class="k">if</span> <span class="n">to_rename</span><span class="p">:</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">"Header and data positional columns did not match. Renamed columns in header: </span><span class="si">{</span><span class="n">to_rename</span><span class="si">}</span><span class="s2">"</span>
+            <span class="p">)</span>
+            <span class="n">header</span> <span class="o">=</span> <span class="n">header</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="n">to_rename</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">header</span><span class="p">,</span> <span class="n">data</span>
+
     <span class="k">def</span><span class="w"> </span><span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="n">repr_</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="se">\n</span><span class="s2">"</span>
+        <span class="n">positional_columns</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_format_positional_columns</span><span class="p">()</span>
+        <span class="n">data_columns</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_format_data_columns</span><span class="p">()</span>
+        <span class="n">structure_str</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="sa">f</span><span class="s2">"&lt;geost.</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">&gt;</span><span class="se">\n</span><span class="s2">"</span>
             <span class="sa">f</span><span class="s2">"  header (rows, columns) : </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">header</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="se">\n</span><span class="s2">"</span>
             <span class="sa">f</span><span class="s2">"  data (rows, columns)   : </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="se">\n</span><span class="s2">"</span>
+        <span class="p">)</span>
+        <span class="n">columns_str</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="p">(</span>
+                <span class="s2">"Positional columns:</span><span class="se">\n</span><span class="s2">"</span>
+                <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="s1">'</span><span class="se">\n</span><span class="s1">'</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">positional_columns</span><span class="p">)</span><span class="si">}</span><span class="se">\n</span><span class="s2">"</span>
+                <span class="s2">"Data columns:</span><span class="se">\n</span><span class="s2">"</span>
+                <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="s1">'</span><span class="se">\n</span><span class="s1">'</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">data_columns</span><span class="p">)</span><span class="si">}</span><span class="se">\n</span><span class="s2">"</span>
+            <span class="p">)</span>
+            <span class="k">if</span> <span class="n">positional_columns</span> <span class="ow">and</span> <span class="n">data_columns</span>
+            <span class="k">else</span> <span class="p">(</span><span class="s2">"Positional columns:</span><span class="se">\n</span><span class="s2">  &lt;empty&gt;</span><span class="se">\n</span><span class="s2">Data columns:</span><span class="se">\n</span><span class="s2">  &lt;empty&gt;</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">metadata_str</span> <span class="o">=</span> <span class="p">(</span>
             <span class="sa">f</span><span class="s2">"crs: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">crs</span><span class="o">.</span><span class="n">name</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">crs</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="kc">None</span><span class="si">}</span><span class="se">\n</span><span class="s2">"</span>
             <span class="sa">f</span><span class="s2">"vertical datum: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">vertical_datum</span><span class="o">.</span><span class="n">name</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">vertical_datum</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="kc">None</span><span class="si">}</span><span class="se">\n</span><span class="s2">"</span>
         <span class="p">)</span>
+        <span class="n">repr_</span> <span class="o">=</span> <span class="n">structure_str</span> <span class="o">+</span> <span class="n">columns_str</span> <span class="o">+</span> <span class="n">metadata_str</span>
         <span class="k">return</span> <span class="n">repr_</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_format_positional_columns</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>  <span class="c1"># pragma: no cover</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Helper to create formatted positional columns for the Collection repr, showing</span>
+<span class="sd">        the column name, if they appear in header and/or data and the data type.</span>
+
+<span class="sd">        """</span>
+        <span class="n">rows</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">positional_columns</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">col</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="n">in_header</span> <span class="o">=</span> <span class="n">col</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">header</span><span class="o">.</span><span class="n">columns</span>
+            <span class="n">in_data</span> <span class="o">=</span> <span class="n">col</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">columns</span>
+            <span class="k">if</span> <span class="n">in_header</span> <span class="ow">and</span> <span class="n">in_data</span><span class="p">:</span>
+                <span class="n">loc</span> <span class="o">=</span> <span class="s2">"(header, data)"</span>
+            <span class="k">elif</span> <span class="n">in_header</span><span class="p">:</span>
+                <span class="n">loc</span> <span class="o">=</span> <span class="s2">"(header)"</span>
+            <span class="k">elif</span> <span class="n">in_data</span><span class="p">:</span>
+                <span class="n">loc</span> <span class="o">=</span> <span class="s2">"(data)"</span>
+            <span class="n">dtype</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">dtype</span> <span class="k">if</span> <span class="n">in_data</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">header</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">dtype</span>
+            <span class="n">rows</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">col</span><span class="p">,</span> <span class="n">loc</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">dtype</span><span class="p">)))</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">rows</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">[]</span>
+
+        <span class="n">name_width</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">r</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">rows</span><span class="p">)</span>
+        <span class="n">lines</span> <span class="o">=</span> <span class="p">[</span><span class="sa">f</span><span class="s2">"  </span><span class="si">{</span><span class="n">n</span><span class="si">:</span><span class="s2">&lt;</span><span class="si">{</span><span class="n">name_width</span><span class="si">}}</span><span class="s2"> </span><span class="si">{</span><span class="n">lo</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">d</span><span class="si">}</span><span class="s2">"</span> <span class="k">for</span> <span class="n">n</span><span class="p">,</span> <span class="n">lo</span><span class="p">,</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">rows</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">lines</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_format_data_columns</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>  <span class="c1"># pragma: no cover</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Helper to create formatted data columns for the Collection repr, showing the column</span>
+<span class="sd">        name, if they appear in header or data and the data type.</span>
+
+<span class="sd">        """</span>
+        <span class="n">positional_columns</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="n">v</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">positional_columns</span><span class="o">.</span><span class="n">values</span><span class="p">()</span> <span class="k">if</span> <span class="n">v</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+        <span class="p">}</span>
+        <span class="n">rows</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">header</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">positional_columns</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="n">rows</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">col</span><span class="p">,</span> <span class="s2">"(header)"</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">header</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">dtype</span><span class="p">)))</span>
+
+        <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">positional_columns</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="n">rows</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">col</span><span class="p">,</span> <span class="s2">"(data)"</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">dtype</span><span class="p">)))</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">rows</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">[]</span>
+
+        <span class="n">name_width</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">r</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">rows</span><span class="p">)</span>
+        <span class="n">lines</span> <span class="o">=</span> <span class="p">[</span><span class="sa">f</span><span class="s2">"  </span><span class="si">{</span><span class="n">n</span><span class="si">:</span><span class="s2">&lt;</span><span class="si">{</span><span class="n">name_width</span><span class="si">}}</span><span class="s2"> </span><span class="si">{</span><span class="n">lo</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">d</span><span class="si">}</span><span class="s2">"</span> <span class="k">for</span> <span class="n">n</span><span class="p">,</span> <span class="n">lo</span><span class="p">,</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">rows</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">lines</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">9</span><span class="p">:</span>
+            <span class="n">lines</span> <span class="o">=</span> <span class="n">lines</span><span class="p">[:</span><span class="mi">4</span><span class="p">]</span> <span class="o">+</span> <span class="p">[</span><span class="s2">"  ..."</span><span class="p">]</span> <span class="o">+</span> <span class="n">lines</span><span class="p">[</span><span class="o">-</span><span class="mi">4</span><span class="p">:]</span>
+
+        <span class="k">return</span> <span class="n">lines</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">header</span><span class="p">)</span>
 
-    <span class="nd">@staticmethod</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">_check_survey_id_col</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">df_name</span><span class="p">):</span>
-        <span class="k">try</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">df</span><span class="o">.</span><span class="n">gst</span><span class="o">.</span><span class="n">_nr</span>
-        <span class="k">except</span> <span class="n">MissingSurveyIDError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">MissingSurveyIDError</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">df_name</span><span class="si">}</span><span class="s2"> table must contain a column identifying the survey IDs."</span>
-            <span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">e</span>
-
     <span class="nd">@property</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">header</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">header</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        The collection's header.</span>
 <span class="sd">        """</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_header</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">data</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">data</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        The collection's data.</span>
 <span class="sd">        """</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">positional_columns</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Return a dictionary which columns are used in the header and data tables.</span>
+
+<span class="sd">        """</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">header_cols</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">header</span><span class="o">.</span><span class="n">gst</span><span class="o">.</span><span class="n">positional_columns</span>
+            <span class="n">data_cols</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">gst</span><span class="o">.</span><span class="n">positional_columns</span>
+        <span class="k">except</span> <span class="n">MissingSurveyIDError</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">{}</span>
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="n">k</span><span class="p">:</span> <span class="n">data_cols</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="k">if</span> <span class="n">data_cols</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">header_cols</span><span class="p">[</span><span class="n">k</span><span class="p">]</span>
+            <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">data_cols</span>
+        <span class="p">}</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">n_points</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -635,6 +752,10 @@
 <span class="sd">        Number of objects in the collection.</span>
 <span class="sd">        """</span>
         <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">empty</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">header</span><span class="o">.</span><span class="n">empty</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">empty</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">crs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -698,13 +819,12 @@
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">header</span><span class="p">,</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">):</span>
             <span class="n">header</span> <span class="o">=</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">(</span><span class="n">header</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">header</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">header</span><span class="o">.</span><span class="n">_geometry_column_name</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
-                    <span class="s2">"Setting the header without an active geometry column. Spatial methods "</span>
-                    <span class="s2">"will not work. Use collection.set_geometry to set an active geometry "</span>
-                    <span class="s2">"column."</span>
-                <span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">header</span><span class="o">.</span><span class="n">empty</span> <span class="ow">and</span> <span class="n">header</span><span class="o">.</span><span class="n">_geometry_column_name</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+                <span class="s2">"Setting the header without an active geometry column. Spatial methods "</span>
+                <span class="s2">"will not work. Use collection.set_geometry to set an active geometry "</span>
+                <span class="s2">"column."</span>
+            <span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_header</span> <span class="o">=</span> <span class="n">header</span>
 
@@ -724,9 +844,8 @@
 <span class="sd">        Sets a new data table and performs an alignment check with the data table.</span>
 
 <span class="sd">        """</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">data</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="n">config</span><span class="o">.</span><span class="n">validation</span><span class="o">.</span><span class="n">SKIP</span><span class="p">:</span>
-                <span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">gst</span><span class="o">.</span><span class="n">validate</span><span class="p">()</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">data</span><span class="o">.</span><span class="n">empty</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">config</span><span class="o">.</span><span class="n">validation</span><span class="o">.</span><span class="n">SKIP</span><span class="p">:</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">gst</span><span class="o">.</span><span class="n">validate</span><span class="p">()</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_data</span> <span class="o">=</span> <span class="n">data</span>
 
@@ -898,6 +1017,93 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_synchronize_tables</span><span class="p">(</span><span class="n">how</span><span class="p">,</span> <span class="n">in_both</span><span class="p">,</span> <span class="n">only_in_header</span><span class="p">,</span> <span class="n">only_in_data</span><span class="p">)</span></div>
 
         <span class="c1"># TODO: Maybe not only make this operation inplace</span>
+
+<div class="viewcode-block" id="Collection.add_columns">
+<a class="viewcode-back" href="../../api_reference/generated/geost.base.Collection.add_columns.html#geost.base.Collection.add_columns">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">add_columns</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">columns</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">to</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"data"</span><span class="p">,</span> <span class="n">inplace</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Collection</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Add columns to the header or data table of the ``Collection``.</span>
+
+<span class="sd">        Adds new columns to either the header or data table using</span>
+<span class="sd">        :meth:`pandas.DataFrame.assign`. The columns can be provided either as a</span>
+<span class="sd">        dictionary or as keyword arguments.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        columns : dict, optional</span>
+<span class="sd">            Dictionary of column names and values to add, can also be provided as keyword</span>
+<span class="sd">            arguments (see **kwargs). The default is None.</span>
+<span class="sd">        to : str, optional</span>
+<span class="sd">            Table to add columns to, either "data" or "header". The default is "data".</span>
+<span class="sd">        inplace : bool, optional</span>
+<span class="sd">            If True, modify the current Collection and return None. If False, return a</span>
+<span class="sd">            new Collection with the added columns. The default is False.</span>
+<span class="sd">        **kwargs</span>
+<span class="sd">            Columns to add, provided as keyword arguments. These are merged</span>
+<span class="sd">            with the ``columns`` dictionary.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        :class:`~geost.base.Collection` or None</span>
+<span class="sd">            If inplace=False, returns a new Collection instance with the added columns.</span>
+<span class="sd">            If inplace=True, returns None and modifies the current Collection.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        ValueError</span>
+<span class="sd">            If ``to`` is not "data" or "header".</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        Add a single column to the data table using keyword arguments:</span>
+
+<span class="sd">        &gt;&gt;&gt; collection_new = collection.add_columns(column_name=new_values)</span>
+
+<span class="sd">        Add multiple columns to the header table in place:</span>
+
+<span class="sd">        &gt;&gt;&gt; collection.add_columns(</span>
+<span class="sd">        ...     columns={"column1": values1, "column2": values2},</span>
+<span class="sd">        ...     to="header",</span>
+<span class="sd">        ...     inplace=True</span>
+<span class="sd">        ... )</span>
+
+<span class="sd">        Get the same result with providing them as kwargs:</span>
+
+<span class="sd">        &gt;&gt;&gt; collection.add_columns(column1=values1, column2=values2, to="header", inplace=True)</span>
+
+<span class="sd">        """</span>
+        <span class="k">if</span> <span class="n">to</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">"data"</span><span class="p">,</span> <span class="s2">"header"</span><span class="p">]:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"Invalid table for add_columns, use 'data' or 'header'."</span><span class="p">)</span>
+
+        <span class="n">merged_columns</span> <span class="o">=</span> <span class="p">{</span><span class="o">**</span><span class="p">(</span><span class="n">columns</span> <span class="ow">or</span> <span class="p">{}),</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">}</span>
+
+        <span class="k">if</span> <span class="n">to</span> <span class="o">==</span> <span class="s2">"data"</span><span class="p">:</span>
+            <span class="n">new_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="o">**</span><span class="n">merged_columns</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">inplace</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="n">new_data</span>
+                <span class="k">return</span> <span class="kc">None</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span>
+                    <span class="n">new_data</span><span class="p">,</span>
+                    <span class="n">header</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">header</span><span class="o">.</span><span class="n">copy</span><span class="p">(),</span>
+                    <span class="n">has_inclined</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">has_inclined</span><span class="p">,</span>
+                    <span class="n">vertical_datum</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">vertical_datum</span><span class="p">,</span>
+                <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">new_header</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">header</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="o">**</span><span class="n">merged_columns</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">inplace</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">header</span> <span class="o">=</span> <span class="n">new_header</span>
+                <span class="k">return</span> <span class="kc">None</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">copy</span><span class="p">(),</span>
+                    <span class="n">header</span><span class="o">=</span><span class="n">new_header</span><span class="p">,</span>
+                    <span class="n">has_inclined</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">has_inclined</span><span class="p">,</span>
+                    <span class="n">vertical_datum</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">vertical_datum</span><span class="p">,</span>
+                <span class="p">)</span></div>
+
 
 <div class="viewcode-block" id="Collection.add_header_column_to_data">
 <a class="viewcode-back" href="../../api_reference/generated/geost.base.Collection.add_header_column_to_data.html#geost.base.Collection.add_header_column_to_data">[docs]</a>
@@ -1922,6 +2128,225 @@
         <span class="p">)</span></div>
 
 
+<div class="viewcode-block" id="Collection.calculate_gradient">
+<a class="viewcode-back" href="../../api_reference/generated/geost.base.Collection.calculate_gradient.html#geost.base.Collection.calculate_gradient">[docs]</a>
+    <span class="nd">@_requires_depth</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">calculate_gradient</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">column</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">output_column</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">use_mid_depth</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="n">inplace</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Collection</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Calculate the rate of change (i.e. "gradient") over depth of a value column per</span>
+<span class="sd">        survey in the `Collection`'s data table.</span>
+
+<span class="sd">        The gradient is computed as the difference between consecutive rows of `column`,</span>
+<span class="sd">        divided by the difference between the corresponding depths. The first row of each</span>
+<span class="sd">        survey has no preceding row and is therefore set to 0.0.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        column : str</span>
+<span class="sd">            Name of the numeric column for which to calculate the gradient.</span>
+<span class="sd">        output_column : str, optional</span>
+<span class="sd">            Name of the column to store the gradient.</span>
+<span class="sd">        use_mid_depth : bool, optional</span>
+<span class="sd">            If True, the gradient is calculated over the mid depth of each interval. If</span>
+<span class="sd">            False, the bottom depth of each interval is used. The default is True.</span>
+<span class="sd">        inplace : bool, optional</span>
+<span class="sd">            If True, add the gradient to the data table of the current ``Collection``. In</span>
+<span class="sd">            this case, the method returns ``None``. Otherwise, return a new ``Collection``</span>
+<span class="sd">            instance with the gradient added in the data table. The default is False.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        :class:`~geost.base.Collection` or ``None``</span>
+<span class="sd">            New ``Collection`` with the gradient added to the data table, or None if</span>
+<span class="sd">            ``inplace=True``.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        TypeError</span>
+<span class="sd">            If `column` is not of a numeric dtype.</span>
+
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        This method operates on the data table of the ``Collection`` and assumes that the</span>
+<span class="sd">        rows are sorted by survey and ascending depth.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; result = collection.calculate_gradient("value") # Creates new Collection</span>
+<span class="sd">        &gt;&gt;&gt; collection.calculate_gradient("value", use_mid_depth=False, inplace=True) # Modifies the current Collection</span>
+
+<span class="sd">        """</span>
+        <span class="k">if</span> <span class="n">column</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">column</span><span class="si">}</span><span class="s2"> is not found in `Collection.data`."</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">output_column</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">output_column</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">column</span><span class="si">}</span><span class="s2">_gradient"</span>
+
+        <span class="n">gradient</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">gst</span><span class="o">.</span><span class="n">calculate_gradient</span><span class="p">(</span><span class="n">column</span><span class="p">,</span> <span class="n">use_mid_depth</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">inplace</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">[</span><span class="n">output_column</span><span class="p">]</span> <span class="o">=</span> <span class="n">gradient</span>
+            <span class="k">return</span> <span class="kc">None</span>
+
+        <span class="n">new_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">new_data</span><span class="p">[</span><span class="n">output_column</span><span class="p">]</span> <span class="o">=</span> <span class="n">gradient</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span>
+            <span class="n">new_data</span><span class="p">,</span>
+            <span class="n">header</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">header</span><span class="o">.</span><span class="n">copy</span><span class="p">(),</span>
+            <span class="n">has_inclined</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">has_inclined</span><span class="p">,</span>
+            <span class="n">vertical_datum</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">vertical_datum</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Collection.segmentize_by_gradient">
+<a class="viewcode-back" href="../../api_reference/generated/geost.base.Collection.segmentize_by_gradient.html#geost.base.Collection.segmentize_by_gradient">[docs]</a>
+    <span class="nd">@_requires_depth</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">segmentize_by_gradient</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">column</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">threshold</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+        <span class="n">output_column</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">use_mid_depth</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="n">inplace</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Collection</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Segmentize the data based on gradient changes in a column of the data table. A</span>
+<span class="sd">        segment is made up of consecutive rows where the gradient of ``column`` is below</span>
+<span class="sd">        a specified ``threshold`` and a new segment begins when the threshold is exceeded.</span>
+<span class="sd">        Each segment gets a unique number.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        column : str</span>
+<span class="sd">            Column to determine the segments from.</span>
+<span class="sd">        threshold : float</span>
+<span class="sd">            Minimum gradient change to create a new segment.</span>
+<span class="sd">        output_column : str | None, optional</span>
+<span class="sd">            Name of the column to store segment numbers. The default is None, then the</span>
+<span class="sd">            name will that of the column with a "_segment" suffix.</span>
+<span class="sd">        use_mid_depth : bool, optional</span>
+<span class="sd">            Whether to use mid-depth for gradient. The default is True.</span>
+<span class="sd">        inplace : bool, optional</span>
+<span class="sd">            If True, add the result to the data table of the current ``Collection``. In</span>
+<span class="sd">            this case, the method returns ``None``. Otherwise, return a new ``Collection``</span>
+<span class="sd">            instance with the result added in the data table. The default is False.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        :class:`~geost.base.Collection` or ``None``</span>
+<span class="sd">            New ``Collection`` with the gradient added to the data table, or None if</span>
+<span class="sd">            ``inplace=True``.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        KeyError</span>
+<span class="sd">            If the column is not found in the data.</span>
+<span class="sd">        TypeError</span>
+<span class="sd">            If `column` is not of a numeric dtype.</span>
+
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        This method operates on the data table of the ``Collection`` and assumes that the</span>
+<span class="sd">        rows are sorted by survey and ascending depth.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        Suppose we have a ``Collection`` with a "resistance" in MPa for each layer in the</span>
+<span class="sd">        data table. We want to create segments of consecutive rows where the resistance</span>
+<span class="sd">        does not change more than 0.5 MPa per meters. First, we calculate the gradient of</span>
+<span class="sd">        the "resistance" column so we can use this to inspect the result of</span>
+<span class="sd">        ``segmentize_by_gradient``:</span>
+
+<span class="sd">        &gt;&gt;&gt; import geost</span>
+<span class="sd">        &gt;&gt;&gt; collection = geost.Collection(</span>
+<span class="sd">        ...     {</span>
+<span class="sd">        ...         "nr": ["A", "A", "A", "A", "A", "B", "B", "B", "B", "B"],</span>
+<span class="sd">        ...         "surface": [0.2, 0.2, 0.2, 0.2, 0.2, 0.3, 0.3, 0.3, 0.3, 0.3],</span>
+<span class="sd">        ...         "top": [0.0, 0.8, 1.5, 2.5, 3.7, 0.0, 0.6, 1.2, 2.5, 3.1],</span>
+<span class="sd">        ...         "bottom": [0.8, 1.5, 2.5, 3.7, 4.2, 0.6, 1.2, 2.5, 3.1, 3.9],</span>
+<span class="sd">        ...         "resistance": [0.25, 0.95, 0.19, 0.18, 0.35, 0.23, 0.67, 0.12, 0.9, 0.86],</span>
+<span class="sd">        ...     }</span>
+<span class="sd">        ... )</span>
+<span class="sd">        &gt;&gt;&gt; collection = collection.calculate_gradient("resistance")</span>
+<span class="sd">        &gt;&gt;&gt; collection.data</span>
+<span class="sd">          nr  surface  top  bottom  resistance  gradient</span>
+<span class="sd">        0  A      0.2  0.0     0.8        0.25  0.000000</span>
+<span class="sd">        1  A      0.2  0.8     1.5        0.95  0.933333</span>
+<span class="sd">        2  A      0.2  1.5     2.5        0.19 -0.894118</span>
+<span class="sd">        3  A      0.2  2.5     3.7        0.18 -0.009091</span>
+<span class="sd">        4  A      0.2  3.7     4.2        0.35  0.200000</span>
+<span class="sd">        5  B      0.3  0.0     0.6        0.23  0.000000</span>
+<span class="sd">        6  B      0.3  0.6     1.2        0.67  0.733333</span>
+<span class="sd">        7  B      0.3  1.2     2.5        0.12 -0.578947</span>
+<span class="sd">        8  B      0.3  2.5     3.1        0.90  0.821053</span>
+<span class="sd">        9  B      0.3  3.1     3.9        0.86 -0.057143</span>
+
+<span class="sd">        We can create the segment column with the desired threshold of 0.5:</span>
+
+<span class="sd">        &gt;&gt;&gt; collection = collection.segmentize_by_gradient("resistance", 0.5)</span>
+<span class="sd">        &gt;&gt;&gt; collection.data</span>
+<span class="sd">          nr  surface  top  bottom  resistance  gradient  resistance_segment</span>
+<span class="sd">        0  A      0.2  0.0     0.8        0.25  0.000000                   1</span>
+<span class="sd">        1  A      0.2  0.8     1.5        0.95  0.933333                   2</span>
+<span class="sd">        2  A      0.2  1.5     2.5        0.19 -0.894118                   3</span>
+<span class="sd">        3  A      0.2  2.5     3.7        0.18 -0.009091                   3</span>
+<span class="sd">        4  A      0.2  3.7     4.2        0.35  0.200000                   3</span>
+<span class="sd">        5  B      0.3  0.0     0.6        0.23  0.000000                   4</span>
+<span class="sd">        6  B      0.3  0.6     1.2        0.67  0.733333                   5</span>
+<span class="sd">        7  B      0.3  1.2     2.5        0.12 -0.578947                   6</span>
+<span class="sd">        8  B      0.3  2.5     3.1        0.90  0.821053                   7</span>
+<span class="sd">        9  B      0.3  3.1     3.9        0.86 -0.057143                   7</span>
+
+<span class="sd">        Using ``use_mid_depth=False`` changes the result. Also, we can modify the output</span>
+<span class="sd">        column name and modify the existing ``Collection`` without creating a new one:</span>
+
+<span class="sd">        &gt;&gt;&gt; collection.segmentize_by_gradient(</span>
+<span class="sd">        ...     "resistance", 0.5, use_mid_depth=False, output_column="segment", inplace=True</span>
+<span class="sd">        ... )</span>
+<span class="sd">        &gt;&gt;&gt; collection.data</span>
+<span class="sd">          nr  surface  top  bottom  resistance  gradient  segment</span>
+<span class="sd">        0  A      0.2  0.0     0.8        0.25  0.000000        1</span>
+<span class="sd">        1  A      0.2  0.8     1.5        0.95  0.933333        2</span>
+<span class="sd">        2  A      0.2  1.5     2.5        0.19 -0.894118        3</span>
+<span class="sd">        3  A      0.2  2.5     3.7        0.18 -0.009091        3</span>
+<span class="sd">        4  A      0.2  3.7     4.2        0.35  0.200000        3</span>
+<span class="sd">        5  B      0.3  0.0     0.6        0.23  0.000000        4</span>
+<span class="sd">        6  B      0.3  0.6     1.2        0.67  0.733333        5</span>
+<span class="sd">        7  B      0.3  1.2     2.5        0.12 -0.578947        5</span>
+<span class="sd">        8  B      0.3  2.5     3.1        0.90  0.821053        6</span>
+<span class="sd">        9  B      0.3  3.1     3.9        0.86 -0.057143        6</span>
+
+<span class="sd">        """</span>
+        <span class="k">if</span> <span class="n">column</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">column</span><span class="si">}</span><span class="s2"> is not found in `Collection.data`."</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">output_column</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">output_column</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">column</span><span class="si">}</span><span class="s2">_segment"</span>
+
+        <span class="n">segments</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">gst</span><span class="o">.</span><span class="n">segmentize_by_gradient</span><span class="p">(</span>
+            <span class="n">column</span><span class="p">,</span> <span class="n">threshold</span><span class="p">,</span> <span class="n">use_mid_depth</span>
+        <span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">inplace</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">[</span><span class="n">output_column</span><span class="p">]</span> <span class="o">=</span> <span class="n">segments</span>
+            <span class="k">return</span> <span class="kc">None</span>
+
+        <span class="n">new_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">new_data</span><span class="p">[</span><span class="n">output_column</span><span class="p">]</span> <span class="o">=</span> <span class="n">segments</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span>
+            <span class="n">new_data</span><span class="p">,</span>
+            <span class="n">header</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">header</span><span class="o">.</span><span class="n">copy</span><span class="p">(),</span>
+            <span class="n">has_inclined</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">has_inclined</span><span class="p">,</span>
+            <span class="n">vertical_datum</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">vertical_datum</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
+
 <div class="viewcode-block" id="Collection.get_cumulative_thickness">
 <a class="viewcode-back" href="../../api_reference/generated/geost.base.Collection.get_cumulative_thickness.html#geost.base.Collection.get_cumulative_thickness">[docs]</a>
     <span class="nd">@_requires_depth</span>
@@ -1939,7 +2364,7 @@
 <span class="sd">        values : str | list[str]</span>
 <span class="sd">            Search value or values in the column to find the cumulative thickness for.</span>
 <span class="sd">        include_in_header : bool, optional</span>
-<span class="sd">            If True, include the result in the header table of the `Collection`. In this</span>
+<span class="sd">            If True, include the result in the header table of the ``Collection``. In this</span>
 <span class="sd">            case, the method does not return anything (i.e. `None`). If False, a `pandas.Series`</span>
 <span class="sd">            is returned. The default is False.</span>
 
@@ -1978,8 +2403,9 @@
             <span class="p">)</span>
 
             <span class="n">thickness</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">column_name</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">header</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="n">column_name</span><span class="p">,</span> <span class="n">errors</span><span class="o">=</span><span class="s2">"ignore"</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">header</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">header</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">thickness</span><span class="p">,</span> <span class="n">on</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_nr</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s2">"left"</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">header</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">header</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="n">column_name</span><span class="p">,</span> <span class="n">errors</span><span class="o">=</span><span class="s2">"ignore"</span><span class="p">)</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span>
+                <span class="n">thickness</span><span class="p">,</span> <span class="n">on</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_nr</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s2">"left"</span>
+            <span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">thickness</span></div>
 
@@ -2052,7 +2478,7 @@
             <span class="p">)</span>
 
             <span class="n">top</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">column_name</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">header</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="n">column_name</span><span class="p">,</span> <span class="n">errors</span><span class="o">=</span><span class="s2">"ignore"</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">header</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">header</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="n">column_name</span><span class="p">,</span> <span class="n">errors</span><span class="o">=</span><span class="s2">"ignore"</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">header</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">header</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">top</span><span class="p">,</span> <span class="n">on</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_nr</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s2">"left"</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">top</span></div>
@@ -2113,7 +2539,7 @@
                 <span class="n">values</span><span class="p">,</span> <span class="n">prefix</span><span class="o">=</span><span class="n">prefix</span><span class="p">,</span> <span class="n">suffix</span><span class="o">=</span><span class="n">suffix</span>
             <span class="p">)</span>
             <span class="n">base</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">column_name</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">header</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="n">column_name</span><span class="p">,</span> <span class="n">errors</span><span class="o">=</span><span class="s2">"ignore"</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">header</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">header</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="n">column_name</span><span class="p">,</span> <span class="n">errors</span><span class="o">=</span><span class="s2">"ignore"</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">header</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">header</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">base</span><span class="p">,</span> <span class="n">on</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_nr</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s2">"left"</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">base</span></div>
@@ -2126,7 +2552,7 @@
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">column</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="n">discretization</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
-        <span class="n">bins</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="nb">float</span> <span class="o">|</span> <span class="nb">list</span> <span class="o">|</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">bins</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="nb">list</span> <span class="o">|</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">bin_centers_as_columns</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">relative_to_reference</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Collection</span><span class="p">:</span>
@@ -2145,7 +2571,7 @@
 <span class="sd">            layer boundaries. When a DataFrame is provided, a custom discretization per</span>
 <span class="sd">            survey must be provided. Note that in the case of a DataFrame, the result only</span>
 <span class="sd">            contains surveys which had corresponding discretization defined.</span>
-<span class="sd">        bins : int | float | list | np.ndarray, optional</span>
+<span class="sd">        bins : int | list | np.ndarray, optional</span>
 <span class="sd">            Bin definition. A scalar creates two bins (larger than the scalar and smaller</span>
 <span class="sd">            than or equal to the scalar), while a sequence defines internal bin edges and</span>
 <span class="sd">            adds open-ended bins at both ends (unless bin_centers_as_columns is True).</span>
@@ -2237,6 +2663,9 @@
 <span class="sd">        &gt;&gt;&gt; result = collection.aggregate_consecutive_layers(</span>
 <span class="sd">        ...     'lith', {'qc': 'mean', 'fs': 'mean'}</span>
 <span class="sd">        ... )</span>
+
+<span class="sd">        See :meth:`~geost.accessor.GeostFrame.aggregate_consecutive_layers` for more</span>
+<span class="sd">        detailed examples.</span>
 
 <span class="sd">        """</span>
         <span class="n">combined_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">gst</span><span class="o">.</span><span class="n">aggregate_consecutive_layers</span><span class="p">(</span>
@@ -2722,8 +3151,8 @@
   </div>
   
   <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script defer src="../../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be"></script>
-<script defer src="../../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be"></script>
+  <script defer src="../../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8"></script>
+<script defer src="../../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8"></script>
 
   <footer class="bd-footer">
 <div class="bd-footer__inner bd-page-width">
@@ -2756,7 +3185,7 @@
         <div class="footer-item">
 <p class="theme-version">
   <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
-  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.23.0.
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.24.0.
 </p></div>
       
     </div>

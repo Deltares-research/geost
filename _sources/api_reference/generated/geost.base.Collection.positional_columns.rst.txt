@@ -1,0 +1,6 @@
+﻿geost.base.Collection.positional\_columns
+=========================================
+
+.. currentmodule:: geost.base
+
+.. autoproperty:: Collection.positional_columns

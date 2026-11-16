@@ -52,6 +52,10 @@ thickness = model.gst.get_thickness(model["some_variable"] == 2)
 - [`compute_discretized_fractions`](./api_reference/generated/geost.base.Collection.compute_discretized_fractions.rst) method in `Collection` and `.gst` accessor
 - [`find_point_pairs`](./api_reference/generated/geost.base.Collection.find_point_pairs.rst) method in `Collection` and `.gst` accessor
 - [`merge_sorted`](./api_reference/generated/geost.accessor.GeostFrame.merge_sorted.rst) method in `.gst` accessor
+- [`add_columns`](./api_reference/generated/geost.base.Collection.add_column.rst) method in `Collection`
+- [`calculate_gradient`](./api_reference/generated/geost.base.Collection.calculate_gradient.rst) method in `Collection` and `.gst` accessor
+- [`calculate_mid_depth`](./api_reference/generated/geost.accessor.GeostFrame.calculate_mid_depth.rst) method in `.gst` accessor
+- [`segmentize_by_gradient`](./api_reference/generated/geost.base.Collection.segmentize_by_gradient.rst) method in `Collection` and `.gst` accessor
 - [`to_geopackage_3d`](./api_reference/generated/geost.base.Collection.to_geopackage_3d.rst) method in `Collection` and `.gst` accessor for easy visualization and data inspection capability, for instance in QGIS's elevation profile tool
 - Added option to use grids as upper and lower bounds in [`slice_depth_interval`](./api_reference/generated/geost.base.Collection.slice_depth_interval.rst)
 

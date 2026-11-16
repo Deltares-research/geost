@@ -1,0 +1,6 @@
+﻿geost.io.xyz.ags\_xyz\_to\_collection
+=====================================
+
+.. currentmodule:: geost.io.xyz
+
+.. autofunction:: ags_xyz_to_collection

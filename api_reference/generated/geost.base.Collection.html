@@ -26,37 +26,37 @@
   </noscript>
   
   <!-- Loaded before other Sphinx assets -->
-  <link href="../../_static/styles/theme.css?digest=18bd87630a240e9c25be" rel="stylesheet" />
-<link href="../../_static/styles/pydata-sphinx-theme.css?digest=18bd87630a240e9c25be" rel="stylesheet" />
+  <link href="../../_static/styles/theme.css?digest=75c7c72ae941e8b558d8" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=75c7c72ae941e8b558d8" rel="stylesheet" />
 
     <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="../../_static/mystnb.11b39860a7a0cbfd473a3ad8a317855267ff0bd372690045ca344a6b62be495e.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=6e1425e8" />
-    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=6a604523" />
     <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=6e1425e8" />
   
   <!-- So that users can add custom icons -->
-  <script defer src="../../_static/scripts/fontawesome.js?digest=18bd87630a240e9c25be"></script>
+  <script defer src="../../_static/scripts/fontawesome.js?digest=75c7c72ae941e8b558d8"></script>
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
-<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8" />
 
     <script src="../../_static/documentation_options.js?v=5929fcd5"></script>
     <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
-    <script src="../../_static/design-tabs.js?v=f930bc37"></script>
+    <script data-sd-tabs-storage-prefix="sphinx-design-tab-id-" src="../../_static/design-tabs.js?v=fcb327ea"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'api_reference/generated/geost.base.Collection';</script>
     <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
     <link rel="icon" href="../../_static/geost_logo.png"/>
     <link rel="author" title="About these documents" href="../../about.html" />
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="geost.base.Collection.compute_discretized_fractions" href="geost.base.Collection.compute_discretized_fractions.html" />
+    <link rel="next" title="geost.base.Collection.calculate_gradient" href="geost.base.Collection.calculate_gradient.html" />
     <link rel="prev" title="Collection" href="../collection.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="color-scheme" content="light dark"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="0.5.1" />
+  <meta name="docsearch:version" content="0.6.0" />
   
     
     <script src="../../_static/searchtools.js"></script>
@@ -104,7 +104,7 @@
   
     <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
 <div class="bd-header__inner bd-page-width">
-  <button type="button" class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+  <button type="button" class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation" aria-expanded="false" aria-controls="pst-primary-sidebar-modal">
     <span class="fa-solid fa-bars"></span>
   </button>
   
@@ -232,14 +232,14 @@
 
 <div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
   <button type="button" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
-    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
-    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
-    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto" title="System Settings"></i>
   </button>
   <ul class="dropdown-menu dropdown-menu-end">
-    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
-    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
-    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg me-1"></i>System Settings</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg me-1"></i>Light</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg me-1"></i>Dark</button></li>
   </ul>
 </div></div>
       
@@ -285,7 +285,7 @@
   
 
   
-    <button type="button" class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+    <button type="button" class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page" aria-expanded="false" aria-controls="pst-secondary-sidebar-modal">
       <span class="fa-solid fa-outdent"></span>
     </button>
   
@@ -299,7 +299,7 @@
       
       
       
-      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <dialog id="pst-primary-sidebar-modal" tabindex="-1"></dialog>
       <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
         
 
@@ -384,14 +384,14 @@
 
 <div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
   <button type="button" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
-    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
-    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
-    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto" title="System Settings"></i>
   </button>
   <ul class="dropdown-menu dropdown-menu-end">
-    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
-    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
-    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg me-1"></i>System Settings</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg me-1"></i>Light</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg me-1"></i>Dark</button></li>
   </ul>
 </div></div>
         
@@ -467,6 +467,7 @@
 <li class="toctree-l3"><a class="reference internal" href="geost.read_gef_cpts.html">geost.read_gef_cpts</a></li>
 <li class="toctree-l3"><a class="reference internal" href="geost.read_sfr.html">geost.read_sfr</a></li>
 <li class="toctree-l3"><a class="reference internal" href="geost.read_xml_boris.html">geost.read_xml_boris</a></li>
+<li class="toctree-l3"><a class="reference internal" href="geost.io.xyz.ags_xyz_to_collection.html">geost.io.xyz.ags_xyz_to_collection</a></li>
 <li class="toctree-l3"><a class="reference internal" href="geost.read_model_netcdf.html">geost.read_model_netcdf</a></li>
 <li class="toctree-l3"><a class="reference internal" href="geost.read_model_from_opendap.html">geost.read_model_from_opendap</a></li>
 <li class="toctree-l3"><a class="reference internal" href="geost.read_geotop_netcdf.html">geost.read_geotop_netcdf</a></li>
@@ -493,10 +494,12 @@
 </details></li>
 <li class="toctree-l2 current active has-children"><a class="reference internal" href="../collection.html">Collection</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
 <li class="toctree-l3 current active"><a aria-current="page" class="current reference internal" href="#">geost.base.Collection</a></li>
+<li class="toctree-l3"><a class="reference internal" href="geost.base.Collection.calculate_gradient.html">geost.base.Collection.calculate_gradient</a></li>
 <li class="toctree-l3"><a class="reference internal" href="geost.base.Collection.compute_discretized_fractions.html">geost.base.Collection.compute_discretized_fractions</a></li>
 <li class="toctree-l3"><a class="reference internal" href="geost.base.Collection.get_cumulative_thickness.html">geost.base.Collection.get_cumulative_thickness</a></li>
 <li class="toctree-l3"><a class="reference internal" href="geost.base.Collection.get_layer_base.html">geost.base.Collection.get_layer_base</a></li>
 <li class="toctree-l3"><a class="reference internal" href="geost.base.Collection.get_layer_top.html">geost.base.Collection.get_layer_top</a></li>
+<li class="toctree-l3"><a class="reference internal" href="geost.base.Collection.segmentize_by_gradient.html">geost.base.Collection.segmentize_by_gradient</a></li>
 <li class="toctree-l3"><a class="reference internal" href="geost.base.Collection.set_crs.html">geost.base.Collection.set_crs</a></li>
 <li class="toctree-l3"><a class="reference internal" href="geost.base.Collection.set_vertical_datum.html">geost.base.Collection.set_vertical_datum</a></li>
 <li class="toctree-l3"><a class="reference internal" href="geost.base.Collection.to_crs.html">geost.base.Collection.to_crs</a></li>
@@ -512,6 +515,7 @@
 <li class="toctree-l3"><a class="reference internal" href="geost.base.Collection.to_parquet.html">geost.base.Collection.to_parquet</a></li>
 <li class="toctree-l3"><a class="reference internal" href="geost.base.Collection.to_qgis3d.html">geost.base.Collection.to_qgis3d</a></li>
 <li class="toctree-l3"><a class="reference internal" href="geost.base.Collection.to_shape.html">geost.base.Collection.to_shape</a></li>
+<li class="toctree-l3"><a class="reference internal" href="geost.base.Collection.add_columns.html">geost.base.Collection.add_columns</a></li>
 <li class="toctree-l3"><a class="reference internal" href="geost.base.Collection.add_header_column_to_data.html">geost.base.Collection.add_header_column_to_data</a></li>
 <li class="toctree-l3"><a class="reference internal" href="geost.base.Collection.reset_header.html">geost.base.Collection.reset_header</a></li>
 <li class="toctree-l3"><a class="reference internal" href="geost.base.Collection.synchronize_tables.html">geost.base.Collection.synchronize_tables</a></li>
@@ -535,15 +539,20 @@
 <li class="toctree-l3"><a class="reference internal" href="geost.base.Collection.has_inclined.html">geost.base.Collection.has_inclined</a></li>
 <li class="toctree-l3"><a class="reference internal" href="geost.base.Collection.header.html">geost.base.Collection.header</a></li>
 <li class="toctree-l3"><a class="reference internal" href="geost.base.Collection.n_points.html">geost.base.Collection.n_points</a></li>
+<li class="toctree-l3"><a class="reference internal" href="geost.base.Collection.positional_columns.html">geost.base.Collection.positional_columns</a></li>
 <li class="toctree-l3"><a class="reference internal" href="geost.base.Collection.vertical_datum.html">geost.base.Collection.vertical_datum</a></li>
 </ul>
 </details></li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../accessor.html">GeostFrame</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l3"><a class="reference internal" href="geost.accessor.GeostFrame.html">geost.accessor.GeostFrame</a></li>
+<li class="toctree-l3"><a class="reference internal" href="geost.accessor.GeostFrame.calculate_gradient.html">geost.accessor.GeostFrame.calculate_gradient</a></li>
+<li class="toctree-l3"><a class="reference internal" href="geost.accessor.GeostFrame.calculate_mid_depth.html">geost.accessor.GeostFrame.calculate_mid_depth</a></li>
 <li class="toctree-l3"><a class="reference internal" href="geost.accessor.GeostFrame.calculate_thickness.html">geost.accessor.GeostFrame.calculate_thickness</a></li>
+<li class="toctree-l3"><a class="reference internal" href="geost.accessor.GeostFrame.compute_discretized_fractions.html">geost.accessor.GeostFrame.compute_discretized_fractions</a></li>
 <li class="toctree-l3"><a class="reference internal" href="geost.accessor.GeostFrame.get_cumulative_thickness.html">geost.accessor.GeostFrame.get_cumulative_thickness</a></li>
 <li class="toctree-l3"><a class="reference internal" href="geost.accessor.GeostFrame.get_layer_base.html">geost.accessor.GeostFrame.get_layer_base</a></li>
 <li class="toctree-l3"><a class="reference internal" href="geost.accessor.GeostFrame.get_layer_top.html">geost.accessor.GeostFrame.get_layer_top</a></li>
+<li class="toctree-l3"><a class="reference internal" href="geost.accessor.GeostFrame.segmentize_by_gradient.html">geost.accessor.GeostFrame.segmentize_by_gradient</a></li>
 <li class="toctree-l3"><a class="reference internal" href="geost.accessor.GeostFrame.to_crs.html">geost.accessor.GeostFrame.to_crs</a></li>
 <li class="toctree-l3"><a class="reference internal" href="geost.accessor.GeostFrame.to_vertical_datum.html">geost.accessor.GeostFrame.to_vertical_datum</a></li>
 <li class="toctree-l3"><a class="reference internal" href="geost.accessor.GeostFrame.transform_coordinates.html">geost.accessor.GeostFrame.transform_coordinates</a></li>
@@ -577,6 +586,7 @@
 <li class="toctree-l3"><a class="reference internal" href="geost.accessor.GeostFrame.is_layered.html">geost.accessor.GeostFrame.is_layered</a></li>
 <li class="toctree-l3"><a class="reference internal" href="geost.accessor.GeostFrame.last_row_survey.html">geost.accessor.GeostFrame.last_row_survey</a></li>
 <li class="toctree-l3"><a class="reference internal" href="geost.accessor.GeostFrame.nr.html">geost.accessor.GeostFrame.nr</a></li>
+<li class="toctree-l3"><a class="reference internal" href="geost.accessor.GeostFrame.positional_columns.html">geost.accessor.GeostFrame.positional_columns</a></li>
 </ul>
 </details></li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../model_dataarray.html">ModelDataArray</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -772,7 +782,7 @@
     
     <li class="breadcrumb-item breadcrumb-home">
       <a href="../../index.html" class="nav-link" aria-label="Home">
-        <i class="fa-solid fa-home"></i>
+        <i class="fa-solid fa-house"></i>
       </a>
     </li>
     
@@ -846,14 +856,20 @@ any method that involves vertical reference transformations. The default is 5709
 <tr class="row-odd"><td><p><a class="reference internal" href="#geost.base.Collection.__init__" title="geost.base.Collection.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>([data, header, has_inclined, ...])</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="geost.base.Collection.add_header_column_to_data.html#geost.base.Collection.add_header_column_to_data" title="geost.base.Collection.add_header_column_to_data"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_header_column_to_data</span></code></a>(column_name)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="geost.base.Collection.add_columns.html#geost.base.Collection.add_columns" title="geost.base.Collection.add_columns"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_columns</span></code></a>([columns, to, inplace])</p></td>
+<td><p>Add columns to the header or data table of the <code class="docutils literal notranslate"><span class="pre">Collection</span></code>.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="geost.base.Collection.add_header_column_to_data.html#geost.base.Collection.add_header_column_to_data" title="geost.base.Collection.add_header_column_to_data"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_header_column_to_data</span></code></a>(column_name)</p></td>
 <td><p>Add a column from the header to the data table.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="geost.base.Collection.add_model_data.html#geost.base.Collection.add_model_data" title="geost.base.Collection.add_model_data"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_model_data</span></code></a>(model, *[, data_vars, ...])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="geost.base.Collection.add_model_data.html#geost.base.Collection.add_model_data" title="geost.base.Collection.add_model_data"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_model_data</span></code></a>(model, *[, data_vars, ...])</p></td>
 <td><p>Add information from one or more variables from a voxelmodel or layermodel as columns to the data table.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="geost.base.Collection.aggregate_consecutive_layers.html#geost.base.Collection.aggregate_consecutive_layers" title="geost.base.Collection.aggregate_consecutive_layers"><code class="xref py py-obj docutils literal notranslate"><span class="pre">aggregate_consecutive_layers</span></code></a>(over[, ...])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="geost.base.Collection.aggregate_consecutive_layers.html#geost.base.Collection.aggregate_consecutive_layers" title="geost.base.Collection.aggregate_consecutive_layers"><code class="xref py py-obj docutils literal notranslate"><span class="pre">aggregate_consecutive_layers</span></code></a>(over[, ...])</p></td>
 <td><p>Aggregate consecutive layers in the data table of a <code class="docutils literal notranslate"><span class="pre">Collection</span></code> that have the same value in a specified column.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="geost.base.Collection.calculate_gradient.html#geost.base.Collection.calculate_gradient" title="geost.base.Collection.calculate_gradient"><code class="xref py py-obj docutils literal notranslate"><span class="pre">calculate_gradient</span></code></a>(column[, output_column, ...])</p></td>
+<td><p>Calculate the rate of change (i.e. &quot;gradient&quot;) over depth of a value column per survey in the <cite>Collection</cite>'s data table.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="geost.base.Collection.compute_discretized_fractions.html#geost.base.Collection.compute_discretized_fractions" title="geost.base.Collection.compute_discretized_fractions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_discretized_fractions</span></code></a>(column, ...[, ...])</p></td>
 <td><p>Calculate the fraction of each categorical value in the specified column of the data table within a given depth discretization.</p></td>
@@ -879,88 +895,91 @@ any method that involves vertical reference transformations. The default is 5709
 <tr class="row-even"><td><p><a class="reference internal" href="geost.base.Collection.reset_header.html#geost.base.Collection.reset_header" title="geost.base.Collection.reset_header"><code class="xref py py-obj docutils literal notranslate"><span class="pre">reset_header</span></code></a>()</p></td>
 <td><p>Refresh the header based on the loaded data in case the header got messed up.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="geost.base.Collection.select_by_condition.html#geost.base.Collection.select_by_condition" title="geost.base.Collection.select_by_condition"><code class="xref py py-obj docutils literal notranslate"><span class="pre">select_by_condition</span></code></a>(condition[, invert])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="geost.base.Collection.segmentize_by_gradient.html#geost.base.Collection.segmentize_by_gradient" title="geost.base.Collection.segmentize_by_gradient"><code class="xref py py-obj docutils literal notranslate"><span class="pre">segmentize_by_gradient</span></code></a>(column, threshold[, ...])</p></td>
+<td><p>Segmentize the data based on gradient changes in a column of the data table.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="geost.base.Collection.select_by_condition.html#geost.base.Collection.select_by_condition" title="geost.base.Collection.select_by_condition"><code class="xref py py-obj docutils literal notranslate"><span class="pre">select_by_condition</span></code></a>(condition[, invert])</p></td>
 <td><p>Do a condition-based selection on the data table of the <a href="#id1"><span class="problematic" id="id2">`</span></a>Collection: return the rows in the data where the 'condition' evaluates to True, see examples below.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="geost.base.Collection.select_by_elevation.html#geost.base.Collection.select_by_elevation" title="geost.base.Collection.select_by_elevation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">select_by_elevation</span></code></a>([top_min, top_max, ...])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="geost.base.Collection.select_by_elevation.html#geost.base.Collection.select_by_elevation" title="geost.base.Collection.select_by_elevation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">select_by_elevation</span></code></a>([top_min, top_max, ...])</p></td>
 <td><p>Select surveys by elevation constraints: e.g. all surveys with their surface level and end depths between specified minimum and maximum values.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="geost.base.Collection.select_by_length.html#geost.base.Collection.select_by_length" title="geost.base.Collection.select_by_length"><code class="xref py py-obj docutils literal notranslate"><span class="pre">select_by_length</span></code></a>([min_length, max_length])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="geost.base.Collection.select_by_length.html#geost.base.Collection.select_by_length" title="geost.base.Collection.select_by_length"><code class="xref py py-obj docutils literal notranslate"><span class="pre">select_by_length</span></code></a>([min_length, max_length])</p></td>
 <td><p>Select data from length constraints: e.g. all surveys between 50 and 150 m long.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="geost.base.Collection.select_by_values.html#geost.base.Collection.select_by_values" title="geost.base.Collection.select_by_values"><code class="xref py py-obj docutils literal notranslate"><span class="pre">select_by_values</span></code></a>(column, values[, how, ...])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="geost.base.Collection.select_by_values.html#geost.base.Collection.select_by_values" title="geost.base.Collection.select_by_values"><code class="xref py py-obj docutils literal notranslate"><span class="pre">select_by_values</span></code></a>(column, values[, how, ...])</p></td>
 <td><p>Select data based on the presence of values in a given column.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="geost.base.Collection.select_with_lines.html#geost.base.Collection.select_with_lines" title="geost.base.Collection.select_with_lines"><code class="xref py py-obj docutils literal notranslate"><span class="pre">select_with_lines</span></code></a>(lines, max_distance[, invert])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="geost.base.Collection.select_with_lines.html#geost.base.Collection.select_with_lines" title="geost.base.Collection.select_with_lines"><code class="xref py py-obj docutils literal notranslate"><span class="pre">select_with_lines</span></code></a>(lines, max_distance[, invert])</p></td>
 <td><p>Select all data that lie within a maximum distance from given line geometries.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="geost.base.Collection.select_with_points.html#geost.base.Collection.select_with_points" title="geost.base.Collection.select_with_points"><code class="xref py py-obj docutils literal notranslate"><span class="pre">select_with_points</span></code></a>(points, max_distance[, ...])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="geost.base.Collection.select_with_points.html#geost.base.Collection.select_with_points" title="geost.base.Collection.select_with_points"><code class="xref py py-obj docutils literal notranslate"><span class="pre">select_with_points</span></code></a>(points, max_distance[, ...])</p></td>
 <td><p>Select all data that lie within a maximum distance from given point geometries.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="geost.base.Collection.select_within_bbox.html#geost.base.Collection.select_within_bbox" title="geost.base.Collection.select_within_bbox"><code class="xref py py-obj docutils literal notranslate"><span class="pre">select_within_bbox</span></code></a>(xmin, ymin, xmax, ymax[, ...])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="geost.base.Collection.select_within_bbox.html#geost.base.Collection.select_within_bbox" title="geost.base.Collection.select_within_bbox"><code class="xref py py-obj docutils literal notranslate"><span class="pre">select_within_bbox</span></code></a>(xmin, ymin, xmax, ymax[, ...])</p></td>
 <td><p>Make a selection of the collection based on a bounding box.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="geost.base.Collection.select_within_polygons.html#geost.base.Collection.select_within_polygons" title="geost.base.Collection.select_within_polygons"><code class="xref py py-obj docutils literal notranslate"><span class="pre">select_within_polygons</span></code></a>(polygons[, buffer, ...])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="geost.base.Collection.select_within_polygons.html#geost.base.Collection.select_within_polygons" title="geost.base.Collection.select_within_polygons"><code class="xref py py-obj docutils literal notranslate"><span class="pre">select_within_polygons</span></code></a>(polygons[, buffer, ...])</p></td>
 <td><p>Select all data that lie within given polygon geometries.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="geost.base.Collection.set_crs.html#geost.base.Collection.set_crs" title="geost.base.Collection.set_crs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_crs</span></code></a>(crs[, allow_override])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="geost.base.Collection.set_crs.html#geost.base.Collection.set_crs" title="geost.base.Collection.set_crs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_crs</span></code></a>(crs[, allow_override])</p></td>
 <td><p>Set the coordinate reference system (CRS) for the collection's header geometry column.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_header</span></code>(header)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_header</span></code>(header)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="geost.base.Collection.set_vertical_datum.html#geost.base.Collection.set_vertical_datum" title="geost.base.Collection.set_vertical_datum"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_vertical_datum</span></code></a>(vertical_datum)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="geost.base.Collection.set_vertical_datum.html#geost.base.Collection.set_vertical_datum" title="geost.base.Collection.set_vertical_datum"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_vertical_datum</span></code></a>(vertical_datum)</p></td>
 <td><p>Set the vertical datum of the collection's surface levels without performing a transformation of the surface levels.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="geost.base.Collection.slice_by_values.html#geost.base.Collection.slice_by_values" title="geost.base.Collection.slice_by_values"><code class="xref py py-obj docutils literal notranslate"><span class="pre">slice_by_values</span></code></a>(column, values[, invert, ...])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="geost.base.Collection.slice_by_values.html#geost.base.Collection.slice_by_values" title="geost.base.Collection.slice_by_values"><code class="xref py py-obj docutils literal notranslate"><span class="pre">slice_by_values</span></code></a>(column, values[, invert, ...])</p></td>
 <td><p>Slice rows from data based on matching condition.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="geost.base.Collection.slice_depth_interval.html#geost.base.Collection.slice_depth_interval" title="geost.base.Collection.slice_depth_interval"><code class="xref py py-obj docutils literal notranslate"><span class="pre">slice_depth_interval</span></code></a>([upper_boundary, ...])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="geost.base.Collection.slice_depth_interval.html#geost.base.Collection.slice_depth_interval" title="geost.base.Collection.slice_depth_interval"><code class="xref py py-obj docutils literal notranslate"><span class="pre">slice_depth_interval</span></code></a>([upper_boundary, ...])</p></td>
 <td><p>Slice data based on given upper and lower boundaries.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="geost.base.Collection.spatial_join.html#geost.base.Collection.spatial_join" title="geost.base.Collection.spatial_join"><code class="xref py py-obj docutils literal notranslate"><span class="pre">spatial_join</span></code></a>(geometries, label_id[, ...])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="geost.base.Collection.spatial_join.html#geost.base.Collection.spatial_join" title="geost.base.Collection.spatial_join"><code class="xref py py-obj docutils literal notranslate"><span class="pre">spatial_join</span></code></a>(geometries, label_id[, ...])</p></td>
 <td><p>Join information from another GeoDataFrame by a spatial relationship (e.g. overlap) between the geometries in the header table of the Collection with the geometries in the other GeoDataFrame.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="geost.base.Collection.synchronize_tables.html#geost.base.Collection.synchronize_tables" title="geost.base.Collection.synchronize_tables"><code class="xref py py-obj docutils literal notranslate"><span class="pre">synchronize_tables</span></code></a>([how])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="geost.base.Collection.synchronize_tables.html#geost.base.Collection.synchronize_tables" title="geost.base.Collection.synchronize_tables"><code class="xref py py-obj docutils literal notranslate"><span class="pre">synchronize_tables</span></code></a>([how])</p></td>
 <td><p>Synchronize the header and data tables in case of misalignment in the surveys present in both.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="geost.base.Collection.to_crs.html#geost.base.Collection.to_crs" title="geost.base.Collection.to_crs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_crs</span></code></a>(crs[, xbot, ybot])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="geost.base.Collection.to_crs.html#geost.base.Collection.to_crs" title="geost.base.Collection.to_crs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_crs</span></code></a>(crs[, xbot, ybot])</p></td>
 <td><p>Change the horizontal reference (i.e. coordinate reference system, crs) of the collection to the given target crs.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="geost.base.Collection.to_csv.html#geost.base.Collection.to_csv" title="geost.base.Collection.to_csv"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_csv</span></code></a>(outfile[, data_table])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="geost.base.Collection.to_csv.html#geost.base.Collection.to_csv" title="geost.base.Collection.to_csv"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_csv</span></code></a>(outfile[, data_table])</p></td>
 <td><p>Export the data or header table to a csv file.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="geost.base.Collection.to_geopackage.html#geost.base.Collection.to_geopackage" title="geost.base.Collection.to_geopackage"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_geopackage</span></code></a>(outfile[, metadata])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="geost.base.Collection.to_geopackage.html#geost.base.Collection.to_geopackage" title="geost.base.Collection.to_geopackage"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_geopackage</span></code></a>(outfile[, metadata])</p></td>
 <td><p>Write header and data to a geopackage.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="geost.base.Collection.to_geopackage_3d.html#geost.base.Collection.to_geopackage_3d" title="geost.base.Collection.to_geopackage_3d"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_geopackage_3d</span></code></a>(outfile[, crs, x_end, y_end])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="geost.base.Collection.to_geopackage_3d.html#geost.base.Collection.to_geopackage_3d" title="geost.base.Collection.to_geopackage_3d"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_geopackage_3d</span></code></a>(outfile[, crs, x_end, y_end])</p></td>
 <td><p>Write data to geopackage file containing a layer &quot;locations&quot; with point geometries and a layer &quot;3dlines&quot; with 3D line geometries.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="geost.base.Collection.to_geoparquet.html#geost.base.Collection.to_geoparquet" title="geost.base.Collection.to_geoparquet"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_geoparquet</span></code></a>(outfile, **kwargs)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="geost.base.Collection.to_geoparquet.html#geost.base.Collection.to_geoparquet" title="geost.base.Collection.to_geoparquet"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_geoparquet</span></code></a>(outfile, **kwargs)</p></td>
 <td><p>Write header data to geoparquet.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="geost.base.Collection.to_kingdom.html#geost.base.Collection.to_kingdom" title="geost.base.Collection.to_kingdom"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_kingdom</span></code></a>(outfile[, tdstart, vw, vs])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="geost.base.Collection.to_kingdom.html#geost.base.Collection.to_kingdom" title="geost.base.Collection.to_kingdom"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_kingdom</span></code></a>(outfile[, tdstart, vw, vs])</p></td>
 <td><p>Write 2 csv files for visualisation of data in Kingdom seismic interpretation software: - interval data: contains the layer boundaries and properties of the layers.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="geost.base.Collection.to_parquet.html#geost.base.Collection.to_parquet" title="geost.base.Collection.to_parquet"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_parquet</span></code></a>(outfile[, data_table])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="geost.base.Collection.to_parquet.html#geost.base.Collection.to_parquet" title="geost.base.Collection.to_parquet"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_parquet</span></code></a>(outfile[, data_table])</p></td>
 <td><p>Export the data or header table to a parquet file.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="geost.base.Collection.to_pickle.html#geost.base.Collection.to_pickle" title="geost.base.Collection.to_pickle"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_pickle</span></code></a>(outfile, **kwargs)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="geost.base.Collection.to_pickle.html#geost.base.Collection.to_pickle" title="geost.base.Collection.to_pickle"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_pickle</span></code></a>(outfile, **kwargs)</p></td>
 <td><p>Export the complete Collection to a pickle file.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="geost.base.Collection.to_pyvista_cylinders.html#geost.base.Collection.to_pyvista_cylinders" title="geost.base.Collection.to_pyvista_cylinders"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_pyvista_cylinders</span></code></a>(displayed_variables[, ...])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="geost.base.Collection.to_pyvista_cylinders.html#geost.base.Collection.to_pyvista_cylinders" title="geost.base.Collection.to_pyvista_cylinders"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_pyvista_cylinders</span></code></a>(displayed_variables[, ...])</p></td>
 <td><p>Create a Pyvista MultiBlock object of cylinder-shaped geometries to represent boreholes.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="geost.base.Collection.to_pyvista_grid.html#geost.base.Collection.to_pyvista_grid" title="geost.base.Collection.to_pyvista_grid"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_pyvista_grid</span></code></a>(displayed_variables[, radius])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="geost.base.Collection.to_pyvista_grid.html#geost.base.Collection.to_pyvista_grid" title="geost.base.Collection.to_pyvista_grid"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_pyvista_grid</span></code></a>(displayed_variables[, radius])</p></td>
 <td><p>Create a PyVista UnstructuredGrid object of the data in this instance.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="geost.base.Collection.to_qgis3d.html#geost.base.Collection.to_qgis3d" title="geost.base.Collection.to_qgis3d"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_qgis3d</span></code></a>(outfile[, crs])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="geost.base.Collection.to_qgis3d.html#geost.base.Collection.to_qgis3d" title="geost.base.Collection.to_qgis3d"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_qgis3d</span></code></a>(outfile[, crs])</p></td>
 <td><p>Write data to geopackage file that can be directly loaded in the Qgis2threejs plugin.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="geost.base.Collection.to_shape.html#geost.base.Collection.to_shape" title="geost.base.Collection.to_shape"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_shape</span></code></a>(outfile, **kwargs)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="geost.base.Collection.to_shape.html#geost.base.Collection.to_shape" title="geost.base.Collection.to_shape"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_shape</span></code></a>(outfile, **kwargs)</p></td>
 <td><p>Write header data to shapefile.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="geost.base.Collection.to_vertical_datum.html#geost.base.Collection.to_vertical_datum" title="geost.base.Collection.to_vertical_datum"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_vertical_datum</span></code></a>(vertical_datum)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="geost.base.Collection.to_vertical_datum.html#geost.base.Collection.to_vertical_datum" title="geost.base.Collection.to_vertical_datum"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_vertical_datum</span></code></a>(vertical_datum)</p></td>
 <td><p>Change the vertical reference of the collection object's surface levels</p></td>
 </tr>
 </tbody>
@@ -975,20 +994,26 @@ any method that involves vertical reference transformations. The default is 5709
 <tr class="row-even"><td><p><a class="reference internal" href="geost.base.Collection.data.html#geost.base.Collection.data" title="geost.base.Collection.data"><code class="xref py py-obj docutils literal notranslate"><span class="pre">data</span></code></a></p></td>
 <td><p>The collection's data.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="geost.base.Collection.has_inclined.html#geost.base.Collection.has_inclined" title="geost.base.Collection.has_inclined"><code class="xref py py-obj docutils literal notranslate"><span class="pre">has_inclined</span></code></a></p></td>
-<td><p>Boolean indicating whether there are inclined objects within the collection</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="geost.base.Collection.header.html#geost.base.Collection.header" title="geost.base.Collection.header"><code class="xref py py-obj docutils literal notranslate"><span class="pre">header</span></code></a></p></td>
-<td><p>The collection's header.</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">header_has_geometry</span></code></p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">empty</span></code></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">header_to_data_index</span></code></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="geost.base.Collection.has_inclined.html#geost.base.Collection.has_inclined" title="geost.base.Collection.has_inclined"><code class="xref py py-obj docutils literal notranslate"><span class="pre">has_inclined</span></code></a></p></td>
+<td><p>Boolean indicating whether there are inclined objects within the collection</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="geost.base.Collection.header.html#geost.base.Collection.header" title="geost.base.Collection.header"><code class="xref py py-obj docutils literal notranslate"><span class="pre">header</span></code></a></p></td>
+<td><p>The collection's header.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">header_has_geometry</span></code></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">header_to_data_index</span></code></p></td>
 <td><p>Returns a pandas Series that maps the range index of surveys in the data table to the index of the header table.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="geost.base.Collection.n_points.html#geost.base.Collection.n_points" title="geost.base.Collection.n_points"><code class="xref py py-obj docutils literal notranslate"><span class="pre">n_points</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="geost.base.Collection.n_points.html#geost.base.Collection.n_points" title="geost.base.Collection.n_points"><code class="xref py py-obj docutils literal notranslate"><span class="pre">n_points</span></code></a></p></td>
 <td><p>Number of objects in the collection.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="geost.base.Collection.positional_columns.html#geost.base.Collection.positional_columns" title="geost.base.Collection.positional_columns"><code class="xref py py-obj docutils literal notranslate"><span class="pre">positional_columns</span></code></a></p></td>
+<td><p>Return a dictionary which columns are used in the header and data tables.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="geost.base.Collection.vertical_datum.html#geost.base.Collection.vertical_datum" title="geost.base.Collection.vertical_datum"><code class="xref py py-obj docutils literal notranslate"><span class="pre">vertical_datum</span></code></a></p></td>
 <td><p>Vertical datum represented by an instance of pyproj.crs.CRS.</p></td>
@@ -1020,11 +1045,11 @@ any method that involves vertical reference transformations. The default is 5709
       </div>
     </a>
     <a class="right-next"
-       href="geost.base.Collection.compute_discretized_fractions.html"
+       href="geost.base.Collection.calculate_gradient.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">geost.base.Collection.compute_discretized_fractions</p>
+        <p class="prev-next-title">geost.base.Collection.calculate_gradient</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -1035,7 +1060,7 @@ any method that involves vertical reference transformations. The default is 5709
             
             
               
-                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <dialog id="pst-secondary-sidebar-modal" tabindex="-1"></dialog>
                 <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
 
 
@@ -1076,8 +1101,8 @@ any method that involves vertical reference transformations. The default is 5709
   </div>
   
   <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script defer src="../../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be"></script>
-<script defer src="../../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be"></script>
+  <script defer src="../../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8"></script>
+<script defer src="../../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8"></script>
 
   <footer class="bd-footer">
 <div class="bd-footer__inner bd-page-width">
@@ -1110,7 +1135,7 @@ any method that involves vertical reference transformations. The default is 5709
         <div class="footer-item">
 <p class="theme-version">
   <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
-  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.23.0.
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.24.0.
 </p></div>
       
     </div>

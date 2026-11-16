@@ -1,0 +1,6 @@
+﻿geost.accessor.GeostFrame.positional\_columns
+=============================================
+
+.. currentmodule:: geost.accessor
+
+.. autoproperty:: GeostFrame.positional_columns

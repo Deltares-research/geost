@@ -25,25 +25,25 @@
   </noscript>
   
   <!-- Loaded before other Sphinx assets -->
-  <link href="_static/styles/theme.css?digest=18bd87630a240e9c25be" rel="stylesheet" />
-<link href="_static/styles/pydata-sphinx-theme.css?digest=18bd87630a240e9c25be" rel="stylesheet" />
+  <link href="_static/styles/theme.css?digest=75c7c72ae941e8b558d8" rel="stylesheet" />
+<link href="_static/styles/pydata-sphinx-theme.css?digest=75c7c72ae941e8b558d8" rel="stylesheet" />
 
     <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="_static/mystnb.11b39860a7a0cbfd473a3ad8a317855267ff0bd372690045ca344a6b62be495e.css" />
     <link rel="stylesheet" type="text/css" href="_static/custom.css?v=6e1425e8" />
-    <link rel="stylesheet" type="text/css" href="_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="_static/sphinx-design.min.css?v=6a604523" />
     <link rel="stylesheet" type="text/css" href="_static/custom.css?v=6e1425e8" />
   
   <!-- So that users can add custom icons -->
-  <script defer src="_static/scripts/fontawesome.js?digest=18bd87630a240e9c25be"></script>
+  <script defer src="_static/scripts/fontawesome.js?digest=75c7c72ae941e8b558d8"></script>
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
-<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
+  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8" />
+<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8" />
 
     <script src="_static/documentation_options.js?v=5929fcd5"></script>
     <script src="_static/doctools.js?v=fd6eb6e6"></script>
     <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
-    <script src="_static/design-tabs.js?v=f930bc37"></script>
+    <script data-sd-tabs-storage-prefix="sphinx-design-tab-id-" src="_static/design-tabs.js?v=fcb327ea"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'genindex';</script>
     <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
     <link rel="icon" href="_static/geost_logo.png"/>
@@ -53,7 +53,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="color-scheme" content="light dark"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="0.5.1" />
+  <meta name="docsearch:version" content="0.6.0" />
   
     
     <script src="_static/searchtools.js"></script>
@@ -101,7 +101,7 @@
   
     <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
 <div class="bd-header__inner bd-page-width">
-  <button type="button" class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+  <button type="button" class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation" aria-expanded="false" aria-controls="pst-primary-sidebar-modal">
     <span class="fa-solid fa-bars"></span>
   </button>
   
@@ -229,14 +229,14 @@
 
 <div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
   <button type="button" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
-    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
-    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
-    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto" title="System Settings"></i>
   </button>
   <ul class="dropdown-menu dropdown-menu-end">
-    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
-    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
-    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg me-1"></i>System Settings</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg me-1"></i>Light</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg me-1"></i>Dark</button></li>
   </ul>
 </div></div>
       
@@ -294,7 +294,7 @@
       
         
       
-      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <dialog id="pst-primary-sidebar-modal" tabindex="-1"></dialog>
       <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar hide-on-wide">
         
 
@@ -379,14 +379,14 @@
 
 <div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
   <button type="button" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
-    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
-    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
-    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto" title="System Settings"></i>
   </button>
   <ul class="dropdown-menu dropdown-menu-end">
-    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
-    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
-    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg me-1"></i>System Settings</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg me-1"></i>Light</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg me-1"></i>Dark</button></li>
   </ul>
 </div></div>
         
@@ -505,6 +505,8 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api_reference/generated/geost.validation.validate.ValidationResult.add.html#geost.validation.validate.ValidationResult.add">add() (geost.validation.validate.ValidationResult method)</a>
 </li>
+      <li><a href="api_reference/generated/geost.base.Collection.add_columns.html#geost.base.Collection.add_columns">add_columns() (geost.base.Collection method)</a>
+</li>
       <li><a href="api_reference/generated/geost.base.Collection.add_header_column_to_data.html#geost.base.Collection.add_header_column_to_data">add_header_column_to_data() (geost.base.Collection method)</a>
 </li>
       <li><a href="api_reference/generated/geost.accessor.GeostFrame.add_model_data.html#geost.accessor.GeostFrame.add_model_data">add_model_data() (geost.accessor.GeostFrame method)</a>
@@ -527,6 +529,8 @@
         <li><a href="api_reference/generated/geost.base.Collection.aggregate_consecutive_layers.html#geost.base.Collection.aggregate_consecutive_layers">(geost.base.Collection method)</a>
 </li>
       </ul></li>
+      <li><a href="api_reference/generated/geost.io.xyz.ags_xyz_to_collection.html#geost.io.xyz.ags_xyz_to_collection">ags_xyz_to_collection() (in module geost.io.xyz)</a>
+</li>
       <li><a href="api_reference/generated/geost.bro.BroApi.apis.html#geost.bro.BroApi.apis">apis (geost.bro.BroApi attribute)</a>
 </li>
   </ul></td>
@@ -569,6 +573,14 @@
 </li>
       <li><a href="api_reference/generated/geost.analysis.grainsize.calculate_bhrgt_grainsize_percentiles.html#geost.analysis.grainsize.calculate_bhrgt_grainsize_percentiles">calculate_bhrgt_grainsize_percentiles() (in module geost.analysis.grainsize)</a>
 </li>
+      <li><a href="api_reference/generated/geost.accessor.GeostFrame.calculate_gradient.html#geost.accessor.GeostFrame.calculate_gradient">calculate_gradient() (geost.accessor.GeostFrame method)</a>
+
+      <ul>
+        <li><a href="api_reference/generated/geost.base.Collection.calculate_gradient.html#geost.base.Collection.calculate_gradient">(geost.base.Collection method)</a>
+</li>
+      </ul></li>
+      <li><a href="api_reference/generated/geost.accessor.GeostFrame.calculate_mid_depth.html#geost.accessor.GeostFrame.calculate_mid_depth">calculate_mid_depth() (geost.accessor.GeostFrame method)</a>
+</li>
       <li><a href="api_reference/generated/geost.accessor.GeostFrame.calculate_thickness.html#geost.accessor.GeostFrame.calculate_thickness">calculate_thickness() (geost.accessor.GeostFrame method)</a>
 </li>
       <li><a href="api_reference/generated/geost.bro.geotop.GeotopUnits.check_version_matches.html#geost.bro.geotop.GeotopUnits.check_version_matches">check_version_matches() (geost.bro.geotop.GeotopUnits method)</a>
@@ -577,10 +589,10 @@
         <li><a href="api_reference/generated/geost.bro.regis.RegisUnits.check_version_matches.html#geost.bro.regis.RegisUnits.check_version_matches">(geost.bro.regis.RegisUnits method)</a>
 </li>
       </ul></li>
-      <li><a href="api_reference/generated/geost.io.Geopackage.close.html#geost.io.Geopackage.close">close() (geost.io.Geopackage method)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api_reference/generated/geost.io.Geopackage.close.html#geost.io.Geopackage.close">close() (geost.io.Geopackage method)</a>
+</li>
       <li><a href="api_reference/generated/geost.base.Collection.html#geost.base.Collection">Collection (class in geost.base)</a>
 </li>
       <li><a href="api_reference/generated/geost.bro.geotop.GeotopUnits.colors_rgb.html#geost.bro.geotop.GeotopUnits.colors_rgb">colors_rgb (geost.bro.geotop.GeotopUnits property)</a>
@@ -589,8 +601,12 @@
         <li><a href="api_reference/generated/geost.bro.regis.RegisUnits.colors_rgb.html#geost.bro.regis.RegisUnits.colors_rgb">(geost.bro.regis.RegisUnits property)</a>
 </li>
       </ul></li>
-      <li><a href="api_reference/generated/geost.base.Collection.compute_discretized_fractions.html#geost.base.Collection.compute_discretized_fractions">compute_discretized_fractions() (geost.base.Collection method)</a>
+      <li><a href="api_reference/generated/geost.accessor.GeostFrame.compute_discretized_fractions.html#geost.accessor.GeostFrame.compute_discretized_fractions">compute_discretized_fractions() (geost.accessor.GeostFrame method)</a>
+
+      <ul>
+        <li><a href="api_reference/generated/geost.base.Collection.compute_discretized_fractions.html#geost.base.Collection.compute_discretized_fractions">(geost.base.Collection method)</a>
 </li>
+      </ul></li>
       <li><a href="api_reference/generated/geost.concat.html#geost.concat">concat() (in module geost)</a>
 
       <ul>
@@ -830,6 +846,14 @@
       <li><a href="api_reference/generated/geost.pandas_dataframe.html#geost.pandas_dataframe">pandas_dataframe() (in module geost)</a>
 </li>
   </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api_reference/generated/geost.accessor.GeostFrame.positional_columns.html#geost.accessor.GeostFrame.positional_columns">positional_columns (geost.accessor.GeostFrame property)</a>
+
+      <ul>
+        <li><a href="api_reference/generated/geost.base.Collection.positional_columns.html#geost.base.Collection.positional_columns">(geost.base.Collection property)</a>
+</li>
+      </ul></li>
+  </ul></td>
 </tr></table>
 
 <h2 id="Q">Q</h2>
@@ -917,6 +941,12 @@
 </li>
       <li><a href="api_reference/generated/geost.bro.BroApi.search_objects_in_bbox.html#geost.bro.BroApi.search_objects_in_bbox">search_objects_in_bbox() (geost.bro.BroApi method)</a>
 </li>
+      <li><a href="api_reference/generated/geost.accessor.GeostFrame.segmentize_by_gradient.html#geost.accessor.GeostFrame.segmentize_by_gradient">segmentize_by_gradient() (geost.accessor.GeostFrame method)</a>
+
+      <ul>
+        <li><a href="api_reference/generated/geost.base.Collection.segmentize_by_gradient.html#geost.base.Collection.segmentize_by_gradient">(geost.base.Collection method)</a>
+</li>
+      </ul></li>
       <li><a href="api_reference/generated/geost.models.model_array.ModelDataArray.select_along_lines.html#geost.models.model_array.ModelDataArray.select_along_lines">select_along_lines() (geost.models.model_array.ModelDataArray method)</a>
 
       <ul>
@@ -981,10 +1011,10 @@
         <li><a href="api_reference/generated/geost.bro.regis.RegisUnits.select_unit_contains.html#geost.bro.regis.RegisUnits.select_unit_contains">(geost.bro.regis.RegisUnits method)</a>
 </li>
       </ul></li>
-      <li><a href="api_reference/generated/geost.bro.geotop.GeotopUnits.select_voxel_nr.html#geost.bro.geotop.GeotopUnits.select_voxel_nr">select_voxel_nr() (geost.bro.geotop.GeotopUnits method)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api_reference/generated/geost.bro.geotop.GeotopUnits.select_voxel_nr.html#geost.bro.geotop.GeotopUnits.select_voxel_nr">select_voxel_nr() (geost.bro.geotop.GeotopUnits method)</a>
+</li>
       <li><a href="api_reference/generated/geost.accessor.GeostFrame.select_with_lines.html#geost.accessor.GeostFrame.select_with_lines">select_with_lines() (geost.accessor.GeostFrame method)</a>
 
       <ul>
@@ -1299,8 +1329,8 @@
   </div>
   
   <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script defer src="_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be"></script>
-<script defer src="_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be"></script>
+  <script defer src="_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8"></script>
+<script defer src="_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8"></script>
 
   <footer class="bd-footer">
 <div class="bd-footer__inner bd-page-width">
@@ -1333,7 +1363,7 @@
         <div class="footer-item">
 <p class="theme-version">
   <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
-  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.23.0.
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.24.0.
 </p></div>
       
     </div>
