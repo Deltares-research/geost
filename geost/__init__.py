@@ -32,4 +32,4 @@ from geost.models import model_array, model_dataset
 from geost.utils.collection import concat
 from geost.utils.columns import add_positional_columns
 
-__version__ = "0.5.1"
+__version__ = "0.6.0"
