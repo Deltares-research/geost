@@ -7,10 +7,9 @@ import pandas as pd
 import geost
 
 
-# TODO: testing
 def ags_xyz_to_collection(
     file,
-    data_columns=["DEP_TOP", "DEP_BOT", "RHO", "RHO_STD"],
+    data_columns: list[str] = ["DEP_TOP", "DEP_BOT", "RHO", "RHO_STD"],
     trim_to_doi: bool = True,
     doi_type: Literal["standard", "conservative"] = "standard",
 ) -> geost.Collection:
@@ -84,7 +83,9 @@ def ags_xyz_to_collection(
     collection = df.gst.to_collection(
         crs=crs,
         include_in_header=[
-            col for col in df.columns if col not in data_columns_original
+            col
+            for col in df.columns
+            if col not in data_columns_original and col not in data_columns
         ],
     )
 

@@ -149,17 +149,26 @@ class Collection(AbstractBase):
     def __repr__(self):
         positional_columns = self._format_positional_columns()
         data_columns = self._format_data_columns()
-        repr_ = (
+        structure_str = (
             f"<geost.{self.__class__.__name__}>\n"
             f"  header (rows, columns) : {self.header.shape}\n"
             f"  data (rows, columns)   : {self.data.shape}\n"
-            "Positional columns:\n"
-            f"{'\n'.join(positional_columns)}\n"
-            "Data columns:\n"
-            f"{'\n'.join(data_columns)}\n"
+        )
+        columns_str = (
+            (
+                "Positional columns:\n"
+                f"{'\n'.join(positional_columns)}\n"
+                "Data columns:\n"
+                f"{'\n'.join(data_columns)}\n"
+            )
+            if positional_columns and data_columns
+            else ("Positional columns:\n  <empty>\nData columns:\n  <empty>\n")
+        )
+        metadata_str = (
             f"crs: {self.crs.name if self.crs else None}\n"
             f"vertical datum: {self.vertical_datum.name if self.vertical_datum else None}\n"
         )
+        repr_ = structure_str + columns_str + metadata_str
         return repr_
 
     def _format_positional_columns(self) -> list:  # pragma: no cover
@@ -209,6 +218,9 @@ class Collection(AbstractBase):
             if col in positional_columns:
                 continue
             rows.append((col, "(data)", str(self.data[col].dtype)))
+
+        if not rows:
+            return []
 
         name_width = max(len(r[0]) for r in rows)
         lines = [f"  {n:<{name_width}} {lo} {d}" for n, lo, d in rows]

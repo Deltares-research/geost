@@ -300,6 +300,38 @@ class TestCollection:
             Collection(header=header)
 
     @pytest.mark.unittest
+    def test_repr(self, borehole_collection):
+        repr_str = repr(borehole_collection)
+        expected = [
+            "<geost.Collection>",
+            "header (rows, columns)",
+            "data (rows, columns)",
+            "Positional columns:",
+            "nr",
+            "surface",
+            "end",
+            "x",
+            "y",
+            "top",
+            "bottom",
+            "geometry",
+            "lith",
+            "crs: RD",
+            "vertical datum: NAP height",
+        ]
+
+        assert isinstance(repr_str, str)
+        for line in expected:
+            assert line in repr_str
+
+    @pytest.mark.unittest
+    def test_empty_collection_repr(self):
+        collection = Collection()
+        repr_str = repr(collection)
+        assert isinstance(repr_str, str)
+        assert "Positional columns:\n  <empty>\nData columns:\n  <empty>\n" in repr_str
+
+    @pytest.mark.unittest
     def test_header_setter_with_align(self, borehole_collection):
         config.validation.reset_settings()  # Ensure default settings
         config.validation.AUTO_ALIGN = True
@@ -499,6 +531,23 @@ class TestCollection:
             range_check.append(len(data))
             assert all(data == header_id)
         assert range_check == [5, 5, 5, 5, 5]  # Each borehole has 5 data points
+
+    @pytest.mark.unittest
+    def test_positional_columns(self, borehole_collection):
+        positional_columns = borehole_collection.positional_columns
+        assert isinstance(positional_columns, dict)
+        for key, value in positional_columns.items():
+            assert (
+                value in borehole_collection.header.columns
+                or value in borehole_collection.data.columns
+            )
+
+        # After dropping the 'nr' column, the positional columns property is expected to
+        # return an empty dictionary
+        borehole_collection.header.drop(columns=["nr"], inplace=True)
+        borehole_collection.data.drop(columns=["nr"], inplace=True)
+        positional_columns = borehole_collection.positional_columns
+        assert positional_columns == {}
 
     @pytest.mark.unittest
     def test_get(self, borehole_collection):
