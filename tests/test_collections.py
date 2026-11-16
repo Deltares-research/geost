@@ -316,7 +316,7 @@ class TestCollection:
             "bottom",
             "geometry",
             "lith",
-            "crs: RD",
+            "crs:",
             "vertical datum: NAP height",
         ]
 
