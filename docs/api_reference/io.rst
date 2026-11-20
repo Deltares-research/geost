@@ -16,11 +16,9 @@ Data in tabular format (e.g. csv, parquet)
 .. autosummary::
    :toctree: generated/
 
-   read_borehole_table
-   read_cpt_table
+   read_table
    read_nlog_cores
    read_uullg_tables
-   read_table
    base.Collection.to_csv
    base.Collection.to_parquet
 

@@ -92,28 +92,6 @@ def test_nlog_reader_from_parquet(testdatadir):
         "test_borehole_table.parquet",
         "test_borehole_table.csv",
         "test_inclined_borehole_table.parquet",
-    ],
-)
-def test_read_borehole_table(filename, testdatadir):
-    filepath = testdatadir / filename
-    if filename == "test_inclined_borehole_table.parquet":
-        cores = geost.read_borehole_table(filepath, has_inclined=True)
-        assert cores.has_inclined
-    else:
-        cores = geost.read_borehole_table(filepath)
-        assert not cores.has_inclined
-    assert isinstance(cores, Collection)
-
-    cores = geost.read_borehole_table(filepath, as_collection=False)
-    assert isinstance(cores, pd.DataFrame)
-
-
-@pytest.mark.parametrize(
-    "filename",
-    [
-        "test_borehole_table.parquet",
-        "test_borehole_table.csv",
-        "test_inclined_borehole_table.parquet",
         "test_cpts.parquet",
     ],
 )
@@ -201,18 +179,6 @@ def test_read_gef_cpts(testdatadir):
 
     cpts_df = geost.read_gef_cpts(files, as_collection=False)
     assert isinstance(cpts_df, pd.DataFrame)
-
-
-@pytest.mark.unittest
-def test_read_cpt_table(testdatadir, monkeypatch):
-    monkeypatch.setattr("builtins.input", lambda _: "mv")
-    cpts = geost.read_cpt_table(testdatadir / r"test_cpts.parquet")
-    assert isinstance(cpts, Collection)
-    assert cpts.crs is None
-    assert cpts.vertical_datum is None
-
-    cpts = geost.read_cpt_table(testdatadir / r"test_cpts.parquet", as_collection=False)
-    assert isinstance(cpts, pd.DataFrame)
 
 
 @pytest.mark.unittest
