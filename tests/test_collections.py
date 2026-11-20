@@ -210,11 +210,13 @@ class TestCollection:
             "surface": [0.2, 0.3],
             "geometry": [Point(1, 2), Point(3, 4)],
         }
+        metadata = {"source": "test"}
 
-        collection = Collection(data, header=header)
+        collection = Collection(data, header=header, metadata=metadata)
 
         assert isinstance(collection.data, pd.DataFrame)
         assert isinstance(collection.header, gpd.GeoDataFrame)
+        assert collection.metadata == metadata
         assert collection.header_has_geometry
 
     @pytest.mark.unittest
@@ -299,6 +301,13 @@ class TestCollection:
             match="Header was provided but data is None. A header cannot exist without a corresponding data table",
         ):
             Collection(header=header)
+
+    @pytest.mark.unittest
+    def test_init_only_metadata(self):
+        metadata = {"source": "test"}
+        collection = Collection(metadata=metadata)
+        assert collection.metadata == metadata
+        assert collection.empty
 
     @pytest.mark.unittest
     def test_repr(self, borehole_collection):
@@ -952,11 +961,13 @@ class TestCollection:
     def test_to_geopackage(self, borehole_collection, tmp_path):
         outfile = tmp_path / r"test_export.gpkg"
         borehole_collection.to_geopackage(outfile)
+
+        # Check that the exported geopackage contains the expected layers and geometry types
         assert outfile.is_file()
         layers = gpd.list_layers(outfile)
-        assert_array_equal(layers["name"], ["header", "data"])
+        assert_array_equal(layers["name"], ["header", "data", "attributes"])
         assert_equal(layers["geometry_type"][0], "Point")
-        assert_array_equal(layers["geometry_type"].isna(), [False, True])
+        assert_array_equal(layers["geometry_type"].isna(), [False, True, True])
 
     @pytest.mark.unittest
     def test_to_parquet(self, borehole_collection, tmp_path):
@@ -968,8 +979,9 @@ class TestCollection:
     def test_to_parquet_persistence(self, borehole_collection, tmp_path):
         outfile = tmp_path / r"test_export.parquet"
 
-        # Add extra column to header
+        # Add extra column to header and some metadata
         borehole_collection.header["extra"] = "test"
+        borehole_collection.metadata = {"test_key": "test_value"}
 
         # Export to parquet and reload to check persistence of extra column
         borehole_collection.to_parquet(outfile)
