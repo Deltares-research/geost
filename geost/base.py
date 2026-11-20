@@ -160,6 +160,9 @@ class Collection(AbstractBase):
             and self.data.shape[1] == other.data.shape[1]
             and self.data.columns.isin(other.data.columns).all()
             and self.data.reindex(columns=other.data.columns).equals(other.data)
+            and self.crs == other.crs
+            and self.vertical_datum == other.vertical_datum
+            and self.has_inclined == other.has_inclined
             and self.metadata == other.metadata
         )
 
