@@ -147,6 +147,18 @@ class Collection(AbstractBase):
 
         return header, data
 
+    def __eq__(self, other):
+        if not isinstance(other, Collection):
+            return False
+        return (
+            self.header.shape[1] == other.header.shape[1]
+            and self.header.columns.isin(other.header.columns).all()
+            and self.header.reindex(columns=other.header.columns).equals(other.header)
+            and self.data.shape[1] == other.data.shape[1]
+            and self.data.columns.isin(other.data.columns).all()
+            and self.data.reindex(columns=other.data.columns).equals(other.data)
+        )
+
     def __repr__(self):
         positional_columns = self._format_positional_columns()
         data_columns = self._format_data_columns()

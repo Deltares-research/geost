@@ -14,6 +14,7 @@ from numpy.testing import (
 )
 from shapely.geometry import LineString, Point, Polygon
 
+import geost
 from geost import config
 from geost._warnings import AlignmentWarning
 from geost.base import Collection
@@ -959,13 +960,25 @@ class TestCollection:
 
     @pytest.mark.unittest
     def test_to_parquet(self, borehole_collection, tmp_path):
-        outfile = tmp_path / r"test_export.gpkg"
+        outfile = tmp_path / r"test_export.parquet"
         borehole_collection.to_parquet(outfile)
         assert outfile.is_file()
 
     @pytest.mark.unittest
+    def test_to_parquet_persistence(self, borehole_collection, tmp_path):
+        outfile = tmp_path / r"test_export.parquet"
+
+        # Add extra column to header
+        borehole_collection.header["extra"] = "test"
+
+        # Export to parquet and reload to check persistence of extra column
+        borehole_collection.to_parquet(outfile)
+        reloaded = geost.read_table(outfile)
+        assert reloaded == borehole_collection
+
+    @pytest.mark.unittest
     def test_to_csv(self, borehole_collection, tmp_path):
-        outfile = tmp_path / r"test_export.gpkg"
+        outfile = tmp_path / r"test_export.csv"
         borehole_collection.to_csv(outfile)
         assert outfile.is_file()
 

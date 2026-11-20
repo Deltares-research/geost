@@ -87,23 +87,23 @@ def test_nlog_reader_from_parquet(testdatadir):
 
 
 @pytest.mark.parametrize(
-    "filename",
+    ("filename", "has_inclined", "expected_crs", "expected_vertical_datum"),
     [
-        "test_borehole_table.parquet",
-        "test_borehole_table.csv",
-        "test_inclined_borehole_table.parquet",
-        "test_cpts.parquet",
+        ("test_borehole_table.parquet", False, 28992, 5709),
+        ("test_borehole_table.csv", False, None, None),
+        ("test_inclined_borehole_table.parquet", True, 28992, 5709),
+        ("test_cpts.parquet", False, 28992, 5709),
     ],
 )
-def test_read_table(filename, testdatadir):
+def test_read_table(
+    filename, has_inclined, expected_crs, expected_vertical_datum, testdatadir
+):
     filepath = testdatadir / filename
-    if filename == "test_inclined_borehole_table.parquet":
-        cores = geost.read_table(filepath, has_inclined=True)
-        assert cores.has_inclined
-    else:
-        cores = geost.read_table(filepath)
-        assert not cores.has_inclined
+    cores = geost.read_table(filepath)
     assert isinstance(cores, Collection)
+    assert cores.has_inclined == has_inclined
+    assert cores.crs == expected_crs
+    assert cores.vertical_datum == expected_vertical_datum
 
     cores = geost.read_table(filepath, as_collection=False)
     assert isinstance(cores, pd.DataFrame)
