@@ -61,6 +61,8 @@ class Collection(AbstractBase):
         interpreted by pyproj.crs.CRS.from_user_input(). This is used to keep track of the
         vertical reference of the surface levels in the collection, which is important for
         any method that involves vertical reference transformations. The default is 5709.
+    metadata : dict[str, Any], optional
+        Metadata associated with the collection. The default is an empty dictionary.
     """
 
     def __init__(
@@ -70,6 +72,7 @@ class Collection(AbstractBase):
         header: gpd.GeoDataFrame | dict[str, Any] = None,
         has_inclined: bool = False,
         vertical_datum: str | int | CRS = None,
+        metadata: dict[str, Any] = {},
     ):
         if isinstance(data, dict):
             data = pd.DataFrame(data)
@@ -98,7 +101,7 @@ class Collection(AbstractBase):
         self._nr = survey_id_col
         self.header = header
         self.data = data
-        self._metadata = {}
+        self.metadata = metadata
 
         self._vertical_datum = (
             CRS.from_user_input(vertical_datum) if vertical_datum else None
@@ -157,6 +160,7 @@ class Collection(AbstractBase):
             and self.data.shape[1] == other.data.shape[1]
             and self.data.columns.isin(other.data.columns).all()
             and self.data.reindex(columns=other.data.columns).equals(other.data)
+            and self.metadata == other.metadata
         )
 
     def __repr__(self):
@@ -263,7 +267,7 @@ class Collection(AbstractBase):
     @property
     def metadata(self):
         """
-        The collection's (optional) metadata.
+        Metadata attached to the collection.
         """
         return self._metadata
 
@@ -292,6 +296,9 @@ class Collection(AbstractBase):
 
     @property
     def attrs(self):
+        """
+        Return a dictionary of attributes related to the collection.
+        """
         self._attrs = {
             "geost": {
                 "header_columns": list(self.header.columns),
@@ -301,7 +308,7 @@ class Collection(AbstractBase):
                 "vertical_datum": self.vertical_datum.to_string()
                 if self.vertical_datum is not None
                 else None,
-                "metadata": self._metadata,
+                "metadata": self.metadata,
             }
         }
         return self._attrs
@@ -413,10 +420,8 @@ class Collection(AbstractBase):
                     self._warn_misaligned_tables(only_in_header, only_in_data)
 
     @metadata.setter
-    def metadata(self, metadata: dict):
-        if not hasattr(self, "_metadata"):
-            self._metadata = {}
-        self._metadata.update(metadata)
+    def metadata(self, metadata: dict[str, Any] | None):
+        self._metadata = metadata or {}
 
     def _check_alignment(self) -> tuple[list[str], list[str], list[str]]:
         """
@@ -2188,7 +2193,7 @@ class Collection(AbstractBase):
         """
         self.header.to_file(outfile, **kwargs)
 
-    def to_geopackage(self, outfile: str | Path, metadata: dict[str, str] = None):
+    def to_geopackage(self, outfile: str | Path):
         """
         Write header and data to a geopackage. You can use the resulting file to display
         borehole locations in GIS for instance.
@@ -2197,9 +2202,6 @@ class Collection(AbstractBase):
         ----------
         file : str | Path
             Path to geopackage to be written.
-        metadata : dict[str, str], default None
-            Optional metadata to be stored in the file. Keys and values must be strings.
-            The default is None.
 
         """
         utils.io_helpers._to_geopackage(
@@ -2209,7 +2211,6 @@ class Collection(AbstractBase):
             layer="header",
             driver="GPKG",
             index=False,
-            metadata=metadata,
         )
         utils.io_helpers._to_geopackage(
             gpd.GeoDataFrame(self.data),
@@ -2218,7 +2219,14 @@ class Collection(AbstractBase):
             layer="data",
             driver="GPKG",
             index=False,
-            metadata=metadata,
+        )
+        utils.io_helpers._to_geopackage(
+            gpd.GeoDataFrame(self.attrs),
+            outfile,
+            "Attributes",
+            layer="attributes",
+            driver="GPKG",
+            index=True,
         )
 
     def to_parquet(self, outfile: str | Path, data_table: bool = True, **kwargs):

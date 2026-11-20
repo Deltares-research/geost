@@ -1,3 +1,4 @@
+import ast
 import warnings
 from pathlib import Path
 from typing import Any, Iterable, Literal
@@ -55,13 +56,17 @@ def read_table(
         a `pd.DataFrame` is returned. The default is True.
     crs : str | int | CRS, optional
         EPSG of the data's horizontal reference. Takes anything that can be interpreted
-        by pyproj.crs.CRS.from_user_input(). The default is None, which means no CRS will
-        be assigned to the resulting Collection. Only used if `as_collection=True`.
+        by pyproj.crs.CRS.from_user_input(). If reading a parquet file with GeoST attributes,
+        this option is ignored and the CRS will be assigned automatically. The default is None.
+        Only used if `as_collection=True`.
     vertical_datum : str | int | CRS, optional
-        Vertical datum for the collection. The default is None. Only used if
-        `as_collection=True`.
+        Vertical datum for the collection. If reading a parquet file with GeoST attributes,
+        this option is ignored and the vertical datum will be assigned automatically.
+        The default is None. Only used if `as_collection=True`.
     has_inclined : bool, optional
-        Indicates whether the collection has inclined data. The default is False.
+        Indicates whether the collection has inclined data. If reading a parquet file
+        with GeoST attributes, this option is ignored and the information will be
+        assigned automatically. The default is False.
     coordinate_names : tuple[str, str], optional
         Tuple specifying the names of the columns to be used as coordinates for the
         geometry column. The default is None, which means that it automatically tries
@@ -69,8 +74,9 @@ def read_table(
         :py:mod:`~geost.validation.column_names`). If not found, no geometry column
         will be created.
     include_in_header: str | Iterable[str] | None, optional
-        Columns to aditionally include in the header. The default is None, which means
-        that only the default columns 'nr', 'surface', 'x' and 'y' or their aliases are included.
+        Columns to aditionally include in the header. If reading a parquet file with GeoST attributes,
+        this option is ignored and the header columns will be assigned automatically.
+        The default is None, which means that only the default columns 'nr', 'surface', 'x' and 'y' or their aliases are included.
     column_mapper: dict, optional
         Mapping from column names in the input file to GeoST positional column names. Use
         this when your file uses non-standard names which cannot be recognized automatically
@@ -114,15 +120,15 @@ def read_table(
 
     if as_collection:
         # Get stored collection attributes if present (only available in parquet files).
-        # Note that user-provided values always take precedence over stored ones.
         if geost_attrs := data.attrs.get("geost"):
             data_columns = geost_attrs.get("data_columns")
-            include_in_header = include_in_header or geost_attrs.get("header_columns")
-            crs = crs or geost_attrs.get("crs")
-            vertical_datum = vertical_datum or geost_attrs.get("vertical_datum")
-            has_inclined = has_inclined or geost_attrs.get("has_inclined")
+            include_in_header = geost_attrs.get("header_columns")
+            crs = geost_attrs.get("crs")
+            vertical_datum = geost_attrs.get("vertical_datum")
+            has_inclined = geost_attrs.get("has_inclined")
+            metadata = geost_attrs.get("metadata")
         else:
-            data_columns = None
+            metadata = None
 
         data = data.gst.to_collection(
             crs=crs,
@@ -130,9 +136,10 @@ def read_table(
             has_inclined=has_inclined,
             coordinate_names=coordinate_names,
             include_in_header=include_in_header,
+            metadata=metadata,
         )
 
-        if data_columns:
+        if geost_attrs:
             data.data = data.data[data_columns]
 
     return data
@@ -714,31 +721,16 @@ def read_uullg_tables(
     return Collection(data, header=header, vertical_datum=vertical_datum)
 
 
-def read_collection_geopackage(
-    filepath: str | Path,
-    has_inclined: bool = False,
-    crs: str | int | CRS = 28992,
-    vertical_datum: str | int | CRS = 5709,
-):
+def read_collection_geopackage(filepath: str | Path):
     """
     Read a GeoST stored Geopackage file of `geost.base.Collection` objects. The Geopackage
-    contains the Collection's "header" and "data" attributes as layers which are read into
-    the specified Collection.
+    contains the Collection's "header", "data" and "metadata" attributes as layers which
+    are read into the specified Collection.
 
     Parameters
     ----------
     filepath : str | Path
         GeoST stored Geopackage file of a `geost.base.Collection` object.
-    has_inclined : bool, optional
-        If True, the borehole data table contains inclined data. The default is False.
-    crs : str | int | CRS, optional
-        EPSG of the data's horizontal reference. Takes anything that can be interpreted
-        by pyproj.crs.CRS.from_user_input(). The default is 28992.
-    vertical_datum : str | int | CRS, optional
-        EPSG of the data's vertical datum. Takes anything that can be interpreted by
-        pyproj.crs.CRS.from_user_input(). However, it must be a vertical datum. FYI:
-        "NAP" is EPSG 5709 and The Belgian reference system (Ostend height) is ESPG
-        5710. The default is 5709.
 
     Returns
     -------
@@ -764,14 +756,16 @@ def read_collection_geopackage(
 
     """
     header = gpd.read_file(filepath, layer="header")
-    header.set_crs(crs, inplace=True, allow_override=True)
     data = gpd.read_file(filepath, layer="data")
+    attributes = gpd.read_file(filepath, layer="attributes")
+    attributes = dict(zip(attributes["index"], attributes["geost"]))
 
     return Collection(
-        data,
+        data=data,
         header=header,
-        has_inclined=has_inclined,
-        vertical_datum=vertical_datum,
+        has_inclined=ast.literal_eval(attributes["has_inclined"]),
+        vertical_datum=attributes["vertical_datum"],
+        metadata=ast.literal_eval(attributes["metadata"]),
     )
 
 

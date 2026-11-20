@@ -191,13 +191,16 @@ def test_read_pickle(collection_pickle):
 def test_read_collection_geopackage(collection, tmp_path, request):
     outfile = tmp_path / r"collection.gpkg"
     collection = request.getfixturevalue(collection)
+    collection.metadata = {
+        "test_key": "test_value",
+        "another_key": "another_value",
+    }
     collection.to_geopackage(outfile)
-    read_collection = geost.read_collection_geopackage(outfile, Collection)
+    read_collection = geost.read_collection_geopackage(outfile)
     assert isinstance(read_collection, Collection)
     assert isinstance(read_collection.header, gpd.GeoDataFrame)
     assert isinstance(read_collection.data, pd.DataFrame)
-    assert read_collection.header.equals(collection.header)
-    assert read_collection.data.equals(collection.data)
+    assert read_collection == collection
 
 
 @pytest.mark.parametrize(

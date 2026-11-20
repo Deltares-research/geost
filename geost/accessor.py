@@ -480,6 +480,7 @@ class GeostFrame(AbstractBase):
         has_inclined: bool = False,
         coordinate_names: tuple[str, str] = None,
         include_in_header: str | Iterable[str] | None = None,
+        metadata: dict[str, Any] | None = {},
     ):
         """
         Create a :class:`geost.base.Collection` from the current GeoDataFrame or DataFrame.
@@ -501,6 +502,8 @@ class GeostFrame(AbstractBase):
         include_in_header: str | Iterable[str] | None, optional
             Columns to aditionally include in the header. The default is None, which means
             that only the default columns 'nr', 'surface', 'x' and 'y' or their aliases are included.
+        metadata : dict[str, Any] | None, optional
+            Metadata to attach to the collection. The default is an empty dictionary.
 
         Returns
         -------
@@ -520,6 +523,7 @@ class GeostFrame(AbstractBase):
             header=header,
             has_inclined=has_inclined,
             vertical_datum=vertical_datum,
+            metadata=metadata,
         )
 
     def standardize_column_names(self) -> pd.DataFrame | gpd.GeoDataFrame:
