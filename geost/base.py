@@ -98,6 +98,7 @@ class Collection(AbstractBase):
         self._nr = survey_id_col
         self.header = header
         self.data = data
+        self._metadata = {}
 
         self._vertical_datum = (
             CRS.from_user_input(vertical_datum) if vertical_datum else None
@@ -248,6 +249,13 @@ class Collection(AbstractBase):
         return self._data
 
     @property
+    def metadata(self):
+        """
+        The collection's (optional) metadata.
+        """
+        return self._metadata
+
+    @property
     def positional_columns(self) -> dict:
         """
         Return a dictionary which columns are used in the header and data tables.
@@ -269,6 +277,22 @@ class Collection(AbstractBase):
         Number of objects in the collection.
         """
         return len(self)
+
+    @property
+    def attrs(self):
+        self._attrs = {
+            "geost": {
+                "header_columns": list(self.header.columns),
+                "data_columns": list(self.data.columns),
+                "has_inclined": self.has_inclined,
+                "crs": self.crs.to_string() if self.crs is not None else None,
+                "vertical_datum": self.vertical_datum.to_string()
+                if self.vertical_datum is not None
+                else None,
+                "metadata": self._metadata,
+            }
+        }
+        return self._attrs
 
     @property
     def empty(self):
@@ -375,6 +399,12 @@ class Collection(AbstractBase):
                     )
                 else:
                     self._warn_misaligned_tables(only_in_header, only_in_data)
+
+    @metadata.setter
+    def metadata(self, metadata: dict):
+        if not hasattr(self, "_metadata"):
+            self._metadata = {}
+        self._metadata.update(metadata)
 
     def _check_alignment(self) -> tuple[list[str], list[str], list[str]]:
         """
@@ -2203,9 +2233,20 @@ class Collection(AbstractBase):
 
         """
         if data_table:
-            self.data.to_parquet(outfile, **kwargs)
+            data_to_write = self.data.copy()
+            columns_to_add = [
+                col
+                for col in self.header.columns
+                if col not in self.data.columns and col != "geometry"
+            ]
+            data_to_write = data_to_write.merge(
+                self.header[[self._nr] + columns_to_add], on=self._nr, how="left"
+            )
+            data_to_write.attrs = self.attrs
+
+            data_to_write.to_parquet(outfile, engine="pyarrow", **kwargs)
         else:
-            self.header.to_parquet(outfile, **kwargs)
+            self.header.to_parquet(outfile, engine="pyarrow", **kwargs)
 
     def to_csv(self, outfile: str | Path, data_table: bool = True, **kwargs):
         """

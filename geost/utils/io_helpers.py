@@ -32,7 +32,7 @@ def _pandas_read(file: str | Path, **kwargs) -> pd.DataFrame:
     file = Path(file)
     suffix = file.suffix
     if suffix in {".parquet", ".pq"}:
-        return pd.read_parquet(file, **kwargs)
+        return pd.read_parquet(file, engine="pyarrow", **kwargs)
     elif suffix in {".csv", ".txt", ".tsv"}:
         return pd.read_csv(file, **kwargs)
     elif suffix in {".xls", ".xlsx"}:  # pragma: no cover

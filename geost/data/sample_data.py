@@ -44,7 +44,7 @@ def boreholes_usp(pandas=False, return_filepath=False):
     if pandas:
         return pd.read_parquet(filename)
     else:
-        return read_table(filename, crs=28992, vertical_datum=5709)
+        return read_table(filename)
 
 
 def cpts_usp(pandas=False, return_filepath=False):
@@ -75,7 +75,7 @@ def cpts_usp(pandas=False, return_filepath=False):
     else:
         with warnings.catch_warnings():  # TODO: Fix supposed mixed depths in CPT data
             warnings.simplefilter("ignore")
-            return read_table(filename, crs=28992, vertical_datum=5709)
+            return read_table(filename)
 
 
 def geotop_usp(return_filepath=False):

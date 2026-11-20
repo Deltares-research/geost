@@ -113,6 +113,17 @@ def read_table(
     data = conversion.adjust_z_coordinates(data)
 
     if as_collection:
+        # Get stored collection attributes if present (only available in parquet files).
+        # Note that user-provided values always take precedence over stored ones.
+        if geost_attrs := data.attrs.get("geost"):
+            data_columns = geost_attrs.get("data_columns")
+            include_in_header = include_in_header or geost_attrs.get("header_columns")
+            crs = crs or geost_attrs.get("crs")
+            vertical_datum = vertical_datum or geost_attrs.get("vertical_datum")
+            has_inclined = has_inclined or geost_attrs.get("has_inclined")
+        else:
+            data_columns = None
+
         data = data.gst.to_collection(
             crs=crs,
             vertical_datum=vertical_datum,
@@ -120,6 +131,9 @@ def read_table(
             coordinate_names=coordinate_names,
             include_in_header=include_in_header,
         )
+
+        if data_columns:
+            data.data = data.data[data_columns]
 
     return data
 
