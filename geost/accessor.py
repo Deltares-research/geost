@@ -477,7 +477,6 @@ class GeostFrame(AbstractBase):
         self,
         crs: str | int | CRS = None,
         vertical_datum: str | int | CRS = None,
-        has_inclined: bool = False,
         coordinate_names: tuple[str, str] = None,
         include_in_header: str | Iterable[str] | None = None,
         metadata: dict[str, Any] | None = {},
@@ -492,8 +491,6 @@ class GeostFrame(AbstractBase):
             which means no CRS will be assigned to the resulting GeoDataFrame.
         vertical_datum : str | int | CRS, optional
             Vertical datum for the collection. The default is None.
-        has_inclined : bool, optional
-            Indicates whether the collection has inclined data. The default is False.
         coordinate_names : tuple[str, str], optional
             Tuple specifying the names of the columns to be used as coordinates for the
             geometry column. The default is None, which means that it automatically tries
@@ -521,7 +518,6 @@ class GeostFrame(AbstractBase):
         return Collection(
             self._obj,
             header=header,
-            has_inclined=has_inclined,
             vertical_datum=vertical_datum,
             metadata=metadata,
         )
@@ -2148,17 +2144,17 @@ class GeostFrame(AbstractBase):
 
         Parameters
         ----------
-        relative_to_vertical_reference : bool, optional
-            If True, the depth of all data objects will converted to a depth with respect to
-            a reference plane (e.g. "NAP", "TAW"). If False, the depth will be kept as original
-            in the "top" and "bottom" columns which is in meter below the surface. The default
-            is True.
         crs : str | int | CRS
             EPSG of the target crs. Takes anything that can be interpreted by
             pyproj.crs.CRS.from_user_input().
-        has_inclined : bool, optional
-            If True, the data also contains inclined objects which means the top of layers
-            is not in the same x,y-location as the bottom of layers. The default is False.
+        x_end : str | None
+            Name of the column containing the x-coordinate of the bottom of layers. This
+            applies to surveys that are inclined, where the bottom of the layers is not
+            directly below the top. If None, it will be inferred from the top x-coordinate.
+        y_end : str | None
+            Name of the column containing the y-coordinate of the bottom of layers. This
+            applies to surveys that are inclined, where the bottom of the layers is not
+            directly below the top. If None, it will be inferred from the top y-coordinate.
 
         """
         from shapely import linestrings

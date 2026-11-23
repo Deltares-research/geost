@@ -318,10 +318,8 @@ class TestGeostFrame:
                 coordinate_names=["x", "y"],
                 crs=28992,
                 vertical_datum=5709,
-                has_inclined=True,
             )
         assert isinstance(collection, Collection)
-        assert collection.has_inclined
         assert collection.header_has_geometry
         assert collection.crs == 28992
         assert collection.vertical_datum == 5709

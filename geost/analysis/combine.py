@@ -93,7 +93,6 @@ def add_nearest_voxelmodel_variable(
     return Collection(
         collection.data.assign(**collection_data[data_vars]),
         header=collection.header.copy(),
-        has_inclined=collection.has_inclined,
         vertical_datum=collection.vertical_datum,
     )
 
@@ -212,7 +211,6 @@ def add_model_data(
         result = Collection(
             result,
             header=header,
-            has_inclined=survey_data.has_inclined,
             vertical_datum=survey_data.vertical_datum,
         )
 

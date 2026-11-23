@@ -32,9 +32,6 @@ LLG_COLUMN_MAPPING = {
 def read_table(
     file: str | Path,
     as_collection: bool = True,
-    crs: str | int | CRS = None,
-    vertical_datum: str | int | CRS = None,
-    has_inclined: bool = False,
     coordinate_names: tuple[str, str] = None,
     include_in_header: str | Iterable[str] | None = None,
     column_mapper: dict = None,
@@ -54,19 +51,6 @@ def read_table(
     as_collection : bool, optional
         If True, the table will be read as a :class:`~geost.base.Collection`. If False,
         a `pd.DataFrame` is returned. The default is True.
-    crs : str | int | CRS, optional
-        EPSG of the data's horizontal reference. Takes anything that can be interpreted
-        by pyproj.crs.CRS.from_user_input(). If reading a parquet file with GeoST attributes,
-        this option is ignored and the CRS will be assigned automatically. The default is None.
-        Only used if `as_collection=True`.
-    vertical_datum : str | int | CRS, optional
-        Vertical datum for the collection. If reading a parquet file with GeoST attributes,
-        this option is ignored and the vertical datum will be assigned automatically.
-        The default is None. Only used if `as_collection=True`.
-    has_inclined : bool, optional
-        Indicates whether the collection has inclined data. If reading a parquet file
-        with GeoST attributes, this option is ignored and the information will be
-        assigned automatically. The default is False.
     coordinate_names : tuple[str, str], optional
         Tuple specifying the names of the columns to be used as coordinates for the
         geometry column. The default is None, which means that it automatically tries
@@ -125,15 +109,15 @@ def read_table(
             include_in_header = geost_attrs.get("header_columns")
             crs = geost_attrs.get("crs")
             vertical_datum = geost_attrs.get("vertical_datum")
-            has_inclined = geost_attrs.get("has_inclined")
             metadata = geost_attrs.get("metadata")
         else:
+            crs = None
+            vertical_datum = None
             metadata = None
 
         data = data.gst.to_collection(
             crs=crs,
             vertical_datum=vertical_datum,
-            has_inclined=has_inclined,
             coordinate_names=coordinate_names,
             include_in_header=include_in_header,
             metadata=metadata,
@@ -194,7 +178,7 @@ def read_nlog_cores(file: str | Path, **kwargs) -> Collection:
     data = data.merge(header[["nr", "surface", "end"]], on="nr", how="left")
     data = conversion.adjust_z_coordinates(data)
 
-    return Collection(data, header=header, has_inclined=True, vertical_datum=5709)
+    return Collection(data, header=header, vertical_datum=5709)
 
 
 def read_xml_boris(
@@ -763,7 +747,6 @@ def read_collection_geopackage(filepath: str | Path):
     return Collection(
         data=data,
         header=header,
-        has_inclined=ast.literal_eval(attributes["has_inclined"]),
         vertical_datum=attributes["vertical_datum"],
         metadata=ast.literal_eval(attributes["metadata"]),
     )

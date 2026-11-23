@@ -52,10 +52,6 @@ class Collection(AbstractBase):
         given, the header will automatically be set from the data by dropping duplicates in
         the column identifying the survey (e.g. "nr") and keeping the first row for each
         survey. A dict is converted to a GeoDataFrame. The default is None.
-    has_inclined : bool, optional
-        Boolean indicating whether there are inclined objects within the collection. This
-        is used to determine whether the collection contains objects with bottom coordinates
-        (e.g. "x_bot", "y_bot") in the data table. The default is False.
     vertical_reference : str | int | CRS, optional
         Vertical datum represented by an instance of pyproj.crs.CRS or anything that can be
         interpreted by pyproj.crs.CRS.from_user_input(). This is used to keep track of the
@@ -70,7 +66,6 @@ class Collection(AbstractBase):
         data: pd.DataFrame | dict[str, Any] = None,
         *,
         header: gpd.GeoDataFrame | dict[str, Any] = None,
-        has_inclined: bool = False,
         vertical_datum: str | int | CRS = None,
         metadata: dict[str, Any] = {},
     ):
@@ -106,7 +101,6 @@ class Collection(AbstractBase):
         self._vertical_datum = (
             CRS.from_user_input(vertical_datum) if vertical_datum else None
         )
-        self._has_inclined = has_inclined
 
     @staticmethod
     def _check_positional_columns_alignment(
@@ -162,7 +156,6 @@ class Collection(AbstractBase):
             and self.data.reindex(columns=other.data.columns).equals(other.data)
             and self.crs == other.crs
             and self.vertical_datum == other.vertical_datum
-            and self.has_inclined == other.has_inclined
             and self.metadata == other.metadata
         )
 
@@ -306,7 +299,6 @@ class Collection(AbstractBase):
             "geost": {
                 "header_columns": list(self.header.columns),
                 "data_columns": list(self.data.columns),
-                "has_inclined": self.has_inclined,
                 "crs": self.crs.to_string() if self.crs is not None else None,
                 "vertical_datum": self.vertical_datum.to_string()
                 if self.vertical_datum is not None
@@ -333,13 +325,6 @@ class Collection(AbstractBase):
         Vertical datum represented by an instance of pyproj.crs.CRS.
         """
         return self._vertical_datum
-
-    @property
-    def has_inclined(self):
-        """
-        Boolean indicating whether there are inclined objects within the collection
-        """
-        return self._has_inclined
 
     @property
     def header_has_geometry(self):
@@ -650,7 +635,6 @@ class Collection(AbstractBase):
                 return self.__class__(
                     new_data,
                     header=self.header.copy(),
-                    has_inclined=self.has_inclined,
                     vertical_datum=self.vertical_datum,
                 )
         else:
@@ -662,7 +646,6 @@ class Collection(AbstractBase):
                 return self.__class__(
                     self.data.copy(),
                     header=new_header,
-                    has_inclined=self.has_inclined,
                     vertical_datum=self.vertical_datum,
                 )
 
@@ -732,7 +715,6 @@ class Collection(AbstractBase):
         return self.__class__(
             selected_data,
             header=selected_header,
-            has_inclined=self.has_inclined,
             vertical_datum=self.vertical_datum,
         )
 
@@ -960,7 +942,6 @@ class Collection(AbstractBase):
         return self.__class__(
             selected_data,
             header=selected_header,
-            has_inclined=self.has_inclined,
             vertical_datum=self.vertical_datum,
         )
 
@@ -1008,7 +989,6 @@ class Collection(AbstractBase):
         return self.__class__(
             selected_data,
             header=selected_header,
-            has_inclined=self.has_inclined,
             vertical_datum=self.vertical_datum,
         )
 
@@ -1050,7 +1030,6 @@ class Collection(AbstractBase):
         return self.__class__(
             selected_data,
             header=selected_header,
-            has_inclined=self.has_inclined,
             vertical_datum=self.vertical_datum,
         )
 
@@ -1092,7 +1071,6 @@ class Collection(AbstractBase):
         return self.__class__(
             selected_data,
             header=selected_header,
-            has_inclined=self.has_inclined,
             vertical_datum=self.vertical_datum,
         )
 
@@ -1292,7 +1270,6 @@ class Collection(AbstractBase):
         return self.__class__(
             selected_data,
             header=selected_header,
-            has_inclined=self.has_inclined,
             vertical_datum=self.vertical_datum,
         )
 
@@ -1335,7 +1312,6 @@ class Collection(AbstractBase):
         return self.__class__(
             selected_data,
             header=selected_header,
-            has_inclined=self.has_inclined,
             vertical_datum=self.vertical_datum,
         )
 
@@ -1407,7 +1383,6 @@ class Collection(AbstractBase):
         return self.__class__(
             selected_data,
             header=selected_header,
-            has_inclined=self.has_inclined,
             vertical_datum=self.vertical_datum,
         )
 
@@ -1511,7 +1486,6 @@ class Collection(AbstractBase):
         return self.__class__(
             selected_data,
             header=selected_header,
-            has_inclined=self.has_inclined,
             vertical_datum=self.vertical_datum,
         )
 
@@ -1577,7 +1551,6 @@ class Collection(AbstractBase):
         return self.__class__(
             selected_data,
             header=selected_header,
-            has_inclined=self.has_inclined,
             vertical_datum=self.vertical_datum,
         )
 
@@ -1628,7 +1601,6 @@ class Collection(AbstractBase):
         return self.__class__(
             selected_data,
             header=selected_header,
-            has_inclined=self.has_inclined,
             vertical_datum=self.vertical_datum,
         )
 
@@ -1701,7 +1673,6 @@ class Collection(AbstractBase):
         return self.__class__(
             new_data,
             header=self.header.copy(),
-            has_inclined=self.has_inclined,
             vertical_datum=self.vertical_datum,
         )
 
@@ -1841,7 +1812,6 @@ class Collection(AbstractBase):
         return self.__class__(
             new_data,
             header=self.header.copy(),
-            has_inclined=self.has_inclined,
             vertical_datum=self.vertical_datum,
         )
 
@@ -2088,7 +2058,6 @@ class Collection(AbstractBase):
         return self.__class__(
             discretized,
             header=header,
-            has_inclined=self.has_inclined,
             vertical_datum=self.vertical_datum,
         )
 
@@ -2161,7 +2130,6 @@ class Collection(AbstractBase):
             return self.__class__(
                 combined_data,
                 header=self.header,
-                has_inclined=self.has_inclined,
                 vertical_datum=self.vertical_datum,
             )
 

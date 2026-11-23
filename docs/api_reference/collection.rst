@@ -106,7 +106,6 @@ Attributes
 
    Collection.crs
    Collection.data
-   Collection.has_inclined
    Collection.header
    Collection.n_points
    Collection.metadata

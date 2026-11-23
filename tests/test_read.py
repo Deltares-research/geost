@@ -80,28 +80,24 @@ def test_nlog_reader_from_parquet(testdatadir):
     )
     assert isinstance(nlog, Collection)
     assert nlog.header[desired_df.columns].equals(desired_df)
-    assert nlog.has_inclined
     assert nlog.crs == 28992
     assert nlog.vertical_datum == 5709
     assert nlog.data.shape == (62, 29)
 
 
 @pytest.mark.parametrize(
-    ("filename", "has_inclined", "expected_crs", "expected_vertical_datum"),
+    ("filename", "expected_crs", "expected_vertical_datum"),
     [
-        ("test_borehole_table.parquet", False, 28992, 5709),
-        ("test_borehole_table.csv", False, None, None),
-        ("test_inclined_borehole_table.parquet", True, 28992, 5709),
-        ("test_cpts.parquet", False, 28992, 5709),
+        ("test_borehole_table.parquet", 28992, 5709),
+        ("test_borehole_table.csv", None, None),
+        ("test_inclined_borehole_table.parquet", 28992, 5709),
+        ("test_cpts.parquet", 28992, 5709),
     ],
 )
-def test_read_table(
-    filename, has_inclined, expected_crs, expected_vertical_datum, testdatadir
-):
+def test_read_table(filename, expected_crs, expected_vertical_datum, testdatadir):
     filepath = testdatadir / filename
     cores = geost.read_table(filepath)
     assert isinstance(cores, Collection)
-    assert cores.has_inclined == has_inclined
     assert cores.crs == expected_crs
     assert cores.vertical_datum == expected_vertical_datum
 
@@ -115,7 +111,6 @@ def test_read_boris_xml(testdatadir):
         testdatadir / r"xml/test_boris_xml.xml",
         crs=28992,
         include_in_header=["nr", "x", "y", "surface", "end"],
-        has_inclined=False,
     )
     assert isinstance(collection, Collection)
     assert isinstance(collection.header, gpd.GeoDataFrame)
@@ -127,7 +122,6 @@ def test_read_boris_xml(testdatadir):
     assert collection.data.shape == (236, 51)
     assert collection.crs == 28992
     assert collection.vertical_datum is None
-    assert not collection.has_inclined
 
     df = geost.read_xml_boris(
         testdatadir / r"xml/test_boris_xml.xml", as_collection=False

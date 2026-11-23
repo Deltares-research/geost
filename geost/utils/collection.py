@@ -72,6 +72,5 @@ def concat(
     return Collection(
         concatenated_data,
         header=concatenated_header,
-        has_inclined=any(collection.has_inclined for collection in collections),
         vertical_datum=collections[0].vertical_datum,
     )

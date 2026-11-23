@@ -156,7 +156,6 @@ class TestCollection:
         assert isinstance(collection.header, gpd.GeoDataFrame)
         assert isinstance(collection.data, pd.DataFrame)
         assert not collection.header_has_geometry
-        assert not collection.has_inclined
         assert collection.vertical_datum is None
         assert collection._nr == "nr"
         assert_array_equal(collection.header.columns, ["nr", "surface", "end"])
@@ -178,7 +177,6 @@ class TestCollection:
         assert isinstance(collection.header, gpd.GeoDataFrame)
         assert isinstance(collection.data, pd.DataFrame)
         assert collection.header_has_geometry
-        assert not collection.has_inclined
         assert collection.vertical_datum is None
         assert collection._nr == "nr"
         assert_array_equal(
