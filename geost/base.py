@@ -145,19 +145,38 @@ class Collection(AbstractBase):
         return header, data
 
     def __eq__(self, other):
+        # If other is not a Collection, return False
         if not isinstance(other, Collection):
             return False
-        return (
-            self.header.shape[1] == other.header.shape[1]
-            and self.header.columns.isin(other.header.columns).all()
-            and self.header.reindex(columns=other.header.columns).equals(other.header)
-            and self.data.shape[1] == other.data.shape[1]
-            and self.data.columns.isin(other.data.columns).all()
-            and self.data.reindex(columns=other.data.columns).equals(other.data)
-            and self.crs == other.crs
-            and self.vertical_datum == other.vertical_datum
-            and self.metadata == other.metadata
-        )
+
+        # If other has different crs, vertical datum, or metadata, return False
+        if (
+            self.crs != other.crs
+            or self.vertical_datum != other.vertical_datum
+            or self.metadata != other.metadata
+        ):
+            return False
+
+        # If other has different header or data structure, return False
+        if (
+            self.header.shape[1] != other.header.shape[1]
+            or self.data.shape[1] != other.data.shape[1]
+        ):
+            return False
+
+        # If other has different header or data columns, return False
+        if not self.header.columns.isin(other.header.columns).all():
+            return False
+        if not self.data.columns.isin(other.data.columns).all():
+            return False
+
+        # If other has different header or data content, return False
+        if not self.header.loc[:, other.header.columns].equals(other.header):
+            return False
+        if not self.data.loc[:, other.data.columns].equals(other.data):
+            return False
+
+        return True
 
     def __repr__(self):
         positional_columns = self._format_positional_columns()
@@ -2141,7 +2160,7 @@ class Collection(AbstractBase):
 
         Parameters
         ----------
-        file : str | Path
+        outfile : str | Path
             Path to shapefile to be written.
         **kwargs
             gpd.GeoDataFrame.to_parquet kwargs. See relevant Pandas documentation.
@@ -2156,7 +2175,7 @@ class Collection(AbstractBase):
 
         Parameters
         ----------
-        file : str | Path
+        outfile : str | Path
             Path to shapefile to be written.
         **kwargs
             gpd.GeoDataFrame.to_file kwargs. See relevant GeoPandas documentation.
@@ -2171,7 +2190,7 @@ class Collection(AbstractBase):
 
         Parameters
         ----------
-        file : str | Path
+        outfile : str | Path
             Path to geopackage to be written.
 
         """
@@ -2200,17 +2219,36 @@ class Collection(AbstractBase):
             index=True,
         )
 
-    def to_parquet(self, outfile: str | Path, data_table: bool = True, **kwargs):
+    def _prepare_data_to_write(self):
+        """
+        Prepares complete table for exporting parquet and csv files
+
+        Returns
+        -------
+        pd.DataFrame
+            DataFrame containing the merged data and header information, ready for export.
+        """
+        data_to_write = self.data.copy()
+        columns_to_add = [
+            col
+            for col in self.header.columns
+            if col not in self.data.columns and col != "geometry"
+        ]
+        data_to_write = data_to_write.merge(
+            self.header[[self._nr] + columns_to_add], on=self._nr, how="left"
+        )
+        data_to_write.attrs = self.attrs
+        return data_to_write
+
+    def to_parquet(self, outfile: str | Path, **kwargs):
         """
         Export the data or header table to a parquet file. By default the data table is
         exported.
 
         Parameters
         ----------
-        file : str | Path
+        outfile : str | Path
             Path to parquet file to be written.
-        data_table : bool, optional
-            If True, the data table is exported. If False, the header table is exported.
         **kwargs
             pd.DataFrame.to_parquet kwargs. See relevant Pandas documentation.
 
@@ -2223,33 +2261,18 @@ class Collection(AbstractBase):
         >>> collection.to_parquet("example.parquet", data_table=False)
 
         """
-        if data_table:
-            data_to_write = self.data.copy()
-            columns_to_add = [
-                col
-                for col in self.header.columns
-                if col not in self.data.columns and col != "geometry"
-            ]
-            data_to_write = data_to_write.merge(
-                self.header[[self._nr] + columns_to_add], on=self._nr, how="left"
-            )
-            data_to_write.attrs = self.attrs
+        data_to_write = self._prepare_data_to_write()
+        data_to_write.to_parquet(outfile, engine="pyarrow", **kwargs)
 
-            data_to_write.to_parquet(outfile, engine="pyarrow", **kwargs)
-        else:
-            self.header.to_parquet(outfile, engine="pyarrow", **kwargs)
-
-    def to_csv(self, outfile: str | Path, data_table: bool = True, **kwargs):
+    def to_csv(self, outfile: str | Path, **kwargs):
         """
         Export the data or header table to a csv file. By default the data table is
         exported.
 
         Parameters
         ----------
-        file : str | Path
+        outfile : str | Path
             Path to csv file to be written.
-        data_table : bool, optional
-            If True, the data table is exported. If False, the header table is exported.
         **kwargs
             pd.DataFrame.to_csv kwargs. See relevant Pandas documentation.
 
@@ -2262,28 +2285,20 @@ class Collection(AbstractBase):
         >>> collection.to_csv("example.csv", data_table=False)
 
         """
-        if data_table:
-            self.data.to_csv(outfile, **kwargs)
-        else:
-            self.header.to_csv(outfile, **kwargs)
+        data_to_write = self._prepare_data_to_write()
 
-    def to_pickle(self, outfile: str | Path, **kwargs):
-        """
-        Export the complete Collection to a pickle file.
+        with open(outfile, "w") as f:
+            f.write("# GEOST ATTRIBUTES #\n")
+            for key, value in self.attrs["geost"].items():
+                f.write(f"# {key}: {value}\n")
+            f.write("# ---------------- #\n")
+            data_to_write.to_csv(f, **kwargs)
 
-        Parameters
-        ----------
-        file : str | Path
-            Path to pickle file to be written.
-        **kwargs
-            pd.to_pickle kwargs. See relevant Pandas documentation.
-
-        Examples
-        --------
-        >>> collection.to_pickle("example.pkl")
-
-        """
-        utils.io_helpers.save_pickle(self, outfile, **kwargs)
+        # with open(outfile, "w") as f:
+        #     f.write("#GEOST:")
+        #     for key, value in self.attrs["geost"].items():
+        #         f.write(f"{key}:{value},")
+        #     data_to_write.to_csv(f, **kwargs)
 
     def to_pyvista_cylinders(
         self,

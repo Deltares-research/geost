@@ -51,13 +51,6 @@ def test_pandas_read(tmp_path, point_header, extension):
 
 
 @pytest.mark.unittest
-def test_save_pickle(borehole_collection, tmp_path):
-    outfile = tmp_path / r"collection.pkl"
-    io_helpers.save_pickle(borehole_collection, outfile)
-    assert outfile.is_file()
-
-
-@pytest.mark.unittest
 def test_to_geopackage(borehole_collection, tmp_path):
     outfile = tmp_path / "gpkg_with_error.gpkg"
     invalid_column = "GEOM"

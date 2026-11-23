@@ -1,4 +1,5 @@
 import sqlite3
+from ast import literal_eval
 from pathlib import Path
 from typing import Any
 
@@ -34,7 +35,10 @@ def _pandas_read(file: str | Path, **kwargs) -> pd.DataFrame:
     if suffix in {".parquet", ".pq"}:
         return pd.read_parquet(file, engine="pyarrow", **kwargs)
     elif suffix in {".csv", ".txt", ".tsv"}:
-        return pd.read_csv(file, **kwargs)
+        end, geost_attrs = _geost_attrs_from_csv(file)
+        data = pd.read_csv(file, skiprows=end, **kwargs)
+        data.attrs = geost_attrs
+        return data
     elif suffix in {".xls", ".xlsx"}:  # pragma: no cover
         return pd.read_excel(
             file, **kwargs
@@ -75,6 +79,37 @@ def _geopandas_read(file: str | Path, **kwargs) -> gpd.GeoDataFrame:
         return gpd.read_parquet(file, **kwargs)
     else:
         raise ValueError(f"File type {file.suffix} is not supported by geopandas.")
+
+
+def _geost_attrs_from_csv(file: str | Path) -> dict[str, Any]:
+    """
+    Extract GeoST attributes from a CSV file.
+
+    Parameters
+    ----------
+    file : str | Path
+        Path to the CSV file to read.
+
+    Returns
+    -------
+    dict[str, Any]
+        Dictionary containing the GeoST attributes.
+    """
+    attrs = {}
+    with open(file, "r") as f:
+        for i, line in enumerate(f):
+            if line.startswith("#"):
+                line = line[1:].strip()
+                if ":" in line:
+                    key, value = line.split(":", 1)
+                    key = key.strip()
+                    if key in {"data_columns", "header_columns", "metadata"}:
+                        attrs[key] = literal_eval(value.strip())
+                    else:
+                        attrs[key] = value.strip()
+            else:
+                break
+    return i, {"geost": attrs}
 
 
 def csv_to_parquet(file: str | Path, out_file: str | Path = None, **kwargs) -> None:
@@ -137,23 +172,6 @@ def excel_to_parquet(file: str | Path, out_file: str | Path = None, **kwargs) ->
         df.to_parquet(file.parent / (file.stem + ".parquet"))
     else:
         df.to_parquet(out_file)
-
-
-def save_pickle(data: Any, path: str | Path, **kwargs) -> None:
-    """
-    Save object as a pickle file (.pkl, .pickle) using Pandas to_pickle.
-
-    Parameters
-    ----------
-    data : Any
-        Object to save.
-    path : str | Path
-        Path to pickle file.
-    **kwargs
-            pd.to_pickle kwargs. See relevant Pandas documentation.
-
-    """
-    pd.to_pickle(data, path, **kwargs)
 
 
 def _to_geopackage(
