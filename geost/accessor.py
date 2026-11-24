@@ -2190,33 +2190,6 @@ class GeostFrame(AbstractBase):
 
     @_requires_depth
     @_requires_xy
-    def to_qgis3d(
-        self,
-        outfile: str | Path,
-        crs: str | int | CRS = None,
-        **kwargs,
-    ):
-        """
-        Write data to geopackage file that can be directly loaded in the Qgis2threejs
-        plugin. Works only for layered (borehole) data.
-
-        Parameters
-        ----------
-        outfile : str | Path
-            Path to geopackage file to be written.
-        crs : str | int | CRS
-            EPSG of the target crs. Takes anything that can be interpreted by
-            pyproj.crs.CRS.from_user_input().
-
-        **kwargs
-            geopandas.GeodataFrame.to_file kwargs. See relevant Geopandas documentation.
-
-        """
-        qgis3d = self.create_linestrings_3d(crs=crs)
-        qgis3d.to_file(outfile, driver="GPKG", **kwargs)
-
-    @_requires_depth
-    @_requires_xy
     def to_geopackage_3d(
         self,
         outfile: str | Path,

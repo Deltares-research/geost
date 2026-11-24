@@ -2231,11 +2231,7 @@ class Collection(AbstractBase):
             DataFrame containing the merged data and header information, ready for export.
         """
         data_to_write = self.data.copy()
-        columns_to_add = [  # TODO set
-            col
-            for col in self.header.columns
-            if col not in self.data.columns and col != "geometry"
-        ]
+        columns_to_add = list(set(self.header.columns) - set(self.data.columns))
         data_to_write = data_to_write.merge(
             self.header[[self._nr] + columns_to_add], on=self._nr, how="left"
         )
@@ -2251,7 +2247,9 @@ class Collection(AbstractBase):
         outfile : str | Path
             Path to parquet file to be written.
         **kwargs
-            pd.DataFrame.to_parquet kwargs. See relevant Pandas documentation.
+            pd.DataFrame.to_parquet or GeoDataFrame.to_parquet kwargs. See relevant
+            (Geo)Pandas documentation. If a collection contains geometry, it will be
+            exported as a GeoDataFrame.
 
         Examples
         --------
@@ -2264,7 +2262,11 @@ class Collection(AbstractBase):
         """
         data_to_write = self._prepare_data_to_write()
         data_to_write.attrs = self.attrs
-        data_to_write.to_parquet(outfile, engine="pyarrow", **kwargs)
+        if "geometry" in data_to_write.columns:
+            data_to_write = gpd.GeoDataFrame(data_to_write)
+            data_to_write.to_parquet(outfile, write_covering_bbox=True, **kwargs)
+        else:
+            data_to_write.to_parquet(outfile, engine="pyarrow", **kwargs)
 
     def to_csv(self, outfile: str | Path, **kwargs):
         """
@@ -2288,6 +2290,7 @@ class Collection(AbstractBase):
 
         """
         data_to_write = self._prepare_data_to_write()
+        data_to_write = data_to_write.drop(columns="geometry", errors="ignore")
 
         with open(outfile, "w") as f:
             f.write(f"#GEOSTATTRS#{json.dumps(self.attrs, separators=(',', ':'))}\n")
@@ -2361,35 +2364,10 @@ class Collection(AbstractBase):
         """
         return self.data.gst.to_pyvista_grid(displayed_variables, radius)
 
-    def to_qgis3d(
-        self,
-        outfile: str | Path,
-        crs: str | CRS = None,
-        **kwargs,
-    ):
-        """
-        Write data to geopackage file that can be directly loaded in the Qgis2threejs
-        plugin. Works only for layered (borehole) data.
-
-        Parameters
-        ----------
-        outfile : str | Path
-            Path to geopackage file to be written.
-        crs : str | CRS, optional
-            Coordinate reference system to use for the geometries in the output file. If
-            None, the horizontal reference of the Collection is used. The default is None.
-
-        **kwargs
-            geopandas.GeodataFrame.to_file kwargs. See relevant Geopandas documentation.
-
-        """
-        crs = CRS(crs) if crs is not None else self.crs
-        self.data.gst.to_qgis3d(outfile, crs=crs, **kwargs)
-
     def to_geopackage_3d(
         self,
         outfile: str | Path,
-        crs: str | CRS = None,
+        crs: str | int | CRS = None,
         x_end: str | None = None,
         y_end: str | None = None,
         **kwargs,
@@ -2403,7 +2381,7 @@ class Collection(AbstractBase):
         ----------
         outfile : str | Path
             Path to geopackage file to be written.
-        crs : str | CRS, optional
+        crs : str | int | CRS, optional
             Coordinate reference system to use for the geometries in the output file. If
             None, the horizontal reference of the Collection is used. The default is None.
         x_end : str | None, optional

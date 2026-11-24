@@ -17,6 +17,9 @@ Data in tabular format (e.g. csv, parquet)
    :toctree: generated/
 
    read_table
+   read_csv
+   read_parquet
+   read_excel
    read_nlog_cores
    read_uullg_tables
    base.Collection.to_csv
@@ -57,7 +60,7 @@ GIS vector files
 .. autosummary::
    :toctree: generated/
 
-   read_collection_geopackage
+   read_geopackage
    base.Collection.to_geopackage
    base.Collection.to_geoparquet
    base.Collection.to_shape

@@ -43,8 +43,6 @@ dependencies = [
     "pooch",
     "pyproj",
     "geopandas",
-    "xlrd",
-    "openpyxl",
 	"rioxarray",
     "shapely",
     "pydap",

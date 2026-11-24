@@ -1,13 +1,20 @@
 import json
 import sqlite3
 from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any, Iterable
 
 import geopandas as gpd
 import pandas as pd
 from pyogrio.errors import FieldError
 
+from geost.utils import conversion
+from geost.validation.column_names import check_positional_column_presence
 
+if TYPE_CHECKING:
+    from geost.base import Collection
+
+
+# TODO: This one will also be deprecated when we remove geost.read_table
 def _pandas_read(file: str | Path, **kwargs) -> pd.DataFrame:
     """
     Read parquet file.
@@ -82,6 +89,44 @@ def _geopandas_read(file: str | Path, **kwargs) -> gpd.GeoDataFrame:
         return gpd.read_parquet(file, **kwargs)
     else:
         raise ValueError(f"File type {file.suffix} is not supported by geopandas.")
+
+
+def _geost_data_to_collection(
+    data: pd.DataFrame,
+    coordinate_names: tuple[str, str] | None = None,
+    include_in_header: str | Iterable[str] | None = None,
+    column_mapper: dict | None = None,
+) -> Collection:
+    if column_mapper:
+        data = data.rename(columns=column_mapper)
+
+    check_positional_column_presence(data)
+    data = conversion.adjust_z_coordinates(data)
+
+    # Get stored collection attributes if present (only available in parquet files).
+    if geost_attrs := data.attrs.get("geost"):
+        data_columns = geost_attrs.get("data_columns")
+        include_in_header = geost_attrs.get("header_columns")
+        crs = geost_attrs.get("crs")
+        vertical_datum = geost_attrs.get("vertical_datum")
+        metadata = geost_attrs.get("metadata")
+    else:
+        crs = None
+        vertical_datum = None
+        metadata = None
+
+    data = data.gst.to_collection(
+        crs=crs,
+        vertical_datum=vertical_datum,
+        coordinate_names=coordinate_names,
+        include_in_header=include_in_header,
+        metadata=metadata,
+    )
+
+    if geost_attrs:
+        data.data = data.data[data_columns]
+
+    return data
 
 
 def _geost_attrs_from_csv(file: str | Path) -> dict[str, Any]:

@@ -6,7 +6,7 @@ import geopandas as gpd
 import pandas as pd
 import pooch
 
-from geost.io.read import read_table
+from geost.io.read import read_parquet
 from geost.io.read_models import read_geotop_netcdf
 
 REGISTRY = pooch.create(
@@ -44,7 +44,7 @@ def boreholes_usp(pandas=False, return_filepath=False):
     if pandas:
         return pd.read_parquet(filename)
     else:
-        return read_table(filename)
+        return read_parquet(filename)
 
 
 def cpts_usp(pandas=False, return_filepath=False):
@@ -75,7 +75,7 @@ def cpts_usp(pandas=False, return_filepath=False):
     else:
         with warnings.catch_warnings():  # TODO: Fix supposed mixed depths in CPT data
             warnings.simplefilter("ignore")
-            return read_table(filename)
+            return read_parquet(filename)
 
 
 def geotop_usp(return_filepath=False):

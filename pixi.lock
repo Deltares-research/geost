@@ -31071,7 +31071,6 @@ packages:
   - geopandas
   - lxml
   - numpy
-  - openpyxl
   - pandas
   - platformdirs
   - pooch
@@ -31081,5 +31080,4 @@ packages:
   - rioxarray
   - scipy
   - shapely
-  - xlrd
   requires_python: '>=3.12,<3.15'

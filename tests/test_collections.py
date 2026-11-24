@@ -937,13 +937,6 @@ class TestCollection:
         assert selected.data.shape == (3, 8)
 
     @pytest.mark.unittest
-    def test_to_qgis3d(self, borehole_collection, tmp_path):
-        outfile = tmp_path / r"temp.gpkg"
-        borehole_collection.to_qgis3d(outfile)
-        assert outfile.is_file()
-        outfile.unlink()
-
-    @pytest.mark.unittest
     def test_to_geoparquet(self, borehole_collection, tmp_path):
         outfile = tmp_path / r"test_export.geoparquet"
         borehole_collection.to_geoparquet(outfile)

@@ -29,6 +29,187 @@ LLG_COLUMN_MAPPING = {
 }
 
 
+def read_csv(
+    file: str | Path,
+    coordinate_names: tuple[str, str] | None = None,
+    include_in_header: str | Iterable[str] | None = None,
+    column_mapper: dict | None = None,
+    **kwargs,
+) -> Collection:
+    """
+    Read a CSV file into a GeoST Collection
+
+    Parameters
+    ----------
+    file : str | Path
+        Path to the CSV file to be read.
+    coordinate_names : tuple[str, str], optional
+        Tuple specifying the names of the columns to be used as coordinates for the
+        geometry column. The default is None, which means that it automatically tries
+        to find the names of the x and y columns (see `POSSIBLE_COLUMN_NAMING` in
+        :py:mod:`~geost.validation.column_names`). If not found, no geometry column
+        will be created.
+    include_in_header: str | Iterable[str] | None, optional
+        Columns to aditionally include in the header. If reading a parquet file with GeoST attributes,
+        this option is ignored and the header columns will be assigned automatically.
+        The default is None, which means that only the default columns 'nr', 'surface', 'x' and 'y' or their aliases are included.
+    column_mapper: dict, optional
+        Mapping from column names in the input file to GeoST positional column names. Use
+        this when your file uses non-standard names which cannot be recognized automatically
+        as positional columns (e.g. {'ID': 'nr', 'X_RD': 'x', 'Y_RD': 'y', 'maaiveld': 'surface',
+        'van': 'top', 'tot': 'bottom'}). See :data:`geost.validation.column_names.POSITIONAL_COLUMN_NAMES`
+        for the accepted column names for each positional column type. If no valid survey-id
+        (e.g. "nr") column is found after mapping, a KeyError is raised. Missing x/y or depth
+        columns trigger warnings and may limit functionality.
+    **kwargs
+        Optional keyword arguments for Pandas.read_csv.
+
+
+    Returns
+    -------
+    :class:`~geost.base.Collection` or `pd.DataFrame`
+        Instance of :class:`~geost.base.Collection` when `as_collection=True` or `pd.DataFrame`
+        otherwise.
+
+    """
+    geost_attrs = io_helpers._geost_attrs_from_csv(file)
+    if geost_attrs is not None:
+        data = pd.read_csv(file, skiprows=1, **kwargs)
+        data.attrs = geost_attrs
+    else:
+        data = pd.read_csv(file, **kwargs)
+
+    collection = io_helpers._geost_data_to_collection(
+        data,
+        coordinate_names=coordinate_names,
+        include_in_header=include_in_header,
+        column_mapper=column_mapper,
+    )
+
+    return collection
+
+
+def read_parquet(
+    file: str | Path,
+    coordinate_names: tuple[str, str] | None = None,
+    include_in_header: str | Iterable[str] | None = None,
+    column_mapper: dict | None = None,
+    bbox: tuple[float, float, float, float] | None = None,
+    **kwargs,
+) -> Collection:
+    """
+    Read a GeoST stored parquet file into a Collection.
+
+    Parameters
+    ----------
+    file : str | Path
+        Path to the parquet file to be read.
+    coordinate_names : tuple[str, str], optional
+        Tuple specifying the names of the columns to be used as coordinates for the
+        geometry column. The default is None, which means that it automatically tries
+        to find the names of the x and y columns (see `POSSIBLE_COLUMN_NAMING` in
+        :py:mod:`~geost.validation.column_names`). If not found, no geometry column
+        will be created.
+    include_in_header: str | Iterable[str] | None, optional
+        Columns to aditionally include in the header. If reading a parquet file with GeoST attributes,
+        this option is ignored and the header columns will be assigned automatically.
+        The default is None, which means that only the default columns 'nr', 'surface', 'x' and 'y' or their aliases are included.
+    column_mapper: dict, optional
+        Mapping from column names in the input file to GeoST positional column names. Use
+        this when your file uses non-standard names which cannot be recognized automatically
+        as positional columns (e.g. {'ID': 'nr', 'X_RD': 'x', 'Y_RD': 'y', 'maaiveld': 'surface',
+        'van': 'top', 'tot': 'bottom'}). See :data:`geost.validation.column_names.POSITIONAL_COLUMN_NAMES`
+        for the accepted column names for each positional column type. If no valid survey-id
+        (e.g. "nr") column is found after mapping, a KeyError is raised. Missing x/y or depth
+        columns trigger warnings and may limit functionality.
+    bbox: tuple[float, float, float, float] | None, optional
+        Bounding box to filter the data when reading the parquet file. The format is
+        (minx, miny, maxx, maxy). If None, no bounding box filtering is applied. This
+        only works if the parquet file was saved from a GeoST collection with geometry
+        information.
+    **kwargs
+        Additional keyword arguments for pyarrow,parquet.read_table.
+
+    Returns
+    -------
+    Collection
+        Instance of :class:`~geost.base.Collection`.
+
+    """
+    if bbox is not None:
+        try:
+            data = gpd.read_parquet(file, bbox=bbox, **kwargs)
+        except ValueError:
+            warnings.warn(
+                "Failed to read with bbox because geo metadata is missing in parquet file. Reading without bbox instead."
+            )
+            data = pd.read_parquet(file, engine="pyarrow", **kwargs)
+    else:
+        data = pd.read_parquet(file, engine="pyarrow", **kwargs)
+
+    collection = io_helpers._geost_data_to_collection(
+        data,
+        coordinate_names=coordinate_names,
+        include_in_header=include_in_header,
+        column_mapper=column_mapper,
+    )
+
+    return collection
+
+
+def read_excel(
+    file: str | Path,
+    coordinate_names: tuple[str, str] | None = None,
+    include_in_header: str | Iterable[str] | None = None,
+    column_mapper: dict | None = None,
+    **kwargs,
+) -> Collection:
+    """
+    Read a GeoST stored Excel file into a Collection.
+
+    Parameters
+    ----------
+    file : str | Path
+        Path to the Excel file to be read.
+    coordinate_names : tuple[str, str], optional
+        Tuple specifying the names of the columns to be used as coordinates for the
+        geometry column. The default is None, which means that it automatically tries
+        to find the names of the x and y columns (see `POSSIBLE_COLUMN_NAMING` in
+        :py:mod:`~geost.validation.column_names`). If not found, no geometry column
+        will be created.
+    include_in_header: str | Iterable[str] | None, optional
+        Columns to aditionally include in the header. If reading an Excel file with GeoST attributes,
+        this option is ignored and the header columns will be assigned automatically.
+        The default is None, which means that only the default columns 'nr', 'surface', 'x' and 'y' or their aliases are included.
+    column_mapper: dict, optional
+        Mapping from column names in the input file to GeoST positional column names. Use
+        this when your file uses non-standard names which cannot be recognized automatically
+        as positional columns (e.g. {'ID': 'nr', 'X_RD': 'x', 'Y_RD': 'y', 'maaiveld': 'surface',
+        'van': 'top', 'tot': 'bottom'}). See :data:`geost.validation.column_names.POSITIONAL_COLUMN_NAMES`
+        for the accepted column names for each positional column type. If no valid survey-id
+        (e.g. "nr") column is found after mapping, a KeyError is raised. Missing x/y or depth
+        columns trigger warnings and may limit functionality.
+    **kwargs
+        Additional keyword arguments for Pandas.read_excel.
+
+    Returns
+    -------
+    Collection
+        Instance of :class:`~geost.base.Collection`.
+
+    """
+    data = pd.read_excel(file, **kwargs)
+    collection = io_helpers._geost_data_to_collection(
+        data,
+        coordinate_names=coordinate_names,
+        include_in_header=include_in_header,
+        column_mapper=column_mapper,
+    )
+
+    return collection
+
+
+@future_deprecation_warning(alternative_func=[read_csv, read_parquet, read_excel])
 def read_table(
     file: str | Path,
     as_collection: bool = True,
@@ -93,7 +274,6 @@ def read_table(
     ... )
 
     """
-
     data = io_helpers._pandas_read(file, **kwargs)
 
     if column_mapper:
@@ -127,6 +307,58 @@ def read_table(
             data.data = data.data[data_columns]
 
     return data
+
+
+def read_geopackage(file: str | Path):
+    """
+    Read a GeoST stored Geopackage file of `geost.base.Collection` objects. The Geopackage
+    contains the Collection's "header", "data" and "metadata" attributes as layers which
+    are read into the specified Collection.
+
+    Parameters
+    ----------
+    file : str | Path
+        GeoST stored Geopackage file of a `geost.base.Collection` object.
+
+    Returns
+    -------
+    `geost.base.Collection`
+
+    Examples
+    --------
+    Any GeoST `Collection` object can be stored as a geopackage file:
+
+    >>> original_collection = geost.data.boreholes_usp()
+    >>> original_collection
+    Collection:
+    # header = 67
+    >>> original_collection.to_geopackage("./collection.gpkg")
+
+    Reading the stored collection using `geost.read_collection_geopackage` returns the
+    stored collection:
+
+    >>> collection = geost.read_collection_geopackage("./collection.gpkg")
+    >>> collection
+    Collection:
+    # header = 67
+
+    """
+    header = gpd.read_file(file, layer="header")
+    data = gpd.read_file(file, layer="data")
+    attributes = gpd.read_file(file, layer="attributes")
+    attributes = dict(zip(attributes["index"], attributes["geost"]))
+
+    return Collection(
+        data=data,
+        header=header,
+        vertical_datum=attributes["vertical_datum"],
+        metadata=ast.literal_eval(attributes["metadata"]),
+    )
+
+
+@future_deprecation_warning(alternative_func=read_geopackage)
+def read_collection_geopackage(file: str | Path):
+    return read_geopackage(file)
 
 
 def read_nlog_cores(file: str | Path, **kwargs) -> Collection:
@@ -703,91 +935,6 @@ def read_uullg_tables(
         data = data.merge(header[["nr"] + add_header_cols], on="nr", how="left")
 
     return Collection(data, header=header, vertical_datum=vertical_datum)
-
-
-def read_collection_geopackage(filepath: str | Path):
-    """
-    Read a GeoST stored Geopackage file of `geost.base.Collection` objects. The Geopackage
-    contains the Collection's "header", "data" and "metadata" attributes as layers which
-    are read into the specified Collection.
-
-    Parameters
-    ----------
-    filepath : str | Path
-        GeoST stored Geopackage file of a `geost.base.Collection` object.
-
-    Returns
-    -------
-    `geost.base.Collection`
-
-    Examples
-    --------
-    Any GeoST `Collection` object can be stored as a geopackage file:
-
-    >>> original_collection = geost.data.boreholes_usp()
-    >>> original_collection
-    Collection:
-    # header = 67
-    >>> original_collection.to_geopackage("./collection.gpkg")
-
-    Reading the stored collection using `geost.read_collection_geopackage` returns the
-    stored collection:
-
-    >>> collection = geost.read_collection_geopackage("./collection.gpkg")
-    >>> collection
-    Collection:
-    # header = 67
-
-    """
-    header = gpd.read_file(filepath, layer="header")
-    data = gpd.read_file(filepath, layer="data")
-    attributes = gpd.read_file(filepath, layer="attributes")
-    attributes = dict(zip(attributes["index"], attributes["geost"]))
-
-    return Collection(
-        data=data,
-        header=header,
-        vertical_datum=attributes["vertical_datum"],
-        metadata=ast.literal_eval(attributes["metadata"]),
-    )
-
-
-def read_pickle(filepath: str | Path, **kwargs) -> Any:
-    """
-    Read pickled GeoST object (or any object) from file.
-
-    Parameters
-    ----------
-    filepath : str | Path
-        Path to pickle file to open.
-    **kwargs
-        pd.read_pickle kwargs. See relevant Pandas documentation.
-
-    Returns
-    -------
-    Any
-        Returns the Python object that was stored in the pickle.
-
-    Examples
-    --------
-    Any GeoST :class:`geost.base.Collection` object can be stored as a pickle file:
-
-    >>> original_collection = geost.data.boreholes_usp()
-    >>> original_collection
-    Collection:
-    # header = 67
-    >>> original_collection.to_pickle("./collection.pkl")
-
-    Reading the stored pickle using `geost.read_pickle` returns the stored collection:
-
-    >>> collection = geost.read_pickle("./collection.pkl")
-    >>> collection
-    Collection:
-    # header = 67
-
-    """
-    pkl = pd.read_pickle(filepath, **kwargs)
-    return pkl
 
 
 def bro_api_read(

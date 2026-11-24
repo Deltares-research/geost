@@ -57,11 +57,49 @@ def llg_data_table_duplicate_column(tmp_path):
     return outfile
 
 
-@pytest.fixture
-def collection_pickle(borehole_collection, tmp_path):
-    outfile = tmp_path / r"collection.pkl"
-    borehole_collection.to_pickle(outfile)
-    return outfile
+@pytest.mark.unittest
+def test_read_csv(testdatadir):
+    collection = geost.read_csv(testdatadir / r"test_borehole_table.csv")
+    assert isinstance(collection, Collection)
+    assert collection.crs == 28992
+    assert collection.vertical_datum == 5709
+
+
+@pytest.mark.unittest
+def test_read_parquet(testdatadir):
+    # without geometry
+    collection = geost.read_parquet(testdatadir / r"test_borehole_table.parquet")
+    assert isinstance(collection, Collection)
+    assert len(collection) == 5
+    assert collection.crs == 28992
+    assert collection.vertical_datum == 5709
+
+    # with bbox but without geometry metadata, should trigger warning and read without bbox
+    with pytest.warns(UserWarning):
+        collection = geost.read_parquet(
+            testdatadir / r"test_borehole_table.parquet", bbox=(2, 2, 3, 4)
+        )
+    assert isinstance(collection, Collection)
+    assert len(collection) == 5
+    assert collection.crs == 28992
+    assert collection.vertical_datum == 5709
+
+    # with geometry
+    collection = geost.read_parquet(
+        testdatadir / r"test_borehole_table_with_geometry.parquet", bbox=(2, 2, 3, 4)
+    )
+    assert isinstance(collection, Collection)
+    assert len(collection) == 1
+    assert collection.crs == 28992
+    assert collection.vertical_datum == 5709
+
+
+@pytest.mark.unittest
+def test_read_excel(testdatadir):
+    collection = geost.read_excel(testdatadir / r"test_borehole_table.xlsx")
+    assert isinstance(collection, Collection)
+    assert collection.crs is None
+    assert collection.vertical_datum is None
 
 
 @pytest.mark.unittest
@@ -89,6 +127,7 @@ def test_nlog_reader_from_parquet(testdatadir):
     ("filename", "expected_crs", "expected_vertical_datum"),
     [
         ("test_borehole_table.parquet", 28992, 5709),
+        ("test_borehole_table_with_geometry.parquet", 28992, 5709),
         ("test_borehole_table.csv", 28992, 5709),
         ("test_inclined_borehole_table.parquet", 28992, 5709),
         ("test_cpts.parquet", 28992, 5709),
@@ -184,7 +223,7 @@ def test_read_collection_geopackage(collection, tmp_path, request):
         "another_key": "another_value",
     }
     collection.to_geopackage(outfile)
-    read_collection = geost.read_collection_geopackage(outfile)
+    read_collection = geost.read_geopackage(outfile)
     assert isinstance(read_collection, Collection)
     assert isinstance(read_collection.header, gpd.GeoDataFrame)
     assert isinstance(read_collection.data, pd.DataFrame)
