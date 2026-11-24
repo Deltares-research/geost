@@ -51,6 +51,26 @@ def test_pandas_read(tmp_path, point_header, extension):
 
 
 @pytest.mark.unittest
+def test_geost_data_to_collection(borehole_collection):
+    collection = io_helpers._geost_data_to_collection(borehole_collection.data)
+    assert hasattr(collection, "data")
+    assert hasattr(collection, "header")
+
+
+@pytest.mark.unittest
+def test_geost_attrs_from_csv(testdatadir):
+    csv_file = testdatadir / "test_borehole_table.csv"
+    attrs = io_helpers._geost_attrs_from_csv(csv_file)
+    assert isinstance(attrs, dict)
+    assert "geost" in attrs
+    assert "data_columns" in attrs["geost"]
+    assert "header_columns" in attrs["geost"]
+    assert attrs["geost"]["crs"] == "EPSG:28992"
+    assert attrs["geost"]["vertical_datum"] == "EPSG:5709"
+    assert "metadata" in attrs["geost"]
+
+
+@pytest.mark.unittest
 def test_to_geopackage(borehole_collection, tmp_path):
     outfile = tmp_path / "gpkg_with_error.gpkg"
     invalid_column = "GEOM"
