@@ -103,7 +103,7 @@ def _geost_data_to_collection(
     check_positional_column_presence(data)
     data = conversion.adjust_z_coordinates(data)
 
-    # Get stored collection attributes if present (only available in parquet files).
+    # Get stored collection attributes if present.
     if geost_attrs := data.attrs.get("geost"):
         data_columns = geost_attrs.get("data_columns")
         include_in_header = geost_attrs.get("header_columns")

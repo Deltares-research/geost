@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import json
 import warnings
-from ast import literal_eval
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Iterable, Literal
 
@@ -492,6 +491,11 @@ class Collection(AbstractBase):
             Survey IDs which will be removed from the header.
 
         """
+        only_in_header = (
+            only_in_header
+            if len(only_in_header) <= 6
+            else only_in_header[:3] + ["..."] + only_in_header[-3:]
+        )
         warnings.warn(
             "Header table contains entries not present in the data. "
             f"Removing entries {only_in_header} from the header.",
