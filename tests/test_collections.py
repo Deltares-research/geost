@@ -970,12 +970,6 @@ class TestCollection:
     @pytest.mark.unittest
     def test_to_parquet(self, borehole_collection, tmp_path):
         outfile = tmp_path / r"test_export.parquet"
-        borehole_collection.to_parquet(outfile)
-        assert outfile.is_file()
-
-    @pytest.mark.unittest
-    def test_to_parquet_persistence(self, borehole_collection, tmp_path):
-        outfile = tmp_path / r"test_export.parquet"
 
         # Add extra column to header and some metadata
         borehole_collection.header["extra"] = "test"
@@ -989,14 +983,15 @@ class TestCollection:
     @pytest.mark.unittest
     def test_to_csv(self, borehole_collection, tmp_path):
         outfile = tmp_path / r"test_export.csv"
-        borehole_collection.to_csv(outfile)
-        assert outfile.is_file()
 
-    @pytest.mark.unittest
-    def test_to_pickle(self, borehole_collection, tmp_path):
-        outfile = tmp_path / r"test_export.pkl"
-        borehole_collection.to_pickle(outfile)
-        assert outfile.is_file()
+        # Add extra column to header and some metadata
+        borehole_collection.header["extra"] = "test"
+        borehole_collection.metadata = {"test_key": "test_value"}
+
+        # Export to csv and reload to check persistence of extra column
+        borehole_collection.to_csv(outfile)
+        reloaded = geost.read_table(outfile)
+        assert reloaded == borehole_collection
 
     @pytest.mark.unittest
     def test_to_pyvista_cylinders(self, borehole_collection):

@@ -1,6 +1,8 @@
 from __future__ import annotations
 
+import json
 import warnings
+from ast import literal_eval
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Iterable, Literal
 
@@ -2229,7 +2231,7 @@ class Collection(AbstractBase):
             DataFrame containing the merged data and header information, ready for export.
         """
         data_to_write = self.data.copy()
-        columns_to_add = [
+        columns_to_add = [  # TODO set
             col
             for col in self.header.columns
             if col not in self.data.columns and col != "geometry"
@@ -2237,7 +2239,6 @@ class Collection(AbstractBase):
         data_to_write = data_to_write.merge(
             self.header[[self._nr] + columns_to_add], on=self._nr, how="left"
         )
-        data_to_write.attrs = self.attrs
         return data_to_write
 
     def to_parquet(self, outfile: str | Path, **kwargs):
@@ -2262,6 +2263,7 @@ class Collection(AbstractBase):
 
         """
         data_to_write = self._prepare_data_to_write()
+        data_to_write.attrs = self.attrs
         data_to_write.to_parquet(outfile, engine="pyarrow", **kwargs)
 
     def to_csv(self, outfile: str | Path, **kwargs):
@@ -2288,17 +2290,8 @@ class Collection(AbstractBase):
         data_to_write = self._prepare_data_to_write()
 
         with open(outfile, "w") as f:
-            f.write("# GEOST ATTRIBUTES #\n")
-            for key, value in self.attrs["geost"].items():
-                f.write(f"# {key}: {value}\n")
-            f.write("# ---------------- #\n")
-            data_to_write.to_csv(f, **kwargs)
-
-        # with open(outfile, "w") as f:
-        #     f.write("#GEOST:")
-        #     for key, value in self.attrs["geost"].items():
-        #         f.write(f"{key}:{value},")
-        #     data_to_write.to_csv(f, **kwargs)
+            f.write(f"#GEOSTATTRS#{json.dumps(self.attrs, separators=(',', ':'))}\n")
+        data_to_write.to_csv(outfile, mode="a", index=False, **kwargs)
 
     def to_pyvista_cylinders(
         self,

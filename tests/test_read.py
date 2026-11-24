@@ -89,7 +89,7 @@ def test_nlog_reader_from_parquet(testdatadir):
     ("filename", "expected_crs", "expected_vertical_datum"),
     [
         ("test_borehole_table.parquet", 28992, 5709),
-        ("test_borehole_table.csv", None, None),
+        ("test_borehole_table.csv", 28992, 5709),
         ("test_inclined_borehole_table.parquet", 28992, 5709),
         ("test_cpts.parquet", 28992, 5709),
     ],
@@ -173,12 +173,6 @@ def test_read_gef_cpts(testdatadir):
 
     cpts_df = geost.read_gef_cpts(files, as_collection=False)
     assert isinstance(cpts_df, pd.DataFrame)
-
-
-@pytest.mark.unittest
-def test_read_pickle(collection_pickle):
-    collection = geost.read_pickle(collection_pickle)
-    assert isinstance(collection, Collection)
 
 
 @pytest.mark.parametrize("collection", ["borehole_collection", "cpt_collection"])

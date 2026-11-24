@@ -1,5 +1,5 @@
+import json
 import sqlite3
-from ast import literal_eval
 from pathlib import Path
 from typing import Any
 
@@ -35,9 +35,12 @@ def _pandas_read(file: str | Path, **kwargs) -> pd.DataFrame:
     if suffix in {".parquet", ".pq"}:
         return pd.read_parquet(file, engine="pyarrow", **kwargs)
     elif suffix in {".csv", ".txt", ".tsv"}:
-        end, geost_attrs = _geost_attrs_from_csv(file)
-        data = pd.read_csv(file, skiprows=end, **kwargs)
-        data.attrs = geost_attrs
+        geost_attrs = _geost_attrs_from_csv(file)
+        if geost_attrs is not None:
+            data = pd.read_csv(file, skiprows=1, **kwargs)
+            data.attrs = geost_attrs
+        else:
+            data = pd.read_csv(file, **kwargs)
         return data
     elif suffix in {".xls", ".xlsx"}:  # pragma: no cover
         return pd.read_excel(
@@ -95,21 +98,15 @@ def _geost_attrs_from_csv(file: str | Path) -> dict[str, Any]:
     dict[str, Any]
         Dictionary containing the GeoST attributes.
     """
-    attrs = {}
-    with open(file, "r") as f:
-        for i, line in enumerate(f):
-            if line.startswith("#"):
-                line = line[1:].strip()
-                if ":" in line:
-                    key, value = line.split(":", 1)
-                    key = key.strip()
-                    if key in {"data_columns", "header_columns", "metadata"}:
-                        attrs[key] = literal_eval(value.strip())
-                    else:
-                        attrs[key] = value.strip()
-            else:
-                break
-    return i, {"geost": attrs}
+    with open(file, "r", encoding="utf-8") as f:
+        first_line = f.readline().rstrip("\n")
+
+    if first_line.startswith("#GEOSTATTRS#"):
+        attrs = json.loads(first_line[12:])
+    else:
+        return None
+
+    return attrs
 
 
 def csv_to_parquet(file: str | Path, out_file: str | Path = None, **kwargs) -> None:
