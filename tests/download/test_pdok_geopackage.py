@@ -161,7 +161,7 @@ def test_write_fk_index(tmp_path):
     gpkg = make_fk_gpkg(tmp_path / "test.gpkg")
     pdok.write_fk_index(gpkg)
     names = index_names(gpkg)
-    assert "idx_child_id" in names
+    assert "idx_child_parent_id" in names
     assert not any("gpkg_skipped" in n for n in names)
 
 

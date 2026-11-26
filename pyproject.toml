@@ -49,6 +49,7 @@ dependencies = [
     "shapely",
     "pydap",
 	"platformdirs",
+    "typer-slim",
 ]
 
 [project.urls]
@@ -57,7 +58,7 @@ Repository = "https://github.com/Deltares-research/geost"
 Issues = "https://github.com/Deltares-research/geost/issues"
 
 [project.scripts]
-geost = "cli:app"
+geost = "geost.cli:app"
 
 [tool.hatch.version]
 path = "geost/__init__.py"

@@ -31530,5 +31530,6 @@ packages:
   - rioxarray
   - scipy
   - shapely
+  - typer-slim
   - xlrd
   requires_python: '>=3.12,<3.15'

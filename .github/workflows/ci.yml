@@ -64,6 +64,11 @@ jobs:
         run: |
           python tests/imports.py
 
+      - name: Run CLI smoke test
+        run: |
+          geost --help
+          geost download-sfr-geopackage --help
+
 
   test:
     name: ${{ matrix.pixi-environment }} - ${{ matrix.os }}
