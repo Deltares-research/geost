@@ -5,7 +5,7 @@ from pathlib import Path
 
 from platformdirs import user_config_dir
 
-CONFIG_DIR = Path(user_config_dir("geost"))
+CONFIG_DIR = Path(user_config_dir("config", ensure_exists=True))
 CONFIG_FILE = CONFIG_DIR / "column_aliases.json"
 
 
@@ -74,8 +74,6 @@ def load_user_positional_column_aliases() -> dict[str, list[str]]:
 
 
 def save_user_positional_column_aliases(aliases: dict[str, list[str]]) -> None:
-    CONFIG_DIR.mkdir(parents=True, exist_ok=True)
-
     with CONFIG_FILE.open("w", encoding="utf-8") as f:
         json.dump(aliases, f, indent=2)
 
