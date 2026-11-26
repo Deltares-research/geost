@@ -105,7 +105,6 @@ ENV/
 
 *.vtk
 *.nc
-*.TIF
 *.gml
 *.dbf
 
