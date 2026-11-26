@@ -137,13 +137,7 @@ def read_parquet(
 
     """
     if bbox is not None:
-        try:
-            data = gpd.read_parquet(file, bbox=bbox, **kwargs)
-        except ValueError:
-            warnings.warn(
-                "Failed to read with bbox because geo metadata is missing in parquet file. Reading without bbox instead."
-            )
-            data = pd.read_parquet(file, engine="pyarrow", **kwargs)
+        data = gpd.read_parquet(file, bbox=bbox, **kwargs)
     else:
         data = pd.read_parquet(file, engine="pyarrow", **kwargs)
 

@@ -74,15 +74,11 @@ def test_read_parquet(testdatadir):
     assert collection.crs == 28992
     assert collection.vertical_datum == 5709
 
-    # with bbox but without geometry metadata, should trigger warning and read without bbox
-    with pytest.warns(UserWarning):
+    # with bbox but without geometry metadata, should trigger ValueError
+    with pytest.raises(ValueError):
         collection = geost.read_parquet(
             testdatadir / r"test_borehole_table.parquet", bbox=(2, 2, 3, 4)
         )
-    assert isinstance(collection, Collection)
-    assert len(collection) == 5
-    assert collection.crs == 28992
-    assert collection.vertical_datum == 5709
 
     # with geometry
     collection = geost.read_parquet(
