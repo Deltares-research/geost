@@ -173,6 +173,30 @@ def _to_geopackage(
         raise e
 
 
+def _vertical_datum_from_header(header: gpd.GeoDataFrame) -> str | None:
+    """
+    Extract the vertical datum from the header GeoDataFrame. This assumes that the column
+    "vertical_datum" exists in the header and contains the vertical datum information.
+
+    The column "vertical_datum" will be present when reading parsing BRO XML data
+
+    Parameters
+    ----------
+    header : gpd.GeoDataFrame
+        Header GeoDataFrame containing the vertical datum information.
+
+    Returns
+    -------
+    str | None
+        Vertical datum if present and unique for all surveys, otherwise None.
+    """
+    if "vertical_datum" in header.columns:
+        unique_vertdats = set(header["vertical_datum"])
+        if len(unique_vertdats) == 1:
+            return unique_vertdats.pop()
+    return None
+
+
 def create_connection(database: str | Path):
     """
     Create a database connection to a SQLite database.

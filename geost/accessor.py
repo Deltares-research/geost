@@ -310,36 +310,6 @@ class GeostFrame(AbstractBase):
 
         return transformed
 
-    @_requires_surface
-    def to_vertical_datum(
-        self, vertical_datum: str | int | CRS
-    ) -> None:  # pragma: no cover
-        """
-        Change the vertical datum of the object's surface levels. Requires that the
-        object has a geometry column, x and y columns, and a surface column.
-
-        Some often-used vertical datums are:
-            - NAP : 5709
-            - MSL NL depth : 9288
-            - LAT NL depth : 9287
-            - Ostend height : 5710
-
-            See epsg.io for more.
-
-        Parameters
-        ----------
-        vertical_datum : str | int | CRS
-            Vertical datum to set for the GeoDataFrame or DataFrame. Takes anything that can
-            be interpreted by `pyproj.crs.CRS.from_user_input()`. However, it must be a vertical datum.
-
-        """
-        raise NotImplementedError(
-            "Custom transformation between vertical datums will be implemented in a "
-            "future version of GeoST. For now, you can use the set_vertical_datum method"
-            " to set the vertical datum without transforming the surface levels directly, "
-            "and then perform the transformation manually"
-        )
-
     @_requires_xy
     def transform_coordinates(
         self,

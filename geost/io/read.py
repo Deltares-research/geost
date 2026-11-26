@@ -492,7 +492,7 @@ def read_bhrgt(
     https://deltares-research.github.io/geost/api_reference/generated/geost.bro_api_read.html
 
     """
-    header, data, vertical_datum = xml.read(
+    header, data = xml.read(
         files,
         xml.read_bhrgt,
         company=company,
@@ -505,6 +505,7 @@ def read_bhrgt(
         geometry=gpd.points_from_xy(header.x, header.y),
         crs=crs,
     )
+    vertical_datum = io_helpers._vertical_datum_from_header(header)
 
     return Collection(data, header=header, vertical_datum=vertical_datum)
 
@@ -557,7 +558,7 @@ def read_bhrgt_samples(
     https://deltares-research.github.io/geost/api_reference/generated/bhrgt_samples.html
 
     """
-    header, data, vertical_datum = xml.read(
+    header, data = xml.read(
         files,
         xml.read_bhrgt_samples,
         company=company,
@@ -570,6 +571,7 @@ def read_bhrgt_samples(
         geometry=gpd.points_from_xy(header.x, header.y),
         crs=crs,
     )
+    vertical_datum = io_helpers._vertical_datum_from_header(header)
 
     if "beginDepth" in data.columns or "endDepth" in data.columns:
         data = data.rename(columns={"beginDepth": "top", "endDepth": "bottom"})
@@ -634,7 +636,7 @@ def read_bhrp(
     https://deltares-research.github.io/geost/api_reference/generated/geost.bro_api_read.html
 
     """
-    header, data, vertical_datum = xml.read(
+    header, data = xml.read(
         files,
         xml.read_bhrp,
         company=company,
@@ -647,6 +649,7 @@ def read_bhrp(
         geometry=gpd.points_from_xy(header.x, header.y),
         crs=crs,
     )
+    vertical_datum = io_helpers._vertical_datum_from_header(header)
 
     return Collection(data, header=header, vertical_datum=vertical_datum)
 
@@ -700,7 +703,7 @@ def read_bhrg(
     https://deltares-research.github.io/geost/api_reference/generated/geost.bro_api_read.html
 
     """
-    header, data, vertical_datum = xml.read(
+    header, data = xml.read(
         files,
         xml.read_bhrg,
         company=company,
@@ -713,6 +716,7 @@ def read_bhrg(
         geometry=gpd.points_from_xy(header.x, header.y),
         crs=crs,
     )
+    vertical_datum = io_helpers._vertical_datum_from_header(header)
 
     return Collection(data, header=header, vertical_datum=vertical_datum)
 
@@ -766,7 +770,7 @@ def read_sfr(
     https://deltares-research.github.io/geost/api_reference/generated/geost.bro_api_read.html
 
     """
-    header, data, vertical_datum = xml.read(
+    header, data = xml.read(
         files,
         xml.read_sfr,
         company=company,
@@ -779,6 +783,7 @@ def read_sfr(
         geometry=gpd.points_from_xy(header.x, header.y),
         crs=crs,
     )
+    vertical_datum = io_helpers._vertical_datum_from_header(header)
 
     return Collection(data, header=header, vertical_datum=vertical_datum)
 
@@ -861,7 +866,7 @@ def read_cpt(
     https://deltares-research.github.io/geost/api_reference/generated/geost.bro_api_read.html
 
     """
-    header, data, vertical_datum = xml.read(
+    header, data = xml.read(
         files,
         xml.read_cpt,
         company=company,
@@ -874,6 +879,7 @@ def read_cpt(
         geometry=gpd.points_from_xy(header.x, header.y),
         crs=crs,
     )
+    vertical_datum = io_helpers._vertical_datum_from_header(header)
 
     data = data.fillna({"depth": data["penetrationlength"]})
     data = data.sort_values(["nr", "depth"])

@@ -47,3 +47,9 @@ def test_bhrg_bro():
 def test_dike_section():
     dike = geost.data.dike_section()
     assert isinstance(dike, gpd.GeoDataFrame)
+
+
+@pytest.mark.unittest
+def test_nllat():
+    nllat = geost.data.nllat()
+    assert isinstance(nllat, xr.DataArray)

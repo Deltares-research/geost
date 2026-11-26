@@ -5,6 +5,7 @@ from pathlib import Path
 import geopandas as gpd
 import pandas as pd
 import pooch
+import rioxarray
 
 from geost.io.read import read_parquet
 from geost.io.read_models import read_geotop_netcdf
@@ -127,3 +128,16 @@ def dike_section():
     """
     filename = REGISTRY.fetch("dike_section.geoparquet")
     return gpd.read_parquet(filename)
+
+
+def nllat():
+    """
+    Download NLLAT2018 conversion grid for NAP <> ALAT vertical datum transformation
+
+    Returns
+    -------
+    xarray.DataArray
+        An xarray DataArray containing the NLLAT2018 conversion grid.
+    """
+    filename = REGISTRY.fetch("nllat2018.tif")
+    return rioxarray.open_rasterio(filename, masked=True).squeeze()

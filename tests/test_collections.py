@@ -551,6 +551,14 @@ class TestCollection:
             )
 
     @pytest.mark.unittest
+    def test_copy(self, borehole_collection):
+        copy_collection = borehole_collection.copy()
+        # Checks that memory addresses are different
+        assert copy_collection is not borehole_collection
+        # But our own __eq__ method should consider them equal
+        assert copy_collection == borehole_collection
+
+    @pytest.mark.unittest
     def test_get(self, borehole_collection):
         selection = borehole_collection.get("A")
         assert selection.header.iloc[0, 0] == "A"
@@ -570,6 +578,7 @@ class TestCollection:
             borehole_collection.data["test_data"], np.repeat([0, 1, 2, 3, 4], 5)
         )
 
+    # TODO: elaborate testing of vertical datum transformations, including edge cases and error handling
     @pytest.mark.unittest
     def test_set_vertical_datum(self, borehole_collection):
         borehole_collection.set_vertical_datum(None)
@@ -577,32 +586,28 @@ class TestCollection:
         borehole_collection.set_vertical_datum(5709)
         assert borehole_collection.vertical_datum == 5709
 
-    @pytest.mark.skip("This test is for a method that is not yet implemented.")
-    def test_to_vertical_datum(self, borehole_collection):
-        with pytest.raises(
-            ValueError,
-            match="'from_epsg' value does not match the current vertical reference",
-        ):
-            borehole_collection.to_vertical_datum(1215, 5710)
+    @pytest.mark.unittest
+    def test_set_vertical_datum_not_inplace(self, borehole_collection):
+        borehole_collection.header["vertical_datum"] = "EPSG:5709"
+        original = borehole_collection.vertical_datum
+        new = borehole_collection.set_vertical_datum(None, inplace=False)
+        assert new.vertical_datum is None
+        assert borehole_collection.vertical_datum == original
+        assert (borehole_collection.header["vertical_datum"] == "EPSG:5709").all()
 
+    @pytest.mark.unittest
+    def test_to_vertical_datum(self, borehole_collection):
         original_header = borehole_collection.header.copy()
         original_data = borehole_collection.data.copy()
 
-        borehole_collection.to_vertical_datum(5709, 5710)
+        borehole_collection.to_vertical_datum(9287)
         assert np.isclose(
-            borehole_collection.header["surface"] - original_header["surface"], 2.28234
+            borehole_collection.header["surface"] - original_header["surface"], 2.33
         ).all()
         assert np.isclose(
-            borehole_collection.data["surface"] - original_data["surface"], 2.28234
+            borehole_collection.data["surface"] - original_data["surface"], 2.33
         ).all()
-        assert borehole_collection.vertical_datum == 5710
-
-        with pytest.raises(
-            KeyError,
-            match="Cannot perform vertical reference transformation without x and y coordinate columns in the data table",
-        ):
-            borehole_collection.data = borehole_collection.data.drop(columns=["x", "y"])
-            borehole_collection.to_vertical_datum(5710, 5709)
+        assert borehole_collection.vertical_datum == 9287
 
     @pytest.mark.unittest
     def test_set_crs(self, borehole_collection):

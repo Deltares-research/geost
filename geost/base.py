@@ -9,11 +9,11 @@ import geopandas as gpd
 import pandas as pd
 from pyproj import CRS
 
+import geost
 from geost import config, data, utils
 from geost._warnings import AlignmentWarning
 from geost.abstract_classes import AbstractBase
 from geost.exceptions import MissingSurveyIDError
-from geost.utils.projections import vertical_reference_transformer
 from geost.validation.method_checks import (
     _requires_depth,
     _requires_geometry,
@@ -68,7 +68,7 @@ class Collection(AbstractBase):
         *,
         header: gpd.GeoDataFrame | dict[str, Any] = None,
         vertical_datum: str | int | CRS = None,
-        metadata: dict[str, Any] = {},
+        metadata: dict[str, Any] = None,
     ):
         if isinstance(data, dict):
             data = pd.DataFrame(data)
@@ -97,7 +97,7 @@ class Collection(AbstractBase):
         self._nr = survey_id_col
         self.header = header
         self.data = data
-        self.metadata = metadata
+        self.metadata = metadata or {}
 
         self._vertical_datum = (
             CRS.from_user_input(vertical_datum) if vertical_datum else None
@@ -592,6 +592,23 @@ class Collection(AbstractBase):
         self._synchronize_tables(how, in_both, only_in_header, only_in_data)
         # TODO: Maybe not only make this operation inplace
 
+    def copy(self) -> Collection:
+        """
+        Create a copy of the current Collection instance.
+
+        Returns
+        -------
+        :class:`~geost.base.Collection`
+            A new Collection instance with copied header, data, and metadata.
+
+        """
+        return self.__class__(
+            header=self.header.copy(),
+            data=self.data.copy(),
+            vertical_datum=self.vertical_datum,
+            metadata=self.metadata.copy(),
+        )
+
     def add_columns(
         self, columns: dict = None, to: str = "data", inplace: bool = False, **kwargs
     ) -> Collection | None:
@@ -661,6 +678,7 @@ class Collection(AbstractBase):
                     new_data,
                     header=self.header.copy(),
                     vertical_datum=self.vertical_datum,
+                    metadata=self.metadata,
                 )
         else:
             new_header = self.header.assign(**merged_columns)
@@ -672,6 +690,7 @@ class Collection(AbstractBase):
                     self.data.copy(),
                     header=new_header,
                     vertical_datum=self.vertical_datum,
+                    metadata=self.metadata,
                 )
 
     def add_header_column_to_data(self, column_name: str) -> None:  # No change
@@ -741,6 +760,7 @@ class Collection(AbstractBase):
             selected_data,
             header=selected_header,
             vertical_datum=self.vertical_datum,
+            metadata=self.metadata,
         )
 
     @_requires_geometry
@@ -823,99 +843,179 @@ class Collection(AbstractBase):
         self.header = self.header.gst.to_crs(crs)
 
     @_requires_surface
-    def set_vertical_datum(self, vertical_datum: str | int | CRS) -> None:
+    def set_vertical_datum(
+        self, vertical_datum: str | int | CRS, inplace: bool = True
+    ) -> None:
         """
-        Set the vertical datum of the collection's surface levels without performing a
-        transformation of the surface levels. This can be used if you know that the
-        surface levels are already in the target vertical datum, but just want to update
-        the vertical datum information of the collection.
+        Set the vertical datum of the collection's surface levels. This can be used if
+        the current vertical datum is None and you want to set the vertical datum
+        information of the collection. In case the header has a column for vertical datum,
+        it will be used to determine the current vertical datum of each survey and perform
+        transformations if required using :meth:`to_vertical_datum`.
 
         Parameters
         ----------
         vertical_datum : str | int | CRS
             Vertical datum represented by an instance of pyproj.crs.CRS or anything that can be
             interpreted by pyproj.crs.CRS.from_user_input().
+        inplace : bool, default True
+            If True, updates the collection in place. Otherwise, returns a new collection with the updated vertical datum.
 
         Returns
-        None
+        -------
+        None or Collection
+            Returns None if inplace is True, otherwise returns a new collection with the updated vertical datum.
 
         """
-        self._vertical_datum = (
-            CRS.from_user_input(vertical_datum) if vertical_datum else None
-        )
+        vertical_datum = CRS.from_user_input(vertical_datum) if vertical_datum else None
+
+        # If the collection does not have a vertical datum column in the header,
+        # set the vertical datum directly on the collection or return a new collection.
+        if "vertical_datum" not in self.header.columns:
+            if inplace:
+                self._vertical_datum = vertical_datum
+                return None
+            return self.__class__(
+                header=self.header,
+                data=self.data,
+                vertical_datum=vertical_datum,
+                metadata=self.metadata,
+            )
+
+        # Helper function to convert a datum to a CRS instance.
+        def _as_crs(datum):
+            return CRS.from_user_input(datum) if datum else None
+
+        # If however there is a "vertical_datum" column, then we need to handle each
+        # unique vertical datum seperately and if neccesary convert from the survey's
+        # vertical datum to the desired vertical datum that the user wants to set.
+        survey_vdatums = set(self.header["vertical_datum"])
+        if len(survey_vdatums) > 1:
+            collections = []
+            for survey_vdatum in survey_vdatums:
+                col = self.get(survey_vdatum, "vertical_datum")
+                col._vertical_datum = _as_crs(survey_vdatum)
+                if col._vertical_datum != vertical_datum:
+                    col.to_vertical_datum(vertical_datum)
+                collections.append(col)
+            uniform_collection = geost.concat(collections)
+        else:
+            uniform_collection = self.copy()
+            uniform_collection._vertical_datum = vertical_datum
+
+        uniform_collection.header["vertical_datum"] = vertical_datum
+
+        if inplace:
+            self._header = uniform_collection.header
+            self._data = uniform_collection.data
+            self._vertical_datum = uniform_collection._vertical_datum
+            self._metadata = uniform_collection.metadata
+            return None
+
+        return uniform_collection
 
     @_requires_geometry
     @_requires_surface
     @_requires_xy
-    def to_vertical_datum(self, vertical_datum: str | int | CRS):  # pragma: no cover
+    def to_vertical_datum(self, vertical_datum: str | int | CRS, inplace: bool = True):
         """
         Change the vertical reference of the collection object's surface levels
 
         Parameters
         ----------
-        to_epsg : str | int | CRS
-            EPSG of the target vertical datum. Takes anything that can be interpreted by
-            pyproj.crs.CRS.from_user_input(). However, it must be a vertical datum.
+        vertical_datum : str | int | CRS
+            Vertical datum represented by an instance of pyproj.crs.CRS or anything that can be
+            interpreted by pyproj.crs.CRS.from_user_input(). However, it must be a vertical datum.
 
-            Some often-used vertical datums are:
+            Supported vertical datums are:
             - NAP : 5709
-            - MSL NL depth : 9288
-            - LAT NL depth : 9287
-            - Ostend height : 5710
+            - MSL : 5714
+            - LAT : 5861
+            - TAW : 5710
 
             See epsg.io for more.
+
+        inplace : bool, default True
+            If True, the transformation is applied in-place to the current collection.
+            If False, a new collection with the updated vertical datum is returned.
+
 
         Examples
         --------
         To change the current vertical reference from Ostend height to NAP:
 
-        >>> collection.to_vertical_datum(5710, 5709)
+        >>> collection.to_vertical_datum(5709)
 
         This would be the same as:
 
-        >>> collection.to_vertical_datum("epsg:5710", "epsg:5709")
+        >>> collection.to_vertical_datum("epsg:5709")
 
         As the Pyproj constructors are very flexible, you can even use the CRS's full
         official name instead of an EPSG number. E.g. for changing to NAP and the
         Belgian Ostend height vertical datums respectively, you can use:
 
-        >>> collection.to_vertical_datum("Ostend height", "NAP")
+        >>> collection.to_vertical_datum("NAP")
+
+        You can use inplace=False in case you want to use this method in chained
+        assignments:
+
+        >>> new_collection = collection.to_vertical_datum("NAP", inplace=False)
 
         """
-        raise NotImplementedError(
-            "Custom transformation between vertical datums will be implemented in a "
-            "future version of GeoST. For now, you can use the set_vertical_datum method"
-            " to set the vertical datum without transforming the surface levels directly, "
-            "and then perform the transformation manually"
-        )
-
-        if self.vertical_datum is None:
+        if not self.vertical_datum:
             raise ValueError(
                 "Cannot transform vertical datum because this collection has no vertical "
                 "datum set. Use the method 'set_vertical_datum' to set the vertical datum "
                 "first."
             )
 
-        data = self.data.copy()
-        columns = self.data.gst.positional_columns
+        level_columns = [
+            column
+            for column in (
+                self.positional_columns.get("surface"),
+                self.positional_columns.get("end"),
+            )
+            if column is not None
+        ]
 
-        self.header = self.header.gst.to_vertical_datum(vertical_datum)
-
-        x, y = self.data[columns.get("x")], self.data[columns.get("x")]
-        transformer = vertical_reference_transformer(
-            self.crs, self.vertical_datum, vertical_datum
+        conversion_array = utils.spatial.transform_surface_level(
+            self.header["geometry"],
+            self.crs,
+            self.vertical_datum,
+            vertical_datum,
         )
+        if any(pd.isna(conversion_array)):
+            warnings.warn(
+                "Some surface levels are NaN as they could not be transformed because "
+                "they fall outside the extent of the conversion raster."
+            )
 
-        if surface := columns.get("surface"):
-            _, _, new_surface = transformer.transform(x, y, self.data[surface])
-            data[surface] = new_surface
+        if inplace:
+            header = self.header
+            data = self.data
+            self._vertical_datum = (
+                CRS.from_user_input(vertical_datum) if vertical_datum else None
+            )
+        else:
+            header = self.header.copy()
+            data = self.data.copy()
 
-        if end := columns.get("end"):
-            _, _, new_end = transformer.transform(x, y, self.data[end])
-            data[end] = new_end
+        header[level_columns] += conversion_array.reshape(-1, 1)
+        converted_levels = pd.merge(
+            data.drop(columns=level_columns, errors="ignore"),
+            header[level_columns + [self._nr]],
+            on=self._nr,
+            how="left",
+        )[[*level_columns]]
+        data[level_columns] = converted_levels.to_numpy()
 
-        self.data = data
-        self.set_vertical_datum(vertical_datum)
+        if not inplace:
+            return self.__class__(
+                data,
+                header=header,
+                vertical_datum=vertical_datum,
+                metadata=self.metadata,
+            )
 
     def reset_header(self):
         """
@@ -968,6 +1068,7 @@ class Collection(AbstractBase):
             selected_data,
             header=selected_header,
             vertical_datum=self.vertical_datum,
+            metadata=self.metadata,
         )
 
     @_requires_geometry
@@ -1015,6 +1116,7 @@ class Collection(AbstractBase):
             selected_data,
             header=selected_header,
             vertical_datum=self.vertical_datum,
+            metadata=self.metadata,
         )
 
     @_requires_geometry
@@ -1056,6 +1158,7 @@ class Collection(AbstractBase):
             selected_data,
             header=selected_header,
             vertical_datum=self.vertical_datum,
+            metadata=self.metadata,
         )
 
     @_requires_geometry
@@ -1097,6 +1200,7 @@ class Collection(AbstractBase):
             selected_data,
             header=selected_header,
             vertical_datum=self.vertical_datum,
+            metadata=self.metadata,
         )
 
     @_requires_geometry
@@ -1296,6 +1400,7 @@ class Collection(AbstractBase):
             selected_data,
             header=selected_header,
             vertical_datum=self.vertical_datum,
+            metadata=self.metadata,
         )
 
     def select_by_length(
@@ -1338,6 +1443,7 @@ class Collection(AbstractBase):
             selected_data,
             header=selected_header,
             vertical_datum=self.vertical_datum,
+            metadata=self.metadata,
         )
 
     def select_by_values(
@@ -1409,6 +1515,7 @@ class Collection(AbstractBase):
             selected_data,
             header=selected_header,
             vertical_datum=self.vertical_datum,
+            metadata=self.metadata,
         )
 
     @_requires_depth
@@ -1512,6 +1619,7 @@ class Collection(AbstractBase):
             selected_data,
             header=selected_header,
             vertical_datum=self.vertical_datum,
+            metadata=self.metadata,
         )
 
     def slice_by_values(
@@ -1577,6 +1685,7 @@ class Collection(AbstractBase):
             selected_data,
             header=selected_header,
             vertical_datum=self.vertical_datum,
+            metadata=self.metadata,
         )
 
     def select_by_condition(self, condition: Any, invert: bool = False):
@@ -1627,6 +1736,7 @@ class Collection(AbstractBase):
             selected_data,
             header=selected_header,
             vertical_datum=self.vertical_datum,
+            metadata=self.metadata,
         )
 
     @_requires_depth
@@ -1699,6 +1809,7 @@ class Collection(AbstractBase):
             new_data,
             header=self.header.copy(),
             vertical_datum=self.vertical_datum,
+            metadata=self.metadata,
         )
 
     @_requires_depth
@@ -1838,6 +1949,7 @@ class Collection(AbstractBase):
             new_data,
             header=self.header.copy(),
             vertical_datum=self.vertical_datum,
+            metadata=self.metadata,
         )
 
     @_requires_depth
@@ -2084,6 +2196,7 @@ class Collection(AbstractBase):
             discretized,
             header=header,
             vertical_datum=self.vertical_datum,
+            metadata=self.metadata,
         )
 
     @_requires_depth
@@ -2156,6 +2269,7 @@ class Collection(AbstractBase):
                 combined_data,
                 header=self.header,
                 vertical_datum=self.vertical_datum,
+                metadata=self.metadata,
             )
 
     def to_geoparquet(self, outfile: str | Path, **kwargs):

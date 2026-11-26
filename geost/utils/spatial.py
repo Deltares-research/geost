@@ -4,9 +4,12 @@ from pathlib import Path
 import geopandas as gpd
 import numpy as np
 import pandas as pd
+import rioxarray
 import xarray as xr
+from pyproj import CRS
 
 from geost.utils import conversion
+from geost.utils.vertical_transformations import VERTICAL_DATUM_CONVERSIONS
 
 
 def get_points_along_lines(
@@ -320,3 +323,30 @@ def get_raster_values(
     surface_levels[outside_x | outside_y] = np.nan
 
     return surface_levels
+
+
+def transform_surface_level(
+    points,
+    horizontal_epsg,
+    vertical_epsg_from,
+    vertical_epsg_to,
+):
+    vertical_epsg_from = CRS.from_user_input(vertical_epsg_from).to_epsg()
+    vertical_epsg_to = CRS.from_user_input(vertical_epsg_to).to_epsg()
+
+    # Determine the conversion key
+    converter_key = f"EPSG:{vertical_epsg_from}>EPSG:{vertical_epsg_to}"
+    if converter_key not in VERTICAL_DATUM_CONVERSIONS:
+        raise ValueError(f"No conversion available for {converter_key}")
+    conversion_values = VERTICAL_DATUM_CONVERSIONS[converter_key]
+
+    if isinstance(conversion_values, float):
+        return np.full(points.shape[0], conversion_values)
+    elif isinstance(conversion_values, xr.DataArray):
+        conversion_values = conversion_values.rio.reproject(horizontal_epsg)
+        conversion_values = get_raster_values(
+            x=points.x,
+            y=points.y,
+            raster_to_read=conversion_values,
+        )
+        return conversion_values
