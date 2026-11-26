@@ -59,6 +59,7 @@ Generic
 
    Collection.add_columns
    Collection.add_header_column_to_data
+   Collection.rename
    Collection.reset_header
    Collection.synchronize_tables
 

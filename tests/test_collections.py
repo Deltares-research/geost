@@ -1,3 +1,4 @@
+import re
 import warnings
 from pathlib import Path
 
@@ -551,6 +552,65 @@ class TestCollection:
         selection = borehole_collection.get(["A", "B"])
         assert list(selection.header["nr"].unique()) == ["A", "B"]
         assert_array_equal(selection.data["nr"].unique(), ["A", "B"])
+
+    @pytest.mark.unittest
+    def test_rename(self, borehole_collection):
+        result = borehole_collection.rename({"x": "xco"})
+        assert isinstance(result, Collection)
+        assert result.positional_columns == {
+            "nr": "nr",
+            "surface": "surface",
+            "end": "end",
+            "x": "xco",
+            "y": "y",
+            "top": "top",
+            "depth": "bottom",
+        }
+        assert_array_equal(
+            result.header.columns, ["nr", "xco", "y", "surface", "end", "geometry"]
+        )
+        assert_array_equal(
+            result.data.columns,
+            ["nr", "xco", "y", "surface", "end", "top", "bottom", "lith"],
+        )
+
+    @pytest.mark.unittest
+    def test_rename_inplace(self, borehole_collection):
+        assert borehole_collection.rename({"x": "xco"}, inplace=True) is None
+        assert borehole_collection.positional_columns == {
+            "nr": "nr",
+            "surface": "surface",
+            "end": "end",
+            "x": "xco",
+            "y": "y",
+            "top": "top",
+            "depth": "bottom",
+        }
+        assert_array_equal(
+            borehole_collection.header.columns,
+            ["nr", "xco", "y", "surface", "end", "geometry"],
+        )
+        assert_array_equal(
+            borehole_collection.data.columns,
+            ["nr", "xco", "y", "surface", "end", "top", "bottom", "lith"],
+        )
+
+    @pytest.mark.unittest
+    def test_rename_error(self, borehole_collection):
+        result = borehole_collection.rename(
+            {"not_existing_column": "xco"}, ignore_errors=True
+        )
+        assert isinstance(result, Collection)
+        assert id(result) != id(borehole_collection)
+        assert result.positional_columns == borehole_collection.positional_columns
+        assert_array_equal(result.header.columns, borehole_collection.header.columns)
+        assert_array_equal(result.data.columns, borehole_collection.data.columns)
+
+        with pytest.raises(
+            KeyError,
+            match=re.escape("['not_existing_column'] not found in header and data."),
+        ):
+            borehole_collection.rename({"not_existing_column": "xco"})
 
     @pytest.mark.unittest
     def test_add_header_column_to_data(self, borehole_collection):

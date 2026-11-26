@@ -686,6 +686,63 @@ class Collection(AbstractBase):
             vertical_datum=self.vertical_datum,
         )
 
+    def rename(self, columns: dict, ignore_errors: bool = False, inplace: bool = False):
+        """
+        Rename columns in both the header and data tables of the collection.
+
+        Parameters
+        ----------
+        columns : dict
+            Mapping of current column names to new column names. Columns that only exist
+            in one of the two tables are renamed in that table only.
+        ignore_errors : bool, optional
+            If False, a KeyError is raised when column names cannot be found in the
+            header and data tables. The default is False.
+        inplace : bool, optional
+            If True, the collection is updated in place and None is returned. If False,
+            a new collection is returned. The default is False.
+
+        Returns
+        -------
+        :class:`~geost.base.Collection` | None
+            New Collection instance with renamed columns, or None if ``inplace`` is True.
+
+        Raises
+        ------
+        KeyError
+            If column names are not found in the header and data tables and
+            ``ignore_errors`` is False.
+
+        Examples
+        --------
+        Rename the "top" column to "upper_boundary" in the collection:
+
+        >>> collection.rename({"top": "upper_boundary"})
+
+        """
+        not_in_header = set(columns).difference(self.header.columns)
+        not_in_data = set(columns).difference(self.data.columns)
+
+        if not_in_header and not_in_data and not ignore_errors:
+            raise KeyError(
+                f"{list(not_in_header | not_in_data)} not found in header and data."
+            )
+
+        header_renamed = self.header.rename(columns=columns, errors="ignore")
+        data_renamed = self.data.rename(columns=columns, errors="ignore")
+
+        if inplace:
+            self._header = header_renamed
+            self._data = data_renamed
+            return None
+
+        return self.__class__(
+            data_renamed,
+            header=header_renamed,
+            has_inclined=self.has_inclined,
+            vertical_datum=self.vertical_datum,
+        )
+
     @_requires_geometry
     def set_crs(self, crs: str | int | CRS, allow_override: bool = False) -> None:
         """
