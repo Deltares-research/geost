@@ -56,6 +56,9 @@ Homepage = "https://github.com/Deltares-research/geost"
 Repository = "https://github.com/Deltares-research/geost"
 Issues = "https://github.com/Deltares-research/geost/issues"
 
+[project.scripts]
+geost = "cli:app"
+
 [tool.hatch.version]
 path = "geost/__init__.py"
 
@@ -102,6 +105,7 @@ pre-commit = "*"
 platformdirs = "*"
 pyinstrument = "*"
 xyzservices = "*"
+typer-slim = "*"
 
 [tool.pixi.pypi-dependencies]
 geost = { path = ".", editable = true }

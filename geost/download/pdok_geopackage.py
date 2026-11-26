@@ -4,6 +4,7 @@ import zipfile
 from contextlib import closing
 from enum import IntEnum
 from pathlib import Path
+from typing import Literal
 from urllib.parse import urlparse
 from xml.etree import ElementTree as ET
 
@@ -28,12 +29,59 @@ class GPKGApplicationIDs(IntEnum):
 
 
 def download(
-    type_: str,
+    type_: Literal["BHR-GT", "BHR-G", "BHR-P", "CPT", "SFR"],
     savedir: str | Path,
     delete_zip: bool = True,
     chunk_size_mb: int = 1 << 20,
     timeout: int = 60,
 ):
+    """
+    Download a BRO GeoPackage from PDOK for the given dataset type.
+
+    The download link is looked up in the PDOK ATOM feed. If the downloaded file is a
+    zip archive, the .gpkg file is extracted from it.
+
+    Parameters
+    ----------
+    type_ : {"BHR-GT", "BHR-G", "BHR-P", "CPT", "SFR"}
+        Dataset type to download: geotechnical boreholes (BHR-GT), geological boreholes
+        (BHR-G), pedological boreholes (BHR-P), cone penetration tests (CPT) or
+        soil profile wall investigations (SFR).
+    savedir : str | Path
+        Directory to save the file to. It is created if it does not exist.
+    delete_zip : bool, optional
+        Whether to delete the zip file after extracting the GeoPackage. Only relevant if
+        the download is a zip file. The default is True.
+    chunk_size_mb : int, optional
+        Size of the chunks used while streaming the download. Note that despite the name,
+        the value is passed as a number of bytes. The default is 1 << 20 (1 MiB).
+    timeout : int, optional
+        Timeout in seconds for the download request. The default is 60.
+
+    Returns
+    -------
+    Path
+        Path to the downloaded GeoPackage.
+
+    Raises
+    ------
+    KeyError
+        If ``type_`` is not a known dataset type.
+    ValueError
+        If the downloaded zip file does not contain a .gpkg file.
+
+    Warns
+    -----
+    UserWarning
+        If the file is not recognized as a GeoPackage 1.0, 1.1 or 1.2+ file.
+
+    Examples
+    --------
+    Download the CPT GeoPackage to a local folder:
+
+    >>> gpkg = download("CPT", "data/bro")
+
+    """
     savedir = Path(savedir)
     savedir.mkdir(exist_ok=True, parents=True)
 
@@ -115,12 +163,20 @@ def _get_xml(url, timeout=30) -> ET.Element:
 
 
 def is_valid(path: str | Path) -> bool:
+    """
+    Check whether a file is a GeoPackage by reading its SQLite application ID.
+
+    """
     with closing(sqlite3.connect(path)) as con:
         application_id = con.execute("PRAGMA application_id").fetchone()[0]
     return application_id in GPKGApplicationIDs
 
 
 def _download_url(url: str, outfile: Path, timeout: int, chunk_size_mb: int) -> Path:
+    """
+    Stream a URL to ``outfile`` via a temporary .part file and return ``outfile``.
+
+    """
     tmp = outfile.with_name(f"{outfile.name}.part")
 
     with requests.get(url, stream=True, timeout=timeout) as r:
@@ -134,6 +190,10 @@ def _download_url(url: str, outfile: Path, timeout: int, chunk_size_mb: int) -> 
 
 
 def create_bro_index(gpkg: str | Path, sql: str) -> None:
+    """
+    Execute a (CREATE INDEX) SQL statement on the GeoPackage and update statistics.
+
+    """
     with closing(sqlite3.connect(gpkg)) as con:
         con.execute(sql)
         con.execute("ANALYZE")
@@ -141,6 +201,10 @@ def create_bro_index(gpkg: str | Path, sql: str) -> None:
 
 
 def write_fk_index(gpkg) -> None:
+    """
+    Create an index on every foreign key column of the user tables in the GeoPackage.
+
+    """
     with closing(sqlite3.connect(gpkg)) as con:
         tables = [
             r[0]
