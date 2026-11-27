@@ -1017,10 +1017,18 @@ class GeostFrame(AbstractBase):
             "either a string\n, an iterable, or a slice for numerical values."
         )
 
-    @_select_by_values.register(int | float | str)
+    @staticmethod
+    def _match(series: pd.Series, value: Any) -> pd.Series:
+        if pd.api.types.is_scalar(value) and pd.isna(value):
+            return series.isna()
+        return series == value
+
+    @_select_by_values.register(int | float | str | type(None))
+    @_select_by_values.register(type(pd.NA))
+    @_select_by_values.register(type(pd.NaT))
     def _(self, values, column, *_) -> pd.DataFrame:
         selected = self._obj
-        valid = selected[self._nr][selected[column] == values].unique()
+        valid = selected[self._nr][self._match(selected[column], values)].unique()
         selected = selected[selected[self._nr].isin(valid)]
         return selected
 
@@ -1030,12 +1038,19 @@ class GeostFrame(AbstractBase):
     def _(self, values, column, how, _) -> pd.DataFrame:
         selected = self._obj
         if how == "or":
-            valid = selected[self._nr][selected[column].isin(values)].unique()
+            matches = selected[column].isin(values)
+            if any(
+                pd.api.types.is_scalar(value) and pd.isna(value) for value in values
+            ):
+                matches |= selected[column].isna()
+            valid = selected[self._nr][matches].unique()
             selected = selected[selected[self._nr].isin(valid)]
 
         elif how == "and":
             for value in values:
-                valid = selected[self._nr][selected[column] == value].unique()
+                valid = selected[self._nr][
+                    self._match(selected[column], value)
+                ].unique()
                 selected = selected[selected[self._nr].isin(valid)]
         return selected
 

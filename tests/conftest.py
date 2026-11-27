@@ -145,6 +145,26 @@ def borehole_collection(borehole_data):
 
 
 @pytest.fixture
+def borehole_collection_mixed_vdat(borehole_collection):
+    """
+    Fixture containing a Collection instance of synthetic borehole data with mixed
+    vertical datums.
+
+    """
+    borehole_collection = borehole_collection.copy()
+    borehole_collection._vertical_datum = None
+    borehole_collection.header["vertical_datum"] = [
+        "EPSG:5709",
+        None,
+        "EPSG:5709",
+        "EPSG:5710",
+        "EPSG:5710",
+    ]
+
+    return borehole_collection
+
+
+@pytest.fixture
 def nlog_borehole_collection(nlog_borehole_file):
     nlog_borehole_collection = read_nlog_cores(nlog_borehole_file)
     return nlog_borehole_collection

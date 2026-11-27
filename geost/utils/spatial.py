@@ -340,7 +340,7 @@ def transform_surface_level(
         raise ValueError(f"No conversion available for {converter_key}")
     conversion_values = VERTICAL_DATUM_CONVERSIONS[converter_key]
 
-    if isinstance(conversion_values, float):
+    if isinstance(conversion_values, (int, float)):
         return np.full(points.shape[0], conversion_values)
     elif isinstance(conversion_values, xr.DataArray):
         conversion_values = conversion_values.rio.reproject(horizontal_epsg)

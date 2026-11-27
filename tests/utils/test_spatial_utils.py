@@ -101,6 +101,42 @@ class TestSpatialUtils:
         )
 
 
+@pytest.fixture
+def surface_points():
+    return gpd.GeoSeries(
+        gpd.points_from_xy([0.5, 1.5, 10.5], [0.5, 1.5, 10.5]),
+        crs=28992,
+    )
+
+
+@pytest.mark.unittest
+@pytest.mark.parametrize("value", [2.33, 0])
+def test_transform_surface_level_constant(monkeypatch, surface_points, value):
+    monkeypatch.setitem(
+        spatial.VERTICAL_DATUM_CONVERSIONS, "EPSG:5709>EPSG:5710", value
+    )
+    result = spatial.transform_surface_level(surface_points, 28992, 5709, "EPSG:5710")
+    assert_allclose(result, np.full(3, value))
+
+
+@pytest.mark.unittest
+def test_transform_surface_level_grid(monkeypatch, surface_points):
+    grid = xr.DataArray(
+        np.array([[1.0, 2.0], [3.0, 4.0]]),
+        coords={"y": [1.5, 0.5], "x": [0.5, 1.5]},
+        dims=("y", "x"),
+    ).rio.write_crs(28992)
+    monkeypatch.setitem(spatial.VERTICAL_DATUM_CONVERSIONS, "EPSG:5709>EPSG:5861", grid)
+    result = spatial.transform_surface_level(surface_points, 28992, 5709, 5861)
+    assert_allclose(result, [3.0, 2.0, np.nan])
+
+
+@pytest.mark.unittest
+def test_transform_surface_level_unknown_conversion(surface_points):
+    with pytest.raises(ValueError, match="No conversion available"):
+        spatial.transform_surface_level(surface_points, 28992, 5709, 5709)
+
+
 @pytest.mark.unittest
 def test_get_points_along_lines(two_lines):
     dist = 0.4

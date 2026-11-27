@@ -569,6 +569,13 @@ class TestCollection:
         assert_array_equal(selection.data["nr"].unique(), ["A", "B"])
 
     @pytest.mark.unittest
+    @pytest.mark.parametrize("missing", [None, np.nan])
+    def test_get_missing_values(self, borehole_collection, missing):
+        borehole_collection.header["group"] = ["x", "x", None, "y", None]
+        selection = borehole_collection.get(missing, column="group")
+        assert list(selection.header["nr"]) == ["C", "E"]
+
+    @pytest.mark.unittest
     def test_add_header_column_to_data(self, borehole_collection):
         borehole_collection.header["test_data"] = [
             i for i in range(len(borehole_collection.header))
@@ -580,11 +587,22 @@ class TestCollection:
 
     # TODO: elaborate testing of vertical datum transformations, including edge cases and error handling
     @pytest.mark.unittest
-    def test_set_vertical_datum(self, borehole_collection):
+    def test_set_vertical_datum(
+        self, borehole_collection, borehole_collection_mixed_vdat
+    ):
+        # Uniform vertical datum setting
         borehole_collection.set_vertical_datum(None)
         assert borehole_collection.vertical_datum is None
         borehole_collection.set_vertical_datum(5709)
         assert borehole_collection.vertical_datum == 5709
+
+        # Mixed vertical datum setting
+        borehole_collection_mixed_vdat.set_vertical_datum(5709)
+        assert borehole_collection_mixed_vdat.vertical_datum == 5709
+        # Cant assert with ordered array because a set is used in the function
+        assert -2.23 in borehole_collection_mixed_vdat.header["surface"].values
+        borehole_collection_mixed_vdat.set_vertical_datum(None)
+        assert borehole_collection_mixed_vdat.vertical_datum is None
 
     @pytest.mark.unittest
     def test_set_vertical_datum_not_inplace(self, borehole_collection):
@@ -600,14 +618,14 @@ class TestCollection:
         original_header = borehole_collection.header.copy()
         original_data = borehole_collection.data.copy()
 
-        borehole_collection.to_vertical_datum(9287)
+        borehole_collection.to_vertical_datum(5710)
         assert np.isclose(
             borehole_collection.header["surface"] - original_header["surface"], 2.33
         ).all()
         assert np.isclose(
             borehole_collection.data["surface"] - original_data["surface"], 2.33
         ).all()
-        assert borehole_collection.vertical_datum == 9287
+        assert borehole_collection.vertical_datum == 5710
 
     @pytest.mark.unittest
     def test_set_crs(self, borehole_collection):

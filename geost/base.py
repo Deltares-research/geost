@@ -845,7 +845,7 @@ class Collection(AbstractBase):
     @_requires_surface
     def set_vertical_datum(
         self, vertical_datum: str | int | CRS, inplace: bool = True
-    ) -> None:
+    ) -> None | Collection:
         """
         Set the vertical datum of the collection's surface levels. This can be used if
         the current vertical datum is None and you want to set the vertical datum
@@ -884,6 +884,8 @@ class Collection(AbstractBase):
 
         # Helper function to convert a datum to a CRS instance.
         def _as_crs(datum):
+            if pd.isna(datum):
+                return None
             return CRS.from_user_input(datum) if datum else None
 
         # If however there is a "vertical_datum" column, then we need to handle each
@@ -895,8 +897,9 @@ class Collection(AbstractBase):
             for survey_vdatum in survey_vdatums:
                 col = self.get(survey_vdatum, "vertical_datum")
                 col._vertical_datum = _as_crs(survey_vdatum)
-                if col._vertical_datum != vertical_datum:
+                if col._vertical_datum != vertical_datum and not pd.isna(survey_vdatum):
                     col.to_vertical_datum(vertical_datum)
+                col._vertical_datum = _as_crs(vertical_datum)
                 collections.append(col)
             uniform_collection = geost.concat(collections)
         else:

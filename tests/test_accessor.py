@@ -443,13 +443,6 @@ class TestGeostFrame:
         ):
             point_header.drop(columns="geometry").gst.to_crs(4326)
 
-    @pytest.mark.skip("This test is for a method that is not yet implemented.")
-    def test_to_vertical_datum(self, point_header):
-        result = point_header.gst.to_vertical_datum(5710)
-        assert isinstance(result, gpd.GeoDataFrame)
-        assert np.isclose(result["surface"] - point_header["surface"], 2.28234).all()
-        assert np.isclose(result["end"] - point_header["end"], 2.28234).all()
-
     @pytest.mark.unittest
     def test_transform_coordinates(self, nlog_borehole_collection):
         data = nlog_borehole_collection.data.iloc[:2]
@@ -871,6 +864,25 @@ class TestGeostFrame:
             TypeError, match="Can only use a slice selection on numerical columns."
         ):
             borehole_data.gst.select_by_values("lith", slice(0, 1))
+
+    @pytest.mark.unittest
+    @pytest.mark.parametrize("missing", [None, np.nan, pd.NA])
+    def test_select_by_values_missing(self, borehole_data, missing):
+        data = borehole_data.copy()
+        data["lith"] = data["lith"].astype(object)
+        data.loc[data["nr"] == "E", "lith"] = None
+
+        selected = data.gst.select_by_values("lith", missing)
+        assert_array_equal(selected["nr"].unique(), ["E"])
+
+        selected = data.gst.select_by_values("lith", [missing, "V"], how="and")
+        assert selected.empty
+
+        selected = data.gst.select_by_values("lith", [missing, "V"], how="or")
+        assert "E" in selected["nr"].unique()
+
+        selected = data.gst.select_by_values("lith", missing, invert=True)
+        assert "E" not in selected["nr"].unique()
 
     @pytest.mark.unittest
     def test_slice_by_values(self, borehole_data):
